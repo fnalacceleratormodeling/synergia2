@@ -1,0 +1,3537 @@
+{name: debunch, type: Mad8, 
+ reference_particle: 
+     {four_momentum: 
+         {mass: 0.938272046, gamma: 9.4611258523188}, charge: 1}, 
+ elements: 
+     {{type: marker, name: mstr, 
+     ancestors: 
+         {debunch}}, 
+      {type: quadrupole, name: hqf1, 
+       {k1: 0.388200201017769, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: drift, name: dr45, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: drift, name: dr56, 
+       {l: 3.486159}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: drift, name: dr67, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, straight60}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcfdds}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcfdds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drb, 
+       {l: 1.07474}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcdfds}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcdfds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcdfds}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcfdmt}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcdfmt}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant60, arc, hcfd1920}}, 
+      {type: marker, name: marc, 
+      ancestors: 
+          {debunch}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcdfmt}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcfdmt}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcdfds}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcdfds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcdfds}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drb, 
+       {l: 1.07474}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcfdds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcfdds}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: drift, name: dr67, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: drift, name: dr56, 
+       {l: 3.486159}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: multipole, name: ddd_50_3, 
+       {k2l: -6.79232759609588}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: drift, name: dr45, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: multipole, name: ddd_50_2, 
+       {k2l: 6.79232759609588}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: multipole, name: ddd_50_1, 
+       {k2l: -6.79232759609588}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: quadrupole, name: hqf1, 
+       {k1: 0.388200201017769, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant50, straight50}}, 
+      {type: marker, name: mstr, 
+      ancestors: 
+          {debunch}}, 
+      {type: quadrupole, name: hqf1, 
+       {k1: 0.388200201017769, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: drift, name: dr45, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: drift, name: dr56, 
+       {l: 3.486159}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: drift, name: dr67, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, straight40}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcfdds}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcfdds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drb, 
+       {l: 1.07474}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcdfds}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcdfds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcdfds}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcfdmt}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcdfmt}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant40, arc, hcfd1920}}, 
+      {type: marker, name: marc, 
+      ancestors: 
+          {debunch}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcdfmt}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcfdmt}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcdfds}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcdfds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcdfds}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drb, 
+       {l: 1.07474}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcfdds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcfdds}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: drift, name: dr67, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: drift, name: dr56, 
+       {l: 3.486159}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: drift, name: dr45, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: quadrupole, name: hqf1, 
+       {k1: 0.388200201017769, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant30, straight30}}, 
+      {type: marker, name: mstr, 
+      ancestors: 
+          {debunch}}, 
+      {type: quadrupole, name: hqf1, 
+       {k1: 0.388200201017769, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: multipole, name: ddd_20_1, 
+       {k2l: -6.79232759609588}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: multipole, name: ddd_20_2, 
+       {k2l: 6.79232759609588}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: drift, name: dr45, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: multipole, name: ddd_20_3, 
+       {k2l: -6.79232759609588}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: drift, name: dr56, 
+       {l: 3.486159}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: drift, name: dr67, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, straight20}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcfdds}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcfdds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcfdds}}, 
+      {type: drift, name: drb, 
+       {l: 1.07474}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcfdds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcdfds}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcdfds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcdfds}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcdfds}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcfdmt}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcdfmt}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant20, arc, hcfd1920}}, 
+      {type: marker, name: marc, 
+      ancestors: 
+          {debunch}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, hcfd1920}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcdf}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drba, 
+       {l: 0.655667}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, arc, fcell, hcfd}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcdfmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcdfmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcdfmt}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcdfmt}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sd, 
+       {k2: 1.09636284232465, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drmt, 
+       {l: 2.940109}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcfdmt}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcfdmt}}, 
+      {type: drift, name: drms, 
+       {l: 0.07935}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcfdmt}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, fmtcell, hcfdmt}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, hcdfds}}, 
+      {type: drift, name: drsq, 
+       {l: 0.21905}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, hcdfds}}, 
+      {type: sextupole, name: sf, 
+       {k2: -0.715511600149476, l: 0.187325}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, hcdfds}}, 
+      {type: drift, name: drbb, 
+       {l: 0.668367}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, hcdfds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, hcdfds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, hcdfds}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, hcdfds}}, 
+      {type: quadrupole, name: hqd, 
+       {k1: -0.352562895819333, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, sp_hcfdds}}, 
+      {type: drift, name: drb, 
+       {l: 1.07474}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, sp_hcfdds}}, 
+      {type: sbend, name: bdb, 
+       {angle: -0.0951997773815089, e1: -0.0475998886907544, e2: -0.0475998886907544, l: 1.616075}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, sp_hcfdds}}, 
+      {type: drift, name: drds, 
+       {l: 0.922342}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, sp_hcfdds}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, sp_hcfdds}}, 
+      {type: marker, name: e_septum, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, sp_hcfdds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, sp_suppress, sp_fdscell, sp_hcfdds}}, 
+      {type: quadrupole, name: hqf, 
+       {k1: 0.355348089750112, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: drift, name: dr67, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqd3, 
+       {k1: -0.291820027091673, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: drift, name: dr56, 
+       {l: 3.486159}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqf3, 
+       {k1: 0.310375715158343, l: 0.396875}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: drift, name: dr45, 
+       {l: 3.549659}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqd2, 
+       {k1: -0.372748334969411, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: drift, name: dr14_a, 
+       {l: 1.8065795}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: marker, name: lambertson, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: drift, name: dr14_b, 
+       {l: 1.8065795}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqf2, 
+       {k1: 0.380534380092815, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: vmonitor, name: vbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqd1, 
+       {k1: -0.389874849386587, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: drift, name: dr14, 
+       {l: 3.613159}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: hmonitor, name: hbpm, 
+       {l: 0.1524}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}, 
+      {type: quadrupole, name: hqf1, 
+       {k1: 0.388200201017769, l: 0.333375}, 
+      ancestors: 
+          {debunch, sextant10, straight10}}}}

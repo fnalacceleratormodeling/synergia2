@@ -1,0 +1,1037 @@
+{name: model, type: Mad8, 
+ reference_particle: 
+     {four_momentum: 
+         {mass: 0.938272046, gamma: 10.7047005296025}, charge: 1}, 
+ elements: 
+     {{type: quadrupole, name: f, 
+      {k1: 0.714285714285714, l: 0.2}, 
+     ancestors: 
+         {model, fobrdobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: drift, name: os, 
+       {l: 1.47}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: rfcavity, name: r, 
+       {harmon: 128, l: 0, lag: 0.5, volt: 5}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: drift, name: os, 
+       {l: 1.47}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobrdobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: f, 
+       {k1: 0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: quadrupole, name: d, 
+       {k1: -0.714285714285714, l: 0.2}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: sbend, name: b, 
+       {angle: 0.098174770424681, l: 3.92}, 
+      ancestors: 
+          {model, fobodobo}}, 
+      {type: drift, name: o, 
+       {l: 2.94}, 
+      ancestors: 
+          {model, fobodobo}}}}

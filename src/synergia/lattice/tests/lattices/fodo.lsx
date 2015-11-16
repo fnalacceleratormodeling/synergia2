@@ -1,0 +1,4 @@
+{name: fodo, type: Mad8, 
+ reference_particle: 
+     {four_momentum: 
+         {mass: 0.938272046, gamma: 1.59868345901888}, charge: 1}}

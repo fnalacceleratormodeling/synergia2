@@ -1,6 +1,0 @@
-#!/bin/sh
-
-cd "`dirname $0`" && \
-synmad8toxml booster_classic.lat booster fnal_booster.xml
-synmad8toxml Debunch_modified.lat debunch fnal_debuncher.xml
-synmad8toxml mi20-egs.lat ring_p_q605 fnal_main_injector.xml

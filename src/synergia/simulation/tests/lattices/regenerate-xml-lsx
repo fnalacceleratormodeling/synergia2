@@ -1,0 +1,25 @@
+#!/bin/sh
+
+cd "`dirname $0`" && \
+/bin/rm -rf lattice_cache && \
+cd ../../../lattice/tests/lattices && \
+/bin/rm -rf lattice_cache && \
+./regenerate-xml-lsx && \
+cd ../../../simulation/tests/lattices && \
+echo "generating foborodobo32_lattice.xml"
+synergia generate_foborodobo32_xml.py
+echo "copying fnal_booster.xml from lattice/tests/lattices"
+cp ../../../lattice/tests/lattices/fnal_booster.xml .
+echo "copying fnal_debuncher.xml from lattice/tests/lattices"
+cp ../../../lattice/tests/lattices/fnal_debuncher.xml .
+echo "generating fnal_main_injector.xml"
+synergia generate_main_injector_xml.py
+
+echo "generating foborodobo32_lattice.lsx"
+synergia generate_foborodobo32_lsx.py
+echo "copying fnal_booster.lsx from lattice/tests/lattices"
+cp ../../../lattice/tests/lattices/fnal_booster.lsx .
+echo "copying fnal_debuncher.lsx from lattice/tests/lattices"
+cp ../../../lattice/tests/lattices/fnal_debuncher.lsx .
+echo "generating fnal_main_injector.lsx"
+synergia generate_main_injector_lsx.py

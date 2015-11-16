@@ -1,0 +1,2117 @@
+{name: booster, type: Mad8, 
+ reference_particle: 
+     {four_momentum: 
+         {mass: 0.938272046, gamma: 1.42632406635719}, charge: 1}, 
+ elements: 
+     {{type: sbend, name: fmagu01, 
+      {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+     ancestors: 
+         {booster, bcel01}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: sbend, name: dmagu01, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel01, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel01, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel01, bpml}}, 
+      {type: drift, name: hl01, 
+       {l: 0.075}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: drift, name: vl01, 
+       {l: 0.075}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: quadrupole, name: ql01, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: quadrupole, name: sl01, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: sbend, name: dmagd01, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: sbend, name: fmagd01, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel01, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel01, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel01, bpms}}, 
+      {type: drift, name: hs01, 
+       {l: 0.075}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: drift, name: vs01, 
+       {l: 0.075}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: quadrupole, name: qs01, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: quadrupole, name: ss01, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel01}}, 
+      {type: sbend, name: fmagu02, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: sbend, name: dmagu02, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel02, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel02, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel02, bpml}}, 
+      {type: hkicker, name: hl02, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: vkicker, name: vl02, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: quadrupole, name: ql02, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: quadrupole, name: sl02, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: sbend, name: dmagd02, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: sbend, name: fmagd02, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel02, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel02, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel02, bpms}}, 
+      {type: hkicker, name: hs02, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: vkicker, name: vs02, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: quadrupole, name: qs02, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: quadrupole, name: ss02, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel02}}, 
+      {type: sbend, name: fmagu03, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: sbend, name: dmagu03, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel03, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel03, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel03, bpml}}, 
+      {type: hkicker, name: hl03, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: vkicker, name: vl03, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: quadrupole, name: ql03, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: quadrupole, name: sl03, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: sbend, name: dmagd03, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: sbend, name: fmagd03, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel03, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel03, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel03, bpms}}, 
+      {type: hkicker, name: hs03, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: vkicker, name: vs03, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: quadrupole, name: qs03, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: quadrupole, name: ss03, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel03}}, 
+      {type: sbend, name: fmagu04, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: sbend, name: dmagu04, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel04, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel04, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel04, bpml}}, 
+      {type: hkicker, name: hl04, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: vkicker, name: vl04, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: quadrupole, name: ql04, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: quadrupole, name: sl04, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: sbend, name: dmagd04, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: sbend, name: fmagd04, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel04, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel04, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel04, bpms}}, 
+      {type: hkicker, name: hs04, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: vkicker, name: vs04, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: quadrupole, name: qs04, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: quadrupole, name: ss04, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel04}}, 
+      {type: sbend, name: fmagu05, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: sbend, name: dmagu05, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel05, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel05, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel05, bpml}}, 
+      {type: hkicker, name: hl05, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: vkicker, name: vl05, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: quadrupole, name: ql05, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: quadrupole, name: sl05, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: sbend, name: dmagd05, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: sbend, name: fmagd05, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel05, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel05, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel05, bpms}}, 
+      {type: hkicker, name: hs05, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: vkicker, name: vs05, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: quadrupole, name: qs05, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: quadrupole, name: ss05, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel05}}, 
+      {type: sbend, name: fmagu06, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: sbend, name: dmagu06, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel06, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel06, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel06, bpml}}, 
+      {type: hkicker, name: hl06, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: vkicker, name: vl06, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: quadrupole, name: ql06, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: quadrupole, name: sl06, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: sbend, name: dmagd06, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: sbend, name: fmagd06, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel06, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel06, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel06, bpms}}, 
+      {type: hkicker, name: hs06, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: vkicker, name: vs06, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: quadrupole, name: qs06, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: quadrupole, name: ss06, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel06}}, 
+      {type: sbend, name: fmagu07, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: sbend, name: dmagu07, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel07, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel07, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel07, bpml}}, 
+      {type: hkicker, name: hl07, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: vkicker, name: vl07, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: quadrupole, name: ql07, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: quadrupole, name: sl07, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: sbend, name: dmagd07, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: sbend, name: fmagd07, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel07, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel07, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel07, bpms}}, 
+      {type: hkicker, name: hs07, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: vkicker, name: vs07, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: quadrupole, name: qs07, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: quadrupole, name: ss07, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel07}}, 
+      {type: sbend, name: fmagu07, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: sbend, name: dmagu07, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel08, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel08, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel08, bpml}}, 
+      {type: hkicker, name: hl08, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: vkicker, name: vl08, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: quadrupole, name: ql08, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: quadrupole, name: sl08, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: sbend, name: dmagd07, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: sbend, name: fmagd07, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel08, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel08, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel08, bpms}}, 
+      {type: hkicker, name: hs08, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: vkicker, name: vs08, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: quadrupole, name: qs08, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: quadrupole, name: ss08, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel08}}, 
+      {type: sbend, name: fmagu09, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: sbend, name: dmagu09, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel09, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel09, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel09, bpml}}, 
+      {type: hkicker, name: hl09, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: vkicker, name: vl09, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: quadrupole, name: ql09, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: quadrupole, name: sl09, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: sbend, name: dmagd09, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: sbend, name: fmagd09, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel09, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel09, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel09, bpms}}, 
+      {type: hkicker, name: hs09, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: vkicker, name: vs09, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: quadrupole, name: qs09, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: quadrupole, name: ss09, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel09}}, 
+      {type: sbend, name: fmagu10, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: sbend, name: dmagu10, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel10, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel10, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel10, bpml}}, 
+      {type: hkicker, name: hl10, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: vkicker, name: vl10, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: quadrupole, name: ql10, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: quadrupole, name: sl10, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: sbend, name: dmagd10, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: sbend, name: fmagd10, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel10, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel10, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel10, bpms}}, 
+      {type: hkicker, name: hs10, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: vkicker, name: vs10, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: quadrupole, name: qs10, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: quadrupole, name: ss10, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel10}}, 
+      {type: sbend, name: fmagu11, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: sbend, name: dmagu11, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel11, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel11, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel11, bpml}}, 
+      {type: hkicker, name: hl11, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: vkicker, name: vl11, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: quadrupole, name: ql11, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: quadrupole, name: sl11, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: sbend, name: dmagd11, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: sbend, name: fmagd11, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel11, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel11, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel11, bpms}}, 
+      {type: hkicker, name: hs11, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: vkicker, name: vs11, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: quadrupole, name: qs11, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: quadrupole, name: ss11, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel11}}, 
+      {type: sbend, name: fmagu12, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: sbend, name: dmagu12, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel12, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel12, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel12, bpml}}, 
+      {type: hkicker, name: hl12, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: vkicker, name: vl12, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: quadrupole, name: ql12, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: quadrupole, name: sl12, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: sbend, name: dmagd12, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: sbend, name: fmagd12, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel12, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel12, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel12, bpms}}, 
+      {type: hkicker, name: hs12, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: vkicker, name: vs12, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: quadrupole, name: qs12, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: quadrupole, name: ss12, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel12}}, 
+      {type: sbend, name: fmagu13, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: sbend, name: dmagu13, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel13, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel13, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel13, bpml}}, 
+      {type: hkicker, name: hl13, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: vkicker, name: vl13, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: quadrupole, name: ql13, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: quadrupole, name: sl13, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: sbend, name: dmagd13, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: sbend, name: fmagd13, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel13, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel13, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel13, bpms}}, 
+      {type: hkicker, name: hs13, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: vkicker, name: vs13, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: quadrupole, name: qs13, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: quadrupole, name: ss13, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel13}}, 
+      {type: sbend, name: fmagu14, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: sbend, name: dmagu14, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel14, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel14, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel14, bpml}}, 
+      {type: hkicker, name: hl14, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: vkicker, name: vl14, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: quadrupole, name: ql14, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: quadrupole, name: sl14, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: sbend, name: dmagd14, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: sbend, name: fmagd14, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel14, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel14, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel14, bpms}}, 
+      {type: hkicker, name: hs14, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: vkicker, name: vs14, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: quadrupole, name: qs14, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: quadrupole, name: ss14, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel14}}, 
+      {type: sbend, name: fmagu15, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: sbend, name: dmagu15, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel15, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel15, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel15, bpml}}, 
+      {type: hkicker, name: hl15, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: vkicker, name: vl15, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: quadrupole, name: ql15, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: quadrupole, name: sl15, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: sbend, name: dmagd15, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: sbend, name: fmagd15, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel15, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel15, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel15, bpms}}, 
+      {type: hkicker, name: hs15, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: vkicker, name: vs15, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: quadrupole, name: qs15, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: quadrupole, name: ss15, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel15}}, 
+      {type: sbend, name: fmagu16, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: sbend, name: dmagu16, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel16, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel16, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel16, bpml}}, 
+      {type: hkicker, name: hl16, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: vkicker, name: vl16, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: quadrupole, name: ql16, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: quadrupole, name: sl16, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: sbend, name: dmagd16, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: sbend, name: fmagd16, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel16, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel16, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel16, bpms}}, 
+      {type: hkicker, name: hs16, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: vkicker, name: vs16, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: quadrupole, name: qs16, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: quadrupole, name: ss16, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel16}}, 
+      {type: sbend, name: fmagu17, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: sbend, name: dmagu17, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel17, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel17, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel17, bpml}}, 
+      {type: hkicker, name: hl17, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: vkicker, name: vl17, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: quadrupole, name: ql17, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: quadrupole, name: sl17, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: sbend, name: dmagd17, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: sbend, name: fmagd17, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel17, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel17, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel17, bpms}}, 
+      {type: hkicker, name: hs17, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: vkicker, name: vs17, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: quadrupole, name: qs17, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: quadrupole, name: ss17, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel17}}, 
+      {type: sbend, name: fmagu18, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: sbend, name: dmagu18, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel18, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel18, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel18, bpml}}, 
+      {type: hkicker, name: hl18, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: vkicker, name: vl18, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: quadrupole, name: ql18, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: quadrupole, name: sl18, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: sbend, name: dmagd18, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: sbend, name: fmagd18, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel18, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel18, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel18, bpms}}, 
+      {type: hkicker, name: hs18, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: vkicker, name: vs18, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: quadrupole, name: qs18, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: quadrupole, name: ss18, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel18}}, 
+      {type: sbend, name: fmagu19, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: sbend, name: dmagu19, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel19, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel19, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel19, bpml}}, 
+      {type: hkicker, name: hl19, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: vkicker, name: vl19, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: quadrupole, name: ql19, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: quadrupole, name: sl19, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: sbend, name: dmagd19, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: sbend, name: fmagd19, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel19, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel19, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel19, bpms}}, 
+      {type: hkicker, name: hs19, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: vkicker, name: vs19, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: quadrupole, name: qs19, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: quadrupole, name: ss19, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel19}}, 
+      {type: sbend, name: fmagu20, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: sbend, name: dmagu20, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel20, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel20, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel20, bpml}}, 
+      {type: hkicker, name: hl20, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: vkicker, name: vl20, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: quadrupole, name: ql20, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: quadrupole, name: sl20, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: sbend, name: dmagd20, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: sbend, name: fmagd20, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel20, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel20, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel20, bpms}}, 
+      {type: hkicker, name: hs20, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: vkicker, name: vs20, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: quadrupole, name: qs20, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: quadrupole, name: ss20, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel20}}, 
+      {type: sbend, name: fmagu21, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: sbend, name: dmagu21, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel21, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel21, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel21, bpml}}, 
+      {type: hkicker, name: hl21, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: vkicker, name: vl21, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: quadrupole, name: ql21, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: quadrupole, name: sl21, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: sbend, name: dmagd21, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: sbend, name: fmagd21, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel21, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel21, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel21, bpms}}, 
+      {type: hkicker, name: hs21, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: vkicker, name: vs21, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: quadrupole, name: qs21, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: quadrupole, name: ss21, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel21}}, 
+      {type: sbend, name: fmagu22, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: sbend, name: dmagu22, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel22, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel22, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel22, bpml}}, 
+      {type: hkicker, name: hl22, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: vkicker, name: vl22, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: quadrupole, name: ql22, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: quadrupole, name: sl22, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: sbend, name: dmagd22, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: sbend, name: fmagd22, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel22, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel22, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel22, bpms}}, 
+      {type: hkicker, name: hs22, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: vkicker, name: vs22, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: quadrupole, name: qs22, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: quadrupole, name: ss22, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel22}}, 
+      {type: sbend, name: fmagu23, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: sbend, name: dmagu23, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel23, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel23, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel23, bpml}}, 
+      {type: hkicker, name: hl23, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: vkicker, name: vl23, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: quadrupole, name: ql23, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: quadrupole, name: sl23, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: sbend, name: dmagd23, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: sbend, name: fmagd23, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel23, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel23, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel23, bpms}}, 
+      {type: hkicker, name: hs23, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: vkicker, name: vs23, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: quadrupole, name: qs23, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: quadrupole, name: ss23, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel23}}, 
+      {type: sbend, name: fmagu24, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: sbend, name: dmagu24, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: drift, name: longa, 
+       {l: 3}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: drift, name: longbu, 
+       {l: 2.5174}, 
+      ancestors: 
+          {booster, bcel24, bpml}}, 
+      {type: monitor, name: bpmlhv, 
+      ancestors: 
+          {booster, bcel24, bpml}}, 
+      {type: drift, name: longbd, 
+       {l: 0.1826}, 
+      ancestors: 
+          {booster, bcel24, bpml}}, 
+      {type: hkicker, name: hl24, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: vkicker, name: vl24, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: quadrupole, name: ql24, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: quadrupole, name: sl24, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: sbend, name: dmagd24, 
+       {angle: 0.0601576383395095, e1: 0, e2: 0, k1: -0.0577069, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: drift, name: space, 
+       {l: 0.5}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: sbend, name: fmagd24, 
+       {angle: 0.0707423311381497, e1: 0, e2: 0, k1: 0.0542195, l: 2.889612}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel24, bpms}}, 
+      {type: monitor, name: bpmshv, 
+      ancestors: 
+          {booster, bcel24, bpms}}, 
+      {type: drift, name: hshort, 
+       {l: 0.45}, 
+      ancestors: 
+          {booster, bcel24, bpms}}, 
+      {type: hkicker, name: hs24, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: vkicker, name: vs24, 
+       {kick: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: quadrupole, name: qs24, 
+       {k1: 0, l: 0.075}, 
+      ancestors: 
+          {booster, bcel24}}, 
+      {type: quadrupole, name: ss24, 
+      double_attributes: 
+          {k1: 0, l: 0.075}, 
+      string_attributes: 
+          {tilt: }, 
+      ancestors: 
+          {booster, bcel24}}}}
