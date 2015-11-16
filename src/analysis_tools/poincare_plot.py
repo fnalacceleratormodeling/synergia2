@@ -62,7 +62,7 @@ def handle_args(args):
             elif arg.find('--index') == 0:
                 indices = arg.split('=')[1]
                 for index in indices.split(','):
-                    options.indices.append(index)
+                    options.indices.append(int(index))
             elif arg.find('--pointsize') == 0:
                 options.point_size = arg.split('=')[1]
             elif arg == '--show':

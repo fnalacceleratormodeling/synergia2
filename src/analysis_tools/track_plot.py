@@ -83,7 +83,7 @@ def handle_args(args):
                 do_help()
             elif arg.find('--index=') == 0:
                 indices = arg.split('=')[1]
-                options.indices = map(str,indices.split(','))
+                options.indices = map(int,indices.split(','))
             elif arg == '--oneplot':
                 options.oneplot = True
             elif arg == '--show':
