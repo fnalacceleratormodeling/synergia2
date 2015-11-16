@@ -5,8 +5,11 @@ from synergia.utils import Hdf5_file
 import numpy
 from matplotlib import pyplot
 
-def plot2d(x, y, options):
-    p = pyplot.plot(x, y, 'o')
+def plot2d(x, y, options, trk):
+    if options.legend:
+        p = pyplot.plot(x, y, 'o', label="%d"%trk)
+    else:
+        p = pyplot.plot(x, y, 'o')
     pyplot.setp(p, "markersize", float(options.point_size))
     pyplot.setp(p, "markeredgewidth", 0.1)
 
@@ -29,6 +32,7 @@ class Options:
         self.outputfile = None
         self.coords = []
         self.indices = []
+        self.legend = False
 
 def do_error(message):
     sys.stderr.write(message + '\n')
@@ -40,6 +44,8 @@ def do_help():
     print "    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)"
     print "    --pointsize=<float>: size of plotted points (default=4.0)"
     print "    --output=<file> : save output to file (not on by default)"
+    print "    --legend : give legend for each particle number in plot"
+
     print "    --show : show plots on screen (on by default unless --output flag is present"
     print "available coords are:"
     print "   ",
@@ -65,6 +71,8 @@ def handle_args(args):
                     options.indices.append(int(index))
             elif arg.find('--pointsize') == 0:
                 options.point_size = arg.split('=')[1]
+            elif arg == '--legend':
+                options.legend = True
             elif arg == '--show':
                 options.show = True
             elif arg.find('--output') == 0:
@@ -83,10 +91,10 @@ def handle_args(args):
         options.indices = [0]
     return options
 
-def single_plot(options, particle_coords):
+def single_plot(options, particle_coords, trk):
     x = particle_coords[coords[options.coords[0]], :]
     y = particle_coords[coords[options.coords[1]], :]
-    plot2d(x, y, options)
+    plot2d(x, y, options, trk)
 
 def do_plots(options):
     pyplot.figure().canvas.set_window_title('Synergia Poincare Plot')
@@ -95,7 +103,7 @@ def do_plots(options):
         if "coords" in f.get_member_names():
             particle_coords = f.read_array2d("coords")
             f.close()
-            single_plot(options, particle_coords)
+            single_plot(options, particle_coords, 0)
         elif "track_coords" in f.get_member_names():
             track_coords = f.read_array3d("track_coords")
             mass = f.read_double('mass')
@@ -112,10 +120,12 @@ def do_plots(options):
                 #print "energy.shape: ", energy.shape
                 particle_coords = numpy.vstack((particle_coords,pz,energy))
                 #print "particle_coords.shape: ", particle_coords.shape
-                single_plot(options, particle_coords)
+                single_plot(options, particle_coords, trk)
 
     pyplot.xlabel(options.coords[0])
     pyplot.ylabel(options.coords[1])
+    if options.legend:
+        pyplot.legend(loc='best')
     if options.outputfile:
         pyplot.savefig(options.outputfile)
     if options.show:
