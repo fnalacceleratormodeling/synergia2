@@ -1,5 +1,6 @@
 set(tools
     synmad8toxml
+    synmad8tolsx
     syninspecth5
     syndiagplot
     syntrackplot
@@ -21,6 +22,7 @@ endforeach(tool tools)
 
 install(FILES
     mad8_to_xml.py
+    mad8_to_lsx.py
     inspect_h5.py
     diag_plot.py
     track_plot.py
