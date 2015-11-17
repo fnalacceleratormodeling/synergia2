@@ -250,13 +250,15 @@ const double num_real_particles = 1.0e11;
 struct Foborodobo32_fixture
 {
 Foborodobo32_fixture() :
-    lattice_sptr(new Lattice("foborodobo32")), comm_sptr(new Commxx),
+    comm_sptr(new Commxx),
     bunch_sptr()
   {
-    BOOST_TEST_MESSAGE("setup Foborodobo_fixture");
-    xml_load(*lattice_sptr, "lattices/foborodobo32_lattice.xml");
-    bunch_sptr = Bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
-				    num_macro_particles, num_real_particles, comm_sptr));
+      BOOST_TEST_MESSAGE("setup Foborodobo_fixture");
+      lattice_sptr = Lattice_sptr(
+          new Lattice(read_lsexpr_file("lattices/foborodobo32_lattice.lsx")));
+      bunch_sptr = Bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
+                                        num_macro_particles, num_real_particles,
+                                        comm_sptr));
   }
 
   ~Foborodobo32_fixture()
