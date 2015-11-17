@@ -9,31 +9,26 @@ import local_paths
 from nose.tools import *
 from synergia.lattice import eliminate_markers, convert_monitors, convert_magnets, \
     combine_drifts, simplify_all
-from synergia.lattice import Lattice, xml_load_lattice
+from synergia.lattice import Lattice
 from synergia.utils import read_lsexpr_file
 import synergia
 
 def test_booster():
-    orig1 = Lattice()
-    xml_load_lattice(orig1, "lattices/fnal_booster.xml")
-    synergia.utils.write_lsexpr_file(orig1.as_lsexpr(), "lattices/fnal_booster.lsx")
     orig = Lattice(read_lsexpr_file("lattices/fnal_booster.lsx"))
-    simplified = simplify_all(orig1)
+    simplified = simplify_all(orig)
     assert_almost_equal(orig.get_length(), simplified.get_length())
     print "booster went from", len(orig.get_elements()), "to",
     print len(simplified.get_elements()), "elements"
 
 def test_debuncher():
-    orig = Lattice()
-    xml_load_lattice(orig, "lattices/fnal_debuncher.xml")
+    orig = Lattice(read_lsexpr_file("lattices/fnal_debuncher.lsx"))
     simplified = simplify_all(orig)
     assert_almost_equal(orig.get_length(), simplified.get_length())
     print "debuncher went from", len(orig.get_elements()), "to",
     print len(simplified.get_elements()), "elements"
 
 def test_main_injector():
-    orig = Lattice()
-    xml_load_lattice(orig, "lattices/fnal_main_injector.xml")
+    orig = Lattice(read_lsexpr_file("lattices/fnal_main_injector.lsx"))
     simplified = simplify_all(orig)
     assert_almost_equal(orig.get_length(), simplified.get_length())
     print "main injector went from", len(orig.get_elements()), "to",

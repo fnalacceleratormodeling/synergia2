@@ -7,9 +7,9 @@ import local_paths
 from nose.tools import *
 from synergia.lattice import eliminate_markers, convert_monitors, convert_magnets, \
     combine_drifts, simplify_all
-from synergia.lattice import Lattice, xml_load_lattice
+from synergia.lattice import Lattice
 from synergia.bunch import Bunch
-from synergia.utils import Commxx, Logger
+from synergia.utils import Commxx, Logger, read_lsexpr_file
 from synergia.simulation import Lattice_simulator, Independent_stepper
 
 def fill(particles, delta):
@@ -51,31 +51,20 @@ def general_exam(orig, simp, num_steps, map_order, places):
         assert_particles_almost_equal(bunch_orig.get_local_particles(), \
                                       bunch_simp.get_local_particles(), places)
 
-#def test_booster():
-#    orig = Lattice()
-#    xml_load_lattice(orig, "lattices/fnal_booster.xml")
-#    simp = simplify_all(orig)
-#
-#    general_exam(orig, simp, 96, 2, 13)
-
-
 def test_debuncher():
-    orig = Lattice()
-    xml_load_lattice(orig, "lattices/fnal_debuncher.xml")
+    orig = Lattice(read_lsexpr_file("lattices/fnal_debuncher.lsx"))
     simp = simplify_all(orig)
 
     general_exam(orig, simp, 205, 2, 12)
 
 def test_main_injector():
-    orig = Lattice()
-    xml_load_lattice(orig, "lattices/fnal_main_injector.xml")
+    orig = Lattice(read_lsexpr_file("lattices/fnal_main_injector.lsx"))
     simp = simplify_all(orig)
 
     general_exam(orig, simp, 416, 2, 11)
 
 def test_main_injector_chef():
-    orig = Lattice()
-    xml_load_lattice(orig, "lattices/fnal_main_injector.xml")
+    orig = Lattice(read_lsexpr_file("lattices/fnal_main_injector.lsx"))
     simp = simplify_all(orig)
 
     for element in orig.get_elements():
