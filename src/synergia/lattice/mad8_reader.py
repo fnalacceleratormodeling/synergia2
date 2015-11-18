@@ -3,7 +3,7 @@ import os, sys, hashlib
 
 from synergia.lattice import Mad8_parser
 from synergia.lattice import Lattice_element, Mad8_adaptor_map, Lattice
-from synergia.lattice import binary_save_lattice, binary_load_lattice
+from synergia.utils import read_lsexpr_file, write_lsexpr_file
 from synergia.foundation import pconstants, Four_momentum, Reference_particle
 from mpi4py import MPI
 
@@ -60,8 +60,8 @@ class Lattice_cache:
             readable = self.cache[self._versioned_line_name()].hash_hex == self._get_hash_hex()
         return readable
 
-    def _binary_file_name(self, index):
-        return self.cache_file_name + ("_%d_%d.bina" % (index, self.version))
+    def _lsexpr_file_name(self, index):
+        return self.cache_file_name + ("_%d_%d.lsx" % (index, self.version))
 
     def _versioned_line_name(self):
         return self.line_name + ("_%d" % self.version)
@@ -73,7 +73,7 @@ class Lattice_cache:
             retval = Lattice()
             index = self.cache[self._versioned_line_name()].index
             try:
-                binary_load_lattice(retval, self._binary_file_name(index))
+                retval = Lattice(read_lsexpr_file(self._lsexpr_file_name(index)))
             except:
                 retval = None
         return retval
@@ -103,7 +103,7 @@ class Lattice_cache:
                 cache_file.write('%s\n' % self.cache[line_name].hash_hex)
                 cache_file.write('%d\n' % self.cache[line_name].index)
             cache_file.close()
-            binary_save_lattice(lattice, self._binary_file_name(index))
+            write_lsexpr_file(lattice.as_lsexpr(), self._lsexpr_file_name(index))
 
 class Mad8_reader:
     """Read lattice descriptions written in Mad8 format
