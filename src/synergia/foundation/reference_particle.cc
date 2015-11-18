@@ -49,8 +49,6 @@ Reference_particle::Reference_particle(Lsexpr const& lsexpr) :
                 charge = it->get_int();
                 found_charge = true;
             } else if(it->get_label() == "four_momentum") {
-                it->write(std::cout);
-                std::cout << std::endl;
                 four_momentum = Four_momentum(*it);
                 found_four_momentum = true;
             } else if(it->get_label() == "repetition") {
