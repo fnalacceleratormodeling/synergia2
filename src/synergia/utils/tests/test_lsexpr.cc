@@ -297,3 +297,35 @@ BOOST_AUTO_TEST_CASE(nested)
     Lsexpr parsed_lsexpr(sstream);
     BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
+
+BOOST_AUTO_TEST_CASE(write_read_lsxepr_file)
+{
+    Lsexpr lsexpr("atomic_foo");
+
+    const std::string filename("lsexpr_file.lsx");
+    write_lsexpr_file(lsexpr, filename);
+    Lsexpr read_lsexpr(read_lsexpr_file(filename));
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, read_lsexpr));
+}
+
+BOOST_AUTO_TEST_CASE(write_read_lsxepr_file_bad)
+{
+    Lsexpr lsexpr("atomic_foo");
+
+    const std::string bad_filename("non_existant_directory/missing_file");
+    bool caught(false);
+    try {
+        write_lsexpr_file(lsexpr, bad_filename);
+    } catch (std::runtime_error&) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+
+    bool caught_another(false);
+    try {
+        Lsexpr read_lsexpr(read_lsexpr_file(bad_filename));
+    } catch (std::runtime_error&) {
+        caught_another = true;
+    }
+    BOOST_CHECK(caught_another);
+}

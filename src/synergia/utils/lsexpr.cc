@@ -373,6 +373,10 @@ Lsexpr
 read_lsexpr_file(std::string const& filename)
 {
     std::ifstream f(filename.c_str());
+    if (!f.is_open()) {
+        throw std::runtime_error("read_lsexpr_file:: unable to open '" +
+                                 filename + "'");
+    }
     Lsexpr retval(f);
     return retval;
 }
@@ -381,5 +385,9 @@ void
 write_lsexpr_file(Lsexpr const& lsexpr, std::string const& filename)
 {
     std::ofstream f(filename.c_str());
+    if (!f.is_open()) {
+        throw std::runtime_error("write_lsexpr_file:: unable to open '" +
+                                 filename + "'");
+    }
     lsexpr.write(f);
 }

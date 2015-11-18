@@ -20,7 +20,9 @@ test_distributed_fft2d
 test_distributed_fft2d_mpi
 test_logger
 test_logger_mpi
+test_lsexpr
 *.xml
 *.h5
+lsexpr_file.lsx
 logger-log*
-test_lsexpr
+
