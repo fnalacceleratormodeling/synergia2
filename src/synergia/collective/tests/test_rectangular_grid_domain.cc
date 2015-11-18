@@ -12,6 +12,51 @@ BOOST_FIXTURE_TEST_CASE(construct, Rectangular_grid_domain_fixture)
 {
 }
 
+BOOST_AUTO_TEST_CASE(construct2)
+{
+    const double domain_min = -1.0;
+    const double domain_max = 1.0;
+    const double domain_offset = 5.0;
+    const int grid_size0 = 4;
+    const int grid_size1 = 5;
+    const int grid_size2 = 3;
+
+    std::vector<double > physical_size(3), physical_offset(3);
+    std::vector<int > grid_shape(3);
+    for (int i = 0; i < 3; ++i) {
+        physical_offset[i] = domain_offset;
+        physical_size[i] = domain_max - domain_min;
+    }
+    grid_shape[0] = grid_size0;
+    grid_shape[1] = grid_size1;
+    grid_shape[2] = grid_size2;
+    Rectangular_grid_domain domain(physical_size, physical_offset, grid_shape);
+    BOOST_CHECK(!domain.is_periodic());
+}
+
+BOOST_AUTO_TEST_CASE(construct3)
+{
+    const double domain_min = -1.0;
+    const double domain_max = 1.0;
+    const double domain_offset = 5.0;
+    const int grid_size0 = 4;
+    const int grid_size1 = 5;
+    const int grid_size2 = 3;
+
+    std::vector<double > physical_size(3), physical_offset(3);
+    std::vector<int > grid_shape(3);
+    for (int i = 0; i < 3; ++i) {
+        physical_offset[i] = domain_offset;
+        physical_size[i] = domain_max - domain_min;
+    }
+    grid_shape[0] = grid_size0;
+    grid_shape[1] = grid_size1;
+    grid_shape[2] = grid_size2;
+    bool is_periodic(true);
+    Rectangular_grid_domain domain(physical_size, grid_shape, is_periodic);
+    BOOST_CHECK_EQUAL(is_periodic, domain.is_periodic());
+}
+
 BOOST_FIXTURE_TEST_CASE(get_physical_size, Rectangular_grid_domain_fixture)
 {
     std::vector<double > physical_size =
