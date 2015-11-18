@@ -762,7 +762,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_lowgamma, Rod_bunch_fixture_lowgamma)
     }
     logger << std::endl;
 
-    // Space_charge_3d_open_hockney(comm, grid, longitudinal_kicks, z_periodic, z_period, grid_entire_domain,nsigma)
     Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, true, false, 0.0, false, 16.0);
 
     space_charge.update_domain(bunch);
@@ -786,8 +785,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_lowgamma, Rod_bunch_fixture_lowgamma)
 
     Rectangular_grid_domain_sptr fixed_domain(
             new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
-    // setting a fixed domain tickles a bug that crashes the space charge calculation in
-    // CMAKE_BUILD_TYPE=Debug mode.
     space_charge.set_fixed_domain(fixed_domain);
 
     Rectangular_grid_sptr local_charge_density(
@@ -846,8 +843,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_lowgamma, Rod_bunch_fixture_lowgamma)
 
 }
 
-// this test is temporarily disabled
-#if 0
 BOOST_FIXTURE_TEST_CASE(real_apply_full_highgamma, Rod_bunch_fixture_highgamma)
 {
     Bunch original_bunch(bunch);
@@ -876,7 +871,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_highgamma, Rod_bunch_fixture_highgamma)
     }
     logger << std::endl;
 
-    // Space_charge_3d_open_hockney(comm, grid, longitudinal_kicks, z_periodic, z_period, grid_entire_domain,nsigma)
     Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, true, false, 0.0, false, 16.0);
 
     space_charge.update_domain(bunch);
@@ -900,8 +894,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_highgamma, Rod_bunch_fixture_highgamma)
 
     Rectangular_grid_domain_sptr fixed_domain(
             new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
-    // setting a fixed domain tickles a bug that crashes the space charge calculation in
-    // CMAKE_BUILD_TYPE=Debug mode.
     space_charge.set_fixed_domain(fixed_domain);
 
     Rectangular_grid_sptr local_charge_density(
@@ -958,7 +950,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_highgamma, Rod_bunch_fixture_highgamma)
         }
     }
 }
-#endif
 
 BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgamma)
 {
@@ -988,7 +979,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgam
     }
     logger << std::endl;
 
-    // Space_charge_3d_open_hockney(comm, grid, longitudinal_kicks, z_periodic, z_period, grid_entire_domain,nsigma)
     Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false, false, 0.0, false, 16.0);
 
     space_charge.update_domain(bunch);
@@ -1012,8 +1002,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgam
 
     Rectangular_grid_domain_sptr fixed_domain(
             new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
-    // setting a fixed domain tickles a bug that crashes the space charge calculation in
-    // CMAKE_BUILD_TYPE=Debug mode on some systems.
     space_charge.set_fixed_domain(fixed_domain);
 
     Rectangular_grid_sptr local_charge_density(
@@ -1071,8 +1059,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgam
     }
 }
 
-// this test is temporarily disabled
-#if 0
 BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highgamma)
 {
     Bunch original_bunch(bunch);
@@ -1101,7 +1087,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highg
     }
     logger << std::endl;
 
-    // Space_charge_3d_open_hockney(comm, grid, longitudinal_kicks, z_periodic, z_period, grid_entire_domain,nsigma)
     Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false, false, 0.0, false, 16.0);
 
     space_charge.update_domain(bunch);
@@ -1125,8 +1110,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highg
 
     Rectangular_grid_domain_sptr fixed_domain(
             new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
-    // setting a fixed domain tickles a bug that crashes the space charge calculation in
-    // CMAKE_BUILD_TYPE=Debug mode on some systems.
     space_charge.set_fixed_domain(fixed_domain);
 
     Rectangular_grid_sptr local_charge_density(
@@ -1171,7 +1154,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highg
         }
     }
 }
-#endif
 
 BOOST_FIXTURE_TEST_CASE(serialize_, Rod_bunch_fixture_lowgamma)
 {
@@ -1215,8 +1197,6 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Rod_bunch_fixture_lowgamma)
 
     Rectangular_grid_domain_sptr fixed_domain(
             new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
-    // setting a fixed domain tickles a bug that crashes the space charge calculation in
-    // CMAKE_BUILD_TYPE=Debug mode on some systems.
     space_charge.set_fixed_domain(fixed_domain);
 
     Rectangular_grid_sptr local_charge_density(
