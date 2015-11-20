@@ -252,7 +252,7 @@ Independent_operator::update_operations(
         if (((extractor_type != last_extractor_type) || need_left_aperture)
                 && (!group.empty())) {
             Independent_operations group_operations =
-                    operation_extractor_map_sptr->get_extractor(extractor_type)->extract(
+                    operation_extractor_map_sptr->get_extractor(last_extractor_type)->extract(
                             reference_particle, group);
             operations.splice(operations.end(), group_operations);
             group.clear();
