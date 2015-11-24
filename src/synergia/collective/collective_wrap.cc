@@ -73,6 +73,7 @@ BOOST_PYTHON_MODULE(collective)
                         double, bool >())
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool,
                         double, bool, double >())
+                .def("set_fixed_domain", &Space_charge_3d_open_hockney::set_fixed_domain)
                 .def("apply", &Space_charge_3d_open_hockney::apply)
         ;
 
