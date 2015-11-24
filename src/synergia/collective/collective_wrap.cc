@@ -23,6 +23,24 @@ void
 
 BOOST_PYTHON_MODULE(collective)
 {
+    class_<Rectangular_grid_domain, Rectangular_grid_domain_sptr>(
+        "Rectangular_grid_domain",
+        init<std::vector<double> const&, std::vector<double> const&,
+             std::vector<int> const&, bool>())
+        .def(init<std::vector<double> const&, std::vector<double> const&,
+                  std::vector<int> const&, bool>())
+        .def(init<std::vector<double> const&, std::vector<int> const&, bool>())
+        .def("get_physical_size", &Rectangular_grid_domain::get_physical_size,
+             return_value_policy<copy_const_reference>())
+        .def("get_physical_offset",
+             &Rectangular_grid_domain::get_physical_offset,
+             return_value_policy<copy_const_reference>())
+        .def("get_grid_shape", &Rectangular_grid_domain::get_grid_shape,
+             return_value_policy<copy_const_reference>())
+        .def("get_cell_size", &Rectangular_grid_domain::get_cell_size,
+             return_value_policy<copy_const_reference>())
+        .def("is_periodic", &Rectangular_grid_domain::is_periodic);
+
     class_<Space_charge_3d_open_hockney, Space_charge_3d_open_hockney_sptr,
         bases<Collective_operator > >("Space_charge_3d_open_hockney",
                 init<Commxx_divider_sptr, std::vector<int > >())
