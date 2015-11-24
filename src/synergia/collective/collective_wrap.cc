@@ -53,6 +53,16 @@ BOOST_PYTHON_MODULE(collective)
                         double, bool >())
                 .def(init<Commxx_divider_sptr, std::vector<int >, bool, bool,
                         double, bool, double >())
+                .def(init<std::vector<int > >())
+                .def(init<std::vector<int >, bool >())
+                .def(init<std::vector<int >, bool, bool >())
+                .def(init<std::vector<int >, bool, bool, double >())
+                .def(init<std::vector<int >, bool, bool,
+                     double, bool >())
+                .def(init<std::vector<int >, bool, bool,
+                     double, bool >())
+                .def(init<std::vector<int >, bool, bool,
+                     double, bool, double >())
                 .def(init<Commxx_sptr, std::vector<int > >())
                 .def(init<Commxx_sptr, std::vector<int >, bool >())
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool >())
