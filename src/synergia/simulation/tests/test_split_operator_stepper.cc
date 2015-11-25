@@ -5,7 +5,7 @@
 #include "synergia/utils/string_utils.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const int map_order = 1;
 const double tolerance = 1.0e-12;

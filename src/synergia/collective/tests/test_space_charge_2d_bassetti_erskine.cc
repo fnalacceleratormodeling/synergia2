@@ -16,7 +16,7 @@ using pconstants::epsilon0;
 #include "gaussian_charge_density.h"
 //#include "space_charge_bunch_fixtures.h"
 //#include "synergia/utils/simple_timer.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const int charge = pconstants::proton_charge;
 const double mass = pconstants::mp;

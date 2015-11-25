@@ -6,7 +6,7 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/utils/multi_array_check_equal.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double mass = 100.0;
 const double total_energy = 125.0;

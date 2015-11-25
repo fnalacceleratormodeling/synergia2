@@ -15,7 +15,7 @@ using pconstants::epsilon0;
 #include "synergia/utils/hdf5_file.h"
 #include "uniform_cylindrical_charge_density.h"
 #include "space_charge_bunch_fixtures.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double tolerance = 1.0e-12;
 

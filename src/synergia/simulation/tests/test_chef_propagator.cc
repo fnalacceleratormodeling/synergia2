@@ -5,7 +5,7 @@
 #include "synergia/simulation/chef_propagator.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double tolerance = 1.0e-12;
 

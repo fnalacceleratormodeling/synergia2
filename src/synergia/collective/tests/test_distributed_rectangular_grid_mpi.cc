@@ -5,7 +5,7 @@
 #include "rectangular_grid_domain_fixture.h"
 #include "synergia/utils/parallel_utils.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double tolerance = 1.0e-12;
 int grid_midpoint0 = grid_size0 / 2;

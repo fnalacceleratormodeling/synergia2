@@ -4,7 +4,7 @@
 #include "synergia/bunch/diagnostics_bulk_track.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double tolerance = 1.0e-11;
 

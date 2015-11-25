@@ -7,7 +7,7 @@
 #include "synergia/utils/serialization_files.h"
 #include <basic_toolkit/PhysicsConstants.h>
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const std::string name("fodo");
 const int charge = 1;

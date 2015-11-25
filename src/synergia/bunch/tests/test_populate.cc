@@ -7,7 +7,7 @@
 #include "synergia/utils/multi_array_print.h"
 #include "synergia/utils/multi_array_check_equal.h"
 #include "synergia/utils/hdf5_file.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double tolerance = 1.0e-11;
 

@@ -8,7 +8,7 @@
 #include "synergia/utils/multi_array_check_equal.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double tolerance = 1.0e-12;
 const int map_order = 2;

@@ -17,7 +17,7 @@
 // define FAILME nonzero to force failures
 #define FAILME 0
 
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const int shape0 = 16;
 const int shape1 = 4;

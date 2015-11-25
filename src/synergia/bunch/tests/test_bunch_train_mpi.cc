@@ -3,7 +3,7 @@
 #include "synergia/bunch/bunch_train.h"
 #include "bunches_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double default_tolerance = 1.0e-14;
 

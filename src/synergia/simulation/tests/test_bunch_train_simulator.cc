@@ -5,7 +5,7 @@
 #include "synergia/bunch/diagnostics_basic.h"
 #include "synergia/bunch/tests/bunches_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double bunch_spacing = 1.7;
 

@@ -18,7 +18,7 @@ using pconstants::epsilon0;
 #include "synergia/utils/parallel_utils.h"
 #include "synergia/utils/commxx_divider.h"
 
- BOOST_GLOBAL_FIXTURE(MPI_fixture)
+ BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
  const double tolerance = 1.0e-12;
 

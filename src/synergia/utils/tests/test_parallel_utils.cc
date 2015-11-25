@@ -3,7 +3,7 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/utils/parallel_utils.h"
 #include <cmath>
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 BOOST_AUTO_TEST_CASE(test_decompose_1d_raw1)
 {

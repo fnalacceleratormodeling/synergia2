@@ -14,7 +14,7 @@
 #endif
 // define FAILME to force failures
 #define FAILME 0
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 // n.b. We use 0,1,2 here instead of x,y,z because
 // we may use z,y,x ordering of arrays.

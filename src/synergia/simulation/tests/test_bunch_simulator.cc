@@ -5,7 +5,7 @@
 #include "synergia/bunch/diagnostics_basic.h"
 #include "bunch_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture)
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 BOOST_FIXTURE_TEST_CASE(construct, Bunch_fixture)
 {
