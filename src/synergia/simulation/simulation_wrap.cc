@@ -1,3 +1,5 @@
+#include <boost/python.hpp>
+#include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include "operator.h"
 #include "lattice_simulator.h"
 #include "populate_stationary.h"
@@ -13,9 +15,7 @@
 #include "diagnostics_actions.h"
 #include "dense_mapping.h"
 #include "resume.h"
-#include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
-#include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
 
 

@@ -1,7 +1,7 @@
+#include <boost/python.hpp>
 #include "four_momentum.h"
 #include "reference_particle.h"
 #include "distribution.h"
-#include <boost/python.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
 #include "math_constants.h"

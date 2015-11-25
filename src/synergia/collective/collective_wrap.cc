@@ -1,3 +1,4 @@
+#include <boost/python.hpp>
 #include "space_charge_3d_open_hockney.h"
 #include "space_charge_2d_open_hockney.h"
 #include "interpolate_rectangular_zyx.h"
@@ -6,7 +7,6 @@
 #include "ecloud_from_vorpal.h"
 #include "impedance.h"
 #include "wake_field.h"
-#include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 
 using namespace boost::python;

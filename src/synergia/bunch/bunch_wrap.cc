@@ -1,3 +1,4 @@
+#include <boost/python.hpp>
 #include "bunch.h"
 #include "bunch_train.h"
 #include "diagnostics.h"
@@ -9,7 +10,6 @@
 #include "diagnostics_reference_particle.h"
 #include "populate.h"
 #include "analysis.h"
-#include <boost/python.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
 #include "synergia/utils/container_conversions.h"

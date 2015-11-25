@@ -1,3 +1,5 @@
+#include <boost/python.hpp>
+#include <boost/python/dict.hpp>
 #include "lattice_element.h"
 #include "element_adaptor.h"
 #include "element_adaptor_map.h"
@@ -8,8 +10,6 @@
 #include "chef_lattice.h"
 #include "chef_utils.h"
 #include "madx_reader.h"
-#include <boost/python.hpp>
-#include <boost/python/dict.hpp>
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/serialization.h"
 

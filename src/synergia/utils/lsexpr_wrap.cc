@@ -1,5 +1,5 @@
-#include "lsexpr.h"
 #include <boost/python.hpp>
+#include "lsexpr.h"
 #include "synergia/utils/container_conversions.h"
 
 using namespace boost::python;
