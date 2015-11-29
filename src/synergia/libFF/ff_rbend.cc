@@ -109,8 +109,15 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                                 k[2]*step_length, k[3]*step_length,
                                 k[4]*step_length, k[5]*step_length };
 
+    double pref = reference_momentum;
+    double theta = angle / 2.0;
+    double ct = cos(-theta);
+    double st = sin(-theta);
+
     if (k[2] == 0.0 && k[4] == 0.0)
     {
+        std::cout << ">>>>> rbend prop libff\n";
+
         // use the exact solution for dipole
         for (int part = 0; part < local_num; ++part) 
         {
@@ -121,7 +128,81 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double cdt (particles[part][Bunch::cdt ]);
             double dpop(particles[part][Bunch::dpop]);
 
-            FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
+            double r0 = x;
+            double r1 = y;
+            double r2 = 0.0;
+
+            double zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
+
+            double p = (dpop+1) * pref;
+            double e = sqrt(p*p + m*m);
+
+            double b0 = xp * pref / e;
+            double b1 = yp * pref / e;
+            double b2 = zp * pref / e;
+
+            double bp = st * b0 + ct * b2;
+
+            double tau = -x * st / bp;
+
+            std::cout << std::setprecision(10);
+
+            std::cout << "state = " << x << ", " << y << ", " << xp << ", " << yp <<"\n";
+
+#if 0
+            std::cout << "myb = " << b0 << ", " << b1 << ", " << b2 << "\n";
+            std::cout << "mybp = " << bp << "\n";
+            std::cout << "mytau = " << tau << "\n";
+            std::cout << "cos(t) = " << ct << ", sin(t) = " << st << "\n";
+            std::cout << "p = " << xp << ", " << yp << ", " << zp << "\n";
+
+            r0 = x + tau * b0;
+            r1 = y + tau * b1;
+            r2 = 0 + tau * b2;
+
+            x = r0 * ct - r2 * st;
+            y = r1;
+
+            xp = xp * ct - zp * st;
+            yp = yp;
+
+            std::cout << "px = " << xp << ", py = " << yp << "\n\n";
+#endif
+
+            //FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
+
+            FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
+                ( x, xp, y, yp, cdt, dpop,
+                  reference_momentum, m,
+                  step_reference_cdt,
+                  step_length, step_strength, steps );
+
+            std::cout << "state = " << x << ", " << y << ", " << xp << ", " << yp <<"\n";
+#if 0
+
+            b0 = xp * pref / e;
+            b1 = yp * pref / e;
+
+            bp = st * b0 + ct * b2;
+            tau = -x * st / bp;
+
+            std::cout << "myb = " << b0 << ", " << b1 << ", " << b2 << "\n";
+            std::cout << "mybp = " << bp << "\n";
+            std::cout << "mytau = " << tau << "\n";
+            std::cout << "cos(t) = " << ct << ", sin(t) = " << st << "\n";
+            std::cout << "p = " << xp << ", " << yp << ", " << zp << "\n";
+
+            r0 = x + tau * b0;
+            r1 = y + tau * b1;
+            r2 = 0 + tau * b2;
+
+            x = r0 * ct - r2 * st;
+            y = r1;
+
+            xp = xp * ct - zp * st;
+
+            std::cout << "px = " << xp << ", py = " << yp << "\n";
+#endif
 
             particles[part][Bunch::x]  = x;
             particles[part][Bunch::xp] = xp;
