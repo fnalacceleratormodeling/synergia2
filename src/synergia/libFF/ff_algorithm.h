@@ -37,6 +37,38 @@ public:
         cdt = cdt + sig * sqrt(D2 * ibeta2) - vrc;
     }
 
+    template <typename T>
+    inline static void slot_unit
+      (T & x, T & xp, T & y, T & yp, T & cdt, T & dpop, double ct, double st, double pref, double m)
+    {
+        T r0 = x;
+        T r1 = y;
+        T r2 = 0.0;
+
+        T zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
+
+        T p = (dpop+1) * pref;
+        T e = sqrt(p*p + m*m);
+
+        T b0 = xp * pref / e;
+        T b1 = yp * pref / e;
+        T b2 = zp * pref / e;
+
+        T bp = st * b0 + ct * b2;
+
+        T tau = -x * st / bp;
+
+        r0 = x + tau * b0;
+        r1 = y + tau * b1;
+        r2 = 0 + tau * b2;
+
+        x = r0 * ct - r2 * st;
+        y = r1;
+
+        xp = xp * ct - zp * st;
+        yp = yp;
+    }
+
     // exact solution for dipole without high order combined functions
     template <typename T>
     inline static void dipole_unit

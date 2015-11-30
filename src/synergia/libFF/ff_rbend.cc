@@ -126,35 +126,9 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double cdt (particles[part][Bunch::cdt ]);
             double dpop(particles[part][Bunch::dpop]);
 
-            double r0 = x;
-            double r1 = y;
-            double r2 = 0.0;
-
-            double zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
-
-            double p = (dpop+1) * pref;
-            double e = sqrt(p*p + m*m);
-
-            double b0 = xp * pref / e;
-            double b1 = yp * pref / e;
-            double b2 = zp * pref / e;
-
-            double bp = st * b0 + ct * b2;
-
-            double tau = -x * st / bp;
-
-            r0 = x + tau * b0;
-            r1 = y + tau * b1;
-            r2 = 0 + tau * b2;
-
-            x = r0 * ct - r2 * st;
-            y = r1;
-
-            xp = xp * ct - zp * st;
-            yp = yp;
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
             FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
-
 #if 0
             FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
                 ( x, xp, y, yp, cdt, dpop,
@@ -163,20 +137,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                   step_length, step_strength, steps );
 #endif
 
-            b0 = xp * pref / e;
-            b1 = yp * pref / e;
-
-            bp = st * b0 + ct * b2;
-            tau = -x * st / bp;
-
-            r0 = x + tau * b0;
-            r1 = y + tau * b1;
-            r2 = 0 + tau * b2;
-
-            x = r0 * ct - r2 * st;
-            y = r1;
-
-            xp = xp * ct - zp * st;
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
             particles[part][Bunch::x]  = x;
             particles[part][Bunch::xp] = xp;
