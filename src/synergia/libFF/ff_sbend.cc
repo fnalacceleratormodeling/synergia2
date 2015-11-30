@@ -110,7 +110,6 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double ce2 = cos(-e2);
     double se2 = sin(-e2);
 
-
     for (int part = 0; part < local_num; ++part) {
         double x   (particles[part][Bunch::x   ]);
         double xp  (particles[part][Bunch::xp  ]);
@@ -119,74 +118,13 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double cdt (particles[part][Bunch::cdt ]);
         double dpop(particles[part][Bunch::dpop]);
 
-            double r0 = x;
-            double r1 = y;
-            double r2 = 0.0;
-
-            double zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
-
-            double p = (dpop+1) * pref;
-            double e = sqrt(p*p + m*m);
-
-            double b0 = xp * pref / e;
-            double b1 = yp * pref / e;
-            double b2 = zp * pref / e;
-
-            double bp = se1 * b0 + ce1 * b2;
-
-            double tau = -x * se1 / bp;
-
-            std::cout << std::setprecision(10);
-
-            std::cout << "state = " << x << ", " << y << ", " << xp << ", " << yp <<"\n";
-
-            std::cout << "myb = " << b0 << ", " << b1 << ", " << b2 << "\n";
-            std::cout << "mybp = " << bp << "\n";
-            std::cout << "mytau = " << tau << "\n";
-            std::cout << "cos(t) = " << ce1 << ", sin(t) = " << se2 << "\n";
-            std::cout << "p = " << xp << ", " << yp << ", " << zp << "\n";
-
-            r0 = x + tau * b0;
-            r1 = y + tau * b1;
-            r2 = 0 + tau * b2;
-
-            x = r0 * ce1 - r2 * se1;
-            y = r1;
-
-            xp = xp * ce1 - zp * se1;
-            yp = yp;
-
-            std::cout << "state after slot 1 = " << x << ", " << y << ", " << xp << ", " << yp <<"\n";
+        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
 
         sbend_unit2(x, xp, y, yp, cdt, dpop,
                    length, angle, strength,
                    reference_momentum, m, reference_cdt, phase, term);
 
-            std::cout << "state after sbend  = " << x << ", " << y << ", " << xp << ", " << yp <<"\n";
-
-            b0 = xp * pref / e;
-            b1 = yp * pref / e;
-
-            bp = se2 * b0 + ce2 * b2;
-            tau = -x * se2 / bp;
-
-            std::cout << "myb = " << b0 << ", " << b1 << ", " << b2 << "\n";
-            std::cout << "mybp = " << bp << "\n";
-            std::cout << "mytau = " << tau << "\n";
-            std::cout << "cos(t) = " << ce2 << ", sin(t) = " << se2 << "\n";
-            std::cout << "p = " << xp << ", " << yp << ", " << zp << "\n";
-
-            r0 = x + tau * b0;
-            r1 = y + tau * b1;
-            r2 = 0 + tau * b2;
-
-            x = r0 * ce2 - r2 * se2;
-            y = r1;
-
-            xp = xp * ce2 - zp * se2;
-
-            std::cout << "px = " << xp << ", py = " << yp << "\n";
-
+        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
 
         particles[part][Bunch::x]  = x;
         particles[part][Bunch::xp] = xp;

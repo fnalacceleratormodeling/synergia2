@@ -2,6 +2,7 @@
 #define FF_SBEND_H
 
 #include "ff_element.h"
+#include "ff_algorithm.h"
 #include "synergia/utils/invsqrt.h"
 
 #include <iostream>
