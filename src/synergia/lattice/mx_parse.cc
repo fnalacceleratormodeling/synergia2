@@ -69,22 +69,25 @@ using namespace std;
 
 // ------------------------------------------------------------------
 
-namespace
+namespace synergia
 {
-  double pos(double v) { return v; }
-  double neg(double v) { return -v; }
+  namespace detail
+  {
+    double pos(double v) { return v; }
+    double neg(double v) { return -v; }
 
-  double add(double v1, double v2) { return v1+v2; }
-  double sub(double v1, double v2) { return v1-v2; }
-  double mul(double v1, double v2) { return v1*v2; }
-  double div(double v1, double v2) { return v1/v2; }
+    double add(double v1, double v2) { return v1+v2; }
+    double sub(double v1, double v2) { return v1-v2; }
+    double mul(double v1, double v2) { return v1*v2; }
+    double div(double v1, double v2) { return v1/v2; }
 
-  bool op_l (double l, double r) { return l< r; }
-  bool op_le(double l, double r) { return l<=r; }
-  bool op_e (double l, double r) { return l==r; }
-  bool op_ne(double l, double r) { return l!=r; }
-  bool op_g (double l, double r) { return l> r; }
-  bool op_ge(double l, double r) { return l>=r; }
+    bool op_l (double l, double r) { return l< r; }
+    bool op_le(double l, double r) { return l<=r; }
+    bool op_e (double l, double r) { return l==r; }
+    bool op_ne(double l, double r) { return l!=r; }
+    bool op_g (double l, double r) { return l> r; }
+    bool op_ge(double l, double r) { return l>=r; }
+  }
 }
 
 
@@ -150,8 +153,8 @@ struct synergia::expression
   {
     uop_()
     {
-      this->add ("+", (ufunc_t) pos )
-                ("-", (ufunc_t) neg )
+      this->add ("+", (ufunc_t) detail::pos )
+                ("-", (ufunc_t) detail::neg )
       ;
     }
   } uop;
@@ -162,8 +165,8 @@ struct synergia::expression
   {
     bop1_()
     {
-      this->add ("+", (bfunc_t) add )
-                ("-", (bfunc_t) sub )
+      this->add ("+", (bfunc_t) detail::add )
+                ("-", (bfunc_t) detail::sub )
       ;
     }
   } bop1;
@@ -174,8 +177,8 @@ struct synergia::expression
   {
     bop2_()
     {
-      this->add ("*", (bfunc_t) mul )
-                ("/", (bfunc_t) div )
+      this->add ("*", (bfunc_t) detail::mul )
+                ("/", (bfunc_t) detail::div )
       ;
     }
   } bop2;
@@ -366,12 +369,12 @@ struct synergia::madx_tree_parser
   {
     logic_op_()
     {
-      this->add ("<" , (logic_op_t) op_l  )
-                ("<=", (logic_op_t) op_le )
-                ("==", (logic_op_t) op_e  )
-                ("!=", (logic_op_t) op_ne )
-                (">" , (logic_op_t) op_g  )
-                (">=", (logic_op_t) op_ge )
+      this->add ("<" , (logic_op_t) detail::op_l  )
+                ("<=", (logic_op_t) detail::op_le )
+                ("==", (logic_op_t) detail::op_e  )
+                ("!=", (logic_op_t) detail::op_ne )
+                (">" , (logic_op_t) detail::op_g  )
+                (">=", (logic_op_t) detail::op_ge )
       ;
     }
   } logic_op;
