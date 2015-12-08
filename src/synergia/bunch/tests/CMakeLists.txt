@@ -75,6 +75,12 @@ add_test(NAME test_diagnostics_bulk_track_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPRO
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_bulk_track.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test(NAME test_diagnostics_bulk_track2_mpi1_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_bulk_track2.py)
+add_test(NAME test_diagnostics_bulk_track2_mpi2_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_bulk_track2.py)
+add_test(NAME test_diagnostics_bulk_track2_mpi3_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_bulk_track2.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_bulk_track2.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_test_executable(test_diagnostics_particles test_diagnostics_particles.cc)
 # add_dependencies(test_diagnostics_particles test_diagnostics_particles_get_mean.icc)
 target_link_libraries(test_diagnostics_particles synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

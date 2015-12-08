@@ -69,14 +69,13 @@ Diagnostics_bulk_track::update()
                 local_num_tracks = get_bunch().get_local_num() - local_offset;
             }
             // loop over my local tracks
-            for (int idxtrk = local_offset; idxtrk < local_num_tracks + local_offset;
-                 ++idxtrk) {
-                // here's one
+            for (int idxtrk = 0; idxtrk < local_num_tracks; ++idxtrk) {
+               // here's one
                 Track_status dts;
                 dts.found = true;
-                dts.last_index = idxtrk;
+                dts.last_index = idxtrk+local_offset;
                 dts.particle_id =
-                        static_cast<int >(get_bunch().get_local_particles()[idxtrk][Bunch::id]);
+                        static_cast<int >(get_bunch().get_local_particles()[idxtrk+local_offset][Bunch::id]);
                 diag_track_status.push_back(dts);
             }
         }
@@ -85,10 +84,10 @@ Diagnostics_bulk_track::update()
         s =
                 get_bunch().get_reference_particle().get_s();
         // for the tracks I'm following, see if I know where they are
-        for (int idxtrk = local_offset; idxtrk < local_num_tracks+local_offset; ++idxtrk) {
+        for (int idxtrk = 0; idxtrk < local_num_tracks; ++idxtrk) {
             // diag_track_status[0..local_num_tracks] has status for tracks originally
             // at local_particles[local_offset..local_offset+local_num_tracks]
-            Track_status *dtsptr = &diag_track_status[idxtrk-local_offset];
+            Track_status *dtsptr = &diag_track_status[idxtrk];
             if (dtsptr->found || first_search) {
                 int index = 0;
                 dtsptr->found = false;
@@ -125,7 +124,7 @@ Diagnostics_bulk_track::update()
                     // track_coords is parallel  to diag_track_status
                     // diag_track_status[0..local_num_tracks] has status for tracks originally
                     // at local_particles[local_offset..local_offset+local_num_tracks]
-                    track_coords[ boost::indices[idxtrk-local_offset][range()] ] =
+                    track_coords[ boost::indices[idxtrk][range()] ] =
                             get_bunch().get_local_particles()[boost::indices[index][range()]];
                } else {
                     track_coords[idxtrk][0] = 0.0;
