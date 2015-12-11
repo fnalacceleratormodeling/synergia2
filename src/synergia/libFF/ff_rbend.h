@@ -11,6 +11,12 @@ private:
 
     double get_reference_cdt(double length, double * k,
                                    Reference_particle &reference_particle);
+
+    double get_reference_cdt(double length, double strength, double angle,
+                                   std::complex<double> const & phase,
+                                   std::complex<double> const & term,
+                                   Reference_particle &reference_particle);
+
 public:
     FF_rbend();
 

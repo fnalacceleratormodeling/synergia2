@@ -6,6 +6,49 @@ FF_rbend::FF_rbend()
 
 }
 
+double FF_rbend::get_reference_cdt(double length, double strength, double angle,
+                                   std::complex<double> const & phase,
+                                   std::complex<double> const & term,
+                                   Reference_particle &reference_particle) 
+{
+    double reference_cdt;
+
+    if (length == 0) 
+    {
+        reference_cdt = 0.0;
+    } 
+    else 
+    {
+        double pref = reference_particle.get_momentum();
+        double m = reference_particle.get_mass();
+
+        double theta = angle / 2.0;
+        double ct = cos(-theta);
+        double st = sin(-theta);
+
+        double x(reference_particle.get_state()[Bunch::x]);
+        double xp(reference_particle.get_state()[Bunch::xp]);
+        double y(reference_particle.get_state()[Bunch::y]);
+        double yp(reference_particle.get_state()[Bunch::yp]);
+        double cdt(reference_particle.get_state()[Bunch::cdt]);
+        double dpop(reference_particle.get_state()[Bunch::dpop]);
+
+        double cdt_orig = cdt;
+
+        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+
+        FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
+                    0.0, strength, pref, m, 0.0, phase, term);
+
+        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+
+        reference_cdt = cdt - cdt_orig;
+    }
+
+    return reference_cdt;
+}
+
+
 double FF_rbend::get_reference_cdt(double length, double * k,
                                    Reference_particle &reference_particle) 
 {
@@ -102,8 +145,6 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[0] = 2.0 * sin( angle / 2.0 ) / l;
     k[1] = 0;
 
-    double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
-    double step_reference_cdt = reference_cdt/steps;
     double step_length = length/steps;
     double step_strength[6] = { k[0]*step_length, k[1]*step_length,
                                 k[2]*step_length, k[3]*step_length,
@@ -114,8 +155,21 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double ct = cos(-theta);
     double st = sin(-theta);
 
+    double reference_brho = pref / PH_CNV_brho_to_p;
+    double strength = reference_brho * angle / arc_length;
+
+    double usFaceAngle = 0.0;
+    double dsFaceAngle = 0.0;
+    double psi = - ( usFaceAngle + dsFaceAngle );
+    double dphi = -psi;
+    std::complex<double> phase = std::exp( std::complex<double>(0.0, psi) );
+    std::complex<double> term = length * std::complex<double> ( cos(dsFaceAngle), -sin(dsFaceAngle) );
+
     if (k[2] == 0.0 && k[4] == 0.0)
     {
+        double reference_cdt = get_reference_cdt(length, strength, angle, phase, term, 
+                bunch.get_reference_particle());
+
         // use the exact solution for dipole
         for (int part = 0; part < local_num; ++part) 
         {
@@ -128,26 +182,26 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
-            FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
-#if 0
-            FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
-                ( x, xp, y, yp, cdt, dpop,
-                  reference_momentum, m,
-                  step_reference_cdt,
-                  step_length, step_strength, steps );
-#endif
+            //FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
+
+            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
+                    dphi, strength, pref, m, reference_cdt, 
+                    phase, term);
 
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
-            particles[part][Bunch::x]  = x;
-            particles[part][Bunch::xp] = xp;
-            particles[part][Bunch::y]  = y;
-            particles[part][Bunch::yp] = yp;
+            particles[part][Bunch::x]   = x;
+            particles[part][Bunch::xp]  = xp;
+            particles[part][Bunch::y]   = y;
+            particles[part][Bunch::yp]  = yp;
             particles[part][Bunch::cdt] = cdt;
         }
     }
     else
     {
+        double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
+        double step_reference_cdt = reference_cdt/steps;
+
         // with combined high order function, use yoshida approximation
         for (int part = 0; part < local_num; ++part) 
         {

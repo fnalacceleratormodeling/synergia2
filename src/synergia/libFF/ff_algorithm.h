@@ -2,6 +2,9 @@
 #define FF_ALGORITHM_H
 
 #include <cmath>
+#include <complex>
+
+#include "basic_toolkit/PhysicsConstants.h"
 #include "synergia/utils/invsqrt.h"
 
 class FF_algorithm
@@ -65,6 +68,8 @@ public:
         x = r0 * ct - r2 * st;
         y = r1;
 
+        cdt += tau;
+
         xp = xp * ct - zp * st;
         yp = yp;
     }
@@ -84,6 +89,57 @@ public:
 
         xp = xp1;
     }
+
+    template <typename T>
+    inline static void bend_unit
+      (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
+       double dphi, double strength, double p_ref, double m, double cdt_ref,
+       std::complex<double> phase, std::complex<double> term)
+    {
+        typedef std::complex<T> CT;
+
+        T p0 = p_ref;
+        T p  = p_ref * (dpop + 1.0);
+        T E0 = sqrt(p0 * p0 + m * m);
+        T E  = sqrt(p * p + m * m);
+
+        T igamma = m / E0;
+        T ibeta  = invsqrt(1.0 - igamma * igamma);
+
+        T csq = PH_MKS_c * PH_MKS_c * 1e-9;
+        T psq = (dpop + 1.0) * (dpop + 1.0);
+
+        T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
+
+        T beta1 = Ef * xp;
+        T beta2 = Ef * yp;
+        T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
+
+        CT ui  = CT(0.0, x);
+        CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+
+        T iomega = E / (csq * strength);
+
+        CT bi = CT(0.0, 1.0) * vui * iomega - ui;
+        CT bf = bi * phase + term;
+
+        T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+
+        T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+
+        CT expf = std::exp( CT(0.0, dthmphi) );
+        CT vuf  = vui * expf;
+        CT uf   = (ui + bi) * expf - bf;
+
+        T dtheta = dthmphi + dphi;
+        T ncdt = - PH_MKS_c * dtheta * iomega;
+
+        x    = uf.imag();
+        y   += beta2 * ncdt;
+        cdt += ncdt - cdt_ref;
+        xp   = vuf.imag() / (Ef * PH_MKS_c);
+    }
+
 
     // thin kick dipole
     template <typename T>
