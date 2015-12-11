@@ -74,6 +74,13 @@ public:
         yp = yp;
     }
 
+    template <typename T>
+    inline static void edge_unit
+      (T const & y, T & yp, double k)
+    {
+        yp -= k * y;
+    }
+
     // exact solution for dipole without high order combined functions
     template <typename T>
     inline static void dipole_unit

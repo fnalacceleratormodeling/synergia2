@@ -165,6 +165,8 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     std::complex<double> phase = std::exp( std::complex<double>(0.0, psi) );
     std::complex<double> term = length * std::complex<double> ( cos(dsFaceAngle), -sin(dsFaceAngle) );
 
+    double edge_k = strength * tan(theta) / reference_brho;
+
     if (k[2] == 0.0 && k[4] == 0.0)
     {
         double reference_cdt = get_reference_cdt(length, strength, angle, phase, term, 
@@ -180,14 +182,22 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double cdt (particles[part][Bunch::cdt ]);
             double dpop(particles[part][Bunch::dpop]);
 
+            // upstream slot
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
-            //FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
+            // upstream edge
+            FF_algorithm::edge_unit(y, yp, edge_k);
 
+            // bend
+            // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
             FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
                     dphi, strength, pref, m, reference_cdt, 
                     phase, term);
 
+            // downstream edge
+            FF_algorithm::edge_unit(y, yp, edge_k);
+
+            // downstream slot
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
             particles[part][Bunch::x]   = x;
