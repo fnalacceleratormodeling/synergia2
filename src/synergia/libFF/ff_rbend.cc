@@ -140,6 +140,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     MArray2d_ref particles = bunch.get_local_particles();
 
     double reference_momentum = bunch.get_reference_particle().get_momentum();
+    int    reference_charge = bunch.get_reference_particle().get_charge();
     double m = bunch.get_mass();
 
     k[0] = 2.0 * sin( angle / 2.0 ) / l;
@@ -165,7 +166,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     std::complex<double> phase = std::exp( std::complex<double>(0.0, psi) );
     std::complex<double> term = length * std::complex<double> ( cos(dsFaceAngle), -sin(dsFaceAngle) );
 
-    double edge_k = strength * tan(theta) / reference_brho;
+    double edge_k = ((reference_charge > 0) ? 1.0 : -1.0 ) * strength * tan(theta) / reference_brho;
 
     if (k[2] == 0.0 && k[4] == 0.0)
     {
