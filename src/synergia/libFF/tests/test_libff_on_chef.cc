@@ -158,19 +158,19 @@ BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
     MArray2d_ref pcf = p_chef();
     MArray2d_ref pff = p_ff();
 
-    pcf[0][0] = 0.0;
-    pcf[0][1] = 0.0;
-    pcf[0][2] = 0.0;
-    pcf[0][3] = 0.0;
-    pcf[0][4] = 0.0;
-    pcf[0][5] = 0.0;
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
 
-    pff[0][0] = 0.0;
-    pff[0][1] = 0.0;
-    pff[0][2] = 0.0;
-    pff[0][3] = 0.0;
-    pff[0][4] = 0.0;
-    pff[0][5] = 0.0;
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
 
     //FF_rbend::set_yoshida_steps(1);
 

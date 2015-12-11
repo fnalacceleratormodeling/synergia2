@@ -1,24 +1,34 @@
 
 beam, particle=proton,pc=3.0;
 
+qd0: drift, l=0.0;
 qd: drift, l=1.0;
 qr: rbend, l=1.0, angle=0.17;
 qf: quadrupole, l=1.0, k1=0.01;
 qs: sextupole, l=1.0, k2=0.02;
+qsb: sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*7.3*RADDEG;
 
 seq_drift: sequence, l=1.0, refer=entry;
+sd0: qd0, at=0;
 sd: qd, at=0;
+sd1: qd0, at=1.0;
 endsequence;
 
 seq_rbend: sequence, l=1.0, refer=entry;
+sr0: qd0, at=0;
 sr: qr, at=0;
+sr1: qd0, at=1.0;
 endsequence;
 
 seq_quadrupole: sequence, l=1.0, refer=entry;
+sq0: qd0, at=0;
 sq: qf, at=0;
+sq1: qd0, at=1.0;
 endsequence;
 
 seq_sextupole: sequence, l=1.0, refer=entry;
+ss0: qd0, at=0;
 ss: qs, at=0;
+ss1: qd0, at=1.0;
 endsequence;
 
