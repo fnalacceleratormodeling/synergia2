@@ -123,16 +123,20 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     double arc_length = slice.get_right() - slice.get_left();
 
-    double angle = slice.get_lattice_element().get_double_attribute("angle");
-    double l     = slice.get_lattice_element().get_double_attribute("l");
-    double rho   = l / ( 2.0 * sin( angle / 2.0 ) );
-    double arc   = angle * rho;
-
+    double  angle = slice.get_lattice_element().get_double_attribute("angle");
+    double      l = slice.get_lattice_element().get_double_attribute("l");
+    double    rho = l / ( 2.0 * sin( angle / 2.0 ) );
+    double    arc = angle * rho;
     double length = l * (arc_length / arc);
 
     double k[6];
+
+    k[0] = 2.0 * sin( angle / 2.0 ) / l;
+    k[1] = 0;
+
     k[2]  = slice.get_lattice_element().get_double_attribute("k1");
     k[3]  = 0;  // k1s
+
     k[4]  = slice.get_lattice_element().get_double_attribute("k2");
     k[5]  = 0;  // k2s
 
@@ -140,16 +144,8 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     MArray2d_ref particles = bunch.get_local_particles();
 
     double reference_momentum = bunch.get_reference_particle().get_momentum();
-    int    reference_charge = bunch.get_reference_particle().get_charge();
+    int    reference_charge   = bunch.get_reference_particle().get_charge();
     double m = bunch.get_mass();
-
-    k[0] = 2.0 * sin( angle / 2.0 ) / l;
-    k[1] = 0;
-
-    double step_length = length/steps;
-    double step_strength[6] = { k[0]*step_length, k[1]*step_length,
-                                k[2]*step_length, k[3]*step_length,
-                                k[4]*step_length, k[5]*step_length };
 
     double pref = reference_momentum;
     double theta = angle / 2.0;
@@ -157,10 +153,10 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double st = sin(-theta);
 
     double reference_brho = pref / PH_CNV_brho_to_p;
-    double strength = reference_brho * angle / arc_length;
+    double strength = reference_brho * angle / arc;
 
-    double usFaceAngle = 0.0;
-    double dsFaceAngle = 0.0;
+    double usFaceAngle = 0.0;  // always 0 for rbends
+    double dsFaceAngle = 0.0;  // alwasy 0 for rbends
     double psi = - ( usFaceAngle + dsFaceAngle );
     double dphi = -psi;
     std::complex<double> phase = std::exp( std::complex<double>(0.0, psi) );
@@ -210,6 +206,11 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
     else
     {
+        double step_length = length/steps;
+        double step_strength[6] = { k[0]*step_length, k[1]*step_length,
+                                    k[2]*step_length, k[3]*step_length,
+                                    k[4]*step_length, k[5]*step_length };
+
         double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
         double step_reference_cdt = reference_cdt/steps;
 
