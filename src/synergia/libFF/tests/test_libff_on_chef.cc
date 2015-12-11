@@ -117,6 +117,7 @@ struct propagator_fixture
 
 ELEMENT_FIXTURE(drift);
 ELEMENT_FIXTURE(rbend);
+ELEMENT_FIXTURE(sbend);
 ELEMENT_FIXTURE(quadrupole);
 ELEMENT_FIXTURE(sextupole);
 
@@ -154,6 +155,40 @@ BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
 }
 
 BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    //FF_rbend::set_yoshida_steps(1);
+
+    propagate_chef();
+    propagate_ff();
+
+    std::cout << std::setprecision(16);
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_sbend, sbend_fixture )
 {
     MArray2d_ref pcf = p_chef();
     MArray2d_ref pff = p_ff();
