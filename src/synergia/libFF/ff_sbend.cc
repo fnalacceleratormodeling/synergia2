@@ -39,6 +39,9 @@ double FF_sbend::get_reference_cdt(double length, double angle, double strength,
 
 void FF_sbend::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
+    throw std::runtime_error("libFF sbend on JetParticle not implemented");
+
+#if 0
     double length = slice.get_right() - slice.get_left();
     double angle = slice.get_lattice_element().get_double_attribute("angle");
 
@@ -64,13 +67,14 @@ void FF_sbend::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
     sbend_unit(x, xp, y, yp, cdt, dpop,
                length, cos_angle, sin_angle,
                reference_momentum, m, reference_brho);
+#endif
 }
 
 void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     double length = slice.get_right() - slice.get_left();
-    double angle = slice.get_lattice_element().get_double_attribute("angle");
-    double l     = slice.get_lattice_element().get_double_attribute("l");
+    double  angle = slice.get_lattice_element().get_double_attribute("angle");
+    double      l = slice.get_lattice_element().get_double_attribute("l");
 
     double cos_angle = cos(angle);
     double sin_angle = sin(angle);
@@ -83,12 +87,17 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     if (slice.get_lattice_element().has_double_attribute("e2"))
         e2 = slice.get_lattice_element().get_double_attribute("e2");
 
+    double usAngle = e1;
+    double dsAngle = -e2;
+    double usFaceAngle = e1;
+    double dsFaceAngle = e2;
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
     double reference_momentum = bunch.get_reference_particle().get_momentum();
     double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
+    int    reference_charge   = bunch.get_reference_particle().get_charge();
     double m = bunch.get_mass();
 
     double strength = reference_brho * angle / l;
@@ -96,12 +105,12 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double reference_cdt = get_reference_cdt(length, angle, strength,
                                              bunch.get_reference_particle());
 
-    double psi = angle - (e1 + e2);
+    double psi = angle - (usFaceAngle + dsFaceAngle);
+    double dphi = -psi;
     std::complex<double> phase = std::exp( std::complex<double>(0.0, psi) );
     std::complex<double> term = std::complex<double>(0.0, length / angle) *
                                 std::complex<double>(1.0 - cos_angle, - sin_angle) *
-                                std::complex<double>(cos(e2), -sin(e2));
-
+                                std::complex<double>(cos(dsFaceAngle), -sin(dsFaceAngle));
 
     double pref = reference_momentum;
 
@@ -110,7 +119,11 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double ce2 = cos(-e2);
     double se2 = sin(-e2);
 
-    for (int part = 0; part < local_num; ++part) {
+    double us_edge_k =   ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(usAngle) / reference_brho;
+    double ds_edge_k = - ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(dsAngle) / reference_brho;
+
+    for (int part = 0; part < local_num; ++part) 
+    {
         double x   (particles[part][Bunch::x   ]);
         double xp  (particles[part][Bunch::xp  ]);
         double y   (particles[part][Bunch::y   ]);
@@ -120,15 +133,20 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
 
-        sbend_unit2(x, xp, y, yp, cdt, dpop,
-                   length, angle, strength,
-                   reference_momentum, m, reference_cdt, phase, term);
+        FF_algorithm::edge_unit(y, yp, us_edge_k);
+
+        FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
+                   dphi, strength, pref, m, reference_cdt,
+                   phase, term);
+
+        FF_algorithm::edge_unit(y, yp, ds_edge_k);
 
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
 
         particles[part][Bunch::x]  = x;
         particles[part][Bunch::xp] = xp;
         particles[part][Bunch::y]  = y;
+        particles[part][Bunch::yp] = yp;
         particles[part][Bunch::cdt] = cdt;
     }
 
