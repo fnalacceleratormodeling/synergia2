@@ -40,10 +40,18 @@ public:
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
 
+    double get_reference_cdt(double length, double strength, double angle, 
+                             double e1, double e2, double dphi,
+                             std::complex<double> const & phase,
+                             std::complex<double> const & term,
+                             Reference_particle &reference_particle);
+
     double get_reference_cdt(double length, double angle, double strength,
-                                   Reference_particle &reference_particle);
+                             Reference_particle &reference_particle);
+
     template<class Archive>
         void serialize(Archive & ar, const unsigned int version);
+
     virtual ~FF_sbend();
 };
 

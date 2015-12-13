@@ -6,6 +6,57 @@ FF_sbend::FF_sbend()
 
 }
 
+double FF_sbend::get_reference_cdt(double length, double strength, double angle, 
+                                   double e1, double e2, double dphi,
+                                   std::complex<double> const & phase,
+                                   std::complex<double> const & term,
+                                   Reference_particle &reference_particle) 
+{
+    double reference_cdt;
+
+    if (length == 0) 
+    {
+        reference_cdt = 0.0;
+    } 
+    else 
+    {
+        double pref = reference_particle.get_momentum();
+        double m = reference_particle.get_mass();
+
+        double x(reference_particle.get_state()[Bunch::x]);
+        double xp(reference_particle.get_state()[Bunch::xp]);
+        double y(reference_particle.get_state()[Bunch::y]);
+        double yp(reference_particle.get_state()[Bunch::yp]);
+        double cdt(reference_particle.get_state()[Bunch::cdt]);
+        double dpop(reference_particle.get_state()[Bunch::dpop]);
+
+        double ce1 = cos(-e1);
+        double se1 = sin(-e1);
+        double ce2 = cos(-e2);
+        double se2 = sin(-e2);
+
+        double cdt_orig = cdt;
+
+        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
+
+        //FF_algorithm::edge_unit(y, yp, us_edge_k);
+
+        FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
+                   dphi, strength, pref, m, 0.0/*ref cdt*/, phase, term);
+
+        //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+
+        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
+
+
+
+        reference_cdt = cdt - cdt_orig;
+    }
+
+    return reference_cdt;
+}
+
+
 double FF_sbend::get_reference_cdt(double length, double angle, double strength,
                                    Reference_particle &reference_particle) 
 {
@@ -102,9 +153,6 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     double strength = reference_brho * angle / l;
 
-    double reference_cdt = get_reference_cdt(length, angle, strength,
-                                             bunch.get_reference_particle());
-
     double psi = angle - (usFaceAngle + dsFaceAngle);
     double dphi = -psi;
     std::complex<double> phase = std::exp( std::complex<double>(0.0, psi) );
@@ -121,6 +169,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     double us_edge_k =   ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(usAngle) / reference_brho;
     double ds_edge_k = - ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(dsAngle) / reference_brho;
+
+    double reference_cdt = get_reference_cdt(length, strength, angle, e1, e2, dphi,
+            phase, term, bunch.get_reference_particle());
 
     for (int part = 0; part < local_num; ++part) 
     {
