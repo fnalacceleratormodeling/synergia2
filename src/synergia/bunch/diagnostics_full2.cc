@@ -291,6 +291,7 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(writer_num_particles)
                 & BOOST_SERIALIZATION_NVP(real_num_particles)
                 & BOOST_SERIALIZATION_NVP(writer_real_num_particles)
+                & BOOST_SERIALIZATION_NVP(pz)
                 & BOOST_SERIALIZATION_NVP(writer_pz)
                 & BOOST_SERIALIZATION_NVP(mean)
                 & BOOST_SERIALIZATION_NVP(writer_mean)
