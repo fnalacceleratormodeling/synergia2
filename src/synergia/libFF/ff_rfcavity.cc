@@ -1,10 +1,29 @@
 #include "ff_rfcavity.h"
+#include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
 
 FF_rfcavity::FF_rfcavity()
 {
 
 }
+
+double get_reference_cdt(double length, Reference_particle & reference_particle)
+{
+    double x(reference_particle.get_state()[Bunch::x]);
+    double xp(reference_particle.get_state()[Bunch::xp]);
+    double y(reference_particle.get_state()[Bunch::y]);
+    double yp(reference_particle.get_state()[Bunch::yp]);
+    double cdt(reference_particle.get_state()[Bunch::cdt]);
+    double dpop(reference_particle.get_state()[Bunch::dpop]);
+    double reference_momentum = reference_particle.get_momentum();
+    double m = reference_particle.get_mass();
+
+    double cdt_orig = cdt;
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
+
+    return cdt - cdt_orig;
+}
+
 
 void FF_rfcavity::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
@@ -44,6 +63,8 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
     double m = bunch.get_mass();
 
+    double reference_cdt = get_reference_cdt(length, bunch.get_reference_particle());
+
     for (int part = 0; part < local_num; ++part) {
         double x   (particles[part][Bunch::x   ]);
         double xp  (particles[part][Bunch::xp  ]);
@@ -52,9 +73,14 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double cdt (particles[part][Bunch::cdt ]);
         double dpop(particles[part][Bunch::dpop]);
 
+#if 0
         rfcavity_unit(x, xp, y, yp, cdt, dpop,
                       length, freq,
                       reference_momentum, m, reference_brho);
+#endif
+
+        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
+                length, reference_momentum, m, reference_cdt);
 
         particles[part][Bunch::x]  = x;
         particles[part][Bunch::xp] = xp;
