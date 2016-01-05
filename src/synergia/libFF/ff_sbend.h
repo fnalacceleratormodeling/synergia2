@@ -41,6 +41,7 @@ public:
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
 
     double get_reference_cdt(double length, double strength, double angle, 
+                             bool ledge, bool redge,
                              double e1, double e2, double dphi,
                              std::complex<double> const & phase,
                              std::complex<double> const & term,

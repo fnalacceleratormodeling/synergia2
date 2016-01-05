@@ -7,6 +7,7 @@ FF_sbend::FF_sbend()
 }
 
 double FF_sbend::get_reference_cdt(double length, double strength, double angle, 
+                                   bool ledge, bool redge,
                                    double e1, double e2, double dphi,
                                    std::complex<double> const & phase,
                                    std::complex<double> const & term,
@@ -37,18 +38,20 @@ double FF_sbend::get_reference_cdt(double length, double strength, double angle,
 
         double cdt_orig = cdt;
 
-        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
-
-        //FF_algorithm::edge_unit(y, yp, us_edge_k);
+        if (ledge)
+        {
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
+            //FF_algorithm::edge_unit(y, yp, us_edge_k);
+         }
 
         FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
                    dphi, strength, pref, m, 0.0/*ref cdt*/, phase, term);
 
-        //FF_algorithm::edge_unit(y, yp, ds_edge_k);
-
-        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
-
-
+        if (redge)
+        {
+            //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
+        }
 
         reference_cdt = cdt - cdt_orig;
     }
@@ -123,9 +126,13 @@ void FF_sbend::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-    double length = slice.get_right() - slice.get_left();
-    double  angle = slice.get_lattice_element().get_double_attribute("angle");
+    double      a = slice.get_lattice_element().get_double_attribute("angle");
     double      l = slice.get_lattice_element().get_double_attribute("l");
+    double length = slice.get_right() - slice.get_left();
+    double  angle = ( length / l ) * a;
+
+    double ledge  = slice.has_left_edge();
+    double redge  = slice.has_right_edge();
 
     double cos_angle = cos(angle);
     double sin_angle = sin(angle);
@@ -143,6 +150,18 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double usFaceAngle = e1;
     double dsFaceAngle = e2;
 
+    if (!redge)
+    {
+        dsAngle = 0;
+        dsFaceAngle = 0;
+    }
+
+    if (!ledge)
+    {
+        usAngle = 0;
+        usFaceAngle = 0;
+    }
+
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
@@ -151,7 +170,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int    reference_charge   = bunch.get_reference_particle().get_charge();
     double m = bunch.get_mass();
 
-    double strength = reference_brho * angle / l;
+    double strength = reference_brho * a / l;
 
     double psi = angle - (usFaceAngle + dsFaceAngle);
     double dphi = -psi;
@@ -170,7 +189,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double us_edge_k =   ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(usAngle) / reference_brho;
     double ds_edge_k = - ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(dsAngle) / reference_brho;
 
-    double reference_cdt = get_reference_cdt(length, strength, angle, e1, e2, dphi,
+    double reference_cdt = get_reference_cdt(length, strength, angle, ledge, redge, e1, e2, dphi,
             phase, term, bunch.get_reference_particle());
 
     for (int part = 0; part < local_num; ++part) 
@@ -182,17 +201,21 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double cdt (particles[part][Bunch::cdt ]);
         double dpop(particles[part][Bunch::dpop]);
 
-        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
-
-        FF_algorithm::edge_unit(y, yp, us_edge_k);
+        if (ledge)
+        {
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
+            FF_algorithm::edge_unit(y, yp, us_edge_k);
+        }
 
         FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
                    dphi, strength, pref, m, reference_cdt,
                    phase, term);
 
-        FF_algorithm::edge_unit(y, yp, ds_edge_k);
-
-        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
+        if (redge)
+        {
+            FF_algorithm::edge_unit(y, yp, ds_edge_k);
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
+        }
 
         particles[part][Bunch::x]  = x;
         particles[part][Bunch::xp] = xp;
