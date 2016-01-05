@@ -176,6 +176,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             cdta[part] = cdt;
             dpopa[part] = dpop;
         }
+#if 0
         double t2 = MPI_Wtime();
 #if 0
         std::copy(xa2, xa2+block_last, xa);
@@ -190,6 +191,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 //        logger << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
         logger << std::setw(8) << std::setprecision(6);
         logger << "quadrupole-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
+#endif
 
         bunch.get_reference_particle().increment_trajectory(length);
     }

@@ -56,7 +56,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-    double t0 = MPI_Wtime();
+     //double t0 = MPI_Wtime();
      const double length = slice.get_right() - slice.get_left();
      const int local_num = bunch.get_local_num();
      const double reference_momentum = bunch.get_reference_particle().get_momentum();
@@ -76,7 +76,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
      const int num_blocks = local_num / GSVector::size;
      const int block_last = num_blocks * GSVector::size;
-     double t1 = MPI_Wtime();
+     //double t1 = MPI_Wtime();
      #pragma omp parallel for
      for (int part = 0; part < block_last; part += GSVector::size) {
          GSVector x(&xa[part]);
@@ -89,12 +89,9 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
          FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                     reference_cdt);
 
-//         x.store(&xa[part]);
-//         y.store(&ya[part]);
-//         cdt.store(&cdta[part]);
-         x.store(&xa2[part]);
-         y.store(&ya2[part]);
-         cdt.store(&cdta2[part]);
+         x.store(&xa[part]);
+         y.store(&ya[part]);
+         cdt.store(&cdta[part]);
      }
      #pragma omp parallel for
      for (int part = block_last; part < local_num; ++part) {
@@ -112,7 +109,8 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
          ya[part] = y;
          cdta[part] = cdt;
      }
-     double t2 = MPI_Wtime();
+#if 0
+     //double t2 = MPI_Wtime();
 //    #pragma omp parallel for
 //     for(int part = 0; part < block_last; ++part) {
 //         xa[part] = xa2[part];
@@ -122,11 +120,12 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
      std::copy(xa2, xa2+block_last, xa);
      std::copy(ya2, ya2+block_last, ya);
      std::copy(cdta2, cdta2+block_last, cdta);
-     double t3 = MPI_Wtime();
+     //double t3 = MPI_Wtime();
      Logger logger(0);
 //     logger << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
      logger << std::setw(8) << std::setprecision(6);
      logger << "drift-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
+#endif
     bunch.get_reference_particle().increment_trajectory(length);
 }
 
