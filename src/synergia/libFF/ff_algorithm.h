@@ -97,6 +97,7 @@ public:
         xp = xp1;
     }
 
+    // exact solution for dipoles, comes from CHEF
     template <typename T>
     inline static void bend_unit
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
@@ -147,6 +148,66 @@ public:
         xp   = vuf.imag() / (Ef * PH_MKS_c);
     }
 
+    // quadrupole with simple n kicks algorithm. non-Yoshida
+    template <typename T>
+    inline static void quadrupole_chef
+      (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
+       double pref, double m, double refcdt, double len, double * str, int kicks)
+    {
+        double substep_ref_cdt = refcdt / kicks;
+        double frontLength     = 6.0*(len/4.0)/15.0;
+        double sepLength       = ( len - 2.0*frontLength ) / 3.0;
+        double kl[2]           = {str[0] * len / 4.0, str[1] * len / 4.0};
+
+        if( kicks == 1 ) 
+        {           
+            kl[0] = str[0] * len;
+            kl[1] = str[1] * len;
+
+            drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * len, pref, m, substep_ref_cdt );
+            thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len
+            drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * len, pref, m, substep_ref_cdt );
+        }
+        else if( (kicks % 4) == 0 ) 
+        { 
+            int    u     = kicks/4;
+            double xu    = u;
+            frontLength /= xu;
+            sepLength   /= xu;
+            kl[0]       /= xu;
+            kl[1]       /= xu;
+
+            for( int i=0; i<u; ++i) 
+            {
+                drift_unit( x, xp, y, yp, cdt, dpop, frontLength, pref, m, substep_ref_cdt );
+                thin_quadrupole_unit(x, xp, y, yp, kl);  // quaterStrength
+
+                for( int i=0; i<3; ++i) 
+                {
+                    drift_unit( x, xp, y, yp, cdt, dpop, sepLength, pref, m, substep_ref_cdt );
+                    thin_quadrupole_unit(x, xp, y, yp, kl);  // quaterStrength
+                }
+
+                drift_unit( x, xp, y, yp, cdt, dpop, frontLength, pref, m, substep_ref_cdt );
+            }
+        }
+        else 
+        {                   
+            kl[0] = str[0] * len / kicks;
+            kl[1] = str[1] * len / kicks;
+
+            drift_unit( x, xp, y, yp, cdt, dpop, len / (2.0*kicks), pref, m, substep_ref_cdt );
+            thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len/kicks
+
+            for( int i=0; i<kicks-1; ++i ) 
+            {
+                drift_unit( x, xp, y, yp, cdt, dpop, len / kicks, pref, m, substep_ref_cdt );
+                thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len/kicks
+            }
+
+            drift_unit( x, xp, y, yp, cdt, dpop, len / (2.0*kicks), pref, m, substep_ref_cdt );
+        }
+    }
 
     // thin kick dipole
     template <typename T>
@@ -317,7 +378,7 @@ public:
         { return 1.0 - 2.0 * x1(nn); }
     };
 
-#if 0
+#if 1
     template <
         typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
@@ -344,7 +405,8 @@ public:
             drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
         }
     };
-#endif
+
+#else
 
     template <
         typename T,
@@ -372,6 +434,7 @@ public:
             kf( x, xp, y, yp, kl );
         }
     };
+#endif
 
 
     template <
@@ -496,7 +559,7 @@ public:
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
-                                double m, double substep_reference_cdt,
+                                double m, double step_reference_cdt,
                                 double step_length, double * step_strength,
                                 int steps)
     {
@@ -510,6 +573,9 @@ public:
         const double d2 = -1.99977809735512250728995471397;
         const double d3 = -1.82324266348482825773733634154;
         const double d4 = 2.29714181079092974648453380998;
+
+        // 10 drifts per step
+        double substep_reference_cdt = step_reference_cdt * 0.1;
 
         double k1[components * 2], k2[components * 2], k3[components * 2], k4[components * 2];
 
