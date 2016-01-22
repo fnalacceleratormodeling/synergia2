@@ -54,7 +54,7 @@ struct propagator_fixture
         lattice_chef = reader.get_lattice_sptr(seq_name, "fodo.madx");
         lattice_chef->set_all_string_attribute("extractor_type", "chef_propagate");
 
-        stepper_chef.reset(new Independent_stepper_elements(lattice_chef, map_order, num_steps));
+        stepper_chef.reset(new Independent_stepper(lattice_chef, map_order, num_steps));
         propagator_chef = new Propagator(stepper_chef);
 
         bunch_chef.reset(new Bunch(lattice_chef->get_reference_particle(), 1, 1.0e9, commxx));
@@ -64,7 +64,7 @@ struct propagator_fixture
         lattice_ff = reader.get_lattice_sptr(seq_name, "fodo.madx");
         lattice_ff->set_all_string_attribute("extractor_type", "libff");
 
-        stepper_ff.reset(new Independent_stepper_elements(lattice_ff, map_order, num_steps));
+        stepper_ff.reset(new Independent_stepper(lattice_ff, map_order, num_steps));
         propagator_ff = new Propagator(stepper_ff);
 
         bunch_ff.reset(new Bunch(lattice_ff->get_reference_particle(), 1, 1.0e9, commxx));
@@ -102,8 +102,8 @@ struct propagator_fixture
     Lattice_sptr lattice_chef;
     Lattice_sptr lattice_ff;
 
-    Independent_stepper_elements_sptr stepper_chef;
-    Independent_stepper_elements_sptr stepper_ff;
+    Independent_stepper_sptr stepper_chef;
+    Independent_stepper_sptr stepper_ff;
 
     Propagator * propagator_chef;
     Propagator * propagator_ff;
@@ -120,6 +120,7 @@ ELEMENT_FIXTURE(rbend);
 ELEMENT_FIXTURE(sbend);
 ELEMENT_FIXTURE(quadrupole);
 ELEMENT_FIXTURE(sextupole);
+ELEMENT_FIXTURE(rfc);
 
 #if 1
 BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
@@ -129,22 +130,23 @@ BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
 
     pcf[0][0] = 0.1;
     pcf[0][1] = 0.1;
-    pcf[0][2] = 0.0;
-    pcf[0][3] = 0.0;
-    pcf[0][4] = 0.0;
-    pcf[0][5] = 0.0;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
 
     pff[0][0] = 0.1;
     pff[0][1] = 0.1;
-    pff[0][2] = 0.0;
-    pff[0][3] = 0.0;
-    pff[0][4] = 0.0;
-    pff[0][5] = 0.0;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\ndrift\n";
 
     propagate_chef();
     propagate_ff();
-
-    std::cout << std::setprecision(10);
 
     for(int i=0; i<6; ++i)
     {
@@ -154,6 +156,7 @@ BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
     BOOST_CHECK(true);
 }
 
+#if 0
 BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -175,10 +178,11 @@ BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
 
     //FF_rbend::set_yoshida_steps(1);
 
+    std::cout << std::setprecision(16);
+    std::cout << "\nrbend\n";
+
     propagate_chef();
     propagate_ff();
-
-    std::cout << std::setprecision(16);
 
     for(int i=0; i<6; ++i)
     {
@@ -187,6 +191,7 @@ BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
 
     BOOST_CHECK(true);
 }
+#endif
 
 BOOST_FIXTURE_TEST_CASE( test_sbend, sbend_fixture )
 {
@@ -209,10 +214,11 @@ BOOST_FIXTURE_TEST_CASE( test_sbend, sbend_fixture )
 
     //FF_rbend::set_yoshida_steps(1);
 
+    std::cout << std::setprecision(16);
+    std::cout << "\nsbend\n";
+
     propagate_chef();
     propagate_ff();
-
-    std::cout << std::setprecision(16);
 
     for(int i=0; i<6; ++i)
     {
@@ -227,25 +233,25 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
     MArray2d_ref pcf = p_chef();
     MArray2d_ref pff = p_ff();
 
-    pcf[0][0] = 0.0;
+    pcf[0][0] = 0.1;
     pcf[0][1] = 0.1;
-    pcf[0][2] = 0.0;
-    pcf[0][3] = 0.0;
-    pcf[0][4] = 0.0;
-    pcf[0][5] = 0.0;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
 
-    pff[0][0] = 0.0;
+    pff[0][0] = 0.1;
     pff[0][1] = 0.1;
-    pff[0][2] = 0.0;
-    pff[0][3] = 0.0;
-    pff[0][4] = 0.0;
-    pff[0][5] = 0.0;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nquadrupole\n";
 
     propagate_chef();
     propagate_ff();
-
-    std::cout << std::setprecision(10);
-
 
     for(int i=0; i<6; ++i)
     {
@@ -262,22 +268,23 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
 
     pcf[0][0] = 0.1;
     pcf[0][1] = 0.1;
-    pcf[0][2] = 0.0;
-    pcf[0][3] = 0.0;
-    pcf[0][4] = 0.0;
-    pcf[0][5] = 0.0;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
 
     pff[0][0] = 0.1;
     pff[0][1] = 0.1;
-    pff[0][2] = 0.0;
-    pff[0][3] = 0.0;
-    pff[0][4] = 0.0;
-    pff[0][5] = 0.0;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nsextupole\n";
 
     propagate_chef();
     propagate_ff();
-
-    std::cout << std::setprecision(10);
 
     for(int i=0; i<6; ++i)
     {
@@ -286,6 +293,40 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
 
     BOOST_CHECK(true);
 }
+
+BOOST_FIXTURE_TEST_CASE( test_rfc, rfc_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nrfcavity\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    BOOST_CHECK(true);
+}
+
 #endif
 
 #if 0

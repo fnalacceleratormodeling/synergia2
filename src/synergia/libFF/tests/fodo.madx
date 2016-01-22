@@ -2,11 +2,14 @@
 beam, particle=proton,pc=3.0;
 
 qd0: drift, l=0.0;
+qd1: drift, l=1.0;
 qd: drift, l=1.0;
 qr: rbend, l=1.0, angle=0.17;
-qf: quadrupole, l=1.0, k1=0.01;
+qf: quadrupole, l=1.0, k1=0.311872401;
 qs: sextupole, l=1.0, k2=0.02;
-qsb: sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG;
+qsb: sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.035;
+//qrfc: rfcavity, l=2.998, volt=3.38965e-07, harmon=1, lag=0, freq=55.43860156259074;
+qrfc: rfcavity, l=2.998, volt=3.38965e-07, lag=0, freq=55.43860156259074;
 
 seq_drift: sequence, l=1.0, refer=entry;
 sd0: qd0, at=0;
@@ -14,10 +17,10 @@ sd: qd, at=0;
 sd1: qd0, at=1.0;
 endsequence;
 
-seq_rbend: sequence, l=1.0, refer=entry;
-sr0: qd0, at=0;
-sr: qr, at=0;
-sr1: qd0, at=1.0;
+seq_rbend: sequence, l=3.0, refer=entry;
+sr0: qd1, at=0;
+sr: qr, at=1.0;
+sr1: qd1, at=2.0;
 endsequence;
 
 seq_sbend: sequence, l=1.0, refer=entry;
@@ -36,5 +39,11 @@ seq_sextupole: sequence, l=1.0, refer=entry;
 ss0: qd0, at=0;
 ss: qs, at=0;
 ss1: qd0, at=1.0;
+endsequence;
+
+seq_rfc: sequence, l=3.998, refer=entry;
+sc0: qd0, at=0;
+srfc: qrfc, at=0;
+sc1: qd1, at=2.998;
 endsequence;
 
