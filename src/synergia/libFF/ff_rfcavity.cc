@@ -1,6 +1,7 @@
 #include "ff_rfcavity.h"
 #include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
+#include "synergia/foundation/math_constants.h"
 
 FF_rfcavity::FF_rfcavity()
 {
@@ -54,7 +55,17 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, JetParticle& jet_par
 void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     double length = slice.get_right() - slice.get_left();
-    double freq = 0.0;
+    Lattice_element const & elm = slice.get_lattice_element();
+
+    int    harmonic_number = elm.get_double_attribute("harmon");
+    double            volt = elm.get_double_attribute("volt");
+    double             lag = elm.get_double_attribute("lag");
+    double           shunt = elm.get_double_attribute("shunt");
+    double            freq = elm.get_double_attribute("freq");
+
+    double   str = volt * 1.0e-3;
+    double phi_s = 2.0 * mconstants::pi * lag;
+    double  w_rf = 2.0 * mconstants::pi * freq * 1.0e6;
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
@@ -63,9 +74,12 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
     double m = bunch.get_mass();
 
+    double new_ref_p = FF_algorithm::thin_rfcavity_pnew(reference_momentum, m, str, phi_s);
+
     double reference_cdt = get_reference_cdt(length, bunch.get_reference_particle());
 
-    for (int part = 0; part < local_num; ++part) {
+    for (int part = 0; part < local_num; ++part) 
+    {
         double x   (particles[part][Bunch::x   ]);
         double xp  (particles[part][Bunch::xp  ]);
         double y   (particles[part][Bunch::y   ]);
@@ -73,19 +87,21 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double cdt (particles[part][Bunch::cdt ]);
         double dpop(particles[part][Bunch::dpop]);
 
-#if 0
-        rfcavity_unit(x, xp, y, yp, cdt, dpop,
-                      length, freq,
-                      reference_momentum, m, reference_brho);
-#endif
+        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
+                0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
+
+        FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop,
+                w_rf, str, phi_s, m, reference_momentum, new_ref_p);
 
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
-                length, reference_momentum, m, reference_cdt);
+                0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
 
-        particles[part][Bunch::x]  = x;
-        particles[part][Bunch::xp] = xp;
-        particles[part][Bunch::y]  = y;
-        particles[part][Bunch::cdt] = cdt;
+        particles[part][Bunch::x]    = x;
+        particles[part][Bunch::xp]   = xp;
+        particles[part][Bunch::y]    = y;
+        particles[part][Bunch::yp]   = yp;
+        particles[part][Bunch::cdt]  = cdt;
+        particles[part][Bunch::dpop] = dpop;
     }
 
     bunch.get_reference_particle().increment_trajectory(length);
