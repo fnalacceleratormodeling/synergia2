@@ -94,9 +94,11 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    if (length == 0.0) {
+    if (length == 0.0) 
+    {
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) {
+        for (int part = 0; part < local_num; ++part) 
+        {
             double x(particles[part][Bunch::x]);
             double xp(particles[part][Bunch::xp]);
             double y(particles[part][Bunch::y]);
@@ -107,7 +109,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             particles[part][Bunch::xp] = xp;
             particles[part][Bunch::yp] = yp;
         }
-    } else {
+    } 
+    else 
+    {
         double reference_momentum = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
@@ -115,52 +119,72 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-        double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
-               * RESTRICT cdta, * RESTRICT dpopa;
-        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-        double * RESTRICT xa2, * RESTRICT xpa2, * RESTRICT ya2, * RESTRICT ypa2,
-                * RESTRICT cdta2, * RESTRICT dpopa2;
-        bunch.set_alt_arrays(xa2, xpa2, ya2, ypa2, cdta2, dpopa2);
+        double * RESTRICT xa, * RESTRICT xpa;
+        double * RESTRICT ya, * RESTRICT ypa;
+        double * RESTRICT cdta, * RESTRICT dpopa;
 
-//        double xtmp[local_num];
-//        double xptmp[local_num];
-//        double ytmp[local_num];
-//        double yptmp[local_num];
-//        double cdttmp[local_num];
-//        double dpoptmp[local_num];
+        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
         const int num_blocks = local_num / GSVector::size;
         const int block_last = num_blocks * GSVector::size;
-        double t1 = MPI_Wtime();
+
         #pragma omp parallel for
-        for (int part = 0; part < block_last; part += GSVector::size) {
-            GSVector x(&xa[part]);
-            GSVector xp(&xpa[part]);
-            GSVector y(&ya[part]);
-            GSVector yp(&ypa[part]);
-            GSVector cdt(&cdta[part]);
+        for (int part = 0; part < block_last; part += GSVector::size) 
+        {
+            GSVector    x(   &xa[part]);
+            GSVector   xp(  &xpa[part]);
+            GSVector    y(   &ya[part]);
+            GSVector   yp(  &ypa[part]);
+            GSVector  cdt( &cdta[part]);
             GSVector dpop(&dpopa[part]);
 
+#if 0
+            FF_algorithm::yoshida<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 6/*order*/, 1/*components*/ >
+                    ( x, xp, y, yp, cdt, dpop,
+                      reference_momentum, m,
+                      step_reference_cdt,
+                      step_length, step_strength, steps );
+#endif
+
+#if 0
+            FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
+                    ( x, xp, y, yp, cdt, dpop,
+                      reference_momentum, m,
+                      step_reference_cdt,
+                      step_length, step_strength, steps );
+#endif
+
+#if 1
             FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
                     ( x, xp, y, yp, cdt, dpop,
                       reference_momentum, m,
                       step_reference_cdt,
                       step_length, step_strength, steps );
+#endif
 
-            x.store(&xa[part]);
-            xp.store(&xpa[part]);
-            y.store(&ya[part]);
-            yp.store(&ypa[part]);
-            cdt.store(&cdta[part]);
+#if 0
+            FF_algorithm::quadrupole_chef<GSVector>
+                    ( x, xp, y, yp, cdt, dpop,
+                      reference_momentum, m,
+                      reference_cdt, length, k, 40 /* kicks */ );
+#endif
+
+               x.store(&xa[part]);
+              xp.store(&xpa[part]);
+               y.store(&ya[part]);
+              yp.store(&ypa[part]);
+             cdt.store(&cdta[part]);
             dpop.store(&dpopa[part]);
         }
+
         #pragma omp parallel for
-        for (int part = block_last; part < local_num; ++part) {
-            double x(xa[part]);
-            double xp(xpa[part]);
-            double y(ya[part]);
-            double yp(ypa[part]);
-            double cdt(cdta[part]);
+        for (int part = block_last; part < local_num; ++part) 
+        {
+            double    x(   xa[part]);
+            double   xp(  xpa[part]);
+            double    y(   ya[part]);
+            double   yp(  ypa[part]);
+            double  cdt( cdta[part]);
             double dpop(dpopa[part]);
 
             FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
@@ -169,29 +193,13 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                       step_reference_cdt,
                       step_length, step_strength, steps );
 
-            xa[part] = x;
-            xpa[part] = xp;
-            ya[part] = y;
-            ypa[part] = yp;
-            cdta[part] = cdt;
+               xa[part] = x;
+              xpa[part] = xp;
+               ya[part] = y;
+              ypa[part] = yp;
+             cdta[part] = cdt;
             dpopa[part] = dpop;
         }
-#if 0
-        double t2 = MPI_Wtime();
-#if 0
-        std::copy(xa2, xa2+block_last, xa);
-        std::copy(xpa2, xpa2+block_last, xpa);
-        std::copy(ya2, ya2+block_last, ya);
-        std::copy(ypa2, ypa2+block_last, ypa);
-        std::copy(cdta2, cdta2+block_last, cdta);
-        std::copy(dpopa2, dpopa2+block_last, dpopa);
-#endif
-        double t3 = MPI_Wtime();
-        Logger logger(0);
-//        logger << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
-        logger << std::setw(8) << std::setprecision(6);
-        logger << "quadrupole-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
-#endif
 
         bunch.get_reference_particle().increment_trajectory(length);
     }
