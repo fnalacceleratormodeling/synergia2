@@ -271,6 +271,42 @@ public:
         yp += vkL;
     }
 
+    inline static double thin_rfcavity_pnew
+      (double pref, double m, double volt, double phi_s)
+    {
+        double E0 = sqrt(pref * pref + m * m);
+        double E1 = E0 + volt * sin(phi_s);
+        return sqrt(E1 * E1 - m * m);
+    }
+
+    template <typename T>
+    inline static void thin_rfcavity_unit
+      (T & px, T & py, T const & cdt, T & dpop, 
+       double w_rf, double volt, double phi_s, double m, double old_ref_p, double new_ref_p)
+    {
+        double const anh_phase             = 0.0;
+        double const mhp_harmonic_multiple = 1.0;
+        double const mhp_relative_strength = 1.0;
+        double const mhp_phase_shift       = 0.0;
+
+        double phase_slip_argument = ( cdt * w_rf / PH_MKS_c ) + anh_phase;
+
+        double strength_factor = 0.0;
+
+        strength_factor += mhp_relative_strength * 
+            sin( mhp_harmonic_multiple * (phi_s + phase_slip_argument) + mhp_phase_shift );
+
+        double p = old_ref_p * (dpop + 1.0);
+        double E = sqrt(p * p + m * m);
+
+        E += volt * strength_factor;
+
+        px *= old_ref_p / new_ref_p;
+        py *= old_ref_p / new_ref_p;
+
+        dpop = sqrt((E-m)*(E+m)) / new_ref_p - 1.0;
+    }
+
     // general thin magnets of n-th order
     // n = 1, dipole; n = 2, quadrupole; n = 3, sextupole, etc.
     template <typename T>
