@@ -431,6 +431,7 @@ struct synergia::madx_tree_parser
            ("nllens"     , mx_keyword("nllens"     , MX_KW_ELEMENT) )
            ("hkicker"    , mx_keyword("hkicker"    , MX_KW_ELEMENT) )
            ("vkicker"    , mx_keyword("vkicker"    , MX_KW_ELEMENT) )
+           ("tkicker"    , mx_keyword("tkicker"    , MX_KW_ELEMENT) )
            ("kicker"     , mx_keyword("kicker"     , MX_KW_ELEMENT) )
            ("rfcavity"   , mx_keyword("rfcavity"   , MX_KW_ELEMENT) )
            ("rfmultipole", mx_keyword("rfmultipole", MX_KW_ELEMENT) )

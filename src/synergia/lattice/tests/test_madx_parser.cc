@@ -416,6 +416,21 @@ BOOST_AUTO_TEST_CASE(continuation3)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("k1"), 0.2, tolerance );
 }
 
+BOOST_AUTO_TEST_CASE(tkicker)
+{
+  string str = "tk: tkicker, hkick=0.01;";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
+
+  MadX_command cmd = mx.command("tk");
+  BOOST_CHECK_EQUAL( cmd.name(), "tkicker" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 1 );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("hkick"), 0.01, tolerance );
+}
+
+
 BOOST_AUTO_TEST_CASE(line_expansion)
 {
   string str = "a:rbend; b:rbend; c:rbend; d:rbend; e:rbend; f:rbend; g:rbend; h:rbend;"
