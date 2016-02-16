@@ -73,10 +73,17 @@ BOOST_AUTO_TEST_CASE(keyword_leading_values)
 {
   // n.b. "pine" starts with "pi"
   string str = "xpine = 3; v = xpine; ";
-  str += "fodo: sequence, refer=entry, l=12.0; endsequence;";
+  str += "fodo: sequence, refer=entry, l=12.0; endmark, at=5.0; endsequence;";
   MadX mx;
 
-//  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+
+  MadX_sequence seq = mx.sequence("fodo");
+  BOOST_CHECK_EQUAL( seq.element_count(), 1 );
+  BOOST_CHECK_CLOSE( seq.element_at(0), 5.0, tolerance);
+
+  MadX_command cmd = seq.element(0);
+  BOOST_CHECK_EQUAL( cmd.name(), "endmark" );
 }
 
 BOOST_AUTO_TEST_CASE(mad_constants)
