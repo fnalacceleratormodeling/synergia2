@@ -326,28 +326,9 @@ void mx_command::interpret(MadX & mx)
     // unlabeled class? -- it is a warning and will be skipped
     if ( !labeled_ )
     {
-      // special case for 'endmark'
-      if ( keyword_ == "endmark" && mx.building_sequence() )
-      {
-        if ( mx.entry_type("global_endmark_element") == ENTRY_NULL )
-        {
-          MadX_command endmark;
-          endmark.set_name("endmark", ELEMENT);
-          mx.insert_label("global_endmark_element", endmark);
-        }
-
-        double at = new_cmd.attribute_as_number("at");
-        string from = new_cmd.attribute_as_string("from", "");
-        mx.append_sequence_element( "global_endmark_element", at, from );
-
-        return;
-      }
-      else
-      {
-        cout << "statment illegal in the context (declaring the element '" 
-             << keyword_ << "' without a label), will be skipped\n";
-        return;
-      }
+      cout << "statment illegal in the context (declaring the element '" 
+           << keyword_ << "' without a label), will be skipped\n";
+      return;
     }
 
     // insert a label

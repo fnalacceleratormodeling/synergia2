@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(mod_variable_assignment)
 BOOST_AUTO_TEST_CASE(keyword_leading_values)
 {
   // n.b. "pine" starts with "pi"
-  string str = "xpine = 3; v = xpine; ";
+  string str = "xpine = 3; v = xpine; endmark: marker;";
   str += "fodo: sequence, refer=entry, l=12.0; endmark, at=5.0; endsequence;";
   MadX mx;
 
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(keyword_leading_values)
   BOOST_CHECK_CLOSE( seq.element_at(0), 5.0, tolerance);
 
   MadX_command cmd = seq.element(0);
-  BOOST_CHECK_EQUAL( cmd.name(), "endmark" );
+  BOOST_CHECK_EQUAL( cmd.name(), "marker" );
 }
 
 BOOST_AUTO_TEST_CASE(mad_constants)
