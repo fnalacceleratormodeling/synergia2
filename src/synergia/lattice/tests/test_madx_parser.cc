@@ -438,6 +438,23 @@ BOOST_AUTO_TEST_CASE(tkicker)
 }
 
 
+BOOST_AUTO_TEST_CASE(comment_at_tail)
+{
+  string str = "tk: tkicker, hkick=0.01;!afdsak";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+}
+
+BOOST_AUTO_TEST_CASE(parse_file)
+{
+  MadX   mx;
+
+  //parse_madx_file( "./PS.madx", mx );
+  //BOOST_CHECK_NO_THROW( parse_madx_file( "./pstest/PS.madx", mx ) );
+}
+
+
 BOOST_AUTO_TEST_CASE(line_expansion)
 {
   string str = "a:rbend; b:rbend; c:rbend; d:rbend; e:rbend; f:rbend; g:rbend; h:rbend;"

@@ -711,8 +711,9 @@ bool synergia::parse_int_madx( string const & s, mx_tree & doc, string const & f
 bool synergia::parse_madx( string const & str, MadX & mx, string const & f )
 {
   // first parse the madx doc into a statement tree
+  string s = str + "\n";
   mx_tree tree;
-  parse_int_madx(str, tree, f);
+  parse_int_madx(s, tree, f);
 
   // print for debug purpose
   //tree.print();
