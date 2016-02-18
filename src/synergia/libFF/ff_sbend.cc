@@ -44,7 +44,7 @@ double FF_sbend::get_reference_cdt(double length, double strength, double angle,
             //FF_algorithm::edge_unit(y, yp, us_edge_k);
          }
 
-        FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
+        FF_algorithm::bend_complete(x, xp, y, yp, cdt, dpop,
                    dphi, strength, pref, m, 0.0/*ref cdt*/, phase, term);
 
         if (redge)
@@ -131,6 +131,8 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double length = slice.get_right() - slice.get_left();
     double  angle = ( length / l ) * a;
 
+    double     r0 = l / a;
+
     double ledge  = slice.has_left_edge();
     double redge  = slice.has_right_edge();
 
@@ -144,6 +146,18 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         e1 = slice.get_lattice_element().get_double_attribute("e1");
     if (slice.get_lattice_element().has_double_attribute("e2"))
         e2 = slice.get_lattice_element().get_double_attribute("e2");
+
+
+    bool cf = false;  // combined function
+    double k1[2] = { 0.0, 0.0 };
+
+    if (slice.get_lattice_element().has_double_attribute("k1"))
+    {
+        cf = true;
+        k1[0] = slice.get_lattice_element().get_double_attribute("k1");
+        k1[1] = 0.0;
+    }
+
 
     double usAngle = e1;
     double dsAngle = -e2;
@@ -192,6 +206,17 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double reference_cdt = get_reference_cdt(length, strength, angle, ledge, redge, e1, e2, dphi,
             phase, term, bunch.get_reference_particle());
 
+    std::complex<double> phase_e1 = FF_algorithm::bend_edge_phase(e1);
+    std::complex<double> phase_e2 = FF_algorithm::bend_edge_phase(e2);
+
+    std::complex<double> phase_unit = FF_algorithm::bend_unit_phase(angle);
+    std::complex<double>  term_unit = FF_algorithm::bend_unit_term(r0, angle);
+
+    double step_reference_cdt = reference_cdt / steps;
+    double step_angle = angle / steps;
+    double step_length = length / steps;
+    double step_strength[2] = { k1[0] * step_length, k1[1] * step_length };
+
     for (int part = 0; part < local_num; ++part) 
     {
         double x   (particles[part][Bunch::x   ]);
@@ -205,14 +230,27 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         {
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
             FF_algorithm::edge_unit(y, yp, us_edge_k);
+
+            FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref, m);
         }
 
+
+#if 0
         FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
-                   dphi, strength, pref, m, reference_cdt,
-                   phase, term);
+                   angle, strength, pref, m, reference_cdt,
+                   phase_unit_2, term_unit_2);
+#endif
+
+        FF_algorithm::bend_yoshida4<double, FF_algorithm::thin_cf_quadrupole_unit<double>,1 >
+            ( x, xp, y, yp, cdt, dpop,
+              pref, m, step_reference_cdt,
+              step_angle, step_strength,
+              r0, strength, steps );
 
         if (redge)
         {
+            FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref, m);
+
             FF_algorithm::edge_unit(y, yp, ds_edge_k);
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
         }

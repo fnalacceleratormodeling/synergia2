@@ -99,7 +99,7 @@ public:
 
     // exact solution for dipoles, comes from CHEF
     template <typename T>
-    inline static void bend_unit
+    inline static void bend_complete
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double dphi, double strength, double p_ref, double m, double cdt_ref,
        std::complex<double> phase, std::complex<double> term)
@@ -147,6 +147,154 @@ public:
         cdt += ncdt - cdt_ref;
         xp   = vuf.imag() / (Ef * PH_MKS_c);
     }
+
+    template <typename T>
+    inline static void bend_unit
+      (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
+       double theta, double strength, double p_ref, double m, double cdt_ref,
+       std::complex<double> phase, std::complex<double> term)
+    {
+        typedef std::complex<T> CT;
+
+        T p0 = p_ref;
+        T p  = p_ref * (dpop + 1.0);
+        T E0 = sqrt(p0 * p0 + m * m);
+        T E  = sqrt(p * p + m * m);
+
+        T igamma = m / E0;
+        T ibeta  = invsqrt(1.0 - igamma * igamma);
+
+        T csq = PH_MKS_c * PH_MKS_c * 1e-9;
+        T psq = (dpop + 1.0) * (dpop + 1.0);
+
+        T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
+
+        T beta1 = Ef * xp;
+        T beta2 = Ef * yp;
+        T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
+
+        CT ui  = CT(0.0, x);
+        CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+
+        T iomega = E / (csq * strength);
+
+        CT bi = CT(0.0, 1.0) * vui * iomega - ui;
+        CT bf = bi * phase + term;
+
+        T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+
+        T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+
+        CT expf = std::exp( CT(0.0, dthmphi) );
+        CT vuf  = vui * expf;
+        CT uf   = (ui + bi) * expf - bf;
+
+        T dtheta = dthmphi - theta;
+        T ncdt = - PH_MKS_c * dtheta * iomega;
+
+        x    = uf.imag();
+        y   += beta2 * ncdt;
+        cdt += ncdt - cdt_ref;
+        xp   = vuf.imag() / (Ef * PH_MKS_c);
+    }
+    
+    inline static std::complex<double> bend_unit_phase(double theta)
+    { return std::exp( std::complex<double>(0.0, theta) ); }
+
+    inline static std::complex<double> bend_edge_phase(double theta)
+    { return std::exp( std::complex<double>(0.0, -theta) ); }
+
+    inline static std::complex<double> bend_unit_term(double r0, double theta)
+    { return std::complex<double>(0.0, r0) * std::complex<double>(1.0 - cos(theta), -sin(theta)); }
+
+    template <typename T>
+    inline static void bend_edge
+      (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
+       double e, std::complex<double> phase, double strength, double p_ref, double m)
+    {
+        typedef std::complex<T> CT;
+
+        T p0 = p_ref;
+        T p  = p_ref * (dpop + 1.0);
+        T E0 = sqrt(p0 * p0 + m * m);
+        T E  = sqrt(p * p + m * m);
+
+        T igamma = m / E0;
+        T ibeta  = invsqrt(1.0 - igamma * igamma);
+
+        T csq = PH_MKS_c * PH_MKS_c * 1e-9;
+        T psq = (dpop + 1.0) * (dpop + 1.0);
+
+        T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
+
+        T beta1 = Ef * xp;
+        T beta2 = Ef * yp;
+        T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
+
+        CT ui  = CT(0.0, x);
+        CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+
+        T iomega = E / (csq * strength);
+
+        CT bi = CT(0.0, 1.0) * vui * iomega - ui;
+        CT bf = bi * phase;
+
+        T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+
+        T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+
+        CT expf = std::exp( CT(0.0, dthmphi) );
+        CT vuf  = vui * expf;
+        CT uf   = (ui + bi) * expf - bf;
+
+        T dtheta = dthmphi + e;
+        T ncdt = - PH_MKS_c * dtheta * iomega;
+
+        x    = uf.imag();
+        y   += beta2 * ncdt;
+        cdt += ncdt;
+        xp   = vuf.imag() / (Ef * PH_MKS_c);
+    }
+
+    template <typename T>
+    inline static void thin_cf_quadrupole_unit
+      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL) 
+    {
+        T vk0(kL[0]);
+        T vk1(kL[1]);
+
+        T alf = x / r0;
+
+#define MODEL 10
+
+#if MODEL==10
+        T Bx = r0 * ( y / (r0 + x) );
+        T By = r0 * log(1.0 + alf);
+        xp = xp - vk0 * By * (1.0 + alf);
+        yp = yp + vk0 * Bx * (1.0 + alf);
+#elif MODEL==11
+        T Bx = y * (1.0 - alf + alf * alf);
+        T By = x * (1.0 - 0.5 * alf + alf * alf / 3.0);
+        xp = xp - vk0 * By * (1.0 + alf);
+        yp = yp + vk0 * Bx * (1.0 + alf);
+#elif MODEL==12
+        T Bx = y * (1.0 - alf);
+        T By = x * (1.0 - 0.5 * alf);
+        xp = xp - vk0 * By * (1.0 + alf);
+        yp = yp + vk0 * Bx * (1.0 + alf);
+#elif MODEL==13
+        T Bx = y;
+        T By = x;
+        xp = xp - vk0 * By * (1.0 + alf);
+        yp = yp + vk0 * Bx * (1.0 + alf);
+#elif MODEL==14
+        T Bx = y;
+        T By = x;
+        xp = xp - vk0 * By;
+        yp = yp + vk0 * Bx;
+#endif
+    }
+
 
     // quadrupole with simple n kicks algorithm. non-Yoshida
     template <typename T>
@@ -682,6 +830,113 @@ public:
         }
     }
 
+
+    template <
+        typename T, 
+        void(kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),
+        int components >
+    inline static void bend_yoshida4(T & x, T & xp,
+                                T & y, T & yp,
+                                T & cdt, T const& dpop,
+                                double reference_momentum,
+                                double m, double step_reference_cdt,
+                                double step_angle, double * step_strength,
+                                double r0, double bend_strength, 
+                                int steps)
+    {
+        // see yoshida4.py for formulas
+        const double c1 = 0.675603595979828817023843904487;
+        const double c4 = c1;
+        const double c2 = -0.175603595979828817023843904487;
+        const double c3 = c2;
+        const double d1 = 1.35120719195965763404768780897;
+        const double d3 = d1;
+        const double d2 = -1.70241438391931526809537561795;
+
+        double k1[components * 2], k2[components * 2], k3[components * 2];
+
+        double substep_reference_cdt = step_reference_cdt * 0.25;
+
+        for (int i=0; i<components; ++i)
+        {
+            k1[i*2+0] = d1 * step_strength[i*2+0];
+            k1[i*2+1] = d1 * step_strength[i*2+1];
+
+            k2[i*2+0] = d2 * step_strength[i*2+0];
+            k2[i*2+1] = d2 * step_strength[i*2+1];
+
+            k3[i*2+0] = d3 * step_strength[i*2+0];
+            k3[i*2+1] = d3 * step_strength[i*2+1];
+        }
+
+        static double stheta = 0.0;
+        static double sr0 = 0.0;
+
+        static std::complex<double> c1_step_phase = bend_unit_phase(c1 * stheta);
+        static std::complex<double> c2_step_phase = bend_unit_phase(c2 * stheta);
+        static std::complex<double> c3_step_phase = bend_unit_phase(c3 * stheta);
+        static std::complex<double> c4_step_phase = bend_unit_phase(c4 * stheta);
+
+        static std::complex<double> c1_step_term = bend_unit_term(sr0, c1 * stheta);
+        static std::complex<double> c2_step_term = bend_unit_term(sr0, c2 * stheta);
+        static std::complex<double> c3_step_term = bend_unit_term(sr0, c3 * stheta);
+        static std::complex<double> c4_step_term = bend_unit_term(sr0, c4 * stheta);
+
+        double theta = step_angle;
+
+        if (theta != stheta)
+        {
+            // updates both phase and term
+            c1_step_phase = bend_unit_phase(c1 * theta);
+            c2_step_phase = bend_unit_phase(c2 * theta);
+            c3_step_phase = bend_unit_phase(c3 * theta);
+            c4_step_phase = bend_unit_phase(c4 * theta);
+
+            c1_step_term = bend_unit_term(r0, c1 * theta);
+            c2_step_term = bend_unit_term(r0, c2 * theta);
+            c3_step_term = bend_unit_term(r0, c3 * theta);
+            c4_step_term = bend_unit_term(r0, c4 * theta);
+
+            stheta = theta;
+            sr0 = r0;
+        }
+        else if (r0 != sr0)
+        {
+            // update term only
+            c1_step_term = bend_unit_term(r0, c1 * theta);
+            c2_step_term = bend_unit_term(r0, c2 * theta);
+            c3_step_term = bend_unit_term(r0, c3 * theta);
+            c4_step_term = bend_unit_term(r0, c4 * theta);
+
+            sr0 = r0;
+        }
+
+        for(int i = 0; i < steps; ++i) 
+        {
+            bend_unit(x, xp, y, yp, cdt, dpop, c1 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c1_step_phase, c1_step_term);
+
+            kf( x, xp, y, yp, r0, k1 );
+
+            bend_unit(x, xp, y, yp, cdt, dpop, c2 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+
+            kf( x, xp, y, yp, r0, k2 );
+
+            bend_unit(x, xp, y, yp, cdt, dpop, c3 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c3_step_phase, c3_step_term);
+
+            kf( x, xp, y, yp, r0, k3 );
+
+            bend_unit(x, xp, y, yp, cdt, dpop, c4 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c4_step_phase, c4_step_term);
+        }
+    }
+
+
+
 };
+
+
 
 #endif // FF_ALGORITHM_H
