@@ -741,6 +741,8 @@ namespace
     str.assign((istreambuf_iterator<char>(file)),
                 istreambuf_iterator<char>());
 
+    str.append("\n");
+
     file.close();
   }
 }
