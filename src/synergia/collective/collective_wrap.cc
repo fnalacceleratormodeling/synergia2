@@ -4,7 +4,6 @@
 #include "interpolate_rectangular_zyx.h"
 #include "space_charge_2d_bassetti_erskine.h"
 #include "space_charge_rectangular.h"
-#include "ecloud_from_vorpal.h"
 #include "impedance.h"
 #include "wake_field.h"
 #include "synergia/utils/container_conversions.h"
@@ -115,14 +114,6 @@ BOOST_PYTHON_MODULE(collective)
               .def("apply", &Space_charge_rectangular::apply)
         ;
 
-    class_<Ecloud_from_vorpal, Ecloud_from_vorpal_sptr,
-        bases<Collective_operator > >("Ecloud_from_vorpal",
-                init<Commxx_sptr, std::string, std::string >())
-                .def("apply", &Ecloud_from_vorpal::apply)
-                .def("add_device", &Ecloud_from_vorpal::add_device)
-		.def("set_enhancing_factor", &Ecloud_from_vorpal::set_enhancing_factor)
-        ;
- 
     class_<Wake_field,Wake_field_sptr>("Wake_field",
 	        init<std::string const & , std::string const &  >())
          .def("get_wake_file_name", &Wake_field::get_wake_file_name)
