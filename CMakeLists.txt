@@ -8,7 +8,6 @@ enable_testing()
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
 # needed to avoid warnings about rpath policy on Mac OSX
-# no known difference between "OLD" and "NEW" policies for us
 if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
@@ -58,9 +57,9 @@ find_package(HDF5 REQUIRED CXX)
 INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})
 
 # chef
-find_package(CHEF REQUIRED)
-INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIRS})
-LINK_DIRECTORIES(${CHEF_LIBRARY_DIRS})
+find_package(CHEF REQUIRED CONFIG)
+INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIR})
+LINK_DIRECTORIES(${CHEF_LIB_DIR})
 
 # numpy
 find_package(NUMPY REQUIRED)
