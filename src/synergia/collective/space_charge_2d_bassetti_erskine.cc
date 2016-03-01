@@ -62,8 +62,8 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
             throw std::runtime_error(
                     "Space_charge_2d_bassetti_erskine::normalized_efield: r is too small");
         }
-        E_x = x / r_squared;
-        E_y = y / r_squared;
+        E_x = x / (r_squared*sqrt(mconstants::pi));
+        E_y = y / (r_squared*sqrt(mconstants::pi));
     } else {
         // Round beam limit ...
         if (is_round) {
@@ -73,11 +73,11 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
             const double sigma_scale = 1.0e-6;
             if (r_squared > sigma_scale * mean_sigma_squared) {
                 double vol_fact = (1.0 - exp(-r_squared / mean_sigma_squared));
-                E_x = vol_fact * x / r_squared;
-                E_y = vol_fact * y / r_squared;
+                E_x = vol_fact * x / (r_squared*sqrt(mconstants::pi));
+                E_y = vol_fact * y / (r_squared*sqrt(mconstants::pi));
             } else {
-                E_x = x / mean_sigma_squared;
-                E_y = y / mean_sigma_squared;
+                E_x = x / (mean_sigma_squared*sqrt(mconstants::pi));
+                E_y = y / (mean_sigma_squared*sqrt(mconstants::pi));
             }
         } else {
             // Elliptic beam ...
@@ -183,15 +183,17 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
     // conversion from normalized_efield to E_n/lambda in [(V/m)/(C/m)]
     // jfa: what I thought:
-//    double E_conversion = 1.0 / (2.0*sqrt(mconstants::pi)*pconstants::epsilon0);
-    // jfa: agrees with Space_charge_2d_open_hockney:
-    double E_conversion = 1.0 / (2.0 * mconstants::pi * pconstants::epsilon0);
+    //am: a missing sqrt(mconstants::pi) was missing only for the round beam case
+    double E_conversion = 1.0 / (2.0*sqrt(mconstants::pi)*pconstants::epsilon0);
     double factor = unit_conversion * q * delta_t_beam * p_scale * E_conversion;
 
+    double mean_x=mean[Bunch::x];
+    double mean_y=mean[Bunch::y]; 
+    double mean_z=mean[Bunch::z]; 
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-        double x = bunch.get_local_particles()[part][Bunch::x];
-        double y = bunch.get_local_particles()[part][Bunch::y];
-        double z = bunch.get_local_particles()[part][Bunch::z];
+        double x = bunch.get_local_particles()[part][Bunch::x]-mean_x;
+        double y = bunch.get_local_particles()[part][Bunch::y]-mean_y;
+        double z = bunch.get_local_particles()[part][Bunch::z]-mean_z;
         // csp: This line charge density works only for the gaussian charge
         //      distribution.
         double line_charge_density = q_total
