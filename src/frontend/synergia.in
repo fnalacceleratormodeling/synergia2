@@ -62,8 +62,8 @@ pathadd "$install_dir/bin"
 ldpathadd "$install_dir/lib"
 
 install_site_packages="`/bin/ls -d \"$install_dir\"/lib*/*/site-packages 2>/dev/null`"
-chef_lib_dirs=`chef-config.sh --lib_dirs_list | sed 's/;/ /g'`
-for dir in $install_site_packages $chef_lib_dirs
+chef_lib_dirs=`chef-config.sh --lib_dirs_list_sh`
+for dir in "$install_dir/lib" $install_site_packages $chef_lib_dirs
 do
     pythonpathadd $dir
 done
