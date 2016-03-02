@@ -3,7 +3,7 @@
 import mpi4py
 from mpi4py import MPI
 
-from version import __version__, major_version, minor_version, subminor_version
+from version import __version__, version_major, version_minor, version_patch, version_tweak
 import convertors
 import foundation
 import bunch
