@@ -295,6 +295,56 @@ public:
 #endif
     }
 
+    template <typename T>
+    inline static T thin_cf_quadrupole_bx (T const& x, T const& y, double r0) 
+    { return r0 * y / (r0 + x); }
+
+    template <typename T>
+    inline static T thin_cf_quadrupole_by (T const& x, T const& y, double r0, double alf) 
+    { return r0 * log(1.0 + alf); }
+
+    template <typename T>
+    inline static T thin_cf_sextupole_bx (T const& x, T const& y, double alf) 
+    { return x * (2.0 + alf) * y / (1.0 + alf); } 
+
+    template <typename T>
+    inline static T thin_cf_sextupole_by (T const& x, T const& y, double r0, double alf) 
+    { return 0.5 * (x*x + 2.0*x*r0) - y*y - r0*r0*log(1.0 + alf); }
+
+    // combined function sbends kick up to quadrupole
+    template <typename T>
+    inline static void thin_cf_kick_1
+      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL) 
+    {
+        T vk1n(kL[0]);
+        T vk1s(kL[1]);
+
+        T alf = x / r0;
+
+        xp = xp - vk1n * (1.0 + alf) * thin_cf_quadrupole_by(x, y, r0, alf);
+        yp = yp + vk1n * (1.0 + alf) * thin_cf_quadrupole_bx(x, y, r0);
+    }
+
+    // combined function sbends kick up to sextupole
+    template <typename T>
+    inline static void thin_cf_kick_2
+      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL) 
+    {
+        T vk1n(kL[0]);
+        T vk1s(kL[1]);
+
+        T vk2n(kL[2]);
+        T vk2s(kL[3]);
+
+        T alf = x / r0;
+
+        xp = xp - vk1n * (1.0 + alf) * thin_cf_quadrupole_by(x, y, r0, alf)
+                - vk2n * (1.0 + alf) * thin_cf_sextupole_by(x, y, r0, alf) * 0.5;
+
+        yp = yp + vk1n * (1.0 + alf) * thin_cf_quadrupole_bx(x, y, r0)
+                + vk2n * (1.0 + alf) * thin_cf_sextupole_bx(x, y, alf) * 0.5;
+    }
+
 
     // quadrupole with simple n kicks algorithm. non-Yoshida
     template <typename T>

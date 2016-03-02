@@ -148,14 +148,31 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         e2 = slice.get_lattice_element().get_double_attribute("e2");
 
 
-    bool cf = false;  // combined function
-    double k1[2] = { 0.0, 0.0 };
+    int cf = 0;  // combined function
+    double kl[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     if (slice.get_lattice_element().has_double_attribute("k1"))
     {
-        cf = true;
-        k1[0] = slice.get_lattice_element().get_double_attribute("k1");
-        k1[1] = 0.0;
+        // quad component
+        cf = 1;
+        kl[0] = slice.get_lattice_element().get_double_attribute("k1");
+        kl[1] = 0.0;
+    }
+
+    if (slice.get_lattice_element().has_double_attribute("k2"))
+    {
+        // sextupole component
+        cf = 2;
+        kl[2] = slice.get_lattice_element().get_double_attribute("k2");
+        kl[3] = 0.0;
+    }
+
+    if (slice.get_lattice_element().has_double_attribute("k3"))
+    {
+        // octupole component
+        cf = 3;
+        kl[4] = slice.get_lattice_element().get_double_attribute("k3");
+        kl[5] = 0.0;
     }
 
 
@@ -215,7 +232,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double step_reference_cdt = reference_cdt / steps;
     double step_angle = angle / steps;
     double step_length = length / steps;
-    double step_strength[2] = { k1[0] * step_length, k1[1] * step_length };
+    double step_strength[6] = { kl[0] * step_length, kl[1] * step_length,
+                                kl[2] * step_length, kl[3] * step_length,
+                                kl[2] * step_length, kl[3] * step_length };
 
     for (int part = 0; part < local_num; ++part) 
     {
@@ -241,7 +260,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                    phase_unit_2, term_unit_2);
 #endif
 
-        FF_algorithm::bend_yoshida4<double, FF_algorithm::thin_cf_quadrupole_unit<double>,1 >
+        FF_algorithm::bend_yoshida4<double, FF_algorithm::thin_cf_kick_2<double>, 2>
             ( x, xp, y, yp, cdt, dpop,
               pref, m, step_reference_cdt,
               step_angle, step_strength,
