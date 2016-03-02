@@ -14,6 +14,7 @@ const std::complex<double > complex_i(0.0, 1.0);
 
 Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
         Collective_operator("space charge")
+        , longitudinal_distribution(longitudinal_gaussian)
 {
 }
 
@@ -33,6 +34,23 @@ Space_charge_2d_bassetti_erskine::set_sigma(double sigma_x, double sigma_y,
     const double round_tolerance = 1.0e-6;
     is_round = (std::abs((sigma_x - sigma_y) / (sigma_x + sigma_y))
             < round_tolerance);
+}
+
+int
+Space_charge_2d_bassetti_erskine::get_longitudinal()
+{
+    return longitudinal_distribution;
+}
+
+void
+Space_charge_2d_bassetti_erskine::set_longitudinal(int long_flag)
+{
+    if ((long_flag != longitudinal_gaussian) &&
+        (long_flag != longitudinal_uniform)) {
+        throw std::runtime_error("unknown longitudinal setting in Space_charge_2d_open_hockney");
+    }
+    longitudinal_distribution = long_flag;
+    return;
 }
 
 std::vector<double >
@@ -194,11 +212,17 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         double x = bunch.get_local_particles()[part][Bunch::x]-mean_x;
         double y = bunch.get_local_particles()[part][Bunch::y]-mean_y;
         double z = bunch.get_local_particles()[part][Bunch::z]-mean_z;
-        // csp: This line charge density works only for the gaussian charge
-        //      distribution.
-        double line_charge_density = q_total
-                * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
-                / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
+        // set longitudinal density depending on the longitudinal flag
+        double line_charge_density;
+        if (longitudinal_distribution == longitudinal_gaussian) {
+            // csp: This line charge density works only for the gaussian charge
+            //      distribution.
+            line_charge_density = q_total
+                                         * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
+                                         / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
+        } else if (longitudinal_distribution == longitudinal_uniform) {
+            line_charge_density = q_total / bunch.get_z_period_length();
+        }
         double E_x, E_y;
         normalized_efield(x, y, E_x, E_y);
         bunch.get_local_particles()[part][Bunch::xp] += E_x * factor
@@ -218,6 +242,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(sigma_y);
         ar & BOOST_SERIALIZATION_NVP(sigma_cdt);
         ar & BOOST_SERIALIZATION_NVP(is_round);
+        ar & BOOST_SERIALIZATION_NVP(longitudinal_distribution);
     }
 
 template
