@@ -116,7 +116,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double cdt(particles[part][Bunch::cdt]);
              double dpop(particles[part][Bunch::dpop]);
 
-             FF_algorithm::yoshida<double, FF_algorithm::thin_sextupole_unit<double>, 4, 1 >
+             FF_algorithm::yoshida<double, FF_algorithm::thin_sextupole_unit<double>, 2, 1 >
                      ( x, xp, y, yp, cdt, dpop,
                        reference_momentum, m,
                        step_reference_cdt,

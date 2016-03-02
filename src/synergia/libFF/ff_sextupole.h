@@ -9,7 +9,7 @@ private:
     double get_reference_cdt(double length, double * k,
                              Reference_particle & reference_particle);
 public:
-    FF_sextupole() { };
+    FF_sextupole() { steps = 1; };
 
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
