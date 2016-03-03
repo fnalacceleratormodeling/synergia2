@@ -44,6 +44,7 @@ endif ()
 if (BUILD_PYTHON_BINDINGS)
     find_package(ConsistentPython)
     INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIR})
+    set(IPYTHON_EXECUTABLE "ipython" CACHE PATH "path to optional ipython executable")
 endif()
 
 # boost
@@ -213,6 +214,9 @@ set(LIB_INSTALL_DIR lib/ CACHE PATH "library install directory")
 set(BIN_INSTALL_DIR bin/ CACHE PATH "executable install directory")
 set(PYTHON_INSTALL_DIR "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/"
     CACHE PATH "python install directory")
+
+set(SYNERGIA_EXTRA_LIBRARY_PATHS "" CACHE STRING "additional library paths for synergia executable")
+set(SYNERGIA_EXTRA_PYTHON_PATHS "" CACHE STRING "additional python module paths for synergia executable")
 
 add_subdirectory(src)
 add_subdirectory(examples)
