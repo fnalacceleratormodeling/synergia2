@@ -14,7 +14,7 @@ const std::complex<double > complex_i(0.0, 1.0);
 
 Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
         Collective_operator("space charge")
-        , longitudinal_distribution(longitudinal_gaussian)
+        , longitudinal_distribution(longitudinal_uniform)
 {
 }
 
@@ -221,7 +221,8 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
                                          * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
                                          / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
         } else if (longitudinal_distribution == longitudinal_uniform) {
-            line_charge_density = q_total / bunch.get_z_period_length();
+            // make sure to use the length in the bunch frame
+            line_charge_density = q_total / (bunch.get_z_period_length() * bunch.get_reference_particle().get_gamma());
         }
         double E_x, E_y;
         normalized_efield(x, y, E_x, E_y);
