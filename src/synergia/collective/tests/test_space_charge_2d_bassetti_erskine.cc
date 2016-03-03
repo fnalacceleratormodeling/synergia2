@@ -195,6 +195,7 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_lowgamma, Round_rod_bunch_f
     logger << "Bunch stdcdt: " << stdcdt << std::endl;
 
     Space_charge_2d_bassetti_erskine space_charge;
+    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
     Step dummy_step(time_fraction);
     const int verbosity = 4;
 
@@ -220,8 +221,9 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_lowgamma, Round_rod_bunch_f
     // volume factor is the charge contained in a cylinder of radius smaller than the probe
     double volume_factor = 1.0 - std::exp(-probe_radius*probe_radius/(2.0*stdx*stdx));
     logger << "volume_factor: " << volume_factor << std::endl;
-    // fractional_charge includes the assumed longitudinal normal distribution
-    double length_normalization = 1.0/(std::sqrt(2.0*mconstants::pi)*stdcdt*beta);
+    // if fractional_charge includes the assumed longitudinal normal distribution
+    // double length_normalization = 1.0/(std::sqrt(2.0*mconstants::pi)*stdcdt*beta);
+    double length_normalization = 1.0/L;
     logger << "length normalization factor: " << length_normalization << std::endl;
     double N = bunch.get_real_num()*volume_factor * length_normalization;
 
@@ -385,7 +387,7 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_highgamma, Round_rod_bunch_
     double volume_factor = 1.0 - std::exp(-probe_radius*probe_radius/(2.0*stdx*stdx));
     logger << "volume_factor: " << volume_factor << std::endl;
     // fractional_charge includes the assumed longitudinal normal distribution
-    double length_normalization = 1.0/(std::sqrt(2.0*mconstants::pi)*stdcdt*beta);
+    double length_normalization = 1.0/L;
     logger << "length normalization factor: " << length_normalization << std::endl;
     double N = bunch.get_real_num()*volume_factor * length_normalization;
 
