@@ -119,7 +119,9 @@ ELEMENT_FIXTURE(drift);
 ELEMENT_FIXTURE(rbend);
 ELEMENT_FIXTURE(sbend);
 ELEMENT_FIXTURE(quadrupole);
+ELEMENT_FIXTURE(quadrupole2);
 ELEMENT_FIXTURE(sextupole);
+ELEMENT_FIXTURE(sextupole2);
 ELEMENT_FIXTURE(rfc);
 
 #if 1
@@ -199,18 +201,18 @@ BOOST_FIXTURE_TEST_CASE( test_sbend, sbend_fixture )
     MArray2d_ref pff = p_ff();
 
     pcf[0][0] = 0.1;
-    pcf[0][1] = 0.1;
-    pcf[0][2] = 0.1;
-    pcf[0][3] = 0.1;
-    pcf[0][4] = 0.1;
-    pcf[0][5] = 0.1;
+    pcf[0][1] = 0.0;
+    pcf[0][2] = 0.2;
+    pcf[0][3] = 0.0;
+    pcf[0][4] = 0.0;
+    pcf[0][5] = 0.0;
 
     pff[0][0] = 0.1;
-    pff[0][1] = 0.1;
-    pff[0][2] = 0.1;
-    pff[0][3] = 0.1;
-    pff[0][4] = 0.1;
-    pff[0][5] = 0.1;
+    pff[0][1] = 0.0;
+    pff[0][2] = 0.2;
+    pff[0][3] = 0.0;
+    pff[0][4] = 0.0;
+    pff[0][5] = 0.0;
 
     //FF_rbend::set_yoshida_steps(1);
 
@@ -261,6 +263,40 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
     BOOST_CHECK(true);
 }
 
+BOOST_FIXTURE_TEST_CASE( test_quadrupole_with_tilt, quadrupole2_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nquadrupole with tilt\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    BOOST_CHECK(true);
+}
+
+
 BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -282,6 +318,39 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
 
     std::cout << std::setprecision(16);
     std::cout << "\nsextupole\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_sextupole_with_tilt, sextupole2_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nsextupole with tilt\n";
 
     propagate_chef();
     propagate_ff();
