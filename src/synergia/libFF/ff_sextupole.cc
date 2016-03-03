@@ -80,9 +80,20 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
      double length = slice.get_right() - slice.get_left();
 
+     // strength
      double k[2];
      k[0] = slice.get_lattice_element().get_double_attribute("k2");
      k[1] = slice.get_lattice_element().get_double_attribute("k2s");
+
+     // tilting
+     double tilt = slice.get_lattice_element().get_double_attribute("tilt");
+     if (tilt != 0.0)
+     {
+         std::complex<double> ck2(k[0], -k[1]);
+         ck2 = ck2 * exp(std::complex<double>(0.0, 3.0*tilt));
+         k[0] = ck2.real();
+         k[1] = ck2.imag();
+     }
 
      int local_num = bunch.get_local_num();
      MArray2d_ref particles = bunch.get_local_particles();

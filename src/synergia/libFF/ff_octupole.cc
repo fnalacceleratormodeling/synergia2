@@ -89,11 +89,23 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
      k[0] = slice.get_lattice_element().get_double_attribute("k3");
      k[1] = slice.get_lattice_element().get_double_attribute("k3s");
 
+     // tilting
+     double tilt = slice.get_lattice_element().get_double_attribute("tilt");
+     if (tilt != 0.0)
+     {
+         std::complex<double> ck2(k[0], -k[1]);
+         ck2 = ck2 * exp(std::complex<double>(0.0, 4.0*tilt));
+         k[0] = ck2.real();
+         k[1] = ck2.imag();
+     }
+
      int local_num = bunch.get_local_num();
      MArray2d_ref particles = bunch.get_local_particles();
 
-     if (length == 0.0) {
-         for (int part = 0; part < local_num; ++part) {
+     if (length == 0.0) 
+     {
+         for (int part = 0; part < local_num; ++part) 
+         {
              double x(particles[part][Bunch::x]);
              double xp(particles[part][Bunch::xp]);
              double y(particles[part][Bunch::y]);
@@ -104,7 +116,9 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              particles[part][Bunch::xp] = xp;
              particles[part][Bunch::yp] = yp;
         }
-     } else {
+     } 
+     else 
+     {
          double reference_momentum = bunch.get_reference_particle().get_momentum();
          double m = bunch.get_mass();
          double reference_cdt = get_reference_cdt(length, k,
@@ -113,7 +127,8 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double step_length = length/steps;
          double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-         for (int part = 0; part < local_num; ++part) {
+         for (int part = 0; part < local_num; ++part) 
+         {
              double x(particles[part][Bunch::x]);
              double xp(particles[part][Bunch::xp]);
              double y(particles[part][Bunch::y]);
