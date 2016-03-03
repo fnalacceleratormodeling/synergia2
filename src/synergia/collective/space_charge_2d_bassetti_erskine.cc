@@ -14,6 +14,7 @@ const std::complex<double > complex_i(0.0, 1.0);
 
 Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
         Collective_operator("space charge")
+        , sigma_x(0.0), sigma_y(0.0), sigma_cdt(0.0), is_round(false)
         , longitudinal_distribution(longitudinal_uniform)
 {
 }
