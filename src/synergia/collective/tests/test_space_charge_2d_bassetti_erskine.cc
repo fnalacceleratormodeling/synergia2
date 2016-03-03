@@ -236,10 +236,11 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_lowgamma, Round_rod_bunch_f
             (step_length/bunch.get_local_particles()[0][Bunch::x]);
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
 
 }
 
-BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_lowgamma, Round_rod_bunch_fixture_lowgamma)
+BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_gaussian_lowgamma, Round_rod_bunch_fixture_lowgamma)
 {
     const double time_fraction = 1.0;
     const double step_length = 0.1;
@@ -252,12 +253,6 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_lowgamma, Round_rod_
     Logger logger(0);
 
     bunch.convert_to_state(Bunch::fixed_z_lab);
-    // add offset to bunch
-    for (int i=0; i<bunch.get_local_num(); ++i) {
-        bunch.get_local_particles()[i][Bunch::x] += .0005;
-        bunch.get_local_particles()[i][Bunch::y] += -0.0005;
-    }
-    
     MArray1d mean(Core_diagnostics::calculate_mean(bunch));
     MArray1d stds(Core_diagnostics::calculate_std(bunch, mean));
     logger << "Bunch means: " << mean[0] << ", " << mean[2] << std::endl;
@@ -266,6 +261,8 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_lowgamma, Round_rod_
     logger << "Bunch stdcdt: " << stdcdt << std::endl;
 
     Space_charge_2d_bassetti_erskine space_charge;
+    // set to use gaussian charge density
+    space_charge.set_longitudinal(Space_charge_2d_bassetti_erskine::longitudinal_gaussian);
     std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
     Step dummy_step(time_fraction);
     const int verbosity = 4;
@@ -292,6 +289,78 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_lowgamma, Round_rod_
     // volume factor is the charge contained in a cylinder of radius smaller than the probe
     double volume_factor = 1.0 - std::exp(-probe_radius*probe_radius/(2.0*stdx*stdx));
     logger << "volume_factor: " << volume_factor << std::endl;
+    // if fractional_charge uses longitudinal normal distribution
+    double length_normalization = 1.0/(std::sqrt(2.0*mconstants::pi)*stdcdt*beta);
+
+    logger << "length normalization factor: " << length_normalization << std::endl;
+    double N = bunch.get_real_num()*volume_factor * length_normalization;
+
+    logger << "L: " << L << std::endl;
+    logger << "N: " << N << std::endl;
+    logger << "step_length: " << step_length << std::endl;
+    logger << "betagamma: " << betagamma << std::endl;
+    logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
+    double computed_dpop = ((2.0*N*pconstants::rp)/(betagamma*betagamma*gamma)) *
+            (step_length/bunch.get_local_particles()[0][Bunch::x]);
+    logger << "computed dpop: " << computed_dpop << std::endl;
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+}
+
+BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_lowgamma, Round_rod_bunch_fixture_lowgamma)
+{
+    const double time_fraction = 1.0;
+    const double step_length = 0.1;
+    const double beta = bunch.get_reference_particle().get_beta();
+    const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
+    const double gamma = bunch.get_reference_particle().get_gamma();
+    const double time_step = step_length/(beta*pconstants::c);
+    const double bunchlen = bunch.get_z_period_length();
+
+    Logger logger(0);
+
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    // add offset to bunch
+    for (int i=0; i<bunch.get_local_num(); ++i) {
+        bunch.get_local_particles()[i][Bunch::x] += 1.0;
+        bunch.get_local_particles()[i][Bunch::y] += -2.0;
+    }
+    
+    MArray1d mean(Core_diagnostics::calculate_mean(bunch));
+    MArray1d stds(Core_diagnostics::calculate_std(bunch, mean));
+    logger << "Bunch means: " << mean[0] << ", " << mean[2] << std::endl;
+    logger << "Bunch stds: " << stds[0] << ", " << stds[2] << std::endl;
+    double stdcdt = stds[4];
+    logger << "Bunch stdcdt: " << stdcdt << std::endl;
+
+    Space_charge_2d_bassetti_erskine space_charge;
+    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    Step dummy_step(time_fraction);
+    const int verbosity = 4;
+
+    const double probe_radius = bunch.get_local_particles()[0][0];
+    double probe_offset = bunch.get_local_particles()[0][Bunch::x]-mean[0];
+    logger << "probe radius: " << probe_radius << std::endl;
+    logger << "probe_offset: " << probe_offset << std::endl;
+
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+
+    // Rod of charge Q over length L of gaussian with RMS sigma
+    // Fraction of charge at radius R is 1 - exp(R/sigma)
+    // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
+    // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
+    // Net EM force on electric+magnetic on probe of charge q from E-B cancellation
+    // $$ F = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{1}{r}
+    // travel over distance D at velocity v
+    // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{D}{m v^2} \frac{1}{r}
+    // convert to usual units
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
+
+    double L = bunch.get_z_period_length();
+    // volume factor is the charge contained in a cylinder of radius smaller than the probe
+    double volume_factor = 1.0 - std::exp(-probe_offset*probe_offset/(2.0*stdx*stdx));
+    logger << "volume_factor: " << volume_factor << std::endl;
     // if fractional_charge includes the assumed longitudinal normal distribution
     // double length_normalization = 1.0/(std::sqrt(2.0*mconstants::pi)*stdcdt*beta);
     double length_normalization = 1.0/bunchlen;
@@ -303,12 +372,11 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_lowgamma, Round_rod_
     logger << "step_length: " << step_length << std::endl;
     logger << "betagamma: " << betagamma << std::endl;
     logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
-    double probe_offset = bunch.get_local_particles()[0][Bunch::x]-mean[0];
     double computed_dpop = ((2.0*N*pconstants::rp)/(betagamma*betagamma*gamma)) *
             (step_length/probe_offset);
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
-
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
 }
 
 struct Round_rod_bunch_fixture_highgamma
@@ -472,7 +540,146 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_highgamma, Round_rod_bunch_
             (step_length/bunch.get_local_particles()[0][Bunch::x]);
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+}
 
+BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_gaussian_highgamma, Round_rod_bunch_fixture_highgamma)
+{
+    const double time_fraction = 1.0;
+    const double step_length = 0.1;
+    const double beta = bunch.get_reference_particle().get_beta();
+    const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
+    const double gamma = bunch.get_reference_particle().get_gamma();
+    const double time_step = step_length/(beta*pconstants::c);
+    const double bunchlen = bunch.get_z_period_length();
+
+    Logger logger(0);
+
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    MArray1d mean(Core_diagnostics::calculate_mean(bunch));
+    MArray1d stds(Core_diagnostics::calculate_std(bunch, mean));
+    logger << "Bunch means: " << mean[0] << ", " << mean[2] << std::endl;
+    logger << "Bunch stds: " << stds[0] << ", " << stds[2] << std::endl;
+    double stdcdt = stds[4];
+    logger << "Bunch stdcdt: " << stdcdt << std::endl;
+
+    Space_charge_2d_bassetti_erskine space_charge;
+    // set to use gaussian charge density
+    space_charge.set_longitudinal(Space_charge_2d_bassetti_erskine::longitudinal_gaussian);
+    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    Step dummy_step(time_fraction);
+    const int verbosity = 4;
+
+    const double probe_radius = bunch.get_local_particles()[0][0];
+    logger << "probe radius: " << probe_radius << std::endl;
+
+
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+
+    // Rod of charge Q over length L of gaussian with RMS sigma
+    // Fraction of charge at radius R is 1 - exp(R/sigma)
+    // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
+    // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
+    // Net EM force on electric+magnetic on probe of charge q from E-B cancellation
+    // $$ F = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{1}{r}
+    // travel over distance D at velocity v
+    // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{D}{m v^2} \frac{1}{r}
+    // convert to usual units
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
+
+    double L = bunch.get_z_period_length();
+    // volume factor is the charge contained in a cylinder of radius smaller than the probe
+    double volume_factor = 1.0 - std::exp(-probe_radius*probe_radius/(2.0*stdx*stdx));
+    logger << "volume_factor: " << volume_factor << std::endl;
+    // if fractional_charge uses longitudinal normal distribution
+    double length_normalization = 1.0/(std::sqrt(2.0*mconstants::pi)*stdcdt*beta);
+
+    logger << "length normalization factor: " << length_normalization << std::endl;
+    double N = bunch.get_real_num()*volume_factor * length_normalization;
+
+    logger << "L: " << L << std::endl;
+    logger << "N: " << N << std::endl;
+    logger << "step_length: " << step_length << std::endl;
+    logger << "betagamma: " << betagamma << std::endl;
+    logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
+    double computed_dpop = ((2.0*N*pconstants::rp)/(betagamma*betagamma*gamma)) *
+            (step_length/bunch.get_local_particles()[0][Bunch::x]);
+    logger << "computed dpop: " << computed_dpop << std::endl;
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+}
+
+BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_highgamma, Round_rod_bunch_fixture_highgamma)
+{
+    const double time_fraction = 1.0;
+    const double step_length = 0.1;
+    const double beta = bunch.get_reference_particle().get_beta();
+    const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
+    const double gamma = bunch.get_reference_particle().get_gamma();
+    const double time_step = step_length/(beta*pconstants::c);
+    const double bunchlen = bunch.get_z_period_length();
+
+    Logger logger(0);
+
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    // add offset to bunch
+    for (int i=0; i<bunch.get_local_num(); ++i) {
+        bunch.get_local_particles()[i][Bunch::x] += 1.0;
+        bunch.get_local_particles()[i][Bunch::y] += -2.0;
+    }
+
+    MArray1d mean(Core_diagnostics::calculate_mean(bunch));
+    MArray1d stds(Core_diagnostics::calculate_std(bunch, mean));
+    logger << "Bunch means: " << mean[0] << ", " << mean[2] << std::endl;
+    logger << "Bunch stds: " << stds[0] << ", " << stds[2] << std::endl;
+    double stdcdt = stds[4];
+    logger << "Bunch stdcdt: " << stdcdt << std::endl;
+
+    Space_charge_2d_bassetti_erskine space_charge;
+    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    Step dummy_step(time_fraction);
+    const int verbosity = 4;
+
+    const double probe_radius = bunch.get_local_particles()[0][0];
+    double probe_offset = bunch.get_local_particles()[0][Bunch::x]-mean[0];
+    logger << "probe radius: " << probe_radius << std::endl;
+    logger << "probe_offset: " << probe_offset << std::endl;
+
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+
+    // Rod of charge Q over length L of gaussian with RMS sigma
+    // Fraction of charge at radius R is 1 - exp(R/sigma)
+    // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
+    // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
+    // Net EM force on electric+magnetic on probe of charge q from E-B cancellation
+    // $$ F = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{1}{r}
+    // travel over distance D at velocity v
+    // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{D}{m v^2} \frac{1}{r}
+    // convert to usual units
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
+
+    double L = bunch.get_z_period_length();
+    // volume factor is the charge contained in a cylinder of radius smaller than the probe
+    double volume_factor = 1.0 - std::exp(-probe_offset*probe_offset/(2.0*stdx*stdx));
+    logger << "volume_factor: " << volume_factor << std::endl;
+    // if fractional_charge includes the assumed longitudinal normal distribution
+    // double length_normalization = 1.0/(std::sqrt(2.0*mconstants::pi)*stdcdt*beta);
+    double length_normalization = 1.0/bunchlen;
+    logger << "length normalization factor: " << length_normalization << std::endl;
+    double N = bunch.get_real_num()*volume_factor * length_normalization;
+
+    logger << "L: " << L << std::endl;
+    logger << "N: " << N << std::endl;
+    logger << "step_length: " << step_length << std::endl;
+    logger << "betagamma: " << betagamma << std::endl;
+    logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
+    double computed_dpop = ((2.0*N*pconstants::rp)/(betagamma*betagamma*gamma)) *
+            (step_length/probe_offset);
+    logger << "computed dpop: " << computed_dpop << std::endl;
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
 }
 
 #if 0
