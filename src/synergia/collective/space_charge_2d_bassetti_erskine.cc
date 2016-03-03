@@ -206,6 +206,13 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     double E_conversion = 1.0 / (2.0*sqrt(mconstants::pi)*pconstants::epsilon0);
     double factor = unit_conversion * q * delta_t_beam * p_scale * E_conversion;
 
+    // set longitudinal density depending on the longitudinal flag
+    double line_charge_density;
+    if (longitudinal_distribution == longitudinal_uniform) {
+       // use the length in the bunch frame
+        line_charge_density = q_total / (bunch.get_z_period_length() * bunch.get_reference_particle().get_gamma());
+    }
+
     double mean_x=mean[Bunch::x];
     double mean_y=mean[Bunch::y]; 
     double mean_z=mean[Bunch::z]; 
@@ -213,17 +220,13 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         double x = bunch.get_local_particles()[part][Bunch::x]-mean_x;
         double y = bunch.get_local_particles()[part][Bunch::y]-mean_y;
         double z = bunch.get_local_particles()[part][Bunch::z]-mean_z;
-        // set longitudinal density depending on the longitudinal flag
-        double line_charge_density;
+
         if (longitudinal_distribution == longitudinal_gaussian) {
             // csp: This line charge density works only for the gaussian charge
             //      distribution.
             line_charge_density = q_total
                                          * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
                                          / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
-        } else if (longitudinal_distribution == longitudinal_uniform) {
-            // make sure to use the length in the bunch frame
-            line_charge_density = q_total / (bunch.get_z_period_length() * bunch.get_reference_particle().get_gamma());
         }
         double E_x, E_y;
         normalized_efield(x, y, E_x, E_y);
