@@ -237,7 +237,12 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_lowgamma, Round_rod_bunch_f
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
     BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
-
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[1][Bunch::xp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[1][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[2][Bunch::yp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[2][Bunch::xp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[3][Bunch::yp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[3][Bunch::xp]), 1.0e-10);
 }
 
 BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_gaussian_lowgamma, Round_rod_bunch_fixture_lowgamma)
@@ -305,6 +310,12 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_gaussian_lowgamma, Round_ro
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
     BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[1][Bunch::xp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[1][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[2][Bunch::yp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[2][Bunch::xp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[3][Bunch::yp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[3][Bunch::xp]), 1.0e-10);
 }
 
 BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_lowgamma, Round_rod_bunch_fixture_lowgamma)
@@ -377,6 +388,12 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_lowgamma, Round_rod_
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
     BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[1][Bunch::xp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[1][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[2][Bunch::yp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[2][Bunch::xp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[3][Bunch::yp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[3][Bunch::xp]), 1.0e-10);
 }
 
 struct Round_rod_bunch_fixture_highgamma
@@ -541,6 +558,12 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_highgamma, Round_rod_bunch_
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
     BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[1][Bunch::xp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[1][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[2][Bunch::yp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[2][Bunch::xp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[3][Bunch::yp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[3][Bunch::xp]), 1.0e-10);
 }
 
 BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_gaussian_highgamma, Round_rod_bunch_fixture_highgamma)
@@ -608,6 +631,12 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_gaussian_highgamma, Round_r
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
     BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[1][Bunch::xp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[1][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[2][Bunch::yp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[2][Bunch::xp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[3][Bunch::yp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[3][Bunch::xp]), 1.0e-10);
 }
 
 BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_highgamma, Round_rod_bunch_fixture_highgamma)
@@ -680,240 +709,277 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_offset_highgamma, Round_rod
     logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
     BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[1][Bunch::xp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[1][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[2][Bunch::yp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[2][Bunch::xp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[3][Bunch::yp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[3][Bunch::xp]), 1.0e-10);
 }
 
-#if 0
-BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
+// I don't have a good test for elliptical distributions yet.  This is a place holder
+struct Elliptical_rod_bunch_fixture_lowgamma
 {
-    double sigin[3];
-    sigin[0] = sigmax;
-    sigin[1] = sigmay;
-    sigin[2] = sigmaz;
-    Space_charge_2d_bassetti_erskine space_charge_bs;
-    space_charge_bs.set_sigma(sigin);
-    double Q = bunch.get_real_num() * bunch.get_particle_charge()
-    * pconstants::e;
+    Elliptical_rod_bunch_fixture_lowgamma() :
+        four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                rod_num_particles, rod_real_num,
+                            comm_sptr, rod_length)
+    {
+        BOOST_TEST_MESSAGE("setup Elliptical_rod bunch fixture lowgamma");
+        const double rod_radius_x = stdx * std::sqrt(2.0)*1.01;
+        const double rod_radius_y = stdx * std::sqrt(2.0)*0.99;
+        bunch.set_sort_period(-1);
+        MArray2d_ref local_particles(bunch.get_local_particles());
+        // a ring of 8 particles around each longitudinal location
+        int num_longitudinal = (rod_num_particles-1)/8;
+        double dz = rod_length/(num_longitudinal-1);
 
-    for (int component = 0; component < 1; ++component) {
-        double max_fractional_error = -2.0;
-        double min_fractional_error = 2.0;
-        int npoints = 100;
-        double x, y, z;
-        double xmin = -0.005, xmax = 0.005;
-        double ymin = -0.005, ymax = 0.005;
-        double zmin = -0.005, zmax = 0.005;
-        for (int i = 0; i <= npoints; ++i) {
-            x = xmin + i * (xmax - xmin) / npoints;
-//            for (int j = 0; j <= npoints; ++j) {
-//                y = ymin + j * (ymax - ymin) / npoints;
-//                for (int k = 0; k <= npoints; ++k) {
-//                    z = zmin + k * (zmax - zmin) / npoints;
-            y = 0, z = 0;
+        double r2o2 = std::sqrt(2.0)/2.0;
 
-            double r = std::sqrt(x * x + y * y + z * z);
-            double var = x;
-            double efield_exact, efield_calc;
+        double z = -rod_length/2.0;
+        for (int i=4; i<rod_num_particles; i+=8, z+=dz) {
+            local_particles[i][Bunch::x] = rod_radius_x;
+            local_particles[i][Bunch::y] = 0.0;
 
-            double line_charge_density = Q * exp(-z * z /(2.0
-                            * sigin[2] * sigin[2])) / (sqrt(2.0
-                            * mconstants::pi) * sigin[2]);
-            if (component == 0) {
-                var = x;
-                efield_exact = gaussian_electric_field_component2(Q,
-                        x, y, z, sigin[0], sigin[1], sigin[2],
-                        var);
-                efield_calc = space_charge_bs.normalized_efield(x,y)[0]
-                / (2.0 * mconstants::pi * pconstants::epsilon0)
-                * line_charge_density;
-            } else if (component == 1) {
-                var = y;
-                efield_exact = gaussian_electric_field_component2(Q,
-                        x, y, z, sigin[0], sigin[1], sigin[2],
-                        var);
-                efield_calc = space_charge_bs.normalized_efield(x,y)[1]
-                / (2.0 * mconstants::pi * pconstants::epsilon0)
-                * line_charge_density;
+            local_particles[i+1][Bunch::x] = rod_radius_x*r2o2;
+            local_particles[i+1][Bunch::y] = rod_radius_y*r2o2;
+
+            local_particles[i+2][Bunch::x] = 0.0;
+            local_particles[i+2][Bunch::y] = rod_radius_y;
+
+            local_particles[i+3][Bunch::x] = -rod_radius_x*r2o2;
+            local_particles[i+3][Bunch::y] =  rod_radius_y*r2o2;
+
+            local_particles[i+4][Bunch::x] = -rod_radius_x;
+            local_particles[i+4][Bunch::y] = 0.0;
+
+            local_particles[i+5][Bunch::x] = -rod_radius_x*r2o2;
+            local_particles[i+5][Bunch::y] = -rod_radius_y*r2o2;
+
+            local_particles[i+6][Bunch::x] = 0.0;
+            local_particles[i+6][Bunch::y] = -rod_radius_y;
+
+            local_particles[i+7][Bunch::x] = rod_radius_x*r2o2;
+            local_particles[i+7][Bunch::y] = -rod_radius_y*r2o2;
+
+            double rod_beta = reference_particle.get_beta();
+            for (int j=i; j<i+8; ++j) {
+                local_particles[j][Bunch::cdt] = z/rod_beta;
+                local_particles[j][Bunch::xp] = 0.0;
+                local_particles[j][Bunch::yp] = 0.0;
+                local_particles[j][Bunch::dpop] = 0.0;
+                local_particles[j][Bunch::id] = j;
             }
-
-            const double tiny = 1.0e-8;
-
-            double fractional_error = (efield_calc - efield_exact)
-            / efield_exact;
-            if (fractional_error > max_fractional_error) {
-                max_fractional_error = fractional_error;
-            }
-            if (fractional_error < min_fractional_error) {
-                min_fractional_error = fractional_error;
-            }
-#if 1
-            std::cout << x << "  " << y << "  " << z << "  "
-            << efield_exact << "  "
-            << efield_calc << "  "
-            << fractional_error << std::endl;
-#endif
-//                }
-//            }
         }
-        std::cout << "max_fractional_error = " << max_fractional_error
-        << std::endl;
-        std::cout << "min_fractional_error = " << min_fractional_error
-        << std::endl;
-        const double field_tolerance[] = {2.0, 2.0};
-        BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
-        BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
+
+        // Add test particles at += stdx so mean and std are
+        // not shifted
+        local_particles[0][Bunch::x] = stdx;
+        local_particles[0][Bunch::y] = 0.0;
+        local_particles[0][Bunch::xp] = 0.0;
+        local_particles[0][Bunch::yp] = 0.0;
+        local_particles[0][Bunch::cdt] = 0.0;
+        local_particles[0][Bunch::dpop] = 0.0;
+        local_particles[0][Bunch::id] = 0.0;
+
+        local_particles[1][Bunch::x] = -stdx;
+        local_particles[1][Bunch::y] = 0.0;
+        local_particles[1][Bunch::xp] = 0.0;
+        local_particles[1][Bunch::yp] = 0.0;
+        local_particles[1][Bunch::cdt] = 0.0;
+        local_particles[1][Bunch::dpop] = 0.0;
+        local_particles[1][Bunch::id] = 0.0;
+
+        local_particles[2][Bunch::x] = 0.0;
+        local_particles[2][Bunch::y] = stdx;
+        local_particles[2][Bunch::xp] = 0.0;
+        local_particles[2][Bunch::yp] = 0.0;
+        local_particles[2][Bunch::cdt] = 0.0;
+        local_particles[2][Bunch::dpop] = 0.0;
+        local_particles[2][Bunch::id] = 0.0;
+
+        local_particles[3][Bunch::x] = 0.0;
+        local_particles[3][Bunch::y] = -stdx;
+        local_particles[3][Bunch::xp] = 0.0;
+        local_particles[3][Bunch::yp] = 0.0;
+        local_particles[3][Bunch::cdt] = 0.0;
+        local_particles[3][Bunch::dpop] = 0.0;
+        local_particles[3][Bunch::id] = 0.0;
+    }
+
+    ~Elliptical_rod_bunch_fixture_lowgamma()
+    {
+        BOOST_TEST_MESSAGE("tear down Rod bunch fixture lowgamma");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx_sptr comm_sptr;
+    Bunch bunch;
+    unsigned long int seed;
+};
+
+// dummy test for when I come up with a good test for elliptical distributions
+BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_elliptical_offset_lowgamma, Elliptical_rod_bunch_fixture_lowgamma)
+{
+    return;
+    const double time_fraction = 1.0;
+    const double step_length = 0.1;
+    const double beta = bunch.get_reference_particle().get_beta();
+    const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
+    const double gamma = bunch.get_reference_particle().get_gamma();
+    const double time_step = step_length/(beta*pconstants::c);
+    const double bunchlen = bunch.get_z_period_length();
+
+    Logger logger(0);
+
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    // add offset to bunch
+    for (int i=0; i<bunch.get_local_num(); ++i) {
+        bunch.get_local_particles()[i][Bunch::x] += 1.0;
+        bunch.get_local_particles()[i][Bunch::y] += -2.0;
+    }
+
+    MArray1d mean(Core_diagnostics::calculate_mean(bunch));
+    MArray1d stds(Core_diagnostics::calculate_std(bunch, mean));
+    logger << "Bunch means: " << mean[0] << ", " << mean[2] << std::endl;
+    logger << "Bunch stds: " << stds[0] << ", " << stds[2] << std::endl;
+    double stdcdt = stds[4];
+    logger << "Bunch stdcdt: " << stdcdt << std::endl;
+
+    Space_charge_2d_bassetti_erskine space_charge;
+    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    Step dummy_step(time_fraction);
+    const int verbosity = 4;
+
+    const double probe_radius = bunch.get_local_particles()[0][0];
+    double probe_offset = bunch.get_local_particles()[0][Bunch::x]-mean[0];
+    logger << "probe radius: " << probe_radius << std::endl;
+    logger << "probe_offset: " << probe_offset << std::endl;
+
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+
+    // Rod of charge Q over length L of gaussian with RMS sigma
+    // Fraction of charge at radius R is 1 - exp(R/sigma)
+    // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
+    // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
+    // Net EM force on electric+magnetic on probe of charge q from E-B cancellation
+    // $$ F = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{1}{r}
+    // travel over distance D at velocity v
+    // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{D}{m v^2} \frac{1}{r}
+    // convert to usual units
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
+
+    double L = bunch.get_z_period_length();
+    // volume factor is the charge contained in a cylinder of radius smaller than the probe
+    double volume_factor = 1.0 - std::exp(-probe_offset*probe_offset/(2.0*stdx*stdx));
+    logger << "volume_factor: " << volume_factor << std::endl;
+    // if fractional_charge includes the assumed longitudinal normal distribution
+    // double length_normalization = 1.0/(std::sqrt(2.0*mconstants::pi)*stdcdt*beta);
+    double length_normalization = 1.0/bunchlen;
+    logger << "length normalization factor: " << length_normalization << std::endl;
+    double N = bunch.get_real_num()*volume_factor * length_normalization;
+
+    logger << "L: " << L << std::endl;
+    logger << "N: " << N << std::endl;
+    logger << "step_length: " << step_length << std::endl;
+    logger << "betagamma: " << betagamma << std::endl;
+    logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
+    double computed_dpop = ((2.0*N*pconstants::rp)/(betagamma*betagamma*gamma)) *
+            (step_length/probe_offset);
+    logger << "computed dpop: " << computed_dpop << std::endl;
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[0][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[1][Bunch::xp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[1][Bunch::yp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[2][Bunch::yp], computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[2][Bunch::xp]), 1.0e-10);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[3][Bunch::yp], -computed_dpop, .01);
+    BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[3][Bunch::xp]), 1.0e-10);
+}
+
+
+// This checks that the bassetti-erskine calculation for nearly circular distributions is
+// close to that of circular distributions.
+BOOST_AUTO_TEST_CASE(close_to_circular)
+{
+    Space_charge_2d_bassetti_erskine sc1; // this one will be circular
+    Space_charge_2d_bassetti_erskine sc2; // this one will be not quite circular
+
+    const double stdx = 0.0005;
+    const double stdcdt = 4.0;
+    const double almost_circular = 1.0e-4;
+    const double tolerance = 1.0e-4;
+    const double really_close = 1.0e-13;
+
+    bool isrnd1 = sc1.set_sigma(stdx, stdx, stdcdt);
+    bool isrnd2 = sc2.set_sigma(stdx*(1.0+almost_circular), stdx*(1.0-almost_circular), stdcdt);
+
+    BOOST_CHECK_EQUAL(isrnd1, 1);
+    BOOST_CHECK_EQUAL(isrnd2, 0);
+
+    // test near equality of electric field calculations over a grid
+    const double minxy = -0.01;
+    const double maxxy = 0.01;
+    const int nsteps = 1001;
+    const double dxy = (maxxy - minxy)/(nsteps-1);
+
+    int cnt_tooclose = 0;
+
+    double x = -minxy;
+    for (int i=0; i<nsteps; ++i, x+=dxy) {
+        double y = -minxy;
+        for (int j=0; j<nsteps; ++j, y+=dxy) {
+            double ex1, ey1;
+            double ex2, ey2;
+            sc1.normalized_efield(x, y, ex1, ey1);
+            sc2.normalized_efield(x, y, ex2, ey2);
+
+            // ex1 and ex2 should be close but not equal
+            BOOST_CHECK(floating_point_equal(ex1, ex2, tolerance));
+            BOOST_CHECK(floating_point_equal(ey1, ey2, tolerance));
+
+            // count how many entries are really close
+            if (floating_point_equal(ex1, ex2, really_close)) {
+                ++cnt_tooclose;
+            }
+        }
+    }
+    BOOST_CHECK(cnt_tooclose < 100);
+}
+
+BOOST_AUTO_TEST_CASE(test_efield_calculation)
+{
+    // check normalized efield calculation against another program I wrote a long time ago
+    // that implements the Bassetti-Erskine calculation
+    const double stdcdt = 4.0;
+    double x, y;
+    double ex, ey;
+    int i, j;
+    const double sqrtpi = std::sqrt(pi);
+    const double tolerance = 1.0e-6;
+
+    Space_charge_2d_bassetti_erskine sc;
+
+    double saved_ex[3][3] =
+    {{-272.75132436615002, -282.47230821406555, -272.75132436615002},
+     { 0.0000000000000000, 0.0, 0.0},
+     { 272.75132436615002, 282.47230821406555, 272.75132436615002}};
+    double saved_ey[3][3] =
+    {{-667.98563127695525, 3.03641056817154449E-013, 667.98563127695525},
+     {-677.47197461309258, 0.0,  677.47197461309258},
+     {-667.98563127695525, 3.03641056817154449E-013, 667.98563127695525}};
+
+    sc.set_sigma(stdx, stdy, stdcdt);
+    for (i=0; i<3; ++i) {
+        for (j=0; j<3; ++j) {
+            x = -0.0001 + 0.0001*i;
+            y = -0.0001 + 0.0001*j;
+            sc.normalized_efield(x, y, ex, ey);
+            BOOST_CHECK(floating_point_equal(ex*sqrtpi, saved_ex[i][j], tolerance));
+            BOOST_CHECK(floating_point_equal(ey*sqrtpi, saved_ey[i][j], tolerance));
+        }
     }
 }
-#endif
-
-//BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture_2d)
-//{
-//    std::vector<int > grid_shape_xyz(3);
-//    grid_shape_xyz[0] = 128;
-//    grid_shape_xyz[1] = 128;
-//    grid_shape_xyz[2] = 64;
-//
-//    double t;
-//    t = simple_timer_current();
-//    // Bassetti-Erskine solver
-//    Space_charge_2d_bassetti_erskine space_charge_bs;
-//    MArray1d mean(Diagnostics::calculate_mean(bunch));
-//    MArray1d std(Diagnostics::calculate_std(bunch, mean));
-//    double sigin[3];
-//    sigin[0] = std[Bunch::x];
-//    sigin[1] = std[Bunch::y];
-//    sigin[2] = std[Bunch::z];
-//    space_charge_bs.set_sigma(sigin);
-//    t = simple_timer_show(t, "bs construct");
-//    // 2.5D Open Hockney solver
-//    Space_charge_2d_open_hockney space_charge_2d(comm, grid_shape_xyz);
-//    //double t;
-//    //t = simple_timer_current();
-//    Rectangular_grid_sptr local_rho(
-//            space_charge_2d.get_local_charge_density(bunch)); // [C/m^3]
-//    Distributed_rectangular_grid_sptr rho2 =
-//            space_charge_2d.get_global_charge_density2(*local_rho); // [C/m^3]
-//    //t = simple_timer_show(t, "charge_deposition");
-//    Distributed_rectangular_grid_sptr
-//            G2(space_charge_2d.get_green_fn2_pointlike()); // [1/m]
-//    Distributed_rectangular_grid_sptr local_force2(
-//            space_charge_2d.get_local_force2(*rho2, *G2)); // [N]
-//    t = simple_timer_show(t, "2.5D construct");
-//    // 3D Open Hockney solver
-//    Space_charge_3d_open_hockney space_charge_3d(comm, grid_shape_xyz);
-//    Rectangular_grid_sptr local_rho_3d(
-//            space_charge_3d.get_local_charge_density(bunch)); // [C/m^3]
-//    Distributed_rectangular_grid_sptr rho2_3d(
-//            space_charge_3d.get_global_charge_density2(*local_rho_3d)); // [C/m^3]
-//    Distributed_rectangular_grid_sptr
-//            G2_3d(space_charge_3d.get_green_fn2_linear()); // [1/m]
-//    Distributed_rectangular_grid_sptr phi2(space_charge_3d.get_scalar_field2(
-//            *rho2_3d, *G2_3d)); // [V]
-//    Distributed_rectangular_grid_sptr phi(space_charge_3d.extract_scalar_field(
-//            *phi2));
-//    phi->fill_guards();
-//    t = simple_timer_show(t, "3D construct");
-//
-//    double Q = bunch.get_real_num() * bunch.get_particle_charge()
-//            * pconstants::e;
-//    double q = bunch.get_particle_charge() * pconstants::e;
-//    std::vector<int > nondoubled_shape(
-//             space_charge_2d.get_domain().get_grid_shape());
-//    std::vector<int > doubled_shape(
-//             space_charge_2d.get_doubled_domain_sptr()->get_grid_shape());
-//    double hz = space_charge_2d.get_domain().get_cell_size()[2];
-//
-//    for (int component = 0; component < 1; ++component) {
-//        double max_fractional_error = -2.0;
-//        double min_fractional_error = 2.0;
-//        Distributed_rectangular_grid_sptr local_En(
-//                space_charge_3d.get_electric_field_component(*phi, component));
-//        Rectangular_grid_sptr En(
-//                space_charge_3d.get_global_electric_field_component(*local_En));
-//        for (int i = nondoubled_shape[0] / 2; i < 3 * nondoubled_shape[0] / 2;
-//                ++i) {
-////            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[1]
-////                    / 2; ++j) {
-////                for (int k = 0; k < doubled_shape[2]; ++k) {
-////                    int i = nondoubled_shape[0];
-//                    int j = nondoubled_shape[1];
-//                    int k = nondoubled_shape[2] / 2;
-//                    double x, y, z;
-//                    space_charge_2d.get_doubled_domain_sptr()->get_cell_coordinates(i, j, k, x, y, z);
-//
-//                    int ip = i - nondoubled_shape[0] / 2;
-//                    int jp = nondoubled_shape[1] / 2;
-//                    int kp = nondoubled_shape[2] / 2;
-//                    double xp, yp , zp;
-//                    space_charge_3d.get_domain().get_cell_coordinates(
-//                            kp, jp, ip, zp, yp, xp);
-//
-//                    double r = std::sqrt(x * x + y * y + z * z);
-//                    double var = x;
-//                    double efield_exact, efield_calc3, efield_calc4;
-//                    double efield_calc5, efield_calc6;
-//
-//                    double line_charge_density1 = Q * exp(-z * z /(2.0
-//                            * sigin[2] * sigin[2])) / (sqrt(2.0
-//                            * mconstants::pi) * sigin[2]);
-//                    double line_charge_density2 =  bunch.get_real_num()
-//                            / bunch.get_total_num()
-//                            * bunch.get_particle_charge() * pconstants::e
-//                            * rho2->get_grid_points_1d()[k] / hz;
-//
-//                    efield_calc3 = space_charge_bs.normalized_efield(x,y)[0]
-//                            / (2.0 * mconstants::pi * pconstants::epsilon0)
-//                            * line_charge_density1;
-//                    efield_calc4 = space_charge_bs.normalized_efield(x,y)[0]
-//                            / (2.0 * mconstants::pi * pconstants::epsilon0)
-//                            * line_charge_density2;
-//                    efield_calc5 = rho2->get_grid_points_1d()[k]
-//                                * local_force2->get_grid_points_2dc()[i][j].real()
-//                                * local_force2->get_normalization() / q;
-//                    efield_calc6 = En->get_grid_points()[kp][jp][ip]
-//                                * En->get_normalization();
-//
-//                    efield_exact
-//                            = gaussian_electric_field_component2(Q, x, y, z,
-//                                    sigin[0], sigin[1], sigin[2], var);
-//
-//                    const double tiny = 1.0e-8;
-//
-//                    double fractional_error1 = (efield_calc3 - efield_exact)
-//                                / efield_exact;
-//                    double fractional_error2 = (efield_calc4 - efield_exact)
-//                                / efield_exact;
-//                    double fractional_error3 = (efield_calc5 - efield_exact)
-//                                / efield_exact;
-//                    double fractional_error4 = (efield_calc6 - efield_exact)
-//                                / efield_exact;
-//                    if (fractional_error1 > max_fractional_error) {
-//                        max_fractional_error = fractional_error1;
-//                    }
-//                    if (fractional_error1 < min_fractional_error) {
-//                        min_fractional_error = fractional_error1;
-//                    }
-//
-//                    #if 1
-//                    std::cout << x << "  " << y << "  " << z << "  "
-//                            << efield_exact << "  "
-//                            << efield_calc3 << "  "
-//                            << efield_calc4 << "  "
-//                            << efield_calc5 << "  "
-//                            << efield_calc6 << "  "
-//                            << fractional_error1 << "  "
-//                            << fractional_error2 << "  "
-//                            << fractional_error3 << "  "
-//                            << fractional_error4 << std::endl;
-//                    #endif
-////                }
-////            }
-//        }
-//        std::cout << "max_fractional_error = " << max_fractional_error
-//                << std::endl;
-//        std::cout << "min_fractional_error = " << min_fractional_error
-//                << std::endl;
-//        const double field_tolerance[] = { 2.0, 2.0 };
-//        //BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
-//        //BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
-//    }
-//}
