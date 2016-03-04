@@ -25,7 +25,9 @@ Space_charge_2d_bassetti_erskine::clone()
     return new Space_charge_2d_bassetti_erskine(*this);
 }
 
-void
+// returns whether the beam is considered "round" for the purposes of
+// the space charge calculation
+bool
 Space_charge_2d_bassetti_erskine::set_sigma(double sigma_x, double sigma_y,
         double sigma_cdt)
 {
@@ -35,6 +37,7 @@ Space_charge_2d_bassetti_erskine::set_sigma(double sigma_x, double sigma_y,
     const double round_tolerance = 1.0e-6;
     is_round = (std::abs((sigma_x - sigma_y) / (sigma_x + sigma_y))
             < round_tolerance);
+    return is_round;
 }
 
 int
