@@ -2,6 +2,7 @@ lq:=1.0;
 ld:=2.0;
 qf: quadrupole, l=lq;
 qd: quadrupole, l=lq;
+endmark: marker;
 fodo: sequence, l=2*lq+2*ld;
 f: qf, at=0;
 d: qd, at=3;

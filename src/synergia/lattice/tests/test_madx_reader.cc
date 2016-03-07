@@ -10,6 +10,7 @@ get_fodo()
 {
     std::string fodo("lq=1.0;\n");
     fodo += "ld=2.0;\n";
+    fodo += "endmark: marker;\n";
     fodo += "f: quadrupole, l=lq;\n";
     fodo += "d: quadrupole, l=lq;\n";
     fodo += "fodo: sequence, l=2*lq+2*ld;\n";
@@ -25,6 +26,7 @@ get_fodo_with_from()
 {
     std::string fodo("lq=1.0;\n");
     fodo += "ld=2.0;\n";
+    fodo += "endmark: marker;\n";
     fodo += "f: quadrupole, l=lq;\n";
     fodo += "d: quadrupole, l=lq;\n";
     fodo += "fodo: sequence, l=2*lq+2*ld;\n";
@@ -44,6 +46,7 @@ get_fodo_bodo()
     fodo_bodo += "lq2:=3.0;\n";
     fodo_bodo += "ld2:=2.0;\n";
     fodo_bodo += "b: sbend, l=lb;\n";
+    fodo_bodo += "endmark: marker;\n";
     fodo_bodo += "bodo: sequence, l=lb+lq2+2*ld2;\n";
     fodo_bodo += "b1: b, at=0;\n";
     fodo_bodo += "d1: d, at=lb+ld2, l=lq2;\n";
@@ -255,6 +258,7 @@ BOOST_AUTO_TEST_CASE(line_length_with_endmark)
 {
     std::string str(
             "element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
+    str += "endmark: marker;\n";
     str += "seq:sequence, l=1.0;\n";
     str += "e1: element, at=0.5;\n";
     str += "endmark, at=1.0;\n";
