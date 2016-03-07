@@ -265,7 +265,7 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                   num_macro_particles, num_real_particles, comm, z_period_length, bunch_index)
 
     dist = Random_distribution(seed, Commxx())
-    if nsigma is None:
+    if nsigma is not None:
         populate_6d_truncated(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix, nsigma)
     else:
         populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)
