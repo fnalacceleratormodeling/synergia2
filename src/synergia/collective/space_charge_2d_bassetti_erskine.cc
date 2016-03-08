@@ -188,7 +188,7 @@ void
 Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         Step & step, int verbosity, Logger & logger)
 {
-    bunch.convert_to_state(Bunch::fixed_t);
+    bunch.convert_to_state(Bunch::fixed_z_lab);
 
     MArray1d mean(Core_diagnostics::calculate_mean(bunch));
     MArray1d std(Core_diagnostics::calculate_std(bunch, mean));
@@ -200,8 +200,8 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     // total charge
     double q_total = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e;
-    // delta_t_beam: [s] in beam frame
-    double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
+    double beta = bunch.get_reference_particle().get_beta();
+    double gamma = bunch.get_reference_particle().get_gamma();
     // unit_conversion: [N] = [kg m/s^2] to [Gev/c]
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
     // scaled p = p/p_ref
@@ -210,13 +210,13 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     // jfa: what I thought:
     //am: a missing sqrt(mconstants::pi) was missing only for the round beam case
     double E_conversion = 1.0 / (2.0*sqrt(mconstants::pi)*pconstants::epsilon0);
-    double factor = unit_conversion * q * delta_t_beam * p_scale * E_conversion;
+    double factor = unit_conversion * q * delta_t * p_scale * E_conversion;
 
     // set longitudinal density depending on the longitudinal flag
     double line_charge_density;
     if (longitudinal_distribution == longitudinal_uniform) {
        // use the length in the bunch frame
-        line_charge_density = q_total / (bunch.get_z_period_length() * bunch.get_reference_particle().get_gamma());
+        line_charge_density = q_total / (bunch.get_z_period_length()*beta) ;
     }
 
     double mean_x=mean[Bunch::x];
@@ -232,14 +232,14 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
             //      distribution.
             line_charge_density = q_total
                                          * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
-                                         / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
+                                         / (sqrt(2.0 * mconstants::pi) * sigma_cdt*beta);
         }
         double E_x, E_y;
         normalized_efield(x, y, E_x, E_y);
         bunch.get_local_particles()[part][Bunch::xp] += E_x * factor
-                * line_charge_density;
+                * line_charge_density/(gamma);
         bunch.get_local_particles()[part][Bunch::yp] += E_y * factor
-                * line_charge_density;
+                * line_charge_density/(gamma);
     }
 }
 
