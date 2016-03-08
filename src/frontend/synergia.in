@@ -74,7 +74,7 @@ pythonpathadd () {
 
 set_paths () {
     if [ -z "$SYNERGIA_LOCAL_SYNERGIA2_DIR" ]; then
-        synergia2_dir="$prefix/lib/${PYTHON_INSTALL_DIR}"
+        synergia2_dir="$prefix/${PYTHON_INSTALL_DIR}"
     else
         synergia2_dir="$SYNERGIA_LOCAL_SYNERGIA2_DIR"
     fi
