@@ -73,6 +73,11 @@ pythonpathadd () {
 }
 
 set_paths () {
+    # CHEF_PYTHON_DIR
+    if [ -n "${CHEF_PYTHON_DIR}" ]; then
+        pythonpathadd "${CHEF_PYTHON_DIR}"
+    fi
+
     if [ -z "$SYNERGIA_LOCAL_SYNERGIA2_DIR" ]; then
         synergia2_dir="$prefix/${PYTHON_INSTALL_DIR}"
     else
