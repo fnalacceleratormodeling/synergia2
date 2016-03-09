@@ -10,20 +10,26 @@ synergia_version_major()
 int
 synergia_version_minor()
 {
-    const int version_minor = ${SYNERGIA2_VERSION_MINOR};
+    // version is a two digit number. If the leading digit is 0, it will be
+    // incorrectly interpeted as octal. Oi.
+    const int version_minor = 1${SYNERGIA2_VERSION_MINOR} - 100;
     return version_minor;
 }
 
 int
 synergia_version_patch()
 {
-    const int version_patch = ${SYNERGIA2_VERSION_PATCH};
+    // version is a two digit number. If the leading digit is 0, it will be
+    // incorrectly interpeted as octal. Oi.
+    const int version_patch = 1${SYNERGIA2_VERSION_PATCH} - 100;
     return version_patch;
 }
 
 int
 synergia_version_tweak()
 {
-    const int version_tweak = ${SYNERGIA2_VERSION_TWEAK};
+    // version is a two digit number. If the leading digit is 0, it will be
+    // incorrectly interpeted as octal. Oi.
+    const int version_tweak = 1${SYNERGIA2_VERSION_TWEAK} - 100;
     return version_tweak;
 }
