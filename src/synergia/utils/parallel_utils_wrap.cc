@@ -48,6 +48,7 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .def("get_size", &Commxx::get_size)
             .def("has_this_rank", &Commxx::has_this_rank)
             ;
+    register_ptr_to_python<Commxx_sptr >();
 
     container_conversions::from_python_sequence<std::vector<Commxx_sptr >,
             container_conversions::variable_capacity_policy >();
