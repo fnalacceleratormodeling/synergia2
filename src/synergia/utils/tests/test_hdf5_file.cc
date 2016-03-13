@@ -48,7 +48,11 @@ namespace
     const char * array2d_label = "array2d_data";
     const char * array2dfo_label = "array2dfo_data";
     const char * array3d_label = "array3d_data";
-    const int num_members = 5;
+    const char * array3dfo_label = "array3dfo_data";
+    // in the file, each 2d or 3d type has an extra storage order saved so
+    // num_members is 1(int) + 1(double) + 1(int array) + 2(2d array) + 2(3d array) +
+    //                   2(2d fortran order array) + 2(3d fortran order array)
+    const int num_members = 11;
 }
 
 struct Hdf5_file_fixture
@@ -61,7 +65,9 @@ struct Hdf5_file_fixture
         dim3(4),
         a1d(boost::extents[dim1]),
         a2d(boost::extents[dim1][dim2]),
-        a3d(boost::extents[dim1][dim2][dim3])
+        a2dfo(boost::extents[dim1][dim2], boost::fortran_storage_order()),
+        a3d(boost::extents[dim1][dim2][dim3]),
+        a3dfo(boost::extents[dim1][dim2][dim3], boost::fortran_storage_order())
     {
         for (int j = 0; j < dim1; ++j) {
             a1d[j] = 100 * j;
@@ -80,10 +86,32 @@ struct Hdf5_file_fixture
         write_file.write(a2dfo, array2dfo_label);
         write_file.write(a3d, array3d_label);
         write_file.write(a3dfo, array3dfo_label);
+
+
     }
     ~Hdf5_file_fixture()
     {
-<<<<<<< HEAD
+    }
+
+    int int_data;
+    double double_data;
+    int dim1;
+    int dim2;
+    int dim3;
+    MArray1d a1d;
+    MArray2d a2d;
+    MArray2d a2dfo;
+    MArray3d a3d;
+    MArray3d a3dfo;
+};
+
+
+const double tolerance = 1.0e-13;
+BOOST_FIXTURE_TEST_CASE(read_data, Hdf5_file_fixture)
+{
+
+    const double tolerance = 1.0e-12;
+        // now read
         Hdf5_file read_file(filename, Hdf5_file::read_only);
         int int_read = read_file.read<int > (int_label);
         BOOST_CHECK_EQUAL(int_read, int_data);
@@ -103,35 +131,7 @@ struct Hdf5_file_fixture
         MArray3d a3dfo_read(read_file.read<MArray3d > (array3dfo_label));
         BOOST_CHECK(a3dfo_read.storage_order() == a3dfo.storage_order());
         multi_array_check_equal(a3dfo_read, a3dfo, tolerance);
-=======
->>>>>>> compacc/devel-bgq
-    }
 
-    int int_data;
-    double double_data;
-    int dim1;
-    int dim2;
-    int dim3;
-    MArray1d a1d;
-    MArray2d a2d;
-    MArray3d a3d;
-};
-
-
-const double tolerance = 1.0e-13;
-BOOST_FIXTURE_TEST_CASE(read_data, Hdf5_file_fixture)
-{
-    Hdf5_file read_file(filename, Hdf5_file::read_only);
-    int int_read = read_file.read<int > (int_label);
-    BOOST_CHECK_EQUAL(int_read, int_data);
-    double double_read = read_file.read<double > (double_label);
-    BOOST_CHECK_CLOSE(double_read, double_data, tolerance);
-    MArray1d a1d_read(read_file.read<MArray1d > (array1d_label));
-    multi_array_check_equal(a1d_read, a1d, tolerance);
-    MArray2d a2d_read(read_file.read<MArray2d > (array2d_label));
-    multi_array_check_equal(a2d_read, a2d, tolerance);
-    MArray3d a3d_read(read_file.read<MArray3d > (array3d_label));
-    multi_array_check_equal(a3d_read, a3d, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_member_names, Hdf5_file_fixture)
@@ -148,7 +148,11 @@ BOOST_FIXTURE_TEST_CASE(get_member_names, Hdf5_file_fixture)
     BOOST_CHECK_EQUAL(std::count(member_names.begin(),
                                  member_names.end(), array2d_label), 1);
     BOOST_CHECK_EQUAL(std::count(member_names.begin(),
+                                 member_names.end(), array2dfo_label), 1);
+    BOOST_CHECK_EQUAL(std::count(member_names.begin(),
                                  member_names.end(), array3d_label), 1);
+    BOOST_CHECK_EQUAL(std::count(member_names.begin(),
+                                 member_names.end(), array3dfo_label), 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_atomic_type, Hdf5_file_fixture)
@@ -158,7 +162,9 @@ BOOST_FIXTURE_TEST_CASE(get_atomic_type, Hdf5_file_fixture)
     BOOST_CHECK_EQUAL(read_file.get_atomic_type(double_label), Hdf5_file::double_type);
     BOOST_CHECK_EQUAL(read_file.get_atomic_type(array1d_label), Hdf5_file::double_type);
     BOOST_CHECK_EQUAL(read_file.get_atomic_type(array2d_label), Hdf5_file::double_type);
+    BOOST_CHECK_EQUAL(read_file.get_atomic_type(array2dfo_label), Hdf5_file::double_type);
     BOOST_CHECK_EQUAL(read_file.get_atomic_type(array3d_label), Hdf5_file::double_type);
+    BOOST_CHECK_EQUAL(read_file.get_atomic_type(array3dfo_label), Hdf5_file::double_type);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_dims, Hdf5_file_fixture)
