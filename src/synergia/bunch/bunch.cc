@@ -296,7 +296,34 @@ void
 Bunch::set_local_num(int local_num)
 {
     if (local_num > this->local_num) {
-        throw std::runtime_error("set num not supported");
+        // throw std::runtime_error("set num not supported");
+
+        double * prev_storage = storage;
+        double * prev_alt_storage = alt_storage;
+
+        MArray2d_ref * prev_local_particles = local_particles;
+        MArray2d_ref * prev_alt_local_particles = alt_local_particles;
+
+        storage = new double[local_num * 7];
+        alt_storage = new double[local_num * 7];
+
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
+
+        for (int i=0; i<this->local_num; ++i) {
+            for (int j=0; j<7; ++j) {
+                (*local_particles)[i][j] = (*prev_local_particles)[i][j];
+                (*alt_local_particles)[i][j] = (*prev_alt_local_particles)[i][j];
+            }
+        }
+
+        delete [] prev_storage;
+        delete [] prev_alt_storage;
+
+        delete prev_local_particles;
+        delete prev_alt_local_particles;
+
+
 #if 0
         MArray2d *prev_local_particles = local_particles;
         int prev_local_num = this->local_num;
@@ -308,7 +335,7 @@ Bunch::set_local_num(int local_num)
                 (*prev_local_particles)[ boost::indices[range(0,prev_local_num)][range()] ];
         delete prev_local_particles;
 #endif
-     }
+    }
     this->local_num = local_num;
 }
 
