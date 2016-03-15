@@ -25,6 +25,8 @@ template<typename T>
         Hdf5_writer(H5::H5File * file_ptr, std::string const& name);
         void
         write(T const & data);
+        void
+        write(T const * data, size_t len);
         ~Hdf5_writer();
     };
 

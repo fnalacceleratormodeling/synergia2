@@ -64,6 +64,19 @@ template<typename T>
     }
 
 template<typename T>
+    void
+    Hdf5_writer<T >::write(T const * data, size_t len)
+    {
+        dims.at(0) = len;
+        data_rank = 1;
+        DataSpace dataspace(data_rank, &dims[0]);
+        DataSet dataset = file_ptr->createDataSet(name.c_str(), atomic_type,
+                dataspace);
+        dataset.write(data, atomic_type, dataspace);
+    }
+
+
+template<typename T>
     Hdf5_writer<T >::~Hdf5_writer()
     {
     }

@@ -2,12 +2,20 @@
 #define HDF5_FILE_TCC_
 
 #include "synergia/utils/hdf5_misc.h"
+#include <boost/type_traits.hpp>
 
 template<typename T>
     void
     Hdf5_file::write(T const& data, std::string const& name)
     {
         Hdf5_writer<T > (h5file_ptr, name).write(data);
+    }
+
+template<typename T>
+    void
+    Hdf5_file::write(T const * data, size_t len, std::string const & name)
+    {
+        Hdf5_writer<T > (h5file_ptr, name).write(data, len);
     }
 
 template<typename T>
@@ -27,6 +35,12 @@ template<typename T>
         return retval;
     }
 
+template<>
+    int *
+    Hdf5_file::read<int *    >(std::string const& name);
+template<>
+    double *
+    Hdf5_file::read<double * >(std::string const& name);
 template<>
     MArray1d
     Hdf5_file::read<MArray1d >(std::string const& name);
