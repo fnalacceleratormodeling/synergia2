@@ -746,7 +746,8 @@ boost::filesystem::remove(get_local_particles_serialization_path());
                     Hdf5_file file(get_local_particles_serialization_path(),
                         Hdf5_file::truncate);
                     file.write(local_num, "local_num");
-                    file.write(*local_particles, "local_particles");
+                    //file.write(*local_particles, "local_particles");
+                    file.write(storage, local_num*7, "local_storage");
                     file.close();
                     fail=false;
                 }
@@ -782,13 +783,16 @@ template<class Archive>
             Hdf5_file file(get_local_particles_serialization_path(),
                     Hdf5_file::read_only);
             local_num = file.read<int > ("local_num");
-            storage = NULL;
-            local_particles = new MArray2d(file.read<MArray2d > ("local_particles"));
+            storage = file.read<double *>("local_storage");
+            alt_storage = new double[local_num * 7];
+            local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+            alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
         } else {
             local_num = 0;
             storage = NULL;
-            local_particles = new MArray2d(boost::extents[local_num][7],
-                    boost::fortran_storage_order());
+            alt_storage = NULL;
+            local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+            alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
         }
     }
 
