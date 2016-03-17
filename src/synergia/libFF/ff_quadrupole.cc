@@ -38,8 +38,8 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
     double length = slice.get_right() - slice.get_left();
 
     double k[2];
-    k[0] = slice.get_lattice_element().get_double_attribute("k1");
-    k[1] = slice.get_lattice_element().get_double_attribute("k1s");
+    k[0] = slice.get_lattice_element().get_double_attribute("k1", 0.0);
+    k[1] = slice.get_lattice_element().get_double_attribute("k1s", 0.0);
 
     typedef PropagatorTraits<JetParticle>::State_t State_t;
     typedef PropagatorTraits<JetParticle>::Component_t Component_t;
@@ -84,11 +84,11 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double length = slice.get_right() - slice.get_left();
 
     double k[2];
-    k[0] = slice.get_lattice_element().get_double_attribute("k1");
-    k[1] = slice.get_lattice_element().get_double_attribute("k1s");
+    k[0] = slice.get_lattice_element().get_double_attribute("k1", 0.0);
+    k[1] = slice.get_lattice_element().get_double_attribute("k1s", 0.0);
 
      // tilting
-     double tilt = slice.get_lattice_element().get_double_attribute("tilt");
+     double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
      if (tilt != 0.0)
      {
          std::complex<double> ck2(k[0], -k[1]);
