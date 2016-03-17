@@ -282,43 +282,6 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     bunch.get_reference_particle().increment_trajectory(length);
-
-#if 0
-    double length = slice.get_right() - slice.get_left();
-    double angle = slice.get_lattice_element().get_double_attribute("angle");
-
-    double cos_angle = cos(angle);
-    double sin_angle = sin(angle);
-
-    int local_num = bunch.get_local_num();
-    MArray2d_ref particles = bunch.get_local_particles();
-
-    double reference_momentum = bunch.get_reference_particle().get_momentum();
-    double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
-    double m = bunch.get_mass();
-
-    std::cout << "brho = " << reference_brho << "\n";
-
-    for (int part = 0; part < local_num; ++part) {
-        double x   (particles[part][Bunch::x   ]);
-        double xp  (particles[part][Bunch::xp  ]);
-        double y   (particles[part][Bunch::y   ]);
-        double yp  (particles[part][Bunch::yp  ]);
-        double cdt (particles[part][Bunch::cdt ]);
-        double dpop(particles[part][Bunch::dpop]);
-
-        sbend_unit(x, xp, y, yp, cdt, dpop,
-                   length, cos_angle, sin_angle,
-                   reference_momentum, m, reference_brho);
-
-        particles[part][Bunch::x]  = x;
-        particles[part][Bunch::xp] = xp;
-        particles[part][Bunch::y]  = y;
-        particles[part][Bunch::cdt] = cdt;
-    }
-
-    bunch.get_reference_particle().increment_trajectory(length);
-#endif
 }
 
 template<class Archive>
