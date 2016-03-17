@@ -95,29 +95,48 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
          ck2 = ck2 * exp(std::complex<double>(0.0, 2.0*tilt));
          k[0] = ck2.real();
          k[1] = ck2.imag();
-
-         //slice.get_lattice_element().set_double_attribute("tilt", 0.0);
-         //slice.get_lattice_element().set_double_attribute("k1"  , k[0]);
-         //slice.get_lattice_element().set_double_attribute("k1s" , k[1]);
      }
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
+    double * RESTRICT xa, * RESTRICT xpa;
+    double * RESTRICT ya, * RESTRICT ypa;
+    double * RESTRICT cdta, * RESTRICT dpopa;
+
+    bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+
+    const int num_blocks = local_num / GSVector::size;
+    const int block_last = num_blocks * GSVector::size;
+
     if (length == 0.0) 
     {
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < block_last; part += GSVector::size) 
         {
-            double x(particles[part][Bunch::x]);
-            double xp(particles[part][Bunch::xp]);
-            double y(particles[part][Bunch::y]);
-            double yp(particles[part][Bunch::yp]);
+            GSVector  x( &xa[part]);
+            GSVector xp(&xpa[part]);
+            GSVector  y( &ya[part]);
+            GSVector yp(&ypa[part]);
 
             FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
 
-            particles[part][Bunch::xp] = xp;
-            particles[part][Bunch::yp] = yp;
+            xp.store(&xpa[part]);
+            yp.store(&ypa[part]);
+        }
+
+        #pragma omp parallel for
+        for (int part = 0; part < local_num; ++part) 
+        {
+            double  x( xa[part]);
+            double xp(xpa[part]);
+            double  y( ya[part]);
+            double yp(ypa[part]);
+
+            FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+            xpa[part] = xp;
+            ypa[part] = yp;
         }
     } 
     else 
@@ -128,15 +147,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double step_reference_cdt = reference_cdt/steps;
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
-
-        double * RESTRICT xa, * RESTRICT xpa;
-        double * RESTRICT ya, * RESTRICT ypa;
-        double * RESTRICT cdta, * RESTRICT dpopa;
-
-        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-        const int num_blocks = local_num / GSVector::size;
-        const int block_last = num_blocks * GSVector::size;
 
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += GSVector::size) 
