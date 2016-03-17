@@ -84,6 +84,12 @@ public:
     double
     get_double_attribute(std::string const& name) const;
 
+    /// Get the value of the named double attribute
+    /// @param name attribute name
+    /// @param val default value if the specified attribute doesnt exist
+    double
+    get_double_attribute(std::string const& name, double val) const;
+
     /// Get the entire dictionary of double attributes
     std::map<std::string, double > const &
     get_double_attributes() const;
@@ -106,6 +112,12 @@ public:
     /// @param name attribute name
     std::string const&
     get_string_attribute(std::string const& name) const;
+
+    /// Get the value of the named string attribute
+    /// @param name attribute name
+    /// @param val default value if the specified attribute doesnt exist
+    std::string const&
+    get_string_attribute(std::string const& name, std::string const & val) const;
 
     /// Get the entire dictionary of string attributes
     std::map<std::string, std::string > const &
