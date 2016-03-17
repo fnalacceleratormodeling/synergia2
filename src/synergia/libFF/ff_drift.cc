@@ -56,76 +56,55 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-     //double t0 = MPI_Wtime();
-     const double length = slice.get_right() - slice.get_left();
-     const int local_num = bunch.get_local_num();
-     const double reference_momentum = bunch.get_reference_particle().get_momentum();
-     const double m = bunch.get_mass();
-     const double reference_cdt = get_reference_cdt(length,
-                                                    bunch.get_reference_particle());
-     double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
-             * RESTRICT cdta, * RESTRICT dpopa;
-     bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-     double * RESTRICT xa2, * RESTRICT xpa2, * RESTRICT ya2, * RESTRICT ypa2,
-             * RESTRICT cdta2, * RESTRICT dpopa2;
-     bunch.set_alt_arrays(xa2, xpa2, ya2, ypa2, cdta2, dpopa2);
+    const double  length = slice.get_right() - slice.get_left();
+    const int  local_num = bunch.get_local_num();
+    const double   ref_p = bunch.get_reference_particle().get_momentum();
+    const double    mass = bunch.get_mass();
+    const double ref_cdt = get_reference_cdt(length, bunch.get_reference_particle());
 
-//     double xtmp[local_num];
-//     double ytmp[local_num];
-//     double cdttmp[local_num];
+    double * RESTRICT xa, * RESTRICT xpa;
+    double * RESTRICT ya, * RESTRICT ypa;
+    double * RESTRICT cdta, * RESTRICT dpopa;
 
-     const int num_blocks = local_num / GSVector::size;
-     const int block_last = num_blocks * GSVector::size;
-     //double t1 = MPI_Wtime();
-     #pragma omp parallel for
-     for (int part = 0; part < block_last; part += GSVector::size) {
-         GSVector x(&xa[part]);
-         GSVector xp(&xpa[part]);
-         GSVector y(&ya[part]);
-         GSVector yp(&ypa[part]);
-         GSVector cdt(&cdta[part]);
-         GSVector dpop(&dpopa[part]);
+    bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
-                    reference_cdt);
+    const int num_blocks = local_num / GSVector::size;
+    const int block_last = num_blocks * GSVector::size;
 
-         x.store(&xa[part]);
-         y.store(&ya[part]);
-         cdt.store(&cdta[part]);
-     }
-     #pragma omp parallel for
-     for (int part = block_last; part < local_num; ++part) {
-         double x(xa[part]);
-         double xp(xpa[part]);
-         double y(ya[part]);
-         double yp(ypa[part]);
-         double cdt(cdta[part]);
-         double dpop(dpopa[part]);
+    #pragma omp parallel for
+    for (int part = 0; part < block_last; part += GSVector::size) 
+    {
+        GSVector x(&xa[part]);
+        GSVector xp(&xpa[part]);
+        GSVector y(&ya[part]);
+        GSVector yp(&ypa[part]);
+        GSVector cdt(&cdta[part]);
+        GSVector dpop(&dpopa[part]);
 
-         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
-                    reference_cdt);
+        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
 
-         xa[part] = x;
-         ya[part] = y;
-         cdta[part] = cdt;
-     }
-#if 0
-     //double t2 = MPI_Wtime();
-//    #pragma omp parallel for
-//     for(int part = 0; part < block_last; ++part) {
-//         xa[part] = xa2[part];
-//         ya[part] = ya2[part];
-//         cdta[part] = cdta2[part];
-//     }
-     std::copy(xa2, xa2+block_last, xa);
-     std::copy(ya2, ya2+block_last, ya);
-     std::copy(cdta2, cdta2+block_last, cdta);
-     //double t3 = MPI_Wtime();
-     Logger logger(0);
-//     logger << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
-     logger << std::setw(8) << std::setprecision(6);
-     logger << "drift-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
-#endif
+        x.store(&xa[part]);
+        y.store(&ya[part]);
+        cdt.store(&cdta[part]);
+    }
+
+    #pragma omp parallel for
+    for (int part = block_last; part < local_num; ++part) 
+    {
+        double x(xa[part]);
+        double xp(xpa[part]);
+        double y(ya[part]);
+        double yp(ypa[part]);
+        double cdt(cdta[part]);
+        double dpop(dpopa[part]);
+
+        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
+
+        xa[part] = x;
+        ya[part] = y;
+        cdta[part] = cdt;
+    }
+
     bunch.get_reference_particle().increment_trajectory(length);
 }
 
