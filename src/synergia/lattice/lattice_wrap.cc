@@ -86,6 +86,16 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_lattice_overloads23,
 BOOST_PYTHON_FUNCTION_OVERLOADS(binary_save_lattice_overloads23,
         binary_save<Lattice >, 2, 3)
 
+double (Lattice_element::*get_double_attribute_a)(std::string const &) const 
+        = &Lattice_element::get_double_attribute;
+double (Lattice_element::*get_double_attribute_b)(std::string const &, double) const 
+        = &Lattice_element::get_double_attribute;
+
+std::string const & (Lattice_element::*get_string_attribute_a)(std::string const &) const 
+        = &Lattice_element::get_string_attribute;
+std::string const & (Lattice_element::*get_string_attribute_b)(std::string const &, std::string const &) const 
+        = &Lattice_element::get_string_attribute;
+
 BOOST_PYTHON_MODULE(lattice)
 {
 //    import("pyconvertors");
@@ -102,13 +112,16 @@ BOOST_PYTHON_MODULE(lattice)
                 Lattice_element_set_double_attribute_overloads())
         .def("has_double_attribute", &Lattice_element::has_double_attribute,
                 Lattice_element_has_double_attribute_overloads())
-        .def("get_double_attribute", &Lattice_element::get_double_attribute)
+        .def("get_double_attribute", get_double_attribute_a)
+        .def("get_double_attribute", get_double_attribute_b)
         .def("get_double_attributes", get_double_attributes_workaround)
         .def("set_string_attribute", &Lattice_element::set_string_attribute,
                 Lattice_element_set_string_attribute_overloads())
         .def("has_string_attribute", &Lattice_element::has_string_attribute,
                 Lattice_element_has_string_attribute_overloads())
-        .def("get_string_attribute", &Lattice_element::get_string_attribute,
+        .def("get_string_attribute", get_string_attribute_a,
+                return_value_policy<copy_const_reference>())
+        .def("get_string_attribute", get_string_attribute_b,
                 return_value_policy<copy_const_reference>())
         .def("get_string_attributes", get_string_attributes_workaround)
         .def("set_vector_attribute", &Lattice_element::set_vector_attribute,
