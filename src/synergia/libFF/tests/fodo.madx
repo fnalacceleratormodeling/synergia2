@@ -14,6 +14,10 @@ qsb:  sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.03
 //qsb: sbend, l=1.0, angle=1e-6, k2=0.02;
 //qrfc: rfcavity, l=2.998, volt=3.38965e-07, harmon=1, lag=0, freq=55.43860156259074;
 qrfc: rfcavity, l=2.998, volt=3.38965e-07, lag=0, freq=55.43860156259074;
+qmp1: multipole, l=0.0, k1l=0.2;
+qmp2: multipole, l=0.0, k1l=0.3, k2l=0.1, k3l=0.2, t1=0.3, t2=0.2;
+qmp3: multipole, l=0.0, knl={0.1, 0.2}, ksl={0.1, 0.1};
+qmp4: multipole, l=0.0, knl={0.0, 0.2}, ksl={0.1, 0.1}, tilt=0.1;
 
 seq_drift: sequence, l=1.0, refer=entry;
 sd0: qd0, at=0;
@@ -61,5 +65,29 @@ seq_rfc: sequence, l=3.998, refer=entry;
 sc0: qd0, at=0;
 srfc: qrfc, at=0;
 sc1: qd1, at=2.998;
+endsequence;
+
+seq_mp1: sequence, l=1.0, refer=entry;
+sc0: qd0, at=0;
+smp1: qmp1, at=0;
+sm1: qd1, at=0.0;
+endsequence;
+
+seq_mp2: sequence, l=1.0, refer=entry;
+sc0: qd0, at=0;
+smp2: qmp2, at=0;
+sm1: qd1, at=0.0;
+endsequence;
+
+seq_mp3: sequence, l=1.0, refer=entry;
+sc0: qd0, at=0;
+smp3: qmp3, at=0;
+sm1: qd1, at=0.0;
+endsequence;
+
+seq_mp4: sequence, l=1.0, refer=entry;
+sc0: qd0, at=0;
+smp4: qmp4, at=0;
+sm1: qd1, at=0.0;
 endsequence;
 

@@ -44,21 +44,67 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     if (length > 0.0)
         throw std::runtime_error("FF_multipole::apply() cannot deal with thick elements");
 
-    std::vector<double> const & knl = 
-        slice.get_lattice_element().get_vector_attribute("knl");
+    std::vector<double> knl;
+    std::vector<double> ksl;
+    std::vector<double> tn;
 
-    std::vector<double> const & ksl = 
-        slice.get_lattice_element().get_vector_attribute("ksl");
+    // extract attributes
+    if ( slice.get_lattice_element().has_vector_attribute("knl") )
+    {
+        // it is in Mad X format
+        std::vector<double> k0(1, 0.0);
 
-    if (knl.size() != ksl.size())
-        throw std::runtime_error("FF_multipole:apply() different array size of knl and ksl");
+        knl = slice.get_lattice_element().get_vector_attribute("knl");
+        ksl = slice.get_lattice_element().get_vector_attribute("ksl", k0);
+
+        if (knl.size() > ksl.size()) ksl.resize(knl.size(), 0.0);
+        else if (knl.size() < ksl.size()) knl.resize(ksl.size(), 0.0);
+
+        double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
+        tn.resize(knl.size(), tilt);
+    }
+    else
+    {
+        // in Mad 8 format
+        std::string kn("k0l");
+        std::string tn("t0");
+
+        for (int i=0; i<6; ++i)
+        {
+            kn[1] = '0' + i;
+            tn[1] = '0' + i;
+
+            knl.push_back( slice.get_lattice_element().get_double_attribute(kn, 0.0) );
+            tn .push_back( slice.get_lattice_element().get_double_attribute(tn, 0.0) );
+        }
+
+        int tail = knl.size()-1;
+        while (tail && knl[tail] == 0.0) --tail;
+
+        knl.resize(tail+1);
+        ksl.resize(knl.size(), 0.0);
+        tn .resize(knl.size(), 0.0);
+    }
+
+    // tilting
+    for (int i=0; i<knl.size(); ++i)
+    {
+        if (tn[i] != 0.0)
+        {
+            std::complex<double> ck2(knl[i], ksl[i]);
+            ck2 = ck2 * exp(std::complex<double>(0.0, (i+1)*tn[i]));
+            knl[i] = ck2.real();
+            ksl[i] = ck2.imag();
+        }
+    }
 
     double kL[2];
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    for (int part = 0; part < local_num; ++part) {
+    for (int part = 0; part < local_num; ++part) 
+    {
         double x   (particles[part][Bunch::x   ]);
         double xp  (particles[part][Bunch::xp  ]);
         double y   (particles[part][Bunch::y   ]);
