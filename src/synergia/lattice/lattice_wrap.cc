@@ -96,6 +96,11 @@ std::string const & (Lattice_element::*get_string_attribute_a)(std::string const
 std::string const & (Lattice_element::*get_string_attribute_b)(std::string const &, std::string const &) const 
         = &Lattice_element::get_string_attribute;
 
+std::vector<double> const & (Lattice_element::*get_vector_attribute_a)(std::string const &) const
+        = &Lattice_element::get_vector_attribute;
+std::vector<double> const & (Lattice_element::*get_vector_attribute_b)(std::string const &, std::vector<double> const &) const
+        = &Lattice_element::get_vector_attribute;
+
 BOOST_PYTHON_MODULE(lattice)
 {
 //    import("pyconvertors");
@@ -128,7 +133,9 @@ BOOST_PYTHON_MODULE(lattice)
                 Lattice_element_set_vector_attribute_overloads())
         .def("has_vector_attribute", &Lattice_element::has_vector_attribute,
                 Lattice_element_has_vector_attribute_overloads())
-        .def("get_vector_attribute", &Lattice_element::get_vector_attribute,
+        .def("get_vector_attribute", get_vector_attribute_a,
+                return_value_policy<copy_const_reference>())
+        .def("get_vector_attribute", get_vector_attribute_b,
                 return_value_policy<copy_const_reference>())
         .def("get_vector_attributes", get_vector_attributes_workaround)
         .def("set_length_attribute_name", &Lattice_element::set_length_attribute_name)

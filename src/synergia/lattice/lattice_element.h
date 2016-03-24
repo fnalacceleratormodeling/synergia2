@@ -142,6 +142,12 @@ public:
     std::vector<double > const&
     get_vector_attribute(std::string const& name) const;
 
+    /// Get the value of the named vector attribute
+    /// @param name attribute name
+    /// @param val default value if the specified attribute doesnt exist
+    std::vector<double > const&
+    get_vector_attribute(std::string const& name, std::vector<double> const & val) const;
+
     /// Get the entire dictionary of vector attributes
     std::map<std::string, std::vector<double > > const &
     get_vector_attributes() const;
