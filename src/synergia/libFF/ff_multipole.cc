@@ -66,16 +66,16 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     else
     {
         // in Mad 8 format
-        std::string kn("k0l");
-        std::string tn("t0");
+        std::string skn("k0l");
+        std::string stn("t0");
 
         for (int i=0; i<6; ++i)
         {
-            kn[1] = '0' + i;
-            tn[1] = '0' + i;
+            skn[1] = '0' + i;
+            stn[1] = '0' + i;
 
-            knl.push_back( slice.get_lattice_element().get_double_attribute(kn, 0.0) );
-            tn .push_back( slice.get_lattice_element().get_double_attribute(tn, 0.0) );
+            knl.push_back( slice.get_lattice_element().get_double_attribute(skn, 0.0) );
+             tn.push_back( slice.get_lattice_element().get_double_attribute(stn, 0.0) * (-1) );
         }
 
         int tail = knl.size()-1;
@@ -83,7 +83,7 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         knl.resize(tail+1);
         ksl.resize(knl.size(), 0.0);
-        tn .resize(knl.size(), 0.0);
+         tn.resize(knl.size(), 0.0);
     }
 
     // tilting
