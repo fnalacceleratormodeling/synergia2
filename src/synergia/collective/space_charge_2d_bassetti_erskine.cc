@@ -216,7 +216,7 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     double line_charge_density;
     if (longitudinal_distribution == longitudinal_uniform) {
        // use the length in the bunch frame
-        line_charge_density = q_total / (bunch.get_z_period_length()*beta) ;
+        line_charge_density = q_total / bunch.get_z_period_length() ;
     }
 
     double mean_x=mean[Bunch::x];
@@ -237,9 +237,9 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         double E_x, E_y;
         normalized_efield(x, y, E_x, E_y);
         bunch.get_local_particles()[part][Bunch::xp] += E_x * factor
-                * line_charge_density/(gamma);
+                * line_charge_density/(gamma*gamma);
         bunch.get_local_particles()[part][Bunch::yp] += E_y * factor
-                * line_charge_density/(gamma);
+                * line_charge_density/(gamma*gamma);
     }
 }
 
