@@ -957,9 +957,10 @@ Multipole_madx_adaptor::get_chef_elements(
         std::stringstream element_name(stringstream::out);
         element_name << lattice_element.get_name() << "_skew" << 2 * moment + 2
                 << "pole";
+        // in madX, the skew elements are opposite sign
         ElmPtr elm(
                 new ThinPole(element_name.str().c_str(),
-                        brho * ksl[moment] / nfactorial, 2 * moment + 2));
+                        -brho * ksl[moment] / nfactorial, 2 * moment + 2));
         alignmentData aligner;
         aligner.xOffset = 0.0;
         aligner.yOffset = 0.0;
