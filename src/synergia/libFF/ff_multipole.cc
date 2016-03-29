@@ -62,7 +62,7 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
         tn.resize(knl.size(), tilt);
-    }
+   }
     else
     {
         // in Mad 8 format
@@ -92,7 +92,7 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         if (tn[i] != 0.0)
         {
             std::complex<double> ck2(knl[i], ksl[i]);
-            ck2 = ck2 * exp(std::complex<double>(0.0, (i+1)*tn[i]));
+            ck2 = ck2 * exp(std::complex<double>(0.0, -(i+1)*tn[i]));
             knl[i] = ck2.real();
             ksl[i] = ck2.imag();
         }

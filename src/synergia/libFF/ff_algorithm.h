@@ -423,8 +423,8 @@ public:
         T vk0(kL[0]);
         T vk1(kL[1]);
 
-        xp = xp - vk0 * x - vk1 * y;
-        yp = yp + vk0 * y - vk1 * x;
+        xp = xp - vk0 * x + vk1 * y;
+        yp = yp + vk0 * y + vk1 * x;
     }
 
     template <typename T>
