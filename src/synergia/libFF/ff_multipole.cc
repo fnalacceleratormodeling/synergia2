@@ -75,7 +75,7 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             stn[1] = '0' + i;
 
             knl.push_back( slice.get_lattice_element().get_double_attribute(skn, 0.0) );
-             tn.push_back( slice.get_lattice_element().get_double_attribute(stn, 0.0) * (-1) );
+             tn.push_back( slice.get_lattice_element().get_double_attribute(stn, 0.0) );
         }
 
         int tail = knl.size()-1;
