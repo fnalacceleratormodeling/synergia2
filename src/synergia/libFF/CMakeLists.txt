@@ -11,6 +11,7 @@ add_library(synergia_libFF
     ff_kicker.cc
     ff_hkicker.cc
     ff_vkicker.cc
+    ff_marker.cc
     ff_element_map.cc)
 target_link_libraries(synergia_libFF
    synergia_bunch synergia_lattice synergia_serialization)
