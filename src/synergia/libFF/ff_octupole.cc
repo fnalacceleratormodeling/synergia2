@@ -42,7 +42,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, JetParticle& jet_par
 
     double k[2];
     k[0] = slice.get_lattice_element().get_double_attribute("k3");
-    k[1] = slice.get_lattice_element().get_double_attribute("k3s");
+    k[1] = slice.get_lattice_element().get_double_attribute("k3s", 0.0);
 
     typedef PropagatorTraits<JetParticle>::State_t State_t;
     typedef PropagatorTraits<JetParticle>::Component_t Component_t;
@@ -87,7 +87,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
      double k[2];
      k[0] = slice.get_lattice_element().get_double_attribute("k3");
-     k[1] = slice.get_lattice_element().get_double_attribute("k3s");
+     k[1] = slice.get_lattice_element().get_double_attribute("k3s", 0.0);
 
      // tilting
      double tilt = slice.get_lattice_element().get_double_attribute("tilt");
