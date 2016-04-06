@@ -92,7 +92,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
      if (tilt != 0.0)
      {
          std::complex<double> ck2(k[0], -k[1]);
-         ck2 = ck2 * exp(std::complex<double>(0.0, 2.0*tilt));
+         ck2 = ck2 * exp(std::complex<double>(0.0, -2.0*tilt));
          k[0] = ck2.real();
          k[1] = ck2.imag();
      }
