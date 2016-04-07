@@ -1,0 +1,1349 @@
+8.51
+! MAD dictionary
+! (from /afs/cern.ch/Hans.Grote/src/mad_new/madpackage.tgz on 26-OCT-2004)
+
+!-------------------------------------------------------------------------------
+! Modified: 29-OCT-2004, M. Woodley (SLAC)
+!   Correct attribute types in MATCH and CONSTRAINT definitions; add CSRDRIFT
+!   element (same as DRIFT) for XTFF-to-ELEGANT compatibility; added RTAPE
+!   option to TWISS command; make default TILT values positive for SBEND,
+!   RBEND, GBEND, QUADRUPOLE, and SEXTUPOLE (why were they negative? something
+!   to do with the "bv" flag?) 
+!-------------------------------------------------------------------------------
+
+! pr=2, parameters and related commands.
+
+constant:     keyword, pr=2, sp=1, &
+              value    = (r(1), =0.0)
+
+parameter:    keyword, pr=2, sp=2, &
+              value    = (r(1), =0.0)
+
+! standard constants.
+
+pi:           constant = 3.1415926535898
+twopi:        constant = 2 * pi
+degrad:       constant = 180 / pi
+raddeg:       constant = pi / 180
+e:            constant = 2.7182818284590
+emass:        constant = 0.51099906e-3
+pmass:        constant = 0.93827231
+clight:       constant = 299792458.
+
+! pr=3, strings and table-specific expressions.
+
+string:       keyword, pr=3, sp=1, &
+              value    = (s(3), =3\*"")
+
+t_eigen:      keyword, pr=3, sp=2, &
+              tilt1    = (s(3), =3\*""), &
+              tilt2    = (s(3), =3\*""), &
+              eccn1    = (s(3), =3\*""), &
+              eccn2    = (s(3), =3\*"")
+
+t_eigen: t_eigen, &
+              tilt1    = &
+         "0.5*ATAN(2*(E11*E31+E12*E32)/(E11^2+E12^2-E31^2-E32^2))*180/PI", &
+                         "deg", "TILT1", &
+              tilt2    = &
+         "0.5*ATAN(2*(E13*E33+E14*E34)/(E13^2+E14^2-E33^2-E34^2))*180/PI", &
+                         "deg", "TILT2", &
+              eccn1    = &
+"SQRT((E11^2+E12^2+E31^2+E32^2-SQRT((E11^2+E12^2)^2+(E31^2+E32^2)^2+
+2*(E11^2-E12^2)*(E31^2-E32^2)+8*E11*E12*E31*E32))/
+(E11^2+E12^2+E31^2+E32^2+SQRT((E11^2+E12^2)^2+(E31^2+E32^2)^2+
+2*(E11^2-E12^2)*(E31^2-E32^2)+8*E11*E12*E31*E32)))", &
+                         " ", "ECCN1", &
+              eccn2    = &
+"SQRT((E13^2+E14^2+E33^2+E34^2-SQRT((E13^2+E14^2)^2+(E33^2+E34^2)^2+
+2*(E13^2-E14^2)*(E33^2-E34^2)+8*E13*E14*E33*E34))/
+(E13^2+E14^2+E33^2+E34^2+SQRT((E13^2+E14^2)^2+(E33^2+E34^2)^2+
+2*(E13^2-E14^2)*(E33^2-E34^2)+8*E13*E14*E33*E34)))", &
+                         " ", "ECCN2"
+
+t_track:      keyword, pr=3, sp=2, &
+              distance = (s(3), =3\*""), &
+              lyapunov = (s(3), =3\*""), &
+              logdist  = (s(3), =3\*""), &
+              logturns = (s(3), =3\*"")
+
+t_track:  t_track, &
+              distance = &
+              "SQRT(X^2+PX^2+Y^2+PY^2+T^2+PT^2)/D0", &
+              lyapunov = &
+              "0.5*LOG((X^2+PX^2+Y^2+PY^2+T^2+PT^2)/D0^2)/TURNS", &
+              logdist  = &
+              "0.5*LOG((X^2+PX^2+Y^2+PY^2+T^2+PT^2)/D0^2)", &
+              logturns = "LOG(TURNS)"
+
+
+! pr=5, physical element definitions.
+
+drift:        keyword, pr=5, sp=1, &
+              type     = (n(1), ='DRIFT'), &
+              l        = (r(1), =0.0)
+
+rbend:        keyword, pr=5, sp=2, &
+              type     = (n(1), ='RBEND'), &
+              l        = (r(1), =0.0), &
+              angle    = (r(1), =0.0), &
+              k1       = (r(1), =0.0), &
+              e1       = (r(1), =0.0), &
+              e2       = (r(1), =0.0), &
+              tilt     = (r(1), =pi/2), &
+              k2       = (r(1), =0.0), &
+              h1       = (r(1), =0.0), &
+              h2       = (r(1), =0.0), &
+              hgap     = (r(1), =0.0), &
+              fint     = (r(1), =0.5), &
+              fintx    = (r(1), =-1.0), &  ! negative value sets fintx = fint
+              k3       = (r(1), =0.0), &
+              fcsr     = (r(1), =0.0), &
+              bv       = (l(1), =.true.), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+sbend:        keyword, pr=5, sp=3, &
+              type     = (n(1), ='SBEND'), &
+              l        = (r(1), =0.0), &
+              angle    = (r(1), =0.0), &
+              k1       = (r(1), =0.0), &
+              e1       = (r(1), =0.0), &
+              e2       = (r(1), =0.0), &
+              tilt     = (r(1), =pi/2), &
+              k2       = (r(1), =0.0), &
+              h1       = (r(1), =0.0), &
+              h2       = (r(1), =0.0), &
+              hgap     = (r(1), =0.0), &
+              fint     = (r(1), =0.5), &
+              fintx    = (r(1), =-1.0), &  ! negative value sets fintx = fint
+              k3       = (r(1), =0.0), &
+              fcsr     = (r(1), =0.0), &
+              bv       = (l(1), =.true.), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+matrix:       keyword, pr=5, sp=4, &
+              type     = (n(1), ='MATRIX'), &
+              l        = (r(1), =0.0), &
+              kick     = (r(6), =6\*0.0) &
+              rm       = (r(6,6), =36\*0.0), &
+              tm       = (r(6,6,6), =216\*0.0)
+
+quadrupole:   keyword, pr=5, sp=5, &
+              type     = (n(1), ='QUADRUPOLE'), &
+              l        = (r(1), =0.0), &
+              k1       = (r(1), =0.0), &
+              tilt     = (r(1), =pi/4), &
+              aperture = (r(1), =0.0), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+sextupole:    keyword, pr=5, sp=6, &
+              type     = (n(1), ='SEXTUPOLE'), &
+              l        = (r(1), =0.0), &
+              k2       = (r(1), =0.0), &
+              tilt     = (r(1), =pi/6), &
+              aperture = (r(1), =0.0), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+octupole:     keyword, pr=5, sp=7, &
+              type     = (n(1), ='OCTUPOLE'), &
+              l        = (r(1), =0.0), &
+              k3       = (r(1), =0.0), &
+              tilt     = (r(1), =pi/8), &
+              aperture = (r(1), =0.0), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+multipole:    keyword, pr=5, sp=8, &
+              type     = (n(1), ='MULTIPOLE'), &
+              lrad     = (r(1), =0.0), &
+              k0l      = (r(1), =0.0), &
+              t0       = (r(1), =pi/2), &
+              k1l      = (r(1), =0.0), &
+              t1       = (r(1), =pi/4), &
+              k2l      = (r(1), =0.0), &
+              t2       = (r(1), =pi/6), &
+              k3l      = (r(1), =0.0), &
+              t3       = (r(1), =pi/8), &
+              k4l      = (r(1), =0.0), &
+              t4       = (r(1), =pi/10), &
+              k5l      = (r(1), =0.0), &
+              t5       = (r(1), =pi/12), &
+              k6l      = (r(1), =0.0), &
+              t6       = (r(1), =pi/14), &
+              k7l      = (r(1), =0.0), &
+              t7       = (r(1), =pi/16), &
+              k8l      = (r(1), =0.0), &
+              t8       = (r(1), =pi/18), &
+              k9l      = (r(1), =0.0), &
+              t9       = (r(1), =pi/20), &
+              aperture = (r(1), =0.0), &
+              bv       = (l(1), =.true.), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+solenoid:     keyword, pr=5, sp=9, &
+              type     = (n(1), ='SOLENOID'), &
+              l        = (r(1), =0.0), &
+              ks       = (r(1), =0.0), &
+              aperture = (r(1), =0.0), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+rfcavity:     keyword, pr=5, sp=10, &
+              type     = (n(1), ='RFCAVITY'), &
+              l        = (r(1), =0.0), &
+              volt     = (r(1), =0.0), &
+              lag      = (r(1), =0.0), &
+              removed  = (r(1), =0.0), &
+              harmon   = (i(1), =1), &
+              betrf    = (r(1), =0.0), &
+              pg       = (r(1), =0.0), &
+              shunt    = (r(1), =0.0), &
+              tfill    = (r(1), =0.0), &
+              eloss    = (r(1), =0.0), &
+              volterr  = (r(1), =0.0), &
+              lagerr   = (r(1), =0.0), &
+              aperture = (r(1), =0.0), &
+              nbin     = (i(1), =0), &
+              binmax   = (r(1), =0.0), &
+              lfile    = (s(1), =" "), &
+              tfile    = (s(1), =" ")
+
+elseparator:  keyword, pr=5, sp=11, &
+              type     = (n(1), ='ELSEPARATOR'), &
+              l        = (r(1), =0.0), &
+              e        = (r(1), =0.0), &
+              tilt     = (r(1), =pi/2)
+
+srotation:    keyword, pr=5, sp=12, &
+              type     = (n(1), ='SROTATION'), &
+              ' '      = (r(1), =0.0), &
+              angle    = (r(1), =0.0)
+
+yrotation:    keyword, pr=5, sp=13, &
+              type     = (n(1), ='YROTATION'), &
+              ' '      = (r(1), =0.0), &
+              angle    = (r(1), =0.0)
+
+hkicker:      keyword, pr=5, sp=14, &
+              type     = (n(1), ='HKICKER'), &
+              l        = (r(1), =0.0), &
+              kick     = (r(1), =0.0), &
+              bv       = (l(1), =.true.), &
+              lrad     = (r(1), =0.0), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+kicker:       keyword, pr=5, sp=15, &
+              type     = (n(1), ='KICKER'), &
+              l        = (r(1), =0.0), &
+              hkick     = (r(1), =0.0), &
+              vkick     = (r(1), =0.0), &
+              bv       = (l(1), =.true.), &
+              lrad     = (r(1), =0.0), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+vkicker:      keyword, pr=5, sp=16, &
+              type     = (n(1), ='VKICKER'), &
+              l        = (r(1), =0.0), &
+              kick     = (r(1), =0.0), &
+              bv       = (l(1), =.true.), &
+              lrad     = (r(1), =0.0), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+hmonitor:     keyword, pr=5, sp=17, &
+              type     = (n(1), ='HMONITOR'), &
+              l        = (r(1), =0.0)
+
+monitor:      keyword, pr=5, sp=18, &
+              type     = (n(1), ='MONITOR'), &
+              l        = (r(1), =0.0)
+
+vmonitor:     keyword, pr=5, sp=19, &
+              type     = (n(1), ='VMONITOR'), &
+              l        = (r(1), =0.0)
+
+ecollimator:  keyword, pr=5, sp=20, &
+              type     = (n(1), ='ECOLLIMATOR'), &
+              l        = (r(1), =0.0), &
+              xsize    = (r(1), =0.0), &
+              ysize    = (r(1), =0.0)
+
+rcollimator:  keyword, pr=5, sp=21, &
+              type     = (n(1), ='RCOLLIMATOR'), &
+              l        = (r(1), =0.0), &
+              xsize    = (r(1), =0.0), &
+              ysize    = (r(1), =0.0)
+
+beambeam:     keyword, pr=5, sp=22, &
+              type     = (n(1), ='BEAMBEAM'), &
+              ' '      = (r(1), =0.0), &
+              sigx     = (r(1), =1.0), &
+              sigy     = (r(1), =0.11), &
+              xma      = (r(1), =1.0), &
+              yma      = (r(1), =0.11), &
+              charge   = (r(1), =-1.0), &
+              angle    = (r(1), =0.0), &
+              copx     = (r(1), =0.0), &
+              copy     = (r(1), =0.0), &
+              alfxs    = (r(1), =0.0), &
+              alfys    = (r(1), =0.0), &
+              dxs      = (r(1), =0.0), &
+              dys      = (r(1), =0.0), &
+              dpxs     = (r(1), =0.0), &
+              dpys     = (r(1), =0.0), &
+              sigts    = (r(1), =1.0), &
+              siges    = (r(1), =1.0), &
+              cot      = (r(1), =0.0), &
+              copt     = (r(1), =0.0), &
+              slices   = (r(1), =1.0), &
+              iopt     = (r(1), =1.0), &
+              cox      = (r(1), =0.0), &
+              coy      = (r(1), =0.0)
+
+lump:         keyword, pr=5, sp=23, &
+              type     = (n(1), ='LUMP'), &
+              " "      = (r(1), =0.0), & space for length
+              order    = (i(1), =4), &
+              line     = (b(1))
+
+instrument:   keyword, pr=5, sp=24, &
+              type     = (n(1), ='INSTRUMENT'), &
+              l        = (r(1), =0.0)
+
+marker:       keyword, pr=5, sp=25, &
+              type     = (n(1), ='MARKER'), &
+              ' '      = (r(1), =0.0)
+
+gbend:        keyword, pr=5, sp=26, &
+              type     = (n(1), ='GBEND'), &
+              l        = (r(1), =0.0), &
+              angle    = (r(1), =0.0), &
+              k1       = (r(1), =0.0), &
+              e1       = (r(1), =0.0), &
+              e2       = (r(1), =0.0), &
+              tilt     = (r(1), =pi/2), &
+              ks       = (r(1), =0.0), &
+              h1       = (r(1), =0.0), &
+              h2       = (r(1), =0.0), &
+              hgap     = (r(1), =0.0), &
+              fint     = (r(1), =0.5), &
+              fintx    = (r(1), =-1.0), &  ! negative value sets fintx = fint
+              k3       = (r(1), =0.0), &
+              fcsr     = (r(1), =0.0), &
+              bv       = (l(1), =.true.), &
+              gmin     = (r(1), =0.0), &
+              gmax     = (r(1), =0.0)
+
+lcavity:      keyword, pr=5, sp=27, &
+              type     = (n(1), ='LCAVITY'), &
+              l        = (r(1), =0.0), &
+              e0       = (r(1), =0.0), &
+              deltaE   = (r(1), =0.0), &
+              phi0     = (r(1), =0.0), &
+              freq     = (r(1), =0.0), &
+              eloss    = (r(1), =0.0), &
+              volterr  = (r(1), =0.0), &
+              lagerr   = (r(1), =0.0), &
+              aperture = (r(1), =0.0), &
+              nbin     = (i(1), =0), &
+              binmax   = (r(1), =0.0), &
+              lfile    = (s(1), =" "), &
+              tfile    = (s(1), =" ")
+
+profile   :   keyword, pr=5, sp=28, &
+              type     = (n(1), ='PROFILE'), &
+              l        = (r(1), =0.0)
+
+wire      :   keyword, pr=5, sp=29, &
+              type     = (n(1), ='WIRE'), &
+              l        = (r(1), =0.0)
+
+slmonitor :   keyword, pr=5, sp=30, &
+              type     = (n(1), ='SLMONITOR'), &
+              l        = (r(1), =0.0)
+
+blmonitor :   keyword, pr=5, sp=31, &
+              type     = (n(1), ='BLMONITOR'), &
+              l        = (r(1), =0.0)
+
+imonitor  :   keyword, pr=5, sp=32, &
+              type     = (n(1), ='IMONITOR'), &
+              l        = (r(1), =0.0)
+
+! pr=6, line and list definitions.
+
+line:         keyword, pr=6, sp=1
+
+sequence:     keyword, pr=6, sp=2, &
+              refer    = (n(1), ='CENTRE')
+
+list:         keyword, pr=6, sp=3
+
+seqedit:      keyword, pr=6, sp=11, &
+              sequence = (n(1), =" ")
+
+install:      keyword, pr=6, sp=12, &
+              element  = (n(1), = " "), &
+              class    = (n(1), = " "), &
+              at       = (r(1), = 0.0), &
+              from     = (n(1), = " ")
+
+move:         keyword, pr=6, sp=13, &
+              element  = (n(1), = " "), &
+              by       = (r(1), = 0.0), &
+              to       = (r(1), = 0.0), &
+              from     = (n(1), = " ")
+
+remove:       keyword, pr=6, sp=14, &
+              element  = (n(1), = " ")
+
+cycle:        keyword, pr=6, sp=15, &
+              start    = (n(1), = " ")
+
+reflect:      keyword, pr=6, sp=16
+
+endedit:      keyword, pr=6, sp=17
+
+replace:      keyword, pr=6, sp=18, &
+              element  = (n(1), = " "), &
+              by       = (n(1), = " ")
+
+! pr=10, subroutine commands.
+
+do:           keyword, pr=10, sp=1, &
+              " "      = (i(1)), &          space for repeat count
+              times    = (i(1), =1)
+
+enddo:        keyword, pr=10, sp=2
+
+subroutine:   keyword, pr=10, sp=5, &
+              " "      = (i(1)) !           space for repeat count
+
+endsubroutine:keyword, pr=10, sp=6
+
+callsubroutine:keyword, pr=10, sp=7, &
+              " "      = (n(1), =" ")
+
+if:           keyword, pr=10, sp=8, &
+              " "      = (i(1)), &    space for repeat count
+              cond     = (d(1), =0), &
+              op       = (n(1), =">"), &
+              value    = (d(1), =0)
+
+endif:        keyword, pr=10, sp=9
+
+
+! pr=11, miscellaneous service and control commands.
+
+packmemory:   keyword, pr=11, sp=1
+
+option:       keyword, pr=11, sp=2, &
+              reset    = (l(1), =.true.), &
+              tell     = (l(1), =.true.), &
+              cofact   = (r(1), =1.0), &
+              command  = (i(1), =1), &
+              define   = (i(1), =1), &
+              express  = (i(1), =1), &
+              keyword  = (i(1), =1), &
+              line     = (i(1), =1), &
+              debug    = (l(1), =.true.), &
+              double   = (l(1), =.true.), &
+              echo     = (l(1), =.true.), &
+              inter    = (l(1), =.true.), &
+              trace    = (l(1), =.true.), &
+              verify   = (l(1), =.true.), &
+              warn     = (l(1), =.true.), &
+              info     = (l(1), =.true.), &
+              sympl    = (l(1), =.true.), &
+              rbarc    = (l(1), =.true.), &
+              ereset   = (l(1), =.true.), &
+              bborbit  = (l(1), =.true.)
+
+
+setopts:      keyedit, option
+
+stop:         keyword, pr=11, sp=3
+
+set:          keyword, pr=11, sp=4, &
+              variable = (v(1)), &
+              value    = (r(1), =0.0)
+
+value:        keyword, pr=11, sp=5, &
+              value    = (r(10))
+
+end_file:     keyword, pr=11, sp=6
+
+push:         keyword, pr=11, sp=7, &
+              value    = (r(100))
+
+endpush:      keyword, pr=11, sp=8, &
+              save     = (n(1), ="special")
+
+
+
+! pr=12, i/o commands.
+
+archive:      keyword, pr=12, sp=1, &
+              table    = (n(1), ="TWISS"), &
+              filename = (s(1), ="twiss")
+
+retrieve:     keyedit, archive, sp=2
+
+assign:       keyword, pr=12, sp=3, &
+              data     = (s(1), =""), &
+              echo     = (s(1), =""), &
+              print    = (s(1), ="")
+
+call:         keyword, pr=12, sp=4, &
+              filename = (s(1), ="save")
+
+return:       keyword, pr=12, sp=5
+
+excite:       keyword, pr=12, sp=6, &
+              filename = (s(1), =" "), &
+              name     = (n(1), ="name"), &
+              attribute= (n(1), ="attribute"), &
+              value    = (n(1), ="value")
+
+increment:    keyedit, excite, sp=7, &
+              factor   = (r(1), =1.0)
+
+pooldump:     keyword, pr=12, sp=8, &
+              filename = (s(1), ="pooldump")
+
+poolload:     keyedit, pooldump, sp=9
+
+save:         keyword, pr=12, sp=10, &
+              filename = (s(1), ="save"), &
+              pattern  = (s(1), =" ")
+
+status:       keyword, pr=12, sp=11
+
+system:       keyword, pr=12, sp=12, &
+              command  = (s(1), =" ")
+
+help:         keyword, pr=12, sp=13, &
+              " "      = (n(1), =" ")
+
+show:         keyword, pr=12, sp=14, &
+              " "      = (n(1), =" ")
+
+table:        keyword, pr=12, sp=15, &
+              name     = (n(1), =" "), &
+              columns  = (n(20), =" "), &
+              sum      = (n(20), =" ")
+
+saveline:     keyword, pr=12, sp=16, &
+              name     = (n(1), = " "), &
+              filename = (s(1), = "line")
+
+structure:    keyword, pr=12, sp=17, &
+              filename = (s(1), = "line"), &
+              order    = (i(1), = 0)
+
+makesequence: keyword, pr=12, sp=18, &
+              label    = (n(1), = "sequence"), &
+              refer    = (n(1), = "CENTRE")
+
+! pr=13, environment commands.
+
+beam:         keyword, pr=13, sp=1, &
+              particle = (n(1), ="POSITRON"), &
+              sequence = (n(1), =" "), &
+              mass     = (r(1), =emass), &
+              charge   = (r(1), =1.0), &
+              energy   = (r(1), =1.0), &
+              pc       = (r(1), =0.0), &
+              gamma    = (r(1), =0.0), &
+              ex       = (r(1), =1.0), &
+              exn      = (r(1), =0.0), &
+              ey       = (r(1), =1.0), &
+              eyn      = (r(1), =0.0), &
+              et       = (r(1), =1.0), &
+              sigt     = (r(1), =1.0), &
+              sige     = (r(1), =1.0), &
+              kbunch   = (r(1), =1.0), &
+              npart    = (r(1), =0.0), &
+              bcurrent = (r(1), =0.0), &
+              bunched  = (l(1), =.true.), &
+              radiate  = (l(1), =.true.), &
+              freq0    = (r(1), =0.0), &
+              beta     = (r(1), =1.0), &
+              u0       = (r(1), =0.0), &
+              arad     = (r(1), =0.0), &
+              bv       = (r(1), =1.0), &
+              pdamp    = (r(3), =1.0,1.0,2.0)
+
+resbeam:      beam, particle = "POSITRON", energy = 1.0, &
+              ex = 1.0, ey = 1.0, et = 1.0, kbunch = 1.0, &
+              bcurrent = 0.0, sige = 0.0, sigt = 0.0, -bunched, -radiate
+
+beta0:        keyword, pr=13, sp=2, &
+              betx     = (r(1)), alfx     = (r(1)), mux      = (r(1)), &
+              bety     = (r(1)), alfy     = (r(1)), muy      = (r(1)), &
+              x        = (r(1)), px       = (r(1)), &
+              y        = (r(1)), py       = (r(1)), &
+              t        = (r(1)), pt       = (r(1)), &
+              dx       = (r(1)), dpx      = (r(1)), &
+              dy       = (r(1)), dpy      = (r(1)), &
+              wx       = (r(1)), phix     = (r(1)), dmux     = (r(1)), &
+              wy       = (r(1)), phiy     = (r(1)), dmuy     = (r(1)), &
+              ddx      = (r(1)), ddpx     = (r(1)), &
+              ddy      = (r(1)), ddpy     = (r(1)), &
+              energy   = (r(1))
+
+print:        keyword, pr=13, sp=3, &
+              range    = (p(1), = #s/#e), &
+              class    = (n(1), = " "), &
+              pattern  = (s(1), = ".*"), &
+              full     = (l(1), = .true.), &
+              clear    = (l(1), = .true.)
+
+savebeta:     keyword, pr=13, sp=4, &
+              label    = (n(1), =" "), &
+              place    = (p(1), =#e), &
+              sequence = (n(1))
+
+title:        keyword, pr=13, sp=5, &
+              s        = (s(1), =" ")
+
+use:          keyword, pr=13, sp=6, &
+              period   = (b(1)), &
+              range    = (p(1)), &
+              symm     = (l(1), =.true.), &
+              super    = (i(1), =1)
+
+select:       keyword, pr=13, sp=7, &
+              flag     = (n(1), = optics), &
+              range    = (p(1), = #s/#e), &
+              class    = (n(1), = " "), &
+              pattern  = (s(1), = ".*"), &
+              full     = (l(1), = .true.), &
+              clear    = (l(1), = .true.)
+
+split:        keyword, pr=13, sp=8, &
+              name     = (n(1), = " "), &
+              fraction = (r(1), = 0.0), &
+              range    = (p(1), = #s/#e), &
+              class    = (n(1), = " "), &
+              pattern  = (s(1), = ".*"), &
+              full     = (l(1), = .true.), &
+              clear    = (l(1), = .true.)
+
+savesigma:    keyword, pr=13, sp=9, &
+              label    = (n(1), =" "), &
+              place    = (p(1))
+
+sigma0:       keyword, pr=13, sp=10, &
+              x        = (r(1), =0.0), px       = (r(1), =0.0), &
+              y        = (r(1), =0.0), py       = (r(1), =0.0), &
+              t        = (r(1), =0.0), pt       = (r(1), =0.0), &
+              dx       = (r(1), =0.0), dpx      = (r(1), =0.0), &
+              dy       = (r(1), =0.0), dpy      = (r(1), =0.0), &
+              dt       = (r(1), =0.0), dpt      = (r(1), =0.0), &
+              sigx     = (r(1), =0.0), r21      = (r(1), =0.0), &
+              r31      = (r(1), =0.0), r41      = (r(1), =0.0), &
+              r51      = (r(1), =0.0), r61      = (r(1), =0.0), &
+              sigpx    = (r(1), =0.0), r32      = (r(1), =0.0), &
+              r42      = (r(1), =0.0), r52      = (r(1), =0.0), &
+              r62      = (r(1), =0.0), sigy     = (r(1), =0.0), &
+              r43      = (r(1), =0.0), r53      = (r(1), =0.0), &
+              r63      = (r(1), =0.0), sigpy    = (r(1), =0.0), &
+              r54      = (r(1), =0.0), r64      = (r(1), =0.0), &
+              sigt     = (r(1), =0.0), r65      = (r(1), =0.0), &
+              sigpt    = (r(1), =0.0)
+
+makelump:     keyword, pr=13, sp=11, &
+              label    = (n(1), =" "), &
+              range    = (p(1), =#s/#e), &
+              order    = (i(1), =4)
+
+! pr=14, plotting commands.
+
+plot:         keyword, pr=14, sp=1, &
+              vaxis    = (n(5), =" "), &
+              vaxis1   = (n(5), =" "), &
+              vaxis2   = (n(5), =" "), &
+              vaxis3   = (n(5), =" "), &
+              vaxis4   = (n(5), =" "), &
+              haxis    = (n(1), =" "), &
+              bars     = (i(1)), &
+              style    = (i(1)), &
+              symbol   = (i(1)), &
+              maxplot  = (i(1)), &
+              colour   = (i(1)), &
+              fft      = (i(2), = 0, 0), &
+              dump     = (i(1), = 10), &
+              sort     = (l(1), =.true.), &
+              spline   = (l(1), =.true.), &
+              multiple = (l(1), =.true.), &
+              noline   = (l(1), =.true.), &
+              hmin     = (r(1)), &
+              hmax     = (r(1)), &
+              vmin     = (r(4)), &
+              vmax     = (r(4)), &
+              table    = (n(1), =" "), &
+              title    = (s(1), =" "), &
+              param    = (n(1), ="deltap"), &
+              range    = (p(1), =#s/#e), &
+              deltap   = (r(25)), &
+              particle = (r(25)), &
+              turns    = (r(25)), &
+              ntmax    = (i(1)), &
+              qcond1   = (s(1), ="kx"), &
+              qrange1  = (i(3), =0, 0, 1), &
+              qcond2   = (s(1), ="ky"), &
+              qrange2  = (i(3), =0, 0, 1), &
+              qcond3   = (s(1), ="ks"), &
+              qrange3  = (i(3), =0, 0, 1), &
+              qcond4   = (s(1), =" "), &
+              qrange4  = (i(3), =0, 0, 1), &
+              qcond5   = (s(1), =" "), &
+              qrange5  = (i(3), =0, 0, 1), &
+              qcond6   = (s(1), =" "), &
+              qrange6  = (i(3), =0, 0, 1), &
+              qcond7   = (s(1), =" "), &
+              qrange7  = (i(3), =0, 0, 1), &
+              qcond8   = (s(1), =" "), &
+              qrange8  = (i(3), =0, 0, 1), &
+              qcond9   = (s(1), =" "), &
+              qrange9  = (i(3), =0, 0, 1), &
+              qcond10  = (s(1), =" "), &
+              qrange10 = (i(3), =0, 0, 1), &
+              qs       = (r(1)), &
+              filename = (s(1), ="mad")
+
+setplot:      keyword, pr=14, sp=2, &
+              font     = (i(1), =1), &
+              lwidth   = (r(1), =1.0), &
+              xsize    = (r(1), =0.0), &
+              ysize    = (r(1), =0.0), &
+              ascale   = (r(1), =1.0), &
+              lscale   = (r(1), =1.0), &
+              sscale   = (r(1), =1.0), &
+              rscale   = (r(1), =1.0), &
+              post     = (i(1), =1), &
+              xpixel   = (i(1), =999), &
+              ypixel   = (i(1), =670)
+
+resplot:      keyword, pr=14, sp=3
+
+              resplot
+
+sprint:       keyword, pr=14, sp=4, &
+              filename = (s(1), ="sprint"), &
+              posfile  = (s(1), =" "), &
+              variable = (n(9), =" "), &
+              srepeat  = (i(1), =0), &
+              sstep    = (r(1), =0.0), &
+              slist    = (r(50), =50\*0.0)
+
+! pr=15, survey command.
+
+survey:       keyword, pr=15, sp=1, &
+              x0       = (r(1), =0.0), &
+              y0       = (r(1), =0.0), &
+              z0       = (r(1), =0.0), &
+              theta0   = (r(1), =0.0), &
+              phi0     = (r(1), =0.0), &
+              psi0     = (r(1), =0.0), &
+              tfs      = (l(1), =.true.), &
+              tape     = (s(1), ="survey")
+
+! pr=16, twiss commands.
+
+twiss:        keyword, pr=16, sp=1, &
+              betx     = (r(1)), alfx     = (r(1)), mux      = (r(1)), &
+              bety     = (r(1)), alfy     = (r(1)), muy      = (r(1)), &
+              x        = (r(1)), px       = (r(1)), &
+              y        = (r(1)), py       = (r(1)), &
+              t        = (r(1)), pt       = (r(1)), &
+              dx       = (r(1)), dpx      = (r(1)), &
+              dy       = (r(1)), dpy      = (r(1)), &
+              wx       = (r(1)), phix     = (r(1)), dmux     = (r(1)), &
+              wy       = (r(1)), phiy     = (r(1)), dmuy     = (r(1)), &
+              ddx      = (r(1)), ddpx     = (r(1)), &
+              ddy      = (r(1)), ddpy     = (r(1)), &
+              energy   = (r(1)), &
+              chrom    = (l(1), =.true.), &
+              couple   = (l(1), =.true.), &
+              tape     = (s(1), ="twiss"), &
+              rtape    = (s(1), ="rmat"), &
+              save     = (n(1), ="TWISS"), &
+              tunes    = (n(1), ="TUNES"), &
+              beta0    = (n(1), =" "), &
+              sequence = (n(1), =" "), &
+              line     = (b(1)), &
+              deltap   = (r(25), =25\*0.0)
+
+optics:       keyword, pr=16, sp=2, &
+              betx     = (r(1)), alfx     = (r(1)), mux      = (r(1)), &
+              bety     = (r(1)), alfy     = (r(1)), muy      = (r(1)), &
+              x        = (r(1)), px       = (r(1)), &
+              y        = (r(1)), py       = (r(1)), &
+              t        = (r(1)), pt       = (r(1)), &
+              dx       = (r(1)), dpx      = (r(1)), &
+              dy       = (r(1)), dpy      = (r(1)), &
+              wx       = (r(1)), phix     = (r(1)), dmux     = (r(1)), &
+              wy       = (r(1)), phiy     = (r(1)), dmuy     = (r(1)), &
+              ddx      = (r(1)), ddpx     = (r(1)), &
+              ddy      = (r(1)), ddpy     = (r(1)), &
+              energy   = (r(1)), &
+              centre   = (l(1), =.true.), &
+              line     = (b(1)), &
+              beta0    = (n(1), =" "), &
+              sequence = (n(1), =" "), &
+              filename = (s(1), ="optics"), &
+              deltap   = (r(1), =0.0), &
+              columns  = (n(50), =50\*" ")
+
+normal:       keyword, pr=16, sp=3, &
+              order    = (i(1), =3), &
+              rfcavity = (n(1), =" "), &
+              deltap   = (r(1), =0.0), &
+              eigen    = (l(1), =.true.), &
+              twiss    = (l(1), =.true.), &
+              beam     = (l(1), =.true.), &
+              save     = (n(1), ="eigen")
+
+emit:         keyword, pr=16, sp=4, &
+              deltap   = (r(1), =0.0)
+
+eigen:        keyword, pr=16, sp=5, &
+              save     = (n(1), ="eigen")
+
+envelope:     keyword, pr=16, sp=6, &
+              save     = (n(1), ="envelope"), &
+              sigma0   = (n(1), =" "),&
+              line     = (b(1)), &
+              tape     = (s(1), ="sigma")
+
+twiss3:       keyword, pr=16, sp=7, &
+              save     = (n(1), ="twiss3"), &
+              " "      = (n(1), =" "),&
+              line     = (b(1))
+
+bmpm:         keyword, pr=16, sp=21, &
+              nint     = (i(1), =0), &
+              delq     = (r(1), =0.06), &
+              tauq     = (r(1), =600.0), &
+              bucket   = (r(1), =0.0), &
+              kappa    = (r(1), =0.0), &
+              i4i2     = (r(1), =0.0), &
+              exdata   = (r(1), =0.0), &
+              fx       = (r(1), =10.0), &
+              fy       = (r(1), =10.0), &
+              khm      = (r(1), =0.0), &
+              dytol    = (r(1), =0.0), &
+              synrad   = (l(1), =.true.), &
+              clorb    = (l(1), =.true.), &
+              tousch   = (l(1), =.true.), &
+              single   = (l(1), =.true.), &
+              evary    = (l(1), =.true.), &
+              midarc   = (l(1), =.true.), &
+              interact = (p(1), =#e), &
+              range    = (p(1), =#e)
+
+ibs:          keyword, pr=16, sp=22, &
+              table    = (n(1), =' '), &
+              start    = (r(1), =1.0), &
+              factor   = (r(1), =10.0), &
+              tolerance= (r(1), =1.0E-7), &
+              steps    = (i(1), =50)
+
+sectormap:    keyword, pr=16, sp=23, &
+              filename = (s(1), ="map"), &
+              deltap   = (r(1), =0.0)
+
+! pr=17, matching commands.
+
+match:        keyword, pr=17, sp=1, &
+              betx     = (r(1)), alfx     = (r(1)), mux      = (r(1)), &
+              bety     = (r(1)), alfy     = (r(1)), muy      = (r(1)), &
+              x        = (r(1)), px       = (r(1)), &
+              y        = (r(1)), py       = (r(1)), &
+              t        = (r(1)), pt       = (r(1)), &
+              dx       = (r(1)), dpx      = (r(1)), &
+              dy       = (r(1)), dpy      = (r(1)), &
+              wx       = (r(1)), phix     = (r(1)), dmux     = (r(1)), &
+              wy       = (r(1)), phiy     = (r(1)), dmuy     = (r(1)), &
+              ddx      = (r(1)), ddpx     = (r(1)), &
+              ddy      = (r(1)), ddpy     = (r(1)), &
+              energy   = (r(1)), &
+              circ     = (r(1)), &
+              I1       = (r(1)), &
+              I2       = (r(1)), &
+              I3       = (r(1)), &
+              I4       = (r(1)), &
+              I5       = (r(1)), &
+              I5I2     = (r(1)), &
+              I5I1     = (r(1)), &
+              dumm     = (r(1)), &  ! dummy
+              line     = (b(1)), &
+              sequence = (n(2)), &
+              beta0    = (n(2)), &
+              deltap   = (r(1), =0.0), &
+              orbit    = (l(1), =.t.)
+
+cell:         keyword, pr=17, sp=2, &
+              deltap   = (r(1), =0.0) &
+              sequence = (n(2)), &
+              orbit    = (l(1), =.t.)
+
+endmatch:     keyword, pr=17, sp=3, &
+              increment = (n(1), = " ")
+
+migrad:       keyword, pr=17, sp=4, &
+              tolerance= (r(1), =.000001), &
+              calls    = (i(1), =1000)&
+              strategy = (i(1), =2)
+
+simplex:      keyword, pr=17, sp=5, &
+              tolerance= (r(1), =.000001), &
+              calls    = (i(1), =1000)
+
+constraint:   keyword, pr=17, sp=6, &
+              range    = (p(1), = #S/E), &
+              class    = (n(1), = " "), &
+              pattern  = (s(1), = ".*"), &
+              line     = (b(1)), &
+              betx     = (c(1)), alfx     = (c(1)), mux      = (c(1)), &
+              bety     = (c(1)), alfy     = (c(1)), muy      = (c(1)), &
+              x        = (c(1)), px       = (c(1)), &
+              y        = (c(1)), py       = (c(1)), &
+              t        = (c(1)), pt       = (c(1)), &
+              dx       = (c(1)), dpx      = (c(1)), &
+              dy       = (c(1)), dpy      = (c(1)), &
+              wx       = (c(1)), phix     = (c(1)), dmux     = (c(1)), &
+              wy       = (c(1)), phiy     = (c(1)), dmuy     = (c(1)), &
+              ddx      = (c(1)), ddpx     = (c(1)), &
+              ddy      = (c(1)), ddpy     = (c(1)), &
+              energy   = (c(1)), &
+              circ     = (c(1)), &
+              I1       = (c(1)), &
+              I2       = (c(1)), &
+              I3       = (c(1)), &
+              I4       = (c(1)), &
+              I5       = (c(1)), &
+              I5I2     = (c(1)), &
+              I5I1     = (c(1)), &
+              dumm     = (c(1)), &  ! dummy
+              beta0    = (n(1), =' '), &
+              sequence = (n(1), =' ')
+
+couple:       keyword, pr=17, sp=7, &
+              range    = (p(1)), &
+              mux      = (c(1)), muy      = (c(1))
+
+fix:          keyword, pr=17, sp=8, &
+              name     = (v(1))
+
+level:        keyword, pr=17, sp=9, &
+              level    = (i(1), =2)
+
+vary:         keyword, pr=17, sp=10, &
+              name     = (v(1)), &
+              step     = (r(1), =0.0), &
+              lower    = (r(1), =0.0), &
+              upper    = (r(1), =0.0)
+
+weight:       keyword, pr=17, sp=11, &
+              betx     = (r(1), =1.0), &
+              alfx     = (r(1), =10.0), &
+              mux      = (r(1), =10.0), &
+              bety     = (r(1), =1.0), &
+              alfy     = (r(1), =10.0), &
+              muy      = (r(1), =10.0), &
+              x        = (r(1), =10.0), &
+              px       = (r(1), =100.0), &
+              y        = (r(1), =10.0), &
+              py       = (r(1), =100.0), &
+              t        = (r(1), =10.0), &
+              pt       = (r(1), =100.0), &
+              dx       = (r(1), =10.0), &
+              dpx      = (r(1), =100.0), &
+              dy       = (r(1), =10.0), &
+              dpy      = (r(1), =100.0), &
+              wx       = (r(1), =0.0), &
+              phix     = (r(1), =0.0), &
+              dmux     = (r(1), =0.0), &
+              wy       = (r(1), =0.0), &
+              phiy     = (r(1), =0.0), &
+              dmuy     = (r(1), =0.0), &
+              ddx      = (r(1), =0.0), &
+              ddpx     = (r(1), =0.0), &
+              ddy      = (r(1), =0.0), &
+              ddpy     = (r(1), =0.0), &
+              energy   = (r(1), =0.0), &
+              circ     = (r(1), =0.0), &
+              I1       = (r(1), =0.0), &
+              I2       = (r(1), =0.0), &
+              I3       = (r(1), =0.0), &
+              I4       = (r(1), =0.0), &
+              I5       = (r(1), =0.0), &
+              I5I2     = (r(1), =0.0), &
+              I5I1     = (r(1), =0.0), &
+              dumm     = (r(1), =0.0)  ! dummy
+
+lmdif:        keyword, pr=17, sp=12, &
+              tolerance= (r(1), =.000001), &
+              calls    = (i(1), =1000)
+
+rmatrix:      keyword, pr=17, sp=13, &
+              range    = (p(1), =#s/e), &
+              rm       = (r(6,6), =0.0), &
+              weight   = (r(6,6), =1.0)
+
+tmatrix:      keyword, pr=17, sp=14, &
+              range    = (p(1), =#s/e), &
+              tm       = (r(6,6,6), =0.0), &
+              weight   = (r(6,6,6), =1.0)
+
+global:       keyword, pr=17, sp=15, &
+              q1       = (d(1), =0.0),   q2        = (d(1), =0.0), &
+              q1'      = (d(1), =0.0),   q2'       = (d(1), =0.0), &
+              q1''     = (d(1), =0.0),   q2''      = (d(1), =0.0), &
+              dq1de1   = (d(1), =0.0),   dq1de2    = (d(1), =0.0), &
+              dq2de2   = (d(1), =0.0),   dtune     = (d(1), =0.0), &
+              tunx     = (d(1), =0.0),   tuny      = (d(1), =0.0), &
+              dynapfrac= (d(1), =1.0),   smear     = (d(1), =0.0), &
+              turns    = (d(1), =64.0),  lyapunov  = (d(1), =0.0), &
+              xend     = (d(1), =0.0),   pxend     = (d(1), =0.0), &
+              yend     = (d(1), =0.0),   pyend     = (d(1), =0.0), &
+              tend     = (d(1), =0.0),   ptend     = (d(1), =0.0), &
+              wxmin    = (d(1), =0.0),   wxmax     = (d(1), =0.0), &
+              wymin    = (d(1), =0.0),   wymax     = (d(1), =0.0), &
+              wxymin   = (d(1), =0.0),   wxymax    = (d(1), =0.0), &
+              formula  = (d(1), =0.0),   call      = (n(1), =' '), &
+              sequence = (n(1)), &
+              fixpoint  = (l(1), =.t.)
+
+gweight:      keyword, pr=17, sp=16, &
+              q1       = (d(1), =10.0),  q2        = (d(1), =10.0), &
+              q1'      = (d(1), =1.0),   q2'       = (d(1), =1.0), &
+              q1''     = (d(1), =0.1),   q2''      = (d(1), =0.1), &
+              dq1de1   = (d(1), =0.01),  dq1de2    = (d(1), =0.01), &
+              dq2de2   = (d(1), =0.01),  dtune     = (d(1), =100.0),&
+              tunx     = (d(1), =10.0),  tuny      = (d(1), =10.0), &
+              dynapfrac= (d(1), =10.0),  smear     = (d(1), =1.0), &
+              turns    = (d(1), =0.1),   lyapunov  = (d(1), =1.0), &
+              xend     = (d(1), =1.0),   pxend     = (d(1), =1.0), &
+              yend     = (d(1), =1.0),   pyend     = (d(1), =1.0), &
+              tend     = (d(1), =1.0),   ptend     = (d(1), =1.0), &
+              wxmin    = (d(1), =1.0),   wxmax     = (d(1), =1.0), &
+              wymin    = (d(1), =1.0),   wymax     = (d(1), =1.0), &
+              wxymin   = (d(1), =1.0),   wxymax    = (d(1), =1.0), &
+              formula  = (d(1), =1.0)
+
+polar:        keyword, pr=17, sp=22, &
+              poltot   = (r(1), =0.0), &
+              polx     = (r(1), =0.0), &
+              poly     = (r(1), =0.0), &
+              pols     = (r(1), =0.0), &
+              angrms   = (r(1), =0.0)
+
+! pr=18, tracking commands.
+
+track:        keyword, pr=18, sp=1, &
+              rfcavity = (n(1), =" "), &
+              deltap   = (r(1), =0.0), &
+              onepass  = (l(1), =.true.), &
+              damp     = (l(1), =.true.), &
+              quantum  = (l(1), =.true.), &
+              oneshot  = (l(1), =.true.), &
+              dump     = (l(1), =.true.)
+
+endtrack:     keyword, pr=18, sp=2, &
+              delete   = (n*2, =2\*" ")
+
+run:          keyword, pr=18, sp=3, &
+              method   = (n(1), ="transport"), &
+              table    = (n(1), ="TRACK "), &
+              comment  = (s(1), =" "), &
+              turns    = (i(1), =1), &
+              fprint   = (i(1), =1), &
+              ffile    = (i(1), =1)
+
+continue:     keyedit, run, sp=4
+
+start:        keyword, pr=18, sp=5, &
+              x        = (d(1), =0.0), &
+              px       = (d(1), =0.0), &
+              y        = (d(1), =0.0), &
+              py       = (d(1), =0.0), &
+              t        = (d(1), =0.0), &
+              deltap   = (d(1), =0.0), &
+              fx       = (d(1), =0.0), &
+              phix     = (d(1), =0.0), &
+              fy       = (d(1), =0.0), &
+              phiy     = (d(1), =0.0), &
+              ft       = (d(1), =0.0), &
+              phit     = (d(1), =0.0)
+
+tsave:        keyword, pr=18, sp=6, &
+              filename = (s(1), ="tsave")
+
+noise:        keyword, pr=18, sp=7, &
+              variable = (v(1)), &
+              amplitude= (r(10), = 10\*0.0), &
+              frequency= (r(10), = 10\*0.0), &
+              phase    = (r(10), = 10\*0.0)
+
+observe:      keyword, pr=18, sp=8, &
+              place    = (p(1)), &
+              table    = (n(1), = " ")
+
+dynapstart:   keyword, pr=18, sp=21, &
+              x        = (d(1), =0.0), &
+              px       = (d(1), =0.0), &
+              y        = (d(1), =0.0), &
+              py       = (d(1), =0.0), &
+              t        = (d(1), =0.0), &
+              deltap   = (d(1), =0.0), &
+              fx       = (d(1), =0.0), &
+              phix     = (d(1), =0.0), &
+              fy       = (d(1), =0.0), &
+              phiy     = (d(1), =0.0), &
+              ft       = (d(1), =0.0), &
+              phit     = (d(1), =0.0), &
+              turns    = (d(1), =64.0), &
+              step     = (d(1), =0.05), &
+              chkbelow = (d(1), =0.1), &
+              fracmin  = (d(1), =1.0), &
+              fastune  = (l(1), =.true.), &
+              lyapunov = (d(1), =1.0D-7), &
+              damp     = (l(1), =.true.), &
+              quantum  = (l(1), =.true.), &
+              continue = (l(1), =.true.), &
+              method   = (n(1), ="TRANSPORT"), &
+              table    = (n(1), ="TRACK"), &
+              orbit    = (l(1), =.true.)
+
+dynap:        keyword, pr=18, sp=22
+
+! pr=19, HARMON section.
+
+harmon:       keyword, pr=19, sp=1, &
+              fx       = (r(1), =10.0), &
+              fy       = (r(1), =10.0), &
+              fe       = (r(1), =10.0)
+
+endharmon:    keyword, pr=19, sp=2
+
+hresonance:   keyword, pr=19, sp=3, &
+              order    = (i(1), =3), &
+              disp     = (l(1), =.true.)
+
+hchromaticity:keyword, pr=19, sp=4
+
+hfunctions:   keyword, pr=19, sp=5, &
+              detail   = (l(1), =.true.)
+
+htune:        keyword, pr=19, sp=6, &
+              qx'      = (r(1), =0.0), &
+              qy'      = (r(1), =0.0), &
+              tolerance= (r(1), =1.0E-8)
+
+hvary:        keyword, pr=19, sp=7, &
+              name     = (v(1)), &
+              step     = (r(1), =0.0), &
+              lower    = (r(1), =0.0), &
+              upper    = (r(1), =0.0)
+
+hcell:        keyword, pr=19, sp=8, &
+              tolerance= (r(1), =1.0E-8), &
+              calls    = (i(1), =1000), &
+              qx'      = (r(1), =0.0),   qy'      = (r(1), =0.0), &
+              qx''     = (r(1), =0.0),   qy''     = (r(1), =0.0), &
+              qx'''    = (r(1), =0.0),   qy'''    = (r(1), =0.0), &
+              dqxdex   = (r(1), =0.0),   dqydey   = (r(1), =0.0), &
+              dqydex   = (r(1), =0.0), &
+              dx'i     = (r(1), =0.0),   dx''i    = (r(1), =0.0), &
+              bx'i     = (r(1), =0.0),   by'i     = (r(1), =0.0), &
+              rxi      = (r(1), =0.0),   ryi      = (r(1), =0.0), &
+              dx's     = (r(1), =0.0),   dx''s    = (r(1), =0.0), &
+              bx's     = (r(1), =0.0),   by's     = (r(1), =0.0), &
+              rxs      = (r(1), =0.0),   rys      = (r(1), =0.0)
+
+hweight:      keyword, pr=19, sp=9, &
+              qx'      = (r(1), =0.0),   qy'      = (r(1), =0.0), &
+              qx''     = (r(1), =0.0),   qy''     = (r(1), =0.0), &
+              qx'''    = (r(1), =0.0),   qy'''    = (r(1), =0.0), &
+              dqxdex   = (r(1), =0.0),   dqydey   = (r(1), =0.0), &
+              dqydex   = (r(1), =0.0), &
+              dx'i     = (r(1), =0.0),   dx''i    = (r(1), =0.0), &
+              bx'i     = (r(1), =0.0),   by'i     = (r(1), =0.0), &
+              rxi      = (r(1), =0.0),   ryi      = (r(1), =0.0), &
+              dx's     = (r(1), =0.0),   dx''s    = (r(1), =0.0), &
+              bx's     = (r(1), =0.0),   by's     = (r(1), =0.0), &
+              rxs      = (r(1), =0.0),   rys      = (r(1), =0.0)
+
+hlevel:       keyword, pr=19, sp=10, &
+              level    = (i(1), =2)
+
+! pr=20, error section.
+
+ealign:       keyword, pr=20, sp=1, &
+              dx       = (d(1), = 0.0), &
+              dy       = (d(1), = 0.0), &
+              ds       = (d(1), = 0.0), &
+              dphi     = (d(1), = 0.0), &
+              dtheta   = (d(1), = 0.0), &
+              dpsi     = (d(1), = 0.0), &
+              mrex     = (d(1), = 0.0), &
+              mrey     = (d(1), = 0.0), &
+              mredx    = (d(1), = 0.0), &
+              mredy    = (d(1), = 0.0)
+
+efield:       keyword, pr=20, sp=2, &
+              order    = (i(1), = -1), &
+              radius   = (r(1), = 0.0), &
+              dbl      = (d(1), = 0.0), &        dkl(0)
+              dkl      = (d(20), = 20\*0.0), &
+              dblr     = (d(1), = 0.0), &        dklr(0)
+              dklr     = (d(20), = 20\*0.0), &
+              brot     = (d(1), = 0.0), &        rot(0)
+              rot      = (d(20), = 20\*0.0)
+
+eoption:      keyword, pr=20, sp=3, &
+              seed     = (r(1), =123456789.0), &
+              add      = (l(1), =.true.)
+
+eprint:       keyword, pr=20, sp=4, &
+              range    = (p(1), = #S/E)
+
+esave:        keyword, pr=20, sp=5, &
+              filename = (s(1), ="esave"), &
+              align    = (l(1), =.true.), &
+              field    = (l(1), =.true.), &
+              order    = (i(1), =-1), &
+              radius   = (r(1), =1.0)
+
+efcomp:       keyword, pr=20, sp=6, &
+              order    = (i(1), =-1), &
+              radius   = (r(1), =0.0), &
+              dbln     = (d(1), =0.0), &       dkln(0)
+              dkln     = (d(20), =20\*0.0), &
+              dbls     = (d(1), =0.0), &       dkls(0)
+              dkls     = (d(20), =20\*0.0), &
+              dblnr    = (d(1), =0.0), &       dklnr(0)
+              dklnr    = (d(20), =20\*0.0), &
+              dblsr    = (d(1), =0.0), &       dklsr(0)
+              dklsr    = (d(20), =20\*0.0), &
+              normal   = (l(1), =.true.)
+
+! pr=21, orbit correction commands.
+
+correct:      keyword, pr=21, sp=1, &
+              error    = (r(1), =1.E-6), &
+              ncorr    = (i(1), =0), &
+              iterate  = (i(1), =1), &
+              c1list   = (n(1), =used), &
+              c2list   = (n(1), =used), &
+              m1list   = (n(1), =used), &
+              m2list   = (n(1), =used), &
+              dxweight = (r(1), =0.0), &
+              dyweight = (r(1), =0.0), &
+              plane    = (n(1), =" "), &
+              thrtol   = (r(6), =6\*1.0), &
+              threader = (l(1), =.true.), &
+              wrorbit  = (l(1), =.true.), &
+              itermax  = (i(1), =20)
+
+getorbit:     keyword, pr=21, sp=2, &
+              filename = (s(1), = "orbit")
+
+putorbit:     keyword, pr=21, sp=3, &
+              filename = (s(1), = "orbit")
+
+getkick:      keyword, pr=21, sp=4, &
+              filename = (s(1), = "setting"), &
+              plane    = (n(1), = both), &
+              add      = (l(1), =.false.), &
+              direct   = (l(1), =.false.)
+
+putkick:      keyword, pr=21, sp=5, &
+              filename = (s(1), = "setting"), &
+              plane    = (n(1), =" "), &
+              direct   = (l(1), =.false.)
+
+micado:       keyword, pr=21, sp=6, &
+              error    = (r(1), =1.E-6), &
+              ncorr    = (i(1), =0), &
+              c2list   = (n(1), =used), &
+              m1list   = (n(1), =used), &
+              dxweight = (r(1), =0.0), &
+              dyweight = (r(1), =0.0), &
+              plane    = (n(1), =" ")
+
+getdisp:      keyword, pr=21, sp=7, &
+              filename = (s(1), = "dispersion")
+
+putdisp:      keyword, pr=21, sp=8, &
+              filename = (s(1), = "dispersion")
+
+usekick:      keyword, pr=21, sp=9, &
+              status   = (l(1), =.true.), &
+              mode     = (n(1), ="all"), &
+              range    = (p(1), = #S/E), &
+              class    = (n(1), = " "), &
+              pattern  = (s(1), = ".*")
+
+usemonitor:   keyword, pr=21, sp=10, &
+              status   = (l(1), =.true.), &
+              mode     = (n(1), ="all"), &
+              range    = (p(1), = #S/E), &
+              class    = (n(1), = " "), &
+              pattern  = (s(1), = ".*")
+
+coguess:      keyword, pr=21, sp=11, &
+              x        = (r(1), =0.0), &
+              px       = (r(1), =0.0), &
+              y        = (r(1), =0.0), &
+              py       = (r(1), =0.0), &
+              t        = (r(1), =0.0), &
+              pt       = (r(1), =0.0), &
+              tolerance= (r(1), =1.0E-6), &
+              automatic= (l(1), =.false.)
+
+! pr=22, Lie algebraic analysis.
+
+dynamic:      keyword, pr=22, sp=1, &
+              deltap   = (r(1), =0.0), &
+              map      = (l(1), =.true.), &
+              orbit    = (l(1), =.true.), &
+              a        = (l(1), =.true.), &
+              n        = (l(1), =.true.), &
+              resonance= (l(1), =.true.), &
+              exponent = (l(1), =.true.), &
+              hamilton = (l(1), =.true.), &
+              invariant= (l(1), =.true.), &
+              long     = (l(1), =.true.)
+
+static:       keyword, pr=22, sp=2, &
+              deltap   = (r(1), =0.0), &
+              map      = (l(1), =.true.), &
+              orbit    = (l(1), =.true.), &
+              fixed    = (l(1), =.true.), &
+              t        = (l(1), =.true.), &
+              a        = (l(1), =.true.), &
+              n        = (l(1), =.true.), &
+              resonance= (l(1), =.true.), &
+              exponent = (l(1), =.true.), &
+              hamilton = (l(1), =.true.), &
+              betatron = (l(1), =.true.), &
+              nonlinear= (l(1), =.true.), &
+              conjugate= (l(1), =.true.), &
+              invariant= (l(1), =.true.), &
+              long     = (l(1), =.true.)
+
+! end of dictionary.
+
+stop
