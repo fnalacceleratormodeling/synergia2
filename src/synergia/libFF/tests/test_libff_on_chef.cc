@@ -33,7 +33,7 @@
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture) // needed to initialize MPI
 
-const double tolerance = 1.0e-4;
+const double tolerance = 1.0e-6;
 
 
 void element_check(MArray2d_ref pff, MArray2d_ref pcf, double tolerance)

@@ -166,7 +166,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                       step_length, step_strength, steps );
 #endif
 
-#if 0
+#if 1
             FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
                     ( x, xp, y, yp, cdt, dpop,
                       reference_momentum, m,
@@ -174,7 +174,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                       step_length, step_strength, steps );
 #endif
 
-#if 1
+#if 0
             FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
                     ( x, xp, y, yp, cdt, dpop,
                       reference_momentum, m,
