@@ -33,9 +33,18 @@
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture) // needed to initialize MPI
 
-const double tolerance = 1.0e-12;
+const double tolerance = 1.0e-4;
 
 
+void element_check(MArray2d_ref pff, MArray2d_ref pcf, double tolerance)
+{
+    BOOST_CHECK_CLOSE(pff[0][0], pcf[0][0], tolerance);
+    BOOST_CHECK_CLOSE(pff[0][1], pcf[0][1], tolerance);
+    BOOST_CHECK_CLOSE(pff[0][2], pcf[0][2], tolerance);
+    BOOST_CHECK_CLOSE(pff[0][3], pcf[0][3], tolerance);
+    BOOST_CHECK_CLOSE(pff[0][4], pcf[0][4], tolerance);
+    BOOST_CHECK_CLOSE(pff[0][5], pcf[0][5], tolerance);
+}
 
 
 // fixture
@@ -159,10 +168,10 @@ BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
-    BOOST_CHECK(true);
+    element_check(pff, pcf, tolerance);
 }
 
-#if 0
+#if 1
 BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -195,6 +204,7 @@ BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 #endif
@@ -231,6 +241,7 @@ BOOST_FIXTURE_TEST_CASE( test_sbend, sbend_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -264,6 +275,7 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -297,6 +309,7 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole_with_tilt, quadrupole2_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -331,6 +344,7 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -364,6 +378,7 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole_with_tilt, sextupole2_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -397,6 +412,7 @@ BOOST_FIXTURE_TEST_CASE( test_rfc, rfc_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -430,6 +446,7 @@ BOOST_FIXTURE_TEST_CASE( test_mp1, mp1_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -463,6 +480,7 @@ BOOST_FIXTURE_TEST_CASE( test_mp2, mp2_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -496,6 +514,7 @@ BOOST_FIXTURE_TEST_CASE( test_mp3, mp3_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    //element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -529,6 +548,7 @@ BOOST_FIXTURE_TEST_CASE( test_mp4, mp4_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    //element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
