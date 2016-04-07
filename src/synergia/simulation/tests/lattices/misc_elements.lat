@@ -1,0 +1,8 @@
+
+base_quad: quadrupole, k1=-0.085357, l=0.508;
+skew_quad: quadrupole, k1=-0.085357, l=0.508, tilt=pi/4;
+tilt_quad: quadrupole, k1=-0.085357, l=0.508, tilt=pi/19;
+
+m_base_quad: line=(base_quad);
+m_skew_quad: line=(skew_quad);
+m_tilt_quad: line=(tilt_quad);
