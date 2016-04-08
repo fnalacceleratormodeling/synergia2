@@ -97,7 +97,7 @@ def run_a_misc_element(elem_name):
     stepper = Independent_stepper(lattice, 1, 1)
     propagator = Propagator(stepper)
     propagator.propagate(bunch_simulator, 1)
-    m8p = np.load("./lattices/m8_"+elem_name+".npy")
+    m8p = np.load("./lattices/m8"+elem_name+".npy")
     lp = bunch.get_local_particles()
     numpart = lp.shape[0]
     assert(numpart == 16)
