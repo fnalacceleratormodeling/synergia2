@@ -1,0 +1,17 @@
+elem_len = 0.508;
+
+base_quad: quadrupole, k1=-0.085357, l=elem_len;
+skew_quad: quadrupole, k1=-0.085357, l=elem_len, tilt=pi/4;
+tilt_quad: quadrupole, k1=-0.085357, l=elem_len, tilt=pi/19;
+
+m_base_quad: sequence, l=elem_len, refer=entry;
+base_quad, at=0.0;
+endsequence;
+
+m_skew_quad: sequence, l=elem_len, refer=entry;
+skew_quad, at=0.0;
+endsequence; 
+
+m_tilt_quad: sequence, l=elem_len, refer=entry;
+tilt_quad, at=0.0;
+endsequence; 
