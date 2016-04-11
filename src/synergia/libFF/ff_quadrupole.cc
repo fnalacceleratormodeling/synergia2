@@ -80,9 +80,10 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
 
 void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-    double t0 = MPI_Wtime();
+    // length
     double length = slice.get_right() - slice.get_left();
 
+    // strength
     double k[2];
     k[0] = slice.get_lattice_element().get_double_attribute("k1", 0.0);
     k[1] = slice.get_lattice_element().get_double_attribute("k1s", 0.0);
@@ -141,6 +142,10 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     } 
     else 
     {
+        // yoshida steps
+        steps = (int)slice.get_lattice_element().get_double_attribute("yoshida_steps", 4.0);
+
+        // params
         double reference_momentum = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());

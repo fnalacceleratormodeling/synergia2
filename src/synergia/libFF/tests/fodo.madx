@@ -21,74 +21,74 @@ qmp3: multipole, l=0.0, knl={0.1, 0.2}, ksl={0.1, 0.1};
 qmp4: multipole, l=0.0, knl={0.0, 0.2}, ksl={0.1, 0.1}, tilt=0.1;
 
 seq_drift: sequence, l=1.0, refer=entry;
-sd0: qd0, at=0;
-sd: qd, at=0;
-sd1: qd0, at=1.0;
+sd00: qd0, at=0;
+sd01: qd, at=0;
+sd02: qd0, at=1.0;
 endsequence;
 
 seq_rbend: sequence, l=3.0, refer=entry;
-sr0: qd1, at=0;
-sr: qr, at=1.0;
-sr1: qd1, at=2.0;
+srb00: qd1, at=0;
+srb01: qr, at=1.0;
+srb02: qd1, at=2.0;
 endsequence;
 
 seq_sbend: sequence, l=1.0, refer=entry;
-sr0: qd0, at=0;
-ssb: qsb, at=0;
-sr1: qd0, at=1.0;
+ssb00: qd0, at=0;
+ssb01: qsb, at=0;
+ssb02: qd0, at=1.0;
 endsequence;
 
 seq_quadrupole: sequence, l=1.0, refer=entry;
-sq0: qd0, at=0;
-sq1: qf, at=0;
-sq1: qd0, at=1.0;
+sq00: qd0, at=0;
+sq01: qf, at=0;
+sq02: qd0, at=1.0;
 endsequence;
 
 seq_quadrupole2: sequence, l=1.0, refer=entry;
-sq0: qd0, at=0;
-sq2: qf2, at=0;
-sq1: qd0, at=1.0;
+sq10: qd0, at=0;
+sq11: qf2, at=0;
+sq12: qd0, at=1.0;
 endsequence;
 
 seq_sextupole: sequence, l=1.0, refer=entry;
-ss0: qd0, at=0;
-ss1: qs, at=0;
-ss1: qd0, at=1.0;
+ss00: qd0, at=0;
+ss01: qs, at=0;
+ss02: qd0, at=1.0;
 endsequence;
 
 seq_sextupole2: sequence, l=1.0, refer=entry;
-ss0: qd0, at=0;
-ss2: qs2, at=0;
-ss1: qd0, at=1.0;
+ss10: qd0, at=0;
+ss11: qs2, at=0;
+ss12: qd0, at=1.0;
 endsequence;
 
 seq_rfc: sequence, l=3.998, refer=entry;
-sc0: qd0, at=0;
-srfc: qrfc, at=0;
-sc1: qd1, at=2.998;
+sr00: qd0, at=0;
+sr01: qrfc, at=0;
+sr02: qd1, at=2.998;
 endsequence;
 
 seq_mp1: sequence, l=1.0, refer=entry;
-sc0: qd0, at=0;
-smp1: qmp1, at=0;
-sm1: qd1, at=0.0;
+sm10: qd0, at=0;
+sm11: qmp1, at=0;
+sm12: qd1, at=0.0;
 endsequence;
 
 seq_mp2: sequence, l=1.0, refer=entry;
-sc0: qd0, at=0;
-smp2: qmp2, at=0;
-sm1: qd1, at=0.0;
+sm20: qd0, at=0;
+sm21: qmp2, at=0;
+sm22: qd1, at=0.0;
 endsequence;
 
 seq_mp3: sequence, l=1.0, refer=entry;
-sc0: qd0, at=0;
-smp3: qmp3, at=0;
-sm1: qd1, at=0.0;
+sm30: qd0, at=0;
+sm31: qmp3, at=0;
+sm32: qd1, at=0.0;
 endsequence;
 
 seq_mp4: sequence, l=1.0, refer=entry;
-sc0: qd0, at=0;
-smp4: qmp4, at=0;
-sm1: qd1, at=0.0;
+sm40: qd0, at=0;
+sm41: qmp4, at=0;
+sm42: qd1, at=0.0;
 endsequence;
 

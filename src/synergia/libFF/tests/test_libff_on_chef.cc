@@ -33,7 +33,7 @@
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture) // needed to initialize MPI
 
-const double tolerance = 1.0e-6;
+const double tolerance = 1.0e-8;
 
 
 void element_check(MArray2d_ref pff, MArray2d_ref pcf, double tolerance)
@@ -245,6 +245,7 @@ BOOST_FIXTURE_TEST_CASE( test_sbend, sbend_fixture )
     BOOST_CHECK(true);
 }
 
+#if 1
 BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -278,6 +279,7 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
     element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
+#endif
 
 BOOST_FIXTURE_TEST_CASE( test_quadrupole_with_tilt, quadrupole2_fixture )
 {
