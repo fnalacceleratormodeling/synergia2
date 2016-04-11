@@ -1,0 +1,38 @@
+call, file="misc_elements.lat";
+
+pc0 = 1.5;
+beam, particle=proton, pc=pc0;
+
+call, file="use_misc.mad";
+
+option, double
+
+t_offset = 1.0e-3;
+s2o2 = sqrt(2.0)/2.0;
+s3o2 = sqrt(3.0)/2.0;
+
+track, onepass;
+
+start, x=t_offset, y=0.0;
+start, x=t_offset*s3o2, y=t_offset*0.5;
+start, x=t_offset*s2o2, y=t_offset*s2o2;
+start, x=t_offset*0.5, y=t_offset*s3o2;
+
+start, x=0.0, y=t_offset;
+start, x=-t_offset*0.5, y=t_offset*s3o2;
+start, x=-t_offset*s2o2, y=t_offset*s2o2;
+start, x=-t_offset*s3o2, y=t_offset*0.5;
+
+start, x=-t_offset, y=0.0;
+start, x=-t_offset*s3o2, y=-t_offset*0.5;
+start, x=-t_offset*s2o2, y=-t_offset*s2o2;
+start, x=-t_offset*0.5, y=-t_offset*s3o2;
+
+start, x=0.0, y=-t_offset;
+start, x=t_offset*0.5, y=-t_offset*s3o2;
+start, x=t_offset*s2o2, y=-t_offset*s2o2;
+start, x=t_offset*s3o2, y=-t_offset*0.5;
+
+run, table=tracks
+endtrack;
+archive, table=tracks, file="mad8_track_misc_element.txt"

@@ -47,9 +47,22 @@ add_test(NAME test_mad8_multipoles_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG}
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_mad8_multipoles.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test(NAME test_mad8_misc_elements_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_misc_m8_elements.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_misc_m8_elements.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(NAME test_madx_misc_elements_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_misc_mx_elements.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_misc_mx_elements.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_test(NAME test_madx_multipoles_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_madx_multipoles.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_madx_multipoles.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(NAME test_quad_mad8_v_madx_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_quad_mad8_v_madx.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_quad_mad8_v_madx.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 
 add_test_executable(test_collective_operator test_collective_operator.cc)
 target_link_libraries(test_collective_operator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
