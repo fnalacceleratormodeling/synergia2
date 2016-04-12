@@ -86,11 +86,11 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
      k[1] = slice.get_lattice_element().get_double_attribute("k2s", 0.0);
 
      // tilting
-     double tilt = slice.get_lattice_element().get_double_attribute("tilt");
+     double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
      if (tilt != 0.0)
      {
-         std::complex<double> ck2(k[0], -k[1]);
-         ck2 = ck2 * exp(std::complex<double>(0.0, 3.0*tilt));
+         std::complex<double> ck2(k[0], +k[1]);
+         ck2 = ck2 * exp(std::complex<double>(0.0, -3.0*tilt));
          k[0] = ck2.real();
          k[1] = ck2.imag();
      }

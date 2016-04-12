@@ -413,7 +413,7 @@ public:
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
         xp = xp - kL[0];
-        yp = yp - kL[1];
+        yp = yp + kL[1];
     }
 
     template <typename T>
@@ -431,8 +431,8 @@ public:
     inline static void thin_sextupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
-        xp += -0.5 * kL[0] * (x * x - y * y) - kL[1] * x * y;
-        yp += kL[0] * x * y - 0.5 * kL[1] * (x * x - y * y);
+        xp += -0.5 * kL[0] * (x * x - y * y) + kL[1] * x * y;
+        yp += kL[0] * x * y + 0.5 * kL[1] * (x * x - y * y);
     }
 
     template <typename T>
@@ -440,9 +440,9 @@ public:
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
         xp += - 0.5 * kL[0] * (x * x * x / 3.0 - x * y * y) 
-              - 0.5 * kL[1] * (x * x * y - y * y * y / 3.0);
+              + 0.5 * kL[1] * (x * x * y - y * y * y / 3.0);
         yp += - 0.5 * kL[0] * (y * y * y / 3.0 - x * x * y)
-              - 0.5 * kL[1] * (x * x * x / 3.0 - x * y * y);
+              + 0.5 * kL[1] * (x * x * x / 3.0 - x * y * y);
     }
 
     template <typename T>
