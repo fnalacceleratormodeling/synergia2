@@ -516,7 +516,7 @@ BOOST_FIXTURE_TEST_CASE( test_mp3, mp3_fixture )
         std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
-    //element_check(pff, pcf, tolerance);
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 

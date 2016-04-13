@@ -525,13 +525,13 @@ public:
 
         for(int k = 1; k < n; k += 4)
         {
-            xp += -kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
+            xp += +kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 3; k < n; k += 4)
         {
-            xp += +kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
+            xp += -kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
                          / (factorial(n-k) * factorial(k));
         }
 
@@ -555,7 +555,7 @@ public:
 
         for(int k = 3; k <= n; k += 4)
         {
-            yp += +kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1) 
+            yp += -kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1) 
                          / (factorial(n-k) * factorial(k));
         }
     }

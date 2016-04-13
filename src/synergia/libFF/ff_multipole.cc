@@ -110,6 +110,7 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double y   (particles[part][Bunch::y   ]);
         double yp  (particles[part][Bunch::yp  ]);
 
+#if 1
         // dipole
         if (knl.size() > 0 && (knl[0] || ksl[0])) 
         {
@@ -137,12 +138,13 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             kL[0] = knl[3]; kL[1] = ksl[3];
             FF_algorithm::thin_octupole_unit(x, xp, y, yp, kL);
         }
+#endif
 
         // higher orders
-        for (int n = 3; n < knl.size(); ++n) {
-            if (knl[n] && ksl[n]) {
+        for (int n = 4; n < knl.size(); ++n) {
+            if (knl[n] || ksl[n]) {
                 kL[0] = knl[n]; kL[1] = ksl[n];
-                FF_algorithm::thin_magnet_unit(x, xp, y, yp, kL, n);
+                FF_algorithm::thin_magnet_unit(x, xp, y, yp, kL, n+1);
             }
         }
 

@@ -17,7 +17,7 @@ qsb:  sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.03
 qrfc: rfcavity, l=2.998, volt=3.38965e-07, lag=0, freq=55.43860156259074;
 qmp1: multipole, l=0.0, k1l=0.2, t1=-0.1, knl={0.0, 0.2}, tilt = 0.1;
 qmp2: multipole, l=0.0, k1l=0.3, k2l=0.1, k3l=0.2, t1=0.3, t2=0.2;
-qmp3: multipole, l=0.0, knl={0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, ksl={0.0, 0.0, 0.1, 0.0, 0.0, 0.0};
+qmp3: multipole, l=0.0, knl={0.00, 0.01, 0.02, 0.03, 0.04, 0.05}, ksl={0.00, 0.05, 0.04, 0.03, 0.02, 0.01};
 qmp4: multipole, l=0.0, knl={0.0, 0.2}, ksl={0.1, 0.1}, tilt=0.1;
 
 seq_drift: sequence, l=1.0, refer=entry;
