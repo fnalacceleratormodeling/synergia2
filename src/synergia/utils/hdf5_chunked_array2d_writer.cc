@@ -77,9 +77,9 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
 
     std::vector<double> temp(nx * ny);
 
-    for (int i = x0; i < x0 + nx - 1; ++i)
+    for (int i = x0; i < x0 + nx; ++i)
     {
-        for (int j = y0; j < y0 + ny - 1; ++j)
+        for (int j = y0; j < y0 + ny; ++j)
         {
             temp[i*ny + j] = data[i][j];
         }
@@ -110,9 +110,9 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
 
     std::vector<double> temp(nx * ny);
 
-    for (int i = x0; i < x0 + nx - 1; ++i)
+    for (int i = x0; i < x0 + nx; ++i)
     {
-        for (int j = y0; j < y0 + ny - 1; ++j)
+        for (int j = y0; j < y0 + ny; ++j)
         {
             temp[i*ny + j] = data[i][j];
         }
