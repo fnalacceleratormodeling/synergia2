@@ -212,7 +212,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double  cdt( cdta[part]);
             double dpop(dpopa[part]);
 
-            FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+            FF_algorithm::yoshida6<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
                     ( x, xp, y, yp, cdt, dpop,
                       reference_momentum, m,
                       step_reference_cdt,
