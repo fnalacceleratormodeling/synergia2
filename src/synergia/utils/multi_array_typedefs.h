@@ -24,7 +24,7 @@ template<typename T, size_t N_dims>
                     dummy(
                             new boost::const_multi_array_ref<T, N_dims >(
                                     static_cast<T* >(0L), extents, store)), p(
-                            new T[dummy->num_elements()]), m(p.get(), extents)
+                            new T[dummy->num_elements()]), m(p.get(), extents, store)
             {
                 delete dummy;
             }
