@@ -137,6 +137,10 @@ ELEMENT_FIXTURE(mp2);
 ELEMENT_FIXTURE(mp3);
 ELEMENT_FIXTURE(mp4);
 
+ELEMENT_FIXTURE(hkicker);
+ELEMENT_FIXTURE(vkicker);
+ELEMENT_FIXTURE(kicker);
+
 #if 1
 BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
 {
@@ -553,6 +557,111 @@ BOOST_FIXTURE_TEST_CASE( test_mp4, mp4_fixture )
     //element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
+
+BOOST_FIXTURE_TEST_CASE( test_hkicker, hkicker_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nhkicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+
+BOOST_FIXTURE_TEST_CASE( test_vkicker, vkicker_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nvkicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_kicker, kicker_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nhicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+
 
 #endif
 

@@ -19,6 +19,9 @@ qmp1: multipole, l=0.0, k1l=0.2, t1=-0.1, knl={0.0, 0.2}, tilt = 0.1;
 qmp2: multipole, l=0.0, k1l=0.3, k2l=0.1, k3l=0.2, t1=0.3, t2=0.2;
 qmp3: multipole, l=0.0, knl={0.00, 0.01, 0.02, 0.03, 0.04, 0.05}, ksl={0.00, 0.05, 0.04, 0.03, 0.02, 0.01};
 qmp4: multipole, l=0.0, knl={0.0, 0.2}, ksl={0.1, 0.1}, tilt=0.1;
+qhk: hkicker, l=1.0, kick=0.07;
+qvk: vkicker, l=1.0, kick=0.07;
+qk:  kicker, l=1.0, hkick=0.035, vkick=0.035;
 
 seq_drift: sequence, l=1.0, refer=entry;
 sd00: qd0, at=0;
@@ -90,5 +93,23 @@ seq_mp4: sequence, l=1.0, refer=entry;
 sm40: qd0, at=0;
 sm41: qmp4, at=0;
 sm42: qd1, at=0.0;
+endsequence;
+
+seq_hkicker: sequence, l=1.0, refer=entry;
+shk0: qd0, at=0;
+shk1: qhk, at=0;
+shk2: qd1, at=1.0;
+endsequence;
+
+seq_vkicker: sequence, l=1.0, refer=entry;
+svk0: qd0, at=0;
+svk1: qvk, at=0;
+svk2: qd1, at=1.0;
+endsequence;
+
+seq_kicker: sequence, l=1.0, refer=entry;
+sk0: qd0, at=0;
+sk1: qk, at=0;
+sk2: qd1, at=1.0;
 endsequence;
 
