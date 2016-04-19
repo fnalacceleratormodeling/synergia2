@@ -35,6 +35,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, JetParticle& jet_parti
 {
     double length = slice.get_right() - slice.get_left();
 
+    double  l = slice.get_lattice_element().get_double_attribute("l", 0.0);
     double hk = slice.get_lattice_element().get_double_attribute("hkick");
     double vk = slice.get_lattice_element().get_double_attribute("vkick");
 
@@ -50,23 +51,26 @@ void FF_kicker::apply(Lattice_element_slice const& slice, JetParticle& jet_parti
     Component_t & cdt(state[Chef::cdt]);
     Component_t & dpop(state[Chef::dpop]);
 
-    double pref = jet_particle.ReferenceMomentum();
-    double m = jet_particle.Mass();
-
-    Particle chef_particle(jet_particle);
-    Reference_particle reference_particle(
-                chef_particle_to_reference_particle(chef_particle));
-
-    double reference_cdt = get_reference_cdt(length, hk, vk, reference_particle);
-    double step_reference_cdt = reference_cdt * 0.5;
-    double step_length = length * 0.5;
-
-    if (length == 0.0) 
+    if ( close_to_zero(l) ) 
     {
         FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
     } 
     else 
     {
+        hk = hk * length / l;
+        vk = vk * length / l;
+
+        double pref = jet_particle.ReferenceMomentum();
+        double m = jet_particle.Mass();
+
+        Particle chef_particle(jet_particle);
+        Reference_particle reference_particle(
+                    chef_particle_to_reference_particle(chef_particle));
+
+        double reference_cdt = get_reference_cdt(length, hk, vk, reference_particle);
+        double step_reference_cdt = reference_cdt * 0.5;
+        double step_length = length * 0.5;
+
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
         FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
@@ -76,6 +80,8 @@ void FF_kicker::apply(Lattice_element_slice const& slice, JetParticle& jet_parti
 void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     double length = slice.get_right() - slice.get_left();
+
+    double  l = slice.get_lattice_element().get_double_attribute("l", 0.0);
     double hk = slice.get_lattice_element().get_double_attribute("hkick");
     double vk = slice.get_lattice_element().get_double_attribute("vkick");
 
@@ -94,7 +100,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const int num_blocks = local_num / GSVector::size;
     const int block_last = num_blocks * GSVector::size;
 
-    if (length == 0.0) 
+    if ( close_to_zero(l) ) 
     {
         for (int part = 0; part < block_last; part += GSVector::size) 
         {
@@ -116,6 +122,10 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     } 
     else 
     {
+        // proportioned strength
+        hk = hk * length / l;
+        vk = vk * length / l;
+
         double pref = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, hk, vk, bunch.get_reference_particle());
@@ -136,11 +146,11 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
 
-            x.store(&xa[part]);
-            xp.store(&xpa[part]);
-            y.store(&ya[part]);
-            yp.store(&ypa[part]);
-            cdt.store(&cdta[part]);
+               x.store(&xa[part]);
+              xp.store(&xpa[part]);
+               y.store(&ya[part]);
+              yp.store(&ypa[part]);
+             cdt.store(&cdta[part]);
             dpop.store(&dpopa[part]);
         }
 
@@ -157,11 +167,11 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
 
-            xa[part] = x;
-            xpa[part] = xp;
-            ya[part] = y;
-            ypa[part] = yp;
-            cdta[part] = cdt;
+               xa[part] = x;
+              xpa[part] = xp;
+               ya[part] = y;
+              ypa[part] = yp;
+             cdta[part] = cdt;
             dpopa[part] = dpop;
         }
 

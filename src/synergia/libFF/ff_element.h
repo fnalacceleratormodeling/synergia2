@@ -51,6 +51,9 @@ protected:
 
     int steps;
     int order;
+
+    bool close_to_zero(double v)
+    { return fabs(v) < 1e-13; }
 };
 
 typedef boost::shared_ptr<FF_element > FF_element_sptr; // syndoc:include

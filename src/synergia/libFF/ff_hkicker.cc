@@ -35,6 +35,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
 {
     double length = slice.get_right() - slice.get_left();
 
+    double l = slice.get_lattice_element().get_double_attribute("l", 0.0);
     double k = slice.get_lattice_element().get_double_attribute("kick");
 
     typedef PropagatorTraits<JetParticle>::State_t State_t;
@@ -49,23 +50,25 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
     Component_t & cdt(state[Chef::cdt]);
     Component_t & dpop(state[Chef::dpop]);
 
-    double pref = jet_particle.ReferenceMomentum();
-    double m = jet_particle.Mass();
-
-    Particle chef_particle(jet_particle);
-    Reference_particle reference_particle(
-                chef_particle_to_reference_particle(chef_particle));
-
-    double reference_cdt = get_reference_cdt(length, k, reference_particle);
-    double step_reference_cdt = reference_cdt * 0.5;
-    double step_length = length * 0.5;
-
-    if (length == 0.0) 
+    if ( close_to_zero(l) ) 
     {
         FF_algorithm::thin_kicker_unit(xp, k);
     } 
     else 
     {
+        k = k * length / l;
+
+        double pref = jet_particle.ReferenceMomentum();
+        double m = jet_particle.Mass();
+
+        Particle chef_particle(jet_particle);
+        Reference_particle reference_particle(
+                    chef_particle_to_reference_particle(chef_particle));
+
+        double reference_cdt = get_reference_cdt(length, k, reference_particle);
+        double step_reference_cdt = reference_cdt * 0.5;
+        double step_length = length * 0.5;
+
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
         FF_algorithm::thin_kicker_unit(xp, k);
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
@@ -75,6 +78,8 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
 void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     double length = slice.get_right() - slice.get_left();
+
+    double l = slice.get_lattice_element().get_double_attribute("l", 0.0);
     double k = slice.get_lattice_element().get_double_attribute("kick");
 
     int local_num = bunch.get_local_num();
@@ -92,7 +97,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const int num_blocks = local_num / GSVector::size;
     const int block_last = num_blocks * GSVector::size;
 
-    if (length == 0.0) 
+    if ( close_to_zero(l) ) 
     {
         for (int part = 0; part < block_last; part += GSVector::size) 
         {
@@ -110,6 +115,8 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     } 
     else 
     {
+        k = k * length / l;
+
         double pref = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
