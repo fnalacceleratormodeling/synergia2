@@ -108,8 +108,14 @@ svk2: qd1, at=1.0;
 endsequence;
 
 seq_kicker: sequence, l=1.0, refer=entry;
-sk0: qd0, at=0;
-sk1: qk, at=0;
-sk2: qd1, at=1.0;
+sk10: qd0, at=0;
+sk11: qk, at=0;
+sk12: qd1, at=1.0;
+endsequence;
+
+seq_kicker2: sequence, l=1.0, refer=entry;
+sk20: qd0, at=0;
+sk21: qk, at=0;
+sk22: qd1, at=1.0;
 endsequence;
 

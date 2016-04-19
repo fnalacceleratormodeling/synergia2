@@ -30,6 +30,11 @@
     { ele ## _fixture() : propagator_fixture("seq_" #ele) { } };
 
 
+#define ELEMENT_FIXTURE_STEPS(ele, steps) \
+    struct ele ## _fixture : public propagator_fixture \
+    { ele ## _fixture() : propagator_fixture("seq_" #ele, steps) { } };
+
+
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture) // needed to initialize MPI
 
@@ -50,14 +55,14 @@ void element_check(MArray2d_ref pff, MArray2d_ref pcf, double tolerance)
 // fixture
 struct propagator_fixture
 {
-    propagator_fixture(std::string const & sname)
+    propagator_fixture(std::string const & sname, int steps = 1)
     : commxx(new Commxx())
     , seq_name(sname)
     {
         BOOST_TEST_MESSAGE("setup propagator fixture");
 
         const int map_order = 1;
-        const int num_steps = 1;
+        const int num_steps = steps;
 
         // chef propagator
         lattice_chef = reader.get_lattice_sptr(seq_name, "fodo.madx");
@@ -140,6 +145,8 @@ ELEMENT_FIXTURE(mp4);
 ELEMENT_FIXTURE(hkicker);
 ELEMENT_FIXTURE(vkicker);
 ELEMENT_FIXTURE(kicker);
+
+ELEMENT_FIXTURE_STEPS(kicker2, 2);
 
 #if 1
 BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
@@ -647,7 +654,42 @@ BOOST_FIXTURE_TEST_CASE( test_kicker, kicker_fixture )
     pff[0][5] = 0.1;
 
     std::cout << std::setprecision(16);
-    std::cout << "\nhicker\n";
+    std::cout << "\nkicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+
+BOOST_FIXTURE_TEST_CASE( test_kicker_steps, kicker2_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nkicker with multiple steps\n";
 
     propagate_chef();
     propagate_ff();
