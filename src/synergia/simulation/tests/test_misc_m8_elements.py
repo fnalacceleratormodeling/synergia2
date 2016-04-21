@@ -27,7 +27,7 @@ def read_mad8_misc_element_lattice(elem_name):
     
 # create the bunch of particles matching the test particles
 # in the madx run
-macro_particles = 16
+macro_particles = 32
 real_particles = 1.0e10
 
 def multipole_bunch(refpart):
@@ -88,6 +88,13 @@ def multipole_bunch(refpart):
     lp[15, 0] =  offset*s3o2
     lp[15, 2] = -offset*0.5
 
+    # repeat same pattern shifted 0.5mm down 0.25mm
+    x2_offset = 0.0005
+    y2_offset = -0.00025
+    for i in range(16,32):
+        lp[i, 0] = lp[i-16, 0] + x2_offset
+        lp[i, 2] = lp[i-16, 2] + y2_offset
+
     return bunch
 
 def run_a_misc_element(elem_name):
@@ -100,9 +107,11 @@ def run_a_misc_element(elem_name):
     m8p = np.load("./lattices/m8"+elem_name+".npy")
     lp = bunch.get_local_particles()
     numpart = lp.shape[0]
-    assert(numpart == 16)
+    assert(numpart == 32)
     for p in range(numpart):
         for j in range(4):
+            print "    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, lp[p,j], m8p[p,j])
+            # mad8 only matches to 10 digits.  madx matches to 13 digits
             assert_almost_equal(lp[p, j], m8p[p, j], 10)
     
 def test_base_quad():

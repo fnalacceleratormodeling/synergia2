@@ -18,5 +18,5 @@ f.close()
 
 # format after header and first observation is
 # number turn x px y py t pt s e
-trackdata = np.loadtxt(madxoutput, skiprows=nlines-16, usecols=(2,3,4,5,6,7))
+trackdata = np.loadtxt(madxoutput, skiprows=nlines-32, usecols=(2,3,4,5,6,7))
 np.save(basename+".npy", trackdata)

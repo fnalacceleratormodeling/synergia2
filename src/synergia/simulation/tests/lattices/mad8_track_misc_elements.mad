@@ -33,6 +33,30 @@ start, x=t_offset*0.5, y=-t_offset*s3o2;
 start, x=t_offset*s2o2, y=-t_offset*s2o2;
 start, x=t_offset*s3o2, y=-t_offset*0.5;
 
+! repeat pattern but shifted over 0.5mm down 0.25mm
+x2_offset = 0.0005;
+y2_offset = -0.00025;
+
+start, x=x2_offset+t_offset, y=y2_offset;
+start, x=x2_offset+t_offset*s3o2, y=y2_offset+t_offset*0.5;
+start, x=x2_offset+t_offset*s2o2, y=y2_offset+t_offset*s2o2;
+start, x=x2_offset+t_offset*0.5, y=y2_offset+t_offset*s3o2;
+
+start, x=x2_offset, y=y2_offset+t_offset;
+start, x=x2_offset-t_offset*0.5, y=y2_offset+t_offset*s3o2;
+start, x=x2_offset-t_offset*s2o2, y=y2_offset+t_offset*s2o2;
+start, x=x2_offset-t_offset*s3o2, y=y2_offset+t_offset*0.5;
+
+start, x=x2_offset-t_offset, y=y2_offset;
+start, x=x2_offset-t_offset*s3o2, y=y2_offset-t_offset*0.5;
+start, x=x2_offset-t_offset*s2o2, y=y2_offset-t_offset*s2o2;
+start, x=x2_offset-t_offset*0.5, y=y2_offset-t_offset*s3o2;
+
+start, x=x2_offset, y=y2_offset-t_offset;
+start, x=x2_offset+t_offset*0.5, y=y2_offset-t_offset*s3o2;
+start, x=x2_offset+t_offset*s2o2, y=y2_offset-t_offset*s2o2;
+start, x=x2_offset+t_offset*s3o2, y=y2_offset-t_offset*0.5;
+
 run, table=tracks
 endtrack;
 archive, table=tracks, file="mad8_track_misc_element.txt"

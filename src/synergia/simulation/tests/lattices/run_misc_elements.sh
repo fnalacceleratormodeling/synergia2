@@ -7,5 +7,5 @@ do
     echo "use, $s;" >use_misc.mad
     mad8 < mad8_track_misc_elements.mad
     python convert_madx_tracks_to_np.py mad8_track_misc_element.txt
-    mv mad8_track_misc_element.npy m8_$s.npy
+    mv mad8_track_misc_element.npy m8$s.npy
 done
