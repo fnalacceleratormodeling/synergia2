@@ -469,6 +469,14 @@ public:
         yp += vkL;
     }
 
+    template <typename T>
+    inline static void thin_kicker_unit
+      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+    {
+        xp = xp + kL[0];
+        yp = yp + kL[1];
+    }
+
     inline static double thin_rfcavity_pnew
       (double pref, double m, double volt, double phi_s)
     {

@@ -2,7 +2,7 @@
 beam, particle=proton,pc=3.0;
 
 qd0:  drift, l=0.0;
-qd1:  drift, l=1.0;
+qd1:  drift, l=0.0;
 qd:   drift, l=1.0;
 qr:   rbend, l=1.0, angle=0.17;
 qf:   quadrupole, l=1.0, k1=0.311872401;
@@ -22,6 +22,7 @@ qmp4: multipole, l=0.0, knl={0.0, 0.2}, ksl={0.1, 0.1}, tilt=0.1;
 qhk: hkicker, l=1.0, kick=0.07;
 qvk: vkicker, l=1.0, kick=0.07;
 qk:  kicker, l=1.0, hkick=0.035, vkick=0.035;
+//qk:  kicker, l=1.0, hkick=0.1;
 
 seq_drift: sequence, l=1.0, refer=entry;
 sd00: qd0, at=0;

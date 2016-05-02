@@ -11,7 +11,8 @@ double FF_kicker::get_reference_cdt(double length, double hk, double vk, Referen
 
     double pref = reference_particle.get_momentum();
     double m = reference_particle.get_mass();
-    double step_length = length * 0.5;
+    double step_length = length / steps;
+    double step_strength[2] = { hk * step_length, vk * step_length };
 
     double x(reference_particle.get_state()[Bunch::x]);
     double xp(reference_particle.get_state()[Bunch::xp]);
@@ -22,9 +23,16 @@ double FF_kicker::get_reference_cdt(double length, double hk, double vk, Referen
 
     double cdt_orig = cdt;
 
+#if 0
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
     FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
+#endif
+
+    FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
+        ( x, xp, y, yp, cdt, dpop,
+          pref, m, 0.0, 
+          step_length, step_strength, steps );
 
     reference_cdt = cdt - cdt_orig;
 
@@ -53,12 +61,14 @@ void FF_kicker::apply(Lattice_element_slice const& slice, JetParticle& jet_parti
 
     if ( close_to_zero(l) ) 
     {
-        FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
+        double k[2] = { hk, vk };
+        FF_algorithm::thin_kicker_unit(x, xp, y, yp, k);
     } 
     else 
     {
-        hk = hk * length / l;
-        vk = vk * length / l;
+        steps = (int)slice.get_lattice_element().get_double_attribute("yoshida_steps", 4.0);
+
+        double k[2] = { hk*length/l, vk*length/l };
 
         double pref = jet_particle.ReferenceMomentum();
         double m = jet_particle.Mass();
@@ -68,12 +78,20 @@ void FF_kicker::apply(Lattice_element_slice const& slice, JetParticle& jet_parti
                     chef_particle_to_reference_particle(chef_particle));
 
         double reference_cdt = get_reference_cdt(length, hk, vk, reference_particle);
-        double step_reference_cdt = reference_cdt * 0.5;
-        double step_length = length * 0.5;
+        double step_reference_cdt = reference_cdt / steps;
+        double step_length = length / steps;
 
+#if 0
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
         FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
+#endif
+
+        FF_algorithm::yoshida6<TJet<double>, FF_algorithm::thin_quadrupole_unit<TJet<double> >, 1 >
+                ( x, xp, y, yp, cdt, dpop,
+                  pref, m, step_reference_cdt,
+                  step_length, k, steps );
+ 
     }
 }
 
@@ -102,37 +120,53 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     if ( close_to_zero(l) ) 
     {
+        GSVector gdummy(1.0);
+        double   ddummy(1.0);
+
+        double   k[2] = { hk, vk };
+
+        #pragma omp parallel for
         for (int part = 0; part < block_last; part += GSVector::size) 
         {
             GSVector xp(&xpa[part]);
             GSVector yp(&ypa[part]);
-            FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
+
+            FF_algorithm::thin_kicker_unit(gdummy, xp, gdummy, yp, k);
+
             xp.store(&xpa[part]);
             yp.store(&ypa[part]);
         }
 
+        #pragma omp parallel for
         for (int part = block_last; part < local_num; ++part) 
         {
             double xp(xpa[part]);
             double yp(ypa[part]);
-            FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
+
+            FF_algorithm::thin_kicker_unit(ddummy, xp, ddummy, yp, k);
+
             xpa[part] = xp;
             ypa[part] = yp;
         }
     } 
     else 
     {
-        // proportioned strength
-        hk = hk * length / l;
-        vk = vk * length / l;
+        // yoshida steps
+        steps = (int)slice.get_lattice_element().get_double_attribute("yoshida_steps", 4.0);
+
+        // strength per unit length
+        hk = hk / l;
+        vk = vk / l;
 
         double pref = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, hk, vk, bunch.get_reference_particle());
 
-        double step_reference_cdt = reference_cdt * 0.5;
-        double step_length = length * 0.5;
+        double step_reference_cdt = reference_cdt / steps;
+        double step_length = length / steps;
+        double step_strength[2] = { hk * step_length, vk * step_length };
 
+        #pragma omp parallel for
         for (int part = 0; part < block_last; part += GSVector::size) 
         {
             GSVector x(&xa[part]);
@@ -142,9 +176,19 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             GSVector cdt(&cdta[part]);
             GSVector dpop(&dpopa[part]);
 
+#if 0
+            // simple drift - kick - drift scheme
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
             FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
+#endif
+
+#if 1
+            FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_kicker_unit<GSVector>, 1>
+                ( x, xp, y, yp, cdt, dpop,
+                  pref, m, step_reference_cdt, 
+                  step_length, step_strength, steps );
+#endif
 
                x.store(&xa[part]);
               xp.store(&xpa[part]);
@@ -154,6 +198,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             dpop.store(&dpopa[part]);
         }
 
+        #pragma omp parallel for
         for (int part = block_last; part < local_num; ++part) 
         {
             double x(xa[part]);
@@ -163,9 +208,16 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double cdt(cdta[part]);
             double dpop(dpopa[part]);
 
+#if 0
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
             FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
+#endif
+
+            FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
+                ( x, xp, y, yp, cdt, dpop,
+                  pref, m, step_reference_cdt, 
+                  step_length, step_strength, steps );
 
                xa[part] = x;
               xpa[part] = xp;
