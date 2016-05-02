@@ -41,6 +41,8 @@ double FF_kicker::get_reference_cdt(double length, double hk, double vk, Referen
 
 void FF_kicker::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
+    throw std::runtime_error("libFF::kicker for JetParticles has yet to be implemented");
+
     double length = slice.get_right() - slice.get_left();
 
     double  l = slice.get_lattice_element().get_double_attribute("l", 0.0);
@@ -183,12 +185,10 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
 #endif
 
-#if 1
             FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_kicker_unit<GSVector>, 1>
                 ( x, xp, y, yp, cdt, dpop,
                   pref, m, step_reference_cdt, 
                   step_length, step_strength, steps );
-#endif
 
                x.store(&xa[part]);
               xp.store(&xpa[part]);
