@@ -1,0 +1,25 @@
+Notes on state and coordinates.
+
+1) The transverse 0 of coordinates for particles and reference particle state
+   is defined by the center of the elements
+  a) What about rbends? Eric says true for entrance and exit.
+2) The longitudinal coordinates for particles and reference particle state
+  is defined relative to the reference particle energy and absolute time.
+3) Note: there is no logical relative s.
+4) Reference particle state has to propagate
+5) A single train has a single reference particle
+
+rbends: rbends have three relevant lengths: physical element length, arc length,
+  and trajectory length.
+
+
+  Todo:
+  1) reference particle needs to track three things: absolute z (zabs),
+  absolute t (tabs) and total s, (s).
+    a) zabs is the sum of element lengths
+    b) tabs is the trajectory time
+    c) s is the total trajectory path length
+  2) need to add to z_n.
+  3) need to propagate reference particle state every time bunch is propagated
+  4) in train propagation, reference particle has to be synchronized across
+    bunches after propagation.
