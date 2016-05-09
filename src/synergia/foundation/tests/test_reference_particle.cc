@@ -220,6 +220,37 @@ BOOST_AUTO_TEST_CASE(set_state)
     }
 }
 
+void
+kick_reference_particle_state(Reference_particle &rp)
+{
+    MArray1d new_state(rp.get_state());
+    new_state[1] += 1.0e-2;
+    new_state[3] += 1.0e-2;
+    rp.set_state(new_state);
+}
+
+BOOST_AUTO_TEST_CASE(set_state_in_function)
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(charge, four_momentum);
+    MArray1d start_state(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        start_state[i] = 1.1 * i;
+    }
+    reference_particle.set_state(start_state);
+    kick_reference_particle_state(reference_particle);
+    for (int i = 0; i < 6; ++i) {
+        if ((i != 1) && (i != 3)) {
+            BOOST_CHECK_CLOSE(reference_particle.get_state()[i],start_state[i],
+                              tolerance);
+        } else {
+            BOOST_CHECK_CLOSE(reference_particle.get_state()[i], start_state[i]+1.0e-2,
+                              tolerance);
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(set_total_energy)
 {
     Four_momentum four_momentum(mass);
