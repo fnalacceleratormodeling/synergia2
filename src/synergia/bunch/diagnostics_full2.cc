@@ -49,19 +49,33 @@ Diagnostics_full2::update_full2()
     }
 }
 
+namespace
+{
+  const double tiny = 1.0e-15;
+  double
+  eliminate_small_negative(double x)
+  {
+    if ((x < 0) && (x > -tiny)) {
+      return 0;
+    } else {
+      return x;
+    }
+  }
+}
+
 void
 Diagnostics_full2::update_emittances()
 {
     Matrix<double, 6, 6 > mom2_matrix(mom2.origin());
-    emitx = std::sqrt(
-            mom2_matrix.block<2, 2 > (Bunch::x, Bunch::x).determinant());
-    emity = std::sqrt(
-            mom2_matrix.block<2, 2 > (Bunch::y, Bunch::y).determinant());
-    emitz = std::sqrt(
-            mom2_matrix.block<2, 2 > (Bunch::z, Bunch::z).determinant());
-    emitxy = std::sqrt(
-            mom2_matrix.block<4, 4 > (Bunch::x, Bunch::x).determinant());
-    emitxyz = std::sqrt(mom2_matrix.determinant());
+    emitx = std::sqrt(eliminate_small_negative(
+            mom2_matrix.block<2, 2 > (Bunch::x, Bunch::x).determinant()));
+    emity = std::sqrt(eliminate_small_negative(
+            mom2_matrix.block<2, 2 > (Bunch::y, Bunch::y).determinant()));
+    emitz = std::sqrt(eliminate_small_negative(
+            mom2_matrix.block<2, 2 > (Bunch::z, Bunch::z).determinant()));
+    emitxy = std::sqrt(eliminate_small_negative(
+            mom2_matrix.block<4, 4 > (Bunch::x, Bunch::x).determinant()));
+    emitxyz = std::sqrt(eliminate_small_negative(mom2_matrix.determinant()));
 }
 
 Diagnostics_full2::Diagnostics_full2(std::string const& filename,
@@ -246,7 +260,7 @@ Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
 
 void
 Diagnostics_full2::write()
-{  
+{
     if (get_bunch().get_comm().has_this_rank()){
       if (get_write_helper().write_locally()) {
 	  init_writers(get_write_helper().get_hdf5_file_sptr());
