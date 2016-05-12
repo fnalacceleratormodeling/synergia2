@@ -131,6 +131,15 @@ Lattice::get_reference_particle()
     return *reference_particle_ptr;
 }
 
+Reference_particle const&
+Lattice::get_reference_particle() const
+{
+    if (!reference_particle_allocated) {
+        throw std::runtime_error("Lattice: no reference_particle available");
+    }
+    return *reference_particle_ptr;
+}
+
 void
 Lattice::append(Lattice_element const& element)
 {

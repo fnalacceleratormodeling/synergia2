@@ -68,6 +68,10 @@ public:
     Reference_particle &
     get_reference_particle();
 
+    /// Get the Lattice reference particle (const)
+    Reference_particle const &
+    get_reference_particle() const;
+
     /// Append a copy of a Lattice_element.
     /// @param element a Lattice_element
     void
