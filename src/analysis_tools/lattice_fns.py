@@ -64,17 +64,20 @@ def handle_args(args, plotparams):
     if len(args) < 2:
         do_help(plotparams)
     options = Options()
+    args_to_remove = []
     for arg in args:
         if arg.find('--reader') == 0:
             reader = arg.split('=')[1]
             options.reader = reader
-            args.remove(arg)
+            args_to_remove.append(arg)
         elif arg.find('--lfcsvfile') ==0:
             options.lfcsvfile = arg.split("=")[1]
-            args.remove(arg)
+            args_to_remove.append(arg)
         elif arg.find('--lfnpfile') == 0:
             options.lfnpfile = arg.split("=")[1]
-            args.remove(arg)
+            args_to_remove.append(arg)
+    for arg in args_to_remove:
+        args.remove(arg)
     options.filename = args[0]
     # is this a lattice file or an xml file?
     if os.path.splitext(options.filename)[1] == '.xml':
