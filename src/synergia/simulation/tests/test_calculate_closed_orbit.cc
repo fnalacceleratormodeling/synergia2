@@ -19,6 +19,7 @@ double tolerance = 1.0e-15;
 
 BOOST_AUTO_TEST_CASE(closed_orbit_with_kicker)
 {
+#if 0
     // read the lattice
     Lattice_sptr lattice_sptr(MadX_reader().get_lattice_sptr("model", "lattices/foborodobo128.madx"));
     // turn on one kicker
@@ -27,7 +28,7 @@ BOOST_AUTO_TEST_CASE(closed_orbit_with_kicker)
     for (Lattice_elements::const_iterator lit=elements.begin(); lit!=elements.end(); ++lit) {
         // first kicker is hc1
         if ((*lit)->get_name() == "hc1") {
-            (*lit)->set_double_attribute("kick", 0.2);
+            //(*lit)->set_double_attribute("kick", 0.2);
             found_kicker = true;
             break;
         }
@@ -35,8 +36,22 @@ BOOST_AUTO_TEST_CASE(closed_orbit_with_kicker)
     if (! found_kicker) {
         throw std::runtime_error("did not find kicker in foborodobo128 lattice");
     }
+#endif
+    Lattice_sptr orig_lattice_sptr(MadX_reader().get_lattice_sptr("fodo", "../../../../examples/envelope/fodo.seq"));
+    Lattice_sptr lattice_sptr(new Lattice(*orig_lattice_sptr));
+    Independent_stepper_sptr test_stepper_sptr(new Independent_stepper(lattice_sptr, 1, 1));
+    Propagator test_propagator(test_stepper_sptr);
+
     // Now get closed orbit
     MArray1d closed_orbit(boost::extents[6]);
+#if 0
+    Lattice_sptr lattice_sptr2;
+    lattice_sptr2.reset(new Lattice("foo"));
+    lattice_sptr2->set_reference_particle(lattice_sptr->get_reference_particle());
+    lattice_sptr = lattice_sptr2;
+#endif
+    std::cout << "Read lattice: " << lattice_sptr->get_name() << " length: " << lattice_sptr->get_length() << ", number elements: " << lattice_sptr->get_elements().size() << std::endl;
+    std::cout << "beam energy: " << lattice_sptr->get_reference_particle().get_total_energy() << std::endl;
     closed_orbit = calculate_closed_orbit(lattice_sptr, 0.0);
     // Now let's see if it actually works
 

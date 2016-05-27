@@ -153,6 +153,17 @@ BOOST_AUTO_TEST_CASE(get_lattice_sptr3)
     //lattice_sptr->print();
 }
 
+BOOST_AUTO_TEST_CASE(copy_lattice_sptr)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse_file("lattices/fodo2work.madx");
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
+
+    Lattice_sptr copy_lattice_sptr(new Lattice(*lattice_sptr));
+
+    //lattice_sptr->print();
+}
+
 BOOST_AUTO_TEST_CASE(get_lattice_sptr_embedded_sequence)
 {
     MadX_reader madx_reader;

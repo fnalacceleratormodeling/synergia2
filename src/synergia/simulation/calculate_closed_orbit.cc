@@ -1,5 +1,5 @@
 #include <list>
-
+#include "synergia/lattice/lattice.h"
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/bunch/bunch.h"
@@ -22,17 +22,20 @@
 
 struct Closed_orbit_params
 {
-    double dpp;
+    const double dpp;
     Lattice_sptr working_lattice_sptr;
     Independent_stepper_sptr stepper_sptr;
     Propagator propagator;
     Commxx_sptr commxx_sptr;
     Bunch_sptr bunch_sptr;
+#if 1
     MArray2d_ref lp;
+#endif
     Bunch_simulator bunch_simulator;
     Closed_orbit_params(const double dpp, Lattice_sptr lattice_sptr) :
         dpp(dpp)
         , working_lattice_sptr(new Lattice(*lattice_sptr))
+  #if 1
         , stepper_sptr(new Independent_stepper(working_lattice_sptr, 1, 1))
         , propagator(stepper_sptr)
         , commxx_sptr(new Commxx())
@@ -40,11 +43,13 @@ struct Closed_orbit_params
                 1, 1.0e10, commxx_sptr))
         , lp(bunch_sptr->get_local_particles())
         , bunch_simulator(bunch_sptr)
+  #endif
     {
 #if DEBUG
         std::cout << "egs: Closed_orbit_params constructor, dpp" << dpp << std::endl;
         std::cout << "egs: lattice length: " << working_lattice_sptr->get_length() << std::endl;
 #endif
+
         lp[0][Bunch::x] = 0.0;
         lp[0][Bunch::xp] = 0.0;
         lp[0][Bunch::y] = 0.0;
@@ -92,23 +97,32 @@ calculate_closed_orbit(const Lattice_sptr lattice_sptr, const double dpp, const 
 {
 #if DEBUG
     std::cout << "egs: calculate_closed_orbit, tolerance=" << tolerance << std::endl;
+    std::cout << "egs: using lattice: " << lattice_sptr->get_name() << " length: " << lattice_sptr->get_length() << ", number elements: " << lattice_sptr->get_elements().size() << std::endl;
+    std::cout << "egs: beam energy: " << lattice_sptr->get_reference_particle().get_total_energy() << std::endl;
 #endif
 
     Closed_orbit_params cop(dpp, lattice_sptr);
-
+#if DEBUG
+    std::cout << "egs: after instantiating Closed_orbit_params cop" << std::endl;
+#endif
     const size_t ndim = 4; // solve closed orbit in x, xp, y, yp
     const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids;
     gsl_multiroot_fsolver * solver = gsl_multiroot_fsolver_alloc(T, ndim);
-
+#if DEBUG
+    std::cout << "egs: after gsl_multiroot_fsolver_alloc" << std::endl;
+#endif
+#if DEBUG
     gsl_vector *co_try = gsl_vector_alloc(ndim);
-
+#endif
     gsl_multiroot_function F;
     F.f = &propagate_co_try;
     F.n = ndim;
     F.params = &cop;
 
     gsl_multiroot_fsolver_set(solver, &F, co_try);
-
+#if DEBUG
+    std::cout << "after gsl_multiroot_fsolver_set" << std::endl;
+#endif
     int niter=0;
     const int maxiter = 100;
     gsl_vector *fvalues;

@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/lattice/lattice.h"
+#include "synergia/lattice/madx_reader.h"
 #include "synergia/foundation/math_constants.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"
@@ -239,6 +240,71 @@ BOOST_AUTO_TEST_CASE(copy_lattice2)
     BOOST_CHECK_EQUAL(copied_lattice.has_reference_particle(), false);
     Reference_particle reference_particle(charge, mass, total_energy);
     copied_lattice.set_reference_particle(reference_particle);
+}
+
+BOOST_AUTO_TEST_CASE(copy_lattice_from_lattice_sptr)
+{
+    Lattice_element f("footype", "foo");
+    const double foo_length = 1.0;
+    f.set_double_attribute("l", foo_length);
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    lattice_sptr->append(f);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    lattice_sptr->set_reference_particle(reference_particle);
+
+    Lattice_sptr copied_lattice_sptr(new Lattice(*lattice_sptr));
+
+    BOOST_CHECK_EQUAL(lattice_sptr->get_elements().size(),
+            copied_lattice_sptr->get_elements().size());
+    BOOST_CHECK_EQUAL((*lattice_sptr->get_elements().begin())->get_name(),
+            (*copied_lattice_sptr->get_elements().begin())->get_name());
+
+    BOOST_CHECK_CLOSE((*lattice_sptr->get_elements().begin())->get_length(),
+            foo_length, tolerance);
+    BOOST_CHECK_CLOSE((*copied_lattice_sptr->get_elements().begin())->get_length(),
+            foo_length, tolerance);
+
+    for(Lattice_elements::const_iterator it = copied_lattice_sptr->get_elements().begin();
+        it != copied_lattice_sptr->get_elements().end(); ++it) {
+        BOOST_CHECK((*it)->has_lattice());
+        BOOST_CHECK_EQUAL(&((*it)->get_lattice()), copied_lattice_sptr.get());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_lattice_has_element_adaptor_map)
+{
+#if 0
+    Lattice_sptr lattice_sptr(MadX_reader().get_lattice_sptr("fodo", "lattices/fodo.madx"));
+#endif
+    Lattice_element f("footype", "foo");
+    const double foo_length = 1.0;
+    f.set_double_attribute("l", foo_length);
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    lattice_sptr->append(f);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    lattice_sptr->set_reference_particle(reference_particle);
+    std::cout << "egs: element_adaptor_map label: " << lattice_sptr->get_element_adaptor_map_sptr()->get_label() << std::endl;
+    BOOST_CHECK(lattice_sptr->get_element_adaptor_map_sptr());
+}
+
+BOOST_AUTO_TEST_CASE(test_copied_lattice_has_element_adaptor_map)
+{
+#if 0
+    Lattice_sptr orig_lattice_sptr(MadX_reader().get_lattice_sptr("fodo", "lattices/fodo.madx"));
+#else
+    Lattice_element f("footype", "foo");
+    const double foo_length = 1.0;
+    f.set_double_attribute("l", foo_length);
+    Lattice_sptr orig_lattice_sptr(new Lattice(name));
+    orig_lattice_sptr->append(f);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    orig_lattice_sptr->set_reference_particle(reference_particle);
+#endif
+    std::cout << "egs: element_adaptor_map label: " << orig_lattice_sptr->get_element_adaptor_map_sptr()->get_label() << std::endl;
+    BOOST_CHECK(orig_lattice_sptr->get_element_adaptor_map_sptr());
+    Lattice_sptr lattice_sptr(new Lattice(*orig_lattice_sptr));
+    std::cout << "egs: element_adaptor_map label: " << lattice_sptr->get_element_adaptor_map_sptr()->get_label() << std::endl;
+    BOOST_CHECK(lattice_sptr->get_element_adaptor_map_sptr());
 }
 
 BOOST_AUTO_TEST_CASE(test_lsexpr)

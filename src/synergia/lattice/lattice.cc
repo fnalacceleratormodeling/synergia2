@@ -41,6 +41,13 @@ Lattice::Lattice(Lattice const& lattice) :
                 *lattice.reference_particle_ptr);
         reference_particle_allocated = true;
     }
+    if (lattice.get_element_adaptor_map_sptr()->get_label() == "Mad8") {
+        element_adaptor_map_sptr.reset(new Mad8_adaptor_map);
+    } else if (lattice.get_element_adaptor_map_sptr()->get_label() == "MadX") {
+        element_adaptor_map_sptr.reset(new MadX_adaptor_map);
+    } else {
+        throw std::runtime_error("unknown element adaptor type: " + lattice.get_element_adaptor_map_sptr()->get_label());
+    }
 }
 
 Lattice::Lattice(Lsexpr const& lsexpr) :
@@ -241,6 +248,12 @@ Lattice::get_element_adaptor_map()
 
 Element_adaptor_map_sptr
 Lattice::get_element_adaptor_map_sptr()
+{
+    return element_adaptor_map_sptr;
+}
+
+Element_adaptor_map_sptr
+Lattice::get_element_adaptor_map_sptr() const
 {
     return element_adaptor_map_sptr;
 }

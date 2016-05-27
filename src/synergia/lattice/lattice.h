@@ -120,6 +120,8 @@ public:
     /// Get the Element_adaptor_map as a shared pointer
     Element_adaptor_map_sptr
     get_element_adaptor_map_sptr();
+    Element_adaptor_map_sptr
+    get_element_adaptor_map_sptr() const;
 
     /// Get the combined length of all the elements in the Lattice
     double
