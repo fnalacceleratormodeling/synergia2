@@ -80,6 +80,9 @@ Lattice_sptr (MadX_reader::*get_lattice_sptr1)(std::string const&)
 Lattice_sptr (MadX_reader::*get_lattice_sptr2)(std::string const&, std::string const&)
         =&MadX_reader::get_lattice_sptr;
 
+Element_adaptor_map_sptr (Lattice::*get_element_adaptor_map_sptr_nonconst)()
+    =&Lattice::get_element_adaptor_map_sptr;
+
 BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_lattice_overloads23,
         xml_save<Lattice >, 2, 3)
 
@@ -208,7 +211,7 @@ BOOST_PYTHON_MODULE(lattice)
                     return_value_policy<copy_non_const_reference >())
             .def("get_length", &Lattice::get_length)
             .def("get_total_angle", &Lattice::get_total_angle)
-            .def("get_element_adaptor_map_sptr", &Lattice::get_element_adaptor_map_sptr)
+            .def("get_element_adaptor_map_sptr", get_element_adaptor_map_sptr_nonconst)
             .def("print_", &Lattice::print)
             .def("as_string", &Lattice::as_string)
             ;
