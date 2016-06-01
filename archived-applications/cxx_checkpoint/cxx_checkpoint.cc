@@ -29,7 +29,9 @@ run()
     const int seed = 4;
     const double num_real_particles = 1e13;
     const int num_steps = 8;
-    const int num_turns = 4;
+    const int total_turns = 64;
+    const int max_turns = 4;
+
     const int map_order = 2;
 
     Lattice_sptr lattice_sptr(new Lattice());
@@ -70,7 +72,7 @@ run()
 
     propagator.set_checkpoint_period(2);
     double t0 = MPI_Wtime();
-    propagator.propagate(bunch_simulator, num_turns, 0, 9999);
+    propagator.propagate(bunch_simulator, total_turns, max_turns, 9999);
     double t1 = MPI_Wtime();
     if (comm_sptr->get_rank() == 0) {
         std::cout << "propagate time = " << (t1 - t0) << std::endl;
