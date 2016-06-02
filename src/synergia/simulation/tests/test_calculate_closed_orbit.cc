@@ -17,6 +17,156 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 double tolerance = 1.0e-15;
 
+const double quad_length = 0.2;
+const double drift_length = 0.8;
+const double k1 = 1.0/(quad_length * 0.7);
+
+const std::string name("foo_lattice");
+
+#if 0
+BOOST_AUTO_TEST_CASE(trivial_closed_orbit)
+{
+    Lattice_element f("quadrupole", "f");
+    f.set_double_attribute("l", quad_length);
+    f.set_double_attribute("k1", k1);
+    Lattice_element o("drift", "o");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element d("quadrupole", "d");
+    d.set_double_attribute("l", quad_length);
+    d.set_double_attribute("k1", -k1);
+
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    lattice_sptr->append(f);
+    lattice_sptr->append(o);
+    lattice_sptr->append(d);
+    lattice_sptr->append(o);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    lattice_sptr->set_reference_particle(reference_particle);
+
+    MArray1d closed_orbit(boost::extents[6]);
+
+    closed_orbit = calculate_closed_orbit(lattice_sptr, 0.0);
+    // Now let's see if it actually works
+
+    Commxx_sptr commxx(new Commxx());
+    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), 1, 1.0e10, commxx));
+    for (int i=0; i<6; ++i) {
+        bunch_sptr->get_local_particles()[0][i] = closed_orbit[i];
+    }
+
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Independent_stepper_sptr stepper_sptr(new Independent_stepper(lattice_sptr, 1, 1));
+    Propagator propagator(stepper_sptr);
+    propagator.propagate(bunch_simulator, 1, 1, 0);
+
+    for (int i=0; i<4; ++i) {
+        BOOST_CHECK( floating_point_equal(bunch_sptr->get_local_particles()[0][i],
+                     closed_orbit[i], tolerance) );
+    }
+}
+
+BOOST_AUTO_TEST_CASE(ring_on_momentum)
+{
+    Lsexpr foborodobo32lsx(read_lsexpr_file("lattices/foborodobo32.lsx"));
+    Lattice_sptr lattice_sptr(new Lattice(foborodobo32lsx));
+
+    MArray1d closed_orbit(boost::extents[6]);
+
+    closed_orbit = calculate_closed_orbit(lattice_sptr, 0.0);
+    // Now let's see if it actually works
+
+    Commxx_sptr commxx(new Commxx());
+    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), 1, 1.0e10, commxx));
+    for (int i=0; i<6; ++i) {
+        bunch_sptr->get_local_particles()[0][i] = closed_orbit[i];
+    }
+
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Independent_stepper_sptr stepper_sptr(new Independent_stepper(lattice_sptr, 1, 1));
+    Propagator propagator(stepper_sptr);
+    propagator.propagate(bunch_simulator, 1, 1, 0);
+
+    for (int i=0; i<4; ++i) {
+        BOOST_CHECK( floating_point_equal(bunch_sptr->get_local_particles()[0][i],
+                     closed_orbit[i], tolerance) );
+    }
+}
+#endif
+
+BOOST_AUTO_TEST_CASE(ring_off_momentum)
+{
+    Lsexpr foborodobo32lsx(read_lsexpr_file("lattices/foborodobo32.lsx"));
+    Lattice_sptr lattice_sptr(new Lattice(foborodobo32lsx));
+
+    MArray1d closed_orbit(boost::extents[6]);
+
+    closed_orbit = calculate_closed_orbit(lattice_sptr, 0.001);
+    // Now let's see if it actually works
+
+    Commxx_sptr commxx(new Commxx());
+    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), 1, 1.0e10, commxx));
+    for (int i=0; i<6; ++i) {
+        bunch_sptr->get_local_particles()[0][i] = closed_orbit[i];
+    }
+
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Independent_stepper_sptr stepper_sptr(new Independent_stepper(lattice_sptr, 1, 1));
+    Propagator propagator(stepper_sptr);
+    propagator.propagate(bunch_simulator, 1, 1, 0);
+
+    for (int i=0; i<4; ++i) {
+        BOOST_CHECK( floating_point_equal(bunch_sptr->get_local_particles()[0][i],
+                     closed_orbit[i], tolerance) );
+    }
+}
+
+#if 0
+BOOST_AUTO_TEST_CASE(unstable_lattice_has_no_closed_orbit)
+{
+    Lattice_element f("quadrupole", "f");
+    f.set_double_attribute("l", quad_length);
+    // not focussed enough to be stable
+    f.set_double_attribute("k1", k1/10.0);
+    Lattice_element o("drift", "o");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element d("quadrupole", "d");
+    d.set_double_attribute("l", quad_length);
+    d.set_double_attribute("k1", -k1/10.0);
+
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    lattice_sptr->append(f);
+    lattice_sptr->append(o);
+    lattice_sptr->append(d);
+    lattice_sptr->append(o);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    lattice_sptr->set_reference_particle(reference_particle);
+
+    MArray1d closed_orbit(boost::extents[6]);
+
+    closed_orbit = calculate_closed_orbit(lattice_sptr, 0.0);
+    // Now let's see if it actually works
+
+    Commxx_sptr commxx(new Commxx());
+    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), 1, 1.0e10, commxx));
+    for (int i=0; i<6; ++i) {
+        bunch_sptr->get_local_particles()[0][i] = closed_orbit[i];
+    }
+
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Independent_stepper_sptr stepper_sptr(new Independent_stepper(lattice_sptr, 1, 1));
+    Propagator propagator(stepper_sptr);
+    propagator.propagate(bunch_simulator, 1, 1, 0);
+
+    for (int i=0; i<4; ++i) {
+        BOOST_CHECK( floating_point_equal(bunch_sptr->get_local_particles()[0][i],
+                     closed_orbit[i], tolerance) );
+    }
+}
+
 BOOST_AUTO_TEST_CASE(closed_orbit_with_kicker)
 {
 #if 0
@@ -72,3 +222,4 @@ BOOST_AUTO_TEST_CASE(closed_orbit_with_kicker)
                      closed_orbit[i], tolerance) );
     }
 }
+#endif
