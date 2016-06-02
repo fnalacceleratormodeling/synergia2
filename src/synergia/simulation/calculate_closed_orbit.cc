@@ -20,13 +20,14 @@
 #include <gsl/gsl_multiroots.h>
 
 
-#define DEBUG 1
-#define TRYDEBUG 1
+#define DEBUG 0
+#define TRYDEBUG 0
 
 struct Closed_orbit_params
 {
     const double dpp;
     Lattice_sptr working_lattice_sptr;
+    Stepper_sptr stepper_sptr;
     Closed_orbit_params(const double dpp, Lattice_sptr lattice_sptr) :
         dpp(dpp)
         , working_lattice_sptr(new Lattice(*lattice_sptr))
@@ -42,6 +43,7 @@ struct Closed_orbit_params
                 (*lep)->set_double_attribute("volt", 0.0);
             }
         }
+        stepper_sptr = Stepper_sptr(new Independent_stepper(working_lattice_sptr, 1, 1));
     }
 };
 
@@ -56,8 +58,7 @@ propagate_co_try(const gsl_vector *co_try, void *params, gsl_vector *co_results)
     MArray2d_ref lp(bunch_sptr->get_local_particles());
     Bunch_simulator bunch_simulator(bunch_sptr);
 
-    Independent_stepper_sptr stepper_sptr(new Independent_stepper(copp->working_lattice_sptr, 1, 1));
-    Propagator propagator(stepper_sptr);
+    Propagator propagator(copp->stepper_sptr);
 
     // set phase space coordinates in bunch
     double orbit_start[4];

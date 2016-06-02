@@ -23,7 +23,6 @@ const double k1 = 1.0/(quad_length * 0.7);
 
 const std::string name("foo_lattice");
 
-#if 0
 BOOST_AUTO_TEST_CASE(trivial_closed_orbit)
 {
     Lattice_element f("quadrupole", "f");
@@ -49,7 +48,7 @@ BOOST_AUTO_TEST_CASE(trivial_closed_orbit)
     // Now let's see if it actually works
 
     Commxx_sptr commxx(new Commxx());
-    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), 1, 1.0e10, commxx));
+    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), commxx->get_size(), 1.0e10, commxx));
     for (int i=0; i<6; ++i) {
         bunch_sptr->get_local_particles()[0][i] = closed_orbit[i];
     }
@@ -60,9 +59,11 @@ BOOST_AUTO_TEST_CASE(trivial_closed_orbit)
     Propagator propagator(stepper_sptr);
     propagator.propagate(bunch_simulator, 1, 1, 0);
 
+    const double co_tolerance = 100.0 * tolerance * lattice_sptr->get_length();
+
     for (int i=0; i<4; ++i) {
         BOOST_CHECK( floating_point_equal(bunch_sptr->get_local_particles()[0][i],
-                     closed_orbit[i], tolerance) );
+                     closed_orbit[i], co_tolerance) );
     }
 }
 
@@ -77,7 +78,7 @@ BOOST_AUTO_TEST_CASE(ring_on_momentum)
     // Now let's see if it actually works
 
     Commxx_sptr commxx(new Commxx());
-    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), 1, 1.0e10, commxx));
+    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), commxx->get_size(), 1.0e10, commxx));
     for (int i=0; i<6; ++i) {
         bunch_sptr->get_local_particles()[0][i] = closed_orbit[i];
     }
@@ -88,12 +89,13 @@ BOOST_AUTO_TEST_CASE(ring_on_momentum)
     Propagator propagator(stepper_sptr);
     propagator.propagate(bunch_simulator, 1, 1, 0);
 
+    const double co_tolerance = 100.0 * tolerance * lattice_sptr->get_length();
+
     for (int i=0; i<4; ++i) {
         BOOST_CHECK( floating_point_equal(bunch_sptr->get_local_particles()[0][i],
-                     closed_orbit[i], tolerance) );
+                     closed_orbit[i], co_tolerance) );
     }
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(ring_off_momentum)
 {
@@ -106,7 +108,7 @@ BOOST_AUTO_TEST_CASE(ring_off_momentum)
     // Now let's see if it actually works
 
     Commxx_sptr commxx(new Commxx());
-    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), 1, 1.0e10, commxx));
+    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(), commxx->get_size(), 1.0e10, commxx));
     for (int i=0; i<6; ++i) {
         bunch_sptr->get_local_particles()[0][i] = closed_orbit[i];
     }
@@ -116,10 +118,12 @@ BOOST_AUTO_TEST_CASE(ring_off_momentum)
     Independent_stepper_sptr stepper_sptr(new Independent_stepper(lattice_sptr, 1, 1));
     Propagator propagator(stepper_sptr);
     propagator.propagate(bunch_simulator, 1, 1, 0);
+    
+    const double co_tolerance = 100.0 * tolerance * lattice_sptr->get_length();
 
     for (int i=0; i<4; ++i) {
         BOOST_CHECK( floating_point_equal(bunch_sptr->get_local_particles()[0][i],
-                     closed_orbit[i], tolerance) );
+                     closed_orbit[i], co_tolerance) );
     }
 }
 
