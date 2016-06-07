@@ -15,6 +15,7 @@
 #include "diagnostics_actions.h"
 #include "dense_mapping.h"
 #include "resume.h"
+#include "calculate_closed_orbit.h"
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/numpy_multi_ref_converter.h"
 
@@ -124,6 +125,9 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads24,
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads35,
         Propagator::propagate, 3, 5);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(calculate_closed_orbit_overloads13,
+        calculate_closed_orbit, 1, 3);
 
 //BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads45,
 //        Propagator::propagate, 4, 5);
@@ -739,4 +743,9 @@ BOOST_PYTHON_MODULE(simulation)
                                      init<Lattice_simulator&, bool>())
             .def("get_dense_mapping", &Dense_mapping_calculator::get_dense_mappping)
             ;
+            
+    def("calculate_closed_orbit", &calculate_closed_orbit,
+        calculate_closed_orbit_overloads13())
+    ;
+
 }

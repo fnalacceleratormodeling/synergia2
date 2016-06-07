@@ -149,6 +149,10 @@ add_test_executable(test_calculate_closed_orbit test_calculate_closed_orbit.cc)
 target_link_libraries(test_calculate_closed_orbit synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_calculate_closed_orbit COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_calculate_closed_orbit>)
 
+add_test(NAME test_calculate_closed_orbit_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_calculate_closed_orbit.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_calculate_closed_orbit.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_test(NAME test_simplify2_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify2.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_simplify2.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

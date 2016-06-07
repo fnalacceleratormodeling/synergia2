@@ -59,6 +59,9 @@ propagate_co_try(const gsl_vector *co_try, void *params, gsl_vector *co_results)
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     Propagator propagator(copp->stepper_sptr);
+    if (bunch_sptr->get_total_num() == 0) {
+        throw std::runtime_error("Lattice will not transport particles.  Is it unstable?");
+    }
 
     // set phase space coordinates in bunch
     double orbit_start[4];
@@ -97,8 +100,9 @@ calculate_closed_orbit(const Lattice_sptr lattice_sptr, const double dpp, const 
     std::cout << "egs: after instantiating Closed_orbit_params cop" << std::endl;
 #endif
     const size_t ndim = 4; // solve closed orbit in x, xp, y, yp
-    //const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids;
-    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_dnewton;
+    //const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrid;
+    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids;
+    //const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_dnewton;
     gsl_multiroot_fsolver * solver = gsl_multiroot_fsolver_alloc(T, ndim);
 #if DEBUG
     std::cout << "egs: after gsl_multiroot_fsolver_alloc" << std::endl;
@@ -132,13 +136,13 @@ calculate_closed_orbit(const Lattice_sptr lattice_sptr, const double dpp, const 
 #if DEBUG
             std::cout << "egs: ENOPROG" << std::endl;
 #endif
-            throw std::runtime_error("ENOPROG");
+            throw std::runtime_error("Closed orbit solver unable to converge.  Is the tolerance too tight?");
             break;
         case GSL_EBADFUNC:
 #if DEBUG
             std::cout << "egs: EBADFUNC" << std::endl;
 #endif
-            throw std::runtime_error("EBADFUNC");
+            throw std::runtime_error("Closed orbit solver failed to evaluate solution");
             break;
         default:
 #if DEBUG
@@ -158,7 +162,9 @@ calculate_closed_orbit(const Lattice_sptr lattice_sptr, const double dpp, const 
 #endif
     } while ((gsl_multiroot_test_residual(solver->f, tolerance) == GSL_CONTINUE) && (++niter < maxiter));
     if (niter == maxiter) {
-        throw std::runtime_error("maximum iterations reached");
+        std::stringstream sstr;
+        sstr << "Could not locate closed orbit after " << maxiter << " iterations";
+        throw std::runtime_error( sstr.str() );
     }
     MArray1d costate(boost::extents[6]);
     gsl_vector *froots = gsl_multiroot_fsolver_root(solver);
