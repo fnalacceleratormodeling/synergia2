@@ -61,6 +61,7 @@ BOOST_PYTHON_MODULE(foundation)
         .def("start_repetition", &Reference_particle::start_repetition)
         .def("set_trajectory", &Reference_particle::set_trajectory)
         .def("get_charge", &Reference_particle::get_charge)
+        .def("get_mass", &Reference_particle::get_mass)
         .def("get_four_momentum",&Reference_particle::get_four_momentum,
                 return_internal_reference<>())
         .def("get_state",&Reference_particle::get_state)

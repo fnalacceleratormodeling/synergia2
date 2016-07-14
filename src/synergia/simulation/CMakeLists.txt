@@ -11,7 +11,7 @@ add_library(synergia_simulation operator.cc step.cc stepper.cc
     aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
     bunch_train_simulator.cc resume.cc dense_mapping.cc calculate_closed_orbit.cc)
 target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
-    synergia_lattice ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
+    synergia_lattice synergia_libFF ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
 
 if (BUILD_PYTHON_BINDINGS)
     add_python_extension(simulation simulation_wrap.cc)

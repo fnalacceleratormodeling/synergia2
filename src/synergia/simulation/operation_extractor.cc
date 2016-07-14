@@ -297,6 +297,57 @@ Chef_mixed_operation_extractor::serialize<boost::archive::xml_iarchive >(
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Chef_mixed_operation_extractor)
 
+LibFF_operation_extractor::LibFF_operation_extractor(
+        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
+    Operation_extractor(chef_lattice_sptr, map_order)
+{
+}
+
+LibFF_operation_extractor::LibFF_operation_extractor()
+{
+}
+
+Independent_operations
+LibFF_operation_extractor::extract(
+        Reference_particle const& reference_particle,
+        Lattice_element_slices const& slices)
+{
+    Independent_operations retval;
+    LibFF_operation_sptr operation_sptr(new LibFF_operation(slices));
+    retval.push_back(operation_sptr);
+
+    return retval;
+}
+
+template<class Archive>
+    void
+    LibFF_operation_extractor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
+    }
+
+template
+void
+LibFF_operation_extractor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+LibFF_operation_extractor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+LibFF_operation_extractor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+LibFF_operation_extractor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+BOOST_CLASS_EXPORT_IMPLEMENT(LibFF_operation_extractor)
+
 Operation_extractor_map::Operation_extractor_map()
 {
 }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="10">
+<num_objects>1</num_objects>
+<object_typename>N5boost11multi_arrayIdLm2ESaIdEEE</object_typename>
+<object class_id="0" tracking_level="0" version="0">
+	<shape_0>6</shape_0>
+	<shape_1>6</shape_1>
+	<item>3.0509743977035345e-05</item>
+	<item>2.2014134466660509e-06</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>2.2014134466660509e-06</item>
+	<item>1.9161816525115869e-07</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>7.5506914064526925e-06</item>
+	<item>-6.6846812465678249e-07</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>-6.6846812465678249e-07</item>
+	<item>1.9161816525115867e-07</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0.00016427607645871527</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>0</item>
+	<item>1e-08</item>
+</object>

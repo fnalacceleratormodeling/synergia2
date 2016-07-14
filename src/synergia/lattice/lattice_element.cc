@@ -237,6 +237,23 @@ Lattice_element::get_double_attribute(std::string const& name) const
     }
 }
 
+double
+Lattice_element::get_double_attribute(std::string const& name, double val) const
+{
+    std::map<std::string, double >::const_iterator result =
+            double_attributes.find(name);
+    if (result == double_attributes.end()) {
+        if (default_element_sptr
+                && default_element_sptr->has_double_attribute(name, false)) {
+            return default_element_sptr->get_double_attribute(name);
+        } else {
+            return val;
+        }
+    } else {
+        return result->second;
+    }
+}
+
 std::map<std::string, double > const &
 Lattice_element::get_double_attributes() const
 {
@@ -284,6 +301,23 @@ Lattice_element::get_string_attribute(std::string const& name) const
     }
 }
 
+std::string const&
+Lattice_element::get_string_attribute(std::string const& name, std::string const & val) const
+{
+    std::map<std::string, std::string >::const_iterator result =
+            string_attributes.find(name);
+    if (result == string_attributes.end()) {
+        if (default_element_sptr
+                && default_element_sptr->has_string_attribute(name, false)) {
+            return default_element_sptr->get_string_attribute(name);
+        } else {
+            return val;
+        }
+    } else {
+        return result->second;
+    }
+}
+
 std::map<std::string, std::string > const &
 Lattice_element::get_string_attributes() const
 {
@@ -325,6 +359,23 @@ Lattice_element::get_vector_attribute(std::string const& name) const
                     "Lattice_element::get_vector_attribute: element "
                             + this->name + " of type " + type
                             + " has no vector attribute '" + name + "'");
+        }
+    } else {
+        return result->second;
+    }
+}
+
+std::vector<double > const&
+Lattice_element::get_vector_attribute(std::string const& name, std::vector<double> const & val) const
+{
+    std::map<std::string, std::vector<double > >::const_iterator result =
+            vector_attributes.find(name);
+    if (result == vector_attributes.end()) {
+        if (default_element_sptr
+                && default_element_sptr->has_vector_attribute(name, false)) {
+            return default_element_sptr->get_vector_attribute(name);
+        } else {
+            return val;
         }
     } else {
         return result->second;

@@ -1,0 +1,122 @@
+
+beam, particle=proton,pc=3.0;
+
+qd0:  drift, l=0.0;
+qd1:  drift, l=0.0;
+qd:   drift, l=1.0;
+qr:   rbend, l=1.0, angle=0.17;
+qf:   quadrupole, l=1.0, k1=0.311872401;
+qf2:  quadrupole, l=1.0, k1=0.311872401, tilt=0.1;
+qs:   sextupole, l=1.0, k2=0.02, k2s=0.01;
+qs2:  sextupole, l=1.0, k2=0.02, k2s=0.01, tilt=30*RADDEG;
+qsb:  sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.035;
+//qsb: sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.035, k1=0.1;
+//qsb: sbend, l=1.0, angle=1e-6, k1=0.311872401;
+//qsb: sbend, l=1.0, angle=1e-6, k2=0.02;
+//qrfc: rfcavity, l=2.998, volt=3.38965e-07, harmon=1, lag=0, freq=55.43860156259074;
+qrfc: rfcavity, l=2.998, volt=3.38965e-07, lag=0, freq=55.43860156259074;
+qmp1: multipole, l=0.0, k1l=0.2, t1=-0.1, knl={0.0, 0.2}, tilt = 0.1;
+qmp2: multipole, l=0.0, k1l=0.3, k2l=0.1, k3l=0.2, t1=0.3, t2=0.2;
+qmp3: multipole, l=0.0, knl={0.00, 0.01, 0.02, 0.03, 0.04, 0.05}, ksl={0.00, 0.05, 0.04, 0.03, 0.02, 0.01};
+qmp4: multipole, l=0.0, knl={0.0, 0.2}, ksl={0.1, 0.1}, tilt=0.1;
+qhk: hkicker, l=1.0, kick=0.07;
+qvk: vkicker, l=1.0, kick=0.07;
+qk:  kicker, l=1.0, hkick=0.035, vkick=0.035;
+//qk:  kicker, l=1.0, hkick=0.1;
+
+seq_drift: sequence, l=1.0, refer=entry;
+sd00: qd0, at=0;
+sd01: qd, at=0;
+sd02: qd0, at=1.0;
+endsequence;
+
+seq_rbend: sequence, l=3.0, refer=entry;
+srb00: qd1, at=0;
+srb01: qr, at=1.0;
+srb02: qd1, at=2.0;
+endsequence;
+
+seq_sbend: sequence, l=1.0, refer=entry;
+ssb00: qd0, at=0;
+ssb01: qsb, at=0;
+ssb02: qd0, at=1.0;
+endsequence;
+
+seq_quadrupole: sequence, l=1.0, refer=entry;
+sq00: qd0, at=0;
+sq01: qf, at=0;
+sq02: qd0, at=1.0;
+endsequence;
+
+seq_quadrupole2: sequence, l=1.0, refer=entry;
+sq10: qd0, at=0;
+sq11: qf2, at=0;
+sq12: qd0, at=1.0;
+endsequence;
+
+seq_sextupole: sequence, l=1.0, refer=entry;
+ss00: qd0, at=0;
+ss01: qs, at=0;
+ss02: qd0, at=1.0;
+endsequence;
+
+seq_sextupole2: sequence, l=1.0, refer=entry;
+ss10: qd0, at=0;
+ss11: qs2, at=0;
+ss12: qd0, at=1.0;
+endsequence;
+
+seq_rfc: sequence, l=3.998, refer=entry;
+sr00: qd0, at=0;
+sr01: qrfc, at=0;
+sr02: qd1, at=2.998;
+endsequence;
+
+seq_mp1: sequence, l=1.0, refer=entry;
+sm10: qd0, at=0;
+sm11: qmp1, at=0;
+sm12: qd1, at=0.0;
+endsequence;
+
+seq_mp2: sequence, l=1.0, refer=entry;
+sm20: qd0, at=0;
+sm21: qmp2, at=0;
+sm22: qd1, at=0.0;
+endsequence;
+
+seq_mp3: sequence, l=1.0, refer=entry;
+sm30: qd0, at=0;
+sm31: qmp3, at=0;
+sm32: qd1, at=0.0;
+endsequence;
+
+seq_mp4: sequence, l=1.0, refer=entry;
+sm40: qd0, at=0;
+sm41: qmp4, at=0;
+sm42: qd1, at=0.0;
+endsequence;
+
+seq_hkicker: sequence, l=1.0, refer=entry;
+shk0: qd0, at=0;
+shk1: qhk, at=0;
+shk2: qd1, at=1.0;
+endsequence;
+
+seq_vkicker: sequence, l=1.0, refer=entry;
+svk0: qd0, at=0;
+svk1: qvk, at=0;
+svk2: qd1, at=1.0;
+endsequence;
+
+seq_kicker: sequence, l=1.0, refer=entry;
+sk10: qd0, at=0;
+sk11: qk, at=0;
+sk12: qd1, at=1.0;
+endsequence;
+
+seq_kicker2: sequence, l=1.0, refer=entry;
+sk20: qd0, at=0;
+sk21: qk, at=0;
+sk22: qd1, at=1.0;
+endsequence;
+

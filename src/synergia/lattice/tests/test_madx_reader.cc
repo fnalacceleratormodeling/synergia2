@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE(get_lattice_sptr_with_reference_particle)
     BOOST_CHECK(lattice_sptr->has_reference_particle());
     const double tolerance = 1.0e-10;
     BOOST_CHECK_CLOSE(
-            lattice_sptr->get_reference_particle().get_four_momentum().get_mass(),
+            lattice_sptr->get_reference_particle().get_mass(),
             pconstants::mp, tolerance);
     BOOST_CHECK_CLOSE(lattice_sptr->get_reference_particle().get_gamma(), 1.42,
             tolerance);

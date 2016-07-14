@@ -53,6 +53,23 @@ BOOST_AUTO_TEST_CASE(array2d)
     file.close();
 }
 
+BOOST_AUTO_TEST_CASE(array2d_fortran_order)
+{
+    H5::H5File file("justarray2d_fo.h5", H5F_ACC_TRUNC);
+    const int dim1 = 2;
+    const int dim2 = 3;
+    MArray2d a(boost::extents[dim1][dim2],
+               boost::fortran_storage_order());
+    Hdf5_writer<MArray2d_ref > writer(&file, "array2d");
+    for (int j = 0; j < dim1; ++j) {
+        for (int k = 0; k < dim2; ++k) {
+            a[j][k] = 1.1 * k + 10 * j;
+        }
+    }
+    writer.write(a);
+    file.close();
+}
+
 BOOST_AUTO_TEST_CASE(array3d)
 {
     H5::H5File file("justarray3d.h5", H5F_ACC_TRUNC);

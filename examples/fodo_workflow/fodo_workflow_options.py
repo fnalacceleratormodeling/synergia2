@@ -18,6 +18,7 @@ opts.add("turns", 1, "number of times to track through fodo lattice")
 opts.add("max_turns", 0, 
          "maximum number of turns to run before checkpointing and stopping; 0 to not stop")
 opts.add("verbosity", 2, "simulation verbosity level")
+opts.add("libff", False, "use libff")
 
 # Create the job manager for the simulation fodo_workflow.py, including the 
 # above options. When creating job directories, include the file fodo.lat.

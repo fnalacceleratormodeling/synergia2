@@ -116,7 +116,7 @@ Particle
 reference_particle_to_chef_particle(
         Reference_particle const& reference_particle)
 {
-    double mass = reference_particle.get_four_momentum().get_mass();
+    double mass = reference_particle.get_mass();
     double momentum = reference_particle.get_momentum();
     int charge = reference_particle.get_charge();
     const double mass_tolerance = 1.0e-5;

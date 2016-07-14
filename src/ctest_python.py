@@ -44,7 +44,8 @@ class Test:
         here = os.getcwd()
         os.chdir(self.dir)
         t0 = time.time()
-        status, output = commands.getstatusoutput(self.command)
+        output = "this is fake output\n"
+        status = os.system(self.command)
         t1 = time.time()
         os.chdir(here)
         beginning = "%2d/%2d" % (index, max_index) + ' '
@@ -145,5 +146,8 @@ def run_tests(tests):
             
            
 if __name__ == '__main__':
-    tests = extract_all_tests('.')
+    root_dir = '.'
+    if len(sys.argv) > 1:
+        root_dir = sys.argv[1]
+    tests = extract_all_tests(root_dir)
     run_tests(tests)

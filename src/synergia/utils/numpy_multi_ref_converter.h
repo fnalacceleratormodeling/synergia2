@@ -4,6 +4,14 @@
 #define NPY_NO_DEPRECATED_API 7
 #include "numpy/arrayobject.h"
 
+// backwards compatibility
+#ifndef NPY_ARRAY_F_CONTIGUOUS
+    #define NPY_ARRAY_F_CONTIGUOUS NPY_F_CONTIGUOUS
+#endif
+#ifndef NPY_ARRAY_WRITEABLE
+    #define NPY_ARRAY_WRITEABLE NPY_WRITEABLE
+#endif
+
 template<typename ValueType, int Dimension>
     struct numpy_multi_array_ref_converter
     {
@@ -82,9 +90,22 @@ template<typename ValueType, int Dimension>
                 throw std::runtime_error(
                         "numpy_multi_array_ref_converter: Unable to deal with type");
             }
-            retval = PyArray_SimpleNewFromData(c_array.num_dimensions(),
-                    (npy_intp*) c_array.shape(), type_num,
-                    (void *) c_array.origin());
+            int flags;
+            if (c_array.storage_order() == boost::c_storage_order()) {
+                flags = NPY_ARRAY_WRITEABLE;
+            } else {
+                if (c_array.storage_order() == boost::fortran_storage_order()) {
+                    flags = NPY_ARRAY_WRITEABLE | NPY_ARRAY_F_CONTIGUOUS;
+                } else {
+                    throw std::runtime_error(
+                                "numpy_multi_array_converter: Unable to deal with general storage order");
+                }
+            }
+            retval = PyArray_NewFromDescr(&PyArray_Type,
+                                          PyArray_DescrFromType(type_num),
+                                          c_array.num_dimensions(),
+                                          (npy_intp*) c_array.shape(),
+                                          0, (void *) c_array.origin(), flags, 0);
             return retval;
         }
 
@@ -184,9 +205,22 @@ template<typename ValueType, int Dimension>
                 throw std::runtime_error(
                         "numpy_const_multi_array_ref_converter: Unable to deal with type");
             }
-            retval = PyArray_SimpleNewFromData(c_array.num_dimensions(),
-                    (npy_intp*) c_array.shape(), type_num,
-                    (void *) c_array.origin());
+            int flags;
+            if (c_array.storage_order() == boost::c_storage_order()) {
+                flags = 0;
+            } else {
+                if (c_array.storage_order() == boost::fortran_storage_order()) {
+                    flags = NPY_ARRAY_F_CONTIGUOUS;
+                } else {
+                    throw std::runtime_error(
+                                "numpy_multi_array_converter: Unable to deal with general storage order");
+                }
+            }
+            retval = PyArray_NewFromDescr(&PyArray_Type,
+                                          PyArray_DescrFromType(type_num),
+                                          c_array.num_dimensions(),
+                                          (npy_intp*) c_array.shape(),
+                                          0, (void *) c_array.origin(), flags, 0);
             return retval;
         }
 

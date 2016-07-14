@@ -119,6 +119,63 @@ Hdf5_file::~Hdf5_file()
 }
 
 template<>
+    int *
+    Hdf5_file::read<int *>(std::string const& name)
+{
+    // dataset & dataspace
+    DataSet dataset = h5file_ptr->openDataSet(name.c_str());
+    DataSpace dataspace = dataset.getSpace();
+
+    // ranks
+    int rank = dataspace.getSimpleExtentNdims();
+    if (rank != 1) throw std::runtime_error("Hdf5_file::read<T *>: data to read has wrong rank");
+
+    // dims
+    std::vector<hsize_t > dims(rank);
+    dataspace.getSimpleExtentDims(&dims[0], NULL);
+
+    // memspace
+    DataSpace memspace(rank, &dims[0]);
+
+    // atomic type
+    H5::DataType atomic_type = hdf5_atomic_data_type<int>();
+    int * retval = new int[dims[0]];
+
+    // read
+    dataset.read(retval, atomic_type, memspace, dataspace);
+    return retval;
+}
+
+
+template<>
+    double *
+    Hdf5_file::read<double *>(std::string const& name)
+{
+    // dataset & dataspace
+    DataSet dataset = h5file_ptr->openDataSet(name.c_str());
+    DataSpace dataspace = dataset.getSpace();
+
+    // ranks
+    int rank = dataspace.getSimpleExtentNdims();
+    if (rank != 1) throw std::runtime_error("Hdf5_file::read<T *>: data to read has wrong rank");
+
+    // dims
+    std::vector<hsize_t > dims(rank);
+    dataspace.getSimpleExtentDims(&dims[0], NULL);
+
+    // memspace
+    DataSpace memspace(rank, &dims[0]);
+
+    // atomic type
+    H5::DataType atomic_type = hdf5_atomic_data_type<double>();
+    double * retval = new double[dims[0]];
+
+    // read
+    dataset.read(retval, atomic_type, memspace, dataspace);
+    return retval;
+}
+
+template<>
     MArray1d
     Hdf5_file::read<MArray1d >(std::string const& name)
     {
@@ -158,7 +215,13 @@ template<>
                     "Hdf5_file::read<MArray2d>: data to read has wrong rank");
         }
         dataspace.getSimpleExtentDims(&dims[0], NULL);
-        MArray2d retval(boost::extents[dims[0]][dims[1]]);
+        int storage_order = read<int>(name + "_storage_order");
+        MArray2d retval =
+                (storage_order == Hdf5_writer<MArray2d >::c_storage_order) ?
+                    MArray2d(boost::extents[dims[0]][dims[1]],
+                        boost::c_storage_order()) :
+                    MArray2d(boost::extents[dims[0]][dims[1]],
+                        boost::fortran_storage_order());
 
         DataSpace memspace(rank, &dims[0]);
         double * data_out = retval.origin();
@@ -182,13 +245,19 @@ template<>
                     "Hdf5_file::read<MArray3d>: data to read has wrong rank");
         }
         dataspace.getSimpleExtentDims(&dims[0], NULL);
-        MArray3d retval(boost::extents[dims[0]][dims[1]][dims[2]]);
+        int storage_order = read<int>(name + "_storage_order");
+        MArray3d retval =
+                (storage_order == Hdf5_writer<MArray3d >::c_storage_order) ?
+                    MArray3d(boost::extents[dims[0]][dims[1]][dims[2]],
+                        boost::c_storage_order()) :
+                    MArray3d(boost::extents[dims[0]][dims[1]][dims[2]],
+                        boost::fortran_storage_order());
 
         DataSpace memspace(rank, &dims[0]);
         double * data_out = retval.origin();
         dataset.read(data_out, atomic_type, memspace, dataspace);
         return retval;
-    }
+}
 
     template<>
         MArray1i

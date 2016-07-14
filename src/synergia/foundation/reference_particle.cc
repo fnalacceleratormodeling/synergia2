@@ -161,6 +161,12 @@ Reference_particle::get_charge() const
     return charge;
 }
 
+double
+Reference_particle::get_mass() const
+{
+    return four_momentum.get_mass();
+}
+
 Four_momentum const &
 Reference_particle::get_four_momentum() const
 {

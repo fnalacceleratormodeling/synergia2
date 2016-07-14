@@ -1,0 +1,2 @@
+add_executable(fodo fodo.cc benchmark_options.cc)
+target_link_libraries(fodo synergia_simulation synergia_collective synergia_command_line)

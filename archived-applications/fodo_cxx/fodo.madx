@@ -1,0 +1,19 @@
+
+beam, particle=proton,energy=1.5;
+
+focus = 7;
+sepn = 10;
+length = 2.0;
+strength = 1/(focus*length);
+
+qo: drift, l= sepn - length;
+qf: quadrupole, l=length, k1=strength;
+qd: quadrupole, l=length, k1=-strength;
+
+fodo: sequence, l=sepn*2, refer=entry;
+sf:  qf, at=0.0;
+so1: qo, at=length;
+sd:  qd, at=sepn;
+so2: qo, at=sepn+length;
+endsequence;
+

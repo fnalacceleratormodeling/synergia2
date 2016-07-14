@@ -77,6 +77,12 @@ BOOST_PYTHON_MODULE(parallel_utils)
 	    .def("get_commxx", &Commxx_divider::get_commxx_sptr)
 	    ;
 
+	void (Hdf5_file::*write_double_a)(double const &, std::string const &) = &Hdf5_file::write<double>;
+	void (Hdf5_file::*write_double_b)(double const *, size_t, std::string const &) = &Hdf5_file::write<double>;
+	void (Hdf5_file::*write_marray1d_ref)(MArray1d_ref const &, std::string const &) = &Hdf5_file::write<MArray1d_ref>;
+	void (Hdf5_file::*write_marray2d_ref)(MArray2d_ref const &, std::string const &) = &Hdf5_file::write<MArray2d_ref>;
+	void (Hdf5_file::*write_marray3d_ref)(MArray3d_ref const &, std::string const &) = &Hdf5_file::write<MArray3d_ref>;
+
     scope
         Hdf5_file_scope =
         class_<Hdf5_file, Hdf5_file_sptr >("Hdf5_file",
@@ -84,10 +90,11 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .def("open", &Hdf5_file::open)
             .def("close", &Hdf5_file::close)
             .def("flush", &Hdf5_file::flush)
-            .def("write", &Hdf5_file::write<double >)
-            .def("write", &Hdf5_file::write<MArray1d_ref >)
-            .def("write", &Hdf5_file::write<MArray2d_ref >)
-            .def("write", &Hdf5_file::write<MArray3d_ref >)
+            .def("write", write_double_a)
+            .def("write", write_double_b)
+            .def("write", write_marray1d_ref)
+            .def("write", write_marray2d_ref)
+            .def("write", write_marray3d_ref)
             .def("read_double", &Hdf5_file::read<double >)
             .def("read_int", &Hdf5_file::read<int >)
             .def("read_array1d", &Hdf5_file::read<MArray1d >)

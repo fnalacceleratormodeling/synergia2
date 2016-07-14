@@ -63,6 +63,9 @@ public:
         void
         write(T const& data, std::string const& name);
     template<typename T>
+        void
+        write(T const * data, size_t len, std::string const & name);
+    template<typename T>
         T
         read(std::string const& name);
     template<class Archive>

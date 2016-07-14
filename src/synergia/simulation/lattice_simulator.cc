@@ -5,9 +5,11 @@
 #include "synergia/foundation/math_constants.h"
 #include "synergia/utils/digits.h"
 #include "synergia/lattice/chef_utils.h"
+#include "synergia/libFF/ff_element_map.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -341,6 +343,10 @@ Lattice_simulator::construct_extractor_map()
             Operation_extractor_sptr(
                     new Chef_map_operation_extractor(chef_lattice_sptr,
                             map_order)));
+    extractor_map_sptr->set_extractor(libff_operation_extractor_name,
+                                      Operation_extractor_sptr(
+                                          new LibFF_operation_extractor(chef_lattice_sptr,
+                                                                        map_order)));
 }
 
 void
@@ -506,6 +512,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
 {
     construct_extractor_map();
     construct_aperture_extractor_map();
+    construct_big_giant_global_ff_element_map();
     set_bucket_length();
 }
 
@@ -2188,6 +2195,7 @@ template<class Archive>
             calculate_beamline_context();
         }
         normal_form_sage_sptr.reset();
+        construct_big_giant_global_ff_element_map();
     }
 
 template

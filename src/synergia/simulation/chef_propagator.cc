@@ -21,6 +21,7 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
             particle(
                     reference_particle_to_chef_particle(
                             bunch.get_reference_particle()));
+
     double length = 0.0;
     if (verbosity > 4) {
         logger << "Chef_propagator: begin_index = "
@@ -60,10 +61,22 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
+
+#if 1
+
+    #pragma omp parallel for
+    for (int part = 0; part < local_num; ++part) {
+
+    Particle particle(reference_particle_to_chef_particle(bunch.get_reference_particle()));
+
+#else
+
+    #pragma omp parallel for firstprivate(particle)
     for (int part = 0; part < local_num; ++part) {
         // propagation through an RF cavity cavity section changes the ReferenceEnergy of particle,
         // so I have to reset it each loop
         particle.SetReferenceEnergy(initial_reference_energy);
+#endif
         particle.set_x(particles[part][Bunch::x]);
         particle.set_npx(particles[part][Bunch::xp]);
         particle.set_y(particles[part][Bunch::y]);

@@ -1,0 +1,60 @@
+!TITLE, " -- SIS18 with a sextupole -- "
+
+   beam,pc=0.147009110539914,particle=proton;
+
+
+   !---------------------  DRIFT SPACES DEFINITION  ---------------------
+   DR1: DRIFT, TYPE=DRIF, L=0.6450000;
+   DR2: DRIFT, TYPE=DRIF, L=0.9700000;
+   DR3: DRIFT, TYPE=DRIF, L=6.8390117;
+   DR3A: DRIFT, TYPE=DRIF, L=0.793;
+   DR3B: DRIFT, TYPE=DRIF, L=3.0480117;
+   DR3C: DRIFT, TYPE=DRIF, L=0.795;
+   DR3D: DRIFT, TYPE=DRIF, L=3.0460117;
+   DR4: DRIFT, TYPE=DRIF, L=0.6000000;
+   DR5: DRIFT, TYPE=DRIF, L=0.7098000;
+   DR6: DRIFT, TYPE=DRIF, L=0.4998000;
+
+
+   raddeg := pi/180.0;
+   !--------------------------  BENDING MAGNET ---------------------------
+   ALPHA  = 15  * RADDEG;
+   LL     = 150 * RADDEG;
+   PFR    = 7.3 * RADDEG;
+   RB: SBEND,TYPE=B1,L= LL,ANGLE= ALPHA,E1= PFR,E2=PFR,HGAP= 0.035;
+
+
+
+   ! ------------------- horizontal quadrupole ----------------------------
+   QS1F:  QUADRUPOLE, TYPE= QD1, L= 1.0400000,  K1=  0.311872401;
+   QS2D:  QUADRUPOLE, TYPE= QD2, L= 1.0400000,  K1= -0.496504354;
+   QS3T:  QUADRUPOLE, TYPE= QD3, L= 0.4804000,  K1=  0.62221964;
+
+
+
+
+   ! ------------------- normal sextupole ---------------------------------
+!   S:     MULTIPOLE, K2L = 0.2;
+  ! sextupole component k2l
+  k2l := 0.0;
+  S:     MULTIPOLE, knl={0.0, 0.0, k2l}, ksl={0.0, 0.0, 0.0};
+
+
+
+   ! ------------------- cayity ---------------------------------
+!  MYCAV:     RFCAVITY, L=2.998,VOLT=3.38965e-07,freq=0.214126726985742,lag=0
+!  MYCAV:     RFCAVITY, L=2.998,VOLT=3.38965e-07,harmon=1,lag=0
+!  MYCAV:     RFCAVITY, L=2.998,VOLT=3.38965e-07,freq=0.214126726985742e6,lag=0
+! devel branch takes freq in MHz, but also handles harmon
+  !MYCAV:     RFCAVITY, L=2.998,VOLT=3.38965e-07,harmon=1,lag=0;
+   MYCAV:     DRIFT, TYPE=DRIF, L=2.998;
+
+
+
+   ! ---------------------------  LINE DEFINITION -------------------------
+   CELLCAV1:  LINE=(DR1,RB,DR2,RB,DR3A,MYCAV,DR3B,QS1F,DR4,QS2D,DR5,QS3T,DR6);
+   CELLCAV2:  LINE=(DR1,RB,DR2,RB,DR3C,MYCAV,DR3D,QS1F,DR4,QS2D,DR5,QS3T,DR6);
+   CELL:  LINE=(DR1,RB,DR2,RB,DR3,QS1F,DR4,QS2D,DR5,QS3T,DR6);
+
+
+   seq_machine: LINE=(CELLCAV1, S, 5*CELL, CELLCAV2, 5*CELL);

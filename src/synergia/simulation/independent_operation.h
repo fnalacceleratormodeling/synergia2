@@ -80,4 +80,25 @@ BOOST_CLASS_EXPORT_KEY(Chef_propagate_operation);
 typedef boost::shared_ptr<Chef_propagate_operation >
         Chef_propagate_operation_sptr; // syndoc:include
 
+const char libFF_type_name[] = "LibFF";
+class LibFF_operation : public Independent_operation
+{
+private:
+    Lattice_element_slices lattice_element_slices;
+public:
+    LibFF_operation(Lattice_element_slices const& lattice_element_slices);
+    /// Default constructor for serialization use only
+    LibFF_operation();
+    virtual void
+    apply(Bunch & bunch, int verbosity, Logger & logger);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version);
+    virtual
+    ~LibFF_operation();
+};
+BOOST_CLASS_EXPORT_KEY(LibFF_operation);
+typedef boost::shared_ptr<LibFF_operation >
+        LibFF_operation_sptr; // syndoc:include
+
 #endif /* INDEPENDENT_OPERATION_H_ */

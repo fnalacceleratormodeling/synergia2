@@ -11,6 +11,7 @@
 #include "synergia/bunch/fixed_t_z_converter.h"
 #include "boost/shared_ptr.hpp"
 #include "synergia/utils/hdf5_file.h"
+#include "synergia/utils/restrict_extension.h"
 
 /// Represents a macroparticle bunch distributed across the processors
 /// in a comm_sptrunicator.
@@ -45,7 +46,9 @@ private:
     bool z_periodic;
     Reference_particle reference_particle;
     int particle_charge;
-    MArray2d *local_particles;
+    double * storage;
+    double * alt_storage;
+    MArray2d_ref *local_particles, *alt_local_particles;
     int local_num, total_num;
     double real_num;
     int bucket_index;
@@ -184,6 +187,12 @@ public:
     Const_MArray2d_ref
     get_local_particles() const;
 
+    MArray2d_ref
+    get_alt_local_particles();
+
+    Const_MArray2d_ref
+    get_alt_local_particles() const;
+
     /// Get the particle charge in units of e.
     int
     get_particle_charge() const;
@@ -244,6 +253,13 @@ public:
     void
     check_pz2_positive();
     
+    void set_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
+                    double * RESTRICT &ya, double * RESTRICT &ypa,
+                    double * RESTRICT &cdta, double * RESTRICT &dpopa);
+
+    void set_alt_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
+                    double * RESTRICT &ya, double * RESTRICT &ypa,
+                    double * RESTRICT &cdta, double * RESTRICT &dpopa);
 
     template<class Archive>
         void

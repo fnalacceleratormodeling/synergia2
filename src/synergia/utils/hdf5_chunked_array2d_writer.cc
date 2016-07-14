@@ -69,7 +69,24 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
     DataSpace filespace = dataset.getSpace();
     filespace.selectHyperslab(H5S_SELECT_SET, &chunk_dims[0], &offset[0]);
     DataSpace dataspace(2, &chunk_dims[0], &max_dims[0]);
-    dataset.write(data.origin(), atomic_type, dataspace, filespace);
+
+    int nx = data.shape()[0];
+    int ny = data.shape()[1];
+    int x0 = data.index_bases()[0];
+    int y0 = data.index_bases()[1];
+
+    std::vector<double> temp(nx * ny);
+
+    for (int i = x0; i < x0 + nx; ++i)
+    {
+        for (int j = y0; j < y0 + ny; ++j)
+        {
+            temp[i*ny + j] = data[i][j];
+        }
+    }
+
+    dataset.write(&temp[0], atomic_type, dataspace, filespace);
+
     offset[0] += data.shape()[0];
 }
 
@@ -85,7 +102,24 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
     DataSpace filespace = dataset.getSpace();
     filespace.selectHyperslab(H5S_SELECT_SET, &chunk_dims[0], &offset[0]);
     DataSpace dataspace(2, &chunk_dims[0], &max_dims[0]);
-    dataset.write(data.origin(), atomic_type, dataspace, filespace);
+
+    int nx = data.shape()[0];
+    int ny = data.shape()[1];
+    int x0 = data.index_bases()[0];
+    int y0 = data.index_bases()[1];
+
+    std::vector<double> temp(nx * ny);
+
+    for (int i = x0; i < x0 + nx; ++i)
+    {
+        for (int j = y0; j < y0 + ny; ++j)
+        {
+            temp[i*ny + j] = data[i][j];
+        }
+    }
+
+    dataset.write(&temp[0], atomic_type, dataspace, filespace);
+
     offset[0] += data.shape()[0];
 }
 

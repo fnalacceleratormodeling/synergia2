@@ -49,6 +49,7 @@ install(FILES
     distributed_fft2d.h
     fast_int_floor.h
     floating_point.h
+    gsvector.h
     hdf5_chunked_array2d_writer.h
     hdf5_misc.h
     hdf5_file.h
@@ -57,6 +58,7 @@ install(FILES
     hdf5_serial_writer.tcc
     hdf5_writer.h
     hdf5_writer.tcc
+    invsqrt.h
     complex_error_function.h
     multi_array_assert.h
     multi_array_check_equal.h
@@ -68,6 +70,7 @@ install(FILES
     numpy_multi_array_converter.h
     numpy_multi_ref_converter.h
     parallel_utils.h
+    restrict_extension.h
     simple_timer.h
     serialization.h
     serialization_files.h
@@ -84,4 +87,6 @@ if (BUILD_PYTHON_BINDINGS)
         DESTINATION lib/synergia/utils)
 endif ()
 
+add_subdirectory(vectorclass)
 add_subdirectory(tests)
+

@@ -31,6 +31,13 @@ FIND_PACKAGE(MPI REQUIRED)
 INCLUDE(CMakeForceCompiler)
 CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
 
+# OpenMP
+FIND_PACKAGE(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif ()
+
 # python
 if (BUILD_PYTHON_BINDINGS)
     find_package(ConsistentPython)
@@ -42,7 +49,7 @@ SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
 SET(Boost_NO_BOOST_CMAKE ON)
 FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework serialization
-    filesystem system REQUIRED)
+    filesystem system iostreams REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
@@ -78,7 +85,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 find_package(FFTW3 REQUIRED)
 if(FFTW3_MPI_FOUND)
     include_directories(${FFTW3_INCLUDE_DIR})
-    set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})
+    set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
     if(NOT PARALLEL_FFTW_FOUND)
         message("-- Using FFTW3 for parallel FFTs")
         set(PARALLEL_FFTW_FOUND TRUE CACHE BOOL "found parallel fftw" FORCE)
@@ -120,6 +127,14 @@ if(CLANG_FIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif(CLANG_FIX)
 
+if(VECTOR_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VECTOR_FLAGS}")
+else(VECTOR_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGSV_SSE")
+endif(VECTOR_FLAGS)
+
+set(USE_SIMPLE_TIMER false)
+
 if(USE_SIMPLE_TIMER)
     message("-- Simple timer profiling enabled")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER")
@@ -147,6 +162,7 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
     "${SYNERGIA2_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
 
+include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/vectorclass)
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 
 # Are we building shared or static (shared is the default)?
