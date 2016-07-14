@@ -7,9 +7,6 @@ cmake_minimum_required(VERSION 2.8)
 enable_testing()
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
-# openmp
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-
 # needed to avoid warnings about rpath policy on Mac OSX
 # no known difference between "OLD" and "NEW" policies for us
 if(POLICY CMP0042)
