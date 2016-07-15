@@ -215,7 +215,10 @@ template<>
                     "Hdf5_file::read<MArray2d>: data to read has wrong rank");
         }
         dataspace.getSimpleExtentDims(&dims[0], NULL);
-        int storage_order = read<int>(name + "_storage_order");
+
+        int storage_order = Hdf5_writer<MArray2d>::c_storage_order;
+        try { storage_order = read<int>(name + "_storage_order"); } catch (FileIException e) { }
+
         MArray2d retval =
                 (storage_order == Hdf5_writer<MArray2d >::c_storage_order) ?
                     MArray2d(boost::extents[dims[0]][dims[1]],
@@ -245,7 +248,10 @@ template<>
                     "Hdf5_file::read<MArray3d>: data to read has wrong rank");
         }
         dataspace.getSimpleExtentDims(&dims[0], NULL);
-        int storage_order = read<int>(name + "_storage_order");
+
+        int storage_order = Hdf5_writer<MArray3d>::c_storage_order;
+        try { storage_order = read<int>(name + "_storage_order"); } catch (FileIException e) { } 
+
         MArray3d retval =
                 (storage_order == Hdf5_writer<MArray3d >::c_storage_order) ?
                     MArray3d(boost::extents[dims[0]][dims[1]][dims[2]],
