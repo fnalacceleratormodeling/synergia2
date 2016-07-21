@@ -97,41 +97,45 @@ BOOST_PYTHON_MODULE(collective)
         ;
 
     {
-        scope Space_charge_2d_bassetti_erskine_scope =
-        class_<Space_charge_2d_bassetti_erskine, Space_charge_2d_bassetti_erskine_sptr,
-        bases<Collective_operator > >("Space_charge_2d_bassetti_erskine",
-                init<>())
-        .def("apply", &Space_charge_2d_bassetti_erskine::apply)
-        .def("set_longitudinal", &Space_charge_2d_bassetti_erskine::set_longitudinal)
-        ;
-        scope().attr("longitudinal_uniform") = Space_charge_2d_bassetti_erskine::longitudinal_uniform;
-        scope().attr("longitudinal_gaussian") = Space_charge_2d_bassetti_erskine::longitudinal_gaussian;
+      scope Space_charge_2d_bassetti_erskine_scope =
+          class_<Space_charge_2d_bassetti_erskine,
+                 Space_charge_2d_bassetti_erskine_sptr,
+                 bases<Collective_operator>>("Space_charge_2d_bassetti_erskine",
+                                             init<>())
+              .def("apply", &Space_charge_2d_bassetti_erskine::apply)
+              .def("set_longitudinal",
+                   &Space_charge_2d_bassetti_erskine::set_longitudinal);
+      scope().attr("longitudinal_uniform") =
+          Space_charge_2d_bassetti_erskine::longitudinal_uniform;
+      scope().attr("longitudinal_gaussian") =
+          Space_charge_2d_bassetti_erskine::longitudinal_gaussian;
     }
 
     {
-        scope Space_charge_2d_kv_scope =
-        class_<Space_charge_2d_kv, Space_charge_2d_kv_sptr,
-        bases<Collective_operator > >("Space_charge_2d_kv",
-                init<>())
-        .def("apply", &Space_charge_2d_kv::apply)
-        .def("set_longitudinal", &Space_charge_2d_kv::set_longitudinal)
-        ;
-        scope().attr("longitudinal_uniform") = Space_charge_2d_kv::longitudinal_uniform;
-        scope().attr("longitudinal_gaussian") = Space_charge_2d_kv::longitudinal_gaussian;
+      scope Space_charge_2d_kv_scope =
+          class_<Space_charge_2d_kv, Space_charge_2d_kv_sptr,
+                 bases<Collective_operator>>("Space_charge_2d_kv", init<>())
+              .def("apply", &Space_charge_2d_kv::apply)
+              .def("set_longitudinal", &Space_charge_2d_kv::set_longitudinal);
+      scope().attr("longitudinal_uniform") =
+          Space_charge_2d_kv::longitudinal_uniform;
+      scope().attr("longitudinal_gaussian") =
+          Space_charge_2d_kv::longitudinal_gaussian;
     }
 
-   class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
-        bases<Collective_operator > >("Space_charge_rectangular",
-              init<Commxx_sptr, std::vector<double >, std::vector<int > , bool >())
-           //   .def(init<Commxx_sptr, std::vector<double >, std::vector<int >, bool >())
-              .def(init<std::vector<double >, std::vector<int > >())
-              //.def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper,
-		//                  set_fftw_helper_member_overloads12())
-	      .def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper)                  
-              .def("get_pipe_size", &Space_charge_rectangular::get_pipe_size)
-              .def("get_grid_shape", &Space_charge_rectangular::get_grid_shape)
-              .def("apply", &Space_charge_rectangular::apply)
-        ;
+    class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
+           bases<Collective_operator>>(
+        "Space_charge_rectangular",
+        init<Commxx_sptr, std::vector<double>, std::vector<int>, bool>())
+        //   .def(init<Commxx_sptr, std::vector<double >, std::vector<int >,
+        //   bool >())
+        .def(init<std::vector<double>, std::vector<int>>())
+        //.def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper,
+        //                  set_fftw_helper_member_overloads12())
+        .def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper)
+        .def("get_pipe_size", &Space_charge_rectangular::get_pipe_size)
+        .def("get_grid_shape", &Space_charge_rectangular::get_grid_shape)
+        .def("apply", &Space_charge_rectangular::apply);
 
     class_<Wake_field,Wake_field_sptr>("Wake_field",
 	        init<std::string const & , std::string const &  >())
