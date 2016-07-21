@@ -23,7 +23,7 @@ public:
     clone();
     // sets the sigmas that will be used for the space charge calculation
     // returns whether the beam is considered round.
-    bool
+    void
     set_sigma(double sigma_x, double sigma_y, double sigma_cdt);
     // returns the "normalized" electric field in the rest frame of the bunch,
     // in inverse meters.  To get the field [V/m], this must be multiplied

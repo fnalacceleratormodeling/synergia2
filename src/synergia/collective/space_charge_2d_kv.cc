@@ -17,7 +17,7 @@ const std::complex<double > complex_i(0.0, 1.0);
 
 Space_charge_2d_kv::Space_charge_2d_kv() :
         Collective_operator("space charge")
-        , sigma_x(0.0), sigma_y(0.0), sigma_cdt(0.0),
+        , sigma_x(0.0), sigma_y(0.0), sigma_cdt(0.0)
         , longitudinal_distribution(longitudinal_uniform)
 {
 }
@@ -75,10 +75,13 @@ void
 Space_charge_2d_kv::unit_efield(double arg_x, double arg_y,
         double & E_x, double & E_y)
 {
-    double a = std::sqrt(12.0) * sigma_x;
-    double b = std::sqrt(12.0) * sigma_y;
+    // std of uniform distribution of length L = L/sqrt(12).
+    // sqrt(12)*std is the full width which is twice the radius for
+    // the KV distribution.
+    double a = std::sqrt(3.0) * sigma_x;
+    double b = std::sqrt(3.0) * sigma_y;
 
-    bool inside = (x/a)*(x/a) + (y/b)*(y/b) < 1.0;
+    bool inside = (arg_x/a)*(arg_x/a) + (arg_y/b)*(arg_y/b) < 1.0;
     bool xneg = arg_x<0.0;
     bool yneg = arg_y<0.0;
     if (inside) {
@@ -142,7 +145,7 @@ Space_charge_2d_kv::apply(Bunch & bunch, double delta_t,
                                          / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
         }
         double E_x, E_y;
-        normalized_efield(x, y, E_x, E_y);
+        unit_efield(x, y, E_x, E_y);
         bunch.get_local_particles()[part][Bunch::xp] += E_x * factor * line_charge_density;
         bunch.get_local_particles()[part][Bunch::yp] += E_y * factor * line_charge_density;
     }
