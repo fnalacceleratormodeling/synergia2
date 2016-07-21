@@ -2,8 +2,8 @@
 #include "synergia/utils/hdf5_writer.h"
 #include "synergia/utils/hdf5_chunked_array2d_writer.h"
 #include <cmath>
-#include "eigen/Core"
-#include "eigen/LU"
+#include "Eigen/Core"
+#include "Eigen/LU"
 #include <stdexcept>
 #include "synergia/utils/simple_timer.h"
 

@@ -1,7 +1,7 @@
 #include "diagnostics_full2.h"
 #include <cmath>
-#include "eigen/Core"
-#include "eigen/LU"
+#include "Eigen/Core"
+#include "Eigen/LU"
 #include <stdexcept>
 #include "synergia/utils/simple_timer.h"
 
