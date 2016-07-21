@@ -10,6 +10,8 @@
 #include <cstring>
 #include <unistd.h>
 
+#pragma clang diagnostic ignored "-Wc++11-extensions"
+
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
