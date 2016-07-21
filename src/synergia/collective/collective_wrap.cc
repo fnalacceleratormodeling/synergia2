@@ -100,7 +100,7 @@ BOOST_PYTHON_MODULE(collective)
       scope Space_charge_2d_bassetti_erskine_scope =
           class_<Space_charge_2d_bassetti_erskine,
                  Space_charge_2d_bassetti_erskine_sptr,
-                 bases<Collective_operator>>("Space_charge_2d_bassetti_erskine",
+                 bases<Collective_operator> >("Space_charge_2d_bassetti_erskine",
                                              init<>())
               .def("apply", &Space_charge_2d_bassetti_erskine::apply)
               .def("set_longitudinal",
@@ -114,7 +114,7 @@ BOOST_PYTHON_MODULE(collective)
     {
       scope Space_charge_2d_kv_scope =
           class_<Space_charge_2d_kv, Space_charge_2d_kv_sptr,
-                 bases<Collective_operator>>("Space_charge_2d_kv", init<>())
+                 bases<Collective_operator> >("Space_charge_2d_kv", init<>())
               .def("apply", &Space_charge_2d_kv::apply)
               .def("set_longitudinal", &Space_charge_2d_kv::set_longitudinal);
       scope().attr("longitudinal_uniform") =
@@ -124,12 +124,12 @@ BOOST_PYTHON_MODULE(collective)
     }
 
     class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
-           bases<Collective_operator>>(
+           bases<Collective_operator> >(
         "Space_charge_rectangular",
         init<Commxx_sptr, std::vector<double>, std::vector<int>, bool>())
         //   .def(init<Commxx_sptr, std::vector<double >, std::vector<int >,
         //   bool >())
-        .def(init<std::vector<double>, std::vector<int>>())
+        .def(init<std::vector<double>, std::vector<int> >())
         //.def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper,
         //                  set_fftw_helper_member_overloads12())
         .def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper)
