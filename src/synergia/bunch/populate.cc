@@ -3,8 +3,8 @@
 #include "populate.h"
 #include "diagnostics.h"
 
-#include "eigen3/Eigen/Eigen"
-#include "eigen3/Eigen/Cholesky"
+#include "eigen/Eigen"
+#include "eigen/Cholesky"
 
 using namespace Eigen;
 
