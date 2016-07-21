@@ -3,6 +3,7 @@
 #include "space_charge_2d_open_hockney.h"
 #include "interpolate_rectangular_zyx.h"
 #include "space_charge_2d_bassetti_erskine.h"
+#include "space_charge_2d_kv.h"
 #include "space_charge_rectangular.h"
 #include "impedance.h"
 #include "wake_field.h"
@@ -104,6 +105,16 @@ BOOST_PYTHON_MODULE(collective)
         ;
     scope().attr("longitudinal_uniform") = Space_charge_2d_bassetti_erskine::longitudinal_uniform;
     scope().attr("longitudinal_gaussian") = Space_charge_2d_bassetti_erskine::longitudinal_gaussian;
+
+    scope Space_charge_2d_kv_scope =
+        class_<Space_charge_2d_kv, Space_charge_2d_kv_sptr,
+        bases<Collective_operator > >("Space_charge_2d_kv",
+                init<>())
+        .def("apply", &Space_charge_2d_kv::apply)
+        .def("set_longitudinal", &Space_charge_2d_kv::set_longitudinal)
+        ;
+    scope().attr("longitudinal_uniform") = Space_charge_2d_kv::longitudinal_uniform;
+    scope().attr("longitudinal_gaussian") = Space_charge_2d_kv::longitudinal_gaussian;
 
    class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
         bases<Collective_operator > >("Space_charge_rectangular",
