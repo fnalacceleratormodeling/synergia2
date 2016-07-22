@@ -122,7 +122,7 @@ Space_charge_2d_kv::apply(Bunch & bunch, double delta_t,
     double beta = bunch.get_reference_particle().get_beta();
     double gamma = bunch.get_reference_particle().get_gamma();
 
-    double factor = pconstants::rp * delta_t /
+    double factor = pconstants::rp * pconstants::c * delta_t /
             (gamma*gamma*gamma*beta);
     // set longitudinal density depending on the longitudinal flag
     double total_q = bunch.get_real_num()*bunch.get_particle_charge();
@@ -142,7 +142,7 @@ Space_charge_2d_kv::apply(Bunch & bunch, double delta_t,
         if (longitudinal_distribution == longitudinal_gaussian) {
             line_charge_density = total_q
                                          * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
-                                         / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
+                                         / (sqrt(2.0 * mconstants::pi) * sigma_cdt * beta);
         }
         double E_x, E_y;
         unit_efield(x, y, E_x, E_y);
