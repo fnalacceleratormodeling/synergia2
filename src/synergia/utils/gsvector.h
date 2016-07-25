@@ -4,10 +4,12 @@
 #include "boost/multi_array.hpp"
 typedef boost::multi_array_ref<double, 2> MArray2d_ref;
 
+#if 0
 #undef GSV_SSE
 #undef GSV_AVX
 #undef GSV_V4D
 #undef GSV_MIC
+#endif
 
 #if defined(GSV_SSE)
 
