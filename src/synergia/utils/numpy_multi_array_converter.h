@@ -55,14 +55,61 @@ template<typename ValueType, int Dimension>
                 throw std::runtime_error(
                         "numpy_multi_array_converter: Unable to deal with type");
             }
+            bool c_order = true;
+            if (c_array.storage_order() == boost::c_storage_order()) {
+                c_order = true;
+            } else {
+                if (c_array.storage_order() == boost::fortran_storage_order()) {
+                    c_order = false;
+                } else {
+                    throw std::runtime_error(
+                                "numpy_multi_array_converter: Unable to deal with general storage order");
+                }
+            }
+            int ndim = c_array.num_dimensions();
+            if (ndim > 3) {
+                throw std::runtime_error(
+                        "numpy_multi_array_converter: Unable to deal with arrays of the dimension higher than 3");
+            }
             retval = PyArray_SimpleNew(c_array.num_dimensions(),
                     (npy_intp*) c_array.shape(), type_num);
             ValueType * p = (ValueType *) PyArray_DATA((PyArrayObject *)retval);
-            for (const ValueType * it = c_array.data();
-                    it != (c_array.data() + c_array.num_elements()); ++it) {
-                *p = *it;
-                ++p;
+            if (c_order || ndim == 1) {
+                for (const ValueType * it = c_array.data();
+                        it != (c_array.data() + c_array.num_elements()); ++it) {
+                    *p = *it;
+                    ++p;
+                }
+            } else {
+                const ValueType * c = c_array.data();
+
+                if (ndim == 2) {
+
+                    int ni = c_array.shape()[0];
+                    int nj = c_array.shape()[1];
+
+                    for (int i=0; i<ni; ++i) {
+                        for (int j=0; j<nj; ++j) {
+                            p[i*nj+j] = c[j*ni+i];
+                        }
+                    }
+                } else {
+
+                    int ni = c_array.shape()[0];
+                    int nj = c_array.shape()[1];
+                    int nk = c_array.shape()[2];
+
+                    for (int i=0; i<ni; ++i) {
+                        for (int j=0; j<nj; ++j) {
+                            for (int k=0; k<nk; ++k) {
+                                p[i*nj*nk + j*nk +k] = c[k*ni*nj + j*ni +i];
+                            }
+                        }
+                    }
+
+                }
             }
+
             return retval;
         }
 
