@@ -88,7 +88,6 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
         cdt.store(&cdta[part]);
     }
 
-    #pragma omp parallel for
     for (int part = block_last; part < local_num; ++part) 
     {
         double x(xa[part]);

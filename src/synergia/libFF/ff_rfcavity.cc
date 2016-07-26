@@ -78,6 +78,7 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     double reference_cdt = get_reference_cdt(length, bunch.get_reference_particle());
 
+    #pragma omp parallel for
     for (int part = 0; part < local_num; ++part) 
     {
         double x   (particles[part][Bunch::x   ]);

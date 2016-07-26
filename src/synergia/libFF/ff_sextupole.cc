@@ -98,8 +98,11 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
      int local_num = bunch.get_local_num();
      MArray2d_ref particles = bunch.get_local_particles();
 
-     if (length == 0.0) {
-         for (int part = 0; part < local_num; ++part) {
+     if (length == 0.0) 
+     {
+         #pragma omp parallel for
+         for (int part = 0; part < local_num; ++part) 
+         {
              double x(particles[part][Bunch::x]);
              double xp(particles[part][Bunch::xp]);
              double y(particles[part][Bunch::y]);
@@ -110,7 +113,9 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              particles[part][Bunch::xp] = xp;
              particles[part][Bunch::yp] = yp;
         }
-     } else {
+     } 
+     else 
+     {
          double reference_momentum = bunch.get_reference_particle().get_momentum();
          double m = bunch.get_mass();
          double reference_cdt = get_reference_cdt(length, k,
@@ -119,7 +124,9 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double step_length = length/steps;
          double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-         for (int part = 0; part < local_num; ++part) {
+         #pragma omp parallel for
+         for (int part = 0; part < local_num; ++part) 
+         {
              double x(particles[part][Bunch::x]);
              double xp(particles[part][Bunch::xp]);
              double y(particles[part][Bunch::y]);

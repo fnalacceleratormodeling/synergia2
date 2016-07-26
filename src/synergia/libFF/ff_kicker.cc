@@ -139,7 +139,6 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             yp.store(&ypa[part]);
         }
 
-        #pragma omp parallel for
         for (int part = block_last; part < local_num; ++part) 
         {
             double xp(xpa[part]);
@@ -198,7 +197,6 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             dpop.store(&dpopa[part]);
         }
 
-        #pragma omp parallel for
         for (int part = block_last; part < local_num; ++part) 
         {
             double x(xa[part]);

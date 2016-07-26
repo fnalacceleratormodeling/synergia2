@@ -236,6 +236,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                                 kl[2] * step_length, kl[3] * step_length,
                                 kl[2] * step_length, kl[3] * step_length };
 
+    #pragma omp parallel for
     for (int part = 0; part < local_num; ++part) 
     {
         double x   (particles[part][Bunch::x   ]);

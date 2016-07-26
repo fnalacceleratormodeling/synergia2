@@ -104,6 +104,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
      if (length == 0.0) 
      {
+         #pragma omp parallel for
          for (int part = 0; part < local_num; ++part) 
          {
              double x(particles[part][Bunch::x]);
@@ -127,6 +128,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double step_length = length/steps;
          double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
+         #pragma omp parallel for
          for (int part = 0; part < local_num; ++part) 
          {
              double x(particles[part][Bunch::x]);

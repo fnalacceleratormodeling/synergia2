@@ -1,5 +1,6 @@
 #include "ff_rbend.h"
 #include "synergia/lattice/chef_utils.h"
+#include "synergia/utils/gsvector.h"
 
 FF_rbend::FF_rbend()
 {
@@ -169,8 +170,57 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double reference_cdt = get_reference_cdt(length, strength, angle, phase, term, 
                 bunch.get_reference_particle());
 
+        double * RESTRICT xa, * RESTRICT xpa;
+        double * RESTRICT ya, * RESTRICT ypa;
+        double * RESTRICT cdta, * RESTRICT dpopa;
+
+        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+
+        const int num_blocks = local_num / GSVector::size;
+        const int block_last = num_blocks * GSVector::size;
+
+#if 0
         // use the exact solution for dipole
+        for (int part = 0; part < block_last; part += GSVector::size)
+        {
+            GSVector x   (particles[part][Bunch::x   ]);
+            GSVector xp  (particles[part][Bunch::xp  ]);
+            GSVector y   (particles[part][Bunch::y   ]);
+            GSVector yp  (particles[part][Bunch::yp  ]);
+            GSVector cdt (particles[part][Bunch::cdt ]);
+            GSVector dpop(particles[part][Bunch::dpop]);
+
+            // upstream slot
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+
+            // upstream edge
+            FF_algorithm::edge_unit(y, yp, edge_k);
+
+            // bend
+            // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
+            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
+                    dphi, strength, pref, m, reference_cdt, 
+                    phase, term);
+
+            // downstream edge
+            FF_algorithm::edge_unit(y, yp, edge_k);
+
+            // downstream slot
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+
+            particles[part][Bunch::x]   = x;
+            particles[part][Bunch::xp]  = xp;
+            particles[part][Bunch::y]   = y;
+            particles[part][Bunch::yp]  = yp;
+            particles[part][Bunch::cdt] = cdt;
+ 
+        }
+
+        for (int part = block_last; part < local_num; ++part) 
+#else
+        #pragma omp parallel for
         for (int part = 0; part < local_num; ++part) 
+#endif
         {
             double x   (particles[part][Bunch::x   ]);
             double xp  (particles[part][Bunch::xp  ]);
@@ -215,6 +265,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double step_reference_cdt = reference_cdt/steps;
 
         // with combined high order function, use yoshida approximation
+        #pragma omp parallel for
         for (int part = 0; part < local_num; ++part) 
         {
             double x   (particles[part][Bunch::x   ]);
