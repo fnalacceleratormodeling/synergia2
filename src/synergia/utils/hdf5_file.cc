@@ -1,6 +1,7 @@
 #include "hdf5_file.h"
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/hdf5_misc.h"
+#include <boost/align/aligned_alloc.hpp>
 
 Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag) :
     file_name(file_name), h5file_ptr(0), is_open(false)
@@ -168,7 +169,7 @@ template<>
 
     // atomic type
     H5::DataType atomic_type = hdf5_atomic_data_type<double>();
-    double * retval = new double[dims[0]];
+    double * retval = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), dims[0] * sizeof(double));
 
     // read
     dataset.read(retval, atomic_type, memspace, dataspace);
