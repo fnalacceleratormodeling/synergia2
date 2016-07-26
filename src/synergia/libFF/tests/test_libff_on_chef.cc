@@ -40,7 +40,6 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture); // needed to initialize MPI
 
 const double tolerance = 1.0e-8;
 
-
 void element_check(MArray2d_ref pff, MArray2d_ref pcf, double tolerance)
 {
     BOOST_CHECK_CLOSE(pff[0][0], pcf[0][0], tolerance);
@@ -148,7 +147,6 @@ ELEMENT_FIXTURE(kicker);
 
 ELEMENT_FIXTURE_STEPS(kicker2, 2);
 
-#if 1
 BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -176,13 +174,12 @@ BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
 }
 
-#if 1
 BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -212,13 +209,12 @@ BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
-#endif
 
 BOOST_FIXTURE_TEST_CASE( test_sbend, sbend_fixture )
 {
@@ -249,14 +245,13 @@ BOOST_FIXTURE_TEST_CASE( test_sbend, sbend_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
-#if 1
 BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -284,13 +279,12 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
-#endif
 
 BOOST_FIXTURE_TEST_CASE( test_quadrupole_with_tilt, quadrupole2_fixture )
 {
@@ -319,7 +313,7 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole_with_tilt, quadrupole2_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
@@ -354,7 +348,7 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
@@ -388,7 +382,7 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole_with_tilt, sextupole2_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
@@ -422,7 +416,7 @@ BOOST_FIXTURE_TEST_CASE( test_rfc, rfc_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
@@ -456,7 +450,7 @@ BOOST_FIXTURE_TEST_CASE( test_mp1, mp1_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
@@ -490,7 +484,7 @@ BOOST_FIXTURE_TEST_CASE( test_mp2, mp2_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
@@ -524,7 +518,7 @@ BOOST_FIXTURE_TEST_CASE( test_mp3, mp3_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     element_check(pff, pcf, tolerance);
@@ -558,154 +552,14 @@ BOOST_FIXTURE_TEST_CASE( test_mp4, mp4_fixture )
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
     //element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
-BOOST_FIXTURE_TEST_CASE( test_hkicker, hkicker_fixture )
-{
-    MArray2d_ref pcf = p_chef();
-    MArray2d_ref pff = p_ff();
 
-    pcf[0][0] = 0.1;
-    pcf[0][1] = 0.1;
-    pcf[0][2] = 0.1;
-    pcf[0][3] = 0.1;
-    pcf[0][4] = 0.1;
-    pcf[0][5] = 0.1;
-
-    pff[0][0] = 0.1;
-    pff[0][1] = 0.1;
-    pff[0][2] = 0.1;
-    pff[0][3] = 0.1;
-    pff[0][4] = 0.1;
-    pff[0][5] = 0.1;
-
-    std::cout << std::setprecision(16);
-    std::cout << "\nhkicker\n";
-
-    propagate_chef();
-    propagate_ff();
-
-    for(int i=0; i<6; ++i)
-    {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
-    }
-
-    element_check(pff, pcf, tolerance);
-    BOOST_CHECK(true);
-}
-
-
-BOOST_FIXTURE_TEST_CASE( test_vkicker, vkicker_fixture )
-{
-    MArray2d_ref pcf = p_chef();
-    MArray2d_ref pff = p_ff();
-
-    pcf[0][0] = 0.1;
-    pcf[0][1] = 0.1;
-    pcf[0][2] = 0.1;
-    pcf[0][3] = 0.1;
-    pcf[0][4] = 0.1;
-    pcf[0][5] = 0.1;
-
-    pff[0][0] = 0.1;
-    pff[0][1] = 0.1;
-    pff[0][2] = 0.1;
-    pff[0][3] = 0.1;
-    pff[0][4] = 0.1;
-    pff[0][5] = 0.1;
-
-    std::cout << std::setprecision(16);
-    std::cout << "\nvkicker\n";
-
-    propagate_chef();
-    propagate_ff();
-
-    for(int i=0; i<6; ++i)
-    {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
-    }
-
-    element_check(pff, pcf, tolerance);
-    BOOST_CHECK(true);
-}
-
-BOOST_FIXTURE_TEST_CASE( test_kicker, kicker_fixture )
-{
-    MArray2d_ref pcf = p_chef();
-    MArray2d_ref pff = p_ff();
-
-    pcf[0][0] = 0.1;
-    pcf[0][1] = 0.1;
-    pcf[0][2] = 0.1;
-    pcf[0][3] = 0.1;
-    pcf[0][4] = 0.1;
-    pcf[0][5] = 0.1;
-
-    pff[0][0] = 0.1;
-    pff[0][1] = 0.1;
-    pff[0][2] = 0.1;
-    pff[0][3] = 0.1;
-    pff[0][4] = 0.1;
-    pff[0][5] = 0.1;
-
-    std::cout << std::setprecision(16);
-    std::cout << "\nkicker\n";
-
-    propagate_chef();
-    propagate_ff();
-
-    for(int i=0; i<6; ++i)
-    {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
-    }
-
-    element_check(pff, pcf, tolerance);
-    BOOST_CHECK(true);
-}
-
-
-BOOST_FIXTURE_TEST_CASE( test_kicker_steps, kicker2_fixture )
-{
-    MArray2d_ref pcf = p_chef();
-    MArray2d_ref pff = p_ff();
-
-    pcf[0][0] = 0.1;
-    pcf[0][1] = 0.1;
-    pcf[0][2] = 0.1;
-    pcf[0][3] = 0.1;
-    pcf[0][4] = 0.1;
-    pcf[0][5] = 0.1;
-
-    pff[0][0] = 0.1;
-    pff[0][1] = 0.1;
-    pff[0][2] = 0.1;
-    pff[0][3] = 0.1;
-    pff[0][4] = 0.1;
-    pff[0][5] = 0.1;
-
-    std::cout << std::setprecision(16);
-    std::cout << "\nkicker with multiple steps\n";
-
-    propagate_chef();
-    propagate_ff();
-
-    for(int i=0; i<6; ++i)
-    {
-        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
-    }
-
-    element_check(pff, pcf, tolerance);
-    BOOST_CHECK(true);
-}
-
-
-
-#endif
 
 #if 0
 

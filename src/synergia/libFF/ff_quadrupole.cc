@@ -127,7 +127,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         }
 
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = block_last; part < local_num; ++part) 
         {
             double  x( xa[part]);
             double xp(xpa[part]);

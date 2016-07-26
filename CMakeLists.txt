@@ -127,14 +127,15 @@ if(CLANG_FIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif(CLANG_FIX)
 
-if(VECTOR_FLAGS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VECTOR_FLAGS}")
-else(VECTOR_FLAGS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGSV_SSE")
-endif(VECTOR_FLAGS)
+# GSV vector flags
+if (NOT VECTOR_FLAGS)
+    set(VECTOR_FLAGS "SSE")
+endif()
 
-set(USE_SIMPLE_TIMER false)
+message("-- VECTOR_FLAGS to ${VECTOR_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGSV_${VECTOR_FLAGS}")
 
+# simple timer
 if(USE_SIMPLE_TIMER)
     message("-- Simple timer profiling enabled")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER")
