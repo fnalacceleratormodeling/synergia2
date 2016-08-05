@@ -107,8 +107,8 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
         converted_beamline_sptr = beamline_sptr;
     } else {
         converted_beamline_sptr = drift_converter.convert(*beamline_sptr);
-        register_beamline(converted_beamline_sptr);
     }
+    register_beamline(converted_beamline_sptr);
     return converted_beamline_sptr;
 }
 
