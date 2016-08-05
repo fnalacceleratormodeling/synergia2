@@ -17,7 +17,7 @@
 #endif
 #include <beamline/beamline_elements.h>
 #include <beamline/YoshidaPropagator.h>
-#include <beamline/CF_sbend_MADPropagator.h>
+#include <beamline/sector.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
 #endif
@@ -267,10 +267,6 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
             elm->setSextupole(multipoleStrength);
-        }
-        if(lattice_element.get_string_attribute("propagator_type") == mad_propagator) {
-            CF_sbend::PropagatorPtr mad_propagator(new CF_sbend_MADPropagator);
-            elm->usePropagator(mad_propagator);
         } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
             // nothing to be done
         } else {
@@ -2181,3 +2177,62 @@ Nonlinearlens_madx_adaptor::~Nonlinearlens_madx_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Nonlinearlens_madx_adaptor)
+
+Constfoc_madx_adaptor::Constfoc_madx_adaptor()
+{
+}
+
+Chef_elements
+Constfoc_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    double length = lattice_element.get_length();
+    std::vector<double> betaX(2, lattice_element.get_double_attribute("betaH"));
+    std::vector<double> psiH(2, 0.0);
+    psiH[1] = length/betaX[0];
+    std::vector<double> betaY(2, lattice_element.get_double_attribute("betaV"));
+    std::vector<double> psiV(2, 0.0);
+    psiV[1] = length/betaY[0];
+    std::vector<double> alphaXY(2, 0.0);
+    double betaL = lattice_element.get_double_attribute("betaL");
+    double psiL = 2.0*mconstants::pi*lattice_element.get_double_attribute("nuL");
+
+    ElmPtr elm(
+            new sector(lattice_element.get_name().c_str(),
+                betaX, alphaXY, psiH, betaY, alphaXY, psiV, betaL, psiL, length));
+    retval.push_back(elm);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Constfoc_madx_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Constfoc_madx_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Constfoc_madx_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Constfoc_madx_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Constfoc_madx_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Constfoc_madx_adaptor::~Constfoc_madx_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Constfoc_madx_adaptor)

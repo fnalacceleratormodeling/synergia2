@@ -108,6 +108,10 @@ MadX_adaptor_map::MadX_adaptor_map() :
     boost::shared_ptr<Nonlinearlens_madx_adaptor > nonlinearlens_madx_adaptor(
             new Nonlinearlens_madx_adaptor);
     set_adaptor("nllens", nonlinearlens_madx_adaptor);
+
+    boost::shared_ptr<Constfoc_madx_adaptor > constfoc_madx_adaptor(
+            new Constfoc_madx_adaptor);
+    set_adaptor("constfoc", constfoc_madx_adaptor);
 }
 
 template<class Archive>
