@@ -514,7 +514,7 @@ void mx_command::execute(MadX & mx)
     transform( refer .begin(), refer .end(), refer .begin(), ::tolower );
     transform( refpos.begin(), refpos.end(), refpos.begin(), ::tolower );
 
-    if( length < 1e-8 )
+    if( length < 0.0 )
       throw runtime_error("The 'length' attribute of sequence '"
           + label_ + "' is not a valid number");
 

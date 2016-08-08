@@ -112,6 +112,10 @@ MadX_adaptor_map::MadX_adaptor_map() :
     boost::shared_ptr<Constfoc_madx_adaptor > constfoc_madx_adaptor(
             new Constfoc_madx_adaptor);
     set_adaptor("constfoc", constfoc_madx_adaptor);
+
+    boost::shared_ptr<Matrix_madx_adaptor > matrix_madx_adaptor(
+            new Matrix_madx_adaptor);
+    set_adaptor("matrix", matrix_madx_adaptor);
 }
 
 template<class Archive>
