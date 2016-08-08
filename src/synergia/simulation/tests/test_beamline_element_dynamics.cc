@@ -2,14 +2,21 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/utils/floating_point.h"
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
 
+#include "synergia/utils/commxx.h"
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/chef_lattice.h"
+#include "synergia/lattice/madx_reader.h"
 #include "synergia/foundation/four_momentum.h"
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/bunch.h"
 #include "synergia/simulation/lattice_simulator.h"
+#include "synergia/simulation/independent_stepper.h"
+#include "synergia/simulation/propagator.h"
+
 
 #include "beamline/beamline.h"
 #include "beamline/RefRegVisitor.h"
@@ -289,4 +296,63 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
     std::cout << "exit_px: " << exit_px << ", proton.get_npx(): " << proton.get_npx() << std::endl;
 #endif
     BOOST_CHECK(floating_point_equal(proton.get_npx(), exit_px, sbend_tolerance));
+}
+
+// the test checks that I can read in the matrix definition from a madx file
+// and that propagation through the element has the expected results.
+
+BOOST_GLOBAL_FIXTURE(MPI_fixture);
+
+BOOST_AUTO_TEST_CASE(matrix_propagation)
+{
+    const double pc = 100.0;
+
+    MadX_reader reader;
+    Lattice_sptr lattice_sptr = reader.get_lattice_sptr("machine", "lattices/matrix_lattice.seq");
+    // the matrix is propagated by CHEF with maps
+    lattice_sptr->set_all_string_attribute("extractor_type", "chef_map");
+
+    // all entries should be exactly representable
+    double expected_map[6][6];
+    for (int i=0; i<6; ++i) {
+        for (int j=0; j<6; ++j) {
+            expected_map[i][j] = (8.0*i + j + 1.0)/1024;
+        }
+    }
+
+    Four_momentum four_momentum(pconstants::proton_mass);
+    four_momentum.set_momentum(pc);
+
+    Reference_particle reference_particle(1, four_momentum);
+    lattice_sptr->set_reference_particle(reference_particle);
+
+    const int total_num = 6;
+    const double real_num = 0.5e10;
+    Commxx_sptr comm_sptr(new Commxx());
+
+    Bunch_sptr bunch_sptr(
+                new Bunch(reference_particle, total_num, real_num, comm_sptr));
+
+    MArray2d_ref local_particles(bunch_sptr->get_local_particles());
+
+    for (int i=0; i<6; ++i) {
+        local_particles[i][i] = 1.0;
+    }
+
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Independent_stepper_sptr stepper(
+            new Independent_stepper(lattice_sptr, 1, 1));
+
+    Propagator propagator(stepper);
+    propagator.set_final_checkpoint(false);
+
+    propagator.propagate(bunch_simulator, 1, 1, 1);
+
+    // i is particle, j is row
+    for (int i=0; i<6; ++i) {
+        for (int j=0; j<6; ++j) {
+            BOOST_CHECK_EQUAL(expected_map[j][i], local_particles[i][j]);
+        }
+    }
 }

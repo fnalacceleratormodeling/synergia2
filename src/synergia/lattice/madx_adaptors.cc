@@ -2236,3 +2236,139 @@ Constfoc_madx_adaptor::~Constfoc_madx_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Constfoc_madx_adaptor)
+
+Matrix_madx_adaptor::Matrix_madx_adaptor()
+{
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("rm11", 1.0);
+    get_default_element().set_double_attribute("rm22", 1.0);
+    get_default_element().set_double_attribute("rm33", 1.0);
+    get_default_element().set_double_attribute("rm44", 1.0);
+    get_default_element().set_double_attribute("rm55", 1.0);
+    get_default_element().set_double_attribute("rm66", 1.0);
+
+    get_default_element().set_double_attribute("rm12", 0.0);
+    get_default_element().set_double_attribute("rm13", 0.0);
+    get_default_element().set_double_attribute("rm14", 0.0);
+    get_default_element().set_double_attribute("rm15", 0.0);
+    get_default_element().set_double_attribute("rm16", 0.0);
+
+    get_default_element().set_double_attribute("rm21", 0.0);
+    get_default_element().set_double_attribute("rm23", 0.0);
+    get_default_element().set_double_attribute("rm24", 0.0);
+    get_default_element().set_double_attribute("rm25", 0.0);
+    get_default_element().set_double_attribute("rm26", 0.0);
+
+    get_default_element().set_double_attribute("rm31", 0.0);
+    get_default_element().set_double_attribute("rm32", 0.0);
+    get_default_element().set_double_attribute("rm34", 0.0);
+    get_default_element().set_double_attribute("rm35", 0.0);
+    get_default_element().set_double_attribute("rm36", 0.0);
+
+    get_default_element().set_double_attribute("rm41", 0.0);
+    get_default_element().set_double_attribute("rm42", 0.0);
+    get_default_element().set_double_attribute("rm43", 0.0);
+    get_default_element().set_double_attribute("rm45", 0.0);
+    get_default_element().set_double_attribute("rm56", 0.0);
+
+    get_default_element().set_double_attribute("rm51", 0.0);
+    get_default_element().set_double_attribute("rm52", 0.0);
+    get_default_element().set_double_attribute("rm53", 0.0);
+    get_default_element().set_double_attribute("rm54", 0.0);
+    get_default_element().set_double_attribute("rm56", 0.0);
+
+    get_default_element().set_double_attribute("rm61", 0.0);
+    get_default_element().set_double_attribute("rm62", 0.0);
+    get_default_element().set_double_attribute("rm63", 0.0);
+    get_default_element().set_double_attribute("rm64", 0.0);
+    get_default_element().set_double_attribute("rm65", 0.0);
+}
+
+Chef_elements
+Matrix_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    double length = lattice_element.get_length();
+
+    MatrixD transmat(6, 6);
+    transmat(0, 0) = lattice_element.get_double_attribute("rm11");
+    transmat(1, 1) = lattice_element.get_double_attribute("rm33");
+    transmat(2, 2) = lattice_element.get_double_attribute("rm55");
+    transmat(3, 3) = lattice_element.get_double_attribute("rm22");
+    transmat(4, 4) = lattice_element.get_double_attribute("rm44");
+    transmat(5, 5) = lattice_element.get_double_attribute("rm66");
+
+    transmat(0, 1) = lattice_element.get_double_attribute("rm13");
+    transmat(0, 2) = lattice_element.get_double_attribute("rm15");
+    transmat(0, 3) = lattice_element.get_double_attribute("rm12");
+    transmat(0, 4) = lattice_element.get_double_attribute("rm14");
+    transmat(0, 5) = lattice_element.get_double_attribute("rm16");
+
+    transmat(1, 0) = lattice_element.get_double_attribute("rm31");
+    transmat(1, 2) = lattice_element.get_double_attribute("rm35");
+    transmat(1, 3) = lattice_element.get_double_attribute("rm32");
+    transmat(1, 4) = lattice_element.get_double_attribute("rm34");
+    transmat(1, 5) = lattice_element.get_double_attribute("rm36");
+
+    transmat(2, 0) = lattice_element.get_double_attribute("rm51");
+    transmat(2, 1) = lattice_element.get_double_attribute("rm53");
+    transmat(2, 3) = lattice_element.get_double_attribute("rm52");
+    transmat(2, 4) = lattice_element.get_double_attribute("rm54");
+    transmat(2, 5) = lattice_element.get_double_attribute("rm56");
+
+    transmat(3, 0) = lattice_element.get_double_attribute("rm21");
+    transmat(3, 1) = lattice_element.get_double_attribute("rm23");
+    transmat(3, 2) = lattice_element.get_double_attribute("rm25");
+    transmat(3, 4) = lattice_element.get_double_attribute("rm24");
+    transmat(3, 5) = lattice_element.get_double_attribute("rm26");
+
+    transmat(4, 0) = lattice_element.get_double_attribute("rm41");
+    transmat(4, 1) = lattice_element.get_double_attribute("rm43");
+    transmat(4, 2) = lattice_element.get_double_attribute("rm45");
+    transmat(4, 3) = lattice_element.get_double_attribute("rm42");
+    transmat(4, 5) = lattice_element.get_double_attribute("rm46");
+
+    transmat(5, 0) = lattice_element.get_double_attribute("rm61");
+    transmat(5, 1) = lattice_element.get_double_attribute("rm63");
+    transmat(5, 2) = lattice_element.get_double_attribute("rm65");
+    transmat(5, 3) = lattice_element.get_double_attribute("rm62");
+    transmat(5, 4) = lattice_element.get_double_attribute("rm64");
+
+    ElmPtr elm(
+            new sector(lattice_element.get_name().c_str(), transmat, length));
+    retval.push_back(elm);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Matrix_madx_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Matrix_madx_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Matrix_madx_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Matrix_madx_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Matrix_madx_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Matrix_madx_adaptor::~Matrix_madx_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Matrix_madx_adaptor)
