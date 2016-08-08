@@ -437,6 +437,22 @@ BOOST_AUTO_TEST_CASE(tkicker)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("hkick"), 0.01, tolerance );
 }
 
+BOOST_AUTO_TEST_CASE(constfoc)
+{
+  string str = "cf: constfoc, betaH=0.01, betaV=0.02, betaL=0.03, nuL=0.04;";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
+
+  MadX_command cmd = mx.command("cf");
+  BOOST_CHECK_EQUAL( cmd.name(), "constfoc" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 4 );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("betaH"), 0.01, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("betaV"), 0.02, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("betaL"), 0.03, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("nuL"), 0.04, tolerance );
+}
 
 BOOST_AUTO_TEST_CASE(comment_at_tail)
 {
