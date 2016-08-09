@@ -56,18 +56,18 @@ interpolate_rectangular_2d(double x, double y, double z,
 }
 
 inline std::complex<double >
-interpolate_rectangular_2d(Raw_MArray1d const& bin, bool periodic_z,
+interpolate_rectangular_2d(double * bin, bool periodic_z,
         MArray2dc_ref const& a, MArray1d_ref const& b)
 {
     // bi-linear interpolation
     int ix, iy, iz;
     double offx, offy, offz;
-    ix = fast_int_floor(bin.m[0]);
-    iy = fast_int_floor(bin.m[2]);
-    iz = fast_int_floor(bin.m[4]);
-    offx = bin.m[1];
-    offy = bin.m[3];
-    offz = bin.m[5];
+    ix = fast_int_floor(bin[0]);
+    iy = fast_int_floor(bin[2]);
+    iz = fast_int_floor(bin[4]);
+    offx = bin[1];
+    offy = bin[3];
+    offz = bin[5];
     std::vector<int > grid_shape(3);
     grid_shape[0] = a.shape()[0];
     grid_shape[1] = a.shape()[1];

@@ -768,9 +768,9 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     Rectangular_grid_domain & domain(*Fn.get_domain_sptr());
     MArray2dc_ref grid_points(Fn.get_grid_points_2dc());
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
-    Raw_MArray1d bin(boost::extents[6]);
+    double bin[6];
 
-    #pragma omp parallel for
+    #pragma omp parallel for private(bin)
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         std::complex<double > grid_val;
         if (!use_cell_coords) {
@@ -781,7 +781,7 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
                             grid_points_1d);
         } else {
             for (int i = 0; i < 6; ++i) {
-                bin.m[i] = (*particle_bin_sptr).m[part][i];
+                bin[i] = (*particle_bin_sptr).m[part][i];
             }
             grid_val = interpolate_rectangular_2d(bin, periodic_z, grid_points,
                             grid_points_1d);
