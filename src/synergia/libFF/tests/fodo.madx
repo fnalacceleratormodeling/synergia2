@@ -23,6 +23,7 @@ qhk: hkicker, l=1.0, kick=0.07;
 qvk: vkicker, l=1.0, kick=0.07;
 qk:  kicker, l=1.0, hkick=0.035, vkick=0.035;
 //qk:  kicker, l=1.0, hkick=0.1;
+cf:   constfoc, l=1.0, betaH=0.1, betaV=0.2, betaL=0.3, nuL=0.4;
 
 seq_drift: sequence, l=1.0, refer=entry;
 sd00: qd0, at=0;
@@ -118,5 +119,11 @@ seq_kicker2: sequence, l=1.0, refer=entry;
 sk20: qd0, at=0;
 sk21: qk, at=0;
 sk22: qd1, at=1.0;
+endsequence;
+
+seq_constfoc: sequence, l=1.0, refer=entry;
+scf0: qd0, at=0;
+scf1: cf, at=0;
+scf2: qd1, at=1.0;
 endsequence;
 

@@ -2,7 +2,6 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
-#include <iomanip>
 
 FF_drift::FF_drift()
 {

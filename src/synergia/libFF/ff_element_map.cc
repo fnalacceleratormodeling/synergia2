@@ -72,6 +72,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(FF_element_map)
 #include "ff_hkicker.h"
 #include "ff_vkicker.h"
 #include "ff_marker.h"
+#include "ff_constfoc.h"
 #include "ff_misc_elements.h"
 
 FF_element_map the_big_giant_global_ff_element_map;
@@ -89,8 +90,9 @@ void construct_big_giant_global_ff_element_map()
     the_big_giant_global_ff_element_map.set_element_type("sextupole",  FF_sextupole_sptr(new FF_sextupole()));
     the_big_giant_global_ff_element_map.set_element_type("octupole",   FF_octupole_sptr(new FF_octupole()));
     the_big_giant_global_ff_element_map.set_element_type("marker",     FF_marker_sptr(new FF_marker()));
-    the_big_giant_global_ff_element_map.set_element_type("monitor",     FF_monitor_sptr(new FF_monitor()));
-    the_big_giant_global_ff_element_map.set_element_type("hmonitor",     FF_hmonitor_sptr(new FF_hmonitor()));
-    the_big_giant_global_ff_element_map.set_element_type("vmonitor",     FF_vmonitor_sptr(new FF_vmonitor()));
-    the_big_giant_global_ff_element_map.set_element_type("instrument",     FF_instrument_sptr(new FF_instrument()));
+    the_big_giant_global_ff_element_map.set_element_type("monitor",    FF_monitor_sptr(new FF_monitor()));
+    the_big_giant_global_ff_element_map.set_element_type("hmonitor",   FF_hmonitor_sptr(new FF_hmonitor()));
+    the_big_giant_global_ff_element_map.set_element_type("vmonitor",   FF_vmonitor_sptr(new FF_vmonitor()));
+    the_big_giant_global_ff_element_map.set_element_type("constfoc",   FF_constfoc_sptr(new FF_constfoc()));
+    the_big_giant_global_ff_element_map.set_element_type("instrument", FF_instrument_sptr(new FF_instrument()));
 }

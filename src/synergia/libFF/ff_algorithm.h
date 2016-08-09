@@ -469,6 +469,17 @@ public:
         yp = yp + kL[1];
     }
 
+    template <typename T>
+    inline static void constfoc_unit
+      (T & x, T & xp, double cs, double sn, double beta, double ibeta)
+    {
+        T x1  = x * cs + xp * beta * sn;
+        T xp1 = - x * sn * ibeta + xp * cs;
+
+        x = x1;
+        xp = xp1;
+    }
+
     inline static double thin_rfcavity_pnew
       (double pref, double m, double volt, double phi_s)
     {
