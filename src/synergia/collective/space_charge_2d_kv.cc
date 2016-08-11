@@ -19,6 +19,7 @@ Space_charge_2d_kv::Space_charge_2d_kv() :
         Collective_operator("space charge")
         , sigma_x(0.0), sigma_y(0.0), sigma_cdt(0.0)
         , longitudinal_distribution(longitudinal_uniform)
+        , strictly_linear(true)
 {
 }
 
@@ -57,6 +58,18 @@ Space_charge_2d_kv::set_longitudinal(int long_flag)
     return;
 }
 
+int
+Space_charge_2d_kv::get_strictly_linear()
+{
+    return strictly_linear;
+}
+
+void
+Space_charge_2d_kv::set_strictly_linear(bool flag)
+{
+    strictly_linear = flag;
+}
+
 std::vector<double >
 Space_charge_2d_kv::unit_efield(double arg_x, double arg_y)
 {
@@ -71,6 +84,8 @@ Space_charge_2d_kv::unit_efield(double arg_x, double arg_y)
 //   Field of 2-D Elliptical Charge Distributions: LBL-34682, CBP Note 014,
 //   PEP-II/AP Note 34-93
 //
+// If strictly_linear is true, use the linear field over all space.  Otherwise
+// use the Furman expression outside of the ellipse boundaries.
 void
 Space_charge_2d_kv::unit_efield(double arg_x, double arg_y,
         double & E_x, double & E_y)
@@ -84,7 +99,7 @@ Space_charge_2d_kv::unit_efield(double arg_x, double arg_y,
     bool inside = (arg_x/a)*(arg_x/a) + (arg_y/b)*(arg_y/b) < 1.0;
     bool xneg = arg_x<0.0;
     bool yneg = arg_y<0.0;
-    if (inside) {
+    if (strictly_linear || inside) {
         E_x = 4 * arg_x/(a*(a+b));
         E_y = 4 * arg_y/(b*(a+b));
     } else {

@@ -17,6 +17,7 @@ public:
 private:
     double sigma_x, sigma_y, sigma_cdt;
     int longitudinal_distribution;
+    bool strictly_linear;
 public:
     Space_charge_2d_kv();
     virtual Space_charge_2d_kv *
@@ -37,6 +38,10 @@ public:
     get_longitudinal(void);
     void
     set_longitudinal(int dist_flag);
+    int
+    get_strictly_linear(void);
+    void
+    set_strictly_linear(bool flag);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual

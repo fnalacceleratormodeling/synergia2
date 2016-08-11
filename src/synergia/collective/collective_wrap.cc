@@ -116,7 +116,11 @@ BOOST_PYTHON_MODULE(collective)
           class_<Space_charge_2d_kv, Space_charge_2d_kv_sptr,
                  bases<Collective_operator> >("Space_charge_2d_kv", init<>())
               .def("apply", &Space_charge_2d_kv::apply)
-              .def("set_longitudinal", &Space_charge_2d_kv::set_longitudinal);
+              .def("set_longitudinal", &Space_charge_2d_kv::set_longitudinal)
+              .def("get_longitudinal", &Space_charge_2d_kv::get_longitudinal)
+              .def("set_strictly_linear", &Space_charge_2d_kv::set_strictly_linear)
+              .def("get_strictly_linear", &Space_charge_2d_kv::get_strictly_linear)
+              ;
       scope().attr("longitudinal_uniform") =
           Space_charge_2d_kv::longitudinal_uniform;
       scope().attr("longitudinal_gaussian") =

@@ -198,6 +198,8 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_elliptical_lowgamma, Elliptical_rod_bunch_fixtu
 
     Space_charge_2d_kv space_charge;
     std::cout << "KV longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    // must turn off strictly_linear
+    space_charge.set_strictly_linear(false);
     Step dummy_step(time_fraction);
     const int verbosity = 4;
 
@@ -369,6 +371,8 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_elliptical_highgamma, Elliptical_rod_bunch_fixt
     logger << "Bunch stdcdt: " << stdcdt << std::endl;
 
     Space_charge_2d_kv space_charge;
+    // must turn off strictly linear
+    space_charge.set_strictly_linear(false);
     Step dummy_step(time_fraction);
     const int verbosity = 4;
 
@@ -798,7 +802,7 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_offset_lowgamma, Round_rod_bunch_fixture_
     logger << "Bunch stdcdt: " << stdcdt << std::endl;
 
     Space_charge_2d_kv space_charge;
-    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    std::cout << "kv longitudinal: " << space_charge.get_longitudinal() << std::endl;
     Step dummy_step(time_fraction);
     const int verbosity = 4;
 
@@ -877,7 +881,7 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_offset_highgamma, Round_rod_bunch_fixture
     logger << "Bunch stdcdt: " << stdcdt << std::endl;
 
     Space_charge_2d_kv space_charge;
-    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    std::cout << "kv: " << space_charge.get_longitudinal() << std::endl;
     Step dummy_step(time_fraction);
     const int verbosity = 4;
 
@@ -949,7 +953,7 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_gaussian_lowgamma, Round_rod_bunch_fixtur
     Space_charge_2d_kv space_charge;
     // set to use gaussian charge density
     space_charge.set_longitudinal(Space_charge_2d_kv::longitudinal_gaussian);
-    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    std::cout << "kv longitudinal: " << space_charge.get_longitudinal() << std::endl;
     Step dummy_step(time_fraction);
     const int verbosity = 4;
 
@@ -1024,7 +1028,7 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_gaussian_highgamma, Round_rod_bunch_fixtu
     Space_charge_2d_kv space_charge;
     // set to use gaussian charge density
     space_charge.set_longitudinal(Space_charge_2d_kv::longitudinal_gaussian);
-    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    std::cout << "kv longitudinal: " << space_charge.get_longitudinal() << std::endl;
     Step dummy_step(time_fraction);
     const int verbosity = 4;
 
@@ -1101,7 +1105,7 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_offset_highgamma, Round_rod_bunch_fixture
     logger << "Bunch stdcdt: " << stdcdt << std::endl;
 
     Space_charge_2d_kv space_charge;
-    std::cout << "bassetti-erskine longitudinal: " << space_charge.get_longitudinal() << std::endl;
+    std::cout << "kv longitudinal: " << space_charge.get_longitudinal() << std::endl;
     Step dummy_step(time_fraction);
     const int verbosity = 4;
 
@@ -1152,7 +1156,7 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_offset_highgamma, Round_rod_bunch_fixture
     BOOST_CHECK_LT(std::abs(bunch.get_local_particles()[3][Bunch::xp]), 1.0e-10);
 }
 
-// This checks that the bassetti-erskine calculation for nearly circular distributions is
+// This checks that the kv calculation for nearly circular distributions is
 // close to that of circular distributions.
 BOOST_AUTO_TEST_CASE(close_to_circular)
 {
