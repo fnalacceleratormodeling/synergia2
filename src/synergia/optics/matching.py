@@ -311,7 +311,8 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y,
         populate_6d(dist, bunch, means, covariance_matrix)
     return bunch
 
-def generate_matchedKV_bunch_transverse(lattice_simulator, emitMax,
+def generate_matchedKV_bunch_transverse(lattice_simulator, emitMax_x,
+                                        emitMax_y,
                            cdt, dpop, num_real_particles,
                            num_macro_particles, seed=0, comm=None):
 
@@ -323,7 +324,7 @@ def generate_matchedKV_bunch_transverse(lattice_simulator, emitMax,
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm)
     dist = Random_distribution(seed, comm)
-    populate_transverse_KV_GaussLong(dist, bunch, emitMax,
+    populate_transverse_KV_GaussLong(dist, bunch, emitMax_x, emitMax_y,
         ax, bx, ay, by, cdt, dpop)
     return bunch
 

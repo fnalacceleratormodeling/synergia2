@@ -228,7 +228,7 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
     }
 }
 void
-populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax,
+populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x, double epsilMax_y,
         double alpha_x, double beta_x, double alpha_y, double beta_y,
         double cdt, double stddpop){
     MArray2d_ref particles(bunch.get_local_particles());
@@ -259,12 +259,12 @@ populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilM
       const double w = x4 * std::sqrt((1.0 - x1*x1 - x2*x2)/(x3*x3 + x4*x4));
 // Now move from normal coordinate to physical using lattice functios
       const double phi2X = std::atan2(x2,x1);
-      const double a2X = std::sqrt((x1*x1 + x2*x2) * epsilMax*beta_x); // The amplitude.. X physical plane
+      const double a2X = std::sqrt((x1*x1 + x2*x2) * epsilMax_x*beta_x); // The amplitude.. X physical plane
       particles[part][Bunch::x] = a2X*std::sin(phi2X);
       particles[part][Bunch::xp] = (1.0/beta_x)*(a2X*std::cos(phi2X) - alpha_x*particles[part][Bunch::x]);
       //  Repeat in y,y' plane 
       const double phi2Y = std::atan2(w,z);
-      const double a2Y = std::sqrt((w*w + z*z)*epsilMax*beta_y); // The amplitude.. 
+      const double a2Y = std::sqrt((w*w + z*z)*epsilMax_y*beta_y); // The amplitude.. 
       particles[part][Bunch::y] = a2Y*std::sin(phi2Y);
       particles[part][Bunch::yp] = (1.0/beta_y)*(a2Y*std::cos(phi2Y) - alpha_y*particles[part][Bunch::y]);
     }
