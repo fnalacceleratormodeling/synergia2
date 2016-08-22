@@ -630,29 +630,27 @@ Quadrupole_mad8_adaptor::get_chef_elements(
         }
     }
 
-    bmlnElmnt* bmln_elmnt;
+    ElmPtr elm;
     if (length == 0.0) {
-        bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(),
-                brho * lattice_element.get_double_attribute("k1"));
+        elm.reset(new thinQuad(lattice_element.get_name().c_str(),
+                brho * lattice_element.get_double_attribute("k1")));
     } else {
         if(lattice_element.get_string_attribute("propagator_type") == yoshida_propagator) {
             int steps = floor(lattice_element.get_double_attribute("yoshida_steps"));
             int order = floor(lattice_element.get_double_attribute("yoshida_order"));
-            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                                        brho * lattice_element.get_double_attribute("k1"));
+            elm.reset(new quadrupole(lattice_element.get_name().c_str(), length,
+                                        brho * lattice_element.get_double_attribute("k1")));
             quadrupole::PropagatorPtr yoshida_propagator(new YoshidaPropagator(order, steps));
-            dynamic_cast<quadrupole*>(bmln_elmnt)->usePropagator(yoshida_propagator);
+            boost::dynamic_pointer_cast<quadrupole>(elm)->usePropagator(yoshida_propagator);
         } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
-            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                                        brho * lattice_element.get_double_attribute("k1"));
-            dynamic_cast<quadrupole*>(bmln_elmnt)->setNumberOfKicks(floor(lattice_element.get_double_attribute("basic_kicks")));
+            elm.reset(new quadrupole(lattice_element.get_name().c_str(), length,
+                                        brho * lattice_element.get_double_attribute("k1")));
+            boost::dynamic_pointer_cast<quadrupole>(elm)->setNumberOfKicks(floor(lattice_element.get_double_attribute("basic_kicks")));
         } else {
             throw std::runtime_error(
                         "Quadrupole_madx_adaptor::get_chef_elements: bad propagator_type \"" +
                         lattice_element.get_string_attribute("propagator_type") + "\"");
         }
-//        ElmPtr elm(bmln_elmnt);
-//        retval.push_back(elm);
     }
 
     // using tilt and multipoles is a no-no
@@ -673,9 +671,8 @@ Quadrupole_mad8_adaptor::get_chef_elements(
 
     if (!has_multipoles) {
         if (needs_aligner) {
-            bmln_elmnt->setAlignment(aligner);
+            elm->setAlignment(aligner);
         }
-        ElmPtr elm(bmln_elmnt);
         retval.push_back(elm);
     } else {
         // split the quadrupole, insert thin multipole element in between halves
@@ -688,19 +685,19 @@ Quadrupole_mad8_adaptor::get_chef_elements(
                 * lattice_element.get_double_attribute("k1");
         ElmPtr qptr1;
         ElmPtr qptr2;
-        bmln_elmnt->Split(0.5, qptr1, qptr2);
+        elm->Split(0.5, qptr1, qptr2);
 
         if (needs_aligner) {
             qptr1->setAlignment(aligner);
         }
         retval.push_back(qptr1);
-        bmlnElmnt* thinpoleptr = new ThinPole(
+        ElmPtr thinpoleptr(new ThinPole(
                 (lattice_element.get_name() + "_poles").c_str(), brkl,
-                c_moments);
+                c_moments));
         if (needs_aligner) {
             thinpoleptr->setAlignment(aligner);
         }
-        retval.push_back(ElmPtr(thinpoleptr));
+        retval.push_back(thinpoleptr);
         if (needs_aligner) {
             qptr2->setAlignment(aligner);
         }
