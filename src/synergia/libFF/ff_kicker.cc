@@ -5,8 +5,6 @@
 
 double FF_kicker::get_reference_cdt(double length, double hk, double vk, Reference_particle &reference_particle) 
 {
-    if (length == 0) return 0.0;
-
     double reference_cdt;
 
     double pref = reference_particle.get_momentum();
@@ -14,11 +12,11 @@ double FF_kicker::get_reference_cdt(double length, double hk, double vk, Referen
     double step_length = length / steps;
     double step_strength[2] = { hk * step_length, vk * step_length };
 
-    double x(reference_particle.get_state()[Bunch::x]);
-    double xp(reference_particle.get_state()[Bunch::xp]);
-    double y(reference_particle.get_state()[Bunch::y]);
-    double yp(reference_particle.get_state()[Bunch::yp]);
-    double cdt(reference_particle.get_state()[Bunch::cdt]);
+    double x   (reference_particle.get_state()[Bunch::x]);
+    double xp  (reference_particle.get_state()[Bunch::xp]);
+    double y   (reference_particle.get_state()[Bunch::y]);
+    double yp  (reference_particle.get_state()[Bunch::yp]);
+    double cdt (reference_particle.get_state()[Bunch::cdt]);
     double dpop(reference_particle.get_state()[Bunch::dpop]);
 
     double cdt_orig = cdt;
@@ -29,11 +27,20 @@ double FF_kicker::get_reference_cdt(double length, double hk, double vk, Referen
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
 #endif
 
-    FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
-        ( x, xp, y, yp, cdt, dpop,
-          pref, m, 0.0, 
-          step_length, step_strength, steps );
+    if ( close_to_zero(length) ) 
+    {
+        FF_algorithm::thin_kicker_unit(xp, hk);
+        FF_algorithm::thin_kicker_unit(yp, vk);
+    }
+    else
+    {
+        FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
+            ( x, xp, y, yp, cdt, dpop,
+              pref, m, 0.0, 
+              step_length, step_strength, steps );
+    }
 
+    reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
     reference_cdt = cdt - cdt_orig;
 
     return reference_cdt;
@@ -126,6 +133,9 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double   ddummy(1.0);
 
         double   k[2] = { hk, vk };
+
+        // only to update the reference particle
+        double reference_cdt = get_reference_cdt(0.0, hk, vk, bunch.get_reference_particle());
 
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += GSVector::size) 

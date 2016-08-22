@@ -123,6 +123,17 @@ Reference_particle::set_state(Const_MArray1d_ref state)
 }
 
 void
+Reference_particle::set_state(double x, double xp, double y, double yp, double cdt, double dpop)
+{
+    this->state[0] = x;
+    this->state[1] = xp;
+    this->state[2] = y;
+    this->state[3] = yp;
+    this->state[4] = cdt;
+    this->state[5] = dpop;
+}
+
+void
 Reference_particle::set_total_energy(double total_energy)
 {
     four_momentum.set_total_energy(total_energy);
