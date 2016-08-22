@@ -60,7 +60,8 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
 /// charged particle beam, 2nd edition, p 170. 
 /// @param dist the distribution generator for the Gaussian dp/p distribution. 
 /// @param bunch the bunch
-/// @param epsilmax: The maximum emittance (not normalized) to fill twoxtwo D ellipses. 
+/// @param epsilMax_x: The maximum emittance (not normalized) to fill horizontal twoxtwo D ellipse. 
+/// @param epsilMax_y: The maximum emittance (not normalized) to fill vertical twoxtwo D ellipse. 
 /// @param aplha_x: Alpha Twiss parameter at the point of injection.
 /// @param beta_x: Beta Twiss parameter at the point of injection.
 /// @param aplha_y: Alpha Twiss parameter at the point of injection.
@@ -69,7 +70,7 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
 ///  [-cdt/2,cdt/2] [m] (flatly distributed). 
 /// @param stddpop standard deviation of the dp/p distribution
 void
-populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax,
+populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x, double epsilMax_y,
         double alpha_x, double beta_x, double alpha_y, double beta_y,
         double stddt, double stddpop);
 	
