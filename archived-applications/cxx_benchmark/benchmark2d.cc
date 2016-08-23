@@ -6,6 +6,7 @@
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/split_operator_stepper.h"
+#include "synergia/simulation/independent_stepper.h"
 #include "synergia/simulation/propagator.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/foundation/distribution.h"
@@ -13,10 +14,9 @@
 #include "synergia/bunch/diagnostics_basic.h"
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/collective/space_charge_2d_open_hockney.h"
+#include "synergia/lattice/madx_reader.h"
 
 #include "benchmark_options.h"
-
-#include <omp.h>
 
 // We put the actual code in a separate function so that shared_ptr's can
 // be cleanup up properly before we call MPI_Finalize.
@@ -36,6 +36,7 @@ run(Benchmark_options const& opts)
     const int num_turns = 16;
     const int map_order = 2;
 
+#if 0
     Lattice_sptr lattice_sptr(new Lattice());
     try {
         xml_load(*lattice_sptr, "cxx_lattice.xml");
@@ -45,6 +46,11 @@ run(Benchmark_options const& opts)
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
+#endif
+
+    MadX_reader reader;
+    Lattice_sptr lattice_sptr = reader.get_lattice_sptr("fodo", "fodo.madx");
+
     //lattice_sptr->set_all_string_attribute("extractor_type","chef_propagate");
     lattice_sptr->set_all_string_attribute("extractor_type","libff");
 
@@ -67,6 +73,7 @@ run(Benchmark_options const& opts)
     Commxx_divider_sptr commxx_divider_sptr(new Commxx_divider(32, false));
     Space_charge_2d_open_hockney_sptr space_charge_sptr(
             new Space_charge_2d_open_hockney(commxx_divider_sptr, grid_shape));
+
     if (opts.autotune) {
         //space_charge_sptr->auto_tune_comm(*bunch_sptr, true);
     } else {
@@ -85,15 +92,29 @@ run(Benchmark_options const& opts)
         space_charge_sptr->set_charge_density_comm(
                 Space_charge_2d_open_hockney::charge_allreduce);
     }
+
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
     Split_operator_stepper_sptr stepper_sptr(
-            new Split_operator_stepper(lattice_simulator, space_charge_sptr,
-                    num_steps));
+            new Split_operator_stepper(lattice_simulator, space_charge_sptr, num_steps));
+
+    Independent_stepper_sptr independent_stepper_sptr(
+            new Independent_stepper(lattice_simulator, num_steps));
+
+    // with space charge
     Propagator propagator(stepper_sptr);
+
+    // without space charge
+    //Propagator propagator(independent_stepper_sptr);
+
     propagator.set_checkpoint_period(100);
     propagator.set_final_checkpoint(false);
+    propagator.set_num_threads(opts.omp_threads);
+
+    std::cout << "omp threads = " << propagator.get_num_threads() << "\n";
 
     Bunch_simulator bunch_simulator(bunch_sptr);
+
     if (opts.diagnostics) {
         bunch_simulator.get_diagnostics_actions().add_per_step(
                 Diagnostics_sptr(
@@ -102,6 +123,7 @@ run(Benchmark_options const& opts)
                 Diagnostics_sptr(
                         new Diagnostics_full2("cxx_example_per_turn.h5")));
     }
+
     double t0 = MPI_Wtime();
     const int max_turns = 0;
     propagator.propagate(bunch_simulator, num_turns, max_turns, opts.verbosity);
@@ -116,8 +138,6 @@ main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
     Benchmark_options opts(argc, argv);
-std::cout << "omp threads = " << opts.omp_threads << "\n";
-    omp_set_num_threads(opts.omp_threads);
     run(opts);
     MPI_Finalize();
     return 0;

@@ -13,6 +13,7 @@
 #include "synergia/bunch/diagnostics_basic.h"
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
+#include "synergia/lattice/madx_reader.h"
 
 #include "benchmark_options.h"
 
@@ -36,6 +37,7 @@ run(Benchmark_options const& opts)
     const int num_turns = 1;
     const int map_order = 2;
 
+#if 0
     Lattice_sptr lattice_sptr(new Lattice());
     try {
         xml_load(*lattice_sptr, "cxx_lattice.xml");
@@ -45,6 +47,11 @@ run(Benchmark_options const& opts)
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
+#endif
+
+    MadX_reader reader;
+    Lattice_sptr lattice_sptr = reader.get_lattice_sptr("fodo", "fodo.madx");
+
     //lattice_sptr->set_all_string_attribute("extractor_type","chef_propagate");
     lattice_sptr->set_all_string_attribute("extractor_type","libff");
 
@@ -88,6 +95,7 @@ run(Benchmark_options const& opts)
     Propagator propagator(stepper_sptr);
     propagator.set_checkpoint_period(100);
     propagator.set_final_checkpoint(false);
+    propagator.set_num_threads(opts.omp_threads);
 
     Bunch_simulator bunch_simulator(bunch_sptr);
     if (opts.diagnostics) {
@@ -112,7 +120,6 @@ main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
     Benchmark_options opts(argc, argv);
-    omp_set_num_threads(opts.omp_threads);
     run(opts);
     MPI_Finalize();
     return 0;
