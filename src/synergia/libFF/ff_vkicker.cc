@@ -5,8 +5,6 @@
 
 double FF_vkicker::get_reference_cdt(double length, double k, Reference_particle &reference_particle) 
 {
-    if (length == 0) return 0.0;
-
     double reference_cdt;
 
     double pref = reference_particle.get_momentum();
@@ -29,11 +27,20 @@ double FF_vkicker::get_reference_cdt(double length, double k, Reference_particle
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
 #endif
 
-    FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
-        ( x, xp, y, yp, cdt, dpop,
-          pref, m, 0.0, 
-          step_length, step_strength, steps );
 
+    if ( close_to_zero(length) )
+    {
+        FF_algorithm::thin_kicker_unit(yp, k);
+    }
+    else
+    {
+        FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
+            ( x, xp, y, yp, cdt, dpop,
+              pref, m, 0.0, 
+              step_length, step_strength, steps );
+    }
+
+    reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
     reference_cdt = cdt - cdt_orig;
 
     return reference_cdt;
@@ -109,6 +116,9 @@ void FF_vkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     if ( close_to_zero(l) ) 
     {
+        // update the reference particle
+        double reference_cdt = get_reference_cdt(0.0, k, bunch.get_reference_particle());
+
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += GSVector::size) 
         {

@@ -61,6 +61,16 @@ public:
     void
     set_state(Const_MArray1d_ref state);
 
+    /// Set the state vector in the reference frame.
+    /// @param x
+    /// @param xp
+    /// @param y
+    /// @param yp
+    /// @param cdt
+    /// @param dpop
+    void
+    set_state(double x, double xp, double y, double yp, double cdt, double dpop);
+
     /// Set the total energy.
     /// @param total_energy in GeV in the lab frame
     void
