@@ -676,6 +676,8 @@ BOOST_PYTHON_MODULE(simulation)
             .def("get_final_checkpoint", &Propagator::get_final_checkpoint)
             .def("set_concurrent_io", &Propagator::set_concurrent_io)
             .def("get_concurrent_io", &Propagator::get_concurrent_io)
+            .def("set_num_threads", &Propagator::set_num_threads)
+            .def("get_num_threads", &Propagator::get_num_threads)
             .def("propagate", propagate1,
                  propagate_member_overloads24())
             .def("propagate", propagate2,
