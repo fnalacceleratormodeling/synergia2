@@ -27,6 +27,10 @@ class Dummy2
 {
 };
 
+void (Reference_particle::*set_state1)(Const_MArray1d_ref) = &Reference_particle::set_state;
+void (Reference_particle::*set_state2)(double, double, double, double, double, double) = &Reference_particle::set_state;
+
+
 BOOST_PYTHON_MODULE(foundation)
 {
     import_array();
@@ -55,7 +59,8 @@ BOOST_PYTHON_MODULE(foundation)
         .def(init<int, Four_momentum const &>())
         .def(init<int, Four_momentum const &,Const_MArray1d_ref>())
         .def("set_four_momentum",&Reference_particle::set_four_momentum)
-        .def("set_state",&Reference_particle::set_state)
+        .def("set_state", set_state1)
+        .def("set_state", set_state2)
         .def("set_total_energy",&Reference_particle::set_total_energy)
         .def("increment_trajectory", &Reference_particle::increment_trajectory)
         .def("start_repetition", &Reference_particle::start_repetition)
