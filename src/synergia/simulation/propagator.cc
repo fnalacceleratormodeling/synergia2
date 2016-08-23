@@ -76,11 +76,12 @@ Propagator::Propagator(Stepper_sptr stepper_sptr) :
         stepper_sptr(stepper_sptr), checkpoint_period(
                 default_checkpoint_period), checkpoint_dir(
                 default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(
-                default_concurrent_io), final_checkpoint(false)
+                default_concurrent_io), final_checkpoint(false), omp_threads(1)
 {
 }
 
 Propagator::Propagator()
+    : omp_threads(1)
 {
 }
 
@@ -148,6 +149,19 @@ int
 Propagator::get_concurrent_io() const
 {
     return concurrent_io;
+}
+
+void
+Propagator::set_num_threads(int nt)
+{
+    omp_threads = nt;
+    omp_set_num_threads(omp_threads);
+}
+
+int
+Propagator::get_num_threads() const
+{
+    return omp_threads;
 }
 
 void
@@ -351,6 +365,9 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
 void
 Propagator::propagate(State & state)
 {
+    // set number of openmp threads
+    omp_set_num_threads(omp_threads);
+
     try {
         Logger logger(0, log_file_name);
         double t_total = simple_timer_current();
@@ -575,6 +592,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(checkpoint_with_xml);
         ar & BOOST_SERIALIZATION_NVP(concurrent_io);
         ar & BOOST_SERIALIZATION_NVP(final_checkpoint);
+        ar & BOOST_SERIALIZATION_NVP(omp_threads);
     }
 
 template

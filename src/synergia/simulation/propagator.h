@@ -55,6 +55,8 @@ private:
     int concurrent_io;
     bool final_checkpoint;
 
+    int omp_threads;
+
 	void
 	construct();
 	void
@@ -108,6 +110,12 @@ public:
 
     int
     get_concurrent_io() const;
+
+    void
+    set_num_threads(int nt);
+
+    int
+    get_num_threads() const;
 
     void
     propagate(State & state);
