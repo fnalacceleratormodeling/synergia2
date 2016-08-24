@@ -7,8 +7,7 @@ FF_drift::FF_drift()
 {
 }
 
-double FF_drift::get_reference_cdt(double length,
-                                   Reference_particle & reference_particle)
+double FF_drift::get_reference_cdt(double length, Reference_particle & reference_particle)
 {
     double x(reference_particle.get_state()[Bunch::x]);
     double xp(reference_particle.get_state()[Bunch::xp]);
