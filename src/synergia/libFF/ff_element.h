@@ -4,6 +4,8 @@
 #include <beamline/JetParticle.h>
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/lattice_element_slice.h"
+#include "synergia/lattice/lattice_element.h"
+#include "synergia/lattice/lattice.h"
 
 class FF_element
 {
@@ -15,6 +17,14 @@ public:
 
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle) = 0;
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch) = 0;
+
+    Reference_particle &
+        get_ref_particle_from_slice(Lattice_element_slice & slice) const
+    { return slice.get_lattice_element().get_lattice().get_reference_particle(); }
+
+    Reference_particle const &
+        get_ref_particle_from_slice(Lattice_element_slice const & slice) const
+    { return slice.get_lattice_element().get_lattice().get_reference_particle(); }
 
     void set_yoshida_steps(int s)
     { steps = s; }
