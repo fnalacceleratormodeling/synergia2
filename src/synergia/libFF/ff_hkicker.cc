@@ -98,6 +98,11 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double l = slice.get_lattice_element().get_double_attribute("l", 0.0);
     double k = slice.get_lattice_element().get_double_attribute("kick");
 
+    Reference_particle ref_lattice = get_ref_particle_from_slice(slice);
+    Reference_particle ref_bunch   = bunch.get_reference_particle();
+
+    k = k * ref_bunch.get_charge() / ref_lattice.get_charge();
+
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 

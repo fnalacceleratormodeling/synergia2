@@ -112,6 +112,12 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double hk = slice.get_lattice_element().get_double_attribute("hkick");
     double vk = slice.get_lattice_element().get_double_attribute("vkick");
 
+    Reference_particle ref_lattice = get_ref_particle_from_slice(slice);
+    Reference_particle ref_bunch   = bunch.get_reference_particle();
+
+    hk = hk * ref_bunch.get_charge() / ref_lattice.get_charge();
+    vk = vk * ref_bunch.get_charge() / ref_lattice.get_charge();
+
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
@@ -188,7 +194,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             GSVector dpop(&dpopa[part]);
 
 #if 0
-            // simple drift - kick - drift scheme
+            // simple drift - kick - drift scheme, this is how CHEF does it
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
             FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
