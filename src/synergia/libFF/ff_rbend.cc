@@ -160,15 +160,16 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     Reference_particle ref_l = get_ref_particle_from_slice(slice);
     Reference_particle ref_b = bunch.get_reference_particle();
 
-    double s_brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
-    double s_brho_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
+    double pref_l = ref_l.get_momentum();
+    double pref_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
+
+    double s_brho_l = pref_l / ref_l.get_charge();  // GV/c
+    double s_brho_b = pref_b / ref_l.get_charge();  // GV/c
 
     double scale = s_brho_l / s_brho_b;
 
     double m = bunch.get_mass();
 
-    double pref_l = ref_l.get_momentum();
-    double pref_b = ref_b.get_momentum();
 
     int charge_l = ref_l.get_charge();
     int charge_b = ref_b.get_charge();
