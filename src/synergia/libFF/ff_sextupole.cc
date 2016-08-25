@@ -78,74 +78,88 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, JetParticle& jet_pa
 
 void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-     double length = slice.get_right() - slice.get_left();
+    double length = slice.get_right() - slice.get_left();
 
-     // strength
-     double k[2];
-     k[0] = slice.get_lattice_element().get_double_attribute("k2");
-     k[1] = slice.get_lattice_element().get_double_attribute("k2s", 0.0);
+    // strength
+    double k[2];
+    k[0] = slice.get_lattice_element().get_double_attribute("k2");
+    k[1] = slice.get_lattice_element().get_double_attribute("k2s", 0.0);
 
-     // tilting
-     double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
-     if (tilt != 0.0)
-     {
-         std::complex<double> ck2(k[0], +k[1]);
-         ck2 = ck2 * exp(std::complex<double>(0.0, -3.0*tilt));
-         k[0] = ck2.real();
-         k[1] = ck2.imag();
-     }
+    // tilting
+    double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
+    if (tilt != 0.0)
+    {
+        std::complex<double> ck2(k[0], +k[1]);
+        ck2 = ck2 * exp(std::complex<double>(0.0, -3.0*tilt));
+        k[0] = ck2.real();
+        k[1] = ck2.imag();
+    }
 
-     int local_num = bunch.get_local_num();
-     MArray2d_ref particles = bunch.get_local_particles();
+    // scaling
+    Reference_particle ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle ref_b = bunch.get_reference_particle();
 
-     if (length == 0.0) 
-     {
-         #pragma omp parallel for
-         for (int part = 0; part < local_num; ++part) 
-         {
-             double x(particles[part][Bunch::x]);
-             double xp(particles[part][Bunch::xp]);
-             double y(particles[part][Bunch::y]);
-             double yp(particles[part][Bunch::yp]);
+    double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
+    double brho_b = ref_b.get_momentum() / ref_l.get_charge();  // GV/c
 
-             FF_algorithm::thin_sextupole_unit(x, xp, y, yp, k);
+    double scale = brho_l / brho_b;
 
-             particles[part][Bunch::xp] = xp;
-             particles[part][Bunch::yp] = yp;
+    k[0] *= scale;
+    k[1] *= scale;
+
+
+    int local_num = bunch.get_local_num();
+    MArray2d_ref particles = bunch.get_local_particles();
+
+    if (length == 0.0) 
+    {
+        #pragma omp parallel for
+        for (int part = 0; part < local_num; ++part) 
+        {
+            double x(particles[part][Bunch::x]);
+            double xp(particles[part][Bunch::xp]);
+            double y(particles[part][Bunch::y]);
+            double yp(particles[part][Bunch::yp]);
+
+            FF_algorithm::thin_sextupole_unit(x, xp, y, yp, k);
+
+            particles[part][Bunch::xp] = xp;
+            particles[part][Bunch::yp] = yp;
         }
-     } 
-     else 
-     {
-         double reference_momentum = bunch.get_reference_particle().get_momentum();
-         double m = bunch.get_mass();
-         double reference_cdt = get_reference_cdt(length, k,
-                                                  bunch.get_reference_particle());
-         double step_reference_cdt = reference_cdt/steps;
-         double step_length = length/steps;
-         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
+    } 
+    else 
+    {
+        double reference_momentum = bunch.get_reference_particle().get_momentum();
+        double m = bunch.get_mass();
+        double reference_cdt = get_reference_cdt(length, k,
+                                                 bunch.get_reference_particle());
+        double step_reference_cdt = reference_cdt/steps;
+        double step_length = length/steps;
+        double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-         #pragma omp parallel for
-         for (int part = 0; part < local_num; ++part) 
-         {
-             double x(particles[part][Bunch::x]);
-             double xp(particles[part][Bunch::xp]);
-             double y(particles[part][Bunch::y]);
-             double yp(particles[part][Bunch::yp]);
-             double cdt(particles[part][Bunch::cdt]);
-             double dpop(particles[part][Bunch::dpop]);
+        #pragma omp parallel for
+        for (int part = 0; part < local_num; ++part) 
+        {
+            double x(particles[part][Bunch::x]);
+            double xp(particles[part][Bunch::xp]);
+            double y(particles[part][Bunch::y]);
+            double yp(particles[part][Bunch::yp]);
+            double cdt(particles[part][Bunch::cdt]);
+            double dpop(particles[part][Bunch::dpop]);
 
-             FF_algorithm::yoshida<double, FF_algorithm::thin_sextupole_unit<double>, 2, 1 >
-                     ( x, xp, y, yp, cdt, dpop,
-                       reference_momentum, m,
-                       step_reference_cdt,
-                       step_length, step_strength, steps );
+            FF_algorithm::yoshida<double, FF_algorithm::thin_sextupole_unit<double>, 2, 1 >
+                    ( x, xp, y, yp, cdt, dpop,
+                      reference_momentum, m,
+                      step_reference_cdt,
+                      step_length, step_strength, steps );
 
-             particles[part][Bunch::x] = x;
-             particles[part][Bunch::xp] = xp;
-             particles[part][Bunch::y] = y;
-             particles[part][Bunch::yp] = yp;
-             particles[part][Bunch::cdt] = cdt;
+            particles[part][Bunch::x] = x;
+            particles[part][Bunch::xp] = xp;
+            particles[part][Bunch::y] = y;
+            particles[part][Bunch::yp] = yp;
+            particles[part][Bunch::cdt] = cdt;
         }
+
         bunch.get_reference_particle().increment_trajectory(length);
     }
 }

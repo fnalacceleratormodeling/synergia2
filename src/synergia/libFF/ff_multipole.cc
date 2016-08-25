@@ -98,6 +98,21 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         }
     }
 
+    // scaling
+    Reference_particle ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle ref_b = bunch.get_reference_particle();
+
+    double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
+    double brho_b = ref_b.get_momentum() / ref_l.get_charge();  // GV/c
+
+    double scale = brho_l / brho_b;
+
+    for (int i=0; i<knl.size(); ++i)
+    {
+        knl[i] *= scale;
+        ksl[i] *= scale;
+    }
+
     double kL[2];
 
     int local_num = bunch.get_local_num();

@@ -88,15 +88,28 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[0] = slice.get_lattice_element().get_double_attribute("k1", 0.0);
     k[1] = slice.get_lattice_element().get_double_attribute("k1s", 0.0);
 
-     // tilting
-     double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
-     if (tilt != 0.0)
-     {
-         std::complex<double> ck2(k[0], -k[1]);
-         ck2 = ck2 * exp(std::complex<double>(0.0, -2.0*tilt));
-         k[0] = ck2.real();
-         k[1] = ck2.imag();
-     }
+    // tilting
+    double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
+    if (tilt != 0.0)
+    {
+        std::complex<double> ck2(k[0], -k[1]);
+        ck2 = ck2 * exp(std::complex<double>(0.0, -2.0*tilt));
+        k[0] = ck2.real();
+        k[1] = ck2.imag();
+    }
+
+    // scaling
+    Reference_particle ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle ref_b = bunch.get_reference_particle();
+
+    double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
+    double brho_b = ref_b.get_momentum() / ref_l.get_charge();  // GV/c
+
+    double scale = brho_l / brho_b;
+
+    k[0] *= scale;
+    k[1] *= scale;
+
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
