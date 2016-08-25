@@ -114,8 +114,8 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double hk = slice.get_lattice_element().get_double_attribute("hkick");
     double vk = slice.get_lattice_element().get_double_attribute("vkick");
 
-    Reference_particle ref_lattice = get_ref_particle_from_slice(slice);
-    Reference_particle ref_bunch   = bunch.get_reference_particle();
+    Reference_particle const & ref_lattice = get_ref_particle_from_slice(slice);
+    Reference_particle const & ref_bunch   = bunch.get_reference_particle();
 
     hk = hk * ref_bunch.get_charge() / ref_lattice.get_charge();
     vk = vk * ref_bunch.get_charge() / ref_lattice.get_charge();
