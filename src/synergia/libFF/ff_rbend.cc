@@ -144,17 +144,10 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    double reference_momentum = bunch.get_reference_particle().get_momentum();
-    int    reference_charge   = bunch.get_reference_particle().get_charge();
-    double m = bunch.get_mass();
-
-    double pref = reference_momentum;
+    // geometries
     double theta = angle / 2.0;
     double ct = cos(-theta);
     double st = sin(-theta);
-
-    double reference_brho = pref / PH_CNV_brho_to_p;
-    double strength = reference_brho * angle / arc;
 
     double usFaceAngle = 0.0;  // always 0 for rbends
     double dsFaceAngle = 0.0;  // alwasy 0 for rbends
@@ -163,7 +156,30 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     std::complex<double> phase = std::exp( std::complex<double>(0.0, psi) );
     std::complex<double> term = length * std::complex<double> ( cos(dsFaceAngle), -sin(dsFaceAngle) );
 
-    double edge_k = ((reference_charge > 0) ? 1.0 : -1.0 ) * strength * tan(theta) / reference_brho;
+    // charge, strength, and scaling
+    Reference_particle ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle ref_b = bunch.get_reference_particle();
+
+    double s_brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
+    double s_brho_b = ref_b.get_momentum() / ref_l.get_charge();  // GV/c
+
+    double scale = s_brho_l / s_brho_b;
+
+    double m = bunch.get_mass();
+
+    double pref_l = ref_l.get_momentum();
+    double pref_b = ref_b.get_momentum();
+
+    int charge_l = ref_l.get_charge();
+    int charge_b = ref_b.get_charge();
+
+    double brho_l = pref_l / (PH_CNV_brho_to_p * charge_l);
+    double strength = brho_l / rho;
+    double eB = charge_b * strength;
+
+    // edge strength with scale
+    double edge_k = ((charge_l > 0) ? 1.0 : -1.0 ) * tan(theta) / rho;
+    edge_k *= scale;
 
     if (k[2] == 0.0 && k[4] == 0.0)
     {
@@ -191,7 +207,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             GSVector dpop(particles[part][Bunch::dpop]);
 
             // upstream slot
-            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref_b, m);
 
             // upstream edge
             FF_algorithm::edge_unit(y, yp, edge_k);
@@ -199,14 +215,14 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             // bend
             // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
             FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
-                    dphi, strength, pref, m, reference_cdt, 
+                    dphi, strength, pref_b, m, reference_cdt, 
                     phase, term);
 
             // downstream edge
             FF_algorithm::edge_unit(y, yp, edge_k);
 
             // downstream slot
-            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref_b, m);
 
             particles[part][Bunch::x]   = x;
             particles[part][Bunch::xp]  = xp;
@@ -230,7 +246,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double dpop(particles[part][Bunch::dpop]);
 
             // upstream slot
-            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref_b, m);
 
             // upstream edge
             FF_algorithm::edge_unit(y, yp, edge_k);
@@ -238,14 +254,14 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             // bend
             // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
             FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
-                    dphi, strength, pref, m, reference_cdt, 
+                    dphi, eB, pref_b, m, reference_cdt, 
                     phase, term);
 
             // downstream edge
             FF_algorithm::edge_unit(y, yp, edge_k);
 
             // downstream slot
-            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref_b, m);
 
             particles[part][Bunch::x]   = x;
             particles[part][Bunch::xp]  = xp;
@@ -277,7 +293,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
             FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
                 ( x, xp, y, yp, cdt, dpop,
-                  reference_momentum, m,
+                  pref_b, m,
                   step_reference_cdt,
                   step_length, step_strength, steps );
 
