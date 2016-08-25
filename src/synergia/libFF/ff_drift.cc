@@ -26,6 +26,9 @@ double FF_drift::get_reference_cdt(double length, Reference_particle & reference
 
 void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
+    throw std::runtime_error("Propagate JetParticle through a drift element is yet to be implemented");
+
+#if 0
     double length = slice.get_right() - slice.get_left();
 
     typedef PropagatorTraits<JetParticle>::State_t State_t;
@@ -50,15 +53,18 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                reference_cdt);
+#endif
 }
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     const double  length = slice.get_right() - slice.get_left();
     const int  local_num = bunch.get_local_num();
-    const double   ref_p = bunch.get_reference_particle().get_momentum();
     const double    mass = bunch.get_mass();
     const double ref_cdt = get_reference_cdt(length, bunch.get_reference_particle());
+
+    Reference_particle & ref_b = bunch.get_reference_particle();
+    const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
     double * RESTRICT xa, * RESTRICT xpa;
     double * RESTRICT ya, * RESTRICT ypa;
