@@ -104,7 +104,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     Reference_particle ref_b = bunch.get_reference_particle();
 
     double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
-    double brho_b = ref_b.get_momentum() / ref_l.get_charge();  // GV/c
+    double brho_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
 
     double scale = brho_l / brho_b;
 
