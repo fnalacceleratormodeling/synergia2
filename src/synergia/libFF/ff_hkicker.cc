@@ -49,6 +49,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
 {
     throw std::runtime_error("libFF::hkicker for JetParticles has yet to be implemented");
 
+#if 0
     double length = slice.get_right() - slice.get_left();
 
     double l = slice.get_lattice_element().get_double_attribute("l", 0.0);
@@ -89,6 +90,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
         FF_algorithm::thin_kicker_unit(xp, k);
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
     }
+#endif
 }
 
 void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)

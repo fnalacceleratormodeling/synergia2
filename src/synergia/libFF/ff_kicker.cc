@@ -50,6 +50,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, JetParticle& jet_parti
 {
     throw std::runtime_error("libFF::kicker for JetParticles has yet to be implemented");
 
+#if 0
     double length = slice.get_right() - slice.get_left();
 
     double  l = slice.get_lattice_element().get_double_attribute("l", 0.0);
@@ -102,6 +103,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, JetParticle& jet_parti
                   step_length, k, steps );
  
     }
+#endif
 }
 
 void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)

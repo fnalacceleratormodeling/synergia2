@@ -38,6 +38,9 @@ double FF_octupole::get_reference_cdt(double length, double * k,
 
 void FF_octupole::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
+    throw std::runtime_error("Propagate JetParticle through a octupole element is yet to be implemented");
+
+#if 0
     double length = slice.get_right() - slice.get_left();
 
     double k[2];
@@ -79,6 +82,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, JetParticle& jet_par
     }
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                reference_cdt);
+#endif
 }
 
 void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
