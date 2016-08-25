@@ -131,10 +131,6 @@ Diagnostics_particles::write()
 
         if (get_write_helper().write_locally()) {
 
-            for (int ii=0; ii<num_procs; ++ii) {
-                std::cout << "proc: " << ii << ": " << local_nums[ii] << std::endl;
-            }
-
             Hdf5_file_sptr file_sptr = get_write_helper().get_hdf5_file_sptr();
             receive_other_local_particles(local_nums, file_sptr);
             Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
