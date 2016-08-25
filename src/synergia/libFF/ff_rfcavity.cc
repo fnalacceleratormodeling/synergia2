@@ -28,6 +28,9 @@ double get_reference_cdt(double length, Reference_particle & reference_particle)
 
 void FF_rfcavity::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
+    throw std::runtime_error("propagate jet particle for rf cavity has yet to be implemented");
+
+#if 0
     double length = slice.get_right() - slice.get_left();
     double freq = 0.0;
 
@@ -50,6 +53,7 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, JetParticle& jet_par
     rfcavity_unit(x, xp, y, yp, cdt, dpop,
                   length, freq,
                   reference_momentum, m, reference_brho);
+#endif
 }
 
 void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
@@ -71,7 +75,6 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     MArray2d_ref particles = bunch.get_local_particles();
 
     double reference_momentum = bunch.get_reference_particle().get_momentum();
-    double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
     double m = bunch.get_mass();
 
     double new_ref_p = FF_algorithm::thin_rfcavity_pnew(reference_momentum, m, str, phi_s);
