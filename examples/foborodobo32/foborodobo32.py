@@ -238,10 +238,9 @@ bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
 bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2("full2.h5"))
 if opts.particles:
     print >>logger, "saving particles"
-    # save_particles option=n, 0: don't save, non-zero: save n particles
+    # particles option: true or non-zero, save particles
     # particles_period=n option, save particles every n turns
-    if opts.save_particles:
-        bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("particles.h5", 0, opts.save_particles), opts.particles_period)
+    bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("particles.h5"), opts.particles_period)
 if opts.tracks:
     print >>logger, "saving ", opts.tracks, " particle tracks"
     bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_bulk_track("tracks.h5", opts.tracks))
