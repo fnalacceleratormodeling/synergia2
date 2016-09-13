@@ -2268,7 +2268,7 @@ Matrix_madx_adaptor::Matrix_madx_adaptor()
     get_default_element().set_double_attribute("rm42", 0.0);
     get_default_element().set_double_attribute("rm43", 0.0);
     get_default_element().set_double_attribute("rm45", 0.0);
-    get_default_element().set_double_attribute("rm56", 0.0);
+    get_default_element().set_double_attribute("rm46", 0.0);
 
     get_default_element().set_double_attribute("rm51", 0.0);
     get_default_element().set_double_attribute("rm52", 0.0);
