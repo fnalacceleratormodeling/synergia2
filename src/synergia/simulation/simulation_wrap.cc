@@ -187,16 +187,22 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_tune_overloads01,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_tune_overloads01,
         Lattice_simulator::get_vertical_tune, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_chromaticity_overloads01, 
-	Lattice_simulator::get_horizontal_chromaticity, 0,1)				
+    Lattice_simulator::get_horizontal_chromaticity, 0,1)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_chromaticities_overloads01,
+    Lattice_simulator::get_horizontal_chromaticities, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_chromaticity_overloads01, 
 	Lattice_simulator::get_vertical_chromaticity, 0,1)  
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_alt_horizontal_chromaticity_overloads01, 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_chromaticities_overloads01,
+    Lattice_simulator::get_vertical_chromaticities, 0,1)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_alt_horizontal_chromaticity_overloads01,
 	Lattice_simulator::get_alt_horizontal_chromaticity, 0,1)				
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_alt_vertical_chromaticity_overloads01, 
 	Lattice_simulator::get_alt_vertical_chromaticity, 0,1)  
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_slip_factor_overloads01,
 	Lattice_simulator::get_slip_factor,0,1)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_momentum_compaction_overloads01,	
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_slip_factors_overloads01,
+    Lattice_simulator::get_slip_factors,0,1)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_momentum_compaction_overloads01,
 	Lattice_simulator::get_momentum_compaction,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_both_tunes_overloads01,
         Lattice_simulator::get_both_tunes, 0, 1)
@@ -423,8 +429,12 @@ BOOST_PYTHON_MODULE(simulation)
 	                           adjust_tunes_overloads46())
         .def("get_horizontal_chromaticity", &Lattice_simulator::get_horizontal_chromaticity,
 	                     get_horizontal_chromaticity_overloads01())
+        .def("get_horizontal_chromaticities", &Lattice_simulator::get_horizontal_chromaticities,
+                         get_horizontal_chromaticities_overloads01())
         .def("get_vertical_chromaticity", &Lattice_simulator::get_vertical_chromaticity,
 	                     get_vertical_chromaticity_overloads01())
+        .def("get_vertical_chromaticities", &Lattice_simulator::get_vertical_chromaticities,
+                             get_vertical_chromaticities_overloads01())
         .def("get_alt_horizontal_chromaticity", &Lattice_simulator::get_alt_horizontal_chromaticity,
 	                     get_alt_horizontal_chromaticity_overloads01())
         .def("get_alt_vertical_chromaticity", &Lattice_simulator::get_alt_vertical_chromaticity,
@@ -433,6 +443,8 @@ BOOST_PYTHON_MODULE(simulation)
                                   get_momentum_compaction_overloads01())
         .def("get_slip_factor",&Lattice_simulator::get_slip_factor,
 	                               get_slip_factor_overloads01())
+        .def("get_slip_factors",&Lattice_simulator::get_slip_factors,
+                                   get_slip_factors_overloads01())
         .def("adjust_chromaticities", &Lattice_simulator::adjust_chromaticities,
 	                             adjust_chromaticities_overloads46())
       .def("is_ring", &Lattice_simulator::is_ring)
