@@ -503,10 +503,15 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 have_tunes(false),
                 horizontal_chromaticity(0.0),
                 vertical_chromaticity(0.0),
+                horizontal_chromaticity_prime(0.0),
+                vertical_chromaticity_prime(0.0),
                 have_chromaticities(false),
                 alt_horizontal_chromaticity(0.0),
                 alt_vertical_chromaticity(0.0),
                 have_alt_chromaticities(false),
+                momentum_compaction(0.0),
+                slip_factor(0.0),
+                slip_factor_prime(0.0),
                 linear_one_turn_map(boost::extents[6][6])
 
 {
@@ -545,10 +550,15 @@ Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator)
                 have_tunes(false),
                 horizontal_chromaticity(0.0),
                 vertical_chromaticity(0.0),
+                horizontal_chromaticity_prime(0.0),
+                vertical_chromaticity_prime(0.0),
                 have_chromaticities(false),
                 alt_horizontal_chromaticity(0.0),
                 alt_vertical_chromaticity(0.0),
                 have_alt_chromaticities(false),
+                momentum_compaction(0.0),
+                slip_factor(0.0),
+                slip_factor_prime(0.0),
                 linear_one_turn_map(boost::extents[6][6])
 
 {
@@ -1692,30 +1702,83 @@ Lattice_simulator::get_chromaticities(double dpp)
         calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_plus,  tune_v_plus, c_delta_t_plus);
         calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), -dpp, beamline_sptr, copy_beamline_sptr,
-               tune_h_minus,  tune_v_minus, c_delta_t_minus);		       
+               tune_h_minus,  tune_v_minus, c_delta_t_minus);
 
         calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), 2.0*dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_plusplus,  tune_v_plusplus, c_delta_t_plusplus);
         calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), -2.0*dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_minusminus,  tune_v_minusminus, c_delta_t_minusminus);
 
+        // five point stencil:
+        // given function f(x) = a_0 + a_1*x + a_2*x**2 + a_3*x**3 + a_4*x**4
+        // choose offset spacing d, calculate values
+        // y++ = f(2*d)
+        // y+ = f(d)
+        // y0 = f(0)
+        // y- = f(-d)
+        // y-- = f(-2*d)
+        // then you can easily calculate:
+        // y0 = a_0
+        // y+ - y- = 2*a_1*d + 2*a_3*d**3
+        // y++ - y-- = 4*a_1*d + 16*a_3*d**3
+        // y+ + y- - 2*y0 = 2*a_2*d**2 + 2*a_4*d**4
+        // y++ + y-- - 2*y0 = 8*a_2*d**2 + 32*a_4*d**4
+        // yielding expressions:
+        // 8*(y+ - y-) - (y++ - y--) = 12*a_1*d
+        // (y++ - y--) - 2*(y+ - y-) = 12*a_3*d**3
+        // 16*(y+ + y- - 2*y_0) - (y++ + y-- - 2*y_0) = 24*a_2*d**2
+        // (y++ + y-- - 2*y_0) - 4*(y+ + y- - 2*y_0) = 24*a_4*d**4
+
         double a_h_chrom, b_h_chrom;
         a_h_chrom = 0.5*(tune_h_plus-tune_h_minus)/dpp;
         b_h_chrom = 0.25*(tune_h_plusplus-tune_h_minusminus)/dpp;
-        horizontal_chromaticity=(4*a_h_chrom - b_h_chrom)/3.0;
+        double horizontal_chromaticity_alt=(4*a_h_chrom - b_h_chrom)/3.0;
 
         double a_v_chrom, b_v_chrom;
         a_v_chrom = 0.5*(tune_v_plus-tune_v_minus)/dpp;
         b_v_chrom = 0.25*(tune_v_plusplus-tune_v_minusminus)/dpp;
-        vertical_chromaticity=(4*a_v_chrom - b_v_chrom)/3.0;
+        double vertical_chromaticity_alt=(4*a_v_chrom - b_v_chrom)/3.0;
 
         double a_slip, b_slip;
         a_slip = 0.5*(c_delta_t_plus-c_delta_t_minus)/cT0 / dpp;
         b_slip = 0.25*(c_delta_t_plusplus-c_delta_t_minusminus)/cT0 / dpp;
-        slip_factor =(4*a_slip-b_slip)/3.0;
+        double slip_factor_alt =(4*a_slip-b_slip)/3.0;
+        double cdtp_m_cdtm = c_delta_t_plus - c_delta_t_minus;
+        double cdtp_p_cdtm_m2cdt0 = c_delta_t_plus + c_delta_t_minus - 2*cT0;
+        double cdtpp_m_cdtmm = c_delta_t_plusplus - c_delta_t_minusminus;
+        double cdtpp_p_cdtmm_m2cdt0 = c_delta_t_plusplus + c_delta_t_minusminus - 2*cT0;
+
+        double qxp_m_qxm = tune_h_plus - tune_h_minus;
+        double qxp_p_qxm_m2qx0 = tune_h_plus + tune_h_minus - 2*tune_h0;
+        double qxpp_m_qxmm = tune_h_plusplus - tune_h_minusminus;
+        double qxpp_p_qxmm_m2qx0 = tune_h_plusplus + tune_h_minusminus - 2*tune_h0;
+
+        double qyp_m_qym = tune_v_plus - tune_v_minus;
+        double qyp_p_qym_m2qy0 = tune_v_plus + tune_v_minus - 2*tune_v0;
+        double qypp_m_qymm = tune_v_plusplus - tune_v_minusminus;
+        double qypp_p_qymm_m2qy0 = tune_v_plusplus + tune_v_minusminus - 2*tune_v0;
+
+        slip_factor = (8.0*cdtp_m_cdtm - cdtpp_m_cdtmm)/(12.0*dpp*cT0);
+        slip_factor_prime = 2.0*(16*cdtp_p_cdtm_m2cdt0 - cdtpp_p_cdtmm_m2cdt0)/(24.0*dpp*dpp*cT0*cT0);
 
         momentum_compaction = slip_factor + 1. / gamma / gamma;
-        have_chromaticities = true;	
+
+        // d^2 cdt/d dpop^2 = 2! *a_2
+
+        // d^3 cdt/ d dpop^3 = 3! * a_3 but I'm not planning on using it
+        // double d3cdt_d_dpop3 = 6.0*(cdtpp_m_cdtmm - 2.0*cdtp_m_cdtm)/(12.0*dpp*dpp*dpp*cT0*cT0*cT0);
+
+        // d^4 cdt / d dpop^4 = 4! * a_4 but I'm not planning on using it
+        // double d4cdt_d_dpop4 = 24.0*(cdtpp_p_cdtmm_m2cdt0 - 4.0*cdtp_p_cdtm_m2cdt0)/(24.0*dpp*dpp*dpp*dpp*cT0*cT0*cT0*cT0);
+
+        horizontal_chromaticity = (8.0*qxp_m_qxm - qxpp_m_qxmm)/(12.0*dpp);
+        vertical_chromaticity = (8.0*qyp_m_qym - qypp_m_qymm)/(12.0*dpp);
+
+        horizontal_chromaticity_prime = 2.0*(16*qxp_p_qxm_m2qx0 - qxpp_p_qxmm_m2qx0)/(24.0*dpp*dpp);
+        vertical_chromaticity_prime = 2.0*(16*qyp_p_qym_m2qy0 - qypp_p_qymm_m2qy0)/(24.0*dpp*dpp);
+
+        have_chromaticities = true;
+
     }
 }
 
@@ -1747,6 +1810,16 @@ Lattice_simulator::get_slip_factor(double dpp)
     return slip_factor;
 }
 
+MArray1d
+Lattice_simulator::get_slip_factors(double dpp)
+{
+    get_chromaticities(dpp);
+    MArray1d slip_factors(boost::extents[2]);
+    slip_factors[0] = slip_factor;
+    slip_factors[1] = slip_factor_prime;
+    return slip_factors;
+}
+
 double
 Lattice_simulator::get_momentum_compaction(double dpp)
 {
@@ -1761,11 +1834,31 @@ Lattice_simulator::get_horizontal_chromaticity(double dpp)
     return horizontal_chromaticity;
 }
 
+MArray1d
+Lattice_simulator::get_horizontal_chromaticities(double dpp)
+{
+    get_chromaticities(dpp);
+    MArray1d hchrom(boost::extents[2]);
+    hchrom[0] = horizontal_chromaticity;
+    hchrom[1] = horizontal_chromaticity_prime;
+    return hchrom;
+}
+
 double
 Lattice_simulator::get_vertical_chromaticity(double dpp)
 {
     get_chromaticities(dpp);
     return vertical_chromaticity;
+}
+
+MArray1d
+Lattice_simulator::get_vertical_chromaticities(double dpp)
+{
+    get_chromaticities(dpp);
+    MArray1d vchrom(boost::extents[2]);
+    vchrom[0] = vertical_chromaticity;
+    vchrom[1] = vertical_chromaticity_prime;
+    return vchrom;
 }
 
 double
@@ -2144,10 +2237,15 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(have_tunes);
         ar & BOOST_SERIALIZATION_NVP(horizontal_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(vertical_chromaticity);
+        ar & BOOST_SERIALIZATION_NVP(horizontal_chromaticity_prime);
+        ar & BOOST_SERIALIZATION_NVP(vertical_chromaticity_prime);
         ar & BOOST_SERIALIZATION_NVP(have_chromaticities);
         ar & BOOST_SERIALIZATION_NVP(alt_horizontal_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(alt_vertical_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(have_alt_chromaticities);
+        ar & BOOST_SERIALIZATION_NVP(momentum_compaction);
+        ar & BOOST_SERIALIZATION_NVP(slip_factor);
+        ar & BOOST_SERIALIZATION_NVP(slip_factor_prime);
         ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
         ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
         ar & BOOST_SERIALIZATION_NVP(et_lattice_functions_element_map);
@@ -2178,10 +2276,15 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(have_tunes);
         ar & BOOST_SERIALIZATION_NVP(horizontal_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(vertical_chromaticity);
+        ar & BOOST_SERIALIZATION_NVP(horizontal_chromaticity_prime);
+        ar & BOOST_SERIALIZATION_NVP(vertical_chromaticity_prime);
         ar & BOOST_SERIALIZATION_NVP(have_chromaticities);
         ar & BOOST_SERIALIZATION_NVP(alt_horizontal_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(alt_vertical_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(have_alt_chromaticities);
+        ar & BOOST_SERIALIZATION_NVP(momentum_compaction);
+        ar & BOOST_SERIALIZATION_NVP(slip_factor);
+        ar & BOOST_SERIALIZATION_NVP(slip_factor_prime);
         ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
         ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
         ar & BOOST_SERIALIZATION_NVP(et_lattice_functions_element_map);
