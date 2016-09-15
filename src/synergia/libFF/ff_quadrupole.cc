@@ -93,8 +93,11 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[1] = slice.get_lattice_element().get_double_attribute("k1s", 0.0);
 
     // offsets
-    double xoff = slice.get_lattice_element().get_double_attribute("hoffset", 0.0);
-    double yoff = slice.get_lattice_element().get_double_attribute("voffset", 0.0);
+    const double xoff = slice.get_lattice_element().get_double_attribute("hoffset", 0.0);
+    const double yoff = slice.get_lattice_element().get_double_attribute("voffset", 0.0);
+
+    const GSVector vxoff(xoff);
+    const GSVector vyoff(yoff);
 
     // tilting
     double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
@@ -127,9 +130,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double * RESTRICT cdta, * RESTRICT dpopa;
 
     bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-    GSVector vxoff(xoff);
-    GSVector vyoff(yoff);
 
     const int num_blocks = local_num / GSVector::size;
     const int block_last = num_blocks * GSVector::size;
