@@ -92,6 +92,10 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[0] = slice.get_lattice_element().get_double_attribute("k1", 0.0);
     k[1] = slice.get_lattice_element().get_double_attribute("k1s", 0.0);
 
+    // offsets
+    double xoff = slice.get_lattice_element().get_double_attribute("hoffset", 0.0);
+    double yoff = slice.get_lattice_element().get_double_attribute("voffset", 0.0);
+
     // tilting
     double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
     if (tilt != 0.0)
@@ -124,6 +128,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
+    GSVector vxoff(xoff);
+    GSVector vyoff(yoff);
+
     const int num_blocks = local_num / GSVector::size;
     const int block_last = num_blocks * GSVector::size;
 
@@ -137,6 +144,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             GSVector  y( &ya[part]);
             GSVector yp(&ypa[part]);
 
+            x -= vxoff;
+            y -= vyoff;
+
             FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
 
             xp.store(&xpa[part]);
@@ -149,6 +159,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double xp(xpa[part]);
             double  y( ya[part]);
             double yp(ypa[part]);
+
+            x -= xoff;
+            y -= yoff;
 
             FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
 
@@ -178,6 +191,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             GSVector   yp(  &ypa[part]);
             GSVector  cdt( &cdta[part]);
             GSVector dpop(&dpopa[part]);
+
+            x -= vxoff;
+            y -= vyoff;
 
 #if 0
             FF_algorithm::yoshida<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 6/*order*/, 1/*components*/ >
@@ -210,6 +226,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                       reference_cdt, length, k, 40 /* kicks */ );
 #endif
 
+            x += vxoff;
+            y += vyoff;
+
                x.store(&xa[part]);
               xp.store(&xpa[part]);
                y.store(&ya[part]);
@@ -227,11 +246,17 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double  cdt( cdta[part]);
             double dpop(dpopa[part]);
 
+            x -= xoff;
+            y -= yoff;
+
             FF_algorithm::yoshida6<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
                     ( x, xp, y, yp, cdt, dpop,
                       reference_momentum, m,
                       step_reference_cdt,
                       step_length, step_strength, steps );
+
+            x += xoff;
+            y += yoff;
 
                xa[part] = x;
               xpa[part] = xp;
