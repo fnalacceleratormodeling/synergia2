@@ -131,10 +131,11 @@ private:
     double horizontal_tune, vertical_tune;
     bool have_tunes;
     double horizontal_chromaticity, vertical_chromaticity;
+    double horizontal_chromaticity_prime, vertical_chromaticity_prime;
     bool have_chromaticities;
     double alt_horizontal_chromaticity, alt_vertical_chromaticity;
     bool have_alt_chromaticities;
-    double momentum_compaction, slip_factor;
+    double momentum_compaction, slip_factor, slip_factor_prime;
     MArray2d linear_one_turn_map;
     std::map<Lattice_element *, Lattice_functions > lattice_functions_element_map;
     std::map<Lattice_element_slice *, Lattice_functions > lattice_functions_slice_map;
@@ -273,12 +274,18 @@ public:
                     1.0e-5, int verbosity = 0);
     double
     get_slip_factor(double dpp=1.0e-5);
+    MArray1d
+    get_slip_factors(double dpp=1.0e-5);
     double
     get_momentum_compaction(double dpp=1.e-5);
     double
     get_horizontal_chromaticity(double dpp=1.e-5);
+    MArray1d
+    get_horizontal_chromaticities(double dpp=1.0e-5);
     double
     get_vertical_chromaticity(double dpp=1.e-5);
+    MArray1d
+    get_vertical_chromaticities(double dpp=1.0e-5);
     double
     get_alt_horizontal_chromaticity(double dpp=1.e-5);
     double
