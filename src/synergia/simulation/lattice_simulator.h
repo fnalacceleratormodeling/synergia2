@@ -116,10 +116,10 @@ private:
     Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map_sptr extractor_map_sptr;
     Aperture_operation_extractor_map_sptr aperture_extractor_map_sptr;
-    bool have_beamline_context, have_sliced_beamline_context;
     BmlContextPtr beamline_context_sptr, sliced_beamline_context_sptr;
     int map_order;
-    double bucket_length;
+    double bucket_length; /// bucket length  lattice_length/harmon
+    double rf_bucket_length;///rf  bucket length  beta*c/freq
     bool have_element_lattice_functions;
     bool have_slice_lattice_functions;
     bool have_element_et_lattice_functions;
@@ -135,6 +135,7 @@ private:
     bool have_chromaticities;
     double alt_horizontal_chromaticity, alt_vertical_chromaticity;
     bool have_alt_chromaticities;
+    double closed_orbit_length;
     double momentum_compaction, slip_factor, slip_factor_prime;
     MArray2d linear_one_turn_map;
     std::map<Lattice_element *, Lattice_functions > lattice_functions_element_map;
@@ -162,7 +163,7 @@ private:
     void
     get_tunes(bool use_eigen_tune);
     void
-    calculate_normal_form();
+    calculate_normal_form(bool sliced);
     Normal_form_sage_sptr normal_form_sage_sptr;
     void
     get_chromaticities(double dpp);
@@ -183,9 +184,14 @@ public:
     get_map_order() const;
     void
     set_bucket_length();
-    /// bucket length is in z_lab frame
+    /// bucket length is in z_lab frame, lattice_length/harmon
+    void
+    set_rf_bucket_length();
+    /// bucket length is in z_lab frame, beta*c/freq
     double
     get_bucket_length();
+    double
+    get_rf_bucket_length();
     int
     get_number_buckets();
     Operation_extractor_map_sptr
@@ -202,8 +208,14 @@ public:
     get_chef_lattice_sptr();
     void
     update();
+    void
+    register_closed_orbit(bool sliced=true);
     MArray1d
-    get_closed_orbit(double dpop = 0.0);
+    get_closed_orbit(double dpop = 0.0, bool sliced=true);
+    double
+    get_closed_orbit_length();
+    double
+    get_rf_frequency();
     void
     calculate_element_lattice_functions(); // Courant Snyder lattice functions
     void
@@ -255,7 +267,7 @@ public:
     bool
     is_ring();
     Normal_form_sage_sptr
-    get_normal_form_sptr();
+    get_normal_form_sptr(bool sliced=true);
     Const_MArray2d_ref
     get_linear_one_turn_map(bool sliced=true);
     void

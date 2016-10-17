@@ -379,21 +379,15 @@ Lattice_simulator::calculate_sliced_beamline_context()
 
 BmlContextPtr
 Lattice_simulator::get_beamline_context()
-{
-    if (!have_beamline_context) {
-        calculate_beamline_context();
-        have_beamline_context = true;
-    }
+{   
+    calculate_beamline_context();      
     return beamline_context_sptr;
 }
 
 BmlContextPtr
 Lattice_simulator::get_sliced_beamline_context()
 {
-    if (!have_sliced_beamline_context) {
-        calculate_sliced_beamline_context();
-        have_sliced_beamline_context = true;
-    }
+    calculate_sliced_beamline_context();
     return sliced_beamline_context_sptr;
 }
 
@@ -409,10 +403,8 @@ Lattice_simulator::get_tunes(bool use_eigen_tune)
 {
     void calculate_tune_and_cdt(const Reference_particle, double, BmlPtr &, BmlPtr &,
                                 double&, double&, double &);
-    if (!have_tunes) {
-        if (Jet__environment::getLastEnv() == 0) {
-            JetParticle::createStandardEnvironments(map_order);
-        }
+    if (!have_tunes) {        
+        ensure_jet_environment(map_order);
         double momentum(lattice_sptr->get_reference_particle().get_momentum());
         Particle probe(reference_particle_to_chef_particle(
                 lattice_sptr->get_reference_particle()));
@@ -480,10 +472,54 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
                 extractor_map_sptr(new Operation_extractor_map),
                 aperture_extractor_map_sptr(
-                        new Aperture_operation_extractor_map),
-                have_beamline_context(false),
-                have_sliced_beamline_context(false),
+                        new Aperture_operation_extractor_map),              
                 map_order(map_order),
+                have_element_lattice_functions(false),
+                have_slice_lattice_functions(false),
+                have_element_et_lattice_functions(false),
+                have_slice_et_lattice_functions(false),
+                have_element_lb_lattice_functions(false),
+                have_slice_lb_lattice_functions(false),
+                have_element_dispersion(false),
+                have_slice_dispersion(false),
+                horizontal_tune(0.0),
+                vertical_tune(0.0),
+                have_tunes(false),
+                horizontal_chromaticity(0.0),
+                vertical_chromaticity(0.0),
+                horizontal_chromaticity_prime(0.0),
+                vertical_chromaticity_prime(0.0),
+                have_chromaticities(false),
+                alt_horizontal_chromaticity(0.0),
+                alt_vertical_chromaticity(0.0),
+                have_alt_chromaticities(false),
+                momentum_compaction(0.0),
+                slip_factor(0.0),
+                slip_factor_prime(0.0),
+                linear_one_turn_map(boost::extents[6][6])
+
+{
+    construct_extractor_map();
+    construct_aperture_extractor_map();    
+    set_bucket_length();
+}
+
+Lattice_simulator::Lattice_simulator()
+{
+}
+
+Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator) :
+                lattice_sptr(lattice_simulator.lattice_sptr),
+                slices(),
+                have_slices(false),
+                chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
+                extractor_map_sptr(new Operation_extractor_map),
+                aperture_extractor_map_sptr(
+                        new Aperture_operation_extractor_map),             
+                map_order(lattice_simulator.map_order),
+                bucket_length(lattice_simulator.bucket_length),
+                rf_bucket_length(lattice_simulator.rf_bucket_length),
+                closed_orbit_length(lattice_simulator.closed_orbit_length),
                 have_element_lattice_functions(false),
                 have_slice_lattice_functions(false),
                 have_element_et_lattice_functions(false),
@@ -514,51 +550,6 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
     set_bucket_length();
 }
 
-Lattice_simulator::Lattice_simulator()
-{
-}
-
-Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator) :
-                lattice_sptr(lattice_simulator.lattice_sptr),
-                slices(),
-                have_slices(false),
-                chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
-                extractor_map_sptr(new Operation_extractor_map),
-                aperture_extractor_map_sptr(
-                        new Aperture_operation_extractor_map),
-                have_beamline_context(false),
-                have_sliced_beamline_context(false),
-                map_order(lattice_simulator.map_order),
-                bucket_length(lattice_simulator.bucket_length),
-                have_element_lattice_functions(false),
-                have_slice_lattice_functions(false),
-                have_element_et_lattice_functions(false),
-                have_slice_et_lattice_functions(false),
-                have_element_lb_lattice_functions(false),
-                have_slice_lb_lattice_functions(false),
-                have_element_dispersion(false),
-                have_slice_dispersion(false),
-                horizontal_tune(0.0),
-                vertical_tune(0.0),
-                have_tunes(false),
-                horizontal_chromaticity(0.0),
-                vertical_chromaticity(0.0),
-                horizontal_chromaticity_prime(0.0),
-                vertical_chromaticity_prime(0.0),
-                have_chromaticities(false),
-                alt_horizontal_chromaticity(0.0),
-                alt_vertical_chromaticity(0.0),
-                have_alt_chromaticities(false),
-                momentum_compaction(0.0),
-                slip_factor(0.0),
-                slip_factor_prime(0.0),
-                linear_one_turn_map(boost::extents[6][6])
-
-{
-    construct_extractor_map();
-    construct_aperture_extractor_map();
-}
-
 void
 Lattice_simulator::set_slices(Lattice_element_slices const& slices)
 {
@@ -585,6 +576,7 @@ Lattice_simulator::construct_sliced_chef_beamline()
                 "Lattice_simulator::construct_sliced_chef_beamline called before set_slices");
     }
     chef_lattice_sptr->construct_sliced_beamline(slices);
+    set_bucket_length();
 }
 
 int
@@ -629,26 +621,88 @@ Lattice_simulator::get_chef_lattice_sptr()
     return chef_lattice_sptr;
 }
 
+
+
+double
+Lattice_simulator::get_closed_orbit_length()
+{
+  return closed_orbit_length;
+}
+
+
+double
+Lattice_simulator::get_rf_frequency()
+{
+  
+  double freq=0.; 
+  double temp_freq=0.;
+  int found_freq=0;  
+  for (Lattice_elements::const_iterator le_it =
+                    this->lattice_sptr->get_elements().begin();
+                    le_it != this->lattice_sptr->get_elements().end(); ++le_it) {
+      Chef_elements chef_elements(chef_lattice_sptr->get_chef_elements(*(*le_it)));
+     
+      for (Chef_elements::iterator ce_it = chef_elements.begin();
+                ce_it != chef_elements.end(); ++ce_it) {
+          if ((*ce_it)->Type()==std::string("thinrfcavity")){ 
+            temp_freq=boost::dynamic_pointer_cast<thinrfcavity>(*ce_it)->getRadialFrequency()/(2*mconstants::pi); 
+            ++found_freq;
+          }
+          else if ((*ce_it)->Type()==std::string("rfcavity")){
+            temp_freq=boost::dynamic_pointer_cast<rfcavity>(*ce_it)->getRadialFrequency()/(2*mconstants::pi); 
+            ++found_freq;
+          } 
+          // check if rf has the same freq as the one found before
+          if( (found_freq>1) &&  (abs(freq-temp_freq)>freq*1.e-15) ){
+            throw std::runtime_error(" rf cavities with different frequencies found");
+          }
+          else{
+            freq=temp_freq;
+          }       
+ 
+      }
+  }
+  
+  return freq;
+}
+
 void
 Lattice_simulator::set_bucket_length()
 {
     double freq(0.), freq2(0.);
-    int isw = 0;
+    double harmon(0.), harmon2(0.);
+    int iswf = 0;
+    int iswh = 0;
     double eps = 1e-6;
     for (Lattice_elements::const_iterator it =
             this->lattice_sptr->get_elements().begin();
             it != this->lattice_sptr->get_elements().end(); ++it) {
+      
+          if ((*it)->has_double_attribute("harmon")){
+              harmon = (*it)->get_double_attribute("harmon");
+              if ((iswh == 1) && (std::abs(harmon - harmon2) > eps)) {
+                throw std::runtime_error(
+                        "set_bucket_length: rf elements with different harmonic number found!!");
+              }
+              harmon2 = harmon;
+              iswh = 1;
+         }
 
-        if ((*it)->has_double_attribute("freq")) {
-            freq = (*it)->get_double_attribute("freq")*1.0e6;
-            if ((isw == 1) && (std::abs(freq - freq2) > eps)) {
+         if ((*it)->has_double_attribute("freq")) {
+            freq = (*it)->get_double_attribute("freq");
+            if ((iswf == 1) && (std::abs(freq - freq2) > eps)) {
                 throw std::runtime_error(
                         "set_bucket_length: rf elements with different frequencies found!!");
             }
             freq2 = freq;
-            isw = 1;
+            iswf = 1;
         }
-        if (isw == 1) {
+
+            
+        if (iswh == 1) {
+            this->bucket_length=lattice_sptr->get_length()/harmon;
+        }
+        else if (iswf == 1) {
             double beta =
                     this->get_lattice_sptr()->get_reference_particle().get_beta();
             this->bucket_length = pconstants::c * beta / freq;
@@ -658,10 +712,49 @@ Lattice_simulator::set_bucket_length()
     }
 }
 
+void
+Lattice_simulator::set_rf_bucket_length()
+{
+    double freq(0.), freq2(0.);
+    int iswf = 0;
+    double eps = 1e-6;
+    for (Lattice_elements::const_iterator it =
+            this->lattice_sptr->get_elements().begin();
+            it != this->lattice_sptr->get_elements().end(); ++it) {
+                
+
+         if ((*it)->has_double_attribute("freq")) {
+            freq = (*it)->get_double_attribute("freq");
+            if ((iswf == 1) && (std::abs(freq - freq2) > eps)) {
+                throw std::runtime_error(
+                        "set_rf_bucket_length: rf elements with different frequencies found!!");
+            }
+            freq2 = freq;
+            iswf = 1;
+        }
+            
+        
+        if (iswf == 1) {
+            double beta =
+                    this->get_lattice_sptr()->get_reference_particle().get_beta();
+            this->rf_bucket_length = pconstants::c * beta / freq;
+        } else {
+            this->rf_bucket_length = 0.0;
+        }
+    }
+}
+
+
 double
 Lattice_simulator::get_bucket_length()
 {
     return this->bucket_length;
+}
+
+double
+Lattice_simulator::get_rf_bucket_length()
+{
+    return this->rf_bucket_length;
 }
 
 int
@@ -681,10 +774,10 @@ Lattice_simulator::update()
     chef_lattice_sptr = Chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     construct_extractor_map();
     construct_aperture_extractor_map();
-    set_bucket_length();
     if (have_slices) {
         construct_sliced_chef_beamline();
     }
+    set_bucket_length();
     have_element_lattice_functions = false;
     lattice_functions_element_map.clear();
     have_slice_lattice_functions = false;
@@ -706,21 +799,34 @@ Lattice_simulator::update()
     dispersion_slice_map.clear();
 
     have_tunes = false;
-    have_beamline_context = false;
-    have_chromaticities = false;
     have_alt_chromaticities = false;
     normal_form_sage_sptr.reset();
 }
 
+
+
 MArray1d
-Lattice_simulator::get_closed_orbit(double dpop)
+Lattice_simulator::get_closed_orbit(double dpop, bool sliced)
 {
+   
     MArray1d retval(boost::extents[6]); Particle
     test_particle(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
-    // get_closed_orbit_particle clones the beamline
+   
+    
+    BmlPtr beamline_sptr;
+     if ((sliced) && (have_slices)) {
+        beamline_sptr=get_chef_lattice_sptr()->get_sliced_beamline_sptr();     
+     }
+     else{
+        beamline_sptr=get_chef_lattice_sptr()->get_beamline_sptr(); 
+     }  
+    
+
+    //get_closed_orbit_particle clones the beamline
     Particle closed_orbit_particle(get_closed_orbit_particle(test_particle,
-                                                             get_chef_lattice_sptr()->get_beamline_sptr(),
-                                                             dpop));
+                                                             beamline_sptr, dpop));
+   
+      
 
     retval[Bunch::x] = closed_orbit_particle.get_x();
     retval[Bunch::xp] = closed_orbit_particle.get_npx();
@@ -730,6 +836,57 @@ Lattice_simulator::get_closed_orbit(double dpop)
     retval[Bunch::dpop] = closed_orbit_particle.get_ndp();
     return retval;
 }
+
+void
+Lattice_simulator::register_closed_orbit(bool sliced)
+{
+    ensure_jet_environment(map_order);  
+    BmlPtr beamline_sptr;
+    if ((sliced) && (have_slices)) {
+     beamline_sptr=get_chef_lattice_sptr()->get_sliced_beamline_sptr();
+    }
+    else{
+      beamline_sptr=get_chef_lattice_sptr()->get_beamline_sptr();     
+    }  
+
+    beamline_sptr->setLineMode(beamline::ring);
+    ClosedOrbitSage closed_orbit_sage(beamline_sptr);
+    Particle probe(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
+    JetParticle jetprobe(probe);
+    closed_orbit_sage.findClosedOrbit(jetprobe); //for this all RF are turned to zero and restored at the end
+    
+    
+    probe= Particle(jetprobe);  
+    Particle  dummyParticle(probe);
+    RefRegVisitor registrar( dummyParticle);
+    beamline_sptr->accept( registrar );
+ 
+    // set double atribute freq of rfcavities
+    for (Lattice_elements::const_iterator le_it =
+                    this->lattice_sptr->get_elements().begin();
+                    le_it != this->lattice_sptr->get_elements().end(); ++le_it) {
+      Chef_elements chef_elements(chef_lattice_sptr->get_chef_elements(*(*le_it)));
+      for (Chef_elements::iterator ce_it = chef_elements.begin();
+                ce_it != chef_elements.end(); ++ce_it) {
+
+       
+        if ((*ce_it)->Type()==std::string("thinrfcavity")){          
+           double  freq=boost::dynamic_pointer_cast<thinrfcavity>(*ce_it)->getRadialFrequency()/(2*mconstants::pi);         
+           (*le_it)->set_double_attribute("freq",freq);
+        }
+        else if ((*ce_it)->Type()==std::string("rfcavity")){
+           double  freq=boost::dynamic_pointer_cast<rfcavity>(*ce_it)->getRadialFrequency()/(2*mconstants::pi);         
+           (*le_it)->set_double_attribute("freq",freq);
+          
+        }        
+            
+      }
+      
+    }
+
+    closed_orbit_length=probe.Beta()*beamline_sptr->getReferenceTime();
+    
+}  
 
 void
 Lattice_simulator::calculate_element_lattice_functions()
@@ -990,25 +1147,32 @@ Lattice_simulator::get_dispersion_functions(
 // calculate the normal form sage object, leave a shared pointer to this object
 // in the lattice_simulator class member normal_form_sage_sptr
 void
-Lattice_simulator::calculate_normal_form()
-{
-    get_beamline_context();
-    JetParticle jpart(reference_particle_to_chef_jet_particle(
-							lattice_sptr->get_reference_particle(), map_order));
-	jpart.State() = beamline_context_sptr->getOneTurnMap();
+Lattice_simulator::calculate_normal_form(bool sliced)
+{   
+
+     JetParticle jpart(reference_particle_to_chef_jet_particle(
+                            lattice_sptr->get_reference_particle(), map_order));
+    if ((sliced) && (have_slices)) {
+         get_sliced_beamline_context();
+         jpart.State() = sliced_beamline_context_sptr->getOneTurnMap();
+    }
+    else{
+         get_beamline_context(); 
+         jpart.State() = beamline_context_sptr->getOneTurnMap();
+    }
     normal_form_sage_sptr = Normal_form_sage_sptr(
-            new normalFormSage(jpart, map_order));
+            new normalFormSage(jpart, map_order));                    
 }
 
 // return the normal_form_sage_sptr if it exists, otherwise calculate
 // it first and then return it.
 Normal_form_sage_sptr
-Lattice_simulator::get_normal_form_sptr()
+Lattice_simulator::get_normal_form_sptr(bool sliced)
 {
     if (normal_form_sage_sptr) {
         return normal_form_sage_sptr;
     } else {
-        calculate_normal_form();
+        calculate_normal_form(sliced);
         return normal_form_sage_sptr;
     }
 }
@@ -1168,7 +1332,8 @@ Lattice_simulator::get_both_tunes(bool use_eigen_tune)
 double
 Lattice_simulator::get_horizontal_tune(bool use_eigen_tune)
 {
-    get_tunes(use_eigen_tune);
+ 
+    get_tunes(use_eigen_tune);    
     update(); // remake CHEF beamline to restore RF turned off by getHorizontalFracTune()
     return horizontal_tune;
 }
@@ -1665,11 +1830,8 @@ calculate_tune_and_cdt(const Reference_particle refpart, double dpp, BmlPtr & be
 void
 Lattice_simulator::get_chromaticities(double dpp)
 {
-    if (!have_chromaticities) {
-
-        if (Jet__environment::getLastEnv() == 0) {
-            JetParticle::createStandardEnvironments(map_order);
-        }
+    if (!have_chromaticities) {       
+        ensure_jet_environment(map_order);
         double momentum(lattice_sptr->get_reference_particle().get_momentum());
         Particle probe(reference_particle_to_chef_particle(
                 lattice_sptr->get_reference_particle()));
@@ -1778,10 +1940,8 @@ Lattice_simulator::get_chromaticities(double dpp)
 void
 Lattice_simulator::get_alt_chromaticities(double dpp)
 {
-    if (!have_alt_chromaticities) {
-        if (Jet__environment::getLastEnv() == 0) {
-            JetParticle::createStandardEnvironments(map_order);
-        }
+    if (!have_alt_chromaticities) {        
+        ensure_jet_environment(map_order);
         BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr()->Clone());
         LattFuncSage lfs(beamline_sptr);
         lfs.set_dpp(dpp);
@@ -1984,9 +2144,8 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
         Lattice_elements const& vertical_correctors, double tolerance,
         int max_steps)
 {
-    if (Jet__environment::getLastEnv() == 0) {
-        JetParticle::createStandardEnvironments(map_order);
-    }
+    
+    ensure_jet_environment(map_order);
     BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
     BeamlineContext beamline_context(
             reference_particle_to_chef_particle(
@@ -2220,9 +2379,10 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
         ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
         ar & BOOST_SERIALIZATION_NVP(aperture_extractor_map_sptr);
-        ar & BOOST_SERIALIZATION_NVP(have_beamline_context);
         ar & BOOST_SERIALIZATION_NVP(map_order);
         ar & BOOST_SERIALIZATION_NVP(bucket_length);
+        ar & BOOST_SERIALIZATION_NVP(rf_bucket_length);
+        ar & BOOST_SERIALIZATION_NVP(closed_orbit_length);
         ar & BOOST_SERIALIZATION_NVP(have_element_lattice_functions);
         ar & BOOST_SERIALIZATION_NVP(have_slice_lattice_functions);
         ar & BOOST_SERIALIZATION_NVP(horizontal_tune);
@@ -2259,9 +2419,10 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
         ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
         ar & BOOST_SERIALIZATION_NVP(aperture_extractor_map_sptr);
-        ar & BOOST_SERIALIZATION_NVP(have_beamline_context);
         ar & BOOST_SERIALIZATION_NVP(map_order);
         ar & BOOST_SERIALIZATION_NVP(bucket_length);
+        ar & BOOST_SERIALIZATION_NVP(rf_bucket_length);
+        ar & BOOST_SERIALIZATION_NVP(closed_orbit_length);
         ar & BOOST_SERIALIZATION_NVP(have_element_lattice_functions);
         ar & BOOST_SERIALIZATION_NVP(have_slice_lattice_functions);
         ar & BOOST_SERIALIZATION_NVP(horizontal_tune);
@@ -2287,9 +2448,6 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(dispersion_element_map);
         ar & BOOST_SERIALIZATION_NVP(dispersion_slice_map);
         ar & BOOST_SERIALIZATION_NVP(linear_one_turn_map);
-        if (have_beamline_context) {
-            calculate_beamline_context();
-        }
         normal_form_sage_sptr.reset();
     }
 
