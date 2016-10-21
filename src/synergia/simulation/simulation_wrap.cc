@@ -411,6 +411,7 @@ BOOST_PYTHON_MODULE(simulation)
         .def("update", &Lattice_simulator::update)
         .def("get_closed_orbit", &Lattice_simulator::get_closed_orbit,
              get_closed_orbit_overloads01())
+        .def("register_closed_orbit", &Lattice_simulator::register_closed_orbit)    
         .def("calculate_element_lattice_functions",
                 &Lattice_simulator::calculate_element_lattice_functions)
         .def("calculate_slice_lattice_functions",
