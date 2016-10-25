@@ -571,9 +571,9 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_lowgamma, Round_rod_bunch_fixture_lowgamm
     // convert to usual units
     // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
     double L = bunch.get_z_period_length();
-    // KV solver assumes uniform density in cylinder of radius stdx*sqrt(3).
-    // Enclosed charge inside radius stdx is then N/3
-    double N = bunch.get_real_num()/3.0;
+    // KV solver assumes uniform density in cylinder of radius stdx*2.
+    // Enclosed charge inside radius stdx is then N/4
+    double N = bunch.get_real_num()/4.0;
     logger << "L: " << L << std::endl;
     logger << "N: " << N << std::endl;
     logger << "step_length: " << step_length << std::endl;
@@ -749,9 +749,9 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_highgamma, Round_rod_bunch_fixture_highga
     // convert to usual units
     // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
     double L = bunch.get_z_period_length();
-    // KV solver assumes uniform density in cylinder of radius stdx*sqrt(3).
-    // Enclosed charge inside radius stdx is then N/3
-    double N = bunch.get_real_num()/3.0;
+    // KV solver assumes uniform density in cylinder of radius stdx*2.
+    // Enclosed charge inside radius stdx is then N/4
+    double N = bunch.get_real_num()/4.0;
     logger << "L: " << L << std::endl;
     logger << "N: " << N << std::endl;
     logger << "step_length: " << step_length << std::endl;
@@ -828,9 +828,9 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_offset_lowgamma, Round_rod_bunch_fixture_
     // convert to usual units
     // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
     double L = bunch.get_z_period_length();
-    // KV solver assumes uniform density in cylinder of radius stdx*sqrt(3).
-    // Enclosed charge inside radius stdx is then N/3
-    double N = bunch.get_real_num()/3.0;
+    // KV solver assumes uniform density in cylinder of radius stdx*2.
+    // Enclosed charge inside radius stdx is then N/4
+    double N = bunch.get_real_num()/4.0;
     logger << "L: " << L << std::endl;
     logger << "N: " << N << std::endl;
     logger << "step_length: " << step_length << std::endl;
@@ -907,9 +907,9 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_offset_highgamma, Round_rod_bunch_fixture
     // convert to usual units
     // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
     double L = bunch.get_z_period_length();
-    // KV solver assumes uniform density in cylinder of radius stdx*sqrt(3).
-    // Enclosed charge inside radius stdx is then N/3
-    double N = bunch.get_real_num()/3.0;
+    // KV solver assumes uniform density in cylinder of radius stdx*2.
+    // Enclosed charge inside radius stdx is then N/4
+    double N = bunch.get_real_num()/4.0;
     logger << "L: " << L << std::endl;
     logger << "N: " << N << std::endl;
     logger << "step_length: " << step_length << std::endl;

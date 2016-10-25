@@ -30,7 +30,7 @@ Space_charge_2d_kv::clone()
 }
 
 // sets sigma_x, sigma_y for the distribution.  The sigmas are used
-// to determine the extent of the uniform distribution.  sigma = total_range/sqrt(12)
+// to determine the extent of the uniform distribution.  sigma = total_range/2
 void
 Space_charge_2d_kv::set_sigma(double sigma_x, double sigma_y,
         double sigma_cdt)
@@ -90,11 +90,9 @@ void
 Space_charge_2d_kv::unit_efield(double arg_x, double arg_y,
         double & E_x, double & E_y)
 {
-    // std of uniform distribution of length L = L/sqrt(12).
-    // sqrt(12)*std is the full width which is twice the radius for
-    // the KV distribution.
-    double a = std::sqrt(3.0) * sigma_x;
-    double b = std::sqrt(3.0) * sigma_y;
+    // projected std on 1 axis of 2d uniform distribution of radius R = R/2.
+    double a = 2.0 * sigma_x;
+    double b = 2.0 * sigma_y;
 
     bool inside = (arg_x/a)*(arg_x/a) + (arg_y/b)*(arg_y/b) < 1.0;
     bool xneg = arg_x<0.0;
@@ -143,7 +141,11 @@ Space_charge_2d_kv::apply(Bunch & bunch, double delta_t,
     double total_q = bunch.get_real_num()*bunch.get_particle_charge();
     double line_charge_density;
     if (longitudinal_distribution == longitudinal_uniform) {
-        line_charge_density = total_q / bunch.get_z_period_length() ;
+        // if longitudinally uniform, set the length based on sqrt(12)*sigma_z
+        // because you might not necessarily have a periodic bunch with a
+        // a z_period_length and your actual bunch may not fill the entire bucket.
+        double bunch_length = std::sqrt(12)*sigma_cdt*beta;
+        line_charge_density = total_q / bunch_length ;
     }
 
     double mean_x=mean[Bunch::x];

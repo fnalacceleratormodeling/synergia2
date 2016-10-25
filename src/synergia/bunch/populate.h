@@ -70,8 +70,8 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
 ///  [-cdt/2,cdt/2] [m] (flatly distributed). 
 /// @param stddpop standard deviation of the dp/p distribution
 void
-populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x, double epsilMax_y,
-        double alpha_x, double beta_x, double alpha_y, double beta_y,
+populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x,
+        double alpha_x, double beta_x, double epsilMax_y, double alpha_y, double beta_y,
         double stddt, double stddpop);
 	
 void 
