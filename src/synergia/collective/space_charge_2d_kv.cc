@@ -141,7 +141,11 @@ Space_charge_2d_kv::apply(Bunch & bunch, double delta_t,
     double total_q = bunch.get_real_num()*bunch.get_particle_charge();
     double line_charge_density;
     if (longitudinal_distribution == longitudinal_uniform) {
-        line_charge_density = total_q / bunch.get_z_period_length() ;
+        // if longitudinally uniform, set the length based on sqrt(12)*sigma_z
+        // because you might not necessarily have a periodic bunch with a
+        // a z_period_length and your actual bunch may not fill the entire bucket.
+        double bunch_length = std::sqrt(12)*sigma_cdt*beta;
+        line_charge_density = total_q / bunch_length ;
     }
 
     double mean_x=mean[Bunch::x];
