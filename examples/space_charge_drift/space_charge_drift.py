@@ -173,7 +173,10 @@ commxx = synergia.utils.Commxx()
 bunch = synergia.bunch.Bunch(reference_particle, opts.macroparticles, real_particles, commxx)
 dist = synergia.foundation.Random_distribution(opts.seed, commxx)
 # populate KV with same emittance x/y, uniform in cdt, monochromatic
-synergia.bunch.populate_transverse_KV_GaussLong(dist, bunch, emit, 0.0, opts.betax, emit, 0.0, opts.betay, opts.blen/beta, 0.0)
+synergia.bunch.populate_transverse_KV_GaussLong(dist, bunch,
+                                                emit, 0.0, opts.betax,
+                                                emit, 0.0, opts.betay,
+                                                opts.blen/beta, 0.0)
 local_particles = bunch.get_local_particles()
 # center the distribution
 means = synergia.bunch.Core_diagnostics().calculate_mean(bunch)
@@ -187,7 +190,6 @@ stds = diag_full2.get_std()
 mom2 = diag_full2.get_mom2()
 emitx = diag_full2.get_emitx()
 emity = diag_full2.get_emity()
-del diag_full2
 print "Bunch initial means: ", means
 print "Bunch initial stds: ", stds
 print "Bunch initial emitx: ", emitx

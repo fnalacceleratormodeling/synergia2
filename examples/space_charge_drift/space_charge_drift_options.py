@@ -4,7 +4,6 @@ from synergia_workflow import Options, Job_manager
 
 opts = Options("space_charge_drift")
 
-opts.add("real_particles", 80.0e6, "real charges in beam")
 opts.add("current", 14.0e-3, "Current [A]")
 opts.add("ke", 2.5e-3, "Kinetic Energy [GeV]")
 opts.add("nemit", 0.3e-6, "normalized emittance m-rad")
