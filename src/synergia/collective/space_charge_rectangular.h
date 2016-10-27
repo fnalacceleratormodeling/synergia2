@@ -14,19 +14,30 @@
 
 class Space_charge_rectangular : public Collective_operator
 {
-private:
-    std::vector<double > pipe_size; //pipe size, x,y,x meters
+private: 
+    ///pipe size, x,y,z meters, lab frame
+    std::vector<double > pipe_size; 
     std::vector<int > grid_shape;
     Rectangular_grid_domain_sptr domain_sptr;
+    /// communicator for parallel Fourier transforms 
     Commxx_sptr comm_f_sptr;
     Fftw_rectangular_helper_sptr fftw_helper_sptr;
     bool have_fftw_helper;
+    bool have_domain;
+    /// the spc communicator is constructed  on a subset of bunch communicator ranks, with an optimal size
+    /// usually proportional to the number of processors of a node
+    /// Example: consider  a bunch comunicator of size 128 and a spc comm optimal size =32 (good for the tev fermilab  cluster)
+    /// when equally_spread=false, the spc comunicator will be on ranks [0,31]. ranks [32,127] do not have a spc comunicator
+    /// -------------------------  the fourier transforms are done on the [0,31] ranks, and the rest of ranks wait doing nothing
+    /// when equally_spread=true, there will be four spc comunicators, on ranks [0,31],[32,63],[64,95] and [96,127]
+    ///------------------------- the fourier transforms are repeated independently on all spc comunicators     
     bool equally_spread;
     void
     fill_guards_pplanes(Distributed_rectangular_grid & phi, int lower, int upper, int lengthx,
                           MArray2d & g_lower, MArray2d &g_upper);
     void
     construct_fftw_helper(Commxx_sptr comm_sptr);
+    
 
 public:
     Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
@@ -39,7 +50,17 @@ public:
 
     void
     set_fftw_helper(Commxx_sptr comm_sptr, bool equally_spread);
+ 
+    bool 
+    get_have_fftw_helper() const;
+
+    void 
+    set_domain(Bunch const & bunch);
     
+    bool
+    get_have_domain() const;
+
+
     Commxx_sptr 
     get_comm_sptr() const;
     
@@ -66,15 +87,15 @@ public:
    Rectangular_grid_sptr
    get_charge_density(Bunch const& bunch);
 
-
+   
    Distributed_rectangular_grid_sptr
-   get_phi_local(Rectangular_grid & rho);
+   get_phi_local(Rectangular_grid & rho, double const& gamma);
 
    Rectangular_grid_sptr
    get_En( Distributed_rectangular_grid & phi_local, int component);
 
    std::vector<Rectangular_grid_sptr>
-   get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component);
+   get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component, double const & gamma);
     
    void
    apply_kick(Bunch & bunch, Rectangular_grid const& En, double time_step, int component);

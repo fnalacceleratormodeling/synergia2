@@ -12,12 +12,10 @@ using pconstants::epsilon0;
 Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
 			std::vector<int > const & grid_shape, bool equally_spread):
 Collective_operator("space_charge_rectangular"), pipe_size(pipe_size), 
-grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), equally_spread(equally_spread)
+grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), equally_spread(equally_spread), have_domain(false)
 {
 
- try{
-    this->domain_sptr = Rectangular_grid_domain_sptr(
-                    new Rectangular_grid_domain(pipe_size, grid_shape , true));
+ try{  
     this->have_fftw_helper=false;
     construct_fftw_helper(comm_f_sptr);
      if ((!comm_f_sptr->has_this_rank()) && (equally_spread)) throw std::runtime_error(
@@ -32,12 +30,10 @@ grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), equally_spread(equally_spread
 
 
 Space_charge_rectangular::Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"),  pipe_size(pipe_size),  grid_shape(grid_shape)
+Collective_operator("space_charge_rectangular"),  pipe_size(pipe_size),  grid_shape(grid_shape), have_domain(false)
 {
 
- try{
-    this->domain_sptr = Rectangular_grid_domain_sptr(
-                    new Rectangular_grid_domain(pipe_size,  grid_shape , true));
+ try{   
     this->have_fftw_helper=false;
     this->equally_spread=false; 
 
@@ -66,10 +62,10 @@ template<class Archive>
        
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-	   &  BOOST_SERIALIZATION_NVP(grid_shape)
-	   &  BOOST_SERIALIZATION_NVP(pipe_size) 
-	   &  BOOST_SERIALIZATION_NVP(have_fftw_helper)
-	   &  BOOST_SERIALIZATION_NVP(equally_spread);
+	    &  BOOST_SERIALIZATION_NVP(grid_shape)
+	    &  BOOST_SERIALIZATION_NVP(pipe_size) 
+	    &  BOOST_SERIALIZATION_NVP(have_fftw_helper)
+	    &  BOOST_SERIALIZATION_NVP(equally_spread);
     }
 
 template<class Archive>
@@ -78,13 +74,11 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-	   &  BOOST_SERIALIZATION_NVP(grid_shape)
-	   &  BOOST_SERIALIZATION_NVP(pipe_size)
-	   &  BOOST_SERIALIZATION_NVP(have_fftw_helper) 
-	   &  BOOST_SERIALIZATION_NVP(equally_spread);
-     
-        domain_sptr = Rectangular_grid_domain_sptr(
-                    new Rectangular_grid_domain(pipe_size, grid_shape , true));
+	    &  BOOST_SERIALIZATION_NVP(grid_shape)
+	    &  BOOST_SERIALIZATION_NVP(pipe_size)
+	    &  BOOST_SERIALIZATION_NVP(have_fftw_helper) 
+	    &  BOOST_SERIALIZATION_NVP(equally_spread);
+        have_domain=false;
         if (have_fftw_helper) { this->have_fftw_helper=false;          
                                 construct_fftw_helper(comm_f_sptr);  
                                }
@@ -161,6 +155,12 @@ Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr, bool equally_sp
     }
 }
 
+bool  
+Space_charge_rectangular::get_have_fftw_helper() const
+{
+  return have_fftw_helper;
+}
+
 
 Commxx_sptr 
 Space_charge_rectangular::get_comm_sptr() const
@@ -186,6 +186,25 @@ Space_charge_rectangular::get_domain_sptr() const
 return domain_sptr;
 }
 
+void
+Space_charge_rectangular::set_domain(Bunch const & bunch)
+{
+  if (!have_domain){
+        double beta = bunch.get_reference_particle().get_beta();
+        std::vector<double >  dsize=pipe_size;
+        dsize[2] /= beta;    // size in z_lab frame, longitudinal cdt coordinate
+         // A.M physical_offsets of the domain should be rescaled too, but in this case they are zero    
+        this->domain_sptr = Rectangular_grid_domain_sptr(
+                      new Rectangular_grid_domain(dsize,  grid_shape, true));
+         have_domain=true;  
+  }
+}
+
+bool 
+Space_charge_rectangular::get_have_domain() const
+{
+  return have_domain;
+}
 
 Fftw_rectangular_helper_sptr
 Space_charge_rectangular::get_fftw_helper_sptr() const
@@ -199,8 +218,9 @@ Rectangular_grid_sptr
 Space_charge_rectangular::get_charge_density(Bunch const& bunch)
 {
     double t;
-    t = simple_timer_current();
+    t = simple_timer_current(); 
 
+    if (!have_domain) set_domain(bunch);   
     Rectangular_grid_sptr rho_sptr(new Rectangular_grid(domain_sptr));
     deposit_charge_rectangular_xyz(*rho_sptr, bunch);
     //t = simple_timer_show(t, "sc_get_charge_density: depozit_xyz");
@@ -221,8 +241,10 @@ Space_charge_rectangular::get_charge_density(Bunch const& bunch)
     return rho_sptr;
 }
 
+
+
 Distributed_rectangular_grid_sptr
-Space_charge_rectangular::get_phi_local( Rectangular_grid & rho)
+Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, double const& gamma)
 {
 
     if (!have_fftw_helper)  throw std::runtime_error(
@@ -265,8 +287,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho)
   // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_direct");
 
 
-
-
+    
 
     const int memory_fudge_factor = 1;
     fftw_complex *rho_nmp_local;
@@ -281,14 +302,14 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho)
 
 
     MArray3dc_ref rho_nmp_ref(reinterpret_cast<std::complex<double>*>(rho_nmp_local), boost::extents[local_nx][shape[1]][shape[2]/2+1]);
-    std::vector<double > pipe_size(rho.get_domain().get_physical_size());
+
     for (int n=0; n < local_nx; ++n){
 	int nt=n+1+local_x_start;
 	for (int m=0; m< shape[1]; ++m){
 	    int mt=m+1;
 	    for (int p=0; p< shape[2]/2+1; ++p){
 		double denominator=pi*pi*
-		    (nt*nt/(pipe_size[0]*pipe_size[0])+mt*mt/(pipe_size[1]*pipe_size[1])+4.*p*p/(pipe_size[2]*pipe_size[2]));
+		    (nt*nt/(pipe_size[0]*pipe_size[0])+mt*mt/(pipe_size[1]*pipe_size[1])+4.*p*p/(pipe_size[2]*pipe_size[2]*gamma*gamma));
 			rho_nmp_ref[n][m][p] /= denominator; // delta Phi =- rho
 	    }
 	}
@@ -308,7 +329,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho)
     get_fftw_helper_sptr()->inv_transform(phi_local_ref,phi_local_ref);
   // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_inverse");
 
-
+    double beta=std::sqrt(1.-1./gamma/gamma);
     phi_local->set_normalization(1./(4.*shape[0]*shape[1]*shape[2]*epsilon0));
     return phi_local;
  }
@@ -531,39 +552,71 @@ if ((component < 0) || (component > 2)) {
 void
 Space_charge_rectangular::apply_kick(Bunch & bunch, Rectangular_grid const& En, double  delta_t, int component)
 {
-    /// En is electric field in units of N/C
-    double q = bunch.get_particle_charge() * pconstants::e; // [C]
-    // delta_t_beam: [s] in beam frame
-    double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
-    // unit_conversion: [kg m/s] to [Gev/c]
-    double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
-    // scaled p = p/p_ref
-    double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
-    double factor = unit_conversion * q * delta_t_beam * En.get_normalization()
-            * p_scale;
+  
+ //AM: kicks  in the z_lab frame 
+ //Delta p_x&=& F_x \Delta t&=& - q \frac{1}{\gamma^2} \frac{\partial \Phi'}{\partial x} \Delta t=q \frac{1}{\beta \gamma^2} E_{grid~x} \Delta t\\
+ //Delta E &= & q E_z \Delta s&=& q \frac{1}{\gamma^2 \beta} \frac{\partial \Phi'}{\partial ct} \beta c\Delta t=-q \frac{c}{\beta \gamma^2 }E_{grid~z} \Delta t\\
+ // 1/beta factor in E_grid from charge deposition on (x,y,cdt) coordinates grid 
 
+ 
+ 
+
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    double q = bunch.get_particle_charge() * pconstants::e; // [C]
+    double gamma=bunch.get_reference_particle().get_gamma();
+    double beta=bunch.get_reference_particle().get_beta();
+// unit_conversion: [kg m/s] to [Gev/c] 
+    double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
+// scaled p = p/p_ref
+    double p_ref=bunch.get_reference_particle().get_momentum();
+    double factor = unit_conversion * q * delta_t* En.get_normalization()/
+            (p_ref*gamma*gamma*beta); // transverse kicks
+   
+      
     int ps_component = 2 * component + 1;
+  
+ 
     Rectangular_grid_domain & domain(*En.get_domain_sptr());
     MArray3d_ref grid_points(En.get_grid_points());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        double x = bunch.get_local_particles()[part][Bunch::x];
-        double y = bunch.get_local_particles()[part][Bunch::y];
-        double z = bunch.get_local_particles()[part][Bunch::z];
-        double grid_val = interpolate_rectangular_xyz(x, y, z, domain,
+   
+    if (component==2){
+       factor *= -p_ref; 
+       double m = bunch.get_mass();
+       for (int part = 0; part < bunch.get_local_num(); ++part) {
+          double x = bunch.get_local_particles()[part][Bunch::x];
+          double y = bunch.get_local_particles()[part][Bunch::y];
+          double z = bunch.get_local_particles()[part][Bunch::z];   
+          double grid_val =  interpolate_rectangular_xyz(x, y, z, domain,
                 grid_points);
-        bunch.get_local_particles()[part][ps_component] += factor * grid_val;
+          double p=p_ref +bunch.get_local_particles()[part][Bunch::dpop] * p_ref;        
+          double Eoc_i = std::sqrt(p * p + m * m);
+          double Eoc_f=  Eoc_i + factor * grid_val;
+          double delta_dpop=(std::sqrt(Eoc_f*Eoc_f-m*m)-std::sqrt(Eoc_i*Eoc_i-m*m))/p_ref;
+          bunch.get_local_particles()[part][ps_component] += delta_dpop;
+       }      
     }
+    else{
+        for (int part = 0; part < bunch.get_local_num(); ++part) {
+          double x = bunch.get_local_particles()[part][Bunch::x];
+          double y = bunch.get_local_particles()[part][Bunch::y];
+          double z = bunch.get_local_particles()[part][Bunch::z];        
+          double grid_val = interpolate_rectangular_xyz(x, y, z, domain,
+                  grid_points);   
+          bunch.get_local_particles()[part][ps_component] += factor * grid_val; 
+        }
+    }
+   
 }
 
 std::vector<Rectangular_grid_sptr>
-Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component )
+Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component, double const & gamma )
 {	
    if (equally_spread) throw std::runtime_error
               	("Space_charge_rectangular get_Efield: don't call this function for true equally_spread ");
   
    std::vector<Rectangular_grid_sptr> Efield;
     if (comm_f_sptr->has_this_rank()){
-       Distributed_rectangular_grid_sptr phi_local(get_phi_local(rho)); // \nabla phi= -rho/epsilon0; [phi]=kg*m^2*C^{-1}*s^{-2}            
+       Distributed_rectangular_grid_sptr phi_local(get_phi_local(rho,gamma)); // \nabla phi= -rho/epsilon0; [phi]=kg*m^2*C^{-1}*s^{-2}            
        for (int component = 0; component < max_component; ++component) {
 	   Efield.push_back(get_En(*phi_local, component));
        }	
@@ -604,36 +657,33 @@ void
 Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger)
 { 
     double t,t1;
-    t = simple_timer_current();
-    t1 = simple_timer_current();
-
-    bunch.convert_to_state(Bunch::fixed_t_bunch);
-    t = simple_timer_show(t, "sc_apply: convert-to-state");
-    Rectangular_grid_sptr rho_sptr(get_charge_density(bunch)); // [C/m^3]
+   // t = simple_timer_current();   
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    set_domain(bunch);
+    Rectangular_grid_sptr rho_sptr(get_charge_density(bunch)); // [C/m^3], [Q/DxDyD(ct)] in z_lab frame
     t = simple_timer_show(t, "sc_apply: get-rho");
-    
+    double gamma=bunch.get_reference_particle().get_gamma();
     int max_component(3);   
     if (equally_spread){     
-         if (comm_f_sptr->get_parent_sptr().get()!= 0) {
+        if (comm_f_sptr->get_parent_sptr().get()!= 0) {
 	    int mpi_compare;
 	    MPI_Comm_compare(comm_f_sptr->get_parent_sptr()->get(), bunch.get_comm_sptr()->get(), &mpi_compare);
-	    if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){
-		  throw std::runtime_error
-		  ("Space_charge_rectangular apply, equally_spread=1: comm_f_sptr parent and bunch.comm are not congruent");
-	} 
-	  
-	}
-        Distributed_rectangular_grid_sptr phi_local(get_phi_local(*rho_sptr));
-	for (int component = 0; component < max_component; ++component) {	  
-	  Rectangular_grid_sptr  En(get_En(*phi_local, component)); // E=-/grad phi; [E]=kg*m/(C*s^2)=N/C	
-	  apply_kick(bunch, *En, time_step, component);	 
-	}
+            if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){
+               throw std::runtime_error
+               ("Space_charge_rectangular apply, equally_spread=1: comm_f_sptr parent and bunch.comm are not congruent");
+            } 	  
+	    }	   
+        Distributed_rectangular_grid_sptr phi_local(get_phi_local(*rho_sptr,gamma)); // Phi_local is Phi'(\gamma z)=\Phi(z), but the grid is (x,y,cdt)
+	    for (int component = 0; component < max_component; ++component) {	  
+	        Rectangular_grid_sptr  En(get_En(*phi_local, component)); // E=-/grad phi; [E]=kg*m/(C*s^2)=N/C	
+	        apply_kick(bunch, *En, time_step, component);	 
+	   }
     }
     else{
-	std::vector<Rectangular_grid_sptr>  Efield(get_Efield(*rho_sptr, bunch, max_component));
-	for (int component = 0; component < max_component; ++component) { 
-	    apply_kick(bunch, *(Efield[component]), time_step, component);  
-	}
+        std::vector<Rectangular_grid_sptr>  Efield(get_Efield(*rho_sptr, bunch, max_component,gamma));
+        for (int component = 0; component < max_component; ++component) { 
+            apply_kick(bunch, *(Efield[component]), time_step, component);  
+        }
     }      
     
      t = simple_timer_show(t, "sc_apply: 3x apply_kick and get En");
