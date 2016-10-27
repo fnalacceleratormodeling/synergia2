@@ -474,6 +474,8 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 aperture_extractor_map_sptr(
                         new Aperture_operation_extractor_map),              
                 map_order(map_order),
+                bucket_length(0.0),
+                rf_bucket_length(0.0),
                 have_element_lattice_functions(false),
                 have_slice_lattice_functions(false),
                 have_element_et_lattice_functions(false),
