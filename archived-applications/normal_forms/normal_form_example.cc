@@ -71,7 +71,7 @@ run()
     // particle with maximum extent in y
     samplepoints[1][2] = 1.0e-3/2.38; // sqrt(bx/by)
 
-    lattice_simulator.convert_human_to_normal(samplepoints);
+    lattice_simulator.convert_xyz_to_normal(samplepoints);
     for (int i=0; i<nsamp; ++i) {
       std::cout << "normal form action, angles for particle: " << i << std::endl;
       for (int j=0; j<3; ++j) {

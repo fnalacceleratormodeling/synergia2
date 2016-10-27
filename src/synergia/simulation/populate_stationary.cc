@@ -41,7 +41,7 @@ populate_6d_stationary_torus(Distribution &dist, Bunch &bunch,
 
     }
 
-    lattice_simulator.convert_normal_to_human(particles);
+    lattice_simulator.convert_normal_to_xyz(particles);
 }
 
 void
@@ -79,7 +79,7 @@ populate_6d_stationary_gaussian(Distribution &dist, Bunch &bunch,
             particles[part][2*c+1] = -square_root_action * cos(phase);
         }
     }
-    lattice_simulator.convert_normal_to_human(particles);
+    lattice_simulator.convert_normal_to_xyz(particles);
 }
 
 // fill a 2d array with random actions and angles
@@ -153,8 +153,8 @@ populate_6d_stationary_clipped_longitudinal_gaussian(Distribution &dist,
             for (int phase=0; phase<4; ++phase) {
                 test_particle[boost::indices[0][range(0,6)]] = nf_particle[boost::indices[0][range(0,6)]];
 
-                // convert to human form and then check
-                lattice_simulator.convert_normal_to_human(test_particle);
+                // convert to xyz form and then check
+                lattice_simulator.convert_normal_to_xyz(test_particle);
 
                 if ((test_particle[0][Bunch::cdt] < cdt_min) ||
                     (test_particle[0][Bunch::cdt] > cdt_max)) {
@@ -241,5 +241,5 @@ populate_6d_stationary_truncated_longitudinal_gaussian(Distribution &dist,
         }
     }
 
-    lattice_simulator.convert_normal_to_human(particles);
+    lattice_simulator.convert_normal_to_xyz(particles);
 }

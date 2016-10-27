@@ -214,7 +214,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_linear_one_turn_map_overloads01,
 			Lattice_simulator::get_linear_one_turn_map, 0, 1)       
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_closed_orbit_overloads01,
             Lattice_simulator::get_closed_orbit, 0, 1)
-
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(register_closed_orbit_overloads01,
+            Lattice_simulator::register_closed_orbit, 0, 1)
 
 
 void (Bunch_train_simulator::*bts_add_per_turn1)(int, Diagnostics_sptr, int)
@@ -411,7 +412,10 @@ BOOST_PYTHON_MODULE(simulation)
         .def("update", &Lattice_simulator::update)
         .def("get_closed_orbit", &Lattice_simulator::get_closed_orbit,
              get_closed_orbit_overloads01())
-        .def("register_closed_orbit", &Lattice_simulator::register_closed_orbit)    
+        .def("register_closed_orbit", &Lattice_simulator::register_closed_orbit, 
+             register_closed_orbit_overloads01())  
+        .def("get_rf_frequency",&Lattice_simulator::get_rf_frequency)
+        .def("get_closed_orbit_length",&Lattice_simulator::get_closed_orbit_length)
         .def("calculate_element_lattice_functions",
                 &Lattice_simulator::calculate_element_lattice_functions)
         .def("calculate_slice_lattice_functions",
@@ -452,8 +456,8 @@ BOOST_PYTHON_MODULE(simulation)
       .def("get_linear_one_turn_map", &Lattice_simulator::get_linear_one_turn_map,
 			    get_linear_one_turn_map_overloads01())
       .def("check_linear_normal_form", &Lattice_simulator::check_linear_normal_form)
-      .def("convert_normal_to_human", &Lattice_simulator::convert_normal_to_human)
-      .def("convert_human_to_normal", &Lattice_simulator::convert_human_to_normal)
+      .def("convert_normal_to_xyz", &Lattice_simulator::convert_normal_to_xyz)
+      .def("convert_xyz_to_normal", &Lattice_simulator::convert_xyz_to_normal)
       .def("get_stationary_actions", &Lattice_simulator::get_stationary_actions)
 //         .def("print_CS_lattice_functions", &Lattice_simulator::print_cs_lattice_functions)
 //         .def("print_ET_lattice_functions", &Lattice_simulator::print_et_lattice_functions)

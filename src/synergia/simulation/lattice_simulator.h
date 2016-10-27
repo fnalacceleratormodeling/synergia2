@@ -116,10 +116,9 @@ private:
     Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map_sptr extractor_map_sptr;
     Aperture_operation_extractor_map_sptr aperture_extractor_map_sptr;
-    BmlContextPtr beamline_context_sptr, sliced_beamline_context_sptr;
     int map_order;
     double bucket_length; /// bucket length  lattice_length/harmon
-    double rf_bucket_length;///rf  bucket length  beta*c/freq
+   
     bool have_element_lattice_functions;
     bool have_slice_lattice_functions;
     bool have_element_et_lattice_functions;
@@ -136,8 +135,10 @@ private:
     double alt_horizontal_chromaticity, alt_vertical_chromaticity;
     bool have_alt_chromaticities;
     double closed_orbit_length;
+    double rf_bucket_length;///rf  bucket length  beta*c/freq
+    bool have_close_orbit_registered;
     double momentum_compaction, slip_factor, slip_factor_prime;
-    MArray2d linear_one_turn_map;
+   // MArray2d linear_one_turn_map;
     std::map<Lattice_element *, Lattice_functions > lattice_functions_element_map;
     std::map<Lattice_element_slice *, Lattice_functions > lattice_functions_slice_map;
     std::map<Lattice_element *, ET_lattice_functions > et_lattice_functions_element_map;
@@ -150,14 +151,10 @@ private:
     construct_extractor_map();
     void
     construct_aperture_extractor_map();
-    void
-    calculate_beamline_context();
-    void
-    calculate_sliced_beamline_context();
     BmlContextPtr
-    get_beamline_context();
+    get_beamline_context_clone();
     BmlContextPtr
-    get_sliced_beamline_context();
+    get_sliced_beamline_context_clone();
     void
     construct_sliced_chef_beamline();
     void
@@ -169,7 +166,7 @@ private:
     get_chromaticities(double dpp);
     void
     get_alt_chromaticities(double dpp);
-public:
+public:    
     /// @param lattice_sptr the Lattice
     /// @param map_order order for Chef_map operations
     Lattice_simulator(Lattice_sptr lattice_sptr, int map_order);
@@ -268,12 +265,12 @@ public:
     is_ring();
     Normal_form_sage_sptr
     get_normal_form_sptr(bool sliced=true);
-    Const_MArray2d_ref
+    MArray2d
     get_linear_one_turn_map(bool sliced=true);
     void
-    convert_human_to_normal(MArray2d_ref coords);
+    convert_xyz_to_normal(MArray2d_ref coords);
     void
-    convert_normal_to_human(MArray2d_ref coords);
+    convert_normal_to_xyz(MArray2d_ref coords);
     bool
     check_linear_normal_form();
     std::vector<double >
