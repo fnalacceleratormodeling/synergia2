@@ -25,12 +25,15 @@ opts.add("gridx", 64, "x grid points")
 opts.add("gridy", 64, "y grid points")
 opts.add("gridz", 32, "z grid points")
 
-opts.add("solver", "2d-openhockney", "solver to use: 2d-openhockney|2d-kv")
+opts.add("solver", "2d-kv", "solver to use: 2d-openhockney|2d-kv")
 
+opts.add("centered", False, "is field calculation assumed to be centered on beamline")
 opts.add("plot", False, "plot comparison", bool)
+opts.add("particles", False, "Whether to save particles")
+opts.add("particles_period", 1, "save particles every n turns")
 opts.add("verbosity", 1, "chattiness of simulation")
 
 # Create the job manager for the simulation fodo_workflow.py, including the 
 # above options. When creating job directories, include the file fodo.lat.
-job_mgr = Job_manager("space_charge_drift.py", opts, [])
+job_mgr = Job_manager("space_charge_drift.py", opts, ["space_charge_drift_options.py"])
 
