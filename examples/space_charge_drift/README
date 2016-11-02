@@ -1,0 +1,36 @@
+space_charge_drift.py
+
+This test follows a bunch through a drift as it expands under the action of
+space charge.  The options are:
+
+space_charge_drift options:
+---------------------------
+betax=<float>          effective beta_x, default=0.5
+betay=<float>          effective beta_y, default=0.5
+blen=<float>           bunch length [m], default=0.02
+centered=<bool>        is field calculation assumed to be centered on
+                       beamline, default=False
+current=<float>        Current [A], default=0.014
+driftlength=<float>    drift length [m], default=0.1
+gridx=<int>            x grid points, default=64
+gridy=<int>            y grid points, default=64
+gridz=<int>            z grid points, default=32
+ke=<float>             Kinetic Energy [GeV], default=0.0025
+macroparticles=<int>   macro particles, default=409600
+nemit=<float>          normalized emittance m-rad, default=3e-07
+particles=<bool>       Whether to save particles, default=False
+particles_period=<int> save particles every n turns, default=1
+plot=<bool>            plot comparison, default=False
+seed=<int>             seed for random number generation,
+                       default=12345679
+solver=<str>           solver to use: 2d-openhockney|2d-kv, default
+                       =2d-kv
+steps=<int>            steps per turn, default=25
+turns=<int>            number of turns, default=100
+verbosity=<int>        chattiness of simulation, default=1
+
+The script writes out a file calc_expansion.npy which contains the calculated
+expansion rate for the beam rms as well as full diagnostics in file full.h5.
+
+These files are read and plotted with the script compare_expansion.py
+

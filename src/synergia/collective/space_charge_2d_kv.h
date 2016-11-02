@@ -14,10 +14,13 @@ public:
     // distributed gaussian or uniform over the bunch length.
     static const int longitudinal_gaussian = 0;
     static const int longitudinal_uniform = 1;
+    static const int field_centered = 1;
+    static const int field_not_centered = 0;
 private:
     double sigma_x, sigma_y, sigma_cdt;
     int longitudinal_distribution;
     bool strictly_linear;
+    bool strictly_centered;
 public:
     Space_charge_2d_kv();
     virtual Space_charge_2d_kv *
@@ -42,6 +45,10 @@ public:
     get_strictly_linear(void);
     void
     set_strictly_linear(bool flag);
+    int
+    get_strictly_centered();
+    void
+    set_strictly_centered(bool flag);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual

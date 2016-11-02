@@ -10,6 +10,8 @@
 
 const int Space_charge_2d_kv::longitudinal_gaussian;
 const int Space_charge_2d_kv::longitudinal_uniform;
+const int Space_charge_2d_kv::field_centered;
+const int Space_charge_2d_kv::field_not_centered;
 
 const std::complex<double > complex_1(1.0, 0.0);
 const std::complex<double > complex_0(0.0, 0.0);
@@ -20,6 +22,7 @@ Space_charge_2d_kv::Space_charge_2d_kv() :
         , sigma_x(0.0), sigma_y(0.0), sigma_cdt(0.0)
         , longitudinal_distribution(longitudinal_uniform)
         , strictly_linear(true)
+        , strictly_centered(false)
 {
 }
 
@@ -68,6 +71,18 @@ void
 Space_charge_2d_kv::set_strictly_linear(bool flag)
 {
     strictly_linear = flag;
+}
+
+int
+Space_charge_2d_kv::get_strictly_centered()
+{
+    return strictly_centered;
+}
+
+void
+Space_charge_2d_kv::set_strictly_centered(bool flag)
+{
+    strictly_centered = flag;
 }
 
 std::vector<double >
@@ -149,12 +164,22 @@ Space_charge_2d_kv::apply(Bunch & bunch, double delta_t,
     }
 
     double mean_x=mean[Bunch::x];
-    double mean_y=mean[Bunch::y]; 
-    double mean_z=mean[Bunch::z]; 
+    double mean_y=mean[Bunch::y];
+    double mean_z=mean[Bunch::z];
+
+    double offset_x = 0;
+    double offset_y = 0;
+    double offset_z = 0;
+    if (!strictly_centered) {
+        offset_x = mean_x;
+        offset_y = mean_y;
+        offset_z = mean_z;
+    }
+
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-        double x = bunch.get_local_particles()[part][Bunch::x]-mean_x;
-        double y = bunch.get_local_particles()[part][Bunch::y]-mean_y;
-        double z = bunch.get_local_particles()[part][Bunch::z]-mean_z;
+        double x = bunch.get_local_particles()[part][Bunch::x]-offset_x;
+        double y = bunch.get_local_particles()[part][Bunch::y]-offset_y;
+        double z = bunch.get_local_particles()[part][Bunch::z]-offset_z;
 
         if (longitudinal_distribution == longitudinal_gaussian) {
             line_charge_density = total_q
@@ -178,6 +203,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(sigma_y);
         ar & BOOST_SERIALIZATION_NVP(sigma_cdt);
         ar & BOOST_SERIALIZATION_NVP(longitudinal_distribution);
+        ar & BOOST_SERIALIZATION_NVP(strictly_centered);
     }
 
 template
