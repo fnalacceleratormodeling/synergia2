@@ -12,7 +12,8 @@ using pconstants::epsilon0;
 Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
 			std::vector<int > const & grid_shape, bool equally_spread):
 Collective_operator("space_charge_rectangular"), pipe_size(pipe_size), 
-grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), equally_spread(equally_spread), have_domain(false)
+grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), equally_spread(equally_spread), have_domain(false),
+have_diagnostics(false)//,fftw_helper_sptr(),domain_sptr()
 {
 
  try{  
@@ -30,7 +31,8 @@ grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), equally_spread(equally_spread
 
 
 Space_charge_rectangular::Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"),  pipe_size(pipe_size),  grid_shape(grid_shape), have_domain(false)
+Collective_operator("space_charge_rectangular"),  pipe_size(pipe_size),  grid_shape(grid_shape), 
+have_domain(false),have_diagnostics(false)//,comm_f_sptr(),fftw_helper_sptr(),domain_sptr()
 {
 
  try{   
@@ -65,7 +67,9 @@ template<class Archive>
 	    &  BOOST_SERIALIZATION_NVP(grid_shape)
 	    &  BOOST_SERIALIZATION_NVP(pipe_size) 
 	    &  BOOST_SERIALIZATION_NVP(have_fftw_helper)
-	    &  BOOST_SERIALIZATION_NVP(equally_spread);
+	    &  BOOST_SERIALIZATION_NVP(equally_spread)
+        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
+        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
     }
 
 template<class Archive>
@@ -74,11 +78,14 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-	    &  BOOST_SERIALIZATION_NVP(grid_shape)
-	    &  BOOST_SERIALIZATION_NVP(pipe_size)
-	    &  BOOST_SERIALIZATION_NVP(have_fftw_helper) 
-	    &  BOOST_SERIALIZATION_NVP(equally_spread);
-        have_domain=false;
+        &  BOOST_SERIALIZATION_NVP(grid_shape)
+        &  BOOST_SERIALIZATION_NVP(pipe_size) 
+        &  BOOST_SERIALIZATION_NVP(have_fftw_helper)
+        &  BOOST_SERIALIZATION_NVP(equally_spread)
+        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
+        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
+        domain_sptr.reset();
+        have_domain=false;       
         if (have_fftw_helper) { this->have_fftw_helper=false;          
                                 construct_fftw_helper(comm_f_sptr);  
                                }
@@ -179,6 +186,22 @@ Space_charge_rectangular::get_grid_shape() const
 {
 return grid_shape;
 }
+
+void
+Space_charge_rectangular::add_diagnostics(Diagnostics_space_charge_rectangular_sptr ddiagnostics_sptr)
+{
+  diagnostics_list.push_back(ddiagnostics_sptr);
+  this->have_diagnostics=true;
+}
+
+void
+Space_charge_rectangular::set_diagnostics_list(Diagnostics_space_charge_rectangulars diagnostics_list)
+{
+  this->diagnostics_list =diagnostics_list;
+  this->have_diagnostics=true;
+}
+
+
 
 Rectangular_grid_domain_sptr
 Space_charge_rectangular::get_domain_sptr() const
@@ -550,6 +573,26 @@ if ((component < 0) || (component > 2)) {
 }
 
 void
+Space_charge_rectangular::do_diagnostics(Rectangular_grid const& En, int component, double time_step, Step & step, 
+                                          Bunch & bunch)
+{   
+   if (have_diagnostics) {
+      if ((component==0) || (component==1)){
+         double beta=step.get_betas()[component];
+         for (Diagnostics_space_charge_rectangulars::const_iterator d_it = diagnostics_list.begin();
+            d_it != diagnostics_list.end(); ++d_it){
+            if ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()){
+               (*d_it)->update(bunch, En, component, time_step, beta); 
+               if (component==1) (*d_it)->write();
+            }
+         }
+      }    
+   } 
+   
+}  
+
+
+void
 Space_charge_rectangular::apply_kick(Bunch & bunch, Rectangular_grid const& En, double  delta_t, int component)
 {
   
@@ -676,12 +719,14 @@ Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, in
         Distributed_rectangular_grid_sptr phi_local(get_phi_local(*rho_sptr,gamma)); // Phi_local is Phi'(\gamma z)=\Phi(z), but the grid is (x,y,cdt)
 	    for (int component = 0; component < max_component; ++component) {	  
 	        Rectangular_grid_sptr  En(get_En(*phi_local, component)); // E=-/grad phi; [E]=kg*m/(C*s^2)=N/C	
+            do_diagnostics(*En,component, time_step,step, bunch);
 	        apply_kick(bunch, *En, time_step, component);	 
 	   }
     }
     else{
         std::vector<Rectangular_grid_sptr>  Efield(get_Efield(*rho_sptr, bunch, max_component,gamma));
         for (int component = 0; component < max_component; ++component) { 
+            do_diagnostics(*(Efield[component]),component, time_step,step, bunch);
             apply_kick(bunch, *(Efield[component]), time_step, component);  
         }
     }      

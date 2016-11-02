@@ -12,7 +12,7 @@
 #include "synergia/bunch/period.h"
 
 Step::Step(double length) :
-    operators(), time_fractions(), length(length)
+    operators(), time_fractions(), step_betas(), length(length)
 {
 }
 
@@ -215,6 +215,18 @@ Step::get_length() const
     return length;
 }
 
+void
+Step::set_betas(double betax, double betay)
+{
+ this->step_betas.push_back(betax);
+ this->step_betas.push_back(betay);
+}
+
+std::vector<double >
+Step::get_betas()
+{
+ return step_betas;
+}
 
 
 void
@@ -233,7 +245,8 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_NVP(operators);
         ar & BOOST_SERIALIZATION_NVP(time_fractions);
-        ar & BOOST_SERIALIZATION_NVP(length);       
+        ar & BOOST_SERIALIZATION_NVP(length);     
+        ar & BOOST_SERIALIZATION_NVP(step_betas);
     }
 
 template

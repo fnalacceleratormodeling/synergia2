@@ -19,6 +19,7 @@ private:
     Operators operators;
     std::list<double > time_fractions;
     double length;
+    std::vector<double > step_betas;
    
 
 public:
@@ -55,6 +56,10 @@ public:
     get_time_fractions() const;
     double
     get_length() const;
+    void
+    set_betas(double betax, double betay);
+    std::vector<double >
+    get_betas();
     virtual void
     print(int index) const;
     template<class Archive>

@@ -1,6 +1,7 @@
 #ifndef SPACE_CHARGE_RECTANGULAR_H_
 #define SPACE_CHARGE_RECTANGULAR_H_
 // #include "synergia/simulation/operator.h"
+#include "synergia/collective/diagnostics_space_charge.h"
 #include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/collective/rectangular_grid_domain.h"
@@ -32,6 +33,10 @@ private:
     /// when equally_spread=true, there will be four spc comunicators, on ranks [0,31],[32,63],[64,95] and [96,127]
     ///------------------------- the fourier transforms are repeated independently on all spc comunicators     
     bool equally_spread;
+    Diagnostics_space_charge_rectangulars diagnostics_list;
+    bool have_diagnostics;
+    
+    
     void
     fill_guards_pplanes(Distributed_rectangular_grid & phi, int lower, int upper, int lengthx,
                           MArray2d & g_lower, MArray2d &g_upper);
@@ -70,35 +75,45 @@ public:
 
     std::vector<int >
     get_grid_shape() const;
-
-   Rectangular_grid_domain const&
-   get_domain() const
-   {
-       return *domain_sptr;
-   }
-
-   Rectangular_grid_domain_sptr
-   get_domain_sptr() const;
-
-   Fftw_rectangular_helper_sptr
-   get_fftw_helper_sptr() const;
-
-
-   Rectangular_grid_sptr
-   get_charge_density(Bunch const& bunch);
-
-   
-   Distributed_rectangular_grid_sptr
-   get_phi_local(Rectangular_grid & rho, double const& gamma);
-
-   Rectangular_grid_sptr
-   get_En( Distributed_rectangular_grid & phi_local, int component);
-
-   std::vector<Rectangular_grid_sptr>
-   get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component, double const & gamma);
     
-   void
-   apply_kick(Bunch & bunch, Rectangular_grid const& En, double time_step, int component);
+    
+    void
+    set_diagnostics_list(Diagnostics_space_charge_rectangulars diagnosticss);
+   
+    void
+    add_diagnostics(Diagnostics_space_charge_rectangular_sptr diagnostics_sptr);
+
+    Rectangular_grid_domain const&
+    get_domain() const
+    {
+        return *domain_sptr;
+    }
+
+    Rectangular_grid_domain_sptr
+    get_domain_sptr() const;
+
+    Fftw_rectangular_helper_sptr
+    get_fftw_helper_sptr() const;
+
+
+    Rectangular_grid_sptr
+    get_charge_density(Bunch const& bunch);
+
+    
+    Distributed_rectangular_grid_sptr
+    get_phi_local(Rectangular_grid & rho, double const& gamma);
+
+    Rectangular_grid_sptr
+    get_En( Distributed_rectangular_grid & phi_local, int component);
+
+    std::vector<Rectangular_grid_sptr>
+    get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component, double const & gamma);
+      
+    void
+    do_diagnostics(Rectangular_grid const& En, int component, double time_step, Step & step, Bunch & bunch);
+    
+    void
+    apply_kick(Bunch & bunch, Rectangular_grid const& En, double time_step, int component);
 
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);

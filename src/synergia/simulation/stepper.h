@@ -18,6 +18,7 @@ public:
 private:
     Lattice_simulator lattice_simulator;
     Steps steps;
+    bool have_step_betas;
 
 protected:
     Independent_operator_sptr
@@ -43,7 +44,10 @@ public:
     force_update_operations_no_collective();
     virtual void
     print() const;
-
+    virtual void
+    cs_step_lattice_functions();
+    virtual void 
+    print_cs_step_betas();
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);

@@ -22,7 +22,6 @@ using pconstants::epsilon0;
 
  const double tolerance = 1.0e-12;
 
-
 BOOST_AUTO_TEST_CASE(construct)
 {
     std::vector<int > grid_shape(3);
@@ -902,5 +901,4 @@ BOOST_FIXTURE_TEST_CASE(serialize_comm_divided, Ellipsoidal_bunch_fixture)
 	
    }			
 }
-
 
