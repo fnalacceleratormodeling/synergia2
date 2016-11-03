@@ -136,9 +136,9 @@ Diagnostics_space_charge_rectangular::update(Bunch & bunch, Rectangular_grid con
 // scaled p = p/p_ref
     double p_ref=bunch.get_reference_particle().get_momentum();
 
-    factor_tune_Ederiv=unit_conversion * q * delta_t* En.get_normalization()/
+    factor_tune_Ederiv=unit_conversion * q * delta_t/
            (4.0*mconstants::pi*p_ref*gamma*gamma*beta);
-    double factor = step_beta*factor_tune_Ederiv;
+    double factor = step_beta*factor_tune_Ederiv*En.get_normalization();
    
     step_length=delta_t*pconstants::c*beta;
    
