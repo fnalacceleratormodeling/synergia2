@@ -4,19 +4,20 @@
 class Bunch;
 
 /// Fixed_t_z_converter is a virtual base class for converters
-/// between the bunch fixed-z representation and the bunch
-/// fixed-t representation
+/// between the different system of coordinates 
 
-/// There are three converters one can choose:
-///   1. Fixed_t_z_alex: the most general, considers the horizontal motion (beta_x_i and
-///       beta_y_i  or particles not zeros) and the reference time and z are the ones for the
-///       reference particle.
-///   2.  Fixed_t_z_synergia20 corresponds to the old version of synergia, obtained from
-///       Fixed_t_z_alex by making beta_x=0, beta_y=0, (1-beta*beta_z_i) =gamma^-2. Notice
-///       that this approximation condisers different velocities along z direction for particles
-///       i.e. in general  beta_z_i != beta.
-///   3.  Fixed_t_z_zeroth: zeroth order approximation, obtained from  Fixed_t_z_alex
-///       by making beta_x_i=beta_y_i=0 and beta_z_i = beta.
+
+/// the collective effects addressed with the split-operator method (Yoshida)
+/// should always to be done in the canonical coordinates (x, px, y, py, t, -E) 
+
+/// space-charge and wake field calculation always assume a rigid beam approximation
+/// i.e. all the particles move with the same velocity v=beta c, rho(x,y,z,t)=rho(x,y,z-vt)
+/// for these cases, a transformation of coordinates which assume all particles
+/// move longitudinally with the same beta c (i.e.  beta_x_i=beta_y_i=0 and beta_z_i = beta)
+/// is appropriate
+/// converters to and from bunch frame will be removed once the space_charge_hockney is revisited
+
+
 
 class Fixed_t_z_converter
 {
@@ -28,15 +29,17 @@ public:
     virtual void
     from_t_lab_to_z_lab(Bunch &bunch) = 0;
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the beam frame.
+    /// Should never be used!!!!!
     virtual void
     from_z_lab_to_t_bunch(Bunch &bunch) = 0;
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
+     /// Should never be used!!!!!
     virtual void
     from_t_bunch_to_z_lab(Bunch &bunch) = 0;
-
+    /// Should never be used!!!!!
     virtual void
     from_t_lab_to_t_bunch(Bunch &bunch) = 0;
-
+    /// Should never be used!!!!!
     virtual void
     from_t_bunch_to_t_lab(Bunch &bunch)=0;
 
@@ -80,15 +83,17 @@ public:
     void
     from_t_lab_to_z_lab(Bunch &bunch);
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the beam frame.
+     /// Should never be used!!!!!
     void
     from_z_lab_to_t_bunch(Bunch &bunch);
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
+     /// Should never be used!!!!!
     void
     from_t_bunch_to_z_lab(Bunch &bunch);
-
+    /// Should never be used!!!!!
     void
     from_t_lab_to_t_bunch(Bunch &bunch);
-
+    /// Should never be used!!!!!
     void
     from_t_bunch_to_t_lab(Bunch &bunch);
 
@@ -104,7 +109,7 @@ BOOST_CLASS_EXPORT_KEY(Fixed_t_z_zeroth)
 /// approximation, i.e., as though the particles were traveling independently
 /// in free space.
 /// UNIMPLEMENTED
-class Fixed_t_z_ballistic : public Fixed_t_z_converter
+/*class Fixed_t_z_ballistic : public Fixed_t_z_converter
 {
 public:
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
@@ -188,7 +193,7 @@ public:
         void
         serialize(Archive & ar, const unsigned int version);
 };
-BOOST_CLASS_EXPORT_KEY(Fixed_t_z_synergia20)
+BOOST_CLASS_EXPORT_KEY(Fixed_t_z_synergia20)*/
 
 #define FIXED_T_Z_CONVERTER_H_
 

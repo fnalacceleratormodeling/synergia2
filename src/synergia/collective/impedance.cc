@@ -705,7 +705,7 @@ Impedance::apply_impedance_kick(Bunch & bunch, double wake_factor)
 
         xkick=xwake_leading[bin]+xwake_trailing[bin]*bunch.get_local_particles()[part][0];	
         ykick=ywake_leading[bin]+ywake_trailing[bin]*bunch.get_local_particles()[part][2];
-	zkick = zwake0[bin];
+        zkick = zwake0[bin];
     
        
         bunch.get_local_particles()[part][1] += wake_factor*xkick;   

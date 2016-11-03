@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 sys.path.append('..')
@@ -10,7 +11,7 @@ sys.path.append('../../utils')
 from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum, Distribution, \
     Random_distribution
-from bunch import Bunch, Fixed_t_z_zeroth, Fixed_t_z_ballistic, populate_6d, \
+from bunch import Bunch, Fixed_t_z_zeroth,  populate_6d, \
     populate_transverse_gaussian
 from utils import Commxx
 import convertors

@@ -28,9 +28,7 @@ BOOST_PYTHON_MODULE(bunch)
             no_init);
     class_<Fixed_t_z_zeroth, bases<Fixed_t_z_converter > > ("Fixed_t_z_zeroth",
             init< > ());
-    class_<Fixed_t_z_ballistic, bases<Fixed_t_z_converter > > (
-            "Fixed_t_z_ballistic", init< > ());
-
+  
     class_<Diagnostics, Diagnostics_sptr, boost::noncopyable >
         ("Diagnostics", no_init)
         .def("get_filename", &Diagnostics::get_filename,

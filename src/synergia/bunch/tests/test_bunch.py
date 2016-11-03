@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 sys.path.append('..')
@@ -8,7 +9,7 @@ sys.path.append('../../convertors')
 
 from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum
-from bunch import Bunch, Fixed_t_z_zeroth, Fixed_t_z_ballistic
+from bunch import Bunch, Fixed_t_z_zeroth
 from utils import Commxx
 import convertors
 import numpy
@@ -60,11 +61,6 @@ def test_convert_to_state():
               Commxx())
     b.convert_to_state(Bunch.fixed_t)
 
-def test_set_converter():
-    b = Bunch(reference_particle, total_num, real_num,
-              Commxx())
-    converter = Fixed_t_z_ballistic()
-    b.set_converter(converter)
 
 def test_get_reference_particle():
     b = Bunch(reference_particle, total_num, real_num,
