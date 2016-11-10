@@ -202,7 +202,7 @@ public:
         CT vuf  = vui * expf;
         CT uf   = (ui + bi) * expf - bf;
 
-        T dtheta = dthmphi - theta;
+        T dtheta = dthmphi + theta;
         T ncdt = - PH_MKS_c * dtheta * iomega;
 
         x    = uf.imag();

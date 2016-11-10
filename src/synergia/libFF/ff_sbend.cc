@@ -154,25 +154,28 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     if (slice.get_lattice_element().has_double_attribute("k1"))
     {
         // quad component
-        cf = 1;
         kl[0] = slice.get_lattice_element().get_double_attribute("k1");
         kl[1] = 0.0;
+
+        if (kl[0] != 0) cf = 1;
     }
 
     if (slice.get_lattice_element().has_double_attribute("k2"))
     {
         // sextupole component
-        cf = 2;
         kl[2] = slice.get_lattice_element().get_double_attribute("k2");
         kl[3] = 0.0;
+
+        if (kl[2] != 0) cf = 2;
     }
 
     if (slice.get_lattice_element().has_double_attribute("k3"))
     {
         // octupole component
-        cf = 3;
         kl[4] = slice.get_lattice_element().get_double_attribute("k3");
         kl[5] = 0.0;
+
+        if (kl[4] != 0) cf = 3;
     }
 
 
@@ -239,56 +242,98 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                                 kl[2] * step_length, kl[3] * step_length,
                                 kl[2] * step_length, kl[3] * step_length };
 
-    #pragma omp parallel for
-    for (int part = 0; part < local_num; ++part) 
+    if (cf == 0)
     {
-        double x   (particles[part][Bunch::x   ]);
-        double xp  (particles[part][Bunch::xp  ]);
-        double y   (particles[part][Bunch::y   ]);
-        double yp  (particles[part][Bunch::yp  ]);
-        double cdt (particles[part][Bunch::cdt ]);
-        double dpop(particles[part][Bunch::dpop]);
-
-        if (ledge)
+        // no combined function
+        #pragma omp parallel for
+        for (int part = 0; part < local_num; ++part) 
         {
-            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
+            double x   (particles[part][Bunch::x   ]);
+            double xp  (particles[part][Bunch::xp  ]);
+            double y   (particles[part][Bunch::y   ]);
+            double yp  (particles[part][Bunch::yp  ]);
+            double cdt (particles[part][Bunch::cdt ]);
+            double dpop(particles[part][Bunch::dpop]);
 
-            //FF_algorithm::edge_unit(y, yp, us_edge_k);
-            FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+            if (ledge)
+            {
+                // slot
+                FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
 
-            FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref, m);
+                // edge
+                // FF_algorithm::edge_unit(y, yp, us_edge_k);
+                FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+            }
+
+            // bend
+            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
+                       dphi, strength, pref, m, reference_cdt,
+                       phase, term);
+
+            if (redge)
+            {
+                // edge
+                // FF_algorithm::edge_unit(y, yp, ds_edge_k);
+                FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+
+                // slot
+                FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
+            }
+
+            particles[part][Bunch::x]  = x;
+            particles[part][Bunch::xp] = xp;
+            particles[part][Bunch::y]  = y;
+            particles[part][Bunch::yp] = yp;
+            particles[part][Bunch::cdt] = cdt;
         }
 
-
-#if 0
-        FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
-                   angle, strength, pref, m, reference_cdt,
-                   phase_unit_2, term_unit_2);
-#endif
-
-#if 1
-        FF_algorithm::bend_yoshida4<double, FF_algorithm::thin_cf_kick_2<double>, 2>
-            ( x, xp, y, yp, cdt, dpop,
-              pref, m, step_reference_cdt,
-              step_angle, step_strength,
-              r0, strength, steps );
-#endif
-
-        if (redge)
+    }
+    else
+    {
+        // with combined function
+        #pragma omp parallel for
+        for (int part = 0; part < local_num; ++part) 
         {
-            FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref, m);
+            double x   (particles[part][Bunch::x   ]);
+            double xp  (particles[part][Bunch::xp  ]);
+            double y   (particles[part][Bunch::y   ]);
+            double yp  (particles[part][Bunch::yp  ]);
+            double cdt (particles[part][Bunch::cdt ]);
+            double dpop(particles[part][Bunch::dpop]);
 
-            //FF_algorithm::edge_unit(y, yp, ds_edge_k);
-            FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+            if (ledge)
+            {
+                FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
 
-            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
+                //FF_algorithm::edge_unit(y, yp, us_edge_k);
+                FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+
+                FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref, m);
+            }
+
+            // bend
+            FF_algorithm::bend_yoshida4<double, FF_algorithm::thin_cf_kick_2<double>, 2>
+                ( x, xp, y, yp, cdt, dpop,
+                  pref, m, step_reference_cdt,
+                  step_angle, step_strength,
+                  r0, strength, steps );
+
+            if (redge)
+            {
+                FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref, m);
+
+                //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+                FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+
+                FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
+            }
+
+            particles[part][Bunch::x]  = x;
+            particles[part][Bunch::xp] = xp;
+            particles[part][Bunch::y]  = y;
+            particles[part][Bunch::yp] = yp;
+            particles[part][Bunch::cdt] = cdt;
         }
-
-        particles[part][Bunch::x]  = x;
-        particles[part][Bunch::xp] = xp;
-        particles[part][Bunch::y]  = y;
-        particles[part][Bunch::yp] = yp;
-        particles[part][Bunch::cdt] = cdt;
     }
 
     bunch.get_reference_particle().increment_trajectory(length);
