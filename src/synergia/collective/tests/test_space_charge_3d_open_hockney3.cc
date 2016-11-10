@@ -342,8 +342,18 @@ BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
                     < local_En->get_domain().get_grid_shape()[1]; ++j) {
                 for (int k = 0; k
                         < local_En->get_domain().get_grid_shape()[2]; ++k) {
-                    BOOST_CHECK_CLOSE(local_En->get_grid_points()[i][j][k],
+                     if (                    
+                      (j!=0) && (j!=En->get_domain().get_grid_shape()[1]-1) &&
+                      (k!=0) && (k!=En->get_domain().get_grid_shape()[2]-1)
+                      ) {
+                      BOOST_CHECK_CLOSE(local_En->get_grid_points()[i][j][k],
+                                En->get_grid_points()[i][j][k], tolerance);
+                       }
+                       else{
+                         BOOST_CHECK_CLOSE(0.,
                             En->get_grid_points()[i][j][k], tolerance);
+                       }        
+
                 }
             }
         }

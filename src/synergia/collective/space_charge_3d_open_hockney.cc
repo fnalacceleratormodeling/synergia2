@@ -995,45 +995,104 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
 Rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_electric_field_component(
         Distributed_rectangular_grid const& dist_field)
-{
-    switch (e_field_comm) {
-    case gatherv_bcast:
-        return get_global_electric_field_component_gatherv_bcast(dist_field);
-    case allgatherv:
-        return get_global_electric_field_component_allgatherv(dist_field);
-    case e_field_allreduce:
-        return get_global_electric_field_component_allreduce(dist_field);
-    default:
-        throw runtime_error(
-                "Space_charge_3d_open_hockney: invalid e_field_comm");
+{   
+    Rectangular_grid_sptr global_electric_field_sptr;
+    if (e_field_comm==gatherv_bcast) {
+        global_electric_field_sptr=get_global_electric_field_component_gatherv_bcast(dist_field);
     }
+    else if(e_field_comm==allgatherv){
+        global_electric_field_sptr=get_global_electric_field_component_allgatherv(dist_field);
+    }
+    else if(e_field_comm==e_field_allreduce){
+        global_electric_field_sptr=get_global_electric_field_component_allreduce(dist_field);
+    }
+    else throw runtime_error(
+                 "Space_charge_3d_open_hockney: invalid e_field_comm");
+
+
+//AM!  make sure the field is zero at the edge of the grid
+// THIS toghether with zero charge distribution at the edge of the grid is essential for a conservative approximation
+    MArray3d_ref grid_points(global_electric_field_sptr->get_grid_points());
+    if (!global_electric_field_sptr->get_domain_sptr()->is_periodic()){
+          for (int k=0; k<grid_points.shape()[2];++k){
+              for (int j=0; j<grid_points.shape()[1];++j){
+                  grid_points[0][j][k]=0.;
+                  grid_points[grid_points.shape()[0]-1][j][k]=0.;      
+              }
+          } 
+    }
+    for (int i=0; i<grid_points.shape()[0];++i){
+        for (int j=0; j<grid_points.shape()[1];++j){
+            grid_points[i][j][0]=0.;
+            grid_points[i][j][grid_points.shape()[2]-1]=0.;
+            
+        }
+    } 
+   
+    for (int i=0; i<grid_points.shape()[0];++i){
+        for (int k=0; k<grid_points.shape()[2];++k){
+            grid_points[i][0][k]=0.;         
+            grid_points[i][grid_points.shape()[1]-1][k]=0.;
+        }
+    }
+    return global_electric_field_sptr; 
+    
 }
 
 void
 Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_t, int component)
 {
-// $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
+  
+  
+  //AM: kicks  in the z_lab frame 
+ //Delta p_x&=& F_x \Delta t&=& - q \frac{1}{\gamma^2} \frac{\partial \Phi'}{\partial x} \Delta t=q \frac{1}{\beta \gamma^2} E_{grid~x} \Delta t\\
+ //Delta E &= & q E_z \Delta s&=& q \frac{1}{\gamma^2 \beta} \frac{\partial \Phi'}{\partial ct} \beta c\Delta t=-q \frac{c}{\beta \gamma^2 }E_{grid~z} \Delta t\\
+ // 1/beta factor in E_grid from charge deposition on (x,y,cdt) coordinates grid,  \Phi'=\frac{1}{\beta}\Phi_{grid}
+
+ 
+ 
+
+    bunch.convert_to_state(Bunch::fixed_z_lab);
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
-// delta_t_beam: [s] in beam frame
-    double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
-// unit_conversion: [kg m/s] to [Gev/c]
+    double gamma=bunch.get_reference_particle().get_gamma();
+    double beta=bunch.get_reference_particle().get_beta();
+// unit_conversion: [kg m/s] to [Gev/c] 
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
 // scaled p = p/p_ref
-    double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
-    double factor = unit_conversion * q * delta_t_beam * En.get_normalization()
-            * p_scale;
-
+    double p_ref=bunch.get_reference_particle().get_momentum();
+    double factor = unit_conversion * q * delta_t* En.get_normalization()/
+            (p_ref*gamma*gamma*beta); // transverse kicks
+   
+      
     int ps_component = 2 * component + 1;
     Rectangular_grid_domain & domain(*En.get_domain_sptr());
     MArray3d_ref grid_points(En.get_grid_points());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        double x = bunch.get_local_particles()[part][Bunch::x];
-        double y = bunch.get_local_particles()[part][Bunch::y];
-        double z = bunch.get_local_particles()[part][Bunch::z];
-        double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
-                grid_points);
-        bunch.get_local_particles()[part][ps_component] += factor * grid_val;
+    if (component==2){
+        factor *= -p_ref; 
+        double m = bunch.get_mass();
+        for (int part = 0; part < bunch.get_local_num(); ++part) {
+            double x = bunch.get_local_particles()[part][Bunch::x];
+            double y = bunch.get_local_particles()[part][Bunch::y];
+            double z = bunch.get_local_particles()[part][Bunch::z];   
+            double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
+                    grid_points);
+            double p=p_ref +bunch.get_local_particles()[part][Bunch::dpop] * p_ref;        
+            double Eoc_i = std::sqrt(p * p + m * m);
+            double Eoc_f=  Eoc_i + factor * grid_val;
+            double delta_dpop=(std::sqrt(Eoc_f*Eoc_f-m*m)-std::sqrt(Eoc_i*Eoc_i-m*m))/p_ref;
+            bunch.get_local_particles()[part][ps_component] += delta_dpop;
+        }      
+    }
+    else{
+        for (int part = 0; part < bunch.get_local_num(); ++part) {
+              double x = bunch.get_local_particles()[part][Bunch::x];
+              double y = bunch.get_local_particles()[part][Bunch::y];
+              double z = bunch.get_local_particles()[part][Bunch::z];   
+              double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
+                    grid_points);      
+              bunch.get_local_particles()[part][ps_component] += factor * grid_val; 
+        }
     }
 }
 
@@ -1053,7 +1112,10 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
                     "Space_charge_3d_open_hockney: set_charge_density_comm(charge_allreduce) required when comm != bunch comm");
         }
         t = simple_timer_show(t, "sc-setup-communication");
-        bunch.convert_to_state(Bunch::fixed_t_bunch);
+
+       // bunch.convert_to_state(Bunch::fixed_t_bunch);
+        bunch.convert_to_state(Bunch::fixed_z_lab);
+        
         t = simple_timer_show(t, "sc-convert-to-state");
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
         t = simple_timer_show(t, "sc-get-local-rho");
@@ -1077,7 +1139,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         G2.reset();
         Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
         t = simple_timer_show(t, "sc-get-phi");
-        bunch.periodic_sort(Bunch::z);
+      //  bunch.periodic_sort(Bunch::z); // A.M this causes troubles
         t = simple_timer_show(t, "sc-sort");
         phi2.reset();
         int max_component;

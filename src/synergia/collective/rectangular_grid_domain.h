@@ -72,7 +72,7 @@ public:
         } else {
             retval = ((ix >= 0) && (ix < grid_shape[0] - 1) && (iy >= 0) &&
                     (iy < grid_shape[1] - 1)) && (periodic_z || ((iz >= 0) &&
-                    (iz < grid_shape[2] - 1)));
+                    (iz < grid_shape[2] - 1)));          
         }
 
         return retval;

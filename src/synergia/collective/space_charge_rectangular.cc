@@ -352,7 +352,6 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, double const& g
     get_fftw_helper_sptr()->inv_transform(phi_local_ref,phi_local_ref);
   // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_inverse");
 
-    double beta=std::sqrt(1.-1./gamma/gamma);
     phi_local->set_normalization(1./(4.*shape[0]*shape[1]*shape[2]*epsilon0));
     return phi_local;
  }
