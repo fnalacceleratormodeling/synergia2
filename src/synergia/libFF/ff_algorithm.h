@@ -81,6 +81,19 @@ public:
         yp -= k * y;
     }
 
+    template <typename T>
+    inline static void edge_unit
+      (T const & y, T & xp, T & yp, T const & dpop, double k)
+    {
+        T zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
+
+        T xxp = xp;
+        T yyp = yp;
+
+        yp -= (xxp / zp) * k * y;
+        xp += (yyp / zp) * k * y;
+    }
+
     // exact solution for dipole without high order combined functions
     template <typename T>
     inline static void dipole_unit

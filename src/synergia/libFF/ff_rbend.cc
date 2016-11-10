@@ -179,8 +179,10 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double eB = charge_b * strength;
 
     // edge strength with scale
-    double edge_k = ((charge_l > 0) ? 1.0 : -1.0 ) * tan(theta) / rho;
-    edge_k *= scale;
+    double edge_k   = ((charge_l > 0) ? 1.0 : -1.0 ) * tan(theta) / rho;
+    double edge_k_p = ((charge_l > 0) ? 1.0 : -1.0 ) / rho;
+    edge_k   *= scale;
+    edge_k_p *= scale;
 
     if (k[2] == 0.0 && k[4] == 0.0)
     {
@@ -250,7 +252,8 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref_b, m);
 
             // upstream edge
-            FF_algorithm::edge_unit(y, yp, edge_k);
+            // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
+            FF_algorithm::edge_unit(y, xp, yp, dpop, edge_k_p);    // edge kick based on particle angle
 
             // bend
             // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
@@ -259,7 +262,8 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     phase, term);
 
             // downstream edge
-            FF_algorithm::edge_unit(y, yp, edge_k);
+            // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
+            FF_algorithm::edge_unit(y, xp, yp, dpop, -edge_k_p);   // edge kick based on particle angle
 
             // downstream slot
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref_b, m);

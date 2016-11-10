@@ -220,6 +220,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double us_edge_k =   ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(usAngle) / reference_brho;
     double ds_edge_k = - ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(dsAngle) / reference_brho;
 
+    double us_edge_k_p =   ((reference_charge > 0) ? 1.0 : -1.0) * strength / reference_brho;
+    double ds_edge_k_p = - ((reference_charge > 0) ? 1.0 : -1.0) * strength / reference_brho;
+
     double reference_cdt = get_reference_cdt(length, strength, angle, ledge, redge, e1, e2, dphi,
             phase, term, bunch.get_reference_particle());
 
@@ -249,7 +252,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         if (ledge)
         {
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
-            FF_algorithm::edge_unit(y, yp, us_edge_k);
+
+            //FF_algorithm::edge_unit(y, yp, us_edge_k);
+            FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
 
             FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref, m);
         }
@@ -261,17 +266,21 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                    phase_unit_2, term_unit_2);
 #endif
 
+#if 1
         FF_algorithm::bend_yoshida4<double, FF_algorithm::thin_cf_kick_2<double>, 2>
             ( x, xp, y, yp, cdt, dpop,
               pref, m, step_reference_cdt,
               step_angle, step_strength,
               r0, strength, steps );
+#endif
 
         if (redge)
         {
             FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref, m);
 
-            FF_algorithm::edge_unit(y, yp, ds_edge_k);
+            //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+            FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
         }
 
