@@ -7,6 +7,7 @@ using mconstants::pi;
 using pconstants::epsilon0;
 #include <fftw3.h>
 #include <fftw3-mpi.h>
+#include "interpolate_rectangular_xyz.h"
 
 
 Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
@@ -565,8 +566,31 @@ if ((component < 0) || (component > 2)) {
 	}
 	
     }   
+    
+   //AM!  make sure the field is zero at the edge of the grid
+// THIS toghether with zero charge distribution at the edge of the grid is essential for a conservative approximation
+    MArray3d_ref grid_points(En->get_grid_points());
+    for (int j=0; j<grid_points.shape()[1];++j){
+        for (int k=0; k<grid_points.shape()[2];++k){
+            grid_points[0][j][k]=0.;
+            grid_points[grid_points.shape()[0]-1][j][k]=0.;
+            
+        }
+    }    
+    for (int i=0; i<grid_points.shape()[0];++i){
+        for (int k=0; k<grid_points.shape()[2];++k){
+            grid_points[i][0][k]=0.;         
+            grid_points[i][grid_points.shape()[1]-1][k]=0.;
+        }
+    } 
+    
+    
+    
     t = simple_timer_show(t, "get_En:  gather En");
-   
+     
+    
+    
+    
     return En;
 
 }
@@ -660,19 +684,19 @@ Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, 
     if (comm_f_sptr->has_this_rank()){
        Distributed_rectangular_grid_sptr phi_local(get_phi_local(rho,gamma)); // \nabla phi= -rho/epsilon0; [phi]=kg*m^2*C^{-1}*s^{-2}            
        for (int component = 0; component < max_component; ++component) {
-	   Efield.push_back(get_En(*phi_local, component));
+          Efield.push_back(get_En(*phi_local, component));
        }	
     } 
     else{
-	for (int component = 0; component < max_component; ++component){ 
-	  Efield.push_back(Rectangular_grid_sptr(new Rectangular_grid(domain_sptr)));			
-	}
-	int mpi_compare;
-	MPI_Comm_compare(comm_f_sptr->get_parent_sptr()->get(), bunch.get_comm_sptr()->get(), &mpi_compare);
-	if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){	       
-              	throw std::runtime_error
-              	("Space_charge_rectangular get_Efield: comm_f_sptr parent and bunch.comm are not congruent");
-	} 
+      for (int component = 0; component < max_component; ++component){ 
+        Efield.push_back(Rectangular_grid_sptr(new Rectangular_grid(domain_sptr)));			
+      }
+      int mpi_compare;
+      MPI_Comm_compare(comm_f_sptr->get_parent_sptr()->get(), bunch.get_comm_sptr()->get(), &mpi_compare);
+      if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){	       
+                  throw std::runtime_error
+                  ("Space_charge_rectangular get_Efield: comm_f_sptr parent and bunch.comm are not congruent");
+      } 
     }  // comm_f_sptr->has_this_rank()
    
    

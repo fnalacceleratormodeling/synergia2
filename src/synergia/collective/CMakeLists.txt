@@ -20,6 +20,7 @@ install(FILES
     deposit.h
     distributed_rectangular_grid.h
     interpolate_rectangular_zyx.h
+    interpolate_rectangular_xyz.h
     rectangular_grid_domain.h
     rectangular_grid.h
     fftw_rectangular_helper.h

@@ -645,7 +645,8 @@ BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
     int mt=3;
     int pt=4;
 
-
+    
+    
     Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr()));
     std::vector<int > shape(space_charge.get_domain().get_grid_shape());
 
@@ -658,7 +659,7 @@ BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
             }
         }
 
-   
+//    
 
    std::vector<double > hi(space_charge.get_domain().get_cell_size());
     int optimal_number=2;
@@ -692,7 +693,7 @@ BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
 
 
 
-	//  multi_array_check_equal(rhocheck, phi_check,  10.e-8);
+	 // multi_array_check_equal(rhocheck, phi_check,  10.e-8);
     
 	  Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho_grid,bunch.get_reference_particle().get_gamma()));
       
@@ -712,12 +713,65 @@ BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
 	  for (int i = 0; i < shape[0]; ++i) {
 		  for (int j = 0; j < shape[1]; ++j) {
 		      for (int k = 0; k < shape[2]; ++k) {
-			  Exa[i][j][k] *= Ex->get_normalization();
-			  Eya[i][j][k] *= Ey->get_normalization();
-			  Eza[i][j][k] *= Ez->get_normalization();			
+                  Exa[i][j][k] *= Ex->get_normalization();
+                  Eya[i][j][k] *= Ey->get_normalization();
+                  Eza[i][j][k] *= Ez->get_normalization();			
 		      }
 		  }
-	      }
+	    }
+
+// check if the field is zero on the grid x and y edges
+    Rectangular_grid_sptr zero_edge(new Rectangular_grid(space_charge.get_domain_sptr()));
+    MArray3d_ref zero_e(zero_edge->get_grid_points());
+
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
+                   zero_e[i][j][k] = Exa[i][j][k];
+                   zero_e[0][j][k] =0.;
+                   zero_e[i][0][k] =0.;
+                   zero_e[shape[0]-1][j][k] =0.;
+                   zero_e[i][shape[1]-1][k] =0.;
+                   
+                }
+            }
+        }
+    
+
+     multi_array_check_equal(Exa, zero_e,  10.e-8); 
+     
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
+                   zero_e[i][j][k] = Eya[i][j][k];
+                   zero_e[0][j][k] =0.;
+                   zero_e[i][0][k] =0.;
+                   zero_e[shape[0]-1][j][k] =0.;
+                   zero_e[i][shape[1]-1][k] =0.;
+                   
+                }
+            }
+        }
+    
+
+     multi_array_check_equal(Eya, zero_e,  10.e-8); 
+    
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
+                   zero_e[i][j][k] = Eza[i][j][k];
+                   zero_e[0][j][k] =0.;
+                   zero_e[i][0][k] =0.;
+                   zero_e[shape[0]-1][j][k] =0.;
+                   zero_e[i][shape[1]-1][k] =0.;
+                   
+                }
+            }
+        }
+    
+
+   multi_array_check_equal(Eza, zero_e,  10.e-8); // this should fail
+	    
 	// Check if Ex= -sxnt*cos(nt*(i+0.5)*pi/double(rho.shape()[0]))
 	//       *sin(mt*(j+0.5)*pi/double(rho.shape()[1])) *cos((2.*pi*pt*k)/double(rho.shape()[2]))=
 	//= -sxnt*cos(nt*(i+0.5)*pi/double(rho.shape()[0]))/ sin(nt*(i+0.5)*pi/double(rho.shape()[0]))*rho
@@ -736,11 +790,9 @@ BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
 					      Ezcheck[i][j][k]=Eza[i][j][k]*cos((2.*pi*pt*k)/double(shape[2]))
 						/(szpt*sin((2.*pi*pt*k)/double(shape[2])));					    			
 
-			  if ((i==0) || (i==shape[0]-1) ||(j==0) || (j==shape[1]-1)){
-			    Excheck[i][j][k]=0.;
-			    Eycheck[i][j][k]=0.;
-			    Ezcheck[i][j][k]=0.;		
+			  if ((i==0) || (i==shape[0]-1) ||(j==0) || (j==shape[1]-1)){			 	
 			    rhocheck[i][j][k]=0.;
+                if ((k==shape[2]/2) || (k==0)) { Ezcheck[i][j][k]=0.;};
 			  }
 			}
 		    }

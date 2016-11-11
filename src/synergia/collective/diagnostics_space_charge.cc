@@ -4,6 +4,7 @@ using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"
 using pconstants::epsilon0;
 #include "interpolate_rectangular_zyx.h"
+#include "interpolate_rectangular_xyz.h"
 
 const char Diagnostics_space_charge_rectangular::name[] = "spch_rectangular_diagnostics";
 const double Diagnostics_space_charge_rectangular::field_fractional_beamsize_for_linear_interpolation=0.5;

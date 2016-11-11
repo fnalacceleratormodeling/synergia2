@@ -124,11 +124,14 @@ BOOST_FIXTURE_TEST_CASE(in_domain, Fixture)
     in_domain_r=rho_grid_sptr->get_domain().get_leftmost_indices_offsets(
                     parts[0][4], parts[0][2], parts[0][0], iz, iy, ix, offz,
                     offy, offx);
-  //  std::cout<<" right index iy="<<iy<<std::endl;
+   // std::cout<<" right index iy="<<iy<<" in domain r="<<in_domain_r<<std::endl;
+
+    
     in_domain_l=rho_grid_sptr->get_domain().get_leftmost_indices_offsets(
                     parts[1][4], parts[1][2], parts[1][0], iz, iy, ix, offz,
                     offy, offx);
-   // std::cout<<" left index iy="<<iy<<std::endl;
+                  
+  //  std::cout<<" left index iy="<<iy<<" in domain l="<<in_domain_l<<std::endl;
     BOOST_CHECK (!in_domain_r);
     BOOST_CHECK (!in_domain_l);
 

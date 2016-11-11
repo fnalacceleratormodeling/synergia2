@@ -2,7 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <iostream>
-
+#include "synergia/collective/interpolate_rectangular_xyz.h"
 #include "synergia/collective/deposit.h"
 #include "gaussian_charge_density.h"
 
