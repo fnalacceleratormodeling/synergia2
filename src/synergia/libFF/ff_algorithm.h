@@ -987,22 +987,22 @@ public:
 
         for(int i = 0; i < steps; ++i) 
         {
-            bend_unit(x, xp, y, yp, cdt, dpop, c1 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c1_step_phase, c1_step_term);
 
             kf( x, xp, y, yp, r0, k1 );
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c2 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c2_step_phase, c2_step_term);
 
             kf( x, xp, y, yp, r0, k2 );
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c3 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, - c3 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c3_step_phase, c3_step_term);
 
             kf( x, xp, y, yp, r0, k3 );
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c4 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, - c4 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c4_step_phase, c4_step_term);
         }
     }
