@@ -1922,17 +1922,17 @@ Lattice_simulator::get_chromaticities(double dpp)
         double qypp_p_qymm_m2qy0 = tune_v_plusplus + tune_v_minusminus - 2*tune_v0;
 
         slip_factor = (8.0*cdtp_m_cdtm - cdtpp_m_cdtmm)/(12.0*dpp*cT0);
-        slip_factor_prime = 2.0*(16*cdtp_p_cdtm_m2cdt0 - cdtpp_p_cdtmm_m2cdt0)/(24.0*dpp*dpp*cT0*cT0);
+        slip_factor_prime = 2.0*(16*cdtp_p_cdtm_m2cdt0 - cdtpp_p_cdtmm_m2cdt0)/(24.0*dpp*dpp*cT0);
 
         momentum_compaction = slip_factor + 1. / gamma / gamma;
 
         // d^2 cdt/d dpop^2 = 2! *a_2
 
         // d^3 cdt/ d dpop^3 = 3! * a_3 but I'm not planning on using it
-        // double d3cdt_d_dpop3 = 6.0*(cdtpp_m_cdtmm - 2.0*cdtp_m_cdtm)/(12.0*dpp*dpp*dpp*cT0*cT0*cT0);
+        // double d3cdt_d_dpop3 = 6.0*(cdtpp_m_cdtmm - 2.0*cdtp_m_cdtm)/(12.0*dpp*dpp*dpp*cT0);
 
         // d^4 cdt / d dpop^4 = 4! * a_4 but I'm not planning on using it
-        // double d4cdt_d_dpop4 = 24.0*(cdtpp_p_cdtmm_m2cdt0 - 4.0*cdtp_p_cdtm_m2cdt0)/(24.0*dpp*dpp*dpp*dpp*cT0*cT0*cT0*cT0);
+        // double d4cdt_d_dpop4 = 24.0*(cdtpp_p_cdtmm_m2cdt0 - 4.0*cdtp_p_cdtm_m2cdt0)/(24.0*dpp*dpp*dpp*dpp*cT0);
 
         horizontal_chromaticity = (8.0*qxp_m_qxm - qxpp_m_qxmm)/(12.0*dpp);
         vertical_chromaticity = (8.0*qyp_m_qym - qypp_m_qymm)/(12.0*dpp);
