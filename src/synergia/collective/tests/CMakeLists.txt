@@ -165,6 +165,10 @@ target_link_libraries(test_diagnostics_space_charge synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_space_charge COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_space_charge>)
 
+add_test_executable(test_diagnostics_space_charge_3d_hockney test_diagnostics_space_charge_3d_hockney.cc )
+target_link_libraries(test_diagnostics_space_charge_3d_hockney synergia_collective
+    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_diagnostics_space_charge_3d_hockney COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_space_charge_3d_hockney>)
 
 
 add_test_executable(test_impedance test_impedance.cc)

@@ -9,6 +9,7 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/commxx_divider.h"
 #include "synergia/utils/distributed_fft3d.h"
+#include "synergia/collective/diagnostics_space_charge.h"
 
 /// Note: internal grid is stored in [z][y][x] order, but
 /// grid shape expects [x][y][z] order.
@@ -49,6 +50,8 @@ private:
     double n_sigma;
     bool domain_fixed;
     bool have_domains;
+    Diagnostics_space_charge_3d_hockneys diagnostics_list;
+    bool have_diagnostics;
     void
     constructor_common(std::vector<int > const& grid_shape);
     void
@@ -79,6 +82,10 @@ public:
     Space_charge_3d_open_hockney();
     virtual Space_charge_3d_open_hockney *
     clone();
+    void
+    set_diagnostics_list(Diagnostics_space_charge_3d_hockneys diagnosticss);   
+    void
+    add_diagnostics(Diagnostics_space_charge_3d_hockney_sptr diagnostics_sptr); 
     void
     setup_communication(Commxx_sptr const& bunch_comm_sptr);
     void
@@ -153,6 +160,9 @@ public:
     Rectangular_grid_sptr
     get_global_electric_field_component(
             Distributed_rectangular_grid const& dist_field);
+            
+    void
+    do_diagnostics(Rectangular_grid const& En, int component, double time_step, Step & step, Bunch & bunch);                 
     void
     apply_kick(Bunch & bunch, Rectangular_grid const& En, double delta_tau,
             int component);

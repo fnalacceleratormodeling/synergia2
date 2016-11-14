@@ -113,7 +113,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 comm1_sptr(),
                 n_sigma(n_sigma),
                 domain_fixed(false),
-                have_domains(false)
+                have_domains(false),
+                have_diagnostics(false)
 {
     constructor_common(grid_shape);
 }
@@ -136,7 +137,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 comm1_sptr(),
                 n_sigma(n_sigma),
                 domain_fixed(false),
-                have_domains(false)
+                have_domains(false),
+                have_diagnostics(false)
 {
     constructor_common(grid_shape);
 }
@@ -158,7 +160,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 comm1_sptr(),
                 n_sigma(n_sigma),
                 domain_fixed(false),
-                have_domains(false)
+                have_domains(false),
+                have_diagnostics(false)
 {
     constructor_common(grid_shape);
 }
@@ -193,6 +196,22 @@ Space_charge_3d_open_hockney::clone()
 {
     return new Space_charge_3d_open_hockney(*this);
 }
+
+void
+Space_charge_3d_open_hockney::add_diagnostics(Diagnostics_space_charge_3d_hockney_sptr ddiagnostics_sptr)
+{
+  diagnostics_list.push_back(ddiagnostics_sptr);
+  this->have_diagnostics=true;
+}
+
+void
+Space_charge_3d_open_hockney::set_diagnostics_list(Diagnostics_space_charge_3d_hockneys diagnostics_list)
+{
+  this->diagnostics_list =diagnostics_list;
+  this->have_diagnostics=true;
+}
+
+
 
 double
 Space_charge_3d_open_hockney::get_n_sigma() const
@@ -1039,6 +1058,27 @@ Space_charge_3d_open_hockney::get_global_electric_field_component(
     
 }
 
+
+void
+Space_charge_3d_open_hockney::do_diagnostics(Rectangular_grid const& En, int component, double time_step, Step & step, 
+                                          Bunch & bunch)
+{   
+   if (have_diagnostics) {
+      if ((component==0) || (component==1)){
+         double step_beta=step.get_betas()[component];
+         for (Diagnostics_space_charge_3d_hockneys::const_iterator d_it = diagnostics_list.begin();
+            d_it != diagnostics_list.end(); ++d_it){
+            if ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()){
+               (*d_it)->update(bunch, En, component, time_step, step_beta); 
+               if (component==1) (*d_it)->write();
+            }
+         }
+      }    
+   } 
+   
+}  
+
+
 void
 Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_t, int component)
@@ -1113,7 +1153,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         }
         t = simple_timer_show(t, "sc-setup-communication");
 
-       // bunch.convert_to_state(Bunch::fixed_t_bunch);
+     
         bunch.convert_to_state(Bunch::fixed_z_lab);
         
         t = simple_timer_show(t, "sc-convert-to-state");
@@ -1155,6 +1195,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
             Rectangular_grid_sptr En(
                     get_global_electric_field_component(*local_En)); // [V/m]
             t = simple_timer_show(t, "sc-get-global-en");
+            do_diagnostics(*En,component, time_step,step, bunch);
             apply_kick(bunch, *En, time_step, component);
             t = simple_timer_show(t, "sc-apply-kick");
         }
@@ -1180,7 +1221,9 @@ template<class Archive>
         & BOOST_SERIALIZATION_NVP(have_domains)
         & BOOST_SERIALIZATION_NVP(green_fn_type)
         & BOOST_SERIALIZATION_NVP(charge_density_comm)
-        & BOOST_SERIALIZATION_NVP(e_field_comm);
+        & BOOST_SERIALIZATION_NVP(e_field_comm)
+        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
+        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
     }
 template<class Archive>
     void
@@ -1200,7 +1243,9 @@ template<class Archive>
         & BOOST_SERIALIZATION_NVP(have_domains)
         & BOOST_SERIALIZATION_NVP(green_fn_type)
         & BOOST_SERIALIZATION_NVP(charge_density_comm)
-        & BOOST_SERIALIZATION_NVP(e_field_comm);
+        & BOOST_SERIALIZATION_NVP(e_field_comm)
+        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
+        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
         if (comm2_sptr) {
             setup_derived_communication();
         }

@@ -51,7 +51,7 @@ BOOST_FIXTURE_TEST_CASE(update, Ellipsoidal_bunch_fixture)
 }
 BOOST_FIXTURE_TEST_CASE(diagnostics_equally_spread_true, gaussian_3d_bunch_fixture)
 {
-   Diagnostics_space_charge_rectangular diag_spc("diagnostics_rectangular.h5");
+  
    Diagnostics_space_charge_rectangular_sptr sp_diagnostics_sptr
                   (new Diagnostics_space_charge_rectangular("diagnostics_rectangular.h5"));
    
@@ -179,7 +179,8 @@ BOOST_FIXTURE_TEST_CASE(diagnostics_equally_spread_true, gaussian_3d_bunch_fixtu
 //  std::cout<<" dEy/dy="<<Ederiv_y<<std::endl;       
 //  std::cout<<" B dEx/dx="<<BE_deriv_x<<std::endl;
 //  std::cout<<" B dEy/dy="<<BE_deriv_y<<std::endl;
-   
+
+//dEx/dx and B dEx/dx  should be approximate equal because the beam is 3d gaussian and BE approximation is for longitudinally uniform beams 
    BOOST_CHECK(floating_point_equal(Ederiv_x,BE_deriv_x, 5.e-2));
    BOOST_CHECK(floating_point_equal(Ederiv_y,BE_deriv_y, 6.e-2));
 
@@ -187,7 +188,6 @@ BOOST_FIXTURE_TEST_CASE(diagnostics_equally_spread_true, gaussian_3d_bunch_fixtu
 
 BOOST_FIXTURE_TEST_CASE(diagnostics_equally_spread_false, gaussian_3d_bunch_fixture)
 {  
-   Diagnostics_space_charge_rectangular diag_spc("diagnostics_rectangular.h5");
    Diagnostics_space_charge_rectangular_sptr sp_diagnostics_sptr
                   (new Diagnostics_space_charge_rectangular("diagnostics_rectangular.h5"));
    
@@ -267,6 +267,7 @@ BOOST_FIXTURE_TEST_CASE(diagnostics_equally_spread_false, gaussian_3d_bunch_fixt
 //   std::cout<<" B dEx/dx="<<BE_deriv_x<<std::endl;
 //   std::cout<<" B dEy/dy="<<BE_deriv_y<<std::endl;
 
+//dEx/dx and B dEx/dx  should be approximate equal because the beam is 3d gaussian and BE approximation is for longitudinally uniform beams 
   BOOST_CHECK(floating_point_equal(Ederiv_x,BE_deriv_x, 5.e-2));
   BOOST_CHECK(floating_point_equal(Ederiv_y,BE_deriv_y, 6.e-2));
 
