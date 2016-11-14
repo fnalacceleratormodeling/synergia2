@@ -24,11 +24,11 @@ public:
      */
     enum State
     {
-        fixed_z = 1,
-        fixed_t = 2,
+    //    fixed_z = 1,
+    //    fixed_t = 2,
         fixed_z_lab = 1,
-        fixed_t_bunch = 2,
-        fixed_t_lab = 3,
+        fixed_t_lab = 2,
+        fixed_t_bunch = 3,       
         fixed_z_bunch = 4
     };
     static const int x = 0;

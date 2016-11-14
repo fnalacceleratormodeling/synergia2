@@ -812,7 +812,7 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
         t_total = simple_timer_current();
         t = t_total;
         if (need_state_conversion) {
-            bunch.convert_to_state(Bunch::fixed_t);
+            bunch.convert_to_state(Bunch::fixed_t_bunch);
             t = simple_timer_show(t, "sc2doh-convert_to_state");
         }
         bunch.periodic_sort(Bunch::z);

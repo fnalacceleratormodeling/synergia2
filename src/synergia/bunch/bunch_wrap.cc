@@ -218,8 +218,8 @@ BOOST_PYTHON_MODULE(bunch)
                 ;
 
     enum_<Bunch::State > ("State")
-        .value("fixed_z", Bunch::fixed_z)
-        .value("fixed_t", Bunch::fixed_t)
+//        .value("fixed_z", Bunch::fixed_z)
+//        .value("fixed_t", Bunch::fixed_t)
         .value("fixed_z_lab", Bunch::fixed_z_lab)
         .value("fixed_t_lab", Bunch::fixed_t_lab)
         .value("fixed_z_bunch", Bunch::fixed_z_bunch)

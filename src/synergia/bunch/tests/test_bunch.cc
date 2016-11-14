@@ -316,7 +316,7 @@ BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
 {
     Bunch::State state;
     state = bunch.get_state();
-    BOOST_CHECK_EQUAL(state,Bunch::fixed_z);
+    BOOST_CHECK_EQUAL(state,Bunch::fixed_z_lab);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_comm, Fixture)
@@ -336,10 +336,10 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     }
 
     Bunch second_bunch(bunch);
-    bunch.convert_to_state(Bunch::fixed_t);
+    bunch.convert_to_state(Bunch::fixed_t_bunch);
 
-    BOOST_CHECK(bunch.get_state() == Bunch::fixed_t);
-    BOOST_CHECK(second_bunch.get_state() == Bunch::fixed_z);
+    BOOST_CHECK(bunch.get_state() == Bunch::fixed_t_bunch);
+    BOOST_CHECK(second_bunch.get_state() == Bunch::fixed_z_lab);
 
     // verify that transverse means are unaffected by state transformation
     MArray1d accel_mean(Core_diagnostics::calculate_mean(second_bunch));
@@ -385,7 +385,7 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     }
 
     // Check that the roundtrip transformation is the identity
-    bunch.convert_to_state(Bunch::fixed_z);
+    bunch.convert_to_state(Bunch::fixed_z_lab);
     const double convert_tolerance = 5.0e-8;
     compare_bunches(bunch, second_bunch, convert_tolerance);
 }
@@ -398,7 +398,7 @@ BOOST_FIXTURE_TEST_CASE(convert_to_fixed_t_bad_pz, Fixture)
     bunch.get_local_particles()[bad_particle_id][Bunch::yp] = -0.7;
     bool caught_error = false;
     try {
-        bunch.convert_to_state(Bunch::fixed_t);
+        bunch.convert_to_state(Bunch::fixed_t_bunch);
     }
     catch (std::runtime_error) {
         caught_error = true;
@@ -451,7 +451,7 @@ BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)
     bunch.set_converter(converter);
     dummy_populate(bunch);
     Bunch second_bunch(bunch);
-    bunch.convert_to_state(Bunch::fixed_t);
+    bunch.convert_to_state(Bunch::fixed_t_bunch);
     compare_bunches(bunch, second_bunch, tolerance, false);
 }
 

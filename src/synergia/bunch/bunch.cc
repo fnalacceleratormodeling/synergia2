@@ -128,7 +128,7 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
     this->particle_charge = particle_charge;
     this->total_num = total_num;
     this->real_num = real_num;
-    state = fixed_z;
+    state = fixed_z_lab;
     converter_ptr = &default_converter;
     if (comm_sptr->has_this_rank()) {
         local_num = decompose_1d_local(*comm_sptr, total_num);

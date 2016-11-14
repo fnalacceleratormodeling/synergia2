@@ -59,7 +59,7 @@ def test_update_total():
 def test_convert_to_state():
     b = Bunch(reference_particle, total_num, real_num,
               Commxx())
-    b.convert_to_state(Bunch.fixed_t)
+    b.convert_to_state(Bunch.fixed_t_lab)
 
 
 def test_get_reference_particle():
@@ -84,7 +84,7 @@ def test_get_mass():
 def test_get_state():
     b = Bunch(reference_particle, total_num, real_num,
               Commxx())
-    assert b.get_state() == Bunch.fixed_z
+    assert b.get_state() == Bunch.fixed_z_lab
 
 def test_get_comm():
     b = Bunch(reference_particle, total_num, real_num,
