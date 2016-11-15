@@ -448,6 +448,7 @@ struct synergia::madx_tree_parser
            ("beambeam"   , mx_keyword("beambeam"   , MX_KW_ELEMENT) )
            ("matrix"     , mx_keyword("matrix"     , MX_KW_ELEMENT) )
            ("marker"     , mx_keyword("marker"     , MX_KW_ELEMENT) )
+           ("constfoc"   , mx_keyword("constfoc"   , MX_KW_ELEMENT) )
       ;
     }
   } element_keywords;

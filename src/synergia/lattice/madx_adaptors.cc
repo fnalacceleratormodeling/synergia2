@@ -2187,15 +2187,15 @@ Constfoc_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 {
     Chef_elements retval;
     double length = lattice_element.get_length();
-    std::vector<double> betaX(2, lattice_element.get_double_attribute("betaH"));
+    std::vector<double> betaX(2, lattice_element.get_double_attribute("betah"));
     std::vector<double> psiH(2, 0.0);
     psiH[1] = length/betaX[0];
-    std::vector<double> betaY(2, lattice_element.get_double_attribute("betaV"));
+    std::vector<double> betaY(2, lattice_element.get_double_attribute("betav"));
     std::vector<double> psiV(2, 0.0);
     psiV[1] = length/betaY[0];
     std::vector<double> alphaXY(2, 0.0);
-    double betaL = lattice_element.get_double_attribute("betaL");
-    double psiL = 2.0*mconstants::pi*lattice_element.get_double_attribute("nuL");
+    double betaL = lattice_element.get_double_attribute("betal");
+    double psiL = 2.0*mconstants::pi*lattice_element.get_double_attribute("nul");
 
     ElmPtr elm(
             new sector(lattice_element.get_name().c_str(),
