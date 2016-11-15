@@ -70,13 +70,30 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
 ///  [-cdt/2,cdt/2] [m] (flatly distributed). 
 /// @param stddpop standard deviation of the dp/p distribution
 void
-populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x,
-        double alpha_x, double beta_x, double epsilMax_y, double alpha_y, double beta_y,
+populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x, double epsilMax_y,
+        double alpha_x, double beta_x, double alpha_y, double beta_y,
         double stddt, double stddpop);
 	
 void 
 populate_two_particles(Bunch &bunch, 
          double p1x, double p1xp, double p1y, double p1yp, double p1cdt, double p1dpop, 
          double p2x, double p2xp, double p2y, double p2yp, double p2cdt, double p2dpop); 
+
+void
+populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref map, double length);  
+
+
+void
+populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref map,
+                            double radiusx,  double radiusy,   double ctrms); 
+
+                            
+///the 3 rms input parameters,arms, brms, crms, correspond to the  indices 
+///         rms _index[0], rms _index[1], rms _index[2]
+///        example: rms_index=[0,2,4]==> arms=xrms, brms=yrms, crms=zrms
+///        units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,  '''                             
+MArray2d
+get_correlation_matrix(Const_MArray2d_ref map, double xrms, double yrms, double zrms, 
+                       double beta, std::vector<int> rms_index=std::vector<int >());        
 
 #endif /* POPULATE_H_ */
