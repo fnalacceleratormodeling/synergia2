@@ -61,17 +61,17 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
 /// @param dist the distribution generator for the Gaussian dp/p distribution. 
 /// @param bunch the bunch
 /// @param epsilMax_x: The maximum emittance (not normalized) to fill horizontal twoxtwo D ellipse. 
-/// @param epsilMax_y: The maximum emittance (not normalized) to fill vertical twoxtwo D ellipse. 
 /// @param aplha_x: Alpha Twiss parameter at the point of injection.
 /// @param beta_x: Beta Twiss parameter at the point of injection.
+/// @param epsilMax_y: The maximum emittance (not normalized) to fill vertical twoxtwo D ellipse. 
 /// @param aplha_y: Alpha Twiss parameter at the point of injection.
 /// @param beta_y: Beta Twiss parameter at the point of injection.
 /// @param cdt the total range of the longitudinal coordinate will be
 ///  [-cdt/2,cdt/2] [m] (flatly distributed). 
 /// @param stddpop standard deviation of the dp/p distribution
 void
-populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x, double epsilMax_y,
-        double alpha_x, double beta_x, double alpha_y, double beta_y,
+populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x,
+        double alpha_x, double beta_x, double epsilMax_y, double alpha_y, double beta_y,
         double stddt, double stddpop);
 	
 void 
@@ -82,7 +82,7 @@ populate_two_particles(Bunch &bunch,
 void
 populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref map, double length);  
 
-
+// alternative populate KV distribution using a linear map to determine coefficients.
 void
 populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref map,
                             double radiusx,  double radiusy,   double ctrms); 

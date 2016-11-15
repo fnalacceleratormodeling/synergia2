@@ -161,6 +161,7 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
     def("populate_two_particles", populate_two_particles);
     def("get_correlation_matrix",get_correlation_matrix);
+    def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
     def("populate_transverseKV_logitudinalGaussian", populate_transverseKV_logitudinalGaussian);
     def("populate_longitudinal_boxcar", populate_longitudinal_boxcar);
 
