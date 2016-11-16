@@ -146,25 +146,25 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx_sptr comm_sptr) :
-        z_period_length(0.0), z_periodic(0), reference_particle(
-                reference_particle), bucket_index(0), comm_sptr(comm_sptr), default_converter()
+        longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
+                reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx_sptr comm_sptr, int particle_charge) :
-        z_period_length(0.0), z_periodic(0), reference_particle(
-                reference_particle), bucket_index(0), comm_sptr(comm_sptr), default_converter()
+        longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
+                reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
 {
     construct(particle_charge, total_num, real_num);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr, double z_period_length,
+        double real_num, Commxx_sptr comm_sptr, double longitudinal_extent,
         int bucket_index) :
-        z_period_length(z_period_length), z_periodic(true), reference_particle(
-                reference_particle), bucket_index(bucket_index), comm_sptr(
+        longitudinal_extent(longitudinal_extent), z_periodic(true), longitudinal_aperture(false), reference_particle(
+                reference_particle), bucket_index(bucket_index), bucket_index_assigned(true), comm_sptr(
                 comm_sptr), default_converter()
 {
     construct(reference_particle.get_charge(), total_num, real_num);
@@ -184,10 +184,12 @@ Bunch::Bunch(Bunch const& bunch) :
     real_num = bunch.real_num;
     local_num = bunch.local_num;
     bucket_index=bunch.bucket_index;
+    bucket_index_assigned= bunch.bucket_index_assigned;
     local_particles = new MArray2d(*(bunch.local_particles));
     state = bunch.state;
-    z_period_length=bunch.z_period_length;
+    longitudinal_extent=bunch.longitudinal_extent;
     z_periodic=bunch.z_periodic;
+    longitudinal_aperture=bunch.longitudinal_aperture;
     if (bunch.converter_ptr == &(bunch.default_converter)) {
         converter_ptr = &default_converter;
     } else {
@@ -205,11 +207,13 @@ Bunch::operator=(Bunch const& bunch)
         total_num = bunch.total_num;
         real_num = bunch.real_num;
         local_num = bunch.local_num;
-	bucket_index=bunch.bucket_index;
+	    bucket_index=bunch.bucket_index;
+        bucket_index_assigned= bunch.bucket_index_assigned;
         local_particles = new MArray2d(*(bunch.local_particles));
         state = bunch.state;
-        z_period_length=bunch.z_period_length;
+        longitudinal_extent=bunch.longitudinal_extent;
         z_periodic=bunch.z_periodic;
+        longitudinal_aperture=bunch.longitudinal_aperture;        
         if (bunch.converter_ptr == &(bunch.default_converter)) {
             converter_ptr = &default_converter;
         } else {
@@ -431,13 +435,41 @@ Bunch::get_real_num() const
 double
  Bunch::get_z_period_length() const
 {
-    return z_period_length;
+    return longitudinal_extent;
+}
+
+void
+ Bunch::set_z_period_length(double z_period_length)
+{
+    if (longitudinal_aperture)  throw std::runtime_error("longitudinal_aperture is true, cannot make the bunch z periodic");
+    this->longitudinal_extent=z_period_length;
+    this->z_periodic=true;
 }
 
 bool
  Bunch::is_z_periodic() const
 {
     return z_periodic;
+}
+
+double
+Bunch::get_longitudinal_aperture_length() const
+{
+    return longitudinal_extent;
+}
+
+void
+Bunch::set_longitudinal_aperture_length(double longitudinal_extent)
+{
+    if (z_periodic)  throw std::runtime_error("z_periodic is true, cannot put a longitudinal_aperture");
+    this->longitudinal_extent=longitudinal_extent;
+    this->longitudinal_aperture=true;
+}
+
+bool
+Bunch::has_longitudinal_aperture() const
+{
+  return longitudinal_aperture;
 }
 
 int
@@ -464,14 +496,21 @@ void
 Bunch::set_bucket_index(int index)
 {
     this->bucket_index=index;
+    this->bucket_index_assigned=true;
 }
 
 int
 Bunch::get_bucket_index() const
 {
-return bucket_index;
+  if (!bucket_index_assigned)  throw std::runtime_error("bucket index has not been assigned yet"); 
+  return bucket_index;
 }
 
+bool
+Bunch::is_bucket_index_assigned() const
+{
+  return bucket_index_assigned;
+}
 
 
 Bunch::State
@@ -585,13 +624,15 @@ template<class Archive>
     void
     Bunch::save(Archive & ar, const unsigned int version) const
     {
-        ar << BOOST_SERIALIZATION_NVP(z_period_length)
+        ar << BOOST_SERIALIZATION_NVP(longitudinal_extent)
                 << BOOST_SERIALIZATION_NVP(z_periodic)
+                << BOOST_SERIALIZATION_NVP(longitudinal_aperture)
                 << BOOST_SERIALIZATION_NVP(reference_particle)
                 << BOOST_SERIALIZATION_NVP(particle_charge)
                 << BOOST_SERIALIZATION_NVP(total_num)
                 << BOOST_SERIALIZATION_NVP(real_num)
                 << BOOST_SERIALIZATION_NVP(bucket_index)
+                << BOOST_SERIALIZATION_NVP(bucket_index_assigned)
                 << BOOST_SERIALIZATION_NVP(sort_period)
                 << BOOST_SERIALIZATION_NVP(sort_counter)
                 << BOOST_SERIALIZATION_NVP(state)
@@ -628,13 +669,15 @@ template<class Archive>
     void
     Bunch::load(Archive & ar, const unsigned int version)
     {
-        ar >> BOOST_SERIALIZATION_NVP(z_period_length)
+        ar >> BOOST_SERIALIZATION_NVP(longitudinal_extent)
                 >> BOOST_SERIALIZATION_NVP(z_periodic)
+                >> BOOST_SERIALIZATION_NVP(longitudinal_aperture)
                 >> BOOST_SERIALIZATION_NVP(reference_particle)
                 >> BOOST_SERIALIZATION_NVP(particle_charge)
                 >> BOOST_SERIALIZATION_NVP(total_num)
                 >> BOOST_SERIALIZATION_NVP(real_num)
                 >> BOOST_SERIALIZATION_NVP(bucket_index)
+                >> BOOST_SERIALIZATION_NVP(bucket_index_assigned)
                 >> BOOST_SERIALIZATION_NVP(sort_period)
                 >> BOOST_SERIALIZATION_NVP(sort_counter)
                 >> BOOST_SERIALIZATION_NVP(state)

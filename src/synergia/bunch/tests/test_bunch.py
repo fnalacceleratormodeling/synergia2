@@ -26,6 +26,28 @@ def test_construct():
     b = Bunch(reference_particle, total_num, real_num,
                Commxx())
 
+def test_construct_periodic():
+    b = Bunch(reference_particle, total_num, real_num, Commxx())
+    z_period_length=4.6
+    b.set_z_period_length(z_period_length)
+    assert_equal(b.get_z_period_length(),z_period_length)
+    assert_equal(b.is_periodic(),True)
+
+def test_construct_longitudinal_aperture():
+    b = Bunch(reference_particle, total_num, real_num, Commxx())
+    z_length=4.6
+    b.set_longitudinal_aperture_length(z_length)
+    assert_equal(b.get_longitudinal_aperture_length(),z_length)
+    assert_equal(b.has_longitudinal_aperture(),True)
+
+def test_construct_bucket_index():
+    b = Bunch(reference_particle, total_num, real_num, Commxx())
+    assert_equal(b.is_bucket_index_assigned(),False)
+    bk=2
+    b.set_bucket_index(bk)
+    assert_equal(b.get_bucket_index(),bk)
+    assert_equal(b.is_bucket_index_assigned(),True)
+
 def test_set_get_particle_charge():
     b = Bunch(reference_particle, total_num, real_num,
                Commxx())

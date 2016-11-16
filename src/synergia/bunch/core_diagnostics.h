@@ -31,6 +31,9 @@ struct Core_diagnostics
 
     static MArray1d
     calculate_max(Bunch const& bunch);
+    
+    static void 
+    print_bunch_parameters(MArray2d_ref const& mom2, double beta);
 };
 
 

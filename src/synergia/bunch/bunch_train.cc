@@ -59,14 +59,14 @@ Bunch_train::set_bucket_indices()
 {
     std::list<int > found_indices;
     for (size_t i = 0; i < bunches.size(); ++i) {
-        if (bunches[i]->get_bucket_index() == 0) {
+        if (!bunches[i]->is_bucket_index_assigned()) {
             bunches[i]->set_bucket_index(i);
         }
         for (std::list<int >::const_iterator it = found_indices.begin();
                 it != found_indices.end(); ++it) {
             if (*it >= bunches[i]->get_bucket_index()) {
                 throw std::runtime_error(
-                        "Bunch_train: bunch bucket indices must be either in strictly increasing order or all zero");
+                        "Bunch_train: bunch bucket indices must be either in strictly increasing order or all zero; otherwise wake field does not work");
             }
         }
         found_indices.push_back(bunches[i]->get_bucket_index());

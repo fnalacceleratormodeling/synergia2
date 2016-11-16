@@ -23,9 +23,7 @@ public:
      A change of state is accomplish via the fixed_t_z_converter class.
      */
     enum State
-    {
-    //    fixed_z = 1,
-    //    fixed_t = 2,
+    {   
         fixed_z_lab = 1,
         fixed_t_lab = 2,
         fixed_t_bunch = 3,       
@@ -41,14 +39,16 @@ public:
     static const int dpop = 5;
     static const int id = 6;
 private:
-    double z_period_length;
+    double longitudinal_extent;    
     bool z_periodic;
+    bool longitudinal_aperture;
     Reference_particle reference_particle;
     int particle_charge;
     MArray2d *local_particles;
     int local_num, total_num;
     double real_num;
     int bucket_index;
+    bool bucket_index_assigned;
     int sort_period, sort_counter;
     State state;
     Commxx_sptr comm_sptr;    
@@ -88,9 +88,10 @@ public:
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx_sptr comm_sptr, int particle_charge);
 
-    //   Bunch(Reference_particle const& reference_particle, int total_num,
-    //       double real_num, Commxx_sptr comm_sptr, double z_period_length);
 
+    ///Obsolete, please replace the following constructor with a previous one followed by 
+    ///set_z_period_length(z_period_length)
+    ///set_bucket_index(bucket_index)
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx_sptr comm_sptr, double z_period_length,
             int bucket_index = 0);
@@ -199,10 +200,29 @@ public:
     /// Get the period length of the bunch
     double
     get_z_period_length() const;
-
+    
+     /// Set the period length of the bunch and make the bunch z_periodic     
+    void
+    set_z_period_length(double z_period_length) ;
+       
     /// Is the bunch periodic?
     bool
-    is_z_periodic() const;
+    is_z_periodic() const; 
+    
+    /// Get the the bunch extent if the longitudinal aperture is present
+    double
+    get_longitudinal_aperture_length() const;
+
+    /// Set the longitudinal_extent of the bunch and make the longitudinal aperture true
+    void
+    set_longitudinal_aperture_length(double longitudinal_length);
+    
+    
+    /// True when the longitudinal aperture is present and the bunch is cut after every  operation
+    /// longitudinally outside the extent [-longitudinal_extent/2,  longitudinal_extent/2]    
+    bool
+    has_longitudinal_aperture() const; 
+
 
     /// Get the number of macroparticles stored on this processor.
     int
@@ -221,6 +241,9 @@ public:
 
     int
     get_bucket_index() const;
+    
+    bool
+    is_bucket_index_assigned() const;
 
     /// Get the (fixed-t or fixed-z) state.
     State

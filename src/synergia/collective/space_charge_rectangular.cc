@@ -604,10 +604,16 @@ Space_charge_rectangular::do_diagnostics(Rectangular_grid const& En, int compone
          double step_beta=step.get_betas()[component];
          for (Diagnostics_space_charge_rectangulars::const_iterator d_it = diagnostics_list.begin();
             d_it != diagnostics_list.end(); ++d_it){
-            if ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()){
-               (*d_it)->update(bunch, En, component, time_step, step_beta); 
-               if (component==1) (*d_it)->write();
+            if (bunch.is_bucket_index_assigned()){
+                if ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()){                  
+                    (*d_it)->update(bunch, En, component, time_step, step_beta); 
+                    if (component==1) (*d_it)->write();
+                }
             }
+            else{
+                    (*d_it)->update(bunch, En, component, time_step, step_beta); 
+                    if (component==1) (*d_it)->write();
+            }                           
          }
       }    
    } 
