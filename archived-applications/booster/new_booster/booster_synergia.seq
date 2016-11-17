@@ -1,0 +1,791 @@
+option, no_fatal_stop;
+!option,RBARC=FALSE;
+!the position of the center is specified
+/*--------------------*/
+/*BCEL01              */
+/*--------------------*/
+ START_1         : MARKER          ;
+!SA
+!CPS24 :    line=(HS24,VS24,QS24,QSERR24,BPMS24,QSS24,QSSERR24,SXS24,SSS24);
+!SB
+ FMAGU01         : FMAG            ;
+!MINS 
+ DMAGU01         : DMAG            ;
+ MARK24D         : MARKER          ;
+ L01A		 : DRIFT, L=0.52075;
+!ORBUMP_1                          ;
+ L01B		 : DRIFT, L=1.7415/cos(2.0*angle_orbump);
+!ORBUMP_2                          ;
+ L01C		 : DRIFT, L=0.22025/cos(2.0*angle_orbump);
+! FOIL                              ;
+ L01D		 : DRIFT, L=1.0655/cos(2.0*angle_orbump);
+!CPL01 :    line=(HL01,VL01,QL01,QLERR01,BPML01,QSL01,QSLERR01,SXL01,SSL01);
+ L01E		 : DRIFT, L=0.28675/cos(2.0*angle_orbump);
+!ORBUMP_4                          ;
+ L01F		 : DRIFT, L=0.32075;
+ DMAGD01         : DMAG            ;
+!MINS 
+ FMAGD01         : FMAG            ;
+!SC
+ MARK1           : MARKER          ;
+
+BCEL01: LINE=(START_1,SA,CPS24,SB,FMAGU01,MINS,DMAGU01,MARK24D,L01A,ORBUMP_1,L01B,ORBUMP_2,L01C,FOIL,L01D,CPL01,L01E,ORBUMP_4,L01F,DMAGD01,MINS,FMAGD01,SC,MARK1);
+
+
+/*--------------------*/
+/*BCEL02              */
+/*--------------------*/
+ START_2         : MARKER          ;
+!SA 
+!CPS01 :    line=(HS01,VS01,QS01,QSERR01,BPMS01,QSS01,QSSERR01,SXS01,SSS01);
+!SB
+ FMAGU02         : FMAG            ;
+!MINIS
+ DMAGU02         : DMAG            ;
+ MARK1D          : MARKER          ;
+ L02A		 : DRIFT, L=0.308;
+!MKS02                             
+ L02B		 : DRIFT, L=0.114;
+!MKS02                             
+ L02C		 : DRIFT, L=0.115;
+ IBEX02          : BEX             ;
+ L02D		 : DRIFT, L=0.115;
+!MKS02                             
+ L02E		 : DRIFT, L=0.114;
+!MKS02                             
+ L02F		 : DRIFT, L=0.005;
+ HP02L           : OLDBPM          ;
+ VP02L           : OLDBPM          ;
+ L02G		 : DRIFT, L=0.066;
+!CPL02 :    line=(HL02,VL02,QL02,QLERR02,BPML02,QSL02,QSLERR02,SXL02,SSL02);
+  L02H		 : DRIFT, L=0.22;
+ DMAGD02         : DMAG            ;
+!MINIS
+ FMAGD02         : FMAG            ;
+!SC 
+ MARK2           : MARKER          ;
+
+BCEL02: LINE=(START_2,SA,CPS01,SB,FMAGU02,MINS,DMAGU02,MARK1D,L02A,MKS02,L02B,MKS02,L02C,IBEX02,L02D,MKS02,L02E,MKS02,L02F,HP02L,VP02L,L02G,CPL02,L02H,DMAGD02,MINS,FMAGD02,SC,MARK2);
+
+/*--------------------*/
+/*BCEL03              */
+/*--------------------*/
+ START_3         : MARKER          ;
+!SA
+!CPS02 :    line=(HS02,VS02,QS02,QSERR02,BPMS02,QSS02,QSSERR02,SXS02,SSS02);
+!SB
+ FMAGU03         : FMAG            ;
+!MINS
+ DMAGU03         : DMAG            ;
+ MARK2D          : MARKER          ;
+ L03A		 : DRIFT, L=0.31505;			   ;
+!DOG03_1                         
+ L03B		 : DRIFT, L=0.30039/cos(2*angle_dogleg);
+!CPL03 :    line=(HL03,VL03,QL03,QLERR03,BPMLU3,QSL03,QSLERR03,SXL03,SSL03);
+ L03C		 : DRIFT, L=0.30039/cos(2*angle_dogleg);
+!DOG03_2                          
+ L03D		 : DRIFT, L=0.43067;
+!SEPT03                            
+!SEPT03                           
+ L03E		 : DRIFT, L=0.54551;
+!DOG03_3                          
+ L03F		 : DRIFT, L=0.76878/cos(2*angle_dogleg);
+!DOG03_4                           
+ L03G		 : DRIFT, L=0.2;
+ IBEX03          : BEX3             ;
+ L03H		 : DRIFT, L=0.064165; 
+ BPML03          : BPM_0           ;
+ L03I		 : DRIFT, L=0.064165;
+!HP03L           : BPM_2           ;
+!VP03L           : BPM_2           ;
+!the monitor is not in Kiyomi data; I set it in the middle according to
+!Kent photo
+! IBEX031          : BEX2             ,AT = 12.549982-0.265/4.;
+! BPML03           : BPM_0           , AT = 12.549982;
+! IBEX032          : BEX2             ,AT = 12.549982+0.265/4.;
+ DMAGD03         : DMAG            ;
+!MINIS
+ FMAGD03         : FMAG            ;
+!SC
+ MARK3           : MARKER          ;
+
+BCEL03: LINE=(START_3,SA,CPS02,SB,FMAGU03,MINS,DMAGU03,MARK2D,L03A,DOG03_1,L03B,CPL03,L03C,DOG03_2,L03D,SEPT03,SEPT03,L03E,DOG03_3,L03F,DOG03_4,L03G,IBEX03,L03H,BPML03,L03I,DMAGD03,MINS,FMAGD03,SC,MARK3);
+
+
+/*--------------------*/
+/*BCEL04              */
+/*--------------------*/
+ START_4         : MARKER          ;
+!SA
+!CPS03 :    line=(HS03,VS03,QS03,QSERR03,BPMS03,QSS03,QSSERR03,SXS03,SSS03);
+!SB
+ FMAGU04         : FMAG            ;
+!MINIS
+ DMAGU04         : DMAG            ;
+ MARK3D          : MARKER          ;
+ L04A		 : DRIFT, L=0.64;
+!SEXTL                             ; 
+ L04B		 : DRIFT, L=0.01;
+!SEXTL                             ;
+ L04C		 : DRIFT, L=0.11;
+ SEXL64          : SSXHARM6        ;
+ L04D		 : DRIFT, L=0.22;
+ SEXL44          : SXHARM4         ;
+ L04E		 : DRIFT, L=1.02;
+!SEXTL                             ;
+ L04F		 : DRIFT, L=0.4;
+ IBEX4           : BEX             ;
+ L04G		 : DRIFT, L=0.485;
+ HP04L           : OLDBPM          ;
+ VP04L           : OLDBPM          ;
+ L04H		 : DRIFT, L=0.381;
+!CPL04 :    line=(HL04,VL04,QL04,QLERR04,BPML04,QSL04,QSLERR04,SXL04,SSL04); 
+ L04I		 : DRIFT, L=0.251;
+ DMAGD04         : DMAG            ;
+!MINIS
+ FMAGD04         : FMAG            ;
+!SC
+ MARK4           : MARKER          ;
+
+BCEL04: LINE=(START_4,SA,CPS03,SB,FMAGU04,MINS,DMAGU04,MARK3D,L04A,SEXTL,L04B,SEXTL,L04C,SEXL64,L04D,SEXL44,L04E,SEXTL,L04F,IBEX4,L04G,HP04L,VP04L,L04H,CPL04,L04I,DMAGD04,MINS,FMAGD04,SC,MARK4);
+
+/*--------------------*/
+/*BCEL05              */
+/*--------------------*/
+ START_5         : MARKER          ;
+!SA
+!CPS04 :    line=(HS04,VS04,QS04,QSERR04,BPMS04,QSS04,QSSERR04,SXS04,SSS04);
+!SB
+ FMAGU05         : FMAG            ;
+!MINIS
+ DMAGU05         : DMAG            ;
+ MARK4D          : MARKER          ;
+ L05A		 : DRIFT, L=0.43;
+ SEXL75          : SSXHARM7        ;
+ L05B		 : DRIFT, L=0.04;
+ SEXL55          : SXHARM5         ;
+ L05C		 : DRIFT, L=1;
+ IPMH            : IPM             ;
+ L05D		 : DRIFT, L=0.3;
+ IPMV            : IPM             ;
+ L05E		 : DRIFT, L=0.03;
+! VPINGER                           ;		 
+! HPINGER                           ;
+ HP05L           : OLDBPM          ;
+ VP05L           : OLDBPM          ;
+ L05F		 : DRIFT, L=0.231;
+!CPL05 :    line=(HL05,VL05,QL05,QLERR05,BPML05,QSL05,QSLERR05,SXL05,SSL05);  
+ L05G		 : DRIFT, L=0.251;
+ DMAGD05         : DMAG            ;
+! HALF_SP                           ;
+! PRIM_H                            ;
+! HALF_SP                           ;
+ FMAGD05         : FMAG            ;
+!SC
+ MARK5           : MARKER          ;
+
+BCEL05:line=(START_5,sa,CPS04,sb,fmagu05,minS,dmagu05,MARK4d,L05a,Sexl75,L05b,Sexl55,L05c,IPMh,L05d,IPMv,L05e, VPINGER,HPINGER,HP05L,VP05L,L05f,CPL05,L05g,dmagd05,half_sp,Prim_H,half_sp,fmagd05,sc,MARK5);
+
+/*--------------------*/
+/*BCEL06              */
+/*--------------------*/
+ START_6         : MARKER          ;
+!SA
+!CPS05 :    line=(HS05,VS05,QS05,QSERR05,BPMS05,QSS05,QSSERR05,SXS05,SSS05);
+!SB
+ FMAGU06         : FMAG            ;
+! HALF_SP                          ;
+! PRIM_V                           ;
+! HALF_SP                          ;
+ DMAGU06         : DMAG           ;
+ MARK5D          : MARKER         ;
+ L06A		 : DRIFT, L=0.2;
+ BPMLU6          : BPM_0          ; !BPMLU6          : BPM_2          ;
+ SHCOL1          : COLL_SEC       ;
+ L06B		 : DRIFT, L=2.2;
+ SVCOL1          : COLL_SEC       ;
+ L06C		 : DRIFT, L=0.3;
+ SHVCOL          : COLL_SEC       ;
+ L06D		 : DRIFT, L=0.51;
+! HP06L           : BPM_2         ;
+! VP06L           : BPM_2         ;
+ HP06L           : OLDBPM         ;
+ VP06L           : OLDBPM         ;
+ L06E		 : DRIFT, L=0.381;
+!CPL06 :    line=(HL06,VL06,QL06,QLERR06,BPML06,QSL06,QSLERR06,SXL06,SSL06);
+ L06F		 : DRIFT, L=0.251;
+ DMAGD06         : DMAG            ;
+!MINIS
+ FMAGD06         : FMAG            ;
+!SC
+ MARK6           : MARKER          ;
+
+bcel06:  line=(START_6,sa,CPS05,sb,fmagu06,half_sp,Prim_V,half_sp,dmagu06,MARK5d,L06a,BPMLU6,SHCOL1,L06b,SVCOL1,L06c,SHVCOL,L06d,HP06L,VP06L,L06e,CPL06,L06f,dmagd06,minS,fmagd06,sc,MARK6);
+
+
+
+/*--------------------*/
+/*BCEL07              */
+/*--------------------*/
+ START_7         : MARKER          ;
+!SA
+!CPS06 :    line=(HS06,VS06,QS06,QSERR06,BPMS06,QSS06,QSSERR06,SXS06,SSS06);
+!SB
+ FMAGU07         : FMAG            ;
+!MINIS
+ DMAGU07         : DMAG            ;
+ MARK6D          : MARKER          ;
+ L07A		 : DRIFT, L=1.0; 
+ BPMLU7          : BPM_0           ; !BPMLU7          : BPM_2           ;
+ SHCOL2          : COLL_SEC        ;
+ L07B		 : DRIFT, L=1.4; 
+ SVCOL2          : COLL_SEC        ;
+ L07C		 : DRIFT, L=0.51; 
+ SEXL67          : SSXHARM6        ;
+ L07D		 : DRIFT, L=0.15; 
+ SEXL47          : SXHARM4         ;
+ L07E		 : DRIFT, L=0.15; 
+ HP07L           : OLDBPM          ;
+ VP07L           : OLDBPM          ;
+ L07F		 : DRIFT, L=0.381; 
+!CPL07 :    line=(HL07,VL07,QL07,QLERR07,BPML07,QSL07,QSLERR07,SXL07,SSL07);
+ L07G		 : DRIFT, L=0.251;
+ DMAGD07         : DMAG            ;
+!MINIS
+ FMAGD07         : FMAG            ;
+!SC
+ MARK7           : MARKER          ;
+
+bcel07:   line=(START_7,sa,CPS06,sb,fmagu07,minS,dmagu07,MARK6d, L07a,BPMLU7,SHCOL2,L07b,SVCOL2,L07c,Sexl67,L07d,Sexl47,L07e,HP07L,VP07L,L07f,CPL07,L07g,dmagd07,minS,fmagd07,sc,MARK7);
+
+/*--------------------*/
+/*BCEL08              */
+/*--------------------*/
+ START_8         : MARKER          ;
+!SA
+!CPS07 :    line=(HS07,VS07,QS07,QSERR07,BPMS07,QSS07,QSSERR07,SXS07,SSS07);
+!SB
+ FMAGU08         : FMAG            ;
+!MINIS
+ DMAGU08         : DMAG            ;
+ MARK7D          : MARKER          ;
+ L08A		 : DRIFT, L=0.46; 
+ SEXTL                             ;
+ L08B		 : DRIFT, L=0.02; 
+ SEXTL                             ;
+ L08C		 : DRIFT, L=0.02; 
+ SEXL78          : SSXHARM7        ;
+ L08D		 : DRIFT, L=0.31; 
+ SEXL58          : SXHARM5         ;
+ L08E		 : DRIFT, L=0.12; 
+ SEXTL                             ;
+ L08F		 : DRIFT, L=0.1; 
+ OCT                               ;
+ L08G		 : DRIFT, L=0.04;  
+ OCT                               ;
+ L08H		 : DRIFT, L=0.04; 
+ OCT                               ;
+ L08I		 : DRIFT, L=0.06; 
+ OCT                               ;
+ L08J		 : DRIFT, L=0.3; 
+ HP08L           : OLDBPM          ;
+ VP08L           : OLDBPM          ;
+ L08K		 : DRIFT, L=0.381; 
+!CPL08 :    line=(HL08,VL08,QL08,QLERR08,BPML08,QSL08,QSLERR08,SXL08,SSL08);
+ L08L		 : DRIFT, L=0.251; 
+ DMAGD08         : DMAG            ;
+ FMAGD08         : FMAG            ;
+ MARK8           : MARKER          ;
+
+bcel08:  line=(START_8,sa,CPS07,sb,fmagu08,minS,dmagu08,MARK7d,L08a,SEXTL,L08b,SEXTL,L08c,Sexl78,L08d,Sexl58,L08e,SEXTL,L08f,Oct,L08g,Oct,L08h,Oct,L08i,Oct,L08j,HP08L,VP08L,L08k,CPL08,L08l,dmagd08,minS,fmagd08,sc,MARK8);
+
+
+
+
+/*--------------------*/
+/*BCEL09              */
+/*--------------------*/
+ START_9         : MARKER          ;
+!SA
+!CPS08 :    line=(HS08,VS08,QS08,QSERR08,BPMS08,QSS08,QSSERR08,SXS08,SSS08);
+!SB
+ FMAGU09         : FMAG            ;
+!MINIS
+ DMAGU09         : DMAG            ;
+ MARK8D          : MARKER          ;
+ L09A		 : DRIFT, L=3.855; 
+ HP09            : OLDBPM          ;
+ VP09            : OLDBPM          ; 
+ HOR_DAMP        : HDAMPER         ;
+ L09B		 : DRIFT, L=0.266; 
+!CPL09 :    line=(HL09,VL09,QL09,QLERR09,BPML09,QSL09,QSLERR09,SXL09,SSL09);
+ L09C		 : DRIFT, L=0.251; 
+ DMAGD09         : DMAG            ;
+!MINIS
+ FMAGD09         : FMAG            ;
+!SC
+ MARK9           : MARKER          ;
+
+bcel09:   line=(START_9,sa,CPS08,sb,fmagu09,minS,dmagu09,MARK8d,L09a,HP09,VP09,HOR_DAMP,L09b,CPL09,L09c,dmagd09,minS,fmagd09,sc,MARK9);
+
+
+/*--------------------*/
+/*BCEL10              */
+/*--------------------*/
+ START_10        : MARKER          ;
+!SA
+!CPS09 :    line=(HS09,VS09,QS09,QSERR09,BPMS09,QSS09,QSSERR09,SXS09,SSS09);
+!SB
+ FMAGU10         : FMAG            ;
+!MINIS
+ DMAGU10         : DMAG            ;
+ MARK9D          : MARKER          ;
+ L10A		 : DRIFT, L=0.3; 
+ SEX_DISC                          ;
+ L10B		 : DRIFT, L=0.3; 
+ SEX_DISC                          ; 
+ L10C		 : DRIFT, L=0.3; 
+ SEX_DISC                          ; 
+ L10D		 : DRIFT, L=2.85; 
+ HP10L           : OLDBPM          ;
+ VP10L           : OLDBPM          ;
+ L10E		 : DRIFT, L=0.381;
+!CPL10 :    line=(HL10,VL10,QL10,QLERR10,BPML10,QSL10,QSLERR10,SXL10,SSL10);
+ L10F		 : DRIFT, L=0.251;
+ DMAGD10         : DMAG            ;
+!MINIS
+ FMAGD10         : FMAG            ;
+ MARK10          : MARKER          ;
+
+bcel10:  line=(START_10,sa,CPS09,sb,fmagu10,minS,dmagu10,MARK9d, L10a,SEX_disc,L10b,SEX_disc,L10c,SEX_disc,L10d,HP10L,VP10L,L10e,CPL10,L10f,dmagd10,minS,fmagd10,sc,MARK10);
+
+
+
+/*--------------------*/
+/*BCEL11              */
+/*--------------------*/
+ START_11        : MARKER          ;
+!SA
+!CPS10 :    line=(HS10,VS10,QS10,QSERR10,BPMS10,QSS10,QSSERR10,SXS10,SSS10);
+ FMAGU11         : FMAG            ;
+!MINIS
+ DMAGU11         : DMAG            ;
+ MARK10D         : MARKER          ;
+ L11A		 : DRIFT, L=2.0;
+ VER_DAMP        : VDAMPER         ;
+ L11B		 : DRIFT, L=0.5;
+ PICK_UP         : DAMPER_PU       ;
+ L11C		 : DRIFT, L=0.74;
+ HP11L           : OLDBPM          ;
+ VP11L           : OLDBPM          ;
+ L11D		 : DRIFT, L=0.381;
+!CPL11 :    line=(HL11,VL11,QL11,QLERR11,BPML11,QSL11,QSLERR11,SXL11,SSL11);
+ L11E		 : DRIFT, L=0.251;
+ DMAGD11         : DMAG            ;
+!MINIS
+ FMAGD11         : FMAG            ;
+!SC
+ MARK11          : MARKER          ;
+
+bcel11:   line=(START_11,sa,CPS10,sb,fmagu11,minS,dmagu11,MARK10d,L11a,VER_DAMP,L11b,PICK_UP,L11c,HP11L,VP11L,L11d,CPL11,L11e,dmagd11,minS,fmagd11,sc,MARK11);
+
+
+/*--------------------*/
+/*BCEL12              */
+/*--------------------*/
+ START_12        : MARKER          ;
+!SA
+!CPS11 :    line=(HS11,VS11,QS11,QSERR11,BPMS11,QSS11,QSSERR11,SXS11,SSS11);
+!SB
+ FMAGU12         : FMAG            ;
+!MINIS
+ DMAGU12         : DMAG            ;
+ MARK11D         : MARKER          ; 
+ L12A		 : DRIFT, L=0.285;
+!MKS12                             ;
+ L12B		 : DRIFT, L=0.11;
+!MKS12                             ;
+ L12C		 : DRIFT, L=0.115;
+ IBEX12          : OLDBEX          ;
+ L12D		 : DRIFT, L=0.115;
+!MKS12                             ;
+ L12E		 : DRIFT, L=0.11;
+!MKS12                             ;
+ L12F		 : DRIFT, L=0.005;
+ HP12L           : OLDBPM          ;
+ VP12L           : OLDBPM          ; 
+ L12G		 : DRIFT, L=0.066;		 
+!CPL12 :    line=(HL12,VL12,QL12,QLERR12,BPML12,QSL12,QSLERR12,SXL12,SSL12);
+ L12H		 : DRIFT, L=0.251;
+ DMAGD12         : DMAG            ;
+ FMAGD12         : FMAG            ;
+ MARK12          : MARKER          ;
+
+bcel12:  line=(START_12,sa,CPS11,sb,fmagu12,minS,dmagu12,MARK11d,L12a,MKS12,L12b,MKS12,L12c,Ibex12,L12d,MKS12,L12e,MKS12,L12f,HP12L,VP12L,L12G,CPL12,L12H,dmagd12,minS,fmagd12,sc,MARK12);
+
+
+/*--------------------*/
+/*BCEL13              */
+/*--------------------*/
+ START_13        : MARKER          ;
+!SA
+!CPS12 :    line=(HS12,VS12,QS12,QSERR12,BPMS12,QSS12,QSSERR12,SXS12,SSS12);
+!SB
+ FMAGU13         : FMAG            ;
+!MINIS
+ DMAGU13         : DMAG            ;
+ MARK12D         : MARKER          ;
+ L13A		 : DRIFT, L=5.581;
+!CPL13 :    line=(HL13,VL13,QL13,QLERR13,BPML13,QSL13,QSLERR13,SXL13,SSL13);
+ L13B		 : DRIFT, L=0.251;
+ DMAGD13         : DMAG            ;
+!MINIS
+ FMAGD13         : FMAG            ;
+!SC
+ MARK13          : MARKER          ;
+
+bcel13:   line=(START_13,sa,CPS12,sb,fmagu13,minS,dmagu13,MARK12d,L13a,CPL13,L13b,dmagd13,minS,fmagd13,sc,MARK13);
+
+/*--------------------*/
+/*BCEL14             */
+/*--------------------*/
+ START_14        : MARKER          ;
+!SA
+!CPS13 :    line=(HS13,VS13,QS13,QSERR13,BPMS13,QSS13,QSSERR13,SXS13,SSS13);
+!SB
+ FMAGU14         : FMAG            ;
+!MINS
+ DMAGU14         : DMAG            ;
+ MARK13D         : MARKER          ;
+ L14A		 : DRIFT, L=0.21;
+ RF01		 : BRF;
+ L14B		 : DRIFT, L=0.12;
+ RF02		 : BRF;
+ L14C		 : DRIFT, L=0.25;
+ HP14L           : OLDBPM          ;
+ VP14L           : OLDBPM          ;
+ L14D		 : DRIFT, L=0.111;
+!CPL14 :    line=(HL14,VL14,QL14,QLERR14,BPML14,QSL14,QSLERR14,SXL14,SSL14); 
+ L14E		 : DRIFT, L=0.251;
+ DMAGD14         : DMAG            ;
+!MINS
+ FMAGD14         : FMAG            ;
+!SC
+ MARK14          : MARKER          ;
+
+
+BCEL14: LINE=(START_14,SA,CPS13,SB,FMAGU14,MINS,DMAGU14,MARK13D,L14A,RF01,L14B,RF02,L14C,HP14L,VP14L,L14D,CPL14,L14E,DMAGD14,MINS,FMAGD14,SC,MARK14);
+
+
+
+/*--------------------*/
+/*BCEL15             */
+/*--------------------*/
+ START_15        : MARKER          ;
+!SA
+!CPS14 :    line=(HS14,VS14,QS14,QSERR14,BPMS14,QSS14,QSSERR14,SXS14,SSS14);
+!SB
+ FMAGU15         : FMAG            ;
+!MINS
+ DMAGU15         : DMAG            ;
+ MARK14D         : MARKER          ;
+ L15A		 : DRIFT, L=0.21;
+ RF03		 : BRF;
+ L15B		 : DRIFT, L=0.12;
+ RF04		 : BRF;
+ L15C		 : DRIFT, L=0.25;
+ HP15L           : OLDBPM          ;
+ VP15L           : OLDBPM          ;
+ L15D		 : DRIFT, L=0.111;
+!CPL15 :    line=(HL15,VL15,QL15,QLERR15,BPML15,QSL15,QSLERR15,SXL15,SSL15); 
+ L15E		 : DRIFT, L=0.251;
+ DMAGD15         : DMAG            ;
+!MINS
+ FMAGD15         : FMAG            ;
+!SC
+ MARK15          : MARKER          ;
+
+BCEL15: LINE=(START_15,SA,CPS14,SB,FMAGU15,MINS,DMAGU15,MARK14D,L15A,RF03,L15B,RF04,L15C,HP15L,VP15L,L15D,CPL15,L15E,DMAGD15,MINS,FMAGD15,SC,MARK15);
+
+/*--------------------*/
+/*BCEL16             */
+/*--------------------*/
+ START_16        : MARKER          ;
+!SA
+!CPS15 :    line=(HS15,VS15,QS15,QSERR15,BPMS15,QSS15,QSSERR15,SXS15,SSS15);
+!SB
+ FMAGU16         : FMAG            ;
+!MINS
+ DMAGU16         : DMAG            ;
+ MARK15D         : MARKER          ;
+ L16A		 : DRIFT, L=0.21;
+ RF05		 : BRF;
+ L16B		 : DRIFT, L=0.12;
+ RF06		 : BRF;
+ L16C		 : DRIFT, L=0.25;
+ HP16L           : OLDBPM          ;
+ VP16L           : OLDBPM          ;
+ L16D		 : DRIFT, L=0.111;
+!CPL16 :    line=(HL16,VL16,QL16,QLERR16,BPML16,QSL16,QSLERR16,SXL16,SSL16); 
+ L16E		 : DRIFT, L=0.251;
+ DMAGD16         : DMAG            ;
+!MINS
+ FMAGD16         : FMAG            ;
+!SC
+ MARK16          : MARKER          ;
+
+BCEL16: LINE=(START_16,SA,CPS15,SB,FMAGU16,MINS,DMAGU16,MARK15D,L16A,RF05,L16B,RF06,L16C,HP16L,VP16L,L16D,CPL16,L16E,DMAGD16,MINS,FMAGD16,SC,MARK16);
+
+
+
+/*--------------------*/
+/*BCEL17             */
+/*--------------------*/
+ START_17        : MARKER          ;
+!SA
+!CPS16 :    line=(HS16,VS16,QS16,QSERR16,BPMS16,QSS16,QSSERR16,SXS16,SSS16);
+!SB
+ FMAGU17         : FMAG            ;
+!MINS
+ DMAGU17         : DMAG            ;
+ MARK16D         : MARKER          ;
+ L17A		 : DRIFT, L=0.21;
+ RF07		 : BRF;
+ L17B		 : DRIFT, L=0.12;
+ RF08		 : BRF;
+ L17C		 : DRIFT, L=0.25;
+ HP17L           : OLDBPM          ;
+ VP17L           : OLDBPM          ;
+ L17D		 : DRIFT, L=0.111;
+!CPL17 :    line=(HL17,VL17,QL17,QLERR17,BPML17,QSL17,QSLERR17,SXL17,SSL17); 
+ L17E		 : DRIFT, L=0.251;
+ DMAGD17         : DMAG            ;
+!MINS
+ FMAGD17         : FMAG            ;
+!SC
+ MARK17          : MARKER          ;
+
+BCEL17: LINE=(START_17,SA,CPS16,SB,FMAGU17,MINS,DMAGU17,MARK16D,L17A,RF07,L17B,RF08,L17C,HP17L,VP17L,L17D,CPL17,L17E,DMAGD17,MINS,FMAGD17,SC,MARK17);
+
+
+/*--------------------*/
+/*BCEL18             */
+/*--------------------*/
+ START_18        : MARKER          ;
+!SA
+!CPS17 :    line=(HS17,VS17,QS17,QSERR17,BPMS17,QSS17,QSSERR17,SXS17,SSS17);
+!SB
+ FMAGU18         : FMAG            ;
+!MINS
+ DMAGU18         : DMAG            ;
+ MARK17D         : MARKER          ;
+ L18A		 : DRIFT, L=0.21;
+ RF19		 : BRF;
+ L18B		 : DRIFT, L=0.12;
+ L18C 		 : DRIFT, L=2.35;
+ L18D		 : DRIFT, L=0.25;
+ HP18L           : OLDBPM          ;
+ VP18L           : OLDBPM          ;
+ L18E		 : DRIFT, L=0.111;
+!CPL18 :    line=(HL18,VL18,QL18,QLERR18,BPML18,QSL18,QSLERR18,SXL18,SSL18); 
+ L18F		 : DRIFT, L=0.251;
+ DMAGD18         : DMAG            ;
+!MINS
+ FMAGD18         : FMAG            ;
+!SC
+ MARK18          : MARKER          ;
+
+BCEL18: LINE=(START_18,SA,CPS17,SB,FMAGU18,MINS,DMAGU18,MARK17D,L18A,RF19,L18B,L18C,L18D,HP18L,VP18L,L18E,CPL18,L18F,DMAGD18,MINS,FMAGD18,SC,MARK18);
+
+
+
+/*--------------------*/
+/*BCEL19              */
+/*--------------------*/
+ START_19        : MARKER          ;
+!SA
+!CPS18 :    line=(HS18,VS18,QS18,QSERR18,BPMS18,QSS18,QSSERR18,SXS18,SSS18);
+!SB
+ FMAGU19         : FMAG            ;
+!MINS
+ DMAGU19         : DMAG            ;
+ MARK18D         : MARKER          ;
+ L19A		 : DRIFT, L=0.21;
+ RF17		 : BRF;
+ L19B		 : DRIFT, L=0.12;
+ RF18		 : BRF;
+ L19C		 : DRIFT, L=0.25;
+ HP19L           : OLDBPM          ;
+ VP19L           : OLDBPM          ;
+ L19D		 : DRIFT, L=0.111;
+!CPL19 :    line=(HL19,VL19,QL19,QLERR19,BPML19,QSL19,QSLERR19,SXL19,SSL19); 
+ L19E		 : DRIFT, L=0.251;
+ DMAGD19         : DMAG            ;
+!MINS
+ FMAGD19         : FMAG            ;
+!SC
+ MARK19          : MARKER          ;
+
+BCEL19: LINE=(START_19,SA,CPS18,SB,FMAGU19,MINS,DMAGU19,MARK18D,L19A,RF17,L19B,RF18,L19C,HP19L,VP19L,L19D,CPL19,L19E,DMAGD19,MINS,FMAGD19,SC,MARK19);
+
+/*--------------------*/
+/*BCEL20              */
+/*--------------------*/
+ START_20        : MARKER          ;
+!SA
+!CPS19 :    line=(HS19,VS19,QS19,QSERR19,BPMS19,QSS19,QSSERR19,SXS19,SSS19);
+!SB
+ FMAGU20         : FMAG            ;
+!MINS
+ DMAGU20         : DMAG            ;
+ MARK19D         : MARKER          ;
+ L20A		 : DRIFT, L=0.05;
+ RPOS            : RPOS_MON        ;
+ L20B		 : DRIFT, L=0.05;
+!OCT                    
+ L20C		 : DRIFT, L=0.01;
+!OCT                        
+ L20D		 : DRIFT, L=0.01;
+!OCT                            
+ L20E		 : DRIFT, L=0.01;
+!OCT                              
+ L20F		 : DRIFT, L=3.1;
+ HP20L           : OLDBPM          ;
+ VP20L           : OLDBPM          ;
+ L20G		 : DRIFT, L=0.381;
+!CPL20 :    line=(HL20,VL20,QL20,QLERR20,BPML20,QSL20,QSLERR20,SXL20,SSL20);
+ L20H		 : DRIFT, L=0.251;
+ DMAGD20         : DMAG            ;
+!MINS
+ FMAGD20         : FMAG            ;
+!SC 
+ MARK20          : MARKER          ;
+
+BCEL20: LINE=(START_20,SA,CPS19,SB,FMAGU20,MINS,DMAGU20,MARK19D,L20A,RPOS,L20B,OCT,L20C,OCT,L20D,OCT,L20E,OCT,L20F,HP20L,VP20L,L20G,CPL20,L20H,DMAGD20,MINS,FMAGD20,SC,MARK20);
+
+
+/*--------------------*/
+/*BCEL21              */
+/*--------------------*/
+ START_21        : MARKER          ;
+!SA
+!CPS20 :    line=(HS20,VS20,QS20,QSERR20,BPMS20,QSS20,QSSERR20,SXS20,SSS20);
+!SB
+ FMAGU21         : FMAG            ;
+!MINS 
+ DMAGU21         : DMAG            ;
+ MARK20D         : MARKER          ;
+ L21A		 : DRIFT, L=0.21;
+ RF09		 : BRF;
+ L21B		 : DRIFT, L=0.12;
+ RF10		 : BRF;
+ L21C		 : DRIFT, L=0.25;	
+ HP21L           : OLDBPM          ;
+ VP21L           : OLDBPM          ;
+ L21D		 : DRIFT, L=0.111;
+!CPL21 :    line=(HL21,VL21,QL21,QLERR21,BPML21,QSL21,QSLERR21,SXL21,SSL21); 
+ L21E		 : DRIFT, L=0.251;
+ DMAGD21         : DMAG            , ;
+!MINS
+ FMAGD21         : FMAG            ;
+ MARK21          : MARKER          ;
+
+BCEL21: LINE=(START_21,SA,CPS20,SB,FMAGU21,MINS,DMAGU21,MARK20D,L21A,RF09,L21B,RF10,L21C,HP21L,VP21L,L21D,CPL21,L21E,DMAGD21,MINS,FMAGD21,SC,MARK21);
+
+
+/*--------------------*/
+/*BCEL22              */
+/*--------------------*/
+ START_22        : MARKER          ;
+!SA
+!CPS21 :    line=(HS21,VS21,QS21,QSERR21,BPMS21,QSS21,QSSERR21,SXS21,SSS21);
+!SB
+ FMAGU22         : FMAG            ;
+!MINS 
+ DMAGU22         : DMAG            ;
+ MARK21D         : MARKER          ;
+ L22A		 : DRIFT, L=0.21;
+ RF11		 : BRF;
+ L22B		 : DRIFT, L=0.12;
+ RF12		 : BRF;
+ L22C		 : DRIFT, L=0.25;		 
+ HP22L           : OLDBPM          ;
+ VP22L           : OLDBPM          ;
+ L22D		 : DRIFT, L=0.111;
+!CPL22 :    line=(HL22,VL22,QL22,QLERR22,BPML22,QSL22,QSLERR22,SXL22,SSL22); 
+ L22E		 : DRIFT, L=0.251;
+ DMAGD22         : DMAG            ;
+!MINS 
+ FMAGD22         : FMAG            ;
+!SC 
+ MARK22          : MARKER          ;
+
+BCEL22: LINE=(START_22,SA,CPS21,SB,FMAGU22,MINS,DMAGU22,MARK21D,L22A,RF11,L22B,RF12,L22C,HP22L,VP22L,L22D,CPL22,L22E,DMAGD22,MINS,FMAGD22,SC,MARK22);
+
+/*--------------------*/
+/*BCEL23              */
+/*--------------------*/ 
+ START_23        : MARKER          ;
+!SA
+!CPS22 :    line=(HS22,VS22,QS22,QSERR22,BPMS22,QSS22,QSSERR22,SXS22,SSS22);
+!SB
+ FMAGU23         : FMAG            ;
+!MINS
+ DMAGU23         : DMAG            ;
+ MARK22D         : MARKER          ;
+ L23A		 : DRIFT, L=0.21;
+ RF13		 : BRF;
+ L23B		 : DRIFT, L=0.12;
+ RF14		 : BRF;
+ L23C		 : DRIFT, L=0.25;
+ HP23L           : OLDBPM          ;
+ VP23L           : OLDBPM          ;
+ L23D		 : DRIFT, L=0.111;
+!CPL23 :    line=(HL23,VL23,QL23,QLERR23,BPML23,QSL23,QSLERR23,SXL23,SSL23);
+ L23E		 : DRIFT, L=0.251;
+ DMAGD23         : DMAG            ;
+!MINS 
+ FMAGD23         : FMAG            ;
+!SC 
+ MARK23          : MARKER          ;
+
+BCEL23: LINE=(START_23,SA,CPS22,SB,FMAGU23,MINS,DMAGU23,MARK22D,L23A,RF13,L23B,RF14,L23C,HP23L,VP23L,L23D,CPL23,L23E,DMAGD23,MINS,FMAGD23,SC,MARK23);
+
+/*--------------------*/
+/*BCEL24              */
+/*--------------------*/
+ START_24        : MARKER;
+!SA
+!CPS23 :    line=(HS23,VS23,QS23,QSERR23,BPMS23,QSS23,QSSERR23,SXS23,SSS23);
+!SB
+ FMAGU24         : FMAG            ;
+!MINS
+ DMAGU24         : DMAG            ;
+ MARK23D         : MARKER          ; 
+ L24A		 : DRIFT, L=0.21;
+ RF15		 : BRF;
+ L24B		 : DRIFT, L=0.12;
+ RF16		 : BRF;
+ L24C		 : DRIFT, L=0.25;
+ HP24L           : OLDBPM          ;
+ VP24L           : OLDBPM          ;
+ L24D		 : DRIFT, L=0.111;
+!CPL24 :    line=(HL24,VL24,QL24,QLERR24,BPML24,QSL24,QSLERR24,SXL24,SSL24); 
+ L24E		 : DRIFT, L=0.251;
+ DMAGD24         : DMAG            ;
+!MINS
+ FMAGD24         : FMAG            ;
+!SC 
+ MARK24          : MARKER          ;
+
+BCEL24: LINE=(START_24,SA,CPS23,SB,FMAGU24,MINS,DMAGU24,MARK23D,L24A,RF15,L24B,RF16,L24C,HP24L,VP24L,L24D,CPL24,L24E,DMAGD24,MINS,FMAGD24,SC,MARK24);
+
+
+booster: LINE=(BCEL01, BCEL02, BCEL03, BCEL04,BCEL05, BCEL06, BCEL07, BCEL08,BCEL09, BCEL10, BCEL11, BCEL12,BCEL13, BCEL14, BCEL15, BCEL16,BCEL17, BCEL18, BCEL19, BCEL20,BCEL21, BCEL22, BCEL23, BCEL24);
+
+!booster: LINE=(24*BCEL03);
+
+
+
+RETURN;
+

@@ -1,0 +1,48 @@
+! File fodo.lat
+!
+! Written for the January, 2007 USPAS.
+! To be used in conjunction with CHEF.
+!
+! Send complaints to the author: Leo Michelotti
+!
+! Modified by James Amundson to increase the quadrupole length.
+! ------------------
+! Parameters
+! ------------------
+focus    :=   7                  ! [m]     : focal length of equivalent
+!focus    :=   5               ! [m]     : focal length of equivalent ! strong focus
+                                  !         :   thin quad
+sepn     :=  10                   ! [m]     : distance between quad centers
+length   :=   2.0                 ! [m]     : quadrupole length
+strength := -1/(focus*length)      ! [m**-2] : quadrupole strength
+                                   !         :   = B'/brho
+octlength  :=0.                ! [m]    octupole length 
+
+beam, particle=proton, energy=1.5
+
+! ------------------
+! Elements
+! ------------------
+o: drift, l=( sepn - length )/2
+halfo: drift, l= ( sepn - length )/4
+oe: drift, l= ( sepn - length -2*octlength)/4
+f: quadrupole, l=length, k1=strength*1.0093
+d: quadrupole, l=length, k1=(-strength)*1.033
+r: rfcavity, l= 0.,  volt=  0.5
+e1: octupole, l=octlength,    k3=0.0
+e2: octupole, l=octlength,    k3=0.0
+
+! ------------------
+! Lattice
+! ------------------
+!forodoro:   line=(f, o, r, o, d, o, r, o )
+!oforodo:   line=(o, f, o, r, o, d, o )
+ofoeoroeodo:   line=(o, f, oe, e1, oe, r, oe, e2, oe, d, o )
+
+!model:      line=(20*oforodo)
+!model:      line=(20*oforodo)! strong focus
+!model:      line=(10*oforodo)
+
+model:      line=(10*ofoeoroeodo)
+
+
