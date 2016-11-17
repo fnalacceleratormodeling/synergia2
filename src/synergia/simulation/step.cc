@@ -37,7 +37,6 @@ Step::append(Operators const& the_operators, double time_fraction)
         time_fractions.push_back(time_fraction);
     }
 }
-
 void
 Step::apply(Bunch & bunch, int verbosity,
         Diagnosticss const& per_operator_diagnostics,
@@ -73,9 +72,13 @@ Step::apply(Bunch & bunch, int verbosity,
         t = simple_timer_show(t, "diagnostics-operator");
 
         if (bunch.is_z_periodic()) {
-            double plength = bunch.get_z_period_length();
-            apply_longitudinal_periodicity(bunch, plength);
+             double zlength=bunch.get_z_period_length();
+             apply_longitudinal_periodicity(bunch, zlength);           
         }
+        else if(bunch.has_longitudinal_aperture()){
+             double zlength=bunch.get_longitudinal_aperture_length();
+             apply_zcut(bunch, zlength);
+        }        
         ++fractions_it;
     }
     t_total = simple_timer_show(t_total, "step_apply-total");
@@ -114,19 +117,18 @@ Step::apply(Bunch_train & bunch_train, int verbosity,
             }
         }
         t = simple_timer_show(t, "diagnostics-operator");
-        // jfa: what should we do here? Move particles between bunches?
-	// am: this should be changed soon, for now assume the effect is small
         for (int i = 0; i < num_bunches; ++i) {
-	   if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
-                Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
-		double plength=bunch_sptr->get_z_period_length();
-                if (bunch_sptr->is_z_periodic()){              
-                    apply_longitudinal_periodicity(*bunch_sptr, plength);
-                } 
-                else{                 
-                    apply_zcut(*bunch_sptr, plength);
-                }
-	   }                  
+              if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
+                    Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
+                    if (bunch_sptr->is_z_periodic()){
+                        double zlength=bunch_sptr->get_z_period_length();
+                        apply_longitudinal_periodicity(*bunch_sptr, zlength);
+                    }
+                    else if(bunch_sptr->has_longitudinal_aperture()){
+                      double zlength=bunch_sptr->get_longitudinal_aperture_length();
+                      apply_zcut(*bunch_sptr, zlength);
+                    }                 
+              }                  
         }           
         ++fractions_it;
     }
@@ -171,20 +173,19 @@ Step::apply(Bunch_train & bunch_train, int verbosity,
                 (*itd)->update_and_write();
             }
         }
-        t = simple_timer_show(t, "diagnostics-operator");
-        // jfa: what should we do here? Move particles between bunches?
-    // am: this should be changed soon, for now assume the effect is small
+        t = simple_timer_show(t, "diagnostics-operator");      
         for (int i = 0; i < num_bunches; ++i) {
-       if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
-                Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
-        double plength=bunch_sptr->get_z_period_length();
-                if (bunch_sptr->is_z_periodic()){              
-                    apply_longitudinal_periodicity(*bunch_sptr, plength);
-                } 
-                else{                 
-                    apply_zcut(*bunch_sptr, plength);
-                }
-       }                  
+            if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
+                      Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
+                      if (bunch_sptr->is_z_periodic()){
+                          double zlength=bunch_sptr->get_z_period_length();
+                          apply_longitudinal_periodicity(*bunch_sptr, zlength);
+                      }
+                      else if(bunch_sptr->has_longitudinal_aperture()){
+                        double zlength=bunch_sptr->get_longitudinal_aperture_length();
+                        apply_zcut(*bunch_sptr, zlength);
+                      }                
+            }                  
         }           
         ++fractions_it;
     }
@@ -228,7 +229,6 @@ Step::get_betas()
  return step_betas;
 }
 
-
 void
 Step::print(int index) const
 {
@@ -245,7 +245,7 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_NVP(operators);
         ar & BOOST_SERIALIZATION_NVP(time_fractions);
-        ar & BOOST_SERIALIZATION_NVP(length);     
+        ar & BOOST_SERIALIZATION_NVP(length); 
         ar & BOOST_SERIALIZATION_NVP(step_betas);
     }
 

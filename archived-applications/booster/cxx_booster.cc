@@ -431,20 +431,14 @@ run()
   Commxxs comms(generate_subcomms(parent_comm_sptr, opts.num_bunches));
   for (int i=0;i<opts.num_bunches;++i){
      Commxx_sptr commx=comms[i];      
-      Bunch_sptr bunch_sptr;
-      if (opts.bunch_periodic){
-          //bunch_sptr=Bunch_sptr(new Bunch(stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle(),
-         // opts.num_macroparticles, opts.num_real_particles, commx,stepper_sptr->get_lattice_simulator().get_bucket_length(),i));  
-          bunch_sptr=Bunch_sptr(new Bunch(stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle(),
+       Bunch_sptr bunch_sptr=Bunch_sptr(new Bunch(stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle(),
           opts.num_macroparticles, opts.num_real_particles, commx));  
-          bunch_sptr->set_bucket_index(i);
-         // bunch_sptr->set_z_period_length(stepper_sptr->get_lattice_simulator().get_bucket_length()) ;
-          bunch_sptr->set_longitudinal_aperture_length(stepper_sptr->get_lattice_simulator().get_bucket_length()) ;
-          
+       bunch_sptr->set_bucket_index(i);
+       if (opts.bunch_periodic){           
+          bunch_sptr->set_z_period_length(stepper_sptr->get_lattice_simulator().get_bucket_length()) ;                    
       }
       else{
-        bunch_sptr=Bunch_sptr(new Bunch(stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle(),
-                            opts.num_macroparticles, opts.num_real_particles, commx));             
+          bunch_sptr->set_longitudinal_aperture_length(stepper_sptr->get_lattice_simulator().get_bucket_length()) ;
       }       
       if (commx->has_this_rank()){
           Random_distribution dist(opts.seed,*commx);
@@ -551,6 +545,8 @@ run()
         MArray2d bunch_mom2=Core_diagnostics::calculate_mom2(*bunch_train_simulator.get_bunch_train().get_bunches()[i],bunch_means);
         if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().get_rank()==0) {
             std::cout<<std::endl; 
+            std::cout<<"bunch # "<<i<<" is perriodic="<<bunch_train_simulator.get_bunch_train().get_bunches()[i]->is_z_periodic()<<std::endl;
+            std::cout<<"bunch # "<<i<<" has longitudinal aperture="<<bunch_train_simulator.get_bunch_train().get_bunches()[i]->has_longitudinal_aperture()<<std::endl;
             std::cout<<"bunch # "<<i<<" number of real  particles= "
                   <<bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_real_num()<<std::endl;
             std::cout<<"bunch # "<<i<<" number of macroparticles= "
