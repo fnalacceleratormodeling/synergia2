@@ -121,11 +121,10 @@ Bunch::get_local_particles_serialization_path() const
 }
 
 void
-Bunch::construct(int particle_charge, int total_num, double real_num)
+Bunch::construct(int total_num, double real_num)
 {
     sort_counter = 0;
     sort_period = 10000;
-    this->particle_charge = particle_charge;
     this->total_num = total_num;
     this->real_num = real_num;
     state = fixed_z_lab;
@@ -149,26 +148,18 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
                 reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
 {
-    construct(reference_particle.get_charge(), total_num, real_num);
+    this->particle_charge =reference_particle.get_charge();
+    construct(total_num, real_num);
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr, int particle_charge) :
-        longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
-                reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
-{
-    construct(particle_charge, total_num, real_num);
-}
+// Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
+//         double real_num, Commxx_sptr comm_sptr, int particle_charge) :
+//         longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
+//                 reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
+// {
+//     construct(particle_charge, total_num, real_num);
+// }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr, double longitudinal_extent,
-        int bucket_index) :
-        longitudinal_extent(longitudinal_extent), z_periodic(true), longitudinal_aperture(false), reference_particle(
-                reference_particle), bucket_index(bucket_index), bucket_index_assigned(true), comm_sptr(
-                comm_sptr), default_converter()
-{
-    construct(reference_particle.get_charge(), total_num, real_num);
-}
 
 Bunch::Bunch()
 {

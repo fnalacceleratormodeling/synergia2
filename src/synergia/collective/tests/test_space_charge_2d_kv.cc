@@ -78,9 +78,10 @@ struct Elliptical_rod_bunch_fixture_lowgamma
         four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length)
+                            comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Elliptical_rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length);
         const double rod_xradius = stdx * std::sqrt(2.0);
         const double rod_yradius = stdy * std::sqrt(2.0);
         bunch.set_sort_period(-1);
@@ -252,9 +253,10 @@ struct Elliptical_rod_bunch_fixture_highgamma
         four_momentum(mass, mass*rod_highgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length)
+                            comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Elliptical_rod bunch fixture highgamma");
+        bunch.set_z_period_length(rod_length);
         const double rod_xradius = stdx * std::sqrt(2.0);
         const double rod_yradius = stdy * std::sqrt(2.0);
         bunch.set_sort_period(-1);
@@ -428,9 +430,10 @@ struct Round_rod_bunch_fixture_lowgamma
         four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length)
+                            comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Round_rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length);
         // set xradius and yradius the same at sqrt(2)*stdx
         const double rod_xradius = stdx * std::sqrt(2.0);
         const double rod_yradius = stdx * std::sqrt(2.0);
@@ -571,9 +574,9 @@ BOOST_FIXTURE_TEST_CASE(apply_kv_round_lowgamma, Round_rod_bunch_fixture_lowgamm
     // convert to usual units
     // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
     double L = bunch.get_z_period_length();
-    // KV solver assumes uniform density in cylinder of radius stdx*2.
+     // KV solver assumes uniform density in cylinder of radius stdx*2.
     // Enclosed charge inside radius stdx is then N/4
-    double N = bunch.get_real_num()/4.0;
+    double N = bunch.get_real_num()/4.0;    
     logger << "L: " << L << std::endl;
     logger << "N: " << N << std::endl;
     logger << "step_length: " << step_length << std::endl;
@@ -604,9 +607,10 @@ struct Round_rod_bunch_fixture_highgamma
         four_momentum(mass, mass*rod_highgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length)
+                            comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Round_rod bunch fixture highgamma");
+        bunch.set_z_period_length(rod_length);
         // set xradius and yradius the same at sqrt(2)*stdx
         const double rod_xradius = stdx * std::sqrt(2.0);
         const double rod_yradius = stdx * std::sqrt(2.0);

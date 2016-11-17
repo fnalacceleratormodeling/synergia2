@@ -61,7 +61,7 @@ private:
     std::string
     get_local_particles_serialization_path() const;
     void
-    construct(int particle_charge, int total_num, double real_num);
+    construct(int total_num, double real_num);
 public:
     //!
     //! Constructor:
@@ -76,26 +76,24 @@ public:
     /// @param comm_sptr the comm_sptrunicator.
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx_sptr comm_sptr);
-    //!
-    //! Constructor with 5-parameter signature
-    //! Same as above, but having the flexibility
-    //!    to redefine the charge of a particle.
-    /// @param reference_particle the reference particle for the bunch.
-    /// @param total_num the total number of macroparticles in the bunch
-    /// @param real_num the number of real particles represented by the bunch.
-    /// @param comm_sptr the comm_sptrunicator.
-    /// @param particle_charge in units of e.
-    Bunch(Reference_particle const& reference_particle, int total_num,
-            double real_num, Commxx_sptr comm_sptr, int particle_charge);
+ 
 
+            
+            
+     ///// Obsolete, please replace the following constructor with the previous one followed by 
+     /////set_particle_charge(particle_charge)    
+     //    Bunch(Reference_particle const& reference_particle, int total_num,
+     //            double real_num, Commxx_sptr comm_sptr, int particle_charge);
 
-    ///Obsolete, please replace the following constructor with a previous one followed by 
-    ///set_z_period_length(z_period_length)
-    ///set_bucket_index(bucket_index)
-    Bunch(Reference_particle const& reference_particle, int total_num,
-            double real_num, Commxx_sptr comm_sptr, double z_period_length,
-            int bucket_index = 0);
+    /////Obsolete, please replace the following constructor with the previous one followed by 
+    /////set_z_period_length(z_period_length)
+    /////set_bucket_index(bucket_index)
+    //Bunch(Reference_particle const& reference_particle, int total_num,
+    //        double real_num, Commxx_sptr comm_sptr, double z_period_length,
+    //        int bucket_index = 0);
 
+    
+    
     /// Default constructor for serialization use only
     Bunch();
 

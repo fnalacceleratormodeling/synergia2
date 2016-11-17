@@ -401,15 +401,16 @@ run()
   Commxxs comms(generate_subcomms(parent_comm_sptr, opts.num_bunches));
   for (int i=0;i<opts.num_bunches;++i){
       Commxx_sptr commx=comms[i];
-      Bunch_sptr bunch_sptr;
+       Bunch_sptr bunch_sptr=Bunch_sptr(new Bunch(stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle(),
+          opts.num_macroparticles, opts.num_real_particles, commx));  
+       bunch_sptr->set_bucket_index(i);  
       if (opts.bunch_periodic){
-          bunch_sptr=Bunch_sptr(new Bunch(stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle(),
-          opts.num_macroparticles, opts.num_real_particles, commx,stepper_sptr->get_lattice_simulator().get_bucket_length(),i));   
+          bunch_sptr->set_z_period_length(stepper_sptr->get_lattice_simulator().get_bucket_length()) ;
       }
       else{
-        bunch_sptr=Bunch_sptr(new Bunch(stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle(),
-                            opts.num_macroparticles, opts.num_real_particles, commx));             
+         bunch_sptr->set_longitudinal_aperture_length(stepper_sptr->get_lattice_simulator().get_bucket_length()) ;
       } 
+      
       
       if (commx->has_this_rank()){
           /*if (opts.load_bunch){

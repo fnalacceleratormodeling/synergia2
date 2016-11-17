@@ -115,11 +115,6 @@ BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
 }
 
-BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
-{
-    Bunch electron_bunch(reference_particle, total_num, real_num, comm_sptr,
-            pconstants::electron_charge);
-}
 
 BOOST_FIXTURE_TEST_CASE(set_bucket_index, Fixture)
 {
@@ -212,13 +207,6 @@ BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
     BOOST_CHECK_EQUAL(bunch.get_particle_charge(), pconstants::proton_charge);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_particle_charge2, Fixture)
-{
-    Bunch electron_bunch(reference_particle, total_num, real_num, comm_sptr,
-            pconstants::electron_charge);
-    BOOST_CHECK_EQUAL(electron_bunch.get_particle_charge(),
-            pconstants::electron_charge);
-}
 
 BOOST_FIXTURE_TEST_CASE(get_mass, Fixture)
 {

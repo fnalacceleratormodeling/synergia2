@@ -184,13 +184,7 @@ BOOST_PYTHON_MODULE(bunch)
     scope
         Bunch_scope =
             class_<Bunch, Bunch_sptr > ("Bunch", init<Reference_particle const&,
-                    int, double, Commxx_sptr > ())
-                .def(init<Reference_particle const&, int, double,
-                        Commxx_sptr, int >())
-                .def(init<Reference_particle const&, int, double,
-                        Commxx_sptr, double >())
-                .def(init<Reference_particle const&, int, double,
-                        Commxx_sptr, double, int >())
+                    int, double, Commxx_sptr > ())                        
                 .def("set_particle_charge", &Bunch::set_particle_charge)
                 .def("set_real_num", &Bunch::set_real_num)
                 .def("set_local_num", &Bunch::set_local_num)

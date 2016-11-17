@@ -252,10 +252,11 @@ struct Rod_bunch_fixture_lowgamma
         four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length),
+                            comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length); 
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
@@ -334,11 +335,10 @@ struct Rod_bunch_fixture_lowgamma2
     Rod_bunch_fixture_lowgamma2() :
         four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length),
-                grid_shape(3)
+                rod_num_particles, rod_real_num, comm_sptr), grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length);       
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
@@ -417,10 +417,11 @@ struct Rod_bunch_fixture_highgamma
         four_momentum(mass, mass*rod_highgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length),
+                            comm_sptr), 
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Rod bunch fixture highgamma");
+        bunch.set_z_period_length(rod_length); 
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
@@ -500,10 +501,11 @@ struct Rod_bunch_fixture_highgamma2
         four_momentum(mass, mass*rod_highgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length),
+                            comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Rod bunch fixture highgamma");
+        bunch.set_z_period_length(rod_length); 
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
