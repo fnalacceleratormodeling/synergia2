@@ -281,6 +281,12 @@ public:
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors, double tolerance =
                     1.0e-5, int verbosity = 0);
+    void
+    adjust_tunes_chef(double horizontal_tune, double vertical_tune,
+            Lattice_elements const& horizontal_correctors,
+            Lattice_elements const& vertical_correctors, int max_steps, double tolerance =
+                    1.0e-4, int verbosity = 0);                
+                    
     double
     get_slip_factor(double dpp=1.0e-5);
     MArray1d

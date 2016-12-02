@@ -1835,6 +1835,155 @@ calculate_tune_and_cdt(const Reference_particle refpart, double dpp, BmlPtr & be
 }
 
 
+
+void
+set_chef_quad_correctors(Lattice_elements const& correctors,
+        Chef_lattice & chef_lattice, BeamlineContext & beamline_context,
+        bool horizontal)
+{
+  for (Lattice_elements::const_iterator le_it = correctors.begin();
+            le_it != correctors.end(); ++le_it) {
+     Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
+     for (Chef_elements::iterator ce_it = chef_elements.begin();
+                ce_it != chef_elements.end(); ++ce_it) {
+       
+               if ((std::strcmp((*ce_it)->Type(), "quadrupole") == 0)
+                    && ((!(*le_it)->has_double_attribute("tilt")
+                            && !(*le_it)->has_string_attribute("tilt"))
+                            || ((*le_it)->has_double_attribute("tilt")
+                                    && std::abs(
+                                            (*le_it)->get_double_attribute(
+                                                    "tilt")) < 1.e-6))) {
+                    if (horizontal) {
+                        beamline_context.addHTuneCorrector(
+                                boost::dynamic_pointer_cast<quadrupole>(*ce_it));
+                    } else {
+                        beamline_context.addVTuneCorrector(
+                                boost::dynamic_pointer_cast<quadrupole>(*ce_it));
+                    }
+               }
+               else if ((std::strcmp((*ce_it)->Type(), "thinQquad") == 0)
+                    && ((!(*le_it)->has_double_attribute("tilt")
+                            && !(*le_it)->has_string_attribute("tilt"))
+                            || ((*le_it)->has_double_attribute("tilt")
+                                    && std::abs(
+                                            (*le_it)->get_double_attribute(
+                                                        "tilt")) < 1.e-6))) {
+                    if (horizontal) {
+                        beamline_context.addHTuneCorrector(
+                                boost::dynamic_pointer_cast<thinQuad>(*ce_it));
+                    } else {
+                        beamline_context.addVTuneCorrector(
+                                boost::dynamic_pointer_cast<thinQuad>(*ce_it));
+                    }
+                }
+                else {
+                /*std::stringstream hda_tilt, hsa_tilt, gda_tilt ;
+                 hda_tilt<<(*le_it)->has_double_attribute("tilt");
+                 hsa_tilt<<(*le_it)->has_string_attribute("tilt");
+                 gda_tilt<<(*le_it)->get_double_attribute("tilt");*/
+                std::string message(
+                        "Lattice_simulator::adjust_tunes: Lattice_element ");
+                message += (*le_it)->get_name();
+                message += " of type ";
+                message += (*le_it)->get_type();
+                message += " cannot be used as a corrector because it has a";
+                message += " chef element of type ";
+                message += (*ce_it)->Type();
+                message += " or it is skewed (i.e. nonzero tilt)";
+//              message += "; has_double_attribute tilt: ";
+//              message += hda_tilt.str();
+//              message += " ,  has_string_attribute tilt: ";
+//              message += hsa_tilt.str();
+//              message += "  tilt: ";
+//              message += gda_tilt.str();
+                throw std::runtime_error(message.c_str());
+            }
+       
+       
+     }
+  }
+}  
+
+void
+Lattice_simulator::adjust_tunes_chef(double horizontal_tune, double vertical_tune,
+        Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, int max_steps, double tolerance,
+        int verbosity)
+{
+   
+    ensure_jet_environment(map_order);
+    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+    BeamlineContext beamline_context(
+            reference_particle_to_chef_particle(
+                    lattice_sptr->get_reference_particle()), beamline_sptr);
+    beamline_context.handleAsRing();
+    
+    set_chef_quad_correctors(horizontal_correctors, *chef_lattice_sptr,
+            beamline_context, true);
+    set_chef_quad_correctors(vertical_correctors, *chef_lattice_sptr,
+            beamline_context, false);
+            
+    double tune_h = beamline_context.getHorizontalFracTune();
+    double tune_v = beamline_context.getVerticalFracTune();
+
+    double dh = horizontal_tune - tune_h;
+    double dv = vertical_tune - tune_v; 
+    int count = 0;
+
+    Logger logger(0);
+
+    if (verbosity>1){        
+        logger<<"_________________________________________"<<std::endl;
+        logger <<" Initial tune (H,V):  ("<< tune_h<<", "
+                    <<tune_v<<")"<<std::endl;
+        logger <<" Desired tune(H,V):  ("<< horizontal_tune<<", "
+                    <<vertical_tune<<")"<<std::endl;
+        logger<<"_________________________________________"<<std::endl;
+        logger<<"adjusting tunes:"<<std::endl;
+    }
+    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
+            && (count < max_steps)) {
+      if (verbosity>1){
+          logger<< "  step=" << count << " tune (H,V):  (" << tune_h<<", "
+                <<tune_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
+        }
+        int status = beamline_context.changeTunesBy(dh, dv);
+
+        if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
+            throw std::runtime_error(
+                    "Lattice_simulator::adjust_tunes: no corrector elements found");
+        } else if (status != BeamlineContext::OKAY) {
+            throw std::runtime_error(
+                    "Lattice_simulator::adjust_tunes: failed with unknown status");
+        }
+
+
+        have_tunes = false;
+        tune_h = beamline_context.getHorizontalFracTune();
+        tune_v = beamline_context.getVerticalFracTune();
+        dh = horizontal_tune - tune_h;
+        dv = vertical_tune - tune_v;       
+        count++;
+
+    }
+    if (verbosity>1){
+          logger<< " after steps=" << count << " tune (H,V):  (" << tune_h<<", "
+                <<tune_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
+    }
+    
+    extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr,logger, verbosity);
+    extract_quad_strengths(vertical_correctors, *chef_lattice_sptr, logger, verbosity);
+    update();
+    have_tunes = false;
+
+   
+    
+    if (count == max_steps)  throw std::runtime_error(
+        "Lattice_simulator::adjust_tunes: Convergence not achieved. Increase the maximum number of steps.");
+    
+}
+
 void
 Lattice_simulator::get_chromaticities(double dpp)
 {
@@ -2204,6 +2353,7 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
                 *chef_lattice_sptr, flogger);
 
     have_chromaticities = false;
+    
     if (count == max_steps)  throw std::runtime_error(
         "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
 }

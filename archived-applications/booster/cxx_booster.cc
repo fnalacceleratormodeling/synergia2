@@ -44,20 +44,27 @@ run()
     
     Lattice_sptr lattice_sptr(new Lattice());
     try {
-        xml_load(*lattice_sptr, "booster_new.xml");
+        xml_load(*lattice_sptr, opts.lattice_file);
     }
     catch (std::exception& ex) {
         std::cerr <<"exception what "<<ex.what()<<std::endl;
-        std::cerr << "cxx_booster: failed to find booster_lattice.xml\n";
-        std::cerr << "Run booster_xml.py to generate booster_lattice.xml\n";
+        std::cerr << "cxx_booster: failed to find "<<opts.lattice_file<<"\n";
+        std::cerr << "Run booster_xml.py to generate "<<opts.lattice_file<<"\n";
         return;
     }
-
+    if (rank==0) { 
+      std::cout<<" lattice file ="<<opts.lattice_file<<std::endl;
+    }
   
    
     MPI_Barrier(MPI_COMM_WORLD);   
     double tini = MPI_Wtime();
     
+    
+    Lattice_elements quad_correctors_h;
+    Lattice_elements quad_correctors_v;
+    Lattice_elements sextupole_correctors_h;
+    Lattice_elements sextupole_correctors_v;
    
     for (Lattice_elements::const_iterator it =
       lattice_sptr->get_elements().begin();
@@ -89,24 +96,55 @@ run()
             if  (mag_name=="fmag") {               
               // std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
               (*it)->set_string_attribute("aperture_type","rectangular");
-              (*it)->set_double_attribute("rectangular_aperture_width", 2.);
-              (*it)->set_double_attribute("rectangular_aperture_height", 20.*opts.aperture_f);
+              (*it)->set_double_attribute("rectangular_aperture_width", 0.2);
+              (*it)->set_double_attribute("rectangular_aperture_height", 2.*opts.aperture_f);
             }
             else if(mag_name=="dmag"){
               // std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
               (*it)->set_string_attribute("aperture_type","rectangular");
-              (*it)->set_double_attribute("rectangular_aperture_width", 2.);
-              (*it)->set_double_attribute("rectangular_aperture_height", 20.*opts.aperture_d);
+              (*it)->set_double_attribute("rectangular_aperture_width", 0.2);
+              (*it)->set_double_attribute("rectangular_aperture_height", 2.*opts.aperture_d);
             }
             else{               
                 (*it)->set_string_attribute("aperture_type","circular");
-                (*it)->set_double_attribute("circular_aperture_radius", 10*opts.aperture_l);              
+                (*it)->set_double_attribute("circular_aperture_radius", opts.aperture_l);              
             }            
           }//aperture
+ 
+         std::string sex_name(element_name.begin(),element_name.begin()+3);         
+          if ((sex_name=="sxs") &&  ((*it)->get_type()=="sextupole") ){            
+          //  std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
+           sextupole_correctors_h.push_back((*it));
+          }
+          if ( (sex_name=="sxl")   && ((*it)->get_type()=="sextupole") ){   
+           //   std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
+           sextupole_correctors_v.push_back((*it));
+          }
           
+          std::string quad_name(element_name.begin(),element_name.begin()+2); 
+          std::string quad_namel(element_name.begin(),element_name.begin()+3); 
+          if ( (quad_name=="ql")   && ((*it)->get_type()=="quadrupole") ) {
+            // std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
+            // (*it)->print();
+             quad_correctors_h.push_back((*it));
+          }      
+            if ( (quad_name=="qs")   && ((*it)->get_type()=="quadrupole") && (quad_namel!="qss") && (quad_namel!="qsl") ) { 
+            // std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
+              (*it)->print();
+             quad_correctors_v.push_back((*it));
+          }
+  
       
      }// for loop lattice elements
-      
+
+     if (rank==0) { 
+          std::cout<<" number of horizontal tune quads correctors ="<<quad_correctors_h.size()<<std::endl;
+          std::cout<<" number of vertical tune quads correctors ="<<quad_correctors_v.size()<<std::endl;   
+          std::cout<<" number of horizontal chromaticity sextupole correctors ="<<sextupole_correctors_h.size()<<std::endl;
+          std::cout<<" number of vertical chromaticity sextupole correctors ="<<sextupole_correctors_v.size()<<std::endl;   
+     }
+     
+    
            
      Reference_particle reference_particle=lattice_sptr->get_reference_particle();        
      double lattice_length=lattice_sptr->get_length();       
@@ -325,24 +363,35 @@ run()
           std::cout<<"no collective effects, no bpm, independent operator"<<std::endl;
           std::cout<<"number of steps="<<stepper_sptr->get_steps().size()<<std::endl;
         }
-  }
+    }
     
+   //  stepper_sptr->get_lattice_simulator().print_lattice_functions();
      stepper_sptr->get_lattice_simulator().register_closed_orbit();             
      stepper_sptr->get_lattice_simulator().set_rf_bucket_length();
   
-  if (rank==0) { 
-     std::cout<<"stepper:lattice_simulator: map order="<< stepper_sptr->get_lattice_simulator().get_map_order() <<std::endl;
+     if (rank==0) { 
+       std::cout<<"stepper:lattice_simulator: map order="<< stepper_sptr->get_lattice_simulator().get_map_order() <<std::endl;
     // stepper_sptr->print();
-     std::cout<<"stepper rf frequency="<<stepper_sptr->get_lattice_simulator().get_rf_frequency()<<std::endl;
-    }
+       std::cout<<"stepper rf frequency="<<stepper_sptr->get_lattice_simulator().get_rf_frequency()<<std::endl;
+     }
   
  
-//     if (opts.adjust_chromaticity){
-//          stepper_sptr->get_lattice_simulator().adjust_chromaticities(opts.chrom_h, opts.chrom_v, 
-//                                                      sextupole_correctors_h,sextupole_correctors_v);
-//    }
-  
-     //stepper_sptr->get_lattice_simulator().print_lattice_functions();
+     if (opts.adjust_tunes){
+          if (rank==0) std::cout<<"adjusting tunes"<<std::endl;
+          stepper_sptr->get_lattice_simulator().adjust_tunes_chef(opts.tune_h, opts.tune_v,
+                                                quad_correctors_h,  quad_correctors_v, 10, 1e-4, 3);  
+          if (rank==0)  std::cout<<"tunes adjusted"<<std::endl; 
+     }
+ 
+     if (opts.adjust_chromaticity){
+         if (rank==0) std::cout<<"adjusting chromaticity"<<std::endl;
+         stepper_sptr->get_lattice_simulator().adjust_chromaticities(opts.chrom_h, opts.chrom_v, 
+                                                     sextupole_correctors_h,sextupole_correctors_v);
+         if (rank==0)  std::cout<<"chromaticity adjusted"<<std::endl;                                           
+    }
+ 
+   
+          
      stepper_sptr->print_cs_step_betas();
      reference_particle=stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_reference_particle();
      lattice_length=stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_length();       
