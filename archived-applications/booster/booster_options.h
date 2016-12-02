@@ -11,7 +11,7 @@ class Options
   
  
   public:
-    
+    std::string  lattice_file;
     int map_order; 
     int map_order_loaded_bunch;
     bool bpms;
@@ -77,10 +77,14 @@ class Options
     bool adjust_chromaticity;
     double chrom_h;
     double chrom_v;
+    bool adjust_tunes;
+    double tune_h;
+    double tune_v;
+    
     
     std::string wakefile_f;
     std::string wakefile_d;
-    std::string  waketype;
+    std::string  waketype;    
     int  registred_turns;  
     bool full_machine;
     
@@ -90,7 +94,8 @@ class Options
    // std::list<std::string> option_list;
    
     //default constructors   
-    Options(std::string filename="input_options"):    
+    Options(std::string filename="input_options"): 
+      lattice_file("booster_new.xml"),
       map_order(1),
       map_order_loaded_bunch(1),
       bpms(false),
@@ -140,9 +145,12 @@ class Options
       adjust_chromaticity(false),
       chrom_h(-15.),
       chrom_v(-10.),
+      adjust_tunes (false),
+      tune_h(6.755),
+      tune_v(6.845),      
       wakefile_f("Fwake.dat"),
       wakefile_d("Dwake.dat"),
-      waketype("XLXTYLYTZpp"),
+      waketype("XLXTYLYTZpp"),      
       registred_turns(15),  
       full_machine(false)
       {
@@ -154,7 +162,7 @@ class Options
         scgrid_l[1]=128;
         scgrid_l[2]=64;
 
-
+          options_map["lattice_file"]= lattice_file;
           options_map["map_order"]=map_order;
           options_map["map_order_loaded_bunch"]=map_order_loaded_bunch;
           options_map["bpms"]=bpms;
@@ -204,9 +212,12 @@ class Options
           options_map["adjust_chromaticity"]=adjust_chromaticity;
           options_map["chrom_h"]=chrom_h;
           options_map["chrom_v"]=chrom_v;
+          options_map["adjust_tunes"]=adjust_tunes;
+          options_map["tune_h"]=tune_h;
+          options_map["tune_v"]=tune_v;
           options_map["wakefile_f"]=wakefile_f;
           options_map["wakefile_d"]=wakefile_d;
-          options_map["waketype"]=waketype;
+          options_map["waketype"]=waketype;        
           options_map["registred_turns"]=registred_turns;
           options_map["full_machine"]=full_machine;
               
@@ -287,7 +298,8 @@ class Options
      }
      
      
-     vv<<value;         
+     vv<<value;   
+     if (option=="lattice_file") vv>>lattice_file;
      if (option=="map_order")  vv>>map_order;
      if (option=="map_order_loaded_bunch")  vv>>map_order_loaded_bunch;
      if (option=="bpms")  vv>>bpms;
@@ -335,6 +347,9 @@ class Options
      if (option=="adjust_chromaticity") vv>>adjust_chromaticity;
      if (option=="chrom_h") vv>>chrom_h;
      if (option=="chrom_v") vv>>chrom_v;
+     if (option=="adjust_tunes") vv>>adjust_tunes;
+     if (option=="tune_h") vv>>tune_h;
+     if (option=="tune_v") vv>>tune_v;
      if (option=="wakefile_f") vv>>wakefile_f;
      if (option=="wakefile_d") vv>>wakefile_d;
      if (option=="waketype") vv>>waketype;
@@ -345,6 +360,7 @@ class Options
     
    
     void print(Logger  logger=Logger(0,"all_options",false, true) ){
+     logger<<"lattice_file="<<lattice_file<<std::endl;
      logger<<"map_order="<<map_order<<std::endl;
      logger<<"map_order_loaded_bunch="<<map_order_loaded_bunch<<std::endl;
      logger<<"bpms="<<bpms<<std::endl;
@@ -392,6 +408,9 @@ class Options
      logger<<"adjust_chromaticity="<< adjust_chromaticity<<std::endl;
      logger<<"chrom_h="<< chrom_h<<std::endl;
      logger<<"chrom_v="<< chrom_v<<std::endl;
+     logger<<"adjust_tunes="<< adjust_tunes<<std::endl;
+     logger<<"tune_h="<< tune_h<<std::endl;
+     logger<<"tune_v="<< tune_v<<std::endl;
      logger<<"wakefile_f="<<wakefile_f<<std::endl;
      logger<<"wakefile_d="<<wakefile_d<<std::endl;
      logger<<"waketype="<<waketype<<std::endl;
