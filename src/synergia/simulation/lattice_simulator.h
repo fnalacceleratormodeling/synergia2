@@ -285,7 +285,10 @@ public:
     adjust_tunes_chef(double horizontal_tune, double vertical_tune,
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors, int max_steps, double tolerance =
-                    1.0e-4, int verbosity = 0);                
+                    1.0e-4, int verbosity = 1);  
+   void 
+   change_tunesby(double dh, double dv,  Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, Logger & logger, int verbosity);                 
                     
     double
     get_slip_factor(double dpp=1.0e-5);
@@ -311,6 +314,9 @@ public:
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors, double tolerance =
                     1.0e-4, int max_steps = 6);
+    void 
+    change_chromaticityby(double dh, double dv,  Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, Logger & logger, int verbosity);               
 
     template<class Archive>
         void

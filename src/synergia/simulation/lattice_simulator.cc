@@ -411,7 +411,7 @@ Lattice_simulator::get_tunes(bool use_eigen_tune)
         vertical_tune = tune_v0;
 
         have_tunes = true;
-    }
+   }
 }
 
 void
@@ -1389,7 +1389,7 @@ set_AT_corrector_strength(ElmPtr elmptr, double strength)
 void
 write_quad_correctors(Lattice_elements const& horizontal_correctors,
         Lattice_elements const & vertical_correctors,
-        Chef_lattice & chef_lattice, std::ofstream & file)
+        Chef_lattice & chef_lattice, Logger & logger)
 {
     const std::string quadrupole_type = "QUADRUPOLE";
     const std::string sbend_type = "SBEND";
@@ -1416,7 +1416,7 @@ write_quad_correctors(Lattice_elements const& horizontal_correctors,
                 elem_type = rbend_type;
             }
             (*le_it)->set_double_attribute("k1", k1);
-            file << (*le_it)->get_name() << ":  " << elem_type << ",  L="
+            logger << (*le_it)->get_name() << ":  " << elem_type << ",  L="
                     << std::setprecision(5)
                     << (*le_it)->get_double_attribute("l") << ",    K1="
                     << std::setprecision(11)
@@ -1446,7 +1446,7 @@ write_quad_correctors(Lattice_elements const& horizontal_correctors,
                 elem_type = rbend_type;
             }
             (*le_it)->set_double_attribute("k1", k1);
-            file << (*le_it)->get_name() << ":  " << elem_type << ",  L="
+            logger << (*le_it)->get_name() << ":  " << elem_type << ",  L="
                     << std::setprecision(5)
                     << (*le_it)->get_double_attribute("l") << ",    K1="
                     << std::setprecision(11)
@@ -1912,6 +1912,59 @@ Lattice_simulator::adjust_tunes_chef(double horizontal_tune, double vertical_tun
         int verbosity)
 {
    
+    double tune_h = get_horizontal_tune();
+    double tune_v =get_vertical_tune();
+    double dh = horizontal_tune - tune_h;
+    double dv = vertical_tune - tune_v; 
+    int count = 0;
+
+    Logger logger(0);
+
+    if (verbosity>0){        
+        logger<<"_________________________________________"<<std::endl;
+        logger <<" Initial tune (H,V):  ("<< tune_h<<", "
+                    <<tune_v<<")"<<std::endl;
+        logger <<" Desired tune (H,V):  ("<< horizontal_tune<<", "
+                    <<vertical_tune<<")"<<std::endl;
+        logger<<"_________________________________________"<<std::endl;
+        logger<<"adjusting tunes:"<<std::endl;
+    }
+        
+    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
+             && (count < max_steps)) {
+ 
+       if (verbosity>0){
+           logger<< "  step=" << count << " tune (H,V):  (" << tune_h<<", "
+                 <<tune_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
+        } 
+        change_tunesby(dh,dv, horizontal_correctors, vertical_correctors, logger, verbosity);
+        tune_h = get_horizontal_tune();
+        tune_v = get_vertical_tune();        
+        dh = horizontal_tune - tune_h;
+        dv = vertical_tune - tune_v;    
+        count++; 
+   }
+   if (verbosity>0){
+         logger<< " after steps=" << count << " tune (H,V):  (" << tune_h<<", "
+               <<tune_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;     
+   }
+   Logger flogger(0, "quad_correctors.txt", false, true);
+   flogger      << "! the quad correctors  for the tune (H, V):  ("
+                << tune_h << " ,  " << tune_v << " ) " << std::endl;
+   write_quad_correctors(horizontal_correctors, vertical_correctors,  *chef_lattice_sptr, flogger);
+   logger<<"quad correctors strength written in the file  quad_correctors.txt"<<std::endl;
+   if (count == max_steps)  throw std::runtime_error(
+        "Lattice_simulator::adjust_tunes: Convergence not achieved. Increase the maximum number of steps.");
+  
+    
+}
+
+
+void 
+Lattice_simulator::change_tunesby(double dh, double dv,  Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, Logger & logger, int verbosity)
+{
+   
     ensure_jet_environment(map_order);
     BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
     BeamlineContext beamline_context(
@@ -1923,66 +1976,23 @@ Lattice_simulator::adjust_tunes_chef(double horizontal_tune, double vertical_tun
             beamline_context, true);
     set_chef_quad_correctors(vertical_correctors, *chef_lattice_sptr,
             beamline_context, false);
-            
-    double tune_h = beamline_context.getHorizontalFracTune();
-    double tune_v = beamline_context.getVerticalFracTune();
 
-    double dh = horizontal_tune - tune_h;
-    double dv = vertical_tune - tune_v; 
-    int count = 0;
-
-    Logger logger(0);
-
-    if (verbosity>1){        
-        logger<<"_________________________________________"<<std::endl;
-        logger <<" Initial tune (H,V):  ("<< tune_h<<", "
-                    <<tune_v<<")"<<std::endl;
-        logger <<" Desired tune(H,V):  ("<< horizontal_tune<<", "
-                    <<vertical_tune<<")"<<std::endl;
-        logger<<"_________________________________________"<<std::endl;
-        logger<<"adjusting tunes:"<<std::endl;
-    }
-    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
-            && (count < max_steps)) {
-      if (verbosity>1){
-          logger<< "  step=" << count << " tune (H,V):  (" << tune_h<<", "
-                <<tune_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
-        }
-        int status = beamline_context.changeTunesBy(dh, dv);
-
-        if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_tunes: no corrector elements found");
-        } else if (status != BeamlineContext::OKAY) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_tunes: failed with unknown status");
-        }
-
-
-        have_tunes = false;
-        tune_h = beamline_context.getHorizontalFracTune();
-        tune_v = beamline_context.getVerticalFracTune();
-        dh = horizontal_tune - tune_h;
-        dv = vertical_tune - tune_v;       
-        count++;
-
-    }
-    if (verbosity>1){
-          logger<< " after steps=" << count << " tune (H,V):  (" << tune_h<<", "
-                <<tune_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
-    }
-    
+    int status = beamline_context.changeTunesBy(dh, dv);  
+    if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
+          throw std::runtime_error(
+                  "Lattice_simulator::change_tunesby: no corrector elements found");
+      } else if (status != BeamlineContext::OKAY) {
+          throw std::runtime_error(
+                  "Lattice_simulator::change_tunesby: failed with unknown status");
+      }
     extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr,logger, verbosity);
     extract_quad_strengths(vertical_correctors, *chef_lattice_sptr, logger, verbosity);
     update();
-    have_tunes = false;
-
-   
-    
-    if (count == max_steps)  throw std::runtime_error(
-        "Lattice_simulator::adjust_tunes: Convergence not achieved. Increase the maximum number of steps.");
-    
+  
+    have_tunes = false;      
+  
 }
+
 
 void
 Lattice_simulator::get_chromaticities(double dpp)
@@ -2302,6 +2312,7 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
         int max_steps)
 {
     
+    const int verbosity=1;
     ensure_jet_environment(map_order);
     BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
     BeamlineContext beamline_context(
@@ -2315,48 +2326,86 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 
     double chr_h = get_horizontal_chromaticity();
     double chr_v = get_vertical_chromaticity();
-
     double dh = horizontal_chromaticity - chr_h;
     double dv = vertical_chromaticity - chr_v;
     int count = 0;
 
-    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
-            && (count < max_steps)) {
-        int status = beamline_context.changeChromaticityBy(dh, dv);
-
-        if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_chromaticities: no corrector elements found");
-        } else if (status != BeamlineContext::OKAY) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_chromaticities: failed with unknown status");
-        }
-
-
-        have_chromaticities = false;
-        chr_h = get_horizontal_chromaticity();
-        chr_v = get_vertical_chromaticity();
-        dh = horizontal_chromaticity - chr_h;
-        dv = vertical_chromaticity - chr_v;
-        count++;
-
+    Logger logger(0);
+    if (verbosity>0){
+        logger<<"_________________________________________"<<std::endl;
+        logger <<" Initial chromaticiy (H,V):  ("<< chr_h<<", "
+                    <<chr_v<<")"<<std::endl;
+        logger <<" Desired chromaticity (H,V):  ("<< horizontal_chromaticity<<", "
+                    <<vertical_chromaticity<<")"<<std::endl;
+        logger<<"_________________________________________"<<std::endl;
+        logger<<"adjusting chromaticity:"<<std::endl;
     }
 
-    extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
-    extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
-    update();
+    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
+            && (count < max_steps)) {
+      
+       if (verbosity>0){
+          logger<< "  step=" << count << " chromaticity (H,V):  (" << chr_h<<", "
+                 <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
+       }
+        
+       change_chromaticityby(dh,dv, horizontal_correctors, vertical_correctors, logger, verbosity);
+       chr_h = get_horizontal_chromaticity();
+       chr_v = get_vertical_chromaticity();
+       dh = horizontal_chromaticity - chr_h;
+       dv = vertical_chromaticity - chr_v;
+       count++;       
+    }
+
+    if (verbosity>0){
+      logger<< " after steps=" << count << " chromaticity (H,V):  (" << chr_h<<", "
+               <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl; 
+    }
 
     Logger flogger(0, "sextupole_correctors.txt", false, true);
     flogger      << "! the sextupole correctors  for the chromaticity (H, V):  ("
                 << chr_h << " ,  " << chr_v << " ) " << std::endl;
     write_sextupole_correctors(horizontal_correctors, vertical_correctors,
-                *chef_lattice_sptr, flogger);
-
-    have_chromaticities = false;
-    
+                *chef_lattice_sptr, flogger);            
+    logger<<"sextupole correctors strength written in the file  sextupole_correctors.txt"<<std::endl;
     if (count == max_steps)  throw std::runtime_error(
         "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
 }
+
+void 
+Lattice_simulator::change_chromaticityby(double dh, double dv,  Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, Logger & logger, int verbosity)
+{
+    
+    
+    ensure_jet_environment(map_order);
+    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+    BeamlineContext beamline_context(
+            reference_particle_to_chef_particle(
+                    lattice_sptr->get_reference_particle()), beamline_sptr);
+    beamline_context.handleAsRing();
+    set_chef_chrom_correctors(horizontal_correctors, *chef_lattice_sptr,
+            beamline_context, true);
+    set_chef_chrom_correctors(vertical_correctors, *chef_lattice_sptr,
+            beamline_context, false);
+    int status = beamline_context.changeChromaticityBy(dh, dv); 
+      if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
+              throw std::runtime_error(
+                      "Lattice_simulator::adjust_chromaticities: no corrector elements found");
+      } 
+      else if (status != BeamlineContext::OKAY) {
+              throw std::runtime_error(
+                      "Lattice_simulator::adjust_chromaticities: failed with unknown status");
+      }
+      
+     extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
+     extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
+     update();
+     have_chromaticities = false;
+     
+}
+
+
 
 void
 Lattice_simulator::print_cs_lattice_functions()
