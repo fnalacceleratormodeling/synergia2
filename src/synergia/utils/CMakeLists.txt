@@ -73,6 +73,7 @@ install(FILES
     serialization_files.h
     digits.h
     logger.h
+    lsexpr.h
     DESTINATION include/synergia/utils)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
