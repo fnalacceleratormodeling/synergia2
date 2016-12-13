@@ -36,6 +36,7 @@ install(FILES
     lattice_element.h
     lattice_element_slice.h
     lattice.h
+    lsexpr.h
     madx.h
     madx_reader.h
     mx_expr.h
