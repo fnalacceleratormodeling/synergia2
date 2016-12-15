@@ -471,23 +471,25 @@ public:
     inline static void thin_kicker_unit
       (T & p, double kL) 
     {
-        p = p + kL;
+        p += T(kL);
     }
 
     template <typename T>
     inline static void thin_kicker_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
-        xp = xp + kL[0];
-        yp = yp + kL[1];
+        xp += T(kL[0]);
+        yp += T(kL[1]);
     }
 
     template <typename T>
     inline static void constfoc_unit
       (T & x, T & xp, double cs, double sn, double beta, double ibeta)
     {
-        T x1  = x * cs + xp * beta * sn;
-        T xp1 = - x * sn * ibeta + xp * cs;
+        T vcs(cs), vsn(sn), vbeta(beta), vibeta(ibeta);
+
+        T x1  = x * vcs + xp * vbeta * vsn;
+        T xp1 = - x * vsn * vibeta + xp * vcs;
 
         x = x1;
         xp = xp1;

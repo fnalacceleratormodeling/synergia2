@@ -1,8 +1,7 @@
 // Generic SIMD Vector
 #ifndef GSVECTOR_H_
+#define GSVECTOR_H_
 
-#include "boost/multi_array.hpp"
-typedef boost::multi_array_ref<double, 2> MArray2d_ref;
 
 #if 0
 #undef GSV_SSE
@@ -10,6 +9,192 @@ typedef boost::multi_array_ref<double, 2> MArray2d_ref;
 #undef GSV_V4D
 #undef GSV_MIC
 #endif
+
+//#include <x86intrin.h>
+//#include <immintrin.h>
+
+#include "vectorclass.h"
+
+template <typename E, class T>
+class VecExpr
+{
+public:
+    typedef T vec_t;
+
+    vec_t cal() const
+    { return static_cast<E const&>(*this).cal(); } 
+
+    operator E &()
+    { return static_cast<      E &>(*this); }
+
+    operator E const &() const
+    { return reinterpret_cast<const E &>(*this); }
+    //{ return static_cast<const E &>(*this); }
+};
+
+template<class T, size_t S>
+class Vec : public VecExpr<Vec<T, S>, T>
+{
+    typedef typename VecExpr<Vec<T, S>, T>::vec_t vec_t;
+    vec_t data;
+
+public:
+
+    static const size_t size = S;
+
+    Vec(const double   d) : data( d ) { }
+    Vec(const double * p) : data( ) { }
+
+    void store(double *p) const { }
+
+    vec_t & cal()       { return data; }
+    vec_t   cal() const { return data; }
+
+    template <typename E>
+    Vec(VecExpr<E, T> const & vec)
+    {
+        E const& v = vec;
+        data = v.cal();
+    }
+};
+
+template<> inline Vec<double, 1>::Vec(const double * p) : data() { data = *p; }
+template<> inline Vec<Vec2d,  2>::Vec(const double * p) : data() { data.load_a(p); }
+template<> inline Vec<Vec4d,  4>::Vec(const double * p) : data() { data.load_a(p); }
+
+template<> inline void Vec<double, 1>::store(double * p) const { *p = data; }
+template<> inline void Vec<Vec2d,  1>::store(double * p) const { data.store_a(p); }
+template<> inline void Vec<Vec4d,  1>::store(double * p) const { data.store_a(p); }
+
+template <typename E1, typename E2, class T>
+struct VecAdd : public VecExpr<VecAdd<E1, E2, T>, T>
+{
+    E1 const & _u; E2 const & _v;
+    VecAdd(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return _u.cal() + _v.cal(); }
+};
+
+template <typename E1, typename E2, class T>
+struct VecSub : public VecExpr<VecSub<E1, E2, T>, T>
+{
+    E1 const & _u; E2 const & _v;
+    VecSub(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    typename VecExpr<VecSub<E1, E2, T>, T>::vec_t cal() const { return _u.cal() - _v.cal(); }
+};
+
+template <typename E1, typename E2, class T>
+struct VecMul : public VecExpr<VecMul<E1, E2, T>, T>
+{
+    E1 const & _u; E2 const & _v;
+    VecMul(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    typename VecExpr<VecMul<E1, E2, T>, T>::vec_t cal() const { return _u.cal() * _v.cal(); }
+};
+
+template <typename E1, typename E2, class T>
+struct VecDiv : public VecExpr<VecDiv<E1, E2, T>, T>
+{
+    E1 const & _u; E2 const & _v;
+    VecDiv(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    typename VecExpr<VecDiv<E1, E2, T>, T>::vec_t cal() const { return _u.cal() / _v.cal(); }
+};
+
+template <typename E1, typename E2, class T>
+struct VecAddAssign : public VecExpr<VecAddAssign<E1, E2, T>, T>
+{
+    E1 & _u; E2 const & _v;
+    VecAddAssign(VecExpr<E1, T> & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    typename VecExpr<VecAddAssign<E1, E2, T>, T>::vec_t cal() { _u += _v.cal(); return _u; }
+};
+
+template <typename E1, typename E2, class T>
+struct VecSubAssign : public VecExpr<VecSubAssign<E1, E2, T>, T>
+{
+    E1 & _u; E2 const & _v;
+    VecSubAssign(VecExpr<E1, T> & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    typename VecExpr<VecSubAssign<E1, E2, T>, T>::vec_t cal() { _u -= _v.cal(); return _u; }
+};
+
+template <typename E, class T>
+struct VecNeg : public VecExpr<VecNeg<E, T>, T>
+{
+    E const & _u;
+    VecNeg(VecExpr<E, T> const & u) : _u(u) { }
+    typename VecExpr<VecNeg<E, T>, T>::vec_t cal() const { return -(_u.cal()); }
+};
+
+template <typename E, class T>
+struct VecSqrt : public VecExpr<VecSqrt<E, T>, T>
+{
+    E const & _u;
+    VecSqrt(VecExpr<E, T> const & u) : _u(u) { }
+    typename VecExpr<VecSqrt<E, T>, T>::vec_t cal() const { return sqrt(_u.cal()); }
+};
+
+// overload operators
+//
+
+template <typename E1, typename E2, class T>
+inline
+VecAdd<E1, E2, T> const
+operator+ (VecExpr<E1, T> const & u, VecExpr<E2, T> const & v)
+{ return VecAdd<E1, E2, T>(u, v); }
+
+template <typename E1, typename E2, class T>
+inline
+VecSub<E1, E2, T> const
+operator- (VecExpr<E1, T> const & u, VecExpr<E2, T> const & v)
+{ return VecSub<E1, E2, T>(u, v); }
+
+template <typename E1, typename E2, class T>
+inline
+VecMul<E1, E2, T> const
+operator* (VecExpr<E1, T> const & u, VecExpr<E2, T> const & v)
+{ return VecMul<E1, E2, T>(u, v); }
+
+template <typename E1, typename E2, class T>
+inline
+VecDiv<E1, E2, T> const
+operator/ (VecExpr<E1, T> const & u, VecExpr<E2, T> const & v)
+{ return VecDiv<E1, E2, T>(u, v); }
+
+template <typename E1, typename E2, class T>
+inline
+VecAddAssign<E1, E2, T> const
+operator+= (VecExpr<E1, T>      & u, VecExpr<E2, T> const & v)
+{ return VecAddAssign<E1, E2, T>(u, v); }
+
+template <typename E1, typename E2, class T>
+inline
+VecSubAssign<E1, E2, T> const
+operator-= (VecExpr<E1, T>      & u, VecExpr<E2, T> const & v)
+{ return VecSubAssign<E1, E2, T>(u, v); }
+
+template <typename E, class T>
+inline
+VecNeg<E, T> const
+operator- (VecExpr<E, T> const & u)
+{ return VecNeg<E, T>(u); }
+
+template <typename E, class T>
+inline
+VecSqrt<E, T> const
+sqrt (VecExpr<E, T> const & u)
+{ return VecSqrt<E, T>(u); }
+
+
+#if defined(GSV_NONE)
+  typedef Vec<double, 1> GSVector;
+#elif defined(GSV_SSE)
+  typedef Vec<Vec2d,  2> GSVector;
+#elif defined(GSV_AVX)
+  typedef Vec<Vec4d,  4> GSVector;
+#else
+  typedef Vec<double, 1> GSVector;
+#endif
+
+
+
+#if 0
 
 #if defined(GSV_SSE)
 
@@ -437,5 +622,6 @@ inline std::ostream & operator << (std::ostream & out, GSVector & v)
 
 #endif
 
-#define GSVECTOR_H_
+#endif
+
 #endif  // GSVECTOR_H_
