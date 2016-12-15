@@ -22,7 +22,16 @@
   #include <mass_simd.h>
 #endif
 
+// helper class for deciding the size of the vector classes
+template <class T> struct VectorLength { static const size_t szie = 0; };
 
+// specialized
+template<> struct VectorLength<double> { static const size_t size = 1; };
+template<> struct VectorLength<Vec2d > { static const size_t size = 2; };
+template<> struct VectorLength<Vec4d > { static const size_t size = 4; };
+
+
+// expression class
 template <typename E, class T>
 class VecExpr
 {
@@ -40,15 +49,16 @@ public:
     //{ return static_cast<const E &>(*this); }
 };
 
-template<class T, size_t S>
-class Vec : public VecExpr<Vec<T, S>, T>
+// the vector wrapper base class
+template<class T>
+class Vec : public VecExpr<Vec<T>, T>
 {
-    typedef typename VecExpr<Vec<T, S>, T>::vec_t vec_t;
+    typedef typename VecExpr<Vec<T>, T>::vec_t vec_t;
     vec_t data;
 
 public:
 
-    static const size_t size = S;
+    static const size_t size = VectorLength<T>::size;
 
     Vec(const double   d) : data( d ) { }
     Vec(const double * p) : data( ) { }
@@ -66,13 +76,13 @@ public:
     }
 };
 
-template<> inline Vec<double, 1>::Vec(const double * p) : data() { data = *p; }
-template<> inline Vec<Vec2d,  2>::Vec(const double * p) : data() { data.load_a(p); }
-template<> inline Vec<Vec4d,  4>::Vec(const double * p) : data() { data.load_a(p); }
+template<> inline Vec<double>::Vec(const double * p) : data() { data = *p; }
+template<> inline Vec<Vec2d >::Vec(const double * p) : data() { data.load_a(p); }
+template<> inline Vec<Vec4d >::Vec(const double * p) : data() { data.load_a(p); }
 
-template<> inline void Vec<double, 1>::store(double * p) const { *p = data; }
-template<> inline void Vec<Vec2d,  1>::store(double * p) const { data.store_a(p); }
-template<> inline void Vec<Vec4d,  1>::store(double * p) const { data.store_a(p); }
+template<> inline void Vec<double>::store(double * p) const { *p = data; }
+template<> inline void Vec<Vec2d >::store(double * p) const { data.store_a(p); }
+template<> inline void Vec<Vec4d >::store(double * p) const { data.store_a(p); }
 
 template <typename E1, typename E2, class T>
 struct VecAdd : public VecExpr<VecAdd<E1, E2, T>, T>
@@ -191,13 +201,13 @@ sqrt (VecExpr<E, T> const & u)
 
 
 #if defined(GSV_NONE)
-  typedef Vec<double, 1> GSVector;
+  typedef Vec<double> GSVector;
 #elif defined(GSV_SSE)
-  typedef Vec<Vec2d,  2> GSVector;
+  typedef Vec<Vec2d > GSVector;
 #elif defined(GSV_AVX)
-  typedef Vec<Vec4d,  4> GSVector;
+  typedef Vec<Vec4d > GSVector;
 #else
-  typedef Vec<double, 1> GSVector;
+  typedef Vec<double> GSVector;
 #endif
 
 
