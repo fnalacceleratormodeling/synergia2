@@ -76,7 +76,7 @@ public:
     }
 };
 
-template<> inline Vec<double>::Vec(const double * p) : data() { data = *p; }
+template<> inline Vec<double>::Vec(const double * p) : data(*p) { }
 template<> inline Vec<Vec2d >::Vec(const double * p) : data() { data.load_a(p); }
 template<> inline Vec<Vec4d >::Vec(const double * p) : data() { data.load_a(p); }
 
