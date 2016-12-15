@@ -13,7 +13,15 @@
 //#include <x86intrin.h>
 //#include <immintrin.h>
 
-#include "vectorclass.h"
+
+#if defined(GSV_SSE)
+  #include "vectorclass.h"
+#elif defined(GSV_AVX)
+  #include "vectorclass.h"
+#elif defined(GSV_QPX)
+  #include <mass_simd.h>
+#endif
+
 
 template <typename E, class T>
 class VecExpr
