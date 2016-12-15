@@ -13,23 +13,8 @@
 #undef GSV_MIC
 #endif
 
-//#include <x86intrin.h>
-//#include <immintrin.h>
 
-
-class Vec2d;
-class Vec4d;
-class vector4double;
-
-#if defined(GSV_SSE)
-  #include "vectorclass.h"
-#elif defined(GSV_AVX)
-  #include "vectorclass.h"
-#elif defined(GSV_QPX)
-  #include <mass_simd.h>
-#endif
-
-
+// helper
 namespace detail
 {
     template <class T, class E = void>
@@ -39,24 +24,7 @@ namespace detail
         static T ld(const double *p) { return *p; } 
         static T st(double * p, const T & v) { *p = v; }
     };
-
-    template <class T>
-    struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec2d > >::type>
-    { 
-        static const size_t size = 2;
-        static T ld(const double *p) { T t; t.load_a(p); return t; }
-        static T st(double * p, const T & v) { v.store_a(p); }
-    };
-
-    template <class T>
-    struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec4d > >::type>
-    { 
-        static const size_t size = 2;
-        static T ld(const double *p) { T t; t.load_a(p); return t; }
-        static T st(double * p, const T & v) { v.store_a(p); }
-    };
 }
-
 
 // expression class
 template <typename E, class T>
@@ -103,21 +71,13 @@ public:
     }
 };
 
+// expression classes
 template <typename E1, typename E2, class T, class E = void>
 struct VecAdd : public VecExpr<VecAdd<E1, E2, T>, T>
 {
     E1 const & _u; E2 const & _v;
     VecAdd(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
     typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return _u.cal() + _v.cal(); }
-};
-
-template <typename E1, typename E2, class T>
-struct VecAdd<E1, E2, T, typename boost::enable_if<boost::is_same<T, vector4double> >::type>
- : public VecExpr<VecAdd<E1, E2, T>, T>
-{
-    E1 const & _u; E2 const & _v;
-    VecAdd(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
-    typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return vec_add(_u.cal(), _v.cal()); }
 };
 
 template <typename E1, typename E2, class T>
@@ -228,14 +188,65 @@ sqrt (VecExpr<E, T> const & u)
 { return VecSqrt<E, T>(u); }
 
 
-#if defined(GSV_NONE)
-  typedef Vec<double> GSVector;
-#elif defined(GSV_SSE)
-  typedef Vec<Vec2d > GSVector;
+
+// specialization for different platforms
+//
+
+class Vec2d;
+class Vec4d;
+class vector4double;
+
+//#include <x86intrin.h>
+//#include <immintrin.h>
+
+#if defined(GSV_SSE)
+  #include "vectorclass.h"
 #elif defined(GSV_AVX)
-  typedef Vec<Vec4d > GSVector;
+  #include "vectorclass.h"
+#elif defined(GSV_QPX)
+  #include <mass_simd.h>
+#endif
+
+namespace detail
+{
+    template <class T>
+    struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec2d > >::type>
+    { 
+        static const size_t size = 2;
+        static T ld(const double *p) { T t; t.load_a(p); return t; }
+        static T st(double * p, const T & v) { v.store_a(p); }
+    };
+
+    template <class T>
+    struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec4d > >::type>
+    { 
+        static const size_t size = 2;
+        static T ld(const double *p) { T t; t.load_a(p); return t; }
+        static T st(double * p, const T & v) { v.store_a(p); }
+    };
+}
+
+
+template <typename E1, typename E2, class T>
+struct VecAdd<E1, E2, T, typename boost::enable_if<boost::is_same<T, vector4double> >::type>
+ : public VecExpr<VecAdd<E1, E2, T>, T>
+{
+    E1 const & _u; E2 const & _v;
+    VecAdd(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return vec_add(_u.cal(), _v.cal()); }
+};
+
+
+// define the GSVector type
+
+#if defined(GSV_SSE)
+  typedef Vec<Vec2d >        GSVector;
+#elif defined(GSV_AVX)
+  typedef Vec<Vec4d >        GSVector;
+#elif defined(GSV_QPX)
+  typedef Vec<vector4double> GSVector
 #else
-  typedef Vec<double> GSVector;
+  typedef Vec<double>        GSVector;
 #endif
 
 
