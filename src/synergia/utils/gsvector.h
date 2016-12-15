@@ -2,6 +2,9 @@
 #ifndef GSVECTOR_H_
 #define GSVECTOR_H_
 
+#include <boost/core/enable_if.hpp>
+#include <boost/type_traits/is_same.hpp>
+
 
 #if 0
 #undef GSV_SSE
@@ -14,6 +17,10 @@
 //#include <immintrin.h>
 
 
+class Vec2d;
+class Vec4d;
+class vector4double;
+
 #if defined(GSV_SSE)
   #include "vectorclass.h"
 #elif defined(GSV_AVX)
@@ -22,13 +29,33 @@
   #include <mass_simd.h>
 #endif
 
-// helper class for deciding the size of the vector classes
-template <class T> struct VectorLength { static const size_t szie = 0; };
 
-// specialized
-template<> struct VectorLength<double> { static const size_t size = 1; };
-template<> struct VectorLength<Vec2d > { static const size_t size = 2; };
-template<> struct VectorLength<Vec4d > { static const size_t size = 4; };
+namespace detail
+{
+    template <class T, class E = void>
+    struct VectorHelper
+    { 
+        static const size_t size = 1;
+        static T ld(const double *p) { return *p; } 
+        static T st(double * p, const T & v) { *p = v; }
+    };
+
+    template <class T>
+    struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec2d > >::type>
+    { 
+        static const size_t size = 2;
+        static T ld(const double *p) { T t; t.load_a(p); return t; }
+        static T st(double * p, const T & v) { v.store_a(p); }
+    };
+
+    template <class T>
+    struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec4d > >::type>
+    { 
+        static const size_t size = 2;
+        static T ld(const double *p) { T t; t.load_a(p); return t; }
+        static T st(double * p, const T & v) { v.store_a(p); }
+    };
+}
 
 
 // expression class
@@ -58,12 +85,12 @@ class Vec : public VecExpr<Vec<T>, T>
 
 public:
 
-    static const size_t size = VectorLength<T>::size;
+    static const size_t size = detail::VectorHelper<T>::size;
 
     Vec(const double   d) : data( d ) { }
-    Vec(const double * p) : data( ) { }
+    Vec(const double * p) : data( detail::VectorHelper<T>::ld(p) ) { }
 
-    void store(double *p) const { }
+    void store(double *p) const { detail::VectorHelper<T>::st(p, data); }
 
     vec_t & cal()       { return data; }
     vec_t   cal() const { return data; }
@@ -76,20 +103,21 @@ public:
     }
 };
 
-template<> inline Vec<double>::Vec(const double * p) : data(*p) { }
-template<> inline Vec<Vec2d >::Vec(const double * p) : data() { data.load_a(p); }
-template<> inline Vec<Vec4d >::Vec(const double * p) : data() { data.load_a(p); }
-
-template<> inline void Vec<double>::store(double * p) const { *p = data; }
-template<> inline void Vec<Vec2d >::store(double * p) const { data.store_a(p); }
-template<> inline void Vec<Vec4d >::store(double * p) const { data.store_a(p); }
-
-template <typename E1, typename E2, class T>
+template <typename E1, typename E2, class T, class E = void>
 struct VecAdd : public VecExpr<VecAdd<E1, E2, T>, T>
 {
     E1 const & _u; E2 const & _v;
     VecAdd(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
     typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return _u.cal() + _v.cal(); }
+};
+
+template <typename E1, typename E2, class T>
+struct VecAdd<E1, E2, T, typename boost::enable_if<boost::is_same<T, vector4double> >::type>
+ : public VecExpr<VecAdd<E1, E2, T>, T>
+{
+    E1 const & _u; E2 const & _v;
+    VecAdd(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return vec_add(_u.cal(), _v.cal()); }
 };
 
 template <typename E1, typename E2, class T>
