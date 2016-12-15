@@ -80,8 +80,7 @@ public:
 template<class T>
 class Vec : public VecExpr<Vec<T>, T>
 {
-    typedef typename VecExpr<Vec<T>, T>::vec_t vec_t;
-    vec_t data;
+    T data;
 
 public:
 
@@ -92,8 +91,8 @@ public:
 
     void store(double *p) const { detail::VectorHelper<T>::st(p, data); }
 
-    vec_t & cal()       { return data; }
-    vec_t   cal() const { return data; }
+    T & cal()       { return data; }
+    T   cal() const { return data; }
 
     template <typename E>
     Vec(VecExpr<E, T> const & vec)
