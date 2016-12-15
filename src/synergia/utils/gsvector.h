@@ -89,6 +89,7 @@ public:
     Vec(const double   d) : data( d ) { }
     Vec(const double * p) : data( detail::VectorHelper<T>::ld(p) ) { }
 
+    void load (const double *p) { detail::VectorHelper<T>::ld(p); }
     void store(double *p) const { detail::VectorHelper<T>::st(p, data); }
 
     T & cal()       { return data; }
