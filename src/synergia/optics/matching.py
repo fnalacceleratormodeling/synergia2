@@ -262,7 +262,9 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                   num_macro_particles, num_real_particles, comm)
     else:
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm, z_period_length, bunch_index)
+                  num_macro_particles, num_real_particles, comm)
+        bunch.set_z_period_length(z_period_length)
+        bunch.set_bucket_index(bunch_index)
 
     dist = Random_distribution(seed, Commxx())
     if nsigma is not None:

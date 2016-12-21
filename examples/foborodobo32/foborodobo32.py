@@ -259,6 +259,11 @@ if opts.spacecharge is None:
 elif ((opts.spacecharge == "off") or (opts.spacecharge == "0")):
     spacecharge = None
     print >>logger, "space charge is OFF"
+else:
+    spacecharge = "ON"
+
+if spacecharge is None:
+    coll_operator = synergia.simulation.Dummy_collective_operator("foo")
 elif opts.spacecharge == "2d-bassetti-erskine":
     print >>logger, "space charge 2d-bassetti-erskine is ON"
     coll_operator = synergia.collective.Space_charge_2d_bassetti_erskine()

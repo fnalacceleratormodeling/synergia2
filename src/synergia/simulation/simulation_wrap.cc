@@ -210,6 +210,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_chromaticities_overloads46,
 		 Lattice_simulator::adjust_chromaticities, 4, 6)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads46,
 		 Lattice_simulator::adjust_tunes, 4, 6)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_chef_overloads57,
+         Lattice_simulator::adjust_tunes_chef, 5, 7)		 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_linear_one_turn_map_overloads01,
 			Lattice_simulator::get_linear_one_turn_map, 0, 1)       
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_closed_orbit_overloads01,
@@ -432,6 +434,8 @@ BOOST_PYTHON_MODULE(simulation)
 	                          get_both_tunes_overloads01())
         .def("adjust_tunes", &Lattice_simulator::adjust_tunes,
 	                           adjust_tunes_overloads46())
+	    .def("adjust_tunes_chef", &Lattice_simulator::adjust_tunes_chef,
+                               adjust_tunes_chef_overloads57())                      
         .def("get_horizontal_chromaticity", &Lattice_simulator::get_horizontal_chromaticity,
 	                     get_horizontal_chromaticity_overloads01())
         .def("get_horizontal_chromaticities", &Lattice_simulator::get_horizontal_chromaticities,

@@ -111,28 +111,28 @@ run()
             }            
           }//aperture
  
-         std::string sex_name(element_name.begin(),element_name.begin()+3);         
+          std::string sex_name(element_name.begin(),element_name.begin()+3);         
           if ((sex_name=="sxs") &&  ((*it)->get_type()=="sextupole") ){            
-          //  std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
-           sextupole_correctors_h.push_back((*it));
+         //  (*it)->print();
+             sextupole_correctors_h.push_back((*it));
           }
           if ( (sex_name=="sxl")   && ((*it)->get_type()=="sextupole") ){   
-           //   std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
-           sextupole_correctors_v.push_back((*it));
+         //  (*it)->print();
+             sextupole_correctors_v.push_back((*it));
           }
           
           std::string quad_name(element_name.begin(),element_name.begin()+2); 
           std::string quad_namel(element_name.begin(),element_name.begin()+3); 
-          if ( (quad_name=="ql")   && ((*it)->get_type()=="quadrupole") ) {
-            // std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
+          if ( (quad_name=="ql")   && ((*it)->get_type()=="quadrupole") ) {           
             // (*it)->print();
              quad_correctors_h.push_back((*it));
           }      
             if ( (quad_name=="qs")   && ((*it)->get_type()=="quadrupole") && (quad_namel!="qss") && (quad_namel!="qsl") ) { 
-            // std::cout<<" elemnt name= "<<(*it)->get_name()<<std::endl;
-              (*it)->print();
+              //(*it)->print();
              quad_correctors_v.push_back((*it));
           }
+        
+          
   
       
      }// for loop lattice elements
@@ -379,18 +379,17 @@ run()
      if (opts.adjust_tunes){
           if (rank==0) std::cout<<"adjusting tunes"<<std::endl;
           stepper_sptr->get_lattice_simulator().adjust_tunes_chef(opts.tune_h, opts.tune_v,
-                                                quad_correctors_h,  quad_correctors_v, 10, 1e-4, 3);  
+                                                quad_correctors_h,  quad_correctors_v, 10, 1e-6);  
           if (rank==0)  std::cout<<"tunes adjusted"<<std::endl; 
      }
  
      if (opts.adjust_chromaticity){
          if (rank==0) std::cout<<"adjusting chromaticity"<<std::endl;
          stepper_sptr->get_lattice_simulator().adjust_chromaticities(opts.chrom_h, opts.chrom_v, 
-                                                     sextupole_correctors_h,sextupole_correctors_v);
+                                                     sextupole_correctors_h,sextupole_correctors_v);                                               
          if (rank==0)  std::cout<<"chromaticity adjusted"<<std::endl;                                           
     }
  
-   
           
      stepper_sptr->print_cs_step_betas();
      reference_particle=stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_reference_particle();
@@ -420,8 +419,6 @@ run()
         std::cout<<"    ***********************************     "<<std::endl;
         std::cout<<std::endl;
        }
-
-
 
       MArray2d one_turn_map=stepper_sptr->get_lattice_simulator().get_linear_one_turn_map();
       MArray2d correlation_matrix=get_correlation_matrix(one_turn_map,opts.xrms, opts.yrms, opts.zrms, beta);
