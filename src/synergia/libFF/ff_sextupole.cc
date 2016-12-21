@@ -1,6 +1,7 @@
 #include "ff_sextupole.h"
 #include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
+#include "synergia/utils/gsvector.h"
 
 double FF_sextupole::get_reference_cdt(double length, double * k,
                                        Reference_particle &reference_particle) {
@@ -111,24 +112,46 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[0] *= scale;
     k[1] *= scale;
 
-
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
+
+
+    double * RESTRICT xa, * RESTRICT xpa;
+    double * RESTRICT ya, * RESTRICT ypa;
+    double * RESTRICT cdta, * RESTRICT dpopa;
+
+    bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+
+    const int num_blocks = local_num / GSVector::size;
+    const int block_last = num_blocks * GSVector::size;
 
     if (length == 0.0) 
     {
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < block_last; part += GSVector::size)
         {
-            double x(particles[part][Bunch::x]);
-            double xp(particles[part][Bunch::xp]);
-            double y(particles[part][Bunch::y]);
-            double yp(particles[part][Bunch::yp]);
+            GSVector  x( &xa[part]);
+            GSVector xp(&xpa[part]);
+            GSVector  y( &ya[part]);
+            GSVector yp(&ypa[part]);
 
             FF_algorithm::thin_sextupole_unit(x, xp, y, yp, k);
 
-            particles[part][Bunch::xp] = xp;
-            particles[part][Bunch::yp] = yp;
+            xp.store(&xpa[part]);
+            yp.store(&ypa[part]);
+        }
+
+        for (int part = block_last; part < local_num; ++part) 
+        {
+            double  x( xa[part]);
+            double xp(xpa[part]);
+            double  y( ya[part]);
+            double yp(ypa[part]);
+
+            FF_algorithm::thin_sextupole_unit(x, xp, y, yp, k);
+
+            xpa[part] = xp;
+            ypa[part] = yp;
         }
     } 
     else 
@@ -142,14 +165,36 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < block_last; part += GSVector::size)
         {
-            double x(particles[part][Bunch::x]);
-            double xp(particles[part][Bunch::xp]);
-            double y(particles[part][Bunch::y]);
-            double yp(particles[part][Bunch::yp]);
-            double cdt(particles[part][Bunch::cdt]);
-            double dpop(particles[part][Bunch::dpop]);
+            GSVector    x(   &xa[part]);
+            GSVector   xp(  &xpa[part]);
+            GSVector    y(   &ya[part]);
+            GSVector   yp(  &ypa[part]);
+            GSVector  cdt( &cdta[part]);
+            GSVector dpop(&dpopa[part]);
+
+            FF_algorithm::yoshida<GSVector, FF_algorithm::thin_sextupole_unit<GSVector>, 2, 1 >
+                    ( x, xp, y, yp, cdt, dpop,
+                      reference_momentum, m,
+                      step_reference_cdt,
+                      step_length, step_strength, steps );
+
+               x.store(&xa[part]);
+              xp.store(&xpa[part]);
+               y.store(&ya[part]);
+              yp.store(&ypa[part]);
+             cdt.store(&cdta[part]);
+        }
+
+        for (int part = block_last; part < local_num; ++part) 
+        {
+            double    x(   xa[part]);
+            double   xp(  xpa[part]);
+            double    y(   ya[part]);
+            double   yp(  ypa[part]);
+            double  cdt( cdta[part]);
+            double dpop(dpopa[part]);
 
             FF_algorithm::yoshida<double, FF_algorithm::thin_sextupole_unit<double>, 2, 1 >
                     ( x, xp, y, yp, cdt, dpop,
@@ -157,11 +202,11 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                       step_reference_cdt,
                       step_length, step_strength, steps );
 
-            particles[part][Bunch::x] = x;
-            particles[part][Bunch::xp] = xp;
-            particles[part][Bunch::y] = y;
-            particles[part][Bunch::yp] = yp;
-            particles[part][Bunch::cdt] = cdt;
+               xa[part] = x;
+              xpa[part] = xp;
+               ya[part] = y;
+              ypa[part] = yp;
+             cdta[part] = cdt;
         }
 
         bunch.get_reference_particle().increment_trajectory(length);

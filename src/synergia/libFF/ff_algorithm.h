@@ -444,8 +444,11 @@ public:
     inline static void thin_sextupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
-        xp += -0.5 * kL[0] * (x * x - y * y) + kL[1] * x * y;
-        yp += kL[0] * x * y + 0.5 * kL[1] * (x * x - y * y);
+        T vk0(kL[0]);
+        T vk1(kL[1]);
+
+        xp = xp - T(0.5) * vk0 * (x * x - y * y) + vk1 * x * y;
+        yp = yp + vk0 * x * y + T(0.5) * vk1 * (x * x - y * y);
     }
 
     template <typename T>
@@ -744,7 +747,6 @@ public:
                        m, substep_reference_cdt);
         }
     }
-
 
     // hardwired 4th order yoshida
     template <
