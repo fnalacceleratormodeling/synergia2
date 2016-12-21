@@ -474,15 +474,15 @@ public:
     inline static void thin_kicker_unit
       (T & p, double kL) 
     {
-        p += T(kL);
+        p = p + T(kL);
     }
 
     template <typename T>
     inline static void thin_kicker_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
-        xp += T(kL[0]);
-        yp += T(kL[1]);
+        xp = xp + T(kL[0]);
+        yp = yp + T(kL[1]);
     }
 
     template <typename T>
