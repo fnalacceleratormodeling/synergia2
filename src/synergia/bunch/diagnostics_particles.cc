@@ -70,7 +70,7 @@ Diagnostics_particles::receive_other_local_particles(
                                          min_particle_id, max_particle_id);
             } else {
                 MPI_Status status;
-                Raw_MArray2d received(boost::extents[local_num][7]);
+                Raw_MArray2d received(boost::extents[local_num][7], boost::fortran_storage_order());
                 int message_size = 7 * local_num;
                 MPI_Comm comm = get_bunch().get_comm().get();
                 int error = MPI_Recv((void*) received.m.origin(), message_size,
