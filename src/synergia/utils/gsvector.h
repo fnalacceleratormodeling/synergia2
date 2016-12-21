@@ -28,9 +28,8 @@ namespace detail
 
 // expression class
 template <typename E, class T>
-class VecExpr
+struct VecExpr
 {
-public:
     typedef T vec_t;
 
     vec_t cal() const
@@ -46,11 +45,9 @@ public:
 
 // the vector wrapper base class
 template<class T>
-class Vec : public VecExpr<Vec<T>, T>
+struct Vec : public VecExpr<Vec<T>, T>
 {
     T data;
-
-public:
 
     static const size_t size = detail::VectorHelper<T>::size;
 
@@ -109,7 +106,7 @@ struct VecAddAssign : public VecExpr<VecAddAssign<E1, E2, T>, T>
 {
     E1 & _u; E2 const & _v;
     VecAddAssign(VecExpr<E1, T> & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
-    typename VecExpr<VecAddAssign<E1, E2, T>, T>::vec_t cal() { _u += _v.cal(); return _u; }
+    typename VecExpr<VecAddAssign<E1, E2, T>, T>::vec_t cal() { _u.cal() = _u.cal() + _v.cal(); return _u; }
 };
 
 template <typename E1, typename E2, class T>
@@ -117,7 +114,7 @@ struct VecSubAssign : public VecExpr<VecSubAssign<E1, E2, T>, T>
 {
     E1 & _u; E2 const & _v;
     VecSubAssign(VecExpr<E1, T> & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
-    typename VecExpr<VecSubAssign<E1, E2, T>, T>::vec_t cal() { _u -= _v.cal(); return _u; }
+    typename VecExpr<VecSubAssign<E1, E2, T>, T>::vec_t cal() { _u = _u.cal() - _v.cal(); return _u; }
 };
 
 template <typename E, class T>
@@ -235,6 +232,16 @@ struct VecAdd<E1, E2, T, typename boost::enable_if<boost::is_same<T, vector4doub
     VecAdd(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
     typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return vec_add(_u.cal(), _v.cal()); }
 };
+
+#if 0
+inline std::ostream & operator << (std::ostream & out, Vec<double> & v)
+{
+    out << "(" << v.data << ")";
+    return out;
+}
+#endif
+
+
 
 
 // define the GSVector type
