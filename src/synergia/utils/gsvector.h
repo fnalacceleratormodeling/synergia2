@@ -206,6 +206,7 @@ class vector4double;
 
 namespace detail
 {
+    // specialization of helper class
     template <class T>
     struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec2d > >::type>
     { 
@@ -224,6 +225,7 @@ namespace detail
 }
 
 
+// operations
 template <typename E1, typename E2, class T>
 struct VecAdd<E1, E2, T, typename boost::enable_if<boost::is_same<T, vector4double> >::type>
  : public VecExpr<VecAdd<E1, E2, T>, T>
@@ -233,13 +235,13 @@ struct VecAdd<E1, E2, T, typename boost::enable_if<boost::is_same<T, vector4doub
     typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return vec_add(_u.cal(), _v.cal()); }
 };
 
-#if 0
-inline std::ostream & operator << (std::ostream & out, Vec<double> & v)
+// stream operator
+template <class T, typename boost::enable_if<boost::is_same<T, double> >::type>
+inline std::ostream & operator << (std::ostream & out, Vec<T> & v)
 {
     out << "(" << v.data << ")";
     return out;
 }
-#endif
 
 
 
