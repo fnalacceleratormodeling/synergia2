@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/utils/logger.h"
 #include "synergia/utils/simple_timer.h"
 
 using namespace Eigen;
@@ -229,41 +230,44 @@ Core_diagnostics::print_bunch_parameters(MArray2d_ref const& mom2, double beta)
    double emity=sqrt(mom2[2][2]*mom2[3][3]-mom2[2][3]*mom2[3][2])/units[2]/units[3]; // this is yrms^2/beta_lattice !!!!!
    double emitz=sqrt(mom2[4][4]*mom2[5][5]-mom2[4][5]*mom2[5][4])/units[4]/units[5]; // this is zrms^2/beta_lattice !!!!!
 
-  std::cout<< "************ BEAM MATCHED PARAMETERS*************"<<std::endl; 
-  std::cout<<"*    emitx="<< emitx<<" meters*GeV/c   ="<<emitx/pz<<" meters*rad (synergia units)="<<emitx/pz/mconstants::pi<<" pi*meters*rad"<<std::endl;
-  std::cout<<"*    emity="<< emity<< " meters*GeV/c   ="<<emity/pz<< " meters*rad (synergia units)="<< emity/pz/mconstants::pi<<" pi*meters*rad"<<std::endl;
-  std::cout<<"*    emitz="<<emitz<<" meters*GeV/c ="<<emitz*1.e9/(pconstants::c)<<" eV*s =" <<emitz*beta*beta*energy/pz
+   // don't print out 10000 copies of the the bunch parameters
+   Logger logger(0);
+
+  logger<< "************ BEAM MATCHED PARAMETERS*************"<<std::endl;
+  logger<<"*    emitx="<< emitx<<" meters*GeV/c   ="<<emitx/pz<<" meters*rad (synergia units)="<<emitx/pz/mconstants::pi<<" pi*meters*rad"<<std::endl;
+  logger<<"*    emity="<< emity<< " meters*GeV/c   ="<<emity/pz<< " meters*rad (synergia units)="<< emity/pz/mconstants::pi<<" pi*meters*rad"<<std::endl;
+  logger<<"*    emitz="<<emitz<<" meters*GeV/c ="<<emitz*1.e9/(pconstants::c)<<" eV*s =" <<emitz*beta*beta*energy/pz
             <<" meters*GeV ="<<emitz/pz/beta<<" [cdt*dp/p] (synergia units)"<<std::endl;
-  std::cout<<std::endl;
-  std::cout<<"*    90%emitx="<< 4.605*mconstants::pi*emitx/pz<<"  meters*rad ="<<4.605*emitx/pz<<" pi*meters*rad"<<std::endl; 
-  std::cout<<"*    90%emity="<< 4.605*mconstants::pi*emity/pz<<" meters*rad ="<<4.605*emity/pz<<" pi*meters*rad"<<std::endl; 
-  std::cout<<"*    90%emitz="<< 4.605*mconstants::pi*emitz*1.e9/(pconstants::c)<<" eV*s" <<std::endl; 
-  std::cout<<std::endl;
-  std::cout<<std::endl;
-  std::cout<<"*    95%emitx="<< 5.991*mconstants::pi*emitx/pz<<"  meters*rad ="<<5.991*emitx/pz<<" pi*meters*rad" <<std::endl;
-  std::cout<<"*    95%emity="<< 5.991*mconstants::pi*emity/pz<<" meters*rad ="<<5.991*emity/pz<<" pi*meters*rad" <<std::endl;
-  std::cout<<"*    95%emitz="<< 5.991*mconstants::pi*emitz*1.e9/(pconstants::c)<<" eV*s"<<std::endl; 
-  std::cout<<std::endl;
-  std::cout<<"*    Normalized emitx="<< emitx*gamma*beta/pz<<" meters*rad ="<<emitx*gamma*beta/pz/mconstants::pi<<" pi*meters*rad"<<std::endl;
-  std::cout<<"*    Normalized emity="<< emity*gamma*beta/pz<<" meters*rad ="<<emity*gamma*beta/pz/mconstants::pi<<" pi*meters*rad"<<std::endl;
-  std::cout<<std::endl;
-  std::cout<<"*    Normalized 90%emitx="<< 4.605*mconstants::pi*emitx*gamma*beta/pz<<"  meters*rad ="<<4.605*emitx*gamma*beta/pz<<" pi*meters*rad"<<std::endl;
-  std::cout<<"*    Normalized 90%emity="<< 4.605*mconstants::pi*emity*gamma*beta/pz<<" meters*rad ="<<4.605*emity*gamma*beta/pz<<" pi*meters*rad"<<std::endl;
-  std::cout<<std::endl;
-  std::cout<<"*    Normalized 95%emitx="<< 5.991*mconstants::pi*emitx*gamma*beta/pz<<"  meters*rad ="<<5.991*emitx*gamma*beta/pz<<" pi*meters*rad"<<std::endl;
-  std::cout<<"*    Normalized 95%emity="<< 5.991*mconstants::pi*emity*gamma*beta/pz<<" meters*rad ="<<5.991*emity*gamma*beta/pz<<" pi*meters*rad"<<std::endl;
-  std::cout<<std::endl;
-  std::cout<<"*    xrms="<<sqrt(mom2[0][0])/units[0] <<" meters"<<std::endl;
-  std::cout<<"*    yrms="<<sqrt(mom2[2][2])/units[2]<<" meters"<<std::endl;
-  std::cout<<"*    zrms="<<sqrt(mom2[4][4])/units[4] <<" meters="<<1e9*sqrt(mom2[4][4])/units[4]/pconstants::c/beta<<" ns  "<<std::endl;
+  logger<<std::endl;
+  logger<<"*    90%emitx="<< 4.605*mconstants::pi*emitx/pz<<"  meters*rad ="<<4.605*emitx/pz<<" pi*meters*rad"<<std::endl;
+  logger<<"*    90%emity="<< 4.605*mconstants::pi*emity/pz<<" meters*rad ="<<4.605*emity/pz<<" pi*meters*rad"<<std::endl;
+  logger<<"*    90%emitz="<< 4.605*mconstants::pi*emitz*1.e9/(pconstants::c)<<" eV*s" <<std::endl;
+  logger<<std::endl;
+  logger<<std::endl;
+  logger<<"*    95%emitx="<< 5.991*mconstants::pi*emitx/pz<<"  meters*rad ="<<5.991*emitx/pz<<" pi*meters*rad" <<std::endl;
+  logger<<"*    95%emity="<< 5.991*mconstants::pi*emity/pz<<" meters*rad ="<<5.991*emity/pz<<" pi*meters*rad" <<std::endl;
+  logger<<"*    95%emitz="<< 5.991*mconstants::pi*emitz*1.e9/(pconstants::c)<<" eV*s"<<std::endl;
+  logger<<std::endl;
+  logger<<"*    Normalized emitx="<< emitx*gamma*beta/pz<<" meters*rad ="<<emitx*gamma*beta/pz/mconstants::pi<<" pi*meters*rad"<<std::endl;
+  logger<<"*    Normalized emity="<< emity*gamma*beta/pz<<" meters*rad ="<<emity*gamma*beta/pz/mconstants::pi<<" pi*meters*rad"<<std::endl;
+  logger<<std::endl;
+  logger<<"*    Normalized 90%emitx="<< 4.605*mconstants::pi*emitx*gamma*beta/pz<<"  meters*rad ="<<4.605*emitx*gamma*beta/pz<<" pi*meters*rad"<<std::endl;
+  logger<<"*    Normalized 90%emity="<< 4.605*mconstants::pi*emity*gamma*beta/pz<<" meters*rad ="<<4.605*emity*gamma*beta/pz<<" pi*meters*rad"<<std::endl;
+  logger<<std::endl;
+  logger<<"*    Normalized 95%emitx="<< 5.991*mconstants::pi*emitx*gamma*beta/pz<<"  meters*rad ="<<5.991*emitx*gamma*beta/pz<<" pi*meters*rad"<<std::endl;
+  logger<<"*    Normalized 95%emity="<< 5.991*mconstants::pi*emity*gamma*beta/pz<<" meters*rad ="<<5.991*emity*gamma*beta/pz<<" pi*meters*rad"<<std::endl;
+  logger<<std::endl;
+  logger<<"*    xrms="<<sqrt(mom2[0][0])/units[0] <<" meters"<<std::endl;
+  logger<<"*    yrms="<<sqrt(mom2[2][2])/units[2]<<" meters"<<std::endl;
+  logger<<"*    zrms="<<sqrt(mom2[4][4])/units[4] <<" meters="<<1e9*sqrt(mom2[4][4])/units[4]/pconstants::c/beta<<" ns  "<<std::endl;
   
-  std::cout<<"*    pxrms="<<sqrt(mom2[1][1])/units[1] <<" GeV/c,  dpx/p="<<sqrt(mom2[1][1])<<std::endl;
-  std::cout<<"*    pyrms="<<sqrt(mom2[3][3])/units[3] <<" GeV/c,   dpy/p="<<sqrt(mom2[3][3])<<std::endl;
-  std::cout<<"*    pzrms="<<sqrt(mom2[5][5])/units[5] <<" GeV/c,  dpz/p="<<sqrt(mom2[5][5])<<std::endl;
-  std::cout<<"*    Erms="<<sqrt(mom2[5][5])*beta*beta*energy<<" GeV,  deoe="<<sqrt(mom2[5][5])*beta*beta<<std::endl;
+  logger<<"*    pxrms="<<sqrt(mom2[1][1])/units[1] <<" GeV/c,  dpx/p="<<sqrt(mom2[1][1])<<std::endl;
+  logger<<"*    pyrms="<<sqrt(mom2[3][3])/units[3] <<" GeV/c,   dpy/p="<<sqrt(mom2[3][3])<<std::endl;
+  logger<<"*    pzrms="<<sqrt(mom2[5][5])/units[5] <<" GeV/c,  dpz/p="<<sqrt(mom2[5][5])<<std::endl;
+  logger<<"*    Erms="<<sqrt(mom2[5][5])*beta*beta*energy<<" GeV,  deoe="<<sqrt(mom2[5][5])*beta*beta<<std::endl;
   
-  std::cout<<"*    pz="<<pz<<"  GeV/c"<<std::endl;
-  std::cout<<"*    total energy="<<energy<<"GeV,  kinetic energy="<<energy-pconstants::mp<<"GeV"<<std::endl;
-  std::cout<<"****************************************************"<<std::endl;
+  logger<<"*    pz="<<pz<<"  GeV/c"<<std::endl;
+  logger<<"*    total energy="<<energy<<"GeV,  kinetic energy="<<energy-pconstants::mp<<"GeV"<<std::endl;
+  logger<<"****************************************************"<<std::endl;
 
 } 
