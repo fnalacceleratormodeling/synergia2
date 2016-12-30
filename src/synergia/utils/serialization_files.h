@@ -1,6 +1,7 @@
 #ifndef SERIALIZATION_FILES_H_
 #define SERIALIZATION_FILES_H_
 
+#include <iostream>
 #include <mpi.h>
 #include <fstream>
 #include <stdexcept>

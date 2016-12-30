@@ -24,6 +24,9 @@ template<typename T, int N>
                 for (int j = a.index_bases()[1]; j < (a.index_bases()[1]
                         + a.shape()[1]); j++) {
                     indices[1] = j;
+                    if (indices[1] > a.index_bases()[1]) {
+                        std::cout << " ";
+                    }
                     std::cout << std::setw(12);
                     std::cout << a(indices);
                 }
