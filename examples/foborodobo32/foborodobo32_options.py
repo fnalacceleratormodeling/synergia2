@@ -37,4 +37,4 @@ opts.add("tracks", 100, "number of particles to track")
 opts.add("particles", 0, "if non-zero, num particles to save")
 opts.add("particles_period", 1, "save  particles every n turns")
 
-job_mgr = synergia_workflow.Job_manager("foborodobo32.py", opts, ["foborodobo32.madx","memusage.py"])
+job_mgr = synergia_workflow.Job_manager("foborodobo32.py", opts, ["foborodobo32.madx"])

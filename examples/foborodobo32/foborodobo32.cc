@@ -21,6 +21,7 @@
 #include "synergia/bunch/diagnostics_particles.h"
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
+#include "synergia/utils/multi_array_print.h"
 
 // We put the actual code in a separate function so that shared_ptr's can
 // be cleanup up properly before we call MPI_Finalize.
@@ -47,7 +48,8 @@ run()
     //const double stdz = .055707;
     const double stdz = 1.0;
 
-    const int macro_particles = 10000;
+    //const int macro_particles = 10000;
+    const int macro_particles = 400;
     const double real_particles = 5.0e10;
     const long int seed = 12345791;
 
@@ -99,6 +101,12 @@ run()
     logger << "lattice parameters ay: " << ay << ", by: " << by << ", nu_y: " << muy/(2.0*mconstants::pi) << std::endl;
     logger << "lattice parameters as: " << as << ", bs: " << bs << ", nu_s: " << mus/(2.0*mconstants::pi) << std::endl;
 
+    double alpha_c = lattice_simulator.get_momentum_compaction();
+    double slip_factor = alpha_c - 1.0/(gamma*gamma);
+
+    logger << "compaction factor: " << alpha_c << std::endl;
+    logger << "slip_factor: " << slip_factor << std::endl;
+
     MArray1d input_means(boost::extents[6]);
     for (int i=0; i<6; ++i) {
         input_means[i] = 0.0;
@@ -107,11 +115,13 @@ run()
 
     Core_diagnostics::print_bunch_parameters(correlation_matrix, beta);
 
-    Commxx_sptr commxx(new Commxx(true));
+    Commxx_sptr commxx(new Commxx);
     Bunch_sptr bunch_sptr(new Bunch(refpart, macro_particles, real_particles, Commxx_sptr(new Commxx)));
 
-    Random_distribution dist(seed, &commxx);
+    Random_distribution dist(seed, *commxx);
     populate_6d(dist, *bunch_sptr, input_means, correlation_matrix);
+
+    multi_array_print(bunch_sptr->get_local_particles(), "particles");
 
     MArray1d bunch_means(Core_diagnostics::calculate_mean(*bunch_sptr));
     MArray1d bunch_stds(Core_diagnostics::calculate_std(*bunch_sptr, bunch_means));

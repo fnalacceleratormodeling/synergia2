@@ -109,13 +109,15 @@ for elem in lattice.get_elements():
         elem.set_double_attribute("freq", freq*1.0e-6)
         print >>logger, "rfcavity: ", elem.print_()
 
-f = open("foborodobo32_lattice.out", "w")
+f = synergia.utils.Logger(0, "foborodobo32_lattice.out")
 print >>f, lattice.as_string()
-f.close()
+del f
 
 # the lattice_simulator object lets us do some computations for
 # lattice functions and other parameters.
 lattice_simulator = synergia.simulation.Lattice_simulator(lattice, 1)
+
+print >>logger, "created lattice_simulator"
 
 myrank = 0
 map = lattice_simulator.get_linear_one_turn_map()
