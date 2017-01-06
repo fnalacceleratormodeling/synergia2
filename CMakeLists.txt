@@ -133,6 +133,11 @@ if(USE_SIMPLE_TIMER)
     endif(USE_SIMPLE_TIMER_MEM)
 endif(USE_SIMPLE_TIMER)
 
+# Additional CXXFLAGS
+if(EXTRA_CXX_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
+endif(EXTRA_CXX_FLAGS)
+
 # External libraries generate many warnings
 #add_definitions(-Wall -pedantic -Wno-long-long)
 
