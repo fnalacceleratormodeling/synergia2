@@ -94,6 +94,11 @@ populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Co
 ///        units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,  '''                             
 MArray2d
 get_correlation_matrix(Const_MArray2d_ref map, double xrms, double yrms, double zrms, 
-                       double beta, std::vector<int> rms_index=std::vector<int >());        
+                       double beta, std::vector<int> rms_index=std::vector<int >());    
+
+                       
+void
+adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
+        Const_MArray2d_ref covariances);                      
 
 #endif /* POPULATE_H_ */
