@@ -20,6 +20,17 @@ void
 populate_6d_stationary_gaussian(Distribution &dist, Bunch &bunch, std::vector<double> actions, Lattice_simulator& lattice_simulator);
 
 void
+populate_6d_stationary_gaussian_adjust(Distribution &dist, Bunch &bunch, std::vector<double> actions, Lattice_simulator& lattice_simulator,
+                                      Const_MArray1d_ref means, Const_MArray2d_ref covariances);
+                                      
+
+/// use limit_x =xmax/sigma_x  where xmax=aperture maximum  radius
+void
+populate_6d_stationary_gaussian_truncated(Distribution &dist, Bunch &bunch,
+                const std::vector<double> actions,
+                Lattice_simulator& lattice_simulator,   Const_MArray1d_ref limits );                                     
+
+void
 populate_6d_stationary_truncated_longitudinal_gaussian(Distribution &dist, Bunch &bunch, std::vector<double> actions, double n_sigma, Lattice_simulator& lattice_simulator);
 
 void
