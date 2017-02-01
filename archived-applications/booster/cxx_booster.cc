@@ -365,7 +365,7 @@ run()
         }
     }
     
-   //  stepper_sptr->get_lattice_simulator().print_lattice_functions();
+  
      stepper_sptr->get_lattice_simulator().register_closed_orbit();             
      stepper_sptr->get_lattice_simulator().set_rf_bucket_length();
   
@@ -379,7 +379,7 @@ run()
      if (opts.adjust_tunes){
           if (rank==0) std::cout<<"adjusting tunes"<<std::endl;
           stepper_sptr->get_lattice_simulator().adjust_tunes_chef(opts.tune_h, opts.tune_v,
-                                                quad_correctors_h,  quad_correctors_v, 10, 1e-6);  
+                                                quad_correctors_h,  quad_correctors_v, 20, 1e-5);  
           if (rank==0)  std::cout<<"tunes adjusted"<<std::endl; 
      }
  
@@ -390,6 +390,9 @@ run()
          if (rank==0)  std::cout<<"chromaticity adjusted"<<std::endl;                                           
     }
  
+
+    stepper_sptr->get_lattice_simulator().print_lattice_functions();
+  
           
      stepper_sptr->print_cs_step_betas();
      reference_particle=stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_reference_particle();
@@ -413,7 +416,8 @@ run()
         std::cout<<" gamma="<<gamma<<std::endl;
         std::cout<<" lattice_length="<<lattice_length<<std::endl;
         std::cout<<" closed_orbit_length="<<stepper_sptr->get_lattice_simulator().get_closed_orbit_length()<<std::endl;
-        std::cout<<" energy="<<energy<<std::endl;
+        std::cout<<" energy="<<energy<<"GeV"<<std::endl;  
+        std::cout<<" reference momentum="<<reference_particle.get_momentum()<<" GeV/c"<<std::endl;
         std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl;
         std::cout<<std::endl;
         std::cout<<"    ***********************************     "<<std::endl;
@@ -422,6 +426,8 @@ run()
 
       MArray2d one_turn_map=stepper_sptr->get_lattice_simulator().get_linear_one_turn_map();
       MArray2d correlation_matrix=get_correlation_matrix(one_turn_map,opts.xrms, opts.yrms, opts.zrms, beta);
+      
+      
       if (rank==0){
          std::cout<<" correlation matrix="<<multi_array_to_string(correlation_matrix)<<std::endl;
        }
@@ -469,9 +475,7 @@ run()
               
             }   
  } 
-  
-
-
+ 
   Bunches bunches; 
   Commxx_sptr parent_comm_sptr(new Commxx); 
   Commxxs comms(generate_subcomms(parent_comm_sptr, opts.num_bunches));
@@ -488,11 +492,19 @@ run()
       }       
       if (commx->has_this_rank()){
           Random_distribution dist(opts.seed,*commx);
-          MArray1d input_means(boost::extents[6]);
-          for(int imean=0;imean<6;++imean){
-                 input_means[imean]=0.;
-          }
-          populate_6d(dist, *bunch_sptr, input_means, correlation_matrix);
+//           MArray1d input_means(boost::extents[6]);
+//           for(int imean=0;imean<6;++imean){
+//                  input_means[imean]=0.;
+//           }        
+//          populate_6d_stationary_gaussian_adjust(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),
+//          input_means,  correlation_matrix);
+         
+         MArray1d limits(boost::extents[3]);
+         limits[0]=100.;
+         limits[1]=100.;            
+         double zmax_over_sigma=0.49*stepper_sptr->get_lattice_simulator().get_bucket_length()/opts.zrms;
+         limits[2]=zmax_over_sigma;
+         populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),limits); 
        
       }      
       bunches.push_back(bunch_sptr);             
