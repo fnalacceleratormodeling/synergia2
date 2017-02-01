@@ -120,6 +120,11 @@ if(CLANG_FIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif(CLANG_FIX)
 
+# Additional CXXFLAGS
+if(EXTRA_CXX_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
+endif(EXTRA_CXX_FLAGS)
+
 if(USE_SIMPLE_TIMER)
     message("-- Simple timer profiling enabled")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER")
