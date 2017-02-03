@@ -83,6 +83,7 @@ template<typename T>
         double t1 = MPI_Wtime();
         if (verbosity > 5) {
             logger << "Aperture_operation: type = " << get_aperture_type()
+                   << ", discarded: " << total_discarded
                     << ", time = " << std::fixed << std::setprecision(3) << t1
                     - t0 << "s_n" << std::endl;
         }
