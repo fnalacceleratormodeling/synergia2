@@ -25,9 +25,9 @@ target_link_libraries(synergia synergia_parallel_utils synergia_hdf5_utils
     synergia_foundation synergia_bunch synergia_lattice synergia_simulation
     synergia_distributed_fft synergia_collective)
 
-install(TARGETS synergia DESTINATION lib)
-install(FILES synergia.h DESTINATION include/synergia)
+install(TARGETS synergia DESTINATION ${LIB_INSTALL_DIR})
+install(FILES synergia.h DESTINATION ${INCLUDE_INSTALL_DIR}/synergia)
 install(FILES
     __init__.py
     "${CMAKE_CURRENT_BINARY_DIR}/version.py"
-    DESTINATION lib/synergia)
+    DESTINATION ${PYTHON_INSTALL_DIR}/synergia)

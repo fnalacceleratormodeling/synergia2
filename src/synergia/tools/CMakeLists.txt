@@ -6,6 +6,6 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/three_bump.py
 install(FILES
     __init__.py
     three_bump.py
-    DESTINATION lib/synergia/tools)
+    DESTINATION ${PYTHON_INSTALL_DIR}/synergia/tools)
 
 add_subdirectory(tests)

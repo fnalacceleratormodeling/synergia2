@@ -26,4 +26,4 @@ install(FILES
     intrepid_resumemulti_header
     resume_intrepid
 
-    DESTINATION lib/synergia-script-templates)
+    DESTINATION ${LIB_INSTALL_DIR}/synergia-script-templates)

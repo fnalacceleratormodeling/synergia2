@@ -14,7 +14,7 @@ endif ()
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-install(TARGETS synergia_collective DESTINATION lib)
+install(TARGETS synergia_collective DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
     deposit.h
     distributed_rectangular_grid.h
@@ -27,14 +27,14 @@ install(FILES
     space_charge_rectangular.h
     impedance.h
     wake_field.h
-    DESTINATION include/synergia/collective)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/collective)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py
-        DESTINATION lib/synergia/collective)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/collective)
     install(TARGETS
         collective
-        DESTINATION lib/synergia/collective)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/collective)
 endif ()
 
 add_subdirectory(tests)

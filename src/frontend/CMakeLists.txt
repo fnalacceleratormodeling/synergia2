@@ -10,11 +10,15 @@ target_link_libraries(synergia-resume synergia_simulation synergia_command_line 
 add_executable(synergia-archive-convert synergia-archive-convert.cc)
 target_link_libraries(synergia-archive-convert synergia_simulation synergia_command_line synergia_collective)
 
-install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia" DESTINATION bin)
-install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia-resume" DESTINATION bin)
-install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia-pyresume" DESTINATION bin)
-install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia-archive-convert" DESTINATION bin)
+install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia"
+        DESTINATION ${BIN_INSTALL_DIR})
+install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia-resume"
+        DESTINATION ${BIN_INSTALL_DIR})
+install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia-pyresume"
+        DESTINATION ${BIN_INSTALL_DIR})
+install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia-archive-convert"
+        DESTINATION ${BIN_INSTALL_DIR})
 
 install(FILES
     synergia_resume.py
-    DESTINATION lib/synergia_tools)
+    DESTINATION ${PYTHON_INSTALL_DIR}/synergia_tools)

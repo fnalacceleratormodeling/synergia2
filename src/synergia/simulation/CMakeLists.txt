@@ -20,7 +20,7 @@ if (BUILD_PYTHON_BINDINGS)
         ${CHEF_LIBS} ${Boost_LIBRARIES})
 endif ()
 
-install(TARGETS synergia_simulation DESTINATION lib)
+install(TARGETS synergia_simulation DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
     bunch_simulator.h
     bunch_train_simulator.h
@@ -47,14 +47,14 @@ install(FILES
     populate_stationary.h
     dense_mapping.h
     calculate_closed_orbit.h
-    DESTINATION include/synergia/simulation)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/simulation)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py
-        DESTINATION lib/synergia/simulation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
     install(TARGETS
         simulation
-        DESTINATION lib/synergia/simulation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
 endif ()
 
 add_subdirectory(tests)

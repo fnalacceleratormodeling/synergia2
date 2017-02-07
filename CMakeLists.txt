@@ -1,7 +1,7 @@
 project(SYNERGIA2)
 set(SYNERGIA2_VERSION_MAJOR 2016) # year
 set(SYNERGIA2_VERSION_MINOR 03)   # month
-set(SYNERGIA2_VERSION_PATCH 01)   # day
+set(SYNERGIA2_VERSION_PATCH 02)   # day
 set(SYNERGIA2_VERSION_TWEAK 00)   # sub-day counter
 set(SYNERGIA2_VERSION
     "${SYNERGIA2_VERSION_MAJOR}.${SYNERGIA2_VERSION_MINOR}.${SYNERGIA2_VERSION_PATCH}.${SYNERGIA2_VERSION_TWEAK}")
@@ -207,6 +207,12 @@ add_custom_target(check
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMENT "Running ctest")
 add_dependencies(check test-exes)
+
+set(INCLUDE_INSTALL_DIR include/ CACHE PATH "include install directory")
+set(LIB_INSTALL_DIR lib/ CACHE PATH "library install directory")
+set(BIN_INSTALL_DIR bin/ CACHE PATH "executable install directory")
+set(PYTHON_INSTALL_DIR "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/"
+    CACHE PATH "python install directory")
 
 add_subdirectory(src)
 add_subdirectory(examples)
