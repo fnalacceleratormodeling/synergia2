@@ -15,6 +15,9 @@ if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
 
+include(SmartIncludeDirectories)
+set(extra_includes)
+
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
   if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
@@ -43,7 +46,7 @@ endif ()
 # python
 if (BUILD_PYTHON_BINDINGS)
     find_package(ConsistentPython)
-    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIR})
+    list(APPEND extra_includes ${PYTHON_INCLUDE_DIR})
     set(IPYTHON_EXECUTABLE "ipython" CACHE PATH "path to optional ipython executable")
 endif()
 
@@ -53,41 +56,41 @@ SET(Boost_USE_MULTITHREAD ON)
 SET(Boost_NO_BOOST_CMAKE ON)
 FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework serialization
     filesystem system iostreams REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+list(APPEND extra_includes ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # hdf5
 find_package(HDF5 REQUIRED CXX)
-INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})
+list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
 
 # chef
 find_package(CHEF REQUIRED CONFIG)
-INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIR})
+list(APPEND extra_includes ${CHEF_INCLUDE_DIR})
 LINK_DIRECTORIES(${CHEF_LIB_DIR})
 
 # numpy
 find_package(NUMPY REQUIRED)
-include_directories(${NUMPY_INCLUDE_DIR})
+list(APPEND extra_includes ${NUMPY_INCLUDE_DIR})
 
 if (BUILD_PYTHON_BINDINGS)
     # mpi4py
     find_package(MPI4PY REQUIRED)
-    include_directories(${MPI4PY_INCLUDE_DIR})
+    list(APPEND extra_includes ${MPI4PY_INCLUDE_DIR})
 endif()
 
 # misc
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
-include_directories(${GSL_INCLUDE_DIR})
+list(APPEND extra_includes ${GSL_INCLUDE_DIR})
 
 # Eigen3
 find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
+list(APPEND extra_includes ${EIGEN3_INCLUDE_DIR})
 
 # fftw3 (and, possibly, fftw2)
 find_package(FFTW3 REQUIRED)
 if(FFTW3_MPI_FOUND)
-    include_directories(${FFTW3_INCLUDE_DIR})
+    list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
     set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
     if(NOT PARALLEL_FFTW_FOUND)
         message("-- Using FFTW3 for parallel FFTs")
@@ -99,7 +102,7 @@ else(FFTW3_MPI_FOUND)
     if(NOT FFTW2_MPI_FOUND)
         message(FATAL_ERROR "Synergia requires either FFTW2 or FFT3 compiled with MPI support.")
     endif(NOT FFTW2_MPI_FOUND)
-    include_directories(${FFTW2_INCLUDE_DIR})
+    list(APPEND extra_includes ${FFTW2_INCLUDE_DIR})
     set(PARALLEL_FFTW_LIBRARIES ${FFTW2_MPI_LIBRARIES} ${FFTW2_LIBRARIES})
     add_definitions(-DUSE_FFTW2)
     if(NOT PARALLEL_FFTW_FOUND)
@@ -218,6 +221,7 @@ set(PYTHON_INSTALL_DIR "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR
 set(SYNERGIA_EXTRA_LIBRARY_PATHS "" CACHE STRING "additional library paths for synergia executable")
 set(SYNERGIA_EXTRA_PYTHON_PATHS "" CACHE STRING "additional python module paths for synergia executable")
 
+smart_include_directories("${extra_includes}")
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(archived-applications)
