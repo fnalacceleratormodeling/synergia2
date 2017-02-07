@@ -24,7 +24,7 @@ if (BUILD_PYTHON_BINDINGS)
         ${CHEF_LIBS} ${Boost_LIBRARIES})
 endif ()
 
-install(TARGETS synergia_lattice DESTINATION lib)
+install(TARGETS synergia_lattice DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
     chef_elements.h
     chef_lattice.h
@@ -41,17 +41,17 @@ install(FILES
     mx_expr.h
     mx_parse.h
     mx_tree.h
-    DESTINATION include/synergia/lattice)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/lattice)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py
         mad8_parser.py
         mad8_reader.py
         simplify.py
-        DESTINATION lib/synergia/lattice)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/lattice)
     install(TARGETS
         lattice
-        DESTINATION lib/synergia/lattice)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/lattice)
 endif ()
 
 add_subdirectory(tests)

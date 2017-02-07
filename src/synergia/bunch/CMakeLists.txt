@@ -14,7 +14,7 @@ if (BUILD_PYTHON_BINDINGS)
     target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
 endif ()
 
-install(TARGETS synergia_bunch DESTINATION lib)
+install(TARGETS synergia_bunch DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
     bunch.h
     bunch_train.h
@@ -29,14 +29,14 @@ install(FILES
     populate.h
     analysis.h
     period.h
-    DESTINATION include/synergia/bunch)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/bunch)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py
-        DESTINATION lib/synergia/bunch)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
     install(TARGETS
         bunch
-        DESTINATION lib/synergia/bunch)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
 endif ()
 
 add_subdirectory(tests)

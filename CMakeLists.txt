@@ -1,17 +1,22 @@
 project(SYNERGIA2)
-set(SYNERGIA_MAJOR_VERSION 2)
-set(SYNERGIA_MINOR_VERSION 0)
-set(SYNERGIA_SUBMINOR_VERSION 90)
+set(SYNERGIA2_VERSION_MAJOR 2016) # year
+set(SYNERGIA2_VERSION_MINOR 03)   # month
+set(SYNERGIA2_VERSION_PATCH 09)   # day
+set(SYNERGIA2_VERSION_TWEAK 00)   # sub-day counter
+set(SYNERGIA2_VERSION
+    "${SYNERGIA2_VERSION_MAJOR}.${SYNERGIA2_VERSION_MINOR}.${SYNERGIA2_VERSION_PATCH}.${SYNERGIA2_VERSION_TWEAK}")
 
 cmake_minimum_required(VERSION 2.8)
 enable_testing()
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
 # needed to avoid warnings about rpath policy on Mac OSX
-# no known difference between "OLD" and "NEW" policies for us
 if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
+
+include(SmartIncludeDirectories)
+set(extra_includes)
 
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
@@ -41,7 +46,8 @@ endif ()
 # python
 if (BUILD_PYTHON_BINDINGS)
     find_package(ConsistentPython)
-    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIR})
+    list(APPEND extra_includes ${PYTHON_INCLUDE_DIR})
+    set(IPYTHON_EXECUTABLE "ipython" CACHE PATH "path to optional ipython executable")
 endif()
 
 # boost
@@ -50,41 +56,41 @@ SET(Boost_USE_MULTITHREAD ON)
 SET(Boost_NO_BOOST_CMAKE ON)
 FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework serialization
     filesystem system iostreams REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+list(APPEND extra_includes ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # hdf5
 find_package(HDF5 REQUIRED CXX)
-INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})
+list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
 
 # chef
-find_package(CHEF REQUIRED)
-INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIRS})
-LINK_DIRECTORIES(${CHEF_LIBRARY_DIRS})
+find_package(CHEF 2016.03 REQUIRED CONFIG)
+list(APPEND extra_includes ${CHEF_INCLUDE_DIR})
+LINK_DIRECTORIES(${CHEF_LIB_DIR})
 
 # numpy
 find_package(NUMPY REQUIRED)
-include_directories(${NUMPY_INCLUDE_DIR})
+list(APPEND extra_includes ${NUMPY_INCLUDE_DIR})
 
 if (BUILD_PYTHON_BINDINGS)
     # mpi4py
     find_package(MPI4PY REQUIRED)
-    include_directories(${MPI4PY_INCLUDE_DIR})
+    list(APPEND extra_includes ${MPI4PY_INCLUDE_DIR})
 endif()
 
 # misc
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
-include_directories(${GSL_INCLUDE_DIR})
+list(APPEND extra_includes ${GSL_INCLUDE_DIR})
 
 # Eigen3
 find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
+list(APPEND extra_includes ${EIGEN3_INCLUDE_DIR})
 
 # fftw3 (and, possibly, fftw2)
 find_package(FFTW3 REQUIRED)
 if(FFTW3_MPI_FOUND)
-    include_directories(${FFTW3_INCLUDE_DIR})
+    list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
     set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
     if(NOT PARALLEL_FFTW_FOUND)
         message("-- Using FFTW3 for parallel FFTs")
@@ -96,7 +102,7 @@ else(FFTW3_MPI_FOUND)
     if(NOT FFTW2_MPI_FOUND)
         message(FATAL_ERROR "Synergia requires either FFTW2 or FFT3 compiled with MPI support.")
     endif(NOT FFTW2_MPI_FOUND)
-    include_directories(${FFTW2_INCLUDE_DIR})
+    list(APPEND extra_includes ${FFTW2_INCLUDE_DIR})
     set(PARALLEL_FFTW_LIBRARIES ${FFTW2_MPI_LIBRARIES} ${FFTW2_LIBRARIES})
     add_definitions(-DUSE_FFTW2)
     if(NOT PARALLEL_FFTW_FOUND)
@@ -206,6 +212,21 @@ add_custom_target(check
   COMMENT "Running ctest")
 add_dependencies(check test-exes)
 
+set(INCLUDE_INSTALL_DIR include/ CACHE PATH "include install directory")
+set(LIB_INSTALL_DIR lib/ CACHE PATH "library install directory")
+set(BIN_INSTALL_DIR bin/ CACHE PATH "executable install directory")
+set(PYTHON_INSTALL_DIR "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/"
+    CACHE PATH "python install directory")
+
+set(SYNERGIA_EXTRA_LIBRARY_PATHS "" CACHE STRING "additional library paths for synergia executable")
+set(SYNERGIA_EXTRA_PYTHON_PATHS "" CACHE STRING "additional python module paths for synergia executable")
+
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR}")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+smart_include_directories("${extra_includes}")
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(archived-applications)

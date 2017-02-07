@@ -496,6 +496,7 @@ BOOST_PYTHON_MODULE(simulation)
             .def("print_", &Step::print)
             .def("get_length", &Step::get_length)
             ;
+    register_ptr_to_python<Step_sptr>();
 
     to_python_converter<Steps,
              container_conversions::to_tuple<Steps > >();

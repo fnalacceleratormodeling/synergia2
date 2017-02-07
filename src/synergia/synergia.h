@@ -2,12 +2,15 @@
 #define SYNERGIA_H_
 
 int
-synergia_major_version();
+synergia_version_major();
 
 int
-synergia_minor_version();
+synergia_version_minor();
 
 int
-synergia_subminor_version();
+synergia_version_patch();
+
+int
+synergia_version_tweak();
 
 #endif /* SYNERGIA_H_ */

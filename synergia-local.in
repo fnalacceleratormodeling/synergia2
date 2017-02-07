@@ -1,70 +1,16 @@
 #!/bin/sh
 
-if [ -z "$1" ]; then
-    echo "usage: $0 <synergia_script> [arguments]" >&2
-    exit 1
-fi
-if [ "$1" = "--help" ]; then
-    echo "usage: $0 <synergia_script> [arguments]"
-    exit 0
-fi
+llib="${CMAKE_CURRENT_BINARY_DIR}/src/synergia"
+sslp="$llib:$llib/bunch:$llib/collective:$llib/foundation:$llib/lattice:$llib/simulation:$llib/utils"
 
-local_dir="${SYNERGIA2_BINARY_DIR}"
-SYNERGIA2DIR="$local_dir"
-export SYNERGIA2DIR
-install_dir="${CMAKE_INSTALL_PREFIX}"
-# the next section is a hack
-if [ -f "$install_dir/../setup.sh" ] ; then
-	. "$install_dir/../setup.sh"
-fi
-install_python_dir="`find $install_dir -type d -name site-packages`"
-# end hack
-this_synergia_python_path="$local_dir/src"
-chef_dirs=`echo "${CHEF_LIBRARY_DIRS}" | sed 's/;/ /g'`
-for dir in $chef_dirs $install_python_dir "$this_synergia_python_path"
-do
-    PYTHONPATH="$dir:$PYTHONPATH"
-done
-export PYTHONPATH
+SYNERGIA_LOCAL_EXECUTABLE=synergia_local
+export SYNERGIA_LOCAL_EXECUTABLE
+SYNERGIA_LOCAL_PREFIX="${CMAKE_INSTALL_PREFIX}"
+export SYNERGIA_LOCAL_PREFIX
+SYNERGIA_LOCAL_SYNERGIA2_DIR="${CMAKE_CURRENT_SOURCE_DIR}/src"
+export SYNERGIA_LOCAL_SYNERGIA2_DIR
+SYNERGIA_LOCAL_LIBRARY_PATHS="$sslp"
+export SYNERGIA_LOCAL_LIBRARY_PATHS
 
-if [ x"$1" = x"--pythonpath" ]; then
-	echo "$PYTHONPATH"
-	exit 0
-fi
+exec /bin/sh "${CMAKE_CURRENT_BINARY_DIR}/src/frontend/synergia" "$@"
 
-if [ x"$1" = x"--ldlibrarypath" ]; then
-	echo "$LD_LIBRARY_PATH"
-	exit 0
-fi
-
-PYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}"
-if [ x"$1" = x"--ipython" ]; then
-	PYTHON_EXECUTABLE=ipython
-	shift
-fi
-
-if [ x"$1" = x"-c" ]; then
-	exec "$PYTHON_EXECUTABLE" "$@"
-fi
-
-just_options=false
-options_file="`basename \"$1\" .py 2> /dev/null`_options.py"
-if [ -f "$options_file" ]; then
-	for arg in "$@"
-	do
-		if [ x"$arg" = x"--help" ]; then
-			just_options=true
-		fi
-		if [ x"$arg" = x"createjob=1" ]; then
-			just_options=true
-		fi
-	done
-fi
-
-arg1="$1"
-shift
-if [ "$just_options" = "true" ]; then
-	exec "$PYTHON_EXECUTABLE" "$options_file" --strip-options-file "$arg1" "synergia_executable=$SYNERGIA2DIR/synergia-local" "$@"
-else
-	exec "$PYTHON_EXECUTABLE" "$arg1" "synergia_executable=$SYNERGIA2DIR/synergia-local" "$@"
-fi

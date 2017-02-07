@@ -37,7 +37,7 @@ install(TARGETS
     synergia_serialization
     synergia_command_line
     lsexpr
-    DESTINATION lib)
+    DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
     boost_test_mpi_fixture.h
     comm_converter.h
@@ -76,15 +76,15 @@ install(FILES
     serialization_files.h
     digits.h
     logger.h
-    DESTINATION include/synergia/utils)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/utils)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py
-        DESTINATION lib/synergia/utils)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
     install(TARGETS
         parallel_utils
         pylsexpr
-        DESTINATION lib/synergia/utils)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 endif ()
 
 add_subdirectory(vectorclass)

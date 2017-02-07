@@ -7,9 +7,9 @@ target_link_libraries(convertors synergia_parallel_utils synergia_serialization
 
 install(FILES
     __init__.py
-    DESTINATION lib/synergia/convertors)
+    DESTINATION ${PYTHON_INSTALL_DIR}/synergia/convertors)
 install(TARGETS
     convertors
-    DESTINATION lib/synergia/convertors)
+    DESTINATION ${PYTHON_INSTALL_DIR}/synergia/convertors)
 
 add_subdirectory(tests)

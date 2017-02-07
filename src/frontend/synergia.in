@@ -1,36 +1,51 @@
 #!/bin/sh
 
 usage() {
-    echo "usage: $0 [synergia_arguments] <synergia_script> [script_arguments]"
+    if [ -n "$SYNERGIA_LOCAL_EXECUTABLE" ]; then
+        executable="$SYNERGIA_LOCAL_EXECUTABLE"
+    else
+        executable="$0"
+    fi
+    echo "usage: $executable [synergia_arguments] <synergia_script> [script_arguments]"
     echo "synergia_arguments:"
-    echo "         -i         : enter interactive Python mode"
-    echo "         --ipython  : enter IPython interactive mode (if available)"
-    echo "         --help     : this message"
+    echo "         -i              : enter interactive Python mode"
+    echo "         --ipython       : enter IPython interactive mode (if available)"
+    echo "         -c <string>     : execute <string> in the Python interpreter"
+    echo "         --path          : display internal PATH"
+    echo "         --ldlibrarypath : display internal LD_LIBRARY_PATH"
+    echo "         --pythonpath    : display internal PYTHONPATH"
+    echo "         --help          : this message"
+    echo "try"
+    echo "    $executable <synergia_script> --help"
+    echo "for help on <synergia_script>"
 }
 
-if [ -z "$1" ]; then
-    usage
-    exit 1
-fi
-if [ "$1" = "--help" ]; then
-    usage
-    exit 0
-fi
+try_trivial_flags () {
+    if [ -z "$1" ]; then
+        usage "$@"
+        exit 1
+    fi
+    if [ "$1" = "--help" ]; then
+        usage "$@"
+        exit 0
+    fi
+}
 
-tmp_bin_dir="`dirname \"$0\"`"
-install_dir="`dirname \"$tmp_bin_dir\"`"
+get_prefix () {
+    if [ -z "$SYNERGIA_LOCAL_PREFIX" ]; then
+        tmp_bin_dir="`dirname \"$0\"`"
+        prefix="`dirname \"$tmp_bin_dir\"`"
+    else
+        prefix="$SYNERGIA_LOCAL_PREFIX"
+    fi
+}
 
-SYNERGIA2DIR="$install_dir/lib"
-export SYNERGIA2DIR
-
-pathadd ()
-{
+pathadd () {
     PATH="$1:$PATH"
     export PATH
 }
 
-ldpathadd ()
-{
+ldpathadd () {
     if [ "`uname`" = "Darwin" ]; then
         if [ -z "$DYLD_LIBRARY_PATH" ]; then
             DYLD_LIBRARY_PATH="$1"
@@ -48,8 +63,7 @@ ldpathadd ()
     fi
 }
 
-pythonpathadd ()
-{
+pythonpathadd () {
     if [ -z "$PYTHONPATH" ]; then
         PYTHONPATH="$1"
     else
@@ -58,67 +72,105 @@ pythonpathadd ()
     export PYTHONPATH
 }
 
-pathadd "$install_dir/bin"
-ldpathadd "$install_dir/lib"
-
-install_site_packages="`/bin/ls -d \"$install_dir\"/lib*/*/site-packages 2>/dev/null`"
-chef_lib_dirs=`chef-config.sh --lib_dirs_list | sed 's/;/ /g'`
-for dir in $install_site_packages $chef_lib_dirs
-do
-    pythonpathadd $dir
-done
-
-if [ x"$1" = x"--path" ]; then
-    echo "$PATH"
-    exit 0
-fi
-
-if [ x"$1" = x"--ldlibrarypath" ]; then
-    if [ "`uname`" = "Darwin" ]; then
-        echo "$DYLD_LIBRARY_PATH"
-    else
-        echo "$LD_LIBRARY_PATH"
+set_paths () {
+    # CHEF_PYTHON_DIR
+    if [ -n "${CHEF_PYTHON_DIR}" ]; then
+        pythonpathadd "${CHEF_PYTHON_DIR}"
     fi
-    exit 0
-fi
 
-if [ x"$1" = x"--pythonpath" ]; then
-	echo "$PYTHONPATH"
-	exit 0
-fi
+    if [ -z "$SYNERGIA_LOCAL_SYNERGIA2_DIR" ]; then
+        synergia2_dir="$prefix/${PYTHON_INSTALL_DIR}"
+    else
+        synergia2_dir="$SYNERGIA_LOCAL_SYNERGIA2_DIR"
+    fi
+    SYNERGIA2DIR="$synergia2_dir"
+    export SYNERGIA2DIR
 
-PYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}"
-if [ x"$1" = x"--ipython" ]; then
-	PYTHON_EXECUTABLE=ipython
-	shift
-fi
+    pathadd "$prefix/bin"
+    ldpathadd "$prefix/lib"
+    pythonpathadd "$synergia2_dir"
 
-if [ x"$1" = x"-c" ]; then
-	exec "$PYTHON_EXECUTABLE" "$@"
-fi
+    # SYNERGIA_EXTRA_LIBRARY_PATHS
+    if [ -n "${SYNERGIA_EXTRA_LIBRARY_PATHS}" ]; then
+        ldpathadd "${SYNERGIA_EXTRA_LIBRARY_PATHS}"
+    fi
 
-just_options=false
-options_file="`basename \"$1\" .py 2> /dev/null`_options.py"
-if [ -f "$options_file" ]; then
-	for arg in "$@"
-	do
-		if [ x"$arg" = x"--help" ]; then
-			just_options=true
-		fi
-		if [ x"$arg" = x"createjob=1" ]; then
-			just_options=true
-		fi
-		if [ x"$arg" = x"createjob=true" ]; then
-			just_options=true
-		fi
-		if [ x"$arg" = x"createjob=t" ]; then
-			just_options=true
-		fi
-	done
-fi
+    # SYNERGIA_EXTRA_PYTHON_PATHS
+    if [ -n "${SYNERGIA_EXTRA_PYTHON_PATHS}" ]; then
+        pythonpathadd "${SYNERGIA_EXTRA_PYTHON_PATHS}"
+    fi
 
-if [ "$just_options" = "true" ]; then
-	exec "$PYTHON_EXECUTABLE" "$options_file" --strip-options-file "$@"
-else
-	exec "$PYTHON_EXECUTABLE" "$@"
-fi
+    if [ -n "$SYNERGIA_LOCAL_LIBRARY_PATHS" ]; then
+        ldpathadd "$SYNERGIA_LOCAL_LIBRARY_PATHS"
+    fi
+}
+
+try_path_flags () {
+    if [ x"$1" = x"--path" ]; then
+        echo "$PATH"
+        exit 0
+    fi
+
+    if [ x"$1" = x"--ldlibrarypath" ]; then
+        if [ "`uname`" = "Darwin" ]; then
+            echo "$DYLD_LIBRARY_PATH"
+        else
+            echo "$LD_LIBRARY_PATH"
+        fi
+        exit 0
+    fi
+
+    if [ x"$1" = x"--pythonpath" ]; then
+        echo "$PYTHONPATH"
+        exit 0
+    fi
+}
+
+#get_python_executable () {
+#}
+
+get_just_options_options_file () {
+    just_options=false
+    options_file="`basename \"$1\" .py 2> /dev/null`_options.py"
+    if [ -f "$options_file" ]; then
+        for arg in "$@"
+        do
+            if [ x"$arg" = x"--help" ]; then
+                just_options=true
+            fi
+            if [ x"$arg" = x"createjob=1" ]; then
+                just_options=true
+            fi
+            if [ x"$arg" = x"createjob=true" ]; then
+                just_options=true
+            fi
+            if [ x"$arg" = x"createjob=t" ]; then
+                just_options=true
+            fi
+        done
+    fi
+}
+
+run () {
+    if [ "$just_options" = "true" ]; then
+            exec "$PYTHON_EXECUTABLE" "$options_file" --strip-options-file "$@"
+    else
+            exec "$PYTHON_EXECUTABLE" "$@"
+    fi
+}
+
+main () {
+    try_trivial_flags "$@"
+    get_prefix "$@"
+    set_paths "$@"
+    try_path_flags "$@"
+    PYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}"
+    if [ x"$1" = x"--ipython" ]; then
+        PYTHON_EXECUTABLE="${IPYTHON_EXECUTABLE}"
+        shift
+    fi
+    get_just_options_options_file "$@"
+    run "$@"
+}
+
+main "$@"

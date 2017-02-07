@@ -1,22 +1,35 @@
 #include "synergia/synergia.h"
 
 int
-synergia_major_version()
+synergia_version_major()
 {
-    const int major_version = ${SYNERGIA_MAJOR_VERSION};
-    return major_version;
+    const int version_major = ${SYNERGIA2_VERSION_MAJOR};
+    return version_major;
 }
 
 int
-synergia_minor_version()
+synergia_version_minor()
 {
-    const int minor_version = ${SYNERGIA_MINOR_VERSION};
-    return minor_version;
+    // version is a two digit number. If the leading digit is 0, it will be
+    // incorrectly interpeted as octal. Oi.
+    const int version_minor = 1${SYNERGIA2_VERSION_MINOR} - 100;
+    return version_minor;
 }
 
 int
-synergia_subminor_version()
+synergia_version_patch()
 {
-    const int subminor_version = ${SYNERGIA_SUBMINOR_VERSION};
-    return subminor_version;
+    // version is a two digit number. If the leading digit is 0, it will be
+    // incorrectly interpeted as octal. Oi.
+    const int version_patch = 1${SYNERGIA2_VERSION_PATCH} - 100;
+    return version_patch;
+}
+
+int
+synergia_version_tweak()
+{
+    // version is a two digit number. If the leading digit is 0, it will be
+    // incorrectly interpeted as octal. Oi.
+    const int version_tweak = 1${SYNERGIA2_VERSION_TWEAK} - 100;
+    return version_tweak;
 }

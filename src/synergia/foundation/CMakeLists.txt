@@ -13,7 +13,7 @@ if (BUILD_PYTHON_BINDINGS)
     target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
 endif ()
 
-install(TARGETS synergia_foundation DESTINATION lib)
+install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
     distribution.h
     diagnostics_write_helper.h
@@ -22,14 +22,14 @@ install(FILES
     multi_diagnostics.h
     physical_constants.h
     reference_particle.h
-    DESTINATION include/synergia/foundation)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/foundation)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py
-        DESTINATION lib/synergia/foundation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/foundation)
     install(TARGETS
         foundation
-        DESTINATION lib/synergia/foundation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/foundation)
 endif ()
 
 add_subdirectory(tests)

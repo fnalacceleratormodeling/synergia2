@@ -154,6 +154,7 @@ BOOST_PYTHON_MODULE(lattice)
         .def("print_",&Lattice_element::print)
         .def("as_string", &Lattice_element::as_string)
        ;
+    register_ptr_to_python<Lattice_element_sptr>();
 
     to_python_converter<std::list<Lattice_element_sptr >,
              container_conversions::to_tuple<Lattice_elements > >();
@@ -243,6 +244,8 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_sliced_beamline", &Chef_lattice::get_sliced_beamline_sptr)
             .def("get_brho",&Chef_lattice::get_brho)
             ;
+    register_ptr_to_python<Chef_lattice_sptr>();
+    register_ptr_to_python<boost::shared_ptr<beamline> >();
 
     class_<Lattice_diagnostics, Lattice_diagnostics_sptr >
         ("Lattice_diagnostics",init<Lattice_sptr, std::string const&,
