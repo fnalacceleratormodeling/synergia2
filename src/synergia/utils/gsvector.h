@@ -20,7 +20,7 @@ namespace detail
     template <class T, class E = void>
     struct VectorHelper
     { 
-        static const size_t size = 1;
+        static const size_t size() { return 1; }
         static T ld(const double *p) { return *p; } 
         static T st(double * p, const T & v) { *p = v; }
     };
@@ -49,7 +49,7 @@ struct Vec : public VecExpr<Vec<T>, T>
 {
     T data;
 
-    static const size_t size = detail::VectorHelper<T>::size;
+    static const size_t size() { return detail::VectorHelper<T>::size(); }
 
     Vec(const double   d) : data( d ) { }
     Vec(const double * p) : data( detail::VectorHelper<T>::ld(p) ) { }
@@ -210,7 +210,7 @@ namespace detail
     template <class T>
     struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec2d > >::type>
     { 
-        static const size_t size = 2;
+        static const size_t size() { return 2; }
         static T ld(const double *p) { T t; t.load_a(p); return t; }
         static T st(double * p, const T & v) { v.store_a(p); }
     };
@@ -218,7 +218,7 @@ namespace detail
     template <class T>
     struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec4d > >::type>
     { 
-        static const size_t size = 2;
+        static const size_t size() { return 4; }
         static T ld(const double *p) { T t; t.load_a(p); return t; }
         static T st(double * p, const T & v) { v.store_a(p); }
     };
@@ -253,7 +253,7 @@ inline std::ostream & operator << (std::ostream & out, Vec<T> & v)
 #elif defined(GSV_AVX)
   typedef Vec<Vec4d >        GSVector;
 #elif defined(GSV_QPX)
-  typedef Vec<vector4double> GSVector
+  typedef Vec<vector4double> GSVector;
 #else
   typedef Vec<double>        GSVector;
 #endif

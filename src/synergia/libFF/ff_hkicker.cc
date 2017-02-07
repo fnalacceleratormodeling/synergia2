@@ -117,8 +117,9 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-    const int num_blocks = local_num / GSVector::size;
-    const int block_last = num_blocks * GSVector::size;
+    const int gsvsize = GSVector::size();
+    const int num_blocks = local_num / gsvsize;
+    const int block_last = num_blocks * gsvsize;
 
     if ( close_to_zero(l) ) 
     {
@@ -126,7 +127,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double reference_cdt = get_reference_cdt(0.0, k, bunch.get_reference_particle());
 
         #pragma omp parallel for
-        for (int part = 0; part < block_last; part += GSVector::size) 
+        for (int part = 0; part < block_last; part += gsvsize) 
         {
             GSVector xp(&xpa[part]);
             FF_algorithm::thin_kicker_unit(xp, k);
@@ -157,7 +158,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double step_strength[2] = { k * step_length, 0.0 };
 
         #pragma omp parallel for
-        for (int part = 0; part < block_last; part += GSVector::size) 
+        for (int part = 0; part < block_last; part += gsvsize) 
         {
             GSVector x(&xa[part]);
             GSVector xp(&xpa[part]);

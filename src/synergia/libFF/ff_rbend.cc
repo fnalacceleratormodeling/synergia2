@@ -195,12 +195,13 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-        const int num_blocks = local_num / GSVector::size;
-        const int block_last = num_blocks * GSVector::size;
+        const int gsvsize = GSVector::size();
+        const int num_blocks = local_num / gsvsize;
+        const int block_last = num_blocks * gsvsize;
 
 #if 0
         // use the exact solution for dipole
-        for (int part = 0; part < block_last; part += GSVector::size)
+        for (int part = 0; part < block_last; part += gsvsize)
         {
             GSVector x   (particles[part][Bunch::x   ]);
             GSVector xp  (particles[part][Bunch::xp  ]);

@@ -57,11 +57,12 @@ void FF_constfoc::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-    const int num_blocks = local_num / GSVector::size;
-    const int block_last = num_blocks * GSVector::size;
+    const int gsvsize = GSVector::size();
+    const int num_blocks = local_num / gsvsize;
+    const int block_last = num_blocks * gsvsize;
 
     #pragma omp parallel for
-    for (int part = 0; part < block_last; part += GSVector::size) 
+    for (int part = 0; part < block_last; part += gsvsize) 
     {
         GSVector x(&xa[part]);
         GSVector xp(&xpa[part]);
@@ -81,7 +82,7 @@ void FF_constfoc::apply(Lattice_element_slice const& slice, Bunch& bunch)
         cdt.store(&cdta[part]);
         dpop.store(&dpopa[part]);
 
-        for(int i=0; i<GSVector::size; ++i)
+        for(int i=0; i<gsvsize; ++i)
         {
             cdta[part+i] -= ref_cdt;
         }
