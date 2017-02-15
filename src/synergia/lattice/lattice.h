@@ -7,6 +7,7 @@
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/element_adaptor.h"
 #include "synergia/lattice/element_adaptor_map.h"
+#include "synergia/lattice/diagnostics_apertures_loss.h"
 #include "synergia/foundation/reference_particle.h"
 #include <boost/shared_ptr.hpp>
 
@@ -23,6 +24,8 @@ private:
     Reference_particle *reference_particle_ptr;
     Lattice_elements elements;
     Element_adaptor_map_sptr element_adaptor_map_sptr;
+    Diagnostics_apertures_losses diagnostics_list;
+    bool have_diagnostics;
 
 public:
     /// Construct a Lattice object without a name.
@@ -49,7 +52,7 @@ public:
     as_lsexpr() const;
 
     /// Copies of Lattices contain copies of elements
-    Lattice(Lattice const& lattice);
+     Lattice(Lattice const& lattice);
 
     /// Get the Lattice name
     std::string const&
@@ -136,6 +139,18 @@ public:
     std::string
     as_string() const;
 
+    bool 
+    get_have_diagnostics() const;
+    
+    Diagnostics_apertures_losses
+    get_diagnostics_list();
+  
+  //  Diagnostics_apertures_losses
+  //  get_diagnostics_list() const;
+    
+    void
+    add_diagnostics(Diagnostics_apertures_loss_sptr diagnostics_sptr);
+    
     /// Print a human-readable summary of the elements in the Lattice.
     /// The Python version of this function is named "print_".
     void

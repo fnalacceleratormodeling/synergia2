@@ -40,6 +40,12 @@ BOOST_PYTHON_MODULE(collective)
         .def("get_cell_size", &Rectangular_grid_domain::get_cell_size,
              return_value_policy<copy_const_reference>())
         .def("is_periodic", &Rectangular_grid_domain::is_periodic);
+                
+    class_<Diagnostics_space_charge_3d_hockney,  Diagnostics_space_charge_3d_hockney_sptr, bases<Diagnostics > >
+        ("spch_3d_hockney_diagnostics",init<std::string const& >())    
+        .def(init<std::string const& , std::string const& >())
+        .def("set_bunch", &Diagnostics_space_charge_3d_hockney::set_bunch_sptr)
+        ;   
 
     class_<Space_charge_3d_open_hockney, Space_charge_3d_open_hockney_sptr,
         bases<Collective_operator > >("Space_charge_3d_open_hockney",
@@ -75,6 +81,7 @@ BOOST_PYTHON_MODULE(collective)
                         double, bool, double >())
                 .def("set_fixed_domain", &Space_charge_3d_open_hockney::set_fixed_domain)
                 .def("apply", &Space_charge_3d_open_hockney::apply)
+                .def("add_diagnostics", &Space_charge_3d_open_hockney::add_diagnostics)
         ;
 
     class_<Space_charge_2d_open_hockney, Space_charge_2d_open_hockney_sptr,
@@ -133,6 +140,12 @@ BOOST_PYTHON_MODULE(collective)
           Space_charge_2d_kv::field_not_centered;
     }
 
+   class_<Diagnostics_space_charge_rectangular,  Diagnostics_space_charge_rectangular_sptr, bases<Diagnostics > >
+        ("spch_rectangular_diagnostics",init<std::string const& >())    
+        .def(init<std::string const& , std::string const& >())
+        .def("set_bunch", &Diagnostics_space_charge_rectangular::set_bunch_sptr)
+        ;  
+        
     class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
            bases<Collective_operator> >(
         "Space_charge_rectangular",
@@ -145,7 +158,9 @@ BOOST_PYTHON_MODULE(collective)
         .def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper)
         .def("get_pipe_size", &Space_charge_rectangular::get_pipe_size)
         .def("get_grid_shape", &Space_charge_rectangular::get_grid_shape)
-        .def("apply", &Space_charge_rectangular::apply);
+        .def("apply", &Space_charge_rectangular::apply)
+        .def("add_diagnostics", &Space_charge_rectangular::add_diagnostics)
+        ;
 
     class_<Wake_field,Wake_field_sptr>("Wake_field",
             init<std::string const & , std::string const &  >())

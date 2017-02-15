@@ -9,7 +9,24 @@ template<typename T>
     void
     Aperture_operation::apply_impl(T & t, Bunch & bunch, int verbosity, Logger & logger)
     {
+        
         double t0 = MPI_Wtime();
+       
+        bool write_loss=false;
+        Diagnostics_apertures_losses diagnostics_list=get_slice_sptr()->get_lattice_element().get_lattice().get_diagnostics_list();
+        Diagnostics_apertures_loss_sptr diagnostics_sptr;
+        for (Diagnostics_apertures_losses::const_iterator d_it = diagnostics_list.begin();
+            d_it != diagnostics_list.end(); ++d_it){
+                if ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()){ 
+                   diagnostics_sptr=(*d_it);
+                   write_loss=true;
+                }
+        }
+
+
+        MArray1d coords(boost::extents[6]);
+        std::string element_name=get_slice_sptr()->get_lattice_element().get_name();
+
         MArray2d_ref particles(bunch.get_local_particles());
         int discarded = 0;
         int local_num = bunch.get_local_num();
@@ -23,6 +40,19 @@ template<typename T>
                         // No more particles left
                         try_discard = false;
                     } else {
+                        if (write_loss) { 
+                              int b_index=bunch.get_bucket_index();
+                              int repetition=bunch.get_reference_particle().get_repetition();
+                              double s=bunch.get_reference_particle().get_s();
+                              double s_n=bunch.get_reference_particle().get_s_n();
+                              coords[0]=particles[part][Bunch::x];
+                              coords[1]=particles[part][Bunch::xp];
+                              coords[2]=particles[part][Bunch::y];
+                              coords[3]=particles[part][Bunch::yp];
+                              coords[4]=particles[part][Bunch::z];
+                              coords[5]=particles[part][Bunch::zp];                            
+                              diagnostics_sptr->update( b_index, repetition, s,s_n, coords );                            
+                        }
                         //std::cout << "lost: " << part
                         //        << "  " << particles[part][Bunch::x]
                         //        << "  " << particles[part][Bunch::xp]

@@ -24,7 +24,6 @@
 #include "synergia/bunch/diagnostics_phase_space_density.h"
 #include "synergia/collective/space_charge_rectangular.h"
 #include "synergia/collective/impedance.h"
-//#include "synergia/simulation/diagnostics_aperture.h"
 #include "booster_options.h"
 
 // We put the actual code in a separate function so that shared_ptr's can
@@ -108,7 +107,8 @@ run()
             else{               
                 (*it)->set_string_attribute("aperture_type","circular");
                 (*it)->set_double_attribute("circular_aperture_radius", opts.aperture_l);              
-            }            
+            } 
+            (*it)->set_string_attribute("aperture_loss","aperture_loss_file");
           }//aperture
  
           std::string sex_name(element_name.begin(),element_name.begin()+3);         
@@ -368,6 +368,7 @@ run()
   
      stepper_sptr->get_lattice_simulator().register_closed_orbit();             
      stepper_sptr->get_lattice_simulator().set_rf_bucket_length();
+    
   
      if (rank==0) { 
        std::cout<<"stepper:lattice_simulator: map order="<< stepper_sptr->get_lattice_simulator().get_map_order() <<std::endl;
@@ -390,8 +391,7 @@ run()
          if (rank==0)  std::cout<<"chromaticity adjusted"<<std::endl;                                           
     }
  
-
-    stepper_sptr->get_lattice_simulator().print_lattice_functions();
+    if (opts.print_lattice)  stepper_sptr->get_lattice_simulator().print_lattice_functions();
   
           
      stepper_sptr->print_cs_step_betas();
@@ -402,9 +402,13 @@ run()
      energy = reference_particle.get_total_energy();
      double bunch_sp=stepper_sptr->get_lattice_simulator().get_bucket_length();
      MArray1d clo=stepper_sptr->get_lattice_simulator().get_closed_orbit();
-     std::vector<double > actions= stepper_sptr->get_lattice_simulator().get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta);
-      if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.)) throw
-               std::runtime_error("get_stationary_actions can't satisfy requested moments");                    
+     std::vector<double >  actions(3);   
+     if (!opts.load_bunch) {
+         actions= stepper_sptr->get_lattice_simulator().get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta);
+         if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.)) throw
+               std::runtime_error("get_stationary_actions can't satisfy requested moments");  
+         if (rank==0) std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl;
+     }
       if (rank==0) { 
         std::cout<<"    ********    stepper  lattice  ************     "<<std::endl;
         std::cout<<std::endl;
@@ -417,8 +421,7 @@ run()
         std::cout<<" lattice_length="<<lattice_length<<std::endl;
         std::cout<<" closed_orbit_length="<<stepper_sptr->get_lattice_simulator().get_closed_orbit_length()<<std::endl;
         std::cout<<" energy="<<energy<<"GeV"<<std::endl;  
-        std::cout<<" reference momentum="<<reference_particle.get_momentum()<<" GeV/c"<<std::endl;
-        std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl;
+        std::cout<<" reference momentum="<<reference_particle.get_momentum()<<" GeV/c"<<std::endl;        
         std::cout<<std::endl;
         std::cout<<"    ***********************************     "<<std::endl;
         std::cout<<std::endl;
@@ -491,20 +494,33 @@ run()
           bunch_sptr->set_longitudinal_aperture_length(stepper_sptr->get_lattice_simulator().get_bucket_length()) ;
       }       
       if (commx->has_this_rank()){
-          Random_distribution dist(opts.seed,*commx);
-//           MArray1d input_means(boost::extents[6]);
-//           for(int imean=0;imean<6;++imean){
-//                  input_means[imean]=0.;
-//           }        
-//          populate_6d_stationary_gaussian_adjust(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),
-//          input_means,  correlation_matrix);
-         
-         MArray1d limits(boost::extents[3]);
-         limits[0]=100.;
-         limits[1]=100.;            
-         double zmax_over_sigma=0.49*stepper_sptr->get_lattice_simulator().get_bucket_length()/opts.zrms;
-         limits[2]=zmax_over_sigma;
-         populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),limits); 
+         if (opts.load_bunch){
+          std::stringstream bunch_label;
+          bunch_label<<i;
+          bunch_label<<"_m"<<opts.map_order_loaded_bunch<<"_0000";         
+          bunch_sptr->read_file("initial_bunch"+bunch_label.str()+".h5");
+          if (commx->get_rank()==0) std::cout<<" bunch "<<i<<" loaded from:  "<<"initial_bunch"+bunch_label.str()+".h5"<<std::endl; 
+        }
+        else{
+              Random_distribution dist(opts.seed,*commx);
+            // populate_6d_stationary_gaussian(dist, *bunch_sptr, actions, stepper_sptr->get_lattice_simulator());
+              
+             MArray1d input_means(boost::extents[6]);
+            for(int imean=0;imean<6;++imean){
+                    input_means[imean]=0.;
+            }       
+            //  populate_6d(dist, *bunch_sptr, input_means, correlation_matrix);
+           // populate_6d_stationary_gaussian_adjust(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),
+           // input_means,  correlation_matrix);
+            
+          
+            MArray1d limits(boost::extents[3]);
+            double zmax_over_sigma=0.499*stepper_sptr->get_lattice_simulator().get_bucket_length()/opts.zrms;
+            limits[0]=100; //zmax_over_sigma;
+            limits[1]= 100.;//zmax_over_sigma;                  
+            limits[2]=zmax_over_sigma;
+            populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),limits); 
+        }
        
       }      
       bunches.push_back(bunch_sptr);             
@@ -586,6 +602,16 @@ run()
         }// has rank       
      }// space charge
 
+    bool apertures_loss=1;
+    if(apertures_loss){    
+       if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
+          Diagnostics_apertures_loss_sptr diag_loss_sptr=Diagnostics_apertures_loss_sptr(new Diagnostics_apertures_loss("apertures_loss"+bunch_label.str()+".h5"));
+          diag_loss_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]); 
+          stepper_sptr->get_lattice_simulator().get_lattice_sptr()->add_diagnostics(diag_loss_sptr);
+                  
+       }     
+    }
+
      //adjust means   
      if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
         MArray1d bunch_means=Core_diagnostics::calculate_mean(*bunch_train_simulator.get_bunch_train().get_bunches()[i]); 
@@ -626,6 +652,9 @@ run()
 
   }// for i
   if ((opts.num_bunches>1) && (rank==0)) std::cout<<"train bunch space="<<bunch_train_simulator.get_bunch_train().get_spacings()[0]<<std::endl;
+ 
+ 
+ 
  
   Propagator propagator(stepper_sptr);
   propagator.set_checkpoint_period(opts.checkpointperiod);

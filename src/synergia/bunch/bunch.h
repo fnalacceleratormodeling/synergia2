@@ -261,6 +261,9 @@ public:
     /// of the two bunches differ, the particles will be shifted accordingly.
     void
     inject(Bunch const& bunch);
+    
+    void
+    read_file(std::string const &);
 
     void
     check_pz2_positive();

@@ -38,6 +38,12 @@ add_test_executable(test_lattice_diagnostics_mpi test_lattice_diagnostics_mpi.cc
 target_link_libraries(test_lattice_diagnostics_mpi synergia_lattice synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_lattice_diagnostics_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_lattice_diagnostics_mpi>)
 
+add_test_executable(test_apertures_diagnostics_mpi3 test_apertures_diagnostics.cc)
+target_link_libraries(test_apertures_diagnostics_mpi3 synergia_lattice synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+#add_test(NAME test_apertures_diagnostics COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_apertures_diagnostics>)
+add_test(NAME test_apertures_diagnostics_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_apertures_diagnostics_mpi3>)
+
+
 add_test_executable(test_element_adaptor test_element_adaptor.cc)
 target_link_libraries(test_element_adaptor synergia_lattice synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

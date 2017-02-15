@@ -48,6 +48,7 @@ class Options
     long unsigned int seed;
     bool load_bunch;
     bool save_bunch;
+    bool print_lattice;
     
     
     bool turn_track;
@@ -124,7 +125,8 @@ class Options
       num_real_particles(5e10),
       seed(13),
       load_bunch(false),
-      save_bunch(false),      
+      save_bunch(false), 
+      print_lattice(false),
       turn_track(0),      
       phase_space(0),
       turn_period(1),
@@ -191,7 +193,8 @@ class Options
           options_map["num_real_particles"]=num_real_particles;
           options_map["seed"]=seed;
           options_map["load_bunch"]=load_bunch;
-          options_map["save_bunch"]=save_bunch;      
+          options_map["save_bunch"]=save_bunch; 
+          options_map["print_lattice"]=print_lattice;
           options_map["turn_track"]=turn_track;
           options_map["phase_space"]= phase_space;
           options_map["turn_period"]=turn_period;
@@ -326,7 +329,8 @@ class Options
      if (option=="num_real_particles")  vv>>num_real_particles;
      if (option=="seed")  vv>>seed;
      if (option=="load_bunch")  vv>>load_bunch;
-     if (option=="save_bunch")  vv>>save_bunch;      
+     if (option=="save_bunch")  vv>>save_bunch;
+     if (option=="print_lattice")  vv>>print_lattice;
      if (option=="turn_track")  vv>>turn_track;
      if (option=="phase_space")  vv>> phase_space;
      if (option=="turn_period")  vv>>turn_period;
@@ -387,7 +391,8 @@ class Options
      logger<<"num_real_particles="<<num_real_particles<<std::endl;
      logger<<"seed="<<seed<<std::endl;
      logger<<"load_bunch="<<load_bunch<<std::endl;
-     logger<<"save_bunch="<<save_bunch<<std::endl;      
+     logger<<"save_bunch="<<save_bunch<<std::endl;   
+     logger<<"print_lattice="<<print_lattice<<std::endl;
      logger<<"turn_track="<<turn_track<<std::endl;
      logger<<"phase_space="<<phase_space<<std::endl;
      logger<<"turn_period="<<turn_period<<std::endl;

@@ -2413,14 +2413,21 @@ Lattice_simulator::print_cs_lattice_functions()
     try {
         Logger flogger(0, "CS_lattice_functions.dat", false, true);
         flogger << "#    element      arc[m]     beta_x[m]      beta_y[m]     alpha_x     alpha_y      "
-                    << " psi_x      psi_y       D_x[m]      D_y[m]      Dprime_x     Dprime_y"
+                    << " psi_x      psi_y       D_x[m]      D_y[m]      Dprime_x     Dprime_y    k1"
                     << std::endl;
         flogger << "#" << std::endl;
 
         for (Lattice_elements::const_iterator it =
                 this->lattice_sptr->get_elements().begin();
                 it != this->lattice_sptr->get_elements().end(); ++it) {
-
+ 
+            double k1=0.;
+            if ((*it)->get_length() > 0.0) {
+                  if ((*it)->has_double_attribute("k1")) k1=(*it)->get_double_attribute("k1");
+            } else {
+                  if ((*it)->has_double_attribute("k1l"))  k1= (*it)->get_double_attribute("k1l");
+            }
+          
             Lattice_functions lfs = get_lattice_functions(*(*it));
 
             flogger << std::setw(19) << (*it)->get_name() << "    "
@@ -2429,7 +2436,7 @@ Lattice_simulator::print_cs_lattice_functions()
                     << lfs.alpha_y << "    " << lfs.psi_x << "   "
                     << lfs.psi_y << "   " << lfs.D_x << "    " << lfs.D_y
                     << "   " << lfs.Dprime_x << "   " << lfs.Dprime_y
-                    << std::endl;
+                    << "   "<<k1<< std::endl;
 
         }
         // remake beamline after it's all over to restore RF

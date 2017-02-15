@@ -318,6 +318,16 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
                 state.bunch_train_simulator_ptr->get_bunch_train(), turn);
     }
     t = simple_timer_show(t, "propagate-general_actions_turn");
+    if (stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_have_diagnostics()){
+             Diagnostics_apertures_losses diagnostics_list=stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_diagnostics_list();
+             for (Diagnostics_apertures_losses::const_iterator d_it = diagnostics_list.begin();
+                 d_it != diagnostics_list.end(); ++d_it){
+                        (*d_it)->write();              
+                 }
+     }
+        
+    
+    
     state.first_turn = turn + 1;
     double t_turn1 = MPI_Wtime();
     if (state.verbosity > 0) {
