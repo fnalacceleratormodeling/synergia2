@@ -24,8 +24,9 @@ private:
     Reference_particle *reference_particle_ptr;
     Lattice_elements elements;
     Element_adaptor_map_sptr element_adaptor_map_sptr;
-    Diagnostics_apertures_losses diagnostics_list;
-    bool have_diagnostics;
+    Diagnostics_losses diagnostics_loss_list;
+    bool have_loss_diagnostics;
+   
 
 public:
     /// Construct a Lattice object without a name.
@@ -140,16 +141,16 @@ public:
     as_string() const;
 
     bool 
-    get_have_diagnostics() const;
+    get_have_loss_diagnostics() const;
     
-    Diagnostics_apertures_losses
-    get_diagnostics_list();
+    Diagnostics_losses
+    get_loss_diagnostics_list();
   
   //  Diagnostics_apertures_losses
   //  get_diagnostics_list() const;
     
     void
-    add_diagnostics(Diagnostics_apertures_loss_sptr diagnostics_sptr);
+    add_loss_diagnostics(Diagnostics_loss_sptr diagnostics_sptr);
     
     /// Print a human-readable summary of the elements in the Lattice.
     /// The Python version of this function is named "print_".

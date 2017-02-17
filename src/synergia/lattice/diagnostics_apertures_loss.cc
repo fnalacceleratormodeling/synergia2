@@ -1,35 +1,41 @@
 #include "diagnostics_apertures_loss.h"
 #include "synergia/foundation/math_constants.h"
 
-const char Diagnostics_apertures_loss::name[] = "apertures_loss_diagnostics";
+const char Diagnostics_loss::name[] = "apertures_loss_diagnostics";
+const char Diagnostics_loss::aperture_type[] = "aperture";
+const char Diagnostics_loss::zcut_type[] = "zcut";
 
-Diagnostics_apertures_loss::Diagnostics_apertures_loss(std::string const& filename,  std::string const& local_dir):
-Diagnostics_apertures_loss::Diagnostics(Diagnostics_apertures_loss::name, filename, local_dir), have_writers(false),
-writer_bucket_index(0), writer_repetition(0), writer_s(0),  writer_s_n(0), writer_coords(0)
+Diagnostics_loss::Diagnostics_loss(std::string const& filename, std::string const& stype, std::string const& local_dir):
+Diagnostics_loss::Diagnostics(Diagnostics_loss::name, filename, local_dir), have_writers(false),
+writer_bucket_index(0), writer_repetition(0), writer_s(0),  writer_s_n(0), writer_coords(0), type(stype)
 {
+    if ((type !=zcut_type ) && (type != aperture_type ))    throw std::runtime_error(
+          "diagnostics_loss constructor: type choices are zcut or aperture"); 
+   
+      
 }  
 
-Diagnostics_apertures_loss::Diagnostics_apertures_loss()
+Diagnostics_loss::Diagnostics_loss()
 {
 }
 
 
 bool
-Diagnostics_apertures_loss::is_serial() const
+Diagnostics_loss::is_serial() const
 {
     return true;
 }
 
 
 void
-Diagnostics_apertures_loss::update() 
+Diagnostics_loss::update() 
 {
 }
 
 
 
 void
-Diagnostics_apertures_loss::init_writers(Hdf5_file_sptr file_sptr)
+Diagnostics_loss::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
            writer_bucket_index = new Hdf5_serial_writer<int  > (file_sptr,  "bucket_index");
@@ -46,7 +52,7 @@ Diagnostics_apertures_loss::init_writers(Hdf5_file_sptr file_sptr)
 
 
 void
-Diagnostics_apertures_loss::update(int index, int rep, double s, double s_n,  MArray1d_ref part_coords )
+Diagnostics_loss::update(int index, int rep, double s, double s_n,  MArray1d_ref part_coords )
 {
   
   
@@ -67,7 +73,7 @@ Diagnostics_apertures_loss::update(int index, int rep, double s, double s_n,  MA
 
 
 void
-Diagnostics_apertures_loss::write()
+Diagnostics_loss::write()
 {
   
     if (!have_bunch()) { throw std::runtime_error(
@@ -181,7 +187,15 @@ Diagnostics_apertures_loss::write()
    
 }
 
-Diagnostics_apertures_loss::~Diagnostics_apertures_loss()
+
+std::string
+Diagnostics_loss::get_type() const
+{
+  return type;
+} 
+
+
+Diagnostics_loss::~Diagnostics_loss()
 {
    if (have_writers) {
         delete writer_repetition;
@@ -194,9 +208,10 @@ Diagnostics_apertures_loss::~Diagnostics_apertures_loss()
 
 template<class Archive>
     void
-    Diagnostics_apertures_loss::serialize(Archive & ar, const unsigned int version)
+    Diagnostics_loss::serialize(Archive & ar, const unsigned int version)
     { 
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+        ar & BOOST_SERIALIZATION_NVP(type);
         ar & BOOST_SERIALIZATION_NVP(have_writers);
         ar & BOOST_SERIALIZATION_NVP(writer_repetition);
         ar & BOOST_SERIALIZATION_NVP(writer_bucket_index);
@@ -207,26 +222,26 @@ template<class Archive>
 
 template
 void
-Diagnostics_apertures_loss::serialize<boost::archive::binary_oarchive >(
+Diagnostics_loss::serialize<boost::archive::binary_oarchive >(
         boost::archive::binary_oarchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_apertures_loss::serialize<boost::archive::xml_oarchive >(
+Diagnostics_loss::serialize<boost::archive::xml_oarchive >(
         boost::archive::xml_oarchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_apertures_loss::serialize<boost::archive::binary_iarchive >(
+Diagnostics_loss::serialize<boost::archive::binary_iarchive >(
         boost::archive::binary_iarchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_apertures_loss::serialize<boost::archive::xml_iarchive >(
+Diagnostics_loss::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_apertures_loss)
+BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_loss)
 
 
 

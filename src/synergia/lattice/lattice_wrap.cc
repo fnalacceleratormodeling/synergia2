@@ -189,10 +189,11 @@ BOOST_PYTHON_MODULE(lattice)
 //            .def("get_adaptor_names", &MadX_adaptor_map::get_adaptor_names)
             ;
 
-         class_<Diagnostics_apertures_loss, Diagnostics_apertures_loss_sptr, bases<Diagnostics > >
-        ("apertures_loss_diagnostics",init<std::string const& >())    
-        .def(init<std::string const& , std::string const& >())
-        .def("set_bunch", &Diagnostics_apertures_loss::set_bunch_sptr)
+         class_<Diagnostics_loss, Diagnostics_loss_sptr, bases<Diagnostics > >
+        ("apertures_loss_diagnostics",init<std::string const&, std::string const&>())    
+        .def(init<std::string const& , std::string const&, std::string const& >())
+        .def("set_bunch", &Diagnostics_loss::set_bunch_sptr)
+        .def("get_type", &Diagnostics_loss::get_type)
         ;   
             
     typedef Reference_particle & (Lattice::*get_reference_particle_non_const_type)();
@@ -218,9 +219,9 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_length", &Lattice::get_length)
             .def("get_total_angle", &Lattice::get_total_angle)
             .def("get_element_adaptor_map_sptr", get_element_adaptor_map_sptr_nonconst)
-            .def("get_have_diagnostics", &Lattice::get_have_diagnostics)
-            .def("get_diagnostics_list", &Lattice::get_diagnostics_list)
-            .def("add_diagnostics", &Lattice::add_diagnostics)
+            .def("get_have_loss_diagnostics", &Lattice::get_have_loss_diagnostics)
+            .def("get_loss_diagnostics_list", &Lattice::get_loss_diagnostics_list)
+            .def("add_loss_diagnostics", &Lattice::add_loss_diagnostics)
             .def("print_", &Lattice::print)
             .def("as_string", &Lattice::as_string)
             ;

@@ -1,5 +1,5 @@
-#ifndef APLOSS_DIAGNOSTICS_H_
-#define APLOSS_DIAGNOSTICS_H_
+#ifndef LOSS_DIAGNOSTICS_H_
+#define LOSS_DIAGNOSTICS_H_
 
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/utils/multi_array_typedefs.h"
@@ -7,11 +7,16 @@
 #include "synergia/utils/hdf5_file.h"
 
 
-class Diagnostics_apertures_loss : public Diagnostics
+class Diagnostics_loss : public Diagnostics
 { 
+public:  
     static const char name[];
+    static const char aperture_type[];//="aperture"
+    static const char zcut_type[]; // ="zcut"
 private:
-    // Commxx_sptr comm_sptr;     
+
+    /// type choices are "zcut" or "ape"
+     std::string type;  
      bool have_writers;
      std::vector<int> bucket_index;
      std::vector<int> repetition;
@@ -27,8 +32,8 @@ private:
  
     
 public: 
-    Diagnostics_apertures_loss(std::string const& filename, std::string const& local_dir = "");
-    Diagnostics_apertures_loss();
+    Diagnostics_loss(std::string const& filename, std::string const& type, std::string const& local_dir = "");
+    Diagnostics_loss();
     
     bool
     is_serial() const;
@@ -43,8 +48,13 @@ public:
     virtual void
     write();
     
-   void
+    void
     init_writers(Hdf5_file_sptr file_sptr);
+
+     std::string
+     get_type() const;
+    
+    
 
     template<class Archive>
         void
@@ -52,13 +62,13 @@ public:
    
 
      virtual
-    ~Diagnostics_apertures_loss();
+    ~Diagnostics_loss();
     
 };
-BOOST_CLASS_EXPORT_KEY(Diagnostics_apertures_loss)
-typedef boost::shared_ptr< Diagnostics_apertures_loss> Diagnostics_apertures_loss_sptr;
-typedef std::list<Diagnostics_apertures_loss_sptr >  Diagnostics_apertures_losses;
+BOOST_CLASS_EXPORT_KEY(Diagnostics_loss)
+typedef boost::shared_ptr< Diagnostics_loss> Diagnostics_loss_sptr;
+typedef std::list<Diagnostics_loss_sptr >  Diagnostics_losses;
 
 
- #endif /* APLOSS_DIAGNOSTICS_H_ */
+ #endif /* LOSS_DIAGNOSTICS_H_ */
  

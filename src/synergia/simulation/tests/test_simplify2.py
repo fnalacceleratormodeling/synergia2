@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 sys.path.append('../../..')
@@ -46,8 +47,8 @@ def general_exam(orig, simp, num_steps, map_order, places):
     logger = Logger(0)
     verbosity = 0
     for step_orig, step_simp in zip(stepper_orig.get_steps(), stepper_simp.get_steps()):
-        step_orig.apply(bunch_orig, verbosity, [], [], logger)
-        step_simp.apply(bunch_simp, verbosity, [], [], logger)
+        step_orig.apply(bunch_orig, verbosity, [], [], stepper_orig, logger)
+        step_simp.apply(bunch_simp, verbosity, [], [], stepper_simp, logger)
         assert_particles_almost_equal(bunch_orig.get_local_particles(), \
                                       bunch_simp.get_local_particles(), places)
 

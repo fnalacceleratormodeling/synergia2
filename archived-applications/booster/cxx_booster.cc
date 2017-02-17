@@ -605,12 +605,27 @@ run()
     bool apertures_loss=1;
     if(apertures_loss){    
        if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
-          Diagnostics_apertures_loss_sptr diag_loss_sptr=Diagnostics_apertures_loss_sptr(new Diagnostics_apertures_loss("apertures_loss"+bunch_label.str()+".h5"));
+          Diagnostics_loss_sptr diag_loss_sptr=Diagnostics_loss_sptr(
+                new Diagnostics_loss("apertures_loss_"+bunch_label.str()+".h5","aperture"));
           diag_loss_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]); 
-          stepper_sptr->get_lattice_simulator().get_lattice_sptr()->add_diagnostics(diag_loss_sptr);
+          stepper_sptr->get_lattice_simulator().get_lattice_sptr()->add_loss_diagnostics(diag_loss_sptr);
                   
        }     
     }
+    
+    bool zcut_loss=1;
+    if(zcut_loss){    
+       if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
+          if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->has_longitudinal_aperture()){
+                Diagnostics_loss_sptr diag_loss_sptr=Diagnostics_loss_sptr(
+                      new Diagnostics_loss("zcut_loss_"+bunch_label.str()+".h5","zcut"));
+                diag_loss_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]); 
+                stepper_sptr->get_lattice_simulator().get_lattice_sptr()->add_loss_diagnostics(diag_loss_sptr);
+          }
+                  
+       }     
+    }
+    
 
      //adjust means   
      if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){

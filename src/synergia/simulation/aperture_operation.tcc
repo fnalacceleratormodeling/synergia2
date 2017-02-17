@@ -13,20 +13,26 @@ template<typename T>
         double t0 = MPI_Wtime();
        
         bool write_loss=false;
-        Diagnostics_apertures_losses diagnostics_list=get_slice_sptr()->get_lattice_element().get_lattice().get_diagnostics_list();
-        Diagnostics_apertures_loss_sptr diagnostics_sptr;
-        for (Diagnostics_apertures_losses::const_iterator d_it = diagnostics_list.begin();
+        int b_index=-1; // AM: this value is written in the aperture_loss file when the bunch has no bucket index assigned
+        Diagnostics_losses diagnostics_list=
+             get_slice_sptr()->get_lattice_element().get_lattice().get_loss_diagnostics_list();
+        Diagnostics_loss_sptr diagnostics_sptr;
+        for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
             d_it != diagnostics_list.end(); ++d_it){
-                if ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()){ 
-                   diagnostics_sptr=(*d_it);
-                   write_loss=true;
+                if ( ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()) &&
+                    ((*d_it)->get_type()==Diagnostics_loss::aperture_type) )
+                { 
+                  diagnostics_sptr=(*d_it);
+                  write_loss=true;
                 }
-        }
-
-
+        }          
+          
+        if   (bunch.is_bucket_index_assigned())  b_index=bunch.get_bucket_index();
+        int repetition=bunch.get_reference_particle().get_repetition();
+        double s=bunch.get_reference_particle().get_s();
+        double s_n=bunch.get_reference_particle().get_s_n();
         MArray1d coords(boost::extents[6]);
-        std::string element_name=get_slice_sptr()->get_lattice_element().get_name();
-
+      
         MArray2d_ref particles(bunch.get_local_particles());
         int discarded = 0;
         int local_num = bunch.get_local_num();
@@ -36,15 +42,7 @@ template<typename T>
                 if (t(particles, part)) {
                     ++discarded;
                     --local_num;
-                    if (part == local_num) {
-                        // No more particles left
-                        try_discard = false;
-                    } else {
-                        if (write_loss) { 
-                              int b_index=bunch.get_bucket_index();
-                              int repetition=bunch.get_reference_particle().get_repetition();
-                              double s=bunch.get_reference_particle().get_s();
-                              double s_n=bunch.get_reference_particle().get_s_n();
+                     if (write_loss) {                              
                               coords[0]=particles[part][Bunch::x];
                               coords[1]=particles[part][Bunch::xp];
                               coords[2]=particles[part][Bunch::y];
@@ -53,6 +51,10 @@ template<typename T>
                               coords[5]=particles[part][Bunch::zp];                            
                               diagnostics_sptr->update( b_index, repetition, s,s_n, coords );                            
                         }
+                    if (part == local_num) {
+                        // No more particles left
+                        try_discard = false;
+                    } else {                       
                         //std::cout << "lost: " << part
                         //        << "  " << particles[part][Bunch::x]
                         //        << "  " << particles[part][Bunch::xp]
@@ -83,7 +85,7 @@ template<typename T>
         double t1 = MPI_Wtime();
         if (verbosity > 5) {
             logger << "Aperture_operation: type = " << get_aperture_type()
-                   << ", discarded: " << discarded
+                    << ", discarded: " << discarded
                     << ", time = " << std::fixed << std::setprecision(3) << t1
                     - t0 << "s_n" << std::endl;
         }

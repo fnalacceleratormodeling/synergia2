@@ -8,14 +8,14 @@
 
 Lattice::Lattice() :
         name(""), reference_particle_allocated(false), reference_particle_ptr(
-                0), elements(), element_adaptor_map_sptr(new Mad8_adaptor_map), have_diagnostics(0)
+                0), elements(), element_adaptor_map_sptr(new Mad8_adaptor_map), have_loss_diagnostics(0)
 {
 }
 
 Lattice::Lattice(std::string const& name) :
         name(name), reference_particle_allocated(false), reference_particle_ptr(0),
         elements(), element_adaptor_map_sptr(
-                new Mad8_adaptor_map), have_diagnostics(0)
+                new Mad8_adaptor_map), have_loss_diagnostics(0)
 {
 }
 
@@ -23,7 +23,7 @@ Lattice::Lattice(std::string const& name,
         Element_adaptor_map_sptr element_adaptor_map_sptr) :
         name(name), reference_particle_allocated(false), reference_particle_ptr(0),
         elements(), element_adaptor_map_sptr(
-                element_adaptor_map_sptr), have_diagnostics(0)
+                element_adaptor_map_sptr), have_loss_diagnostics(0)
 {
 }
 
@@ -48,14 +48,7 @@ Lattice::Lattice(Lattice const& lattice) :
     } else {
         throw std::runtime_error("unknown element adaptor type: " + lattice.get_element_adaptor_map_sptr()->get_label());
     }
-    have_diagnostics=false;
-    //AM I think it is better not to make a diagnostics with the same file name.
-    //AM We can add it after the copying if needed
-   // have_diagnostics=lattice.get_have_diagnostics();
-//     if (have_diagnostics)   {
-//               diag_apertures_loss_sptr
-//               =Diagnostics_apertures_loss_sptr(new Diagnostics_apertures_loss(lattice.get_diagnostics_sptr()->get_filename()));
-//     }
+    have_loss_diagnostics=false;
 }
 
 Lattice::Lattice(Lsexpr const& lsexpr) :
@@ -64,7 +57,7 @@ Lattice::Lattice(Lsexpr const& lsexpr) :
     , reference_particle_ptr(0)
     , elements()
     , element_adaptor_map_sptr(), 
-      have_diagnostics(0)
+      have_loss_diagnostics(0)
 {
     for (Lsexpr::const_iterator_t it = lsexpr.begin(); it != lsexpr.end();
          ++it) {
@@ -290,16 +283,16 @@ Lattice::get_total_angle() const
 }
 
  bool 
-Lattice::get_have_diagnostics() const
+Lattice::get_have_loss_diagnostics() const
 {
-  return have_diagnostics;
+  return have_loss_diagnostics;
 } 
 
 
-Diagnostics_apertures_losses 
-Lattice::get_diagnostics_list()
+Diagnostics_losses 
+Lattice::get_loss_diagnostics_list()
 {
-    return diagnostics_list;
+    return diagnostics_loss_list;
 } 
 
 // Diagnostics_apertures_losses 
@@ -309,10 +302,10 @@ Lattice::get_diagnostics_list()
 // }
 
 void
-Lattice::add_diagnostics(Diagnostics_apertures_loss_sptr diagnostics_sptr)
+Lattice::add_loss_diagnostics(Diagnostics_loss_sptr diagnostics_sptr)
 {
-  diagnostics_list.push_back(diagnostics_sptr);
-  this->have_diagnostics=true;
+  diagnostics_loss_list.push_back(diagnostics_sptr);
+  this->have_loss_diagnostics=true;
 }
 
 
@@ -353,8 +346,8 @@ template<class Archive>
         }
         ar & BOOST_SERIALIZATION_NVP(elements);
         ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr)
-        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
-        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
+        &  BOOST_SERIALIZATION_NVP(have_loss_diagnostics)
+        &  BOOST_SERIALIZATION_NVP(diagnostics_loss_list);
     }
 
 template
