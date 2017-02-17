@@ -132,6 +132,29 @@ Bunch_train::get_proc_offsets_for_impedance()
 }
 
 
+void
+Bunch_train::update_bunch_total_num()
+{
+    const size_t nb = get_size();
+    if (nb == 0) return;
+
+    std::vector<int> nums(nb);
+
+    for (int i=0; i<nb; ++i)
+    {
+        nums[i] = bunches[i]->get_local_num();
+    }
+
+    MPI_Allreduce(MPI_IN_PLACE, &nums[0], nb, MPI_INT, MPI_SUM, 
+            get_parent_comm_sptr()->get());
+
+    for (int i=0; i<nb; ++i)
+    {
+        bunches[i]->set_total_num(nums[i]);
+    }
+}
+
+
 template<class Archive>
     void
     Bunch_train::serialize(Archive & ar, const unsigned int version)

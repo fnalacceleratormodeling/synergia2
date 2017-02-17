@@ -135,6 +135,12 @@ public:
     /// number has been changed. Requires comm_sptrunication.
     void
     update_total_num();
+    
+     ///
+    /// Set the total number (and the real number) of particles
+    void
+    set_total_num(int totalnum);
+    
 
     ///
     /// Set the period for periodic_sort and reset the counter
