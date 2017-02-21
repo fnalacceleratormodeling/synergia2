@@ -43,7 +43,7 @@ void apply_zcut(Bunch & bunch, double length, Diagnostics_loss_sptr diag_loss_sp
            int repetition=bunch.get_reference_particle().get_repetition();
            double s=bunch.get_reference_particle().get_s();
            double s_n=bunch.get_reference_particle().get_s_n();
-           MArray1d coords(boost::extents[6]);
+           MArray1d coords(boost::extents[7]);
            
     
             MArray2d_ref particles(bunch.get_local_particles());
@@ -61,7 +61,8 @@ void apply_zcut(Bunch & bunch, double length, Diagnostics_loss_sptr diag_loss_sp
                               coords[2]=particles[part][Bunch::y];
                               coords[3]=particles[part][Bunch::yp];
                               coords[4]=particles[part][Bunch::z];
-                              coords[5]=particles[part][Bunch::zp];                            
+                              coords[5]=particles[part][Bunch::zp]; 
+                              coords[6]=particles[part][Bunch::id];
                               diag_loss_sptr->update( b_index, repetition, s,s_n, coords ); 
                           }
                          if (part == local_num) {

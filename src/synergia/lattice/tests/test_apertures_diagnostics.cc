@@ -133,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE(update_diagnostics, Fixture_bunch)
      BOOST_CHECK_EQUAL(total_size, 3);
      int rank=comm_sptr->get_rank();
 
-     MArray1d coords(boost::extents[6]);
+     MArray1d coords(boost::extents[7]);
      int b_index=10;
      int repetition=3;
      double s=100.10;
@@ -143,7 +143,8 @@ BOOST_FIXTURE_TEST_CASE(update_diagnostics, Fixture_bunch)
       coords[2]=3.2+10*rank;
       coords[3]=4.2+10*rank;
       coords[4]=5.2+10*rank;
-      coords[5]=6.2+10*rank;                            
+      coords[5]=6.2+10*rank; 
+      coords[6]=1.*rank;
       diag_sptr->update( b_index, repetition, s,s_n, coords );
       if (rank==0){       
           b_index=20;
@@ -156,6 +157,7 @@ BOOST_FIXTURE_TEST_CASE(update_diagnostics, Fixture_bunch)
           coords[3]=-4.2;
           coords[4]=-5.2;
           coords[5]=-6.2; 
+          coords[6]=-10.; 
           diag_sptr->update( b_index, repetition, s,s_n, coords );   
       }
       
@@ -172,6 +174,7 @@ BOOST_FIXTURE_TEST_CASE(update_diagnostics, Fixture_bunch)
           coords[3]=-40.2;
           coords[4]=-50.2;
           coords[5]=-60.2; 
+           coords[6]=100; 
           diag_sptr->update( b_index, repetition, s,s_n, coords );   
       }
       
@@ -190,7 +193,7 @@ BOOST_FIXTURE_TEST_CASE(update_diagnostics, Fixture_bunch)
          BOOST_CHECK_EQUAL(read_bi.size(), 5);
          BOOST_CHECK_EQUAL(read_s.size(), 5);
          BOOST_CHECK_EQUAL(read_sn.size(), 5);
-         BOOST_CHECK_EQUAL(read_cc.shape()[0], 6);
+         BOOST_CHECK_EQUAL(read_cc.shape()[0], 7);
          BOOST_CHECK_EQUAL(read_cc.shape()[1], 5);
          BOOST_CHECK_CLOSE(read_cc[0][0],1.2, tolerance1 );
          BOOST_CHECK_CLOSE(read_cc[1][0],2.2, tolerance1 );

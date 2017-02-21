@@ -57,8 +57,8 @@ Diagnostics_loss::update(int index, int rep, double s, double s_n,  MArray1d_ref
   
   
           
-     if (part_coords.size() !=6)  throw std::runtime_error(
-          "diagnostics_apertures_loss, should be 6 particle coordinates"); 
+     if (part_coords.size() !=7)  throw std::runtime_error(
+          "diagnostics_apertures_loss, should be 7 particle's coordinates"); 
    
                       
     bucket_index.push_back(index);
@@ -138,22 +138,22 @@ Diagnostics_loss::write()
               "MPI error diagnostics_apertures_write:MPI_Allgatherv sn_ref_particle"); 
         }  
         
-        MArray2d local_coords(boost::extents[local_size][6]);
+        MArray2d local_coords(boost::extents[local_size][7]);
         for (int i = 0; i < local_size; ++i){
-          for (int j = 0; j < 6; ++j){
+          for (int j = 0; j < 7; ++j){
               local_coords[i][j]=coords[i][j];
           }
         }
         std::vector<int> coord_counts(mpi_size);
         std::vector<int> coord_offsets(mpi_size);
         for (int r = 0; r < mpi_size; ++r){
-              coord_offsets[r] =offsets[r]*6;
-              coord_counts[r]=data_sizes[r]*6;
+              coord_offsets[r] =offsets[r]*7;
+              coord_counts[r]=data_sizes[r]*7;
         }
         
         
-        MArray2d coords_array(boost::extents[nlost][6]);
-        error = MPI_Allgatherv((void *) local_coords.data(), 6*local_size, MPI_DOUBLE,
+        MArray2d coords_array(boost::extents[nlost][7]);
+        error = MPI_Allgatherv((void *) local_coords.data(), 7*local_size, MPI_DOUBLE,
             reinterpret_cast<void*>(coords_array.origin()),  & coord_counts[0], &coord_offsets[0], MPI_DOUBLE, comm_sptr->get());
         if (error != MPI_SUCCESS) {
                 throw std::runtime_error(
@@ -169,7 +169,7 @@ Diagnostics_loss::write()
                   writer_repetition->append(repetition_array[part]);  
                   writer_s->append(s_ref_particle_array[part]); 
                   writer_s_n->append(sn_ref_particle_array[part]);
-                  MArray1d coords_view(coords_array[part][boost::indices[range(0, 6)]]);              
+                  MArray1d coords_view(coords_array[part][boost::indices[range(0, 7)]]);              
                   writer_coords->append(coords_view);
                 }
                 get_write_helper().finish_write();

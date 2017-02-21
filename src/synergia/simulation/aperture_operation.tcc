@@ -10,8 +10,8 @@ template<typename T>
     Aperture_operation::apply_impl(T & t, Bunch & bunch, int verbosity, Logger & logger)
     {
         
-        double t0 = MPI_Wtime();
-       
+
+        double t0 = MPI_Wtime();      
         bool write_loss=false;
         int b_index=-1; // AM: this value is written in the aperture_loss file when the bunch has no bucket index assigned
         Diagnostics_losses diagnostics_list=
@@ -31,12 +31,12 @@ template<typename T>
         int repetition=bunch.get_reference_particle().get_repetition();
         double s=bunch.get_reference_particle().get_s();
         double s_n=bunch.get_reference_particle().get_s_n();
-        MArray1d coords(boost::extents[6]);
+        MArray1d coords(boost::extents[7]);
       
         MArray2d_ref particles(bunch.get_local_particles());
         int discarded = 0;
         int local_num = bunch.get_local_num();
-        for (int part = 0; part < local_num; ++part) {
+        for (int part = 0; part < local_num; ++part) {           
             bool try_discard = true;
             while (try_discard) {
                 if (t(particles, part)) {
@@ -48,8 +48,9 @@ template<typename T>
                               coords[2]=particles[part][Bunch::y];
                               coords[3]=particles[part][Bunch::yp];
                               coords[4]=particles[part][Bunch::z];
-                              coords[5]=particles[part][Bunch::zp];                            
-                              diagnostics_sptr->update( b_index, repetition, s,s_n, coords );                            
+                              coords[5]=particles[part][Bunch::zp];     
+                              coords[6]=particles[part][Bunch::id]; 
+                              diagnostics_sptr->update( b_index, repetition, s,s_n, coords );                          
                         }
                     if (part == local_num) {
                         // No more particles left
@@ -89,7 +90,7 @@ template<typename T>
                     << ", time = " << std::fixed << std::setprecision(3) << t1
                     - t0 << "s_n" << std::endl;
         }
-
+      
     }
 
 template<typename T>
