@@ -91,8 +91,10 @@ main(int argc, char **argv)
     std::cout << "OpenMP num threads = " << opts.ompthreads << "\n";
     omp_set_num_threads(opts.ompthreads);
 
+#ifdef __linux__
     int cpu = sched_getcpu();
     std::cout << "cpuid = " << cpu << "\n";
+#endif
 
     run(opts);
     MPI_Finalize();
