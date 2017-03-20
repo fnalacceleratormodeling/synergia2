@@ -2,6 +2,7 @@
 #define SERIALIZATION_FILES_H_
 
 #include <mpi.h>
+#include <iostream>
 #include <fstream>
 #include <stdexcept>
 #include <string>
