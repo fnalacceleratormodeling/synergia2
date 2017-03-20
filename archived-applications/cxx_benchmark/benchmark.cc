@@ -17,7 +17,7 @@
 
 #include "benchmark_options.h"
 
-#include <omp.h>
+#include "synergia/utils/synergia_omp.h"
 
 // We put the actual code in a separate function so that shared_ptr's can
 // be cleanup up properly before we call MPI_Finalize.

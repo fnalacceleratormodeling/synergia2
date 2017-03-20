@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <omp.h>
+#include "synergia/utils/synergia_omp.h"
 
 #include "synergia/foundation/distribution.h"
 #include "synergia/utils/serialization.h"

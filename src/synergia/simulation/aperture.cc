@@ -1,6 +1,6 @@
 #include "aperture.h"
 
-#include <omp.h>
+#include "synergia/utils/synergia_omp.h"
 
 void
 apply_circular_aperture(Bunch & bunch, Lattice_element_slices & slices)

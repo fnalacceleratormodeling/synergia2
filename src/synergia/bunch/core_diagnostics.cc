@@ -4,6 +4,7 @@
 #include "eigen3/Eigen/LU"
 #include <stdexcept>
 #include "synergia/utils/simple_timer.h"
+#include "synergia/utils/synergia_omp.h"
 
 using namespace Eigen;
 

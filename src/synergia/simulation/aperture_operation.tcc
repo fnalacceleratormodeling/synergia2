@@ -4,7 +4,7 @@
 #include "synergia/foundation/math_constants.h"
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <cmath>
-#include <omp.h>
+#include "synergia/utils/synergia_omp.h"
 
 template<typename T>
     void

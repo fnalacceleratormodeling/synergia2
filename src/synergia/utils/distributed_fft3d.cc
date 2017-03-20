@@ -4,7 +4,7 @@
 #include "multi_array_offsets.h"
 #include "distributed_fft3d.h"
 
-#include <omp.h>
+#include "synergia/utils/synergia_omp.h"
 
 Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
         Commxx_sptr comm_sptr, int planner_flags,
@@ -52,14 +52,20 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     //    This is critical for technical reasons having to do 
     //    with how FFTW initializes its list of algorithms."
 
+#ifdef _OPENMP
     fftw_init_threads();
+#endif
     fftw_mpi_init();
 
     int num_threads;
     #pragma omp parallel shared(num_threads)
-    { num_threads = omp_get_num_threads(); }
+    { 
+        num_threads = omp_get_num_threads();
+    }
 
+#ifdef _OPENMP
     fftw_plan_with_nthreads(num_threads);
+#endif
 
     ptrdiff_t local_nx, local_x_start;
     ptrdiff_t fftw_local_size = fftw_mpi_local_size_3d(shape[0], shape[1],

@@ -2,7 +2,7 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/core_diagnostics.h"
 
-#include <omp.h>
+#include "synergia/utils/synergia_omp.h"
 
 /// Deposit charge using Cloud-in-Cell (CIC) algorithm.
 /// The indices on the rho array are in an unusual order: [z][y][x],
