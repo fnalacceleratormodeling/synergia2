@@ -2,6 +2,7 @@
 #define FF_ELEMENT_H
 
 #include <beamline/JetParticle.h>
+#include "synergia/foundation/trigon_particle.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/lattice_element.h"
@@ -15,6 +16,8 @@ public:
 
     virtual ~FF_element();
 
+    virtual void apply(Lattice_element_slice const& slice, Trigon_particle_t & trigon_particle)
+    {throw std::runtime_error("jfa is lazy");}
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle) = 0;
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch) = 0;
 
