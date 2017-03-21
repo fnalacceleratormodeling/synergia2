@@ -7,7 +7,7 @@ class FF_quadrupole : public FF_element
 {
 private:
     double get_reference_cdt(double length, double * k,
-                             Reference_particle & reference_particle);
+                             Reference_particle const& reference_particle);
 public:
     FF_quadrupole() { /* order=4; steps=4; */ };
 

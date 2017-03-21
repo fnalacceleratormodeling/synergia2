@@ -5,7 +5,8 @@
 #include "synergia/utils/logger.h"
 
 double FF_quadrupole::get_reference_cdt(double length, double * k,
-                                        Reference_particle &reference_particle) {
+                                        Reference_particle const&
+                                        reference_particle) {
     double reference_cdt;
     if (length == 0) {
         reference_cdt = 0.0;
@@ -33,53 +34,94 @@ double FF_quadrupole::get_reference_cdt(double length, double * k,
     return reference_cdt;
 }
 
-void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
+void
+FF_quadrupole::apply(Lattice_element_slice const& slice,
+                     JetParticle& jet_particle)
 {
-    throw std::runtime_error("Propagate JetParticle through a quadrupole element is yet to be implemented");
-
-#if 0
+    // length
     double length = slice.get_right() - slice.get_left();
 
+    // strength
     double k[2];
     k[0] = slice.get_lattice_element().get_double_attribute("k1", 0.0);
     k[1] = slice.get_lattice_element().get_double_attribute("k1s", 0.0);
 
-    typedef PropagatorTraits<JetParticle>::State_t State_t;
-    typedef PropagatorTraits<JetParticle>::Component_t Component_t;
+    // offsets
+    const double xoff =
+        slice.get_lattice_element().get_double_attribute("hoffset", 0.0);
+    const double yoff =
+        slice.get_lattice_element().get_double_attribute("voffset", 0.0);
 
-    State_t& state = jet_particle.State();
+    const double vxoff(xoff);
+    const double vyoff(yoff);
 
-    Component_t & x(state[Chef::x]);
-    Component_t & xp(state[Chef::xp]);
-    Component_t & y(state[Chef::y]);
-    Component_t & yp(state[Chef::yp]);
-    Component_t & cdt(state[Chef::cdt]);
-    Component_t & dpop(state[Chef::dpop]);
+    // tilting
+    double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
+    if (tilt != 0.0) {
+        std::complex<double> ck2(k[0], -k[1]);
+        ck2 = ck2 * exp(std::complex<double>(0.0, -2.0 * tilt));
+        k[0] = ck2.real();
+        k[1] = ck2.imag();
+    }
 
-    double reference_momentum = jet_particle.ReferenceMomentum();
-    double m = jet_particle.Mass();
+    // scaling
+    Reference_particle const& ref_l = get_ref_particle_from_slice(slice);
 
-    Particle chef_particle(jet_particle);
-    Reference_particle reference_particle(
-                chef_particle_to_reference_particle(chef_particle));
-    double reference_cdt = get_reference_cdt(length, k, reference_particle);
-    double step_reference_cdt = reference_cdt/steps;
-    double step_length = length/steps;
-    double step_strength[2] = { k[0]*step_length, k[1]*step_length };
-    double kl[2] = { k[0]*length, k[1]*length };
+    double brho_l = ref_l.get_momentum() / ref_l.get_charge(); // GV/c
+    double brho_b = jet_particle.Momentum().standardPart() *
+                    (1.0 + jet_particle.get_npz().standardPart()) /
+                    ref_l.get_charge(); // GV/c
+
+    double scale = brho_l / brho_b;
+
+    k[0] *= scale;
+    k[1] *= scale;
 
     if (length == 0.0) {
-        FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, kl);
+        Jet& x(jet_particle.State()[Particle::xIndex]);
+        Jet& xp(jet_particle.State()[Particle::npxIndex]);
+        Jet& y(jet_particle.State()[Particle::yIndex]);
+        Jet& yp(jet_particle.State()[Particle::npyIndex]);
+
+        x -= vxoff;
+        y -= vyoff;
+
+        FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+        x += vxoff;
+        y += vyoff;
     } else {
-        FF_algorithm::yoshida4<TJet<double>, FF_algorithm::thin_quadrupole_unit<TJet<double> >, 1 >
-                ( x, xp, y, yp, cdt, dpop,
-                  reference_momentum, m,
-                  step_reference_cdt,
-                  step_length, step_strength, steps );
-    }
-    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
-               reference_cdt);
+        // yoshida steps
+        steps = (int)slice.get_lattice_element().get_double_attribute(
+            "yoshida_steps", 4.0);
+
+        // params
+        double reference_momentum = jet_particle.Momentum().standardPart();
+        double m = jet_particle.Mass();
+        double reference_cdt = get_reference_cdt(length, k, ref_l);
+        double step_reference_cdt = reference_cdt / steps;
+        double step_length = length / steps;
+        double step_strength[2] = { k[0] * step_length, k[1] * step_length };
+
+        Jet& x(jet_particle.State()[Particle::xIndex]);
+        Jet& xp(jet_particle.State()[Particle::npxIndex]);
+        Jet& y(jet_particle.State()[Particle::yIndex]);
+        Jet& yp(jet_particle.State()[Particle::npyIndex]);
+        Jet& cdt(jet_particle.State()[Particle::cdtIndex]);
+        Jet& dpop(jet_particle.State()[Particle::ndpIndex]);
+
+        x -= vxoff;
+        y -= vyoff;
+
+#if 1
+        FF_algorithm::yoshida6<Jet, FF_algorithm::thin_quadrupole_unit<Jet>, 1>(
+            x, xp, y, yp, cdt, dpop, reference_momentum, m, step_reference_cdt,
+            step_length, step_strength, steps);
 #endif
+
+        x += vxoff;
+        y += vyoff;
+    }
 }
 
 void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
