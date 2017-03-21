@@ -288,14 +288,14 @@ public:
         return *this;
     }
 
-    Trigon<T, Power, Dim> operator*(Trigon<T, Power, Dim> const& t)
+    Trigon<T, Power, Dim> operator*(Trigon<T, Power, Dim> const& t) const
     {
         Trigon<T, Power, Dim> retval(*this);
         retval *= t;
         return retval;
     }
 
-    Trigon<T, Power, Dim> operator*(T val)
+    Trigon<T, Power, Dim> operator*(T val) const
     {
         Trigon<T, Power, Dim> retval(*this);
         retval *= val;
@@ -326,14 +326,14 @@ public:
         return *this;
     }
 
-    Trigon<T, Power, Dim> operator/(Trigon<T, Power, Dim> const& t)
+    Trigon<T, Power, Dim> operator/(Trigon<T, Power, Dim> const& t) const
     {
         Trigon<T, Power, Dim> retval(*this);
         retval /= t;
         return retval;
     }
 
-    Trigon<T, Power, Dim> operator/(T val)
+    Trigon<T, Power, Dim> operator/(T val) const
     {
         Trigon<T, Power, Dim> retval(*this);
         retval /= val;
@@ -453,14 +453,14 @@ public:
         return *this;
     }
 
-    Trigon<T, 0, Dim> operator*(Trigon<T, 0, Dim> const& t)
+    Trigon<T, 0, Dim> operator*(Trigon<T, 0, Dim> const& t) const
     {
         Trigon<T, 0, Dim> retval(*this);
         retval *= t;
         return retval;
     }
 
-    Trigon<T, 0, Dim> operator*(T val)
+    Trigon<T, 0, Dim> operator*(T val) const
     {
         Trigon<T, 0, Dim> retval(*this);
         retval *= val;
@@ -479,14 +479,14 @@ public:
         return *this;
     }
 
-    Trigon<T, 0, Dim> operator/(Trigon<T, 0, Dim> const& t)
+    Trigon<T, 0, Dim> operator/(Trigon<T, 0, Dim> const& t) const
     {
         Trigon<T, 0, Dim> retval(*this);
         retval /= t;
         return retval;
     }
 
-    Trigon<T, 0, Dim> operator/(T val)
+    Trigon<T, 0, Dim> operator/(T val) const
     {
         Trigon<T, 0, Dim> retval(*this);
         retval /= val;
@@ -786,6 +786,45 @@ Trigon<T, Power, Dim>
 tan(Trigon<T, Power, Dim> const& t)
 {
     return generic_transcendental(t, tan_derivatives(t.value(), Power));
+}
+
+template <typename T>
+Derivatives_t<T>
+sqrt_derivatives(T x, unsigned int power)
+{
+    Derivatives_t<T> retval;
+    T invsqrtx;
+    retval[0] = std::sqrt(x);
+    if (power > 0) {
+        invsqrtx = 1/retval[0];
+        retval[1] = 0.5*invsqrtx;
+    }
+    if (power > 1) {
+        retval[2] = -0.5*invsqrtx*retval[1];
+    }
+    if (power > 2) {
+        retval[3] = -1.5*invsqrtx*retval[2];
+    }
+    if (power > 3) {
+        retval[4] = -2.5*invsqrtx*retval[3];
+    }
+    if (power > 4) {
+        retval[5] = -3.5*invsqrtx*retval[4];
+    }
+    if (power > 5) {
+        retval[6] = -4.5*invsqrtx*retval[5];
+    }
+    if (power > 6) {
+        retval[7] = -5.5*invsqrtx*retval[6];
+    }
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<T, Power, Dim>
+sqrt(Trigon<T, Power, Dim> const& t)
+{
+    return generic_transcendental(t, sqrt_derivatives(t.value(), Power));
 }
 
 #endif // TRIGON_H
