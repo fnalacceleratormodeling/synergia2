@@ -231,24 +231,47 @@ public:
     }
 
     template <unsigned int P1, unsigned int P2>
+    std::array<std::array<unsigned int, Trigon<double, P2, Dim>::count>,
+               Trigon<double, P1, Dim>::count>
+    calculate_f()
+    {
+        std::array<std::array<unsigned int, Trigon<double, P2, Dim>::count>,
+                   Trigon<double, P1, Dim>::count>
+            retval;
+
+        for (unsigned int i = 0; i < Trigon<double, P1, Dim>::count; ++i) {
+            for (unsigned int j = 0; j < Trigon<double, P2, Dim>::count; ++j) {
+
+                auto indices1(indices<P1, Dim>());
+                Index_t<P1> index1(indices1[i]);
+                auto indices2(indices<P2, Dim>());
+                Index_t<P2> index2(indices2[j]);
+
+                Index_t<P1 + P2> index3;
+
+                size_t m = 0;
+                for (; m < P1; ++m) {
+                    index3[m] = index1[m];
+                }
+                for (size_t n = 0; n < P2; ++m, ++n) {
+                    index3[m] = index2[n];
+                }
+                std::sort(index3.begin(), index3.end());
+                retval.at(i).at(j) =
+                    index_to_canonical<P1 + P2, Dim>().at(index3);
+            }
+        }
+        return retval;
+    }
+
+    template <unsigned int P1, unsigned int P2>
     unsigned int f(unsigned int i, unsigned j)
     {
-        auto indices1(indices<P1, Dim>());
-        Index_t<P1> index1(indices1[i]);
-        auto indices2(indices<P2, Dim>());
-        Index_t<P2> index2(indices2[j]);
-
-        Index_t<P1 + P2> index3;
-
-        size_t m = 0;
-        for (; m < P1; ++m) {
-            index3[m] = index1[m];
-        }
-        for (size_t n = 0; n < P2; ++m, ++n) {
-            index3[m] = index2[n];
-        }
-        std::sort(index3.begin(), index3.end());
-        return index_to_canonical<P1 + P2, Dim>().at(index3);
+        static std::array<
+            std::array<unsigned int, Trigon<double, P2, Dim>::count>,
+            Trigon<double, P1, Dim>::count>
+            mapping = calculate_f<P1, P2>();
+        return mapping[i][j];
     }
 
     template <unsigned int New_power, typename Mult_trigon_t, typename Array_t>
