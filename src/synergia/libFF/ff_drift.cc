@@ -26,34 +26,27 @@ double FF_drift::get_reference_cdt(double length, Reference_particle & reference
 
 void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
-    throw std::runtime_error("Propagate JetParticle through a drift element is yet to be implemented");
+    const double  length = slice.get_right() - slice.get_left();
+    const double    mass = jet_particle.Mass();
+    Particle particle(jet_particle);
+    Reference_particle ref_b(chef_particle_to_reference_particle(particle));
+    const double ref_cdt = get_reference_cdt(length, ref_b);
 
-#if 0
-    double length = slice.get_right() - slice.get_left();
 
-    typedef PropagatorTraits<JetParticle>::State_t State_t;
-    typedef PropagatorTraits<JetParticle>::Component_t Component_t;
+    const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
-    State_t& state = jet_particle.State();
+    double * RESTRICT xa, * RESTRICT xpa;
+    double * RESTRICT ya, * RESTRICT ypa;
+    double * RESTRICT cdta, * RESTRICT dpopa;
 
-    Component_t & x(state[Chef::x]);
-    Component_t & xp(state[Chef::xp]);
-    Component_t & y(state[Chef::y]);
-    Component_t & yp(state[Chef::yp]);
-    Component_t & cdt(state[Chef::cdt]);
-    Component_t & dpop(state[Chef::dpop]);
+    Jet& x(jet_particle.State()[Particle::xIndex]);
+    Jet& xp(jet_particle.State()[Particle::npxIndex]);
+    Jet& y(jet_particle.State()[Particle::yIndex]);
+    Jet& yp(jet_particle.State()[Particle::npyIndex]);
+    Jet& cdt(jet_particle.State()[Particle::cdtIndex]);
+    Jet& dpop(jet_particle.State()[Particle::ndpIndex]);
 
-    double reference_momentum = jet_particle.ReferenceMomentum();
-    double m = jet_particle.Mass();
-
-    Particle chef_particle(jet_particle);
-    Reference_particle reference_particle(
-                chef_particle_to_reference_particle(chef_particle));
-    double reference_cdt = get_reference_cdt(length, reference_particle);
-
-    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
-               reference_cdt);
-#endif
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
 }
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
