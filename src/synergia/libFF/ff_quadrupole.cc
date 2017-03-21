@@ -36,8 +36,101 @@ double FF_quadrupole::get_reference_cdt(double length, double * k,
 
 void
 FF_quadrupole::apply(Lattice_element_slice const& slice,
+                     Trigon_particle_t & trigon_particle)
+{
+    // length
+    double length = slice.get_right() - slice.get_left();
+
+    // strength
+    double k[2];
+    k[0] = slice.get_lattice_element().get_double_attribute("k1", 0.0);
+    k[1] = slice.get_lattice_element().get_double_attribute("k1s", 0.0);
+
+    // offsets
+    const double xoff =
+            slice.get_lattice_element().get_double_attribute("hoffset", 0.0);
+    const double yoff =
+            slice.get_lattice_element().get_double_attribute("voffset", 0.0);
+
+    const double vxoff(xoff);
+    const double vyoff(yoff);
+
+    // tilting
+    double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
+    if (tilt != 0.0) {
+        std::complex<double> ck2(k[0], -k[1]);
+        ck2 = ck2 * exp(std::complex<double>(0.0, -2.0 * tilt));
+        k[0] = ck2.real();
+        k[1] = ck2.imag();
+    }
+
+    // scaling
+    Reference_particle const& ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle const& ref_b = trigon_particle.get_reference_particle();
+
+    double brho_l = ref_l.get_momentum() / ref_l.get_charge(); // GV/c
+    double brho_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
+
+    double scale = brho_l / brho_b;
+
+    k[0] *= scale;
+    k[1] *= scale;
+
+    if (length == 0.0) {
+        Trigon_particle_t::Component_t& x(trigon_particle.get_state()[Bunch::x]);
+        Trigon_particle_t::Component_t& xp(trigon_particle.get_state()[Bunch::xp]);
+        Trigon_particle_t::Component_t& y(trigon_particle.get_state()[Bunch::y]);
+        Trigon_particle_t::Component_t& yp(trigon_particle.get_state()[Bunch::yp]);
+
+        x -= vxoff;
+        y -= vyoff;
+
+        FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+        x += vxoff;
+        y += vyoff;
+    } else {
+        // yoshida steps
+        steps = (int)slice.get_lattice_element().get_double_attribute(
+                    "yoshida_steps", 4.0);
+
+        // params
+        double reference_momentum = trigon_particle.get_reference_particle().get_momentum();
+        double m = trigon_particle.get_reference_particle().get_mass();
+        double reference_cdt = get_reference_cdt(length, k, ref_l);
+        double step_reference_cdt = reference_cdt / steps;
+        double step_length = length / steps;
+        double step_strength[2] = { k[0] * step_length, k[1] * step_length };
+
+        Trigon_particle_t::Component_t& x(trigon_particle.get_state()[Bunch::x]);
+        Trigon_particle_t::Component_t& xp(trigon_particle.get_state()[Bunch::xp]);
+        Trigon_particle_t::Component_t& y(trigon_particle.get_state()[Bunch::y]);
+        Trigon_particle_t::Component_t& yp(trigon_particle.get_state()[Bunch::yp]);
+        Trigon_particle_t::Component_t& cdt(trigon_particle.get_state()[Bunch::cdt]);
+        Trigon_particle_t::Component_t& dpop(trigon_particle.get_state()[Bunch::dpop]);
+
+        x -= vxoff;
+        y -= vyoff;
+
+#if 1
+        FF_algorithm::yoshida6<
+            Trigon_particle_t::Component_t,
+            FF_algorithm::thin_quadrupole_unit<Trigon_particle_t::Component_t>,
+            1>(x, xp, y, yp, cdt, dpop, reference_momentum, m,
+               step_reference_cdt, step_length, step_strength, steps);
+#endif
+
+        x += vxoff;
+        y += vyoff;
+    }
+}
+
+void
+FF_quadrupole::apply(Lattice_element_slice const& slice,
                      JetParticle& jet_particle)
 {
+    Particle particle(jet_particle);
+    Reference_particle ref_b(chef_particle_to_reference_particle(particle));
     // length
     double length = slice.get_right() - slice.get_left();
 
@@ -68,9 +161,7 @@ FF_quadrupole::apply(Lattice_element_slice const& slice,
     Reference_particle const& ref_l = get_ref_particle_from_slice(slice);
 
     double brho_l = ref_l.get_momentum() / ref_l.get_charge(); // GV/c
-    double brho_b = jet_particle.Momentum().standardPart() *
-                    (1.0 + jet_particle.get_npz().standardPart()) /
-                    ref_l.get_charge(); // GV/c
+    double brho_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
 
     double scale = brho_l / brho_b;
 

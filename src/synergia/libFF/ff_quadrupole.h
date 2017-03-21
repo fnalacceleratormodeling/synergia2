@@ -11,6 +11,8 @@ private:
 public:
     FF_quadrupole() { /* order=4; steps=4; */ };
 
+    virtual void apply(Lattice_element_slice const& slice,
+                       Trigon_particle_t & trigon_particle);
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
 
