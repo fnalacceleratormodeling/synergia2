@@ -7,10 +7,13 @@
 class FF_drift : public FF_element
 {
 private:
-    double get_reference_cdt(double length, Reference_particle & reference_particle);
+    double get_reference_cdt(double length, Reference_particle const& reference_particle);
 public:
     FF_drift();
-    virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
+    virtual void apply(Lattice_element_slice const& slice,
+                       Trigon_particle_t& trigon_particle);
+    virtual void apply(Lattice_element_slice const& slice,
+                       JetParticle& jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
     template<class Archive>
         void serialize(Archive & ar, const unsigned int version);

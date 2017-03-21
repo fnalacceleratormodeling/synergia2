@@ -7,7 +7,7 @@ FF_drift::FF_drift()
 {
 }
 
-double FF_drift::get_reference_cdt(double length, Reference_particle & reference_particle)
+double FF_drift::get_reference_cdt(double length, Reference_particle const& reference_particle)
 {
     double x(reference_particle.get_state()[Bunch::x]);
     double xp(reference_particle.get_state()[Bunch::xp]);
@@ -22,6 +22,31 @@ double FF_drift::get_reference_cdt(double length, Reference_particle & reference
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
 
     return cdt - cdt_orig;
+}
+
+void FF_drift::apply(Lattice_element_slice const& slice,
+                     Trigon_particle_t & trigon_particle)
+{
+    const double  length = slice.get_right() - slice.get_left();
+    const double    mass = trigon_particle.get_reference_particle().get_mass();
+    Reference_particle const& ref_b = trigon_particle.get_reference_particle();
+    const double ref_cdt = get_reference_cdt(length, ref_b);
+
+
+    const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
+
+    double * RESTRICT xa, * RESTRICT xpa;
+    double * RESTRICT ya, * RESTRICT ypa;
+    double * RESTRICT cdta, * RESTRICT dpopa;
+
+    Trigon_particle_t::Component_t& x(trigon_particle.get_state()[Bunch::x]);
+    Trigon_particle_t::Component_t& xp(trigon_particle.get_state()[Bunch::xp]);
+    Trigon_particle_t::Component_t& y(trigon_particle.get_state()[Bunch::y]);
+    Trigon_particle_t::Component_t& yp(trigon_particle.get_state()[Bunch::yp]);
+    Trigon_particle_t::Component_t& cdt(trigon_particle.get_state()[Bunch::cdt]);
+    Trigon_particle_t::Component_t& dpop(trigon_particle.get_state()[Bunch::dpop]);
+
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
 }
 
 void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
