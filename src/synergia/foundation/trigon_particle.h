@@ -40,9 +40,8 @@ public:
     {
         MArray2d retval(boost::extents[6][6]);
         for (size_t i = 0; i < 6; ++i) {
-            for (size_t j = 0; j <= i; ++j) {
-                retval[i][j] = retval[j][i] =
-                    state[i].template get_subpower<1>().terms[j];
+            for (size_t j = 0; j < 6; ++j) {
+                retval[i][j] = state[i].template get_subpower<1>().terms[j];
             }
         }
         return retval;
