@@ -137,6 +137,8 @@ if(CLANG_FIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif(CLANG_FIX)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 # GSV vector flags
 if (NOT VECTOR_FLAGS)
     set(VECTOR_FLAGS "SSE")
