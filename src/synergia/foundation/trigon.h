@@ -2,6 +2,7 @@
 #define TRIGON_H
 
 #include <array>
+#include <complex>
 #include <iostream> // jfa remove me!!!!
 #include <type_traits>
 #include <unordered_map>
@@ -526,12 +527,42 @@ operator+(T val, Trigon<T, Power, Dim> const& t)
     return retval;
 }
 
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<std::complex<T>, Power, Dim>
+operator+(Trigon<T, Power, Dim> const& t1,
+          Trigon<std::complex<T>, Power, Dim> const& t2)
+{
+    Trigon<std::complex<T>, Power, Dim> retval;
+    for (size_t i = 0; i < retval.terms.size(); ++i) {
+        retval.terms[i] = t1.terms[i] + t2.terms[i];
+    }
+    retval.lower = t1.lower + t2.lower;
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<std::complex<T>, Power, Dim>
+operator+(Trigon<std::complex<T>, Power, Dim> const& t1,
+          Trigon<T, Power, Dim> const& t2)
+{
+    return t2 + t1;
+}
+
 template <typename T, unsigned int Dim>
 Trigon<T, 0, Dim>
 operator+(T val, Trigon<T, 0, Dim> const& t)
 {
     Trigon<T, 0, Dim> retval(t);
     retval += val;
+    return retval;
+}
+
+template <typename T, unsigned int Dim>
+Trigon<std::complex<T>, 0, Dim> operator+(
+    Trigon<T, 0, Dim> const& t1, Trigon<std::complex<T>, 0, Dim> const& t2)
+{
+    Trigon<std::complex<T>, 0, Dim> retval;
+    retval.terms[0] = t1.terms[0] + t2.terms[0];
     return retval;
 }
 
@@ -554,6 +585,50 @@ operator-(T val, Trigon<T, 0, Dim> const& t)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<std::complex<T>, Power, Dim>
+operator-(Trigon<T, Power, Dim> const& t1,
+          Trigon<std::complex<T>, Power, Dim> const& t2)
+{
+    Trigon<std::complex<T>, Power, Dim> retval;
+    for (size_t i = 0; i < retval.terms.size(); ++i) {
+        retval.terms[i] = t1.terms[i] - t2.terms[i];
+    }
+    retval.lower = t1.lower - t2.lower;
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<std::complex<T>, Power, Dim>
+operator-(Trigon<std::complex<T>, Power, Dim> const& t1,
+          Trigon<T, Power, Dim> const& t2)
+{
+    Trigon<std::complex<T>, Power, Dim> retval;
+    for (size_t i = 0; i < retval.terms.size(); ++i) {
+        retval.terms[i] = t1.terms[i] - t2.terms[i];
+    }
+    retval.lower = t1.lower - t2.lower;
+    return retval;
+}
+
+template <typename T, unsigned int Dim>
+Trigon<std::complex<T>, 0, Dim> operator-(
+    Trigon<T, 0, Dim> const& t1, Trigon<std::complex<T>, 0, Dim> const& t2)
+{
+    Trigon<std::complex<T>, 0, Dim> retval;
+    retval.terms[0] = t1.terms[0] - t2.terms[0];
+    return retval;
+}
+
+template <typename T, unsigned int Dim>
+Trigon<std::complex<T>, 0, Dim> operator-(
+    Trigon<std::complex<T>, 0, Dim> const& t1, Trigon<T, 0, Dim> const& t2)
+{
+    Trigon<std::complex<T>, 0, Dim> retval;
+    retval.terms[0] = t1.terms[0] - t2.terms[0];
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
 Trigon<T, Power, Dim> operator*(T val, Trigon<T, Power, Dim> const& t)
 {
     Trigon<T, Power, Dim> retval(t);
@@ -561,11 +636,48 @@ Trigon<T, Power, Dim> operator*(T val, Trigon<T, Power, Dim> const& t)
     return retval;
 }
 
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<std::complex<T>, Power, Dim> operator*(std::complex<T> val,
+                                              Trigon<T, Power, Dim> const& t)
+{
+    Trigon<std::complex<T>, Power, Dim> retval;
+    for (size_t i = 0; i < retval.terms.size(); ++i) {
+        retval.terms[i] = val * t.terms[i];
+    }
+    retval.lower = val * t.lower;
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<std::complex<T>, Power, Dim> operator*(
+    Trigon<std::complex<T>, Power, Dim> const& t1,
+    Trigon<T, Power, Dim> const& t2)
+{
+    return t1 * (std::complex<T>(1.0, 0.0) * t2);
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<std::complex<T>, Power, Dim> operator*(
+    Trigon<T, Power, Dim> const& t1,
+    Trigon<std::complex<T>, Power, Dim> const& t2)
+{
+    return (std::complex<T>(1.0, 0.0) * t1) * t2;
+}
+
 template <typename T, unsigned int Dim>
 Trigon<T, 0, Dim> operator*(T val, Trigon<T, 0, Dim> const& t)
 {
     Trigon<T, 0, Dim> retval(t);
     retval *= val;
+    return retval;
+}
+
+template <typename T, unsigned int Dim>
+Trigon<std::complex<T>, 0, Dim> operator*(std::complex<T> val,
+                                          Trigon<T, 0, Dim> const& t)
+{
+    Trigon<std::complex<T>, 0, Dim> retval;
+    retval.terms[0] = val * t.terms[0];
     return retval;
 }
 
@@ -633,6 +745,46 @@ partial_deriv(Trigon<T, Power, Dim> const& t, size_t index)
 {
     Trigon<T, Power - 1, Dim> retval;
     calculate_partial<T, Power, Dim>(t, index, retval);
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<T, Power, Dim>
+real(Trigon<std::complex<T>, Power, Dim> const& t)
+{
+    Trigon<T, Power, Dim> retval;
+    for (size_t i = 0; i < retval.terms.size(); ++i) {
+        retval.terms[i] = t.terms[i].real();
+    }
+    retval.lower = real(t.lower);
+    return retval;
+}
+
+template <typename T, unsigned int Dim>
+Trigon<T, 0, Dim> real(Trigon<std::complex<T>, 0, Dim> const& t)
+{
+    Trigon<T, 0, Dim> retval;
+    retval.terms[0] = t.terms[0].real();
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<T, Power, Dim>
+imag(Trigon<std::complex<T>, Power, Dim> const& t)
+{
+    Trigon<T, Power, Dim> retval;
+    for (size_t i = 0; i < retval.terms.size(); ++i) {
+        retval.terms[i] = t.terms[i].imag();
+    }
+    retval.lower = imag(t.lower);
+    return retval;
+}
+
+template <typename T, unsigned int Dim>
+Trigon<T, 0, Dim> imag(Trigon<std::complex<T>, 0, Dim> const& t)
+{
+    Trigon<T, 0, Dim> retval;
+    retval.terms[0] = t.terms[0].imag();
     return retval;
 }
 
@@ -772,7 +924,7 @@ tan_derivatives(T x, unsigned int power)
     T secx;
     retval[0] = tanx;
     if (power > 0) {
-        secx = 1/std::cos(x);
+        secx = 1 / std::cos(x);
         retval[1] = qpow(secx, 2);
     }
     if (power > 1) {
@@ -782,13 +934,12 @@ tan_derivatives(T x, unsigned int power)
         retval[3] = 4 * qpow(secx, 2) * qpow(tanx, 2) + 2 * qpow(secx, 4);
     }
     if (power > 3) {
-        retval[4] = 8 * qpow(secx, 2) * qpow(tanx, 3) +
-                    16 * tanx * qpow(secx, 4);
+        retval[4] =
+            8 * qpow(secx, 2) * qpow(tanx, 3) + 16 * tanx * qpow(secx, 4);
     }
     if (power > 4) {
         retval[5] = 16 * qpow(secx, 2) * qpow(tanx, 4) +
-                    88 * qpow(secx, 4) * qpow(tanx, 2) +
-                    16 * qpow(secx, 6);
+                    88 * qpow(secx, 4) * qpow(tanx, 2) + 16 * qpow(secx, 6);
     }
     if (power > 5) {
         retval[6] = 32 * qpow(secx, 2) * qpow(tanx, 5) +
@@ -798,8 +949,7 @@ tan_derivatives(T x, unsigned int power)
     if (power > 6) {
         retval[7] = 64 * qpow(secx, 2) * qpow(tanx, 6) +
                     1824 * qpow(secx, 4) * qpow(tanx, 4) +
-                    2880 * qpow(secx, 6) * qpow(tanx, 2) +
-                    272 * qpow(secx, 8);
+                    2880 * qpow(secx, 6) * qpow(tanx, 2) + 272 * qpow(secx, 8);
     }
     return retval;
 }
@@ -819,26 +969,26 @@ sqrt_derivatives(T x, unsigned int power)
     T invsqrtx;
     retval[0] = std::sqrt(x);
     if (power > 0) {
-        invsqrtx = 1/retval[0];
-        retval[1] = 0.5*invsqrtx;
+        invsqrtx = 1 / retval[0];
+        retval[1] = 0.5 * invsqrtx;
     }
     if (power > 1) {
-        retval[2] = -0.5*invsqrtx*retval[1];
+        retval[2] = -0.5 * invsqrtx * retval[1];
     }
     if (power > 2) {
-        retval[3] = -1.5*invsqrtx*retval[2];
+        retval[3] = -1.5 * invsqrtx * retval[2];
     }
     if (power > 3) {
-        retval[4] = -2.5*invsqrtx*retval[3];
+        retval[4] = -2.5 * invsqrtx * retval[3];
     }
     if (power > 4) {
-        retval[5] = -3.5*invsqrtx*retval[4];
+        retval[5] = -3.5 * invsqrtx * retval[4];
     }
     if (power > 5) {
-        retval[6] = -4.5*invsqrtx*retval[5];
+        retval[6] = -4.5 * invsqrtx * retval[5];
     }
     if (power > 6) {
-        retval[7] = -5.5*invsqrtx*retval[6];
+        retval[7] = -5.5 * invsqrtx * retval[6];
     }
     return retval;
 }
@@ -848,6 +998,78 @@ Trigon<T, Power, Dim>
 sqrt(Trigon<T, Power, Dim> const& t)
 {
     return generic_transcendental(t, sqrt_derivatives(t.value(), Power));
+}
+
+template <typename T>
+Derivatives_t<T>
+asin_derivatives(T x, unsigned int power)
+{
+    Derivatives_t<T> retval;
+    retval[0] = std::asin(x);
+    T x2(x * x);
+    T invsqrt1mx2(1.0 / std::sqrt(1 - x2));
+    if (power > 0) {
+        retval[1] = invsqrt1mx2;
+    }
+    if (power > 1) {
+        retval[2] = qpow(invsqrt1mx2, 3) * x;
+    }
+    if (power > 2) {
+        retval[3] = 2 * qpow(invsqrt1mx2, 5) * x2 + qpow(invsqrt1mx2, 5);
+    }
+    if (power > 3) {
+        retval[4] =
+            6 * qpow(invsqrt1mx2, 7) * x * x2 + 9 * qpow(invsqrt1mx2, 7) * x;
+    }
+    if (power > 4) {
+        retval[5] = 24 * qpow(invsqrt1mx2, 9) * qpow(x2, 2) +
+                    72 * qpow(invsqrt1mx2, 9) * x2 + 9 * qpow(invsqrt1mx2, 9);
+    }
+    if (power > 5) {
+        retval[6] = 120 * qpow(invsqrt1mx2, 11) * x * qpow(x2, 2) +
+                    600 * qpow(invsqrt1mx2, 11) * x * x2 +
+                    225 * qpow(invsqrt1mx2, 11) * x;
+    }
+    if (power > 6) {
+        retval[7] = 720 * qpow(invsqrt1mx2, 13) * qpow(x2, 3) +
+                    5400 * qpow(invsqrt1mx2, 13) * qpow(x2, 2) +
+                    4050 * qpow(invsqrt1mx2, 13) * x2 +
+                    225 * qpow(invsqrt1mx2, 13);
+    }
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<T, Power, Dim>
+asin(Trigon<T, Power, Dim> const& t)
+{
+    return generic_transcendental(t, asin_derivatives(t.value(), Power));
+}
+
+template <typename T>
+Derivatives_t<T>
+log_derivatives(T x, unsigned int power)
+{
+    Derivatives_t<T> retval;
+    retval[0] = std::log(x);
+    T invx(1.0 / x);
+    T powinvx = 1.0;
+    T fact = 1.0;
+    for (size_t i = 1; i < power; ++i) {
+        powinvx *= invx;
+        if (i > 1) {
+            fact *= -(i - 1);
+        }
+        retval[i] = fact * powinvx;
+    }
+    return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<T, Power, Dim>
+log(Trigon<T, Power, Dim> const& t)
+{
+    return generic_transcendental(t, log_derivatives(t.value(), Power));
 }
 
 #endif // TRIGON_H
