@@ -16,7 +16,8 @@ void
 run()
 {
     MadX_reader reader;
-    Lattice_sptr lattice_sptr = reader.get_lattice_sptr("model", "foborodobo128.madx");
+//    Lattice_sptr lattice_sptr = reader.get_lattice_sptr("model", "foborodobo128.madx");
+    Lattice_sptr lattice_sptr = reader.get_lattice_sptr("fodo", "fodo.madx");
 
     construct_big_giant_global_ff_element_map();
     FF_element_map& element_map(the_big_giant_global_ff_element_map);
@@ -26,7 +27,7 @@ run()
         Trigon_particle_t::Component_t::power()));
 
     double t0 = MPI_Wtime();
-    const int num_reps = 5;
+    const int num_reps = 100;
     for (int i = 0; i < num_reps; ++i) {
         for (auto&& element_sptr : lattice_sptr->get_elements()) {
 //            std::cout << element_sptr->get_name() << ": " <<
