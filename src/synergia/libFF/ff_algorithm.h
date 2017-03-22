@@ -518,15 +518,15 @@ public:
         double const mhp_relative_strength = 1.0;
         double const mhp_phase_shift       = 0.0;
 
-        double phase_slip_argument = ( cdt * w_rf / PH_MKS_c ) + anh_phase;
+        T phase_slip_argument = ( cdt * w_rf / PH_MKS_c ) + anh_phase;
 
-        double strength_factor = 0.0;
+        T strength_factor = 0.0;
 
         strength_factor += mhp_relative_strength * 
             sin( mhp_harmonic_multiple * (phi_s + phase_slip_argument) + mhp_phase_shift );
 
-        double p = old_ref_p * (dpop + 1.0);
-        double E = sqrt(p * p + m * m);
+        T p = old_ref_p * (dpop + 1.0);
+        T E = sqrt(p * p + m * m);
 
         E += volt * strength_factor;
 
