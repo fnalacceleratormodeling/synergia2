@@ -1,0 +1,3 @@
+Chef_lattice::register_beamline should create the test particle on the closed orbit.
+
+Propose: always get new context, new context makes a copy of the beamline.
