@@ -37,6 +37,7 @@ public:
                                    std::complex<double> term
                                    );
 
+    virtual void apply(Lattice_element_slice const& slice, Trigon_particle_t & trigon_particle);
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
 
