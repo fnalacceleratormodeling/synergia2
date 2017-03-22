@@ -29,6 +29,8 @@ run()
     const int num_reps = 5;
     for (int i = 0; i < num_reps; ++i) {
         for (auto&& element_sptr : lattice_sptr->get_elements()) {
+//            std::cout << element_sptr->get_name() << ": " <<
+//                         element_sptr->get_type() << std::endl;
             Lattice_element_slice slice(element_sptr);
             element_map.get_element_type(element_sptr->get_type())
                 ->apply(element_sptr, jet_particle);
@@ -38,6 +40,7 @@ run()
     std::cout << "chef time: " << t1 - t0 << std::endl;
     std::cout << "jet_particle.jacobian() = \n";
     std::cout << jet_particle.State().Jacobian();
+//    jet_particle.State().printCoeffs();
 
     Trigon_particle_t trigon_particle(lattice_sptr->get_reference_particle());
 
