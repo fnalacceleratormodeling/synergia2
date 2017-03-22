@@ -25,35 +25,54 @@ double get_reference_cdt(double length, Reference_particle & reference_particle)
     return cdt - cdt_orig;
 }
 
-
-void FF_rfcavity::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
+void
+FF_rfcavity::apply(Lattice_element_slice const& slice,
+                   JetParticle& jet_particle)
 {
-    throw std::runtime_error("propagate jet particle for rf cavity has yet to be implemented");
-
-#if 0
     double length = slice.get_right() - slice.get_left();
-    double freq = 0.0;
+    Lattice_element const& elm = slice.get_lattice_element();
 
-    typedef PropagatorTraits<JetParticle>::State_t State_t;
-    typedef PropagatorTraits<JetParticle>::Component_t Component_t;
+    int harmonic_number = elm.get_double_attribute("harmon");
+    double volt = elm.get_double_attribute("volt");
+    double lag = elm.get_double_attribute("lag");
+    double shunt;
+    if(elm.has_double_attribute("shunt")) {
+        shunt = elm.get_double_attribute("shunt");
+    } else {
+        shunt = 0.0;
+    }
+    double freq = elm.get_double_attribute("freq");
 
-    State_t& state = jet_particle.State();
+    double str = volt * 1.0e-3;
+    double phi_s = 2.0 * mconstants::pi * lag;
+    double w_rf = 2.0 * mconstants::pi * freq * 1.0e6;
 
-    Component_t & x(state[Chef::x]);
-    Component_t & xp(state[Chef::xp]);
-    Component_t & y(state[Chef::y]);
-    Component_t & yp(state[Chef::yp]);
-    Component_t & cdt(state[Chef::cdt]);
-    Component_t & dpop(state[Chef::dpop]);
+    Particle particle(jet_particle);
+    Reference_particle reference_particle(
+        chef_particle_to_reference_particle(particle));
+    double reference_momentum = reference_particle.get_momentum();
+    double m = reference_particle.get_mass();
 
-    double reference_momentum = jet_particle.ReferenceMomentum();
-    double reference_brho     = jet_particle.ReferenceBRho();
-    double m = jet_particle.Mass();
+    double new_ref_p =
+        FF_algorithm::thin_rfcavity_pnew(reference_momentum, m, str, phi_s);
 
-    rfcavity_unit(x, xp, y, yp, cdt, dpop,
-                  length, freq,
-                  reference_momentum, m, reference_brho);
-#endif
+    double reference_cdt = get_reference_cdt(length, reference_particle);
+
+    Jet& x(jet_particle.State()[Particle::xIndex]);
+    Jet& xp(jet_particle.State()[Particle::npxIndex]);
+    Jet& y(jet_particle.State()[Particle::yIndex]);
+    Jet& yp(jet_particle.State()[Particle::npyIndex]);
+    Jet& cdt(jet_particle.State()[Particle::cdtIndex]);
+    Jet& dpop(jet_particle.State()[Particle::ndpIndex]);
+
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * length,
+                             reference_momentum, m, 0.5 * reference_cdt);
+
+    FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop, w_rf, str, phi_s, m,
+                                     reference_momentum, new_ref_p);
+
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * length,
+                             reference_momentum, m, 0.5 * reference_cdt);
 }
 
 void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
