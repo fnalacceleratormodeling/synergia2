@@ -27,6 +27,55 @@ double get_reference_cdt(double length, Reference_particle & reference_particle)
 
 void
 FF_rfcavity::apply(Lattice_element_slice const& slice,
+                   Trigon_particle_t & trigon_particle)
+{
+    double length = slice.get_right() - slice.get_left();
+    Lattice_element const& elm = slice.get_lattice_element();
+
+    int harmonic_number = elm.get_double_attribute("harmon");
+    double volt = elm.get_double_attribute("volt");
+    double lag = elm.get_double_attribute("lag");
+    double shunt;
+    if(elm.has_double_attribute("shunt")) {
+        shunt = elm.get_double_attribute("shunt");
+    } else {
+        shunt = 0.0;
+    }
+    double freq = elm.get_double_attribute("freq");
+
+    double str = volt * 1.0e-3;
+    double phi_s = 2.0 * mconstants::pi * lag;
+    double w_rf = 2.0 * mconstants::pi * freq * 1.0e6;
+
+    Reference_particle reference_particle(
+        trigon_particle.get_reference_particle());
+    double reference_momentum = reference_particle.get_momentum();
+    double m = reference_particle.get_mass();
+
+    double new_ref_p =
+        FF_algorithm::thin_rfcavity_pnew(reference_momentum, m, str, phi_s);
+
+    double reference_cdt = get_reference_cdt(length, reference_particle);
+
+    Trigon_particle_t::Component_t& x(trigon_particle.get_state()[Bunch::x]);
+    Trigon_particle_t::Component_t& xp(trigon_particle.get_state()[Bunch::xp]);
+    Trigon_particle_t::Component_t& y(trigon_particle.get_state()[Bunch::y]);
+    Trigon_particle_t::Component_t& yp(trigon_particle.get_state()[Bunch::yp]);
+    Trigon_particle_t::Component_t& cdt(trigon_particle.get_state()[Bunch::cdt]);
+    Trigon_particle_t::Component_t& dpop(trigon_particle.get_state()[Bunch::dpop]);
+
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * length,
+                             reference_momentum, m, 0.5 * reference_cdt);
+
+    FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop, w_rf, str, phi_s, m,
+                                     reference_momentum, new_ref_p);
+
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * length,
+                             reference_momentum, m, 0.5 * reference_cdt);
+}
+
+void
+FF_rfcavity::apply(Lattice_element_slice const& slice,
                    JetParticle& jet_particle)
 {
     double length = slice.get_right() - slice.get_left();
