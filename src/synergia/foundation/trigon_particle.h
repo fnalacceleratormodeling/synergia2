@@ -6,12 +6,14 @@
 #include "synergia/utils/multi_array_typedefs.h"
 
 #include <array>
+#include <complex>
 
 template <unsigned int Order>
 class Trigon_particle
 {
 public:
     typedef Trigon<double, Order, 6> Component_t;
+    typedef Trigon<std::complex<double>, Order, 6> Complex_component_t;
     typedef std::array<Component_t, 6> State_t;
 
     Trigon_particle(Reference_particle const& reference_particle)
