@@ -196,6 +196,8 @@ class vector4double;
 //#include <x86intrin.h>
 //#include <immintrin.h>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshift-negative-value"
 #if defined(GSV_SSE)
   #include "vectorclass.h"
 #elif defined(GSV_AVX)
@@ -203,6 +205,7 @@ class vector4double;
 #elif defined(GSV_QPX)
   #include <mass_simd.h>
 #endif
+#pragma clang diagnostic pop
 
 namespace detail
 {
