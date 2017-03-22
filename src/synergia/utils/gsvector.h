@@ -22,7 +22,7 @@ namespace detail
     { 
         static const size_t size() { return 1; }
         static T ld(const double *p) { return *p; } 
-        static T st(double * p, const T & v) { *p = v; }
+        static void st(double * p, const T & v) { *p = v; }
     };
 }
 
@@ -215,7 +215,7 @@ namespace detail
     { 
         static const size_t size() { return 2; }
         static T ld(const double *p) { T t; t.load_a(p); return t; }
-        static T st(double * p, const T & v) { v.store_a(p); }
+        static void st(double * p, const T & v) { v.store_a(p); }
     };
 
     template <class T>
@@ -223,7 +223,7 @@ namespace detail
     { 
         static const size_t size() { return 4; }
         static T ld(const double *p) { T t; t.load_a(p); return t; }
-        static T st(double * p, const T & v) { v.store_a(p); }
+        static void st(double * p, const T & v) { v.store_a(p); }
     };
 }
 
