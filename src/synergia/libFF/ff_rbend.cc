@@ -38,7 +38,7 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
 
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
-        FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
+        FF_algorithm::bend_unit<double, std::complex<double>>(x, xp, y, yp, cdt, dpop,
                     0.0, strength, pref, m, 0.0, phase, term);
 
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
@@ -258,7 +258,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
             // bend
             // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
-            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
+            FF_algorithm::bend_unit<double, std::complex<double>>(x, xp, y, yp, cdt, dpop,
                     dphi, eB, pref_b, m, reference_cdt, 
                     phase, term);
 

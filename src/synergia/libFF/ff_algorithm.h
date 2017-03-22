@@ -48,9 +48,9 @@ public:
         T r1 = y;
         T r2 = 0.0;
 
-        T zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
+        T zp = sqrt((dpop+1.0)*(dpop+1.0) - xp * xp - yp * yp);
 
-        T p = (dpop+1) * pref;
+        T p = (dpop+1.0) * pref;
         T e = sqrt(p*p + m*m);
 
         T b0 = xp * pref / e;
@@ -63,7 +63,7 @@ public:
 
         r0 = x + tau * b0;
         r1 = y + tau * b1;
-        r2 = 0 + tau * b2;
+        r2 = tau * b2; // jfa what the heck? was "0 + tau * b2"
 
         x = r0 * ct - r2 * st;
         y = r1;
@@ -85,7 +85,7 @@ public:
     inline static void edge_unit
       (T const & y, T & xp, T & yp, T const & dpop, double k)
     {
-        T zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
+        T zp = sqrt((dpop+1.0)*(dpop+1.0) - xp * xp - yp * yp);
 
         T xxp = xp;
         T yyp = yp;
@@ -161,13 +161,13 @@ public:
         xp   = vuf.imag() / (Ef * PH_MKS_c);
     }
 
-    template <typename T>
+    template <typename T, typename CT>
     inline static void bend_unit
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double theta, double strength, double p_ref, double m, double cdt_ref,
        std::complex<double> phase, std::complex<double> term)
     {
-        typedef std::complex<T> CT;
+//        typedef std::complex<T> CT;
 
         T p0 = p_ref;
         T p  = p_ref * (dpop + 1.0);
@@ -186,29 +186,30 @@ public:
         T beta2 = Ef * yp;
         T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
 
-        CT ui  = CT(0.0, x);
-        CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+        std::complex<double> complex_i(0.0, 1.0);
+        CT ui(complex_i*x);
+        CT vui(PH_MKS_c * beta3 + complex_i* PH_MKS_c * beta1);
 
         T iomega = E / (csq * strength);
 
-        CT bi = CT(0.0, 1.0) * vui * iomega - ui;
+        CT bi = complex_i * vui * iomega - ui;
         CT bf = bi * phase + term;
 
         T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
 
-        T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+        T dthmphi = asin(real(bi) / rho) - asin(real(bf) / rho);
 
-        CT expf = std::exp( CT(0.0, dthmphi) );
+        CT expf = exp( complex_i * dthmphi);
         CT vuf  = vui * expf;
         CT uf   = (ui + bi) * expf - bf;
 
         T dtheta = dthmphi + theta;
         T ncdt = - PH_MKS_c * dtheta * iomega;
 
-        x    = uf.imag();
+        x    = imag(uf);
         y   += beta2 * ncdt;
         cdt += ncdt - cdt_ref;
-        xp   = vuf.imag() / (Ef * PH_MKS_c);
+        xp   = imag(vuf) / (Ef * PH_MKS_c);
     }
     
     inline static std::complex<double> bend_unit_phase(double theta)
@@ -220,12 +221,12 @@ public:
     inline static std::complex<double> bend_unit_term(double r0, double theta)
     { return std::complex<double>(0.0, r0) * std::complex<double>(1.0 - cos(theta), -sin(theta)); }
 
-    template <typename T>
+    template <typename T, typename CT>
     inline static void bend_edge
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double e, std::complex<double> phase, double strength, double p_ref, double m)
     {
-        typedef std::complex<T> CT;
+//        typedef std::complex<T> CT;
 
         T p0 = p_ref;
         T p  = p_ref * (dpop + 1.0);
@@ -244,29 +245,30 @@ public:
         T beta2 = Ef * yp;
         T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
 
-        CT ui  = CT(0.0, x);
-        CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+        std::complex<double> complex_i(0.0, 1.0);
+        CT ui  = complex_i * x;
+        CT vui = CT(PH_MKS_c * beta3 + complex_i * PH_MKS_c * beta1);
 
         T iomega = E / (csq * strength);
 
-        CT bi = CT(0.0, 1.0) * vui * iomega - ui;
+        CT bi = complex_i * vui * iomega - ui;
         CT bf = bi * phase;
 
         T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
 
-        T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+        T dthmphi = asin(real(bi) / rho) - asin(real(bf) / rho);
 
-        CT expf = std::exp( CT(0.0, dthmphi) );
+        CT expf = exp( complex_i* dthmphi );
         CT vuf  = vui * expf;
         CT uf   = (ui + bi) * expf - bf;
 
         T dtheta = dthmphi + e;
         T ncdt = - PH_MKS_c * dtheta * iomega;
 
-        x    = uf.imag();
+        x    = imag(uf);
         y   += beta2 * ncdt;
         cdt += ncdt;
-        xp   = vuf.imag() / (Ef * PH_MKS_c);
+        xp   = imag(vuf) / (Ef * PH_MKS_c);
     }
 
     template <typename T>
@@ -313,15 +315,15 @@ public:
     { return r0 * y / (r0 + x); }
 
     template <typename T>
-    inline static T thin_cf_quadrupole_by (T const& x, T const& y, double r0, double alf) 
+    inline static T thin_cf_quadrupole_by (T const& x, T const& y, double r0, T const& alf)
     { return r0 * log(1.0 + alf); }
 
     template <typename T>
-    inline static T thin_cf_sextupole_bx (T const& x, T const& y, double alf) 
+    inline static T thin_cf_sextupole_bx (T const& x, T const& y, T const& alf)
     { return x * (2.0 + alf) * y / (1.0 + alf); } 
 
     template <typename T>
-    inline static T thin_cf_sextupole_by (T const& x, T const& y, double r0, double alf) 
+    inline static T thin_cf_sextupole_by (T const& x, T const& y, double r0, T const& alf)
     { return 0.5 * (x*x + 2.0*x*r0) - y*y - r0*r0*log(1.0 + alf); }
 
     // combined function sbends kick up to quadrupole
@@ -814,7 +816,7 @@ public:
 
     // hardwired 6th order yoshida
     template <
-        typename T, 
+        typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
     inline static void yoshida6(T & x, T & xp,
@@ -910,7 +912,7 @@ public:
 
 
     template <
-        typename T, 
+        typename T, typename CT,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),
         int components >
     inline static void bend_yoshida4(T & x, T & xp,
@@ -991,22 +993,22 @@ public:
 
         for(int i = 0; i < steps; ++i) 
         {
-            bend_unit(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
+            bend_unit<T,CT>(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c1_step_phase, c1_step_term);
 
             kf( x, xp, y, yp, r0, k1 );
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+            bend_unit<T,CT>(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c2_step_phase, c2_step_term);
 
             kf( x, xp, y, yp, r0, k2 );
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c3 * step_angle, bend_strength, reference_momentum,
+            bend_unit<T,CT>(x, xp, y, yp, cdt, dpop, - c3 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c3_step_phase, c3_step_term);
 
             kf( x, xp, y, yp, r0, k3 );
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c4 * step_angle, bend_strength, reference_momentum,
+            bend_unit<T,CT>(x, xp, y, yp, cdt, dpop, - c4 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c4_step_phase, c4_step_term);
         }
     }
