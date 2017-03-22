@@ -106,8 +106,7 @@ class Trigon
 public:
     Trigon<T, Power - 1, Dim> lower;
     static constexpr unsigned int count =
-        Dim * factorial(Dim + Power) /
-        (factorial(Dim) * factorial(Power) * (Dim + Power));
+        factorial(Dim + Power - 1) / (factorial(Dim - 1) * factorial(Power));
     typedef std::array<T, count> Terms_t;
     Terms_t terms;
 
