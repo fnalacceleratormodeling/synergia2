@@ -293,11 +293,21 @@ public:
 
     Trigon<T, Power, Dim> operator*=(Trigon<T, Power, Dim> const& t)
     {
-        Terms_t new_terms;
-        new_terms.fill(0);
-        collect_products<Power>(t, new_terms);
-        lower *= t.lower;
-        terms = new_terms;
+        if (Power > 1) {
+            Terms_t new_terms;
+            new_terms.fill(0);
+            collect_products<Power>(t, new_terms);
+            lower *= t.lower;
+            terms = new_terms;
+        } else {
+            const T this_value = value();
+            const T right_value = t.value();
+            for(size_t i = 0; i < terms.size(); ++i) {
+                terms[i] *= right_value;
+                terms[i] += t.terms[i] * this_value;
+            }
+            value() *= right_value;
+        }
 
         return *this;
     }
@@ -328,15 +338,26 @@ public:
     Trigon<T, Power, Dim> operator/=(Trigon<T, Power, Dim> const& t)
     {
         // this / t = new
-        lower /= t.lower;
-        Terms_t new_terms;
-        new_terms.fill(0);
-        lower.template collect_products<Power>(t, new_terms);
-        T t0 = t.get_subpower<0>().terms[0];
-        for (size_t i = 0; i < new_terms.size(); ++i) {
-            terms[i] = (terms[i] - new_terms[i]) / t0;
+        if (Power > 1) {
+            lower /= t.lower;
+            Terms_t new_terms;
+            new_terms.fill(0);
+            lower.template collect_products<Power>(t, new_terms);
+            T t0 = t.value();
+            for (size_t i = 0; i < new_terms.size(); ++i) {
+                terms[i] = (terms[i] - new_terms[i]) / t0;
+            }
+        } else {
+            const T this_value = value();
+            const T right_value = t.value();
+            const T inv_right_value2 = 1.0 / (right_value * right_value);
+            for (size_t i = 0; i < terms.size(); ++i) {
+                terms[i] *= right_value;
+                terms[i] -= t.terms[i] * this_value;
+                terms[i] *= inv_right_value2;
+            }
+            value() /= right_value;
         }
-
         return *this;
     }
 
