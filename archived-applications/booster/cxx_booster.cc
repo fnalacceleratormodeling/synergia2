@@ -6,6 +6,7 @@
 #include "synergia/utils/multi_array_print.h"
 #include <boost/archive/archive_exception.hpp>
 #include "synergia/utils/multi_array_to_string.h"
+#include "synergia/foundation/physical_constants.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/split_operator_stepper.h"
@@ -13,6 +14,7 @@
 #include "synergia/simulation/independent_stepper.h"
 #include "synergia/simulation/split_operator_stepper_choice.h"
 #include "synergia/simulation/propagator.h"
+#include "synergia/simulation/fast_normal_form.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/foundation/distribution.h"
 #include "synergia/bunch/populate.h"
@@ -33,8 +35,9 @@ run()
 { 
   
    
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);     
+    int rank,mpi_size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size); 
   //  std::cout<<"run start on rank: "<<rank<<std::endl; 
     
     Options opts;
@@ -64,7 +67,43 @@ run()
     Lattice_elements quad_correctors_v;
     Lattice_elements sextupole_correctors_h;
     Lattice_elements sextupole_correctors_v;
+
    
+    std::vector<std::string> sext_name;          
+    std::vector<double> sext_k2; 
+    if (opts.read_sextupoles){
+        std::ifstream rfile;
+        std::string line;        
+        rfile.open(opts.sextupoles_file.c_str());      
+        while (!rfile.eof() && rfile.is_open()) {
+            std::vector<std::string> columns;          
+            getline(rfile,line); 
+            if ( !line.empty() ){  
+                size_t pos=line.find_first_not_of(" \t\r\n");
+                if (pos !=std::string::npos){
+                    if (line.at(pos) != '!' ){
+                        std::stringstream ss(line);
+                        std::string column;
+                        while (ss>>column){
+                            columns.push_back(column);                          
+                         }
+                        sext_name.push_back(columns[0].substr(0,5));                      
+                        sext_k2.push_back(atof((columns[3].substr(3)).c_str()));
+                    }
+                 }
+             }    
+            
+        }//!rfile.eof   
+      /*  
+       std::cout<<" no sext="<< sext_name.size()<<std::endl;
+       for (int i=0;i<sext_name.size();++i){
+           std::cout<<" name="<<sext_name[i]<<" k2="<<sext_k2[i]<<std::endl;
+           
+       }*/
+       if (rank==0) std::cout<<" sextupoles correctors read from file: "<<opts.sextupoles_file<<std::endl;
+     }//read_sextupoles
+          
+
     for (Lattice_elements::const_iterator it =
       lattice_sptr->get_elements().begin();
     it != lattice_sptr->get_elements().end(); ++it) {
@@ -120,7 +159,19 @@ run()
          //  (*it)->print();
              sextupole_correctors_v.push_back((*it));
           }
+          if (opts.read_sextupoles){
+                std::string sextupole_name(element_name.begin(),element_name.begin()+5);                   
+                for (int i=0;i<sext_name.size();++i){
+                        if (sextupole_name==sext_name[i]) {                           
+                           (*it)->set_double_attribute("k2",  sext_k2[i]);  
+                           std::cout<<sextupole_name<<" set to k2="<< sext_k2[i]<<std::endl;
+                        }
+                        
+                
+                 }             
+           }
           
+         
           std::string quad_name(element_name.begin(),element_name.begin()+2); 
           std::string quad_namel(element_name.begin(),element_name.begin()+3); 
           if ( (quad_name=="ql")   && ((*it)->get_type()=="quadrupole") ) {           
@@ -364,7 +415,27 @@ run()
           std::cout<<"number of steps="<<stepper_sptr->get_steps().size()<<std::endl;
         }
     }
-    
+   if (opts.save_normal_form){
+        if (rank==0){
+            Normal_form_sage_sptr nf_sptr(stepper_sptr->get_lattice_simulator().get_normal_form_sptr());  
+            Fast_normal_form  fnf(*(nf_sptr)); 
+            
+            std::string lattice_name(opts.lattice_file.begin(), opts.lattice_file.end()-4);
+            std::stringstream normal_form_file_name;
+            normal_form_file_name<<"normal_form";
+            
+            normal_form_file_name<<"_m"<<opts.map_order<<"_"<<lattice_name;
+            
+            xml_save(fnf , normal_form_file_name.str()+".xml");         
+            std::cout<<" normal form saved in the file: "<<normal_form_file_name.str()+".xml"<<std::endl;
+        
+        // archive_save<Fast_normal_form, boost::archive::text_oarchive > (fnf, normal_form_file_name.str()+".txt",false);  
+        //  std::cout<<" normal form saved in the file: "<<normal_form_file_name.str()+".txt"<<std::endl;
+            
+        
+        }
+        return;
+   }
   
      stepper_sptr->get_lattice_simulator().register_closed_orbit();             
      stepper_sptr->get_lattice_simulator().set_rf_bucket_length();
@@ -375,6 +446,8 @@ run()
     // stepper_sptr->print();
        std::cout<<"stepper rf frequency="<<stepper_sptr->get_lattice_simulator().get_rf_frequency()<<std::endl;
      }
+     
+  
   
  
      if (opts.adjust_tunes){
@@ -402,19 +475,20 @@ run()
      energy = reference_particle.get_total_energy();
      double bunch_sp=stepper_sptr->get_lattice_simulator().get_bucket_length();
      MArray1d clo=stepper_sptr->get_lattice_simulator().get_closed_orbit();
-     std::vector<double >  actions(3);   
-     if (!opts.load_bunch) {
-         actions= stepper_sptr->get_lattice_simulator().get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta);
-         if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.)) throw
-               std::runtime_error("get_stationary_actions can't satisfy requested moments");  
-         if (rank==0) std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl;
-     }
+    // std::vector<double >  actions(3);   
+    // if (!opts.load_bunch) {
+    //     actions= stepper_sptr->get_lattice_simulator().get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta);
+     //    if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.)) throw
+     //          std::runtime_error("get_stationary_actions can't satisfy requested moments");  
+    //     if (rank==0) std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl;
+    /// }
       if (rank==0) { 
         std::cout<<"    ********    stepper  lattice  ************     "<<std::endl;
         std::cout<<std::endl;
         multi_array_print(clo,"closed_orbit");  
         std::cout<<" bunch spacing="<<bunch_sp<<std::endl;
-        std::cout<<" rf bucket length="<<stepper_sptr->get_lattice_simulator().get_bucket_length()<<std::endl;        
+        std::cout<<" rf bucket length="<<stepper_sptr->get_lattice_simulator().get_bucket_length()<<" ="
+         <<stepper_sptr->get_lattice_simulator().get_bucket_length()*1e9/beta/pconstants::c<<" ns"<<std::endl;        
         std::cout<<" rf frequency="<<stepper_sptr->get_lattice_simulator().get_rf_frequency()/1.e6<<" MHz"<<std::endl;     
         std::cout<<" beta="<<beta<<std::endl;
         std::cout<<" gamma="<<gamma<<std::endl;
@@ -426,34 +500,35 @@ run()
         std::cout<<"    ***********************************     "<<std::endl;
         std::cout<<std::endl;
        }
-
-      MArray2d one_turn_map=stepper_sptr->get_lattice_simulator().get_linear_one_turn_map();
-      MArray2d correlation_matrix=get_correlation_matrix(one_turn_map,opts.xrms, opts.yrms, opts.zrms, beta);
-      
-      
-      if (rank==0){
-         std::cout<<" correlation matrix="<<multi_array_to_string(correlation_matrix)<<std::endl;
-       }
-      int map_size=one_turn_map.size();
-      Eigen::MatrixXd eigen_map(map_size,map_size);
-      for (int i=0;i<map_size;++i){
-        for (int j=0;j<map_size;++j){
-          eigen_map(i,j)=one_turn_map[i][j];   
+    if (opts.map_order==1){
+        MArray2d one_turn_map=stepper_sptr->get_lattice_simulator().get_linear_one_turn_map();
+        MArray2d correlation_matrix=get_correlation_matrix(one_turn_map,opts.xrms, opts.yrms, opts.zrms, beta);
+        
+        
+        if (rank==0){
+            std::cout<<" correlation matrix="<<multi_array_to_string(correlation_matrix)<<std::endl;
         }
-      }
-      if (rank==0){             
-            std::cout<<" one turn map="<<multi_array_to_string(one_turn_map)<<std::endl;
-            std::cout<<"eigenvalues of the one_turn_map:"
-            <<"\n"<<"**********************"<<std::endl;
-            for (int i=0;i<map_size;++i){
-              std::complex<double> vv=eigen_map.eigenvalues()(i);
-              std::cout<<"eigenvalue["<<i<<"]="<<vv
-              <<",  absolute value="<<abs(vv)
-              <<",  fractional tune="<<fabs(log(vv).imag()/(2.*mconstants::pi))
-              <<",  "<<1.-fabs(log(vv).imag()/(2.*mconstants::pi))<<std::endl;
+        int map_size=one_turn_map.size();
+        Eigen::MatrixXd eigen_map(map_size,map_size);
+        for (int i=0;i<map_size;++i){
+            for (int j=0;j<map_size;++j){
+            eigen_map(i,j)=one_turn_map[i][j];   
             }
-            std::cout<<"**********************"<<std::endl;
-      }
+        }
+        if (rank==0){             
+                std::cout<<" one turn map="<<multi_array_to_string(one_turn_map)<<std::endl;
+                std::cout<<"eigenvalues of the one_turn_map:"
+                <<"\n"<<"**********************"<<std::endl;
+                for (int i=0;i<map_size;++i){
+                std::complex<double> vv=eigen_map.eigenvalues()(i);
+                std::cout<<"eigenvalue["<<i<<"]="<<vv
+                <<",  absolute value="<<abs(vv)
+                <<",  fractional tune="<<fabs(log(vv).imag()/(2.*mconstants::pi))
+                <<",  "<<1.-fabs(log(vv).imag()/(2.*mconstants::pi))<<std::endl;
+                }
+                std::cout<<"**********************"<<std::endl;
+        }
+    }
 
     
       if (opts.tunes_and_chroms){        
@@ -497,7 +572,7 @@ run()
          if (opts.load_bunch){
           std::stringstream bunch_label;
           bunch_label<<i;
-          bunch_label<<"_m"<<opts.map_order_loaded_bunch<<"_0000";         
+          bunch_label<<"_"<<opts.label_saveload_bunch<<"_0000";         
           bunch_sptr->read_file("initial_bunch"+bunch_label.str()+".h5");
           if (commx->get_rank()==0) std::cout<<" bunch "<<i<<" loaded from:  "<<"initial_bunch"+bunch_label.str()+".h5"<<std::endl; 
         }
@@ -509,17 +584,46 @@ run()
             for(int imean=0;imean<6;++imean){
                     input_means[imean]=0.;
             }       
-            //  populate_6d(dist, *bunch_sptr, input_means, correlation_matrix);
+          //  populate_6d(dist, *bunch_sptr, input_means, correlation_matrix);
            // populate_6d_stationary_gaussian_adjust(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),
-           // input_means,  correlation_matrix);
+          // input_means,  correlation_matrix);
             
           
             MArray1d limits(boost::extents[3]);
-            double zmax_over_sigma=0.499*stepper_sptr->get_lattice_simulator().get_bucket_length()/opts.zrms;
-            limits[0]=100; //zmax_over_sigma;
-            limits[1]= 100.;//zmax_over_sigma;                  
+	    
+            double zmax_over_sigma=0.285*stepper_sptr->get_lattice_simulator().get_bucket_length()/opts.zrms;
+	        double xmax_over_sigma=0.499*stepper_sptr->get_lattice_simulator().get_bucket_length()/opts.zrms;
+	        double ymax_over_sigma=10.*stepper_sptr->get_lattice_simulator().get_bucket_length()/opts.zrms;
+            limits[0]=xmax_over_sigma;
+            limits[1]= ymax_over_sigma;                  
             limits[2]=zmax_over_sigma;
-            populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),limits); 
+            std::vector<double >  actions(3); 
+            if (opts.load_normal_form){
+                if (mpi_size==1) {
+                    Fast_normal_form   fnf;
+                    xml_load(fnf, opts.saved_normal_form_f);
+                    std::cout<<" normal form read from file: "<<opts.saved_normal_form_f<<std::endl;                   
+                    actions= fnf.get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta);
+                    std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl; 
+                    if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.)) throw 
+                        std::runtime_error("fast_normal_form: get_stationary_actions can't satisfy requested moments");                                                
+                    
+                    
+                    populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, fnf ,limits);
+                 }
+                 else{
+                    throw std::runtime_error("Load normal form requires a serial job, i.e. mpi_size=1 ");                   
+                 }
+            }
+            else{ 
+                 actions= stepper_sptr->get_lattice_simulator().get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta); 
+                 if (rank==0) std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl;
+                 if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.))  throw  
+                     std::runtime_error("lattice_simulator: get_stationary_actions can't satisfy requested moments");                  
+                 
+                 populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),limits); 
+            }
+            
         }
        
       }      
@@ -549,82 +653,84 @@ run()
      std::cout<<" number of measurements per turn="<<step_numbers.size()<<std::endl;
    }
    
-// #if 0  
+ 
   for (int i=0;i<bunch_train_sptr->get_size();++i){
     std::stringstream bunch_label;
     bunch_label<<i;
     if (opts.save_bunch){
-       bunch_label<<"_m"<<opts.map_order;
+       bunch_label<<"_"<<opts.label_saveload_bunch;
        Diagnostics_sptr initial_particles_sptr(new Diagnostics_particles("initial_bunch"+bunch_label.str()+".h5"));
        initial_particles_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]);
        initial_particles_sptr->update_and_write();     
     }
-   
-     Diagnostics_sptr diagnostics_full2_sptr(new Diagnostics_full2("step_full2_"+bunch_label.str()+".h5"));
-     bunch_train_simulator.add_per_step(i,diagnostics_full2_sptr, step_numbers ); 
-     
-   
-     Diagnostics_sptr diagnostics_particles_sptr(new Diagnostics_particles("turn_particles_"+bunch_label.str()+".h5"));
-     bunch_train_simulator.add_per_turn(i,diagnostics_particles_sptr,opts.turn_period);
-         
-     if(opts.turn_track){
-        Diagnostics_sptr diagnostics_bulk_track_sptr(new Diagnostics_bulk_track("bulk_track_"+bunch_label.str()+".h5",
-                                                                                opts.num_macroparticles));
-        bunch_train_simulator.add_per_turn(i,diagnostics_bulk_track_sptr);  
-     }
-     if(opts.phase_space){
-        int grid_z=20;
-        int grid_zp=20;
-        double z_nsigma=4.0;
-        double zp_nsigma=4.0;
-        Diagnostics_sptr diagnostics_phase_space_density_sptr(new 
-                  Diagnostics_phase_space_density("phase_space_density_"+bunch_label.str()+".h5",
-                                                  grid_z,grid_zp,z_nsigma,zp_nsigma));                                               
-        bunch_train_simulator.add_per_turn(i, diagnostics_phase_space_density_sptr);       
-     }
-    
-     if(opts.space_charge){
-        if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
-           Commxx_sptr comm_spc_sptr=
-                   make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm_sptr(),
-                           opts.spc_comm_size, opts.equally_spread );
-            spc_f_sptr->set_fftw_helper(comm_spc_sptr,opts.equally_spread);
-            spc_d_sptr->set_fftw_helper(comm_spc_sptr,opts.equally_spread);
-            spc_l_sptr->set_fftw_helper(comm_spc_sptr,opts.equally_spread); 
-             if (opts.spc_tuneshift){
-               Diagnostics_space_charge_rectangular_sptr sp_diagnostics_sptr
-                  (new Diagnostics_space_charge_rectangular("space_charge_diagnostics_"+bunch_label.str()+".h5"));
-               sp_diagnostics_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]);
-               spc_f_sptr->add_diagnostics(sp_diagnostics_sptr);
-               spc_d_sptr->add_diagnostics(sp_diagnostics_sptr);
-               spc_l_sptr->add_diagnostics(sp_diagnostics_sptr);
-           }// opts.spc_tuneshift                         
-        }// has rank       
-     }// space charge
+    else{
+        
+            Diagnostics_sptr diagnostics_full2_sptr(new Diagnostics_full2("step_full2_"+bunch_label.str()+".h5"));
+            bunch_train_simulator.add_per_step(i,diagnostics_full2_sptr, step_numbers ); 
+            
+        
+            Diagnostics_sptr diagnostics_particles_sptr(new Diagnostics_particles("turn_particles_"+bunch_label.str()+".h5"));
+            bunch_train_simulator.add_per_turn(i,diagnostics_particles_sptr,opts.turn_period);
+                
+            if(opts.turn_track){
+                Diagnostics_sptr diagnostics_bulk_track_sptr(new Diagnostics_bulk_track("bulk_track_"+bunch_label.str()+".h5",
+                                                                                        opts.num_macroparticles));
+                bunch_train_simulator.add_per_turn(i,diagnostics_bulk_track_sptr);  
+            }
+            if(opts.phase_space){
+                int grid_z=20;
+                int grid_zp=20;
+                double z_nsigma=4.0;
+                double zp_nsigma=4.0;
+                Diagnostics_sptr diagnostics_phase_space_density_sptr(new 
+                        Diagnostics_phase_space_density("phase_space_density_"+bunch_label.str()+".h5",
+                                                        grid_z,grid_zp,z_nsigma,zp_nsigma));                                               
+                bunch_train_simulator.add_per_turn(i, diagnostics_phase_space_density_sptr);       
+            }
+            
+            if(opts.space_charge){
+                if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
+                Commxx_sptr comm_spc_sptr=
+                        make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm_sptr(),
+                                opts.spc_comm_size, opts.equally_spread );
+                    spc_f_sptr->set_fftw_helper(comm_spc_sptr,opts.equally_spread);
+                    spc_d_sptr->set_fftw_helper(comm_spc_sptr,opts.equally_spread);
+                    spc_l_sptr->set_fftw_helper(comm_spc_sptr,opts.equally_spread); 
+                    if (opts.spc_tuneshift){
+                    Diagnostics_space_charge_rectangular_sptr sp_diagnostics_sptr
+                        (new Diagnostics_space_charge_rectangular("space_charge_diagnostics_"+bunch_label.str()+".h5"));
+                    sp_diagnostics_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]);
+                    spc_f_sptr->add_diagnostics(sp_diagnostics_sptr);
+                    spc_d_sptr->add_diagnostics(sp_diagnostics_sptr);
+                    spc_l_sptr->add_diagnostics(sp_diagnostics_sptr);
+                }// opts.spc_tuneshift                         
+                }// has rank       
+            }// space charge
 
-    bool apertures_loss=1;
-    if(apertures_loss){    
-       if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
-          Diagnostics_loss_sptr diag_loss_sptr=Diagnostics_loss_sptr(
-                new Diagnostics_loss("apertures_loss_"+bunch_label.str()+".h5","aperture"));
-          diag_loss_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]); 
-          stepper_sptr->get_lattice_simulator().get_lattice_sptr()->add_loss_diagnostics(diag_loss_sptr);
-                  
-       }     
-    }
-    
-    bool zcut_loss=1;
-    if(zcut_loss){    
-       if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
-          if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->has_longitudinal_aperture()){
+            bool apertures_loss=1;
+            if(apertures_loss){    
+            if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
                 Diagnostics_loss_sptr diag_loss_sptr=Diagnostics_loss_sptr(
-                      new Diagnostics_loss("zcut_loss_"+bunch_label.str()+".h5","zcut"));
+                        new Diagnostics_loss("apertures_loss_"+bunch_label.str()+".h5","aperture"));
                 diag_loss_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]); 
                 stepper_sptr->get_lattice_simulator().get_lattice_sptr()->add_loss_diagnostics(diag_loss_sptr);
-          }
-                  
-       }     
-    }
+                        
+            }     
+            }
+            
+            bool zcut_loss=1;
+            if(zcut_loss){    
+            if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->get_comm().has_this_rank()){
+                if (bunch_train_simulator.get_bunch_train().get_bunches()[i]->has_longitudinal_aperture()){
+                        Diagnostics_loss_sptr diag_loss_sptr=Diagnostics_loss_sptr(
+                            new Diagnostics_loss("zcut_loss_"+bunch_label.str()+".h5","zcut"));
+                        diag_loss_sptr->set_bunch_sptr(bunch_train_simulator.get_bunch_train().get_bunches()[i]); 
+                        stepper_sptr->get_lattice_simulator().get_lattice_sptr()->add_loss_diagnostics(diag_loss_sptr);
+                }
+                        
+            }     
+        }
+    } // opts.save_bunch
     
 
      //adjust means   
@@ -667,7 +773,10 @@ run()
 
   }// for i
   if ((opts.num_bunches>1) && (rank==0)) std::cout<<"train bunch space="<<bunch_train_simulator.get_bunch_train().get_spacings()[0]<<std::endl;
- 
+  if (opts.save_bunch) {
+      if (rank==0) std::cout<<" bunches saved"<<std::endl; 
+      return;      
+}
  
  
  

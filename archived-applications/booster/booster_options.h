@@ -13,7 +13,7 @@ class Options
   public:
     std::string  lattice_file;
     int map_order; 
-    int map_order_loaded_bunch;
+    std::string label_saveload_bunch;
     bool bpms;
     bool impedance;
     bool space_charge;
@@ -48,6 +48,9 @@ class Options
     long unsigned int seed;
     bool load_bunch;
     bool save_bunch;
+    bool save_normal_form;
+    bool load_normal_form;
+    std::string saved_normal_form_f;
     bool print_lattice;
     
     
@@ -75,6 +78,8 @@ class Options
     int harmon;
     
     bool tunes_and_chroms;
+    bool read_sextupoles;
+    std::string sextupoles_file;
     bool adjust_chromaticity;
     double chrom_h;
     double chrom_v;
@@ -98,7 +103,7 @@ class Options
     Options(std::string filename="input_options"): 
       lattice_file("booster_new.xml"),
       map_order(1),
-      map_order_loaded_bunch(1),
+      label_saveload_bunch(""),
       bpms(false),
       impedance(false),
       space_charge(false),
@@ -126,6 +131,9 @@ class Options
       seed(13),
       load_bunch(false),
       save_bunch(false), 
+      save_normal_form(false),
+      load_normal_form(false),
+      saved_normal_form_f("normal_form.xml"),
       print_lattice(false),
       turn_track(0),      
       phase_space(0),
@@ -144,6 +152,8 @@ class Options
       rf_voltage(0.6/18.0),
       harmon(84),
       tunes_and_chroms (false),
+      read_sextupoles(false),
+      sextupoles_file("sextupole_correctors.txt"),
       adjust_chromaticity(false),
       chrom_h(-15.),
       chrom_v(-10.),
@@ -166,7 +176,7 @@ class Options
 
           options_map["lattice_file"]= lattice_file;
           options_map["map_order"]=map_order;
-          options_map["map_order_loaded_bunch"]=map_order_loaded_bunch;
+          options_map["label_saveload_bunch"]=label_saveload_bunch;
           options_map["bpms"]=bpms;
           options_map["impedance"]=impedance;
           options_map["space_charge"]=space_charge;
@@ -194,6 +204,9 @@ class Options
           options_map["seed"]=seed;
           options_map["load_bunch"]=load_bunch;
           options_map["save_bunch"]=save_bunch; 
+          options_map["save_normal_form"]=save_normal_form;
+          options_map["load_normal_form"]= load_normal_form;
+          options_map["saved_normal_form_f"]= saved_normal_form_f;
           options_map["print_lattice"]=print_lattice;
           options_map["turn_track"]=turn_track;
           options_map["phase_space"]= phase_space;
@@ -212,6 +225,8 @@ class Options
           options_map["rf_voltage"]=rf_voltage;
           options_map["harmon"]=harmon;
           options_map["tunes_and_chroms"]=tunes_and_chroms;
+          options_map["read_sextupoles"]= read_sextupoles;
+          options_map["sextupoles_file"]= sextupoles_file;
           options_map["adjust_chromaticity"]=adjust_chromaticity;
           options_map["chrom_h"]=chrom_h;
           options_map["chrom_v"]=chrom_v;
@@ -304,7 +319,7 @@ class Options
      vv<<value;   
      if (option=="lattice_file") vv>>lattice_file;
      if (option=="map_order")  vv>>map_order;
-     if (option=="map_order_loaded_bunch")  vv>>map_order_loaded_bunch;
+     if (option=="label_saveload_bunch")  vv>>label_saveload_bunch;
      if (option=="bpms")  vv>>bpms;
      if (option=="impedance")  vv>>impedance;
      if (option=="space_charge")  vv>>space_charge;
@@ -330,6 +345,9 @@ class Options
      if (option=="seed")  vv>>seed;
      if (option=="load_bunch")  vv>>load_bunch;
      if (option=="save_bunch")  vv>>save_bunch;
+     if (option=="save_normal_form")  vv>>save_normal_form;
+     if (option=="load_normal_form")  vv>>load_normal_form;
+     if (option=="saved_normal_form_f")  vv>>saved_normal_form_f;
      if (option=="print_lattice")  vv>>print_lattice;
      if (option=="turn_track")  vv>>turn_track;
      if (option=="phase_space")  vv>> phase_space;
@@ -348,6 +366,8 @@ class Options
      if (option=="rf_voltage")  vv>>rf_voltage;
      if (option=="harmon")  vv>>harmon;
      if (option=="tunes_and_chroms")  vv>>tunes_and_chroms;
+     if (option=="read_sextupoles")  vv>>read_sextupoles;
+     if (option=="sextupoles_file")  vv>> sextupoles_file;
      if (option=="adjust_chromaticity") vv>>adjust_chromaticity;
      if (option=="chrom_h") vv>>chrom_h;
      if (option=="chrom_v") vv>>chrom_v;
@@ -366,7 +386,7 @@ class Options
     void print(Logger  logger=Logger(0,"all_options",false, true) ){
      logger<<"lattice_file="<<lattice_file<<std::endl;
      logger<<"map_order="<<map_order<<std::endl;
-     logger<<"map_order_loaded_bunch="<<map_order_loaded_bunch<<std::endl;
+     logger<<"label_saveload_bunch="<<label_saveload_bunch<<std::endl;
      logger<<"bpms="<<bpms<<std::endl;
      logger<<"impedance="<<impedance<<std::endl;
      logger<<"space_charge="<<space_charge<<std::endl;
@@ -391,7 +411,10 @@ class Options
      logger<<"num_real_particles="<<num_real_particles<<std::endl;
      logger<<"seed="<<seed<<std::endl;
      logger<<"load_bunch="<<load_bunch<<std::endl;
-     logger<<"save_bunch="<<save_bunch<<std::endl;   
+     logger<<"save_bunch="<<save_bunch<<std::endl; 
+     logger<<"save_normal_form="<<save_normal_form<<std::endl;
+     logger<<"load_normal_form="<<load_normal_form<<std::endl;
+      logger<<"saved_normal_form_f="<<saved_normal_form_f<<std::endl;
      logger<<"print_lattice="<<print_lattice<<std::endl;
      logger<<"turn_track="<<turn_track<<std::endl;
      logger<<"phase_space="<<phase_space<<std::endl;
@@ -410,6 +433,8 @@ class Options
      logger<<"rf_voltage="<<rf_voltage<<std::endl;
      logger<<"harmon="<<harmon<<std::endl;
      logger<<"tunes_and_chroms="<<tunes_and_chroms<<std::endl;
+     logger<<"read_sextupoles="<<read_sextupoles<<std::endl;
+     logger<<"sextupoles_file="<< sextupoles_file<<std::endl;
      logger<<"adjust_chromaticity="<< adjust_chromaticity<<std::endl;
      logger<<"chrom_h="<< chrom_h<<std::endl;
      logger<<"chrom_v="<< chrom_v<<std::endl;

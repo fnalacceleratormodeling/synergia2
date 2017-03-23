@@ -2736,7 +2736,7 @@ Dense_mapping_calculator::Dense_mapping_calculator(Lattice_simulator& lattice_si
             (*chef_it)->propagate(zero_particle);
 //            std::cout << "jfa: zero particle after " << zero_particle.get_cdt() << std::endl;  
         }
-        element_map[&(**it)] = Fast_mapping(reference_particle, jet_particle.State(),
+        element_map[&(**it)] = Fast_mapping(jet_particle.State(),
                                             mapping_length);
     }
 }

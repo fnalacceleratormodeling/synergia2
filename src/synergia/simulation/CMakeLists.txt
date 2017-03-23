@@ -6,7 +6,7 @@ add_library(synergia_simulation operator.cc step.cc stepper.cc
     split_operator_stepper.cc split_operator_stepper_elements.cc
     split_operator_stepper_choice.cc
     propagate_actions.cc lattice_elements_actions.cc diagnostics_actions.cc propagator.cc
-    fast_mapping.cc chef_propagator.cc independent_operation.cc
+    fast_mapping.cc  fast_normal_form.cc chef_propagator.cc independent_operation.cc
     lattice_simulator.cc operation_extractor.cc aperture.cc
     aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
     bunch_train_simulator.cc resume.cc dense_mapping.cc calculate_closed_orbit.cc)
@@ -27,6 +27,8 @@ install(FILES
     chef_propagator.h
     diagnostics_actions.h
     fast_mapping.h
+    fast_mapping.tcc
+    fast_normal_form.h
     independent_operation.h
     aperture_operation.h
     aperture_operation.tcc

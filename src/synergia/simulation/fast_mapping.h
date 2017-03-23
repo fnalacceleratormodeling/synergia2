@@ -43,10 +43,11 @@
 //   => Fast_mapping_term fmt(3); fmt.coeff() = 2.2;
 //          fmt.index(0) = 0; fmt.index(1) = 2; fmt.index(2) = 4;
 //
+template < typename T> 
 class Fast_mapping_term
 {
 private:
-    double the_coeff;
+    T the_coeff;
     std::vector<int > i;
     int the_order;
 public:
@@ -61,13 +62,13 @@ public:
         return the_order;
     }
     ;
-    inline double &
+    inline T &
     coeff()
     {
         return the_coeff;
     }
     ;
-    inline double const&
+    inline T const&
     coeff() const
     {
         return the_coeff;
@@ -93,7 +94,8 @@ public:
     ~Fast_mapping_term();
 };
 
-typedef std::list<Fast_mapping_term > Fast_mapping_terms; // syndoc:include
+//typedef std::list<Fast_mapping_term > Fast_mapping_terms; // syndoc:include
+
 
 // The interface in this comment is out of date
 // Fast_mapping is a sparse container for a collection of arbitrary-order
@@ -141,21 +143,22 @@ typedef std::list<Fast_mapping_term > Fast_mapping_terms; // syndoc:include
 // tmp_term2.i[1] = 5;
 // terms.at(1).at(2).push_back(tmp_term2);
 //
-class Fast_mapping
+
+template < typename T> 
+class TFast_mapping
 {
 private:
-    std::vector<std::vector<Fast_mapping_terms > > terms;
+    std::vector<std::vector<std::list<Fast_mapping_term<T>  > > > terms;
     int order;
     double length;
     void
     init(int order);
 public:
-    Fast_mapping(int order);
-    Fast_mapping(std::string const& filename);
-    Fast_mapping(Reference_particle const& reference_particle,
-            Mapping const& chef_mapping, double mapping_length);
+    TFast_mapping(int order);
+    TFast_mapping(std::string const& filename);
+    TFast_mapping(TMapping<T> const& chef_mapping, double mapping_length);
     /// Default constructor for serialization use only
-    Fast_mapping();
+    TFast_mapping();
     void
     set_length(double length);
     double
@@ -163,11 +166,16 @@ public:
     int
     get_order() const;
     void
-    add_term(int index, Fast_mapping_term const& term);
-    std::vector<std::vector<Fast_mapping_terms > > const&
+    add_term(int index, Fast_mapping_term<T> const& term);
+    std::vector<std::vector<std::list<Fast_mapping_term<T>  > > > const&
     get_terms() const;
     void
     apply(Bunch & bunch);
+    void
+    apply(boost::multi_array_ref<T, 1 > coords);   
+//     T
+//     apply(int icoord,  boost::multi_array_ref<T, 1 > coords);
+    
     std::string
     as_string() const;
     void
@@ -177,4 +185,10 @@ public:
         serialize(Archive & ar, const unsigned int version);
 };
 
+typedef TFast_mapping<double>  Fast_mapping;
+typedef  boost::shared_ptr<Fast_mapping > Fast_mapping_sptr;
+typedef TFast_mapping<std::complex<double > >  CFast_mapping;
+typedef  boost::shared_ptr<CFast_mapping > CFast_mapping_sptr;
+
+#include "synergia/simulation/fast_mapping.tcc"
 #endif /* FAST_MAPPING_H_ */

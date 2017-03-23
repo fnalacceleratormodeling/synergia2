@@ -126,14 +126,13 @@ populate_6d_stationary_gaussian_adjust(Distribution &dist, Bunch &bunch,
     
 }
 
+
 void
-populate_6d_stationary_gaussian_truncated(Distribution &dist, Bunch &bunch,
+populate_normalforms_stationary_truncated (Distribution &dist, Bunch &bunch,
                 const std::vector<double> actions,
-                Lattice_simulator& lattice_simulator,  Const_MArray1d_ref limits )
+                Const_MArray1d_ref limits)
 {
-  
-  // limit =xmax/sigma_x , xmax=aperture maximum radius 
-  
+    
     MArray2d_ref particles(bunch.get_local_particles());
     int num_part = particles.shape()[0];
 
@@ -165,6 +164,33 @@ populate_6d_stationary_gaussian_truncated(Distribution &dist, Bunch &bunch,
             particles[part][2*c+1] = -square_root_action * cos(phase);
         }
     }
+    
+}    
+
+
+void
+populate_6d_stationary_gaussian_truncated (Distribution &dist, Bunch &bunch,
+                const std::vector<double> actions,
+                Fast_normal_form & fnf ,   Const_MArray1d_ref limits)
+{
+    
+  /// limit =xmax/sigma_x , xmax=aperture maximum radius 
+    populate_normalforms_stationary_truncated(dist, bunch, actions, limits);
+    MArray2d_ref particles(bunch.get_local_particles());
+    fnf.convert_normal_to_xyz(particles);    
+        
+}
+
+
+void
+populate_6d_stationary_gaussian_truncated(Distribution &dist, Bunch &bunch,
+                const std::vector<double> actions,
+                Lattice_simulator& lattice_simulator,  Const_MArray1d_ref limits )
+{
+  
+  // limit =xmax/sigma_x , xmax=aperture maximum radius   
+    populate_normalforms_stationary_truncated(dist, bunch, actions, limits);
+    MArray2d_ref particles(bunch.get_local_particles());
     lattice_simulator.convert_normal_to_xyz(particles);    
     
 }

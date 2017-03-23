@@ -10,20 +10,20 @@ const double tolerance = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(construct, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping(mapping, mapping_length);
     Fast_mapping_operation fast_mapping_operation(fast_mapping);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_type, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping( mapping, mapping_length);
     Fast_mapping_operation fast_mapping_operation(fast_mapping);
     BOOST_CHECK_EQUAL(fast_mapping_operation.get_type(), "fast_mapping");
 }
 
 BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping( mapping, mapping_length);
     Fast_mapping_operation fast_mapping_operation(fast_mapping);
     //    multi_array_print(b.bunch.get_local_particles(), "particles before");
     const int verbosity = 5;
@@ -36,7 +36,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping(mapping, mapping_length);
     Fast_mapping_operation fast_mapping_operation(fast_mapping);
 
     xml_save<Fast_mapping_operation > (fast_mapping_operation,

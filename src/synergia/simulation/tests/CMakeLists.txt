@@ -43,6 +43,11 @@ add_test(NAME test_lattice_simulator_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLA
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_lattice_simulator.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test_executable(test_fast_normal_form test_fast_normal_form.cc)
+target_link_libraries(test_fast_normal_form synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_fast_normal_form COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_fast_normal_form>)
+    
+    
 add_test(NAME test_mad8_multipoles_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_multipoles.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_mad8_multipoles.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -27,7 +27,7 @@ struct Fast_mapping_term_fixture
         BOOST_TEST_MESSAGE("teardown Fast_mapping_term fixture");
         delete[] indices;
     }
-    Fast_mapping_term fast_mapping_term;
+    Fast_mapping_term<double> fast_mapping_term;
     int *indices;
 };
 

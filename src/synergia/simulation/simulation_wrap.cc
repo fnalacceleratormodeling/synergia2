@@ -18,6 +18,7 @@
 #include "calculate_closed_orbit.h"
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/numpy_multi_ref_converter.h"
+#include "fast_normal_form.h"
 
 
 using namespace boost::python;
@@ -137,6 +138,9 @@ as_independent_operator(Operator_sptr & operator_sptr)
 {
     return boost::dynamic_pointer_cast<Independent_operator >(operator_sptr);
 }
+
+void (Fast_mapping::*apply1)(Bunch &)=&Fast_mapping::apply;
+void (Fast_mapping::*apply2)(MArray1d_ref)=&Fast_mapping::apply;
 
 Fast_mapping_operation_sptr
 as_fast_mapping_operation(Independent_operation_sptr & independent_operation_sptr)
@@ -320,11 +324,20 @@ BOOST_PYTHON_MODULE(simulation)
             .def(init<std::string const& >())
             .def("set_length", &Fast_mapping::set_length)
             .def("get_length", &Fast_mapping::get_length)
-            .def("apply", &Fast_mapping::apply)
+            .def("apply", apply1)
+            .def("apply", apply2)
             .def("as_string", &Fast_mapping::as_string)
             .def("write_to_file", &Fast_mapping::write_to_file)
             ;
-
+    class_<Fast_normal_form >("Fast_normal_form", init<normalFormSage &  >())
+        .def("get_stationary_actions", &Fast_normal_form::get_stationary_actions)
+        .def("convert_to_normal_form", &Fast_normal_form::convert_to_normal_form)
+        .def("convert_from_normal_form", &Fast_normal_form::convert_from_normal_form)
+        .def("convert_normal_to_xyz", &Fast_normal_form::convert_normal_to_xyz)
+        .def("convert_xyz_to_normal", &Fast_normal_form::convert_xyz_to_normal)
+         ;
+            
+            
     class_<Dense_mapping >("Dense_mapping", init<Fast_mapping const& >())
             .def("get_length", &Dense_mapping::get_length)
             .def("get_constant_term", &Dense_mapping::get_constant_term)
@@ -492,6 +505,7 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
     void (Step::*apply1)(Bunch &, int, Diagnosticss const&, Diagnosticss const&, Stepper &, Logger &) = &Step::apply;
+   // void (Step::*apply2)(Bunch_train &, int, Train_diagnosticss const&, Train_diagnosticss const&, Logger &) = &Step::apply;
     void (Step::*apply2)(Bunch_train &, int, Train_diagnosticss const&, Train_diagnosticss const&, 
                          Propagate_actions *, Stepper &, int,  int , Logger &) = &Step::apply;
     Operators& (Step::*get_operators1)() = &Step::get_operators;
