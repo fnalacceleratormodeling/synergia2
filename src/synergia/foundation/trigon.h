@@ -302,7 +302,7 @@ public:
         } else {
             const T this_value = value();
             const T right_value = t.value();
-            for(size_t i = 0; i < terms.size(); ++i) {
+            for(size_t i = 0; i < Dim; ++i) {
                 terms[i] *= right_value;
                 terms[i] += t.terms[i] * this_value;
             }
@@ -351,7 +351,7 @@ public:
             const T this_value = value();
             const T right_value = t.value();
             const T inv_right_value2 = 1.0 / (right_value * right_value);
-            for (size_t i = 0; i < terms.size(); ++i) {
+            for (size_t i = 0; i < Dim; ++i) {
                 terms[i] *= right_value;
                 terms[i] -= t.terms[i] * this_value;
                 terms[i] *= inv_right_value2;
