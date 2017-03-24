@@ -1,6 +1,7 @@
 #ifndef TRIGON_H
 #define TRIGON_H
 
+#include <algorithm>
 #include <array>
 #include <complex>
 #include <iostream> // jfa remove me!!!!
@@ -16,8 +17,14 @@ factorial(int n)
 template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon;
 
+constexpr unsigned int
+array_length(unsigned int i)
+{
+    return (i == 0) ? 1 : i;
+}
+
 template <unsigned int Power>
-using Index_t = std::array<size_t, Power>;
+using Index_t = std::array<size_t, array_length(Power)>;
 
 template <unsigned int Power, unsigned int Dim>
 using Indices_t = std::array<Index_t<Power>, Trigon<double, Power, Dim>::count>;
@@ -28,8 +35,12 @@ typename std::enable_if<((Power == 1) || (Power == 0)),
 indices()
 {
     Indices_t<Power, Dim> retval;
-    for (size_t i = 0; i < Dim; ++i) {
-        retval[0][i] = i;
+    if (Power == 0) {
+        retval[0][0] = 0;
+    } else {
+        for (size_t i = 0; i < Dim; ++i) {
+            retval[i][0] = i;
+        }
     }
 
     return retval;
@@ -302,7 +313,7 @@ public:
         } else {
             const T this_value = value();
             const T right_value = t.value();
-            for(size_t i = 0; i < Dim; ++i) {
+            for (size_t i = 0; i < Dim; ++i) {
                 terms[i] *= right_value;
                 terms[i] += t.terms[i] * this_value;
             }
