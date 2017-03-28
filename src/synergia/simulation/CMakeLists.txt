@@ -9,7 +9,7 @@ add_library(synergia_simulation operator.cc step.cc stepper.cc
     fast_mapping.cc  fast_normal_form.cc chef_propagator.cc independent_operation.cc
     lattice_simulator.cc operation_extractor.cc aperture.cc
     aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
-    bunch_train_simulator.cc resume.cc dense_mapping.cc calculate_closed_orbit.cc)
+    bunch_train_simulator.cc resume.cc dense_mapping.cc calculate_closed_orbit.cc diagnostics_normal_form.cc)
 target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
     synergia_lattice ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
 
@@ -49,6 +49,7 @@ install(FILES
     populate_stationary.h
     dense_mapping.h
     calculate_closed_orbit.h
+    diagnostics_normal_form.h
     DESTINATION include/synergia/simulation)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES

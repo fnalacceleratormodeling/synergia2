@@ -189,6 +189,11 @@ add_test_executable(test_acceleration test_acceleration.cc)
 target_link_libraries(test_acceleration synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_acceleration COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_acceleration>)
 
+add_test_executable(test_diagnostics_normal_form_mpi test_diagnostics_normal_form_mpi.cc)
+target_link_libraries(test_diagnostics_normal_form_mpi synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_diagnostics_normal_form_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_normal_form_mpi>)
+add_test(NAME test_diagnostics_normal_form_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_diagnostics_normal_form_mpi>)
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 

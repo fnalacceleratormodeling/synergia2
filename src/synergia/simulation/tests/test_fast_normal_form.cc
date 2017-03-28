@@ -254,7 +254,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Nonlinearlattice_fixture)
     BOOST_CHECK_CLOSE(loaded_back[5] ,  xyz_back[5] ,  tolerance);
     
     
-    
+# if 0    
     archive_save<Fast_normal_form, boost::archive::text_oarchive > (fnf, "fast_normal_form.txt",false);     
     Fast_normal_form   fnf_text;
     archive_load<Fast_normal_form, boost::archive::text_iarchive > (fnf_text, "fast_normal_form.txt"); 
@@ -291,7 +291,8 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Nonlinearlattice_fixture)
     BOOST_CHECK_CLOSE(text_back[2] ,  xyz_back[2] ,  tolerance);
     BOOST_CHECK_CLOSE(text_back[3] ,  xyz_back[3] ,  tolerance);
     BOOST_CHECK_CLOSE(text_back[4] ,  xyz_back[4] ,  tolerance);
-    BOOST_CHECK_CLOSE(text_back[5] ,  xyz_back[5] ,  tolerance);   
+    BOOST_CHECK_CLOSE(text_back[5] ,  xyz_back[5] ,  tolerance);
+#endif
 }
 
 

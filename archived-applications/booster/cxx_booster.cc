@@ -24,6 +24,7 @@
 #include "synergia/bunch/diagnostics_particles.h"
 #include "synergia/bunch/diagnostics_bulk_track.h"
 #include "synergia/bunch/diagnostics_phase_space_density.h"
+#include "synergia/simulation/diagnostics_normal_form.h"
 #include "synergia/collective/space_charge_rectangular.h"
 #include "synergia/collective/impedance.h"
 #include "booster_options.h"
@@ -164,7 +165,7 @@ run()
                 for (int i=0;i<sext_name.size();++i){
                         if (sextupole_name==sext_name[i]) {                           
                            (*it)->set_double_attribute("k2",  sext_k2[i]);  
-                           std::cout<<sextupole_name<<" set to k2="<< sext_k2[i]<<std::endl;
+                           if (rank==0)  std::cout<<sextupole_name<<" set to k2="<< sext_k2[i]<<std::endl;
                         }
                         
                 
@@ -553,7 +554,25 @@ run()
               
             }   
  } 
- 
+
+  Fast_normal_form_sptr  fnf_sptr; 
+  std::vector<double >  actions(3); 
+  if (opts.load_normal_form){
+        fnf_sptr=Fast_normal_form_sptr(new Fast_normal_form());
+        xml_load(*fnf_sptr, opts.saved_normal_form_f);
+        if (rank==0) std::cout<<" normal form read from file: "<<opts.saved_normal_form_f<<std::endl;  
+        actions= fnf_sptr->get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta);
+        if (rank==0) std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl; 
+        if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.)) throw 
+                        std::runtime_error("fast_normal_form: get_stationary_actions can't satisfy requested moments");         
+  }
+  else{
+      actions= stepper_sptr->get_lattice_simulator().get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta); 
+      if (rank==0) std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl;
+      if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.))  throw  
+                    std::runtime_error("lattice_simulator: get_stationary_actions can't satisfy requested moments");  
+  }
+  
   Bunches bunches; 
   Commxx_sptr parent_comm_sptr(new Commxx); 
   Commxxs comms(generate_subcomms(parent_comm_sptr, opts.num_bunches));
@@ -597,36 +616,15 @@ run()
             limits[0]=xmax_over_sigma;
             limits[1]= ymax_over_sigma;                  
             limits[2]=zmax_over_sigma;
-            std::vector<double >  actions(3); 
-            if (opts.load_normal_form){
-                if (mpi_size==1) {
-                    Fast_normal_form   fnf;
-                    xml_load(fnf, opts.saved_normal_form_f);
-                    std::cout<<" normal form read from file: "<<opts.saved_normal_form_f<<std::endl;                   
-                    actions= fnf.get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta);
-                    std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl; 
-                    if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.)) throw 
-                        std::runtime_error("fast_normal_form: get_stationary_actions can't satisfy requested moments");                                                
-                    
-                    
-                    populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, fnf ,limits);
-                 }
-                 else{
-                    throw std::runtime_error("Load normal form requires a serial job, i.e. mpi_size=1 ");                   
-                 }
+            std::vector<double >  actions(3);                        
+            if (opts.load_normal_form){                                   
+                populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, *fnf_sptr ,limits);                              
             }
-            else{ 
-                 actions= stepper_sptr->get_lattice_simulator().get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta); 
-                 if (rank==0) std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl;
-                 if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.))  throw  
-                     std::runtime_error("lattice_simulator: get_stationary_actions can't satisfy requested moments");                  
-                 
+            else{                                                   
                  populate_6d_stationary_gaussian_truncated(dist, *bunch_sptr,  actions, stepper_sptr->get_lattice_simulator(),limits); 
-            }
-            
-        }
-       
-      }      
+            }//  opts.load_normal_form          
+        }// opts.load_bunch       
+      } //has_this_rank     
       bunches.push_back(bunch_sptr);             
   }   
  
@@ -671,6 +669,11 @@ run()
         
             Diagnostics_sptr diagnostics_particles_sptr(new Diagnostics_particles("turn_particles_"+bunch_label.str()+".h5"));
             bunch_train_simulator.add_per_turn(i,diagnostics_particles_sptr,opts.turn_period);
+            
+            if( opts.load_normal_form){                
+                 Diagnostics_sptr diagnostics_normal_form_sptr(new Diagnostics_normal_form(fnf_sptr, "normal_form_actions"+bunch_label.str()+".h5"));
+                 bunch_train_simulator.add_per_turn(i, diagnostics_normal_form_sptr);
+            }
                 
             if(opts.turn_track){
                 Diagnostics_sptr diagnostics_bulk_track_sptr(new Diagnostics_bulk_track("bulk_track_"+bunch_label.str()+".h5",
