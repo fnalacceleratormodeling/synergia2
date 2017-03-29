@@ -25,8 +25,7 @@ private:
     Hdf5_serial_writer<MArray1d_ref > * writer_aa2;
     virtual void
     update_aa2();
-
-
+      
 public:
    
     Diagnostics_normal_form(Fast_normal_form_sptr fast_nf_sptr, std::string const& filename, std::string const& local_dir = "");

@@ -560,7 +560,7 @@ run()
   if (opts.load_normal_form){
         fnf_sptr=Fast_normal_form_sptr(new Fast_normal_form());
         xml_load(*fnf_sptr, opts.saved_normal_form_f);
-        if (rank==0) std::cout<<" normal form read from file: "<<opts.saved_normal_form_f<<std::endl;  
+        if (rank==0) std::cout<<" normal form read from the file: "<<opts.saved_normal_form_f<<std::endl;  
         actions= fnf_sptr->get_stationary_actions(opts.xrms, opts.yrms, opts.zrms/beta);
         if (rank==0) std::cout<<" actions= ("<< actions[0]<<", "<< actions[1]<<", "<<actions[2]<<")"<<std::endl; 
         if ((actions[0]<=0.) || (actions[1]<=0.) || (actions[2]<=0.)) throw 
@@ -627,7 +627,7 @@ run()
       } //has_this_rank     
       bunches.push_back(bunch_sptr);             
   }   
- 
+  
   Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, stepper_sptr->get_lattice_simulator().get_bucket_length()));
   Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
   
@@ -670,9 +670,9 @@ run()
             Diagnostics_sptr diagnostics_particles_sptr(new Diagnostics_particles("turn_particles_"+bunch_label.str()+".h5"));
             bunch_train_simulator.add_per_turn(i,diagnostics_particles_sptr,opts.turn_period);
             
-            if( opts.load_normal_form){                
-                 Diagnostics_sptr diagnostics_normal_form_sptr(new Diagnostics_normal_form(fnf_sptr, "normal_form_actions"+bunch_label.str()+".h5"));
-                 bunch_train_simulator.add_per_turn(i, diagnostics_normal_form_sptr);
+            if( opts.load_normal_form){                   
+                 Diagnostics_sptr diagnostics_normal_form_sptr(new Diagnostics_normal_form(fnf_sptr, "normal_form_actions_"+bunch_label.str()+".h5"));
+                 bunch_train_simulator.add_per_turn(i, diagnostics_normal_form_sptr);                                 
             }
                 
             if(opts.turn_track){

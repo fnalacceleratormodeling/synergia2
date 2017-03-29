@@ -57,10 +57,13 @@ Diagnostics_normal_form::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_normal_form::update_aa2()
 {   
+     int rank;
+     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+ 
      int num_part=get_bunch().get_local_num();
-     MArray2d particles_copy(boost::extents[num_part][7]);
-     particles_copy=get_bunch().get_local_particles();
+     MArray2d particles_copy(get_bunch().get_local_particles());         
      fnf_sptr->convert_xyz_to_normal(particles_copy);
+   
      
      MArray1d sum2(boost::extents[3]);
      for (int j=0;j<3;++j){ 
