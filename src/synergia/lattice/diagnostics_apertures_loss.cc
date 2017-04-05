@@ -213,11 +213,16 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
         ar & BOOST_SERIALIZATION_NVP(type);
         ar & BOOST_SERIALIZATION_NVP(have_writers);
+        ar & BOOST_SERIALIZATION_NVP(bucket_index);
+        ar & BOOST_SERIALIZATION_NVP(repetition);
+        ar & BOOST_SERIALIZATION_NVP(s_ref_particle);
+        ar & BOOST_SERIALIZATION_NVP(sn_ref_particle);
+        ar & BOOST_SERIALIZATION_NVP(coords);
         ar & BOOST_SERIALIZATION_NVP(writer_repetition);
         ar & BOOST_SERIALIZATION_NVP(writer_bucket_index);
         ar & BOOST_SERIALIZATION_NVP(writer_s);
         ar & BOOST_SERIALIZATION_NVP(writer_s_n);
-        ar & BOOST_SERIALIZATION_NVP(writer_coords);
+        ar & BOOST_SERIALIZATION_NVP(writer_coords);                 
     }
 
 template
