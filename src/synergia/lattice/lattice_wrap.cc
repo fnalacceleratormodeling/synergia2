@@ -190,7 +190,7 @@ BOOST_PYTHON_MODULE(lattice)
             ;
 
          class_<Diagnostics_loss, Diagnostics_loss_sptr, bases<Diagnostics > >
-        ("apertures_loss_diagnostics",init<std::string const&, std::string const&>())    
+        ("Diagnostics_loss",init<std::string const&, std::string const&>())    
         .def(init<std::string const& , std::string const&, std::string const& >())
         .def("set_bunch", &Diagnostics_loss::set_bunch_sptr)
         .def("get_type", &Diagnostics_loss::get_type)
