@@ -218,6 +218,7 @@ BOOST_PYTHON_MODULE(bunch)
                 .def("is_bucket_index_assigned", &Bunch::is_bucket_index_assigned)
                 .def("get_comm", &Bunch::get_comm_sptr)
                 .def("inject", &Bunch::inject)
+                .def("read_file", &Bunch::read_file)
                 ;
 
     enum_<Bunch::State > ("State")
