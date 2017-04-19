@@ -762,15 +762,31 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
         Distributed_rectangular_grid const& rho2,
         Rectangular_grid const& Fn, double delta_t)
 {
+    // EGS ported AM changes for kicks in lab frame from 3D solver
+    //AM: kicks are done in the z_lab frame
     // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
     // delta_t_beam: [s] in beam frame
+    //  See chapter 11, jackson electrodynamics, for field transformation from bunch frame (BF)
+    //  to the lab frame (LF). Keep in mind that \vec{B}_BF=0.
+    //  Ex_LF=gamma*Ex_BF, Ey_LF=gamma*Ey_BF, Ez_LF=Ez_BF
+    //  Bx_LF=gamma*beta*Ey_BF, By_LF=-gamma*beta*Ex_BF, Bz_LF=Bz_BF=0
+    //  Transverse Lorentz force in the lab frame: Fx_LF=q*(Ex_L-beta_z*By_LF)=q*gamma*(1-beta*beta_z)*Ex_BF
+    //  Longitudinal Lorentz force in the lab frame:
+    //        Fz=q*(Ez_LF+beta_x*By_LF-beta_y*Bx_LF)=q*(Ez_BF-gamma*beta*(beta_x*Ex_BF+beta_y*Ey_BF ))
+    // In order to get a conservative approximation!:
+    // The following approximations are done: beta_z=beta, beta_x=beta_y=0, thus suppresing
+    // the particles' movement relative to the reference particle. The same approximation was employed when
+    // the field in the bunch frame was calculated.
+    // Thus: Fx_LF=q*Ex_BF/gamma, Fz=q*Ez_BF
     double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
     // unit_conversion: [N] = [kg m/s^2] to [Gev/c]
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
     // scaled p = p/p_ref
+    double gamma=bunch.get_reference_particle().get_gamma();
+    double beta=bunch.get_reference_particle().get_beta();
     double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
     double factor = unit_conversion * delta_t_beam * Fn.get_normalization()
-            * p_scale;
+            * p_scale/gamma; // good for transverse kicks
     Rectangular_grid_domain & domain(*Fn.get_domain_sptr());
     MArray2dc_ref grid_points(Fn.get_grid_points_2dc());
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
