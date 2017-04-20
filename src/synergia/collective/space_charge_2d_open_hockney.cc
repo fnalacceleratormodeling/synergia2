@@ -781,6 +781,11 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     double gamma=bunch.get_reference_particle().get_gamma();
     double beta=bunch.get_reference_particle().get_beta();
     double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
+    // gamma*beta factor introduced here when we are no longer going to the t_bunch frame.
+    // That factor was introduced in the fixed_z_lab to fixed_t_bunch conversion.  Physically,
+    // gamma factor comes from the lorentz expansion longitudinally in the bunch
+    // frame and beta comes because the stored coordinate is c*dt whereas the actual
+    // domain is beta*c*dt.
     double factor = unit_conversion * delta_t_beam * Fn.get_normalization()
             * p_scale / (gamma * beta);
     Rectangular_grid_domain & domain(*Fn.get_domain_sptr());
