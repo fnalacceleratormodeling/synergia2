@@ -75,7 +75,6 @@ Diagnostics_loss::update(int index, int rep, double s, double s_n,  MArray1d_ref
 void
 Diagnostics_loss::write()
 {
-  
     if (!have_bunch()) { throw std::runtime_error(
           "MPI error diagnostics_apertures_loss:write  the diagnostics does not have a bunch_sptr"); 
     }else{
@@ -161,20 +160,23 @@ Diagnostics_loss::write()
         }  
 
       
-        if (get_bunch().get_comm().has_this_rank()){
-        if (get_write_helper().write_locally()) {          
-                init_writers(get_write_helper().get_hdf5_file_sptr());
-                for (int part = 0; part < nlost; ++part){
-                  writer_bucket_index->append(bucket_index_array[part]);
-                  writer_repetition->append(repetition_array[part]);  
-                  writer_s->append(s_ref_particle_array[part]); 
-                  writer_s_n->append(sn_ref_particle_array[part]);
-                  MArray1d coords_view(coords_array[part][boost::indices[range(0, 7)]]);              
-                  writer_coords->append(coords_view);
-                }
-                get_write_helper().finish_write();
-        }
-        }
+       
+            if (get_bunch().get_comm().has_this_rank()){  
+                if  (nlost>0) {
+                    if (get_write_helper().write_locally()) {                  
+                            init_writers(get_write_helper().get_hdf5_file_sptr());
+                            for (int part = 0; part < nlost; ++part){
+                                writer_bucket_index->append(bucket_index_array[part]);
+                                writer_repetition->append(repetition_array[part]);  
+                                writer_s->append(s_ref_particle_array[part]); 
+                                writer_s_n->append(sn_ref_particle_array[part]);
+                                MArray1d coords_view(coords_array[part][boost::indices[range(0, 7)]]);              
+                                writer_coords->append(coords_view);
+                            }
+                            get_write_helper().finish_write();
+                    }
+               }
+           }
                           
     
         bucket_index.clear();
@@ -182,9 +184,7 @@ Diagnostics_loss::write()
         s_ref_particle.clear();
         sn_ref_particle.clear();
         coords.clear();
-    }
-          
-   
+    }            
 }
 
 
@@ -222,7 +222,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(writer_bucket_index);
         ar & BOOST_SERIALIZATION_NVP(writer_s);
         ar & BOOST_SERIALIZATION_NVP(writer_s_n);
-        ar & BOOST_SERIALIZATION_NVP(writer_coords);                 
+        ar & BOOST_SERIALIZATION_NVP(writer_coords);  
     }
 
 template
