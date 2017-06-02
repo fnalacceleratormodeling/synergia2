@@ -120,3 +120,6 @@ def test_skew_quad():
 
 def test_tilt_quad():
     run_a_misc_element("m_tilt_quad")
+
+def test_nllens():
+    run_a_misc_element("m_nllens")
