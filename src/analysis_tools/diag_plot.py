@@ -31,9 +31,8 @@ def plot2d(x, y, label, extra_label):
     pyplot.plot(x, y, label=fancylabel)
 
 class Params:
-    def __init__(self, label, x_attr, y_attr, y_index1=None, y_index2=None):
+    def __init__(self, label, y_attr, y_index1=None, y_index2=None):
         self.label = label
-        self.x_attr = x_attr
         self.y_attr = y_attr
         self.y_index1 = y_index1
         self.y_index2 = y_index2
@@ -52,25 +51,26 @@ def generate_plotparams():
         for label2 in coords.keys():
             if coords[label2] > coords[label]:
                 corr = label + '_' + label2 + '_corr'
-                plotparams[corr] = Params(corr, 's', 'corr',
+                plotparams[corr] = Params(corr, 'corr',
                                            coords[label], coords[label2])
                 mom2 = label + '_' + label2 + '_mom2'
-                plotparams[mom2] = Params(mom2, 's', 'mom2',
+                plotparams[mom2] = Params(mom2, 'mom2',
                                            coords[label], coords[label2])
         std = label + '_std'
-        plotparams[std] = Params(std, 's', 'std', coords[label])
+        plotparams[std] = Params(std, 'std', coords[label])
         mean = label + '_mean'
-        plotparams[mean] = Params(mean, 's', 'mean', coords[label])
-    plotparams['x_emit'] = Params('x_emit', 's', 'emitx')
-    plotparams['y_emit'] = Params('y_emit', 's', 'emity')
-    plotparams['z_emit'] = Params('z_emit', 's', 'emitz')
-    plotparams['xy_emit'] = Params('xy_emit', 's', 'emitxy')
-    plotparams['xyz_emit'] = Params('xyz_emit', 's', 'emitxyz')
-    plotparams['particles'] = Params('particles', 's', 'num_particles')
+        plotparams[mean] = Params(mean, 'mean', coords[label])
+    plotparams['x_emit'] = Params('x_emit', 'emitx')
+    plotparams['y_emit'] = Params('y_emit', 'emity')
+    plotparams['z_emit'] = Params('z_emit', 'emitz')
+    plotparams['xy_emit'] = Params('xy_emit', 'emitxy')
+    plotparams['xyz_emit'] = Params('xyz_emit', 'emitxyz')
+    plotparams['particles'] = Params('particles', 'num_particles')
     return plotparams
 
 class Options:
     def __init__(self):
+        self.ind_var = 's'
         self.oneplot = False
         self.show = True
         self.inputfiles = []
@@ -85,6 +85,7 @@ def do_error(message):
 def do_help(plotparams):
     print "usage: syndiagplot <filename> [option1] ... [optionn] <plot1> ... <plotn>"
     print "available options are:"
+    print "    --userep: use repetition instead of s for independent variable"
     print "    --oneplot : put all plots on the same axis (not on by default)"
     print "    --nolegend : suppress legends (not on by default)"
     print "    --output=<file> : save output to file (not on by default)"
@@ -108,6 +109,8 @@ def handle_args(args, plotparams):
         if arg[0] == '-':
             if arg == '--help':
                 do_help(plotparams)
+            elif arg == '--userep':
+                options.ind_var = 'repetition'
             elif arg == '--oneplot':
                 options.oneplot = True
             elif arg == '--nolegends':
@@ -158,7 +161,7 @@ def do_plot(inputfile, options, plotparams, multiple_files):
     y_label = ""
     for plot in options.plots:
         params = plotparams[plot]
-        x = hdf5_read_any(f, params.x_attr)
+        x = hdf5_read_any(f, options.ind_var)
         ymaster = hdf5_read_any(f, params.y_attr)
         if (params.y_index1 == None) and (params.y_index2 == None):
             y = ymaster
@@ -173,7 +176,7 @@ def do_plot(inputfile, options, plotparams, multiple_files):
             extra_label = ' ' + inputfile
         plot2d(x, y, plot, extra_label)
         plot_index += 1
-        pyplot.xlabel(params.x_attr)
+        pyplot.xlabel(options.ind_var)
         if options.oneplot:
             if y_label == "":
                 y_label = plot
