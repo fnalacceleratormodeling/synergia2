@@ -1,17 +1,18 @@
 #include "diagnostics_phase_space_density.h"
+#include "synergia/bunch/period.h"
 #include "synergia/utils/simple_timer.h"
 
 const char Diagnostics_phase_space_density::name[] = "diagnostics_phase_space_density";
 
 
 Diagnostics_phase_space_density::Diagnostics_phase_space_density(std::string const& filename,
-                  int grid_z, int grid_zp,double  z_nsigma, double zp_nsigma,  std::string const& local_dir):
+                  int grid_z, int grid_zp,double  z_nsigma, double zp_nsigma, bool coasting_beam, std::string const& local_dir):
   Diagnostics_phase_space_density:: Diagnostics(Diagnostics_phase_space_density::name, filename,
-                local_dir),  grid_z(grid_z), grid_zp(grid_zp), z_nsigma(z_nsigma), 
+                local_dir),  coasting_beam(coasting_beam), grid_z(grid_z), grid_zp(grid_zp), z_nsigma(z_nsigma), 
                 zp_nsigma(zp_nsigma), have_grid(false), have_writers(false), 
                 writer_s_n(0), writer_repetition(0), writer_s(0), density(boost::extents[grid_z][grid_zp]), 
-                writer_density(0), xdensity(boost::extents[grid_z][grid_zp]), writer_xdensity(0)
-               // ydensity(boost::extents[grid_z][grid_zp]), writer_ydensity(0)
+                writer_density(0), xdensity(boost::extents[grid_z][grid_zp]), writer_xdensity(0),
+                ydensity(boost::extents[grid_z][grid_zp]), writer_ydensity(0)
 {
 }
 
@@ -24,6 +25,7 @@ void
 Diagnostics_phase_space_density::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
+         file_sptr->write(int(coasting_beam), "coasting_beam");
          file_sptr->write(grid_z, "grid_z");
          file_sptr->write(grid_zp, "grid_zp");
          file_sptr->write(z_nsigma, "z_nsigma");
@@ -31,10 +33,12 @@ Diagnostics_phase_space_density::init_writers(Hdf5_file_sptr file_sptr)
          if (have_grid) {
            file_sptr->write(grid_zrms, "grid_zrms");
            file_sptr->write(grid_zprms, "grid_zprms");
+           file_sptr->write( z_range, "z_range");
+           file_sptr->write( zp_range, "zp_range"); 
          }
          else{
            throw std::runtime_error(
-                "update shoule be called before init_writers");
+                "update should be called before init_writers");
          }
          
 
@@ -47,8 +51,8 @@ Diagnostics_phase_space_density::init_writers(Hdf5_file_sptr file_sptr)
                 "density");  
         writer_xdensity = new Hdf5_serial_writer<MArray2d_ref  >(file_sptr,
                 "xdensity");   
-       // writer_ydensity = new Hdf5_serial_writer<MArray2d_ref  >(file_sptr,
-       //         "ydensity");        
+       writer_ydensity = new Hdf5_serial_writer<MArray2d_ref  >(file_sptr,
+                "ydensity");        
         have_writers = true;
     }
 }
@@ -77,13 +81,19 @@ Diagnostics_phase_space_density::update()
       MArray1d std = Core_diagnostics::calculate_std(get_bunch(), mean);
      // std::cout<<" stdz="<<std[4]<<" stdzp="<<std[5]<<std::endl;
       grid_zrms=std[4];
-      grid_zprms=std[5];
-      z_range=z_nsigma*grid_zrms;
+      grid_zprms=std[5];     
+      if (coasting_beam) {
+            z_range=get_bunch().get_z_period_length()/get_bunch().get_reference_particle().get_beta();
+            zp_range=1;
+       }
+       else{
+            z_range=z_nsigma*grid_zrms;
+            zp_range=zp_nsigma*grid_zprms;
+       }
       z_cell= z_range/grid_z;
-      zp_range=zp_nsigma*grid_zprms;
+    // std::cout<<" coasting_beam="<<coasting_beam<<"   z_range="<<z_range<<"   grid_z="<<grid_z<<std::endl;
       zp_cell= zp_range/grid_zp;
     //  std::cout<<" grid_zrms="<<grid_zrms<<" grid_zprms="<<grid_zprms<<std::endl;
-      
       have_grid=true;
     }
     deposit_densities();        
@@ -101,7 +111,7 @@ Diagnostics_phase_space_density::write()
         writer_s->append(s);
         writer_density->append(density);
         writer_xdensity->append(xdensity);
-       // writer_ydensity->append(ydensity);
+        writer_ydensity->append(ydensity);
         get_write_helper().finish_write();
     }     
    }
@@ -115,23 +125,25 @@ Diagnostics_phase_space_density::deposit_densities()
       for (int j = 0; j < grid_zp; ++j) {
           density[i][j]=0.;
           xdensity[i][j]=0.;
-         // ydensity[i][j]=0.;
+          ydensity[i][j]=0.;
       }        
     }
-    
+   
+    if (coasting_beam) apply_longitudinal_periodicity(get_bunch(), get_bunch().get_z_period_length()); 
     double normalization=1./get_bunch().get_total_num();
     MArray1d mean = Core_diagnostics::calculate_mean(get_bunch());
     double x_mean=mean[0];
-  //  double y_mean=mean[2];
+    double y_mean=mean[2];
     double z_mean=mean[4];
+    if (coasting_beam) z_mean=0.;
     double zp_mean=mean[5];
     Const_MArray2d_ref particles(get_bunch().get_local_particles());
     for (int part = 0; part < get_bunch().get_local_num(); ++part) {
         double z_dist=particles[part][4]-z_mean+0.5*z_range;
         double  zp_dist=particles[part][5]-zp_mean+0.5*zp_range;
+        // std::cout<<"part="<<part<<"  z_dist="<<z_dist<<"  z_range="<<z_range<<"  zp_dist="<<zp_dist<<"  zp_range="<<zp_range<< std::endl;
          if ((z_dist>0) && (z_dist<z_range) 
                  && (zp_dist>0) && (zp_dist<zp_range)){
-             
              int iz= int(floor(z_dist/z_cell-0.5));
              int izp= int(floor(zp_dist/zp_cell-0.5));
              double off_iz=z_dist/z_cell-iz-0.5;
@@ -144,14 +156,15 @@ Diagnostics_phase_space_density::deposit_densities()
                       double weight=(1 - ih - (1 - 2 * ih)* off_iz) * (1 - iv - (1 - 2 * iv) * off_izp);
                       density[cellx][celly] += weight*normalization;
                       xdensity[cellx][celly] += weight*normalization*(particles[part][0]-x_mean);
-                     // ydensity[cellx][celly] += weight*normalization*(particles[part][2]-y_mean);
+                      ydensity[cellx][celly] += weight*normalization*(particles[part][2]-y_mean);
                     }
-                  
                 }
-             }          
-         }       
+             }   
+         } 
+//          else{
+//               std::cout<<"part="<<part<<"  z_dist="<<z_dist<<"  z_range="<<z_range<<"  zp_dist="<<zp_dist<<"  zp_range="<<zp_range<< std::endl;
+//          }
     }// for part
-    
    
      int error = MPI_Allreduce(MPI_IN_PLACE, (void*)  density.origin(),
                                density.num_elements(), MPI_DOUBLE, MPI_SUM, get_bunch().get_comm().get());
@@ -170,14 +183,14 @@ Diagnostics_phase_space_density::deposit_densities()
                 "MPI error in diagnostics_phase_space_density: MPI_Allreduce in deposit_xdensity");
     }
     
-   //  error = MPI_Allreduce(MPI_IN_PLACE, (void*)  ydensity.origin(),
-   //                            ydensity.num_elements(), MPI_DOUBLE, MPI_SUM, get_bunch().get_comm().get());
+    error = MPI_Allreduce(MPI_IN_PLACE, (void*)  ydensity.origin(),
+                              ydensity.num_elements(), MPI_DOUBLE, MPI_SUM, get_bunch().get_comm().get());
     
     
-   //  if (error != MPI_SUCCESS) {
-   //     throw std::runtime_error(
-   //             "MPI error in diagnostics_phase_space_density: MPI_Allreduce in deposit_ydensity");
-  //  }
+    if (error != MPI_SUCCESS) {
+       throw std::runtime_error(
+               "MPI error in diagnostics_phase_space_density: MPI_Allreduce in deposit_ydensity");
+   }
     
     
 }
@@ -187,6 +200,7 @@ template<class Archive>
     Diagnostics_phase_space_density::serialize(Archive & ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+        ar & BOOST_SERIALIZATION_NVP(coasting_beam);
         ar & BOOST_SERIALIZATION_NVP(grid_z);                       
         ar & BOOST_SERIALIZATION_NVP(grid_zp);                      
         ar & BOOST_SERIALIZATION_NVP(z_nsigma);                     
@@ -209,8 +223,8 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(writer_density);               
         ar & BOOST_SERIALIZATION_NVP(xdensity);                     
         ar & BOOST_SERIALIZATION_NVP(writer_xdensity); 
-      //  ar & BOOST_SERIALIZATION_NVP(ydensity);                     
-       // ar & BOOST_SERIALIZATION_NVP(writer_ydensity);
+        ar & BOOST_SERIALIZATION_NVP(ydensity);                     
+        ar & BOOST_SERIALIZATION_NVP(writer_ydensity);
                                                                     
     }
                                                                   

@@ -320,6 +320,16 @@ populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   Const_MArray2d_
 }
 
 void
+populate_longitudinal_uniform(Distribution &dist, Bunch &bunch,   double length)
+{
+    double half_length=0.5*length/bunch.get_reference_particle().get_beta();
+    MArray2d_ref particles(bunch.get_local_particles());
+    int num_part = particles.shape()[0];
+    dist.fill_uniform(particles[boost::indices[range()][Bunch::cdt]], -half_length, half_length);
+    
+}
+
+void
 populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref one_turn_map, 
                              double radiusx,  double radiusy,    double ctrms)
                              

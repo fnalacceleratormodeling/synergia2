@@ -228,17 +228,18 @@ Impedance::calculate_moments_and_partitions(Bunch & bunch)
   
     int rank(bunch.get_comm().get_rank());
     
-   MArray1d bunchmin(Core_diagnostics::calculate_min(bunch));
-   MArray1d bunchmax(Core_diagnostics::calculate_max(bunch));
-   // MArray1d bunchmin(Diagnostics::calculate_bunchmin(bunch));
-  //  MArray1d bunchmax (Diagnostics::calculate_bunchmax(bunch));
-    double z_left= bunchmin[2];
-    double z_length=bunchmax[2]-bunchmin[2];       
+  
+    MArray1d bunchmin(Core_diagnostics::calculate_min(bunch));
+    bunch_z_left=bunchmin[2];   
+    double z_left=bunch_z_left;
+    MArray1d bunchmax(Core_diagnostics::calculate_max(bunch)); 
+    double z_length=bunchmax[2]-z_left;       
     cell_size_z= z_length/double(z_grid);
     
-    double h = z_length/(z_grid-1.0); 
+   // double h = z_length/(z_grid-1.0); // AM why have I done that???
+    double h = cell_size_z;
     if (z_length<= 1.e-14 )   throw
-                 std::runtime_error("h and z_length too small ");
+                 std::runtime_error("z_length too small ");
 
 
     MArray1d_ref xmom(get_xmom());
@@ -393,7 +394,12 @@ void Impedance::calculate_kicks(Commxx_sptr const & comm_sptr) {
 	numbunches = (*stored_vbunches.begin()).size();
 
 	if ((full_machine) && (registered_turns != 0)) {
-		num_trains = int(num_buckets / numbunches);
+		num_trains = int(num_buckets / numbunches);  
+      /// num_trains is relevant only when the full machine option is considered
+      /// a full machine consideres a num_train of bunches repeats with modulation wave wn[]
+     /// all buckets are full, but only numbunches bunches properties are stored
+     /// exemple: full_machine, all bunches identical, no wave across the machine: num_trains=num_buckets, wn=[0,0,0], it's a one bunch simulation  
+     /// example: full_machine, two bunch simulation, num_trains= num_buckets/2  
 
 		if (std::abs(num_buckets / float(numbunches) - num_trains) > 1e-8)
 			throw std::runtime_error(
@@ -444,193 +450,193 @@ void Impedance::calculate_kicks(Commxx_sptr const & comm_sptr) {
     t1 = simple_timer_current();
    // for (int i = offsets[rank]; i <offsets[rank]+counts[rank] ; ++i){
     for (int i = 0; i <counts[rank] ; ++i){  
-       int real_i=i+offsets[rank];
+        int real_i=i+offsets[rank];
         xwake_leading_local[i]=0.; 
-	xwake_trailing_local[i]=0. ;
+        xwake_trailing_local[i]=0. ;
         ywake_leading_local[i] =0.; 
-	ywake_trailing_local[i]=0. ;
-	zwake0_local[i] =0.;	
+        ywake_trailing_local[i]=0. ;
+        zwake0_local[i] =0.;	
       // in-bunch impedance 
         for (int j = 0; j < z_grid; ++j){
-       // for (int j = i+1; j < z_grid; ++j){
             double zji=(j-real_i)*cell_size_z;
-	    
-            if (zji>=z_coord[0]) {// at small distance no impedance is considered
+    
+            if (zji>=z_coord[0]) {
                 // below it is assumed the wake function is stored using a quadratic grid           
-	        int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
+                int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
                 double xwl(0.), xwt(0.), ywl(0.), ywt(0.), zw(0.);
                     if (iz+1 < zpoints) {
-                    xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-		    xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
-		    ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-		    ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
-                    zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]); 
+                        xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
+                        zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]); 
                     }
                 xwake_leading_local[i]  +=zdensity[j]*N_factor*xmom[j]*xwl; 
-		xwake_trailing_local[i]  += zdensity[j]*N_factor*xwt;
+                xwake_trailing_local[i]  += zdensity[j]*N_factor*xwt;
                 ywake_leading_local[i]  += zdensity[j]*N_factor*ymom[j]*ywl; 
-		ywake_trailing_local[i]  += zdensity[j]*N_factor*ywt;
-	        zwake0_local[i] += zdensity[j]*N_factor*zw;				
+                ywake_trailing_local[i]  += zdensity[j]*N_factor*ywt;
+                zwake0_local[i] += zdensity[j]*N_factor*zw;				
             }          
          }
         
         
         std::list< std::vector<Bunch_properties> >::const_iterator it=stored_vbunches.begin(); // stored_vbunches.begin() stores the bunches info at 
-	                                                                                  // at the moment
+                                                                                              // at the moment
         /// bucket 0 is in front of bucket 1, which is in front of bucket 2, etc...
-        double z_to_edge=(z_grid-real_i-1)*cell_size_z;
+        int mean_bin=static_cast<int>((bunch_z_mean-bunch_z_left)/cell_size_z);
+        if ((mean_bin<0) || (mean_bin>=z_grid)){
+            throw std::runtime_error(
+                    "impedance: the index bin of beam min cannot be <0 or >z_grid, something is wrong  ");
+        }
+        double z_to_zmean=(mean_bin-real_i)*cell_size_z; 
         for (int ibunch= 0; ibunch<numbunches; ++ibunch){            
-	  //  double xwl(0.), xwt(0.), ywl(0.), ywt(0.), zw(0.);
+            //  double xwl(0.), xwt(0.), ywl(0.), ywt(0.), zw(0.);
             int ibucket=(*it)[ibunch].bucket_index;
             if(ibucket<bunch_bucket) {///  same turn, the leading buckets effect    
-            double  zji=z_to_edge+bunch_spacing*(bunch_bucket-ibucket) +((*it)[ibunch].z_mean-bunch_z_mean);
-          //  int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0]))));  
-	    int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
-            if ((iz+1 < zpoints) && (iz>0)) {
-		    double xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-		    double xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
-		    double ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-		    double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
+                double  zji=z_to_zmean+bunch_spacing*(bunch_bucket-ibucket) +((*it)[ibunch].z_mean-bunch_z_mean);
+            //  int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0]))));  
+                int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
+                if ((iz+1 < zpoints) && (iz>0)) {
+                    double xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                    double xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
+                    double ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                    double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
                     double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]); 
-		    
-		    xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
-		    xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
-		    ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
-		    ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
-		    zwake0_local[i] += (*it)[ibunch].realnum*zw;
+
+                    xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
+                    xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
+                    ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
+                    ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
+                    zwake0_local[i] += (*it)[ibunch].realnum*zw;
                 }
             }
         } // ibunch loop
 
-         if (full_machine) { // it assumes that all the other trains are in front 
- 	   for (int itrain= 1; itrain<num_trains; ++itrain){
- 	     double wnx=cos(2.*mconstants::pi*wn[0]*itrain/double(num_trains));
- 	     double wny=cos(2.*mconstants::pi*wn[1]*itrain/double(num_trains));
- 	     double wnz=cos(2.*mconstants::pi*wn[2]*itrain/double(num_trains));
- 	     for (int ibunch= 0; ibunch<numbunches; ++ibunch){		  
- 		   double  zji=z_to_edge+bunch_spacing*numbunches*itrain+bunch_spacing*(bunch_bucket-ibunch)+
- 		    ((*it)[ibunch].z_mean*wnz-bunch_z_mean);
-		    //  int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0])))); 
- 		   int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
- 		   if ((iz+1 < zpoints) && (iz>0)) {
-			  double xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
-			  double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);    
-			  
-			  xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*wnx*xwl; 
-			  xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
-			  ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wny*ywl;
-			  ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
-			  zwake0_local[i] += (*it)[ibunch].realnum*zw;
-                   }
- 	      }
- 	   }
-	}  // full_machine
+        if (full_machine) { // it assumes that all the other trains are in front 
+            for (int itrain= 1; itrain<num_trains; ++itrain){  //for one bunch simulation num_trains = num_buckets, all trains identical except displacement
+                double wnx=cos(2.*mconstants::pi*wn[0]*itrain/double(num_trains));
+                double wny=cos(2.*mconstants::pi*wn[1]*itrain/double(num_trains));
+                double wnz=cos(2.*mconstants::pi*wn[2]*itrain/double(num_trains));
+                for (int ibunch= 0; ibunch<numbunches; ++ibunch){		  
+                    double  zji=z_to_zmean+bunch_spacing*numbunches*itrain+bunch_spacing*(bunch_bucket-ibunch)+
+                    ((*it)[ibunch].z_mean*wnz-bunch_z_mean);
+                    //  int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0])))); 
+                    int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
+                    if ((iz+1 < zpoints) && (iz>0)) {
+                        double xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
+                        double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);    
+
+                        xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*wnx*xwl; 
+                        xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
+                        ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wny*ywl;
+                        ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
+                        zwake0_local[i] += (*it)[ibunch].realnum*zw;
+                    }
+                }
+            }
+        }  // full_machine
         
-         if (registered_turns>1) {
+        if (registered_turns>1) {
             ++it; ///previous turn, following buckets effect
             for (int ibunch= 0; ibunch<numbunches; ++ibunch){
-                 int ibucket=(*it)[ibunch].bucket_index;
-                 if(ibucket>=bunch_bucket) {///  following buckets effect    
-                    double  zji=z_to_edge+bunch_spacing*(bunch_bucket-ibucket)+orbit_length +((*it)[ibunch].z_mean-bunch_z_mean);
-                  //  int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0])))); 
-		    int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
+                int ibucket=(*it)[ibunch].bucket_index;
+                if(ibucket>=bunch_bucket) {///  following buckets effect    
+                    double  zji=z_to_zmean+bunch_spacing*(bunch_bucket-ibucket)+orbit_length +((*it)[ibunch].z_mean-bunch_z_mean);
+                    //  int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0])))); 
+                    int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
                     if ((iz+1 < zpoints) && (iz>0)) {
-			  double xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
-			  double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);    
-			  
-			  xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
-			  xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
-			  ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
-			  ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
-			  zwake0_local[i] += (*it)[ibunch].realnum*zw;
-			  
-                     }
-                 }
+                        double xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
+                        double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);    
+                        
+                        xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
+                        xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
+                        ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
+                        ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
+                        zwake0_local[i] += (*it)[ibunch].realnum*zw;                   
+                    }
+                }
             } // ibunch loop	 
-	}//registered_turns>1
-         
+        }//registered_turns>1         
     } // i loop
     t1 = simple_timer_show(t1, "impedance_calculate_kicks:  i loop ");
     /// it is not necessary to have a loop over i at larger distances, since the effect is negligible
+    /// might not be  true for coasting beams!
     if (registered_turns>1) {
         double xwake_l=0.;
         double xwake_t=0.;
-	double ywake_l=0.;
+        double ywake_l=0.;
         double ywake_t=0.;
         double zwake_0=0.; 
               
         
         std::list< std::vector<Bunch_properties> >::const_iterator it;
-	std::list< std::vector<Bunch_properties> >::const_iterator jt=stored_vbunches.begin();
-	++jt;       
-	int iturn;
+        std::list< std::vector<Bunch_properties> >::const_iterator jt=stored_vbunches.begin();
+        ++jt;       
+        int iturn;
         for (it=jt,  iturn=1; it !=stored_vbunches.end(); ++it, ++iturn){
             for (int ibunch= 0; ibunch<numbunches; ++ibunch){
-                int ibucket=(*it)[ibunch].bucket_index;
-               // if(((ibucket<bunch_bucket) && (it==jt))///  finishing the previous turn, for the buckets ahead
-               //                 ||  (it!=jt))  /// previous turns effects
+                int ibucket=(*it)[ibunch].bucket_index;                   
                 if(((ibucket<bunch_bucket) && (iturn==1))///  finishing the previous turn, for the buckets ahead
-                                ||  (iturn>1))  /// previous turns effects                
-                                
+                ||  (iturn>1))  /// previous turns effects                
                 {
                     double  zji=bunch_spacing*(bunch_bucket-ibucket)+orbit_length*iturn +((*it)[ibunch].z_mean-bunch_z_mean);
-                  //  int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0]))));  
-		    int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
+                    //  int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0]))));  
+                    int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
                     if ((iz+1 < zpoints) && (iz>0)) {
-			  double  xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double  xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double  ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double  ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
-			  double  zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  
-		          xwake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl;
-			  xwake_t += (*it)[ibunch].realnum*xwt;
-			  ywake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
-			  ywake_t += (*it)[ibunch].realnum*ywt; 
-			  zwake_0 += (*it)[ibunch].realnum*zw;
+                        double  xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double  xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double  ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                        double  ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
+                        double  zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);
+
+                        xwake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl;
+                        xwake_t += (*it)[ibunch].realnum*xwt;
+                        ywake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
+                        ywake_t += (*it)[ibunch].realnum*ywt; 
+                        zwake_0 += (*it)[ibunch].realnum*zw;
                     }
                 } 
             }
-            
+
             if (full_machine) {
-	      for (int itrain= 1; itrain<num_trains; ++itrain){
-		double wnx=cos(2.*mconstants::pi*wn[0]*itrain/double(num_trains));
-		double wny=cos(2.*mconstants::pi*wn[1]*itrain/double(num_trains));
-		double wnz=cos(2.*mconstants::pi*wn[2]*itrain/double(num_trains));
-		for (int ibunch= 0; ibunch<numbunches; ++ibunch){
-		     double  zji=orbit_length*iturn+bunch_spacing*numbunches*itrain+bunch_spacing*(bunch_bucket-ibunch)+
- 		     ((*it)[ibunch].z_mean*wnz-bunch_z_mean);
-		  //    int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0]))));
-		      int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
-		      if ((iz+1 < zpoints) && (iz>0)) {
-			  double  xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double  xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double  ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  double  ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
-			  double  zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);
-			  
-		          xwake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].x_mean*wnx*xwl;
-			  xwake_t += (*it)[ibunch].realnum*xwt;
-			  ywake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wny*ywl;
-			  ywake_t += (*it)[ibunch].realnum*ywt; 
-			  zwake_0 += (*it)[ibunch].realnum*zw;
-                    }		      
-		}//itrain
-	      } //ibunch
-	    }  // full_machine
+                for (int itrain= 1; itrain<num_trains; ++itrain){
+                    double wnx=cos(2.*mconstants::pi*wn[0]*itrain/double(num_trains));
+                    double wny=cos(2.*mconstants::pi*wn[1]*itrain/double(num_trains));
+                    double wnz=cos(2.*mconstants::pi*wn[2]*itrain/double(num_trains));
+                    for (int ibunch= 0; ibunch<numbunches; ++ibunch){
+                        double  zji=orbit_length*iturn+bunch_spacing*numbunches*itrain+bunch_spacing*(bunch_bucket-ibunch)+
+                        ((*it)[ibunch].z_mean*wnz-bunch_z_mean);
+                        //    int iz=static_cast<int>(floor(sqrt((zji-z_coord[0])/(z_coord[1]-z_coord[0]))));
+                        int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
+                        if ((iz+1 < zpoints) && (iz>0)) {
+                            double  xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                            double  xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
+                            double  ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                            double  ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
+                            double  zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);
+
+                            xwake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].x_mean*wnx*xwl;
+                            xwake_t += (*it)[ibunch].realnum*xwt;
+                            ywake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wny*ywl;
+                            ywake_t += (*it)[ibunch].realnum*ywt; 
+                            zwake_0 += (*it)[ibunch].realnum*zw;
+                        }		      
+                    }//ibunch
+                } ////itrain
+            }  // full_machine
       } //iturn
       for (int i = 0; i <counts[rank] ; ++i){
-	xwake_leading_local[i] +=  xwake_l;
-	xwake_trailing_local[i] += xwake_t;
-	ywake_leading_local[i] +=  ywake_l; 
-	ywake_trailing_local[i] += ywake_t ;
-	zwake0_local[i] += zwake_0;    
+            xwake_leading_local[i] +=  xwake_l;
+            xwake_trailing_local[i] += xwake_t;
+            ywake_leading_local[i] +=  ywake_l; 
+            ywake_trailing_local[i] += ywake_t ;
+            zwake0_local[i] += zwake_0;    
       }         
    }//registred_turns>1
     t1 = simple_timer_show(t1, "impedance_calculate_kicks: registred_turns loop   ");
@@ -728,7 +734,7 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Lo
 {
    double t;
    t = simple_timer_current();
-   bunch.convert_to_state(Bunch::fixed_t_lab);  
+   bunch.convert_to_state(Bunch::fixed_t_lab);        
    calculate_moments_and_partitions(bunch);   
    t = simple_timer_show(t, "impedance_apply:  calculate_moments_and_partitions ");
       
@@ -741,6 +747,7 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Lo
 //       abort(); 
    N_factor=bunch.get_real_num()/bunch.get_total_num();
    bunch_z_mean=Core_diagnostics::calculate_z_mean(bunch);
+  
    t = simple_timer_show(t, "impedance_apply: calculate_z_mean ");
    bunch_bucket=bunch.get_bucket_index(); 
    calculate_kicks(bunch.get_comm_sptr());
@@ -875,6 +882,7 @@ template<class Archive>
 	ar & BOOST_SERIALIZATION_NVP(N_factor);
 	ar & BOOST_SERIALIZATION_NVP(cell_size_z);
 	ar & BOOST_SERIALIZATION_NVP(bunch_z_mean);
+    ar & BOOST_SERIALIZATION_NVP(bunch_z_left);
 	ar & BOOST_SERIALIZATION_NVP(bunch_bucket);
     }
     

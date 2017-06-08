@@ -11,6 +11,7 @@ class Diagnostics_phase_space_density : public Diagnostics
 public:
     static const char name[];
 private:
+     bool coasting_beam; 
      int grid_z;
      int grid_zp;
      double z_nsigma;
@@ -33,8 +34,8 @@ private:
      Hdf5_serial_writer<MArray2d_ref > * writer_density;
      MArray2d xdensity;
      Hdf5_serial_writer<MArray2d_ref > * writer_xdensity;
-    // MArray2d ydensity;
-     //Hdf5_serial_writer<MArray2d_ref > * writer_ydensity;
+     MArray2d ydensity;
+     Hdf5_serial_writer<MArray2d_ref > * writer_ydensity;
 
 
 
@@ -49,7 +50,7 @@ public:
     /// @param filename filename for output
     /// @param local_dir local directory to use for temporary scratch
     Diagnostics_phase_space_density(std::string const& filename, int grid_z, int grid_zp, double  z_nsigma=4.0,
-    double zp_nsigma=4.0, std::string const& local_dir = "");
+    double zp_nsigma=4.0, bool coasting_beam=false, std::string const& local_dir = "");
 
     // Default constructor for serialization use only
     Diagnostics_phase_space_density();

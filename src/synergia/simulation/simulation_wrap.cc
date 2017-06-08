@@ -431,6 +431,7 @@ BOOST_PYTHON_MODULE(simulation)
              register_closed_orbit_overloads01())  
         .def("get_rf_frequency",&Lattice_simulator::get_rf_frequency)
         .def("get_closed_orbit_length",&Lattice_simulator::get_closed_orbit_length)
+        .def("set_rf_bucket_length",&Lattice_simulator::set_rf_bucket_length)
         .def("calculate_element_lattice_functions",
                 &Lattice_simulator::calculate_element_lattice_functions)
         .def("calculate_slice_lattice_functions",
@@ -533,6 +534,8 @@ BOOST_PYTHON_MODULE(simulation)
         .def("force_update_operations_no_collective",
                 &Stepper::force_update_operations_no_collective)
         .def("print_", &Stepper::print)
+        .def("cs_step_lattice_functions", &Stepper::cs_step_lattice_functions)
+        .def("print_cs_step_betas", &Stepper::print_cs_step_betas)
         ;
 
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",

@@ -42,7 +42,7 @@ BOOST_PYTHON_MODULE(collective)
         .def("is_periodic", &Rectangular_grid_domain::is_periodic);
                 
     class_<Diagnostics_space_charge_3d_hockney,  Diagnostics_space_charge_3d_hockney_sptr, bases<Diagnostics > >
-        ("spch_3d_hockney_diagnostics",init<std::string const& >())    
+        ("Diagnostics_space_charge_3d_hockney",init<std::string const& >())    
         .def(init<std::string const& , std::string const& >())
         .def("set_bunch", &Diagnostics_space_charge_3d_hockney::set_bunch_sptr)
         ;   
@@ -141,7 +141,7 @@ BOOST_PYTHON_MODULE(collective)
     }
 
    class_<Diagnostics_space_charge_rectangular,  Diagnostics_space_charge_rectangular_sptr, bases<Diagnostics > >
-        ("spch_rectangular_diagnostics",init<std::string const& >())    
+        ("Diagnostics_space_charge_rectangular",init<std::string const& >())    
         .def(init<std::string const& , std::string const& >())
         .def("set_bunch", &Diagnostics_space_charge_rectangular::set_bunch_sptr)
         ;  
@@ -182,8 +182,8 @@ BOOST_PYTHON_MODULE(collective)
         bases<Collective_operator > >("Impedance",
                 init<std::string const &,std::string const &, int const  &,  double const &, double const &,
         int const, bool, std::vector<int > >())
-     .def(init<std::string const &,std::string const &, int const  &,  double const &, int const &,
-        int const, bool, std::vector<int >  >())
+     //.def(init<std::string const &,std::string const &, int const  &,  double const &, int const &,
+     //   int const, bool, std::vector<int >  >())
         .def("get_orbit_length", &Impedance::get_orbit_length)
         .def("get_bunch_spacing", &Impedance::get_bunch_spacing)
         .def("get_z_grid", &Impedance::get_z_grid)

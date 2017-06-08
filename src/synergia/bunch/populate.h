@@ -82,6 +82,10 @@ populate_two_particles(Bunch &bunch,
 void
 populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref map, double length);  
 
+
+void
+populate_longitudinal_uniform(Distribution &dist, Bunch &bunch,   double length);
+
 // alternative populate KV distribution using a linear map to determine coefficients.
 void
 populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref map,

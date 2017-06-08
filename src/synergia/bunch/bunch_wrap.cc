@@ -134,6 +134,8 @@ BOOST_PYTHON_MODULE(bunch)
     		.staticmethod("calculate_min")
     		.def("calculate_max", &Core_diagnostics::calculate_max)
     		.staticmethod("calculate_max")
+            .def("print_bunch_parameters", &Core_diagnostics::print_bunch_parameters)
+            .staticmethod("print_bunch_parameters")
     		;
 
 
@@ -164,6 +166,7 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
     def("populate_transverseKV_logitudinalGaussian", populate_transverseKV_logitudinalGaussian);
     def("populate_longitudinal_boxcar", populate_longitudinal_boxcar);
+    def("populate_longitudinal_uniform",populate_longitudinal_uniform);
 
     container_conversions::from_python_sequence<std::vector<Bunch_sptr >,
             container_conversions::variable_capacity_policy >();
