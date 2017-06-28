@@ -96,6 +96,88 @@ BOOST_AUTO_TEST_CASE(mass_spectrometer)
 
 }
 
+// test whether particles with the same actual momentum but different
+// bunch reference momentum Are focussed to the same spot by a quadrupole
+BOOST_AUTO_TEST_CASE(quad_focussing)
+{
+    const double focus = 10.0;
+    const double magnet_length = 1.0;
+    const double kenergy = 0.1;
+    const double xoffset = 0.001;
+
+    const double driftlen = focus - magnet_length;
+
+    Lattice_element quad("quadrupole", "q");
+    quad.set_double_attribute("l", magnet_length);
+    quad.set_double_attribute("k1", 1.0/(focus*magnet_length));
+
+    Lattice_element drift("drift", "d");
+    drift.set_double_attribute("l", driftlen);
+
+    quad.set_string_attribute("extractor_type", "chef_propagate");
+    drift.set_string_attribute("extractor_type", "chef_propagate");
+
+    Lattice_sptr lattice1_sptr(new Lattice("channel",
+                                           Element_adaptor_map_sptr(new MadX_adaptor_map)));
+    lattice1_sptr->append(quad);
+    lattice1_sptr->append(drift);
+
+    const double pfrac = 0.95;
+
+    Four_momentum pmom(pconstants::mp);
+    pmom.set_kinetic_energy(kenergy);
+    Reference_particle refpart1(pconstants::proton_charge, pmom);
+    double momentum = pmom.get_momentum();
+    pmom.set_momentum(pfrac * momentum);
+    Reference_particle refpart2(pconstants::proton_charge, pmom);
+
+    std::cout << "refpart1 momentum: " << refpart1.get_momentum() << std::endl;
+    std::cout << "refpart2 momentum: " << refpart2.get_momentum() << std::endl;
+
+    lattice1_sptr->set_reference_particle(refpart1);
+
+    const int macro_particles = 1;
+    const double real_particles = 1.0e9;
+    Commxx_sptr comm_sptr(new Commxx);
+    Bunch_sptr bunch1_sptr( new Bunch(refpart1, macro_particles, real_particles, comm_sptr));
+    Bunch_sptr bunch2_sptr( new Bunch(refpart2, macro_particles, real_particles, comm_sptr));
+
+    MArray2d_ref local_particles1(bunch1_sptr->get_local_particles());
+    MArray2d_ref local_particles2(bunch2_sptr->get_local_particles());
+
+    // bunch1 will have a particle with nominal reference momentum but
+    // dpop = pfrac-1
+
+    // bunch2 will have a particle with reference momentum 95% of bunch1's
+    // momentum but dpop=0
+
+    local_particles1[0][Bunch::dpop] = pfrac-1.0;
+    local_particles1[0][Bunch::x] = xoffset;
+
+    local_particles2[0][Bunch::x] = xoffset;
+
+    const int map_order = 1;
+    const int num_steps = 1;
+
+    Bunch_simulator bunch_simulator1(bunch1_sptr);
+    Bunch_simulator bunch_simulator2(bunch2_sptr);
+
+    Independent_stepper_sptr stepper1_sptr(new Independent_stepper(lattice1_sptr, map_order, num_steps));
+
+    Propagator propagator1(stepper1_sptr);
+
+    propagator1.propagate(bunch_simulator1, 1, 1, 1);
+    propagator1.propagate(bunch_simulator2, 1, 1, 1);
+
+    std::cout << "bunch1 x: " << local_particles1[0][Bunch::x] << std::endl;
+    std::cout << "bunch2 x: " << local_particles2[0][Bunch::x] << std::endl;
+
+    BOOST_CHECK(floating_point_equal(local_particles1[0][Bunch::x],
+                                     local_particles2[0][Bunch::x], tolerance));
+
+}
+
+
 BOOST_AUTO_TEST_CASE(accelerate_particles)
 {
     const double drift_length = 9.0;
