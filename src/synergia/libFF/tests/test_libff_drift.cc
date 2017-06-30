@@ -53,7 +53,8 @@ BOOST_AUTO_TEST_CASE(drift_propagation)
     Commxx_sptr commxx(new Commxx());
 
     // 3 particles in the test + reference
-    Bunch_sptr bunch_sptr(new Bunch(reference_particle, 5, real_particles, commxx));
+    // pad to 8 particles to satisfy possible AVX512 alignment requirement
+    Bunch_sptr bunch_sptr(new Bunch(reference_particle, 8, real_particles, commxx));
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     MArray2d_ref local_particles(bunch_sptr->get_local_particles());
