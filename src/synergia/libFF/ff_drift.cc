@@ -61,11 +61,12 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const double  length = slice.get_right() - slice.get_left();
     const int  local_num = bunch.get_local_num();
     const double    mass = bunch.get_mass();
-    const double ref_cdt = get_reference_cdt(length, bunch.get_reference_particle());
 
-    Reference_particle & ref_b = bunch.get_reference_particle();
+    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle const & ref_b = bunch.get_reference_particle();
     const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
+    const double ref_cdt = get_reference_cdt(length, ref_l);
     double * RESTRICT xa, * RESTRICT xpa;
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
@@ -77,7 +78,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const int block_last = num_blocks * gsvsize;
 
     #pragma omp parallel for
-    for (int part = 0; part < block_last; part += gsvsize) 
+    for (int part = 0; part < block_last; part += gsvsize)
     {
         GSVector x(&xa[part]);
         GSVector xp(&xpa[part]);
@@ -93,7 +94,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
         cdt.store(&cdta[part]);
     }
 
-    for (int part = block_last; part < local_num; ++part) 
+    for (int part = block_last; part < local_num; ++part)
     {
         double x(xa[part]);
         double xp(xpa[part]);
