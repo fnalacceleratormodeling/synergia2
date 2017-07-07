@@ -104,7 +104,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     // scaling
-    Reference_particle const & ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle ref_l(get_ref_particle_from_slice(slice));
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
@@ -118,10 +118,10 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    if (length == 0.0) 
+    if (length == 0.0)
     {
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < local_num; ++part)
         {
             double x(particles[part][Bunch::x]);
             double xp(particles[part][Bunch::xp]);
@@ -133,19 +133,19 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             particles[part][Bunch::xp] = xp;
             particles[part][Bunch::yp] = yp;
        }
-    } 
-    else 
+    }
+    else
     {
         double reference_momentum = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, k,
-                                                 bunch.get_reference_particle());
+                                                 ref_l);
         double step_reference_cdt = reference_cdt/steps;
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < local_num; ++part)
         {
             double x(particles[part][Bunch::x]);
             double xp(particles[part][Bunch::xp]);

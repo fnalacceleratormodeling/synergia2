@@ -101,7 +101,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     // scaling
-    Reference_particle const & ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle ref_l(get_ref_particle_from_slice(slice));
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
@@ -126,7 +126,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const int num_blocks = local_num / gsvsize;
     const int block_last = num_blocks * gsvsize;
 
-    if (length == 0.0) 
+    if (length == 0.0)
     {
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += gsvsize)
@@ -142,7 +142,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             yp.store(&ypa[part]);
         }
 
-        for (int part = block_last; part < local_num; ++part) 
+        for (int part = block_last; part < local_num; ++part)
         {
             double  x( xa[part]);
             double xp(xpa[part]);
@@ -154,13 +154,13 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             xpa[part] = xp;
             ypa[part] = yp;
         }
-    } 
-    else 
+    }
+    else
     {
         double reference_momentum = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, k,
-                                                 bunch.get_reference_particle());
+                                                 ref_l);
         double step_reference_cdt = reference_cdt/steps;
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
@@ -188,7 +188,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              cdt.store(&cdta[part]);
         }
 
-        for (int part = block_last; part < local_num; ++part) 
+        for (int part = block_last; part < local_num; ++part)
         {
             double    x(   xa[part]);
             double   xp(  xpa[part]);
