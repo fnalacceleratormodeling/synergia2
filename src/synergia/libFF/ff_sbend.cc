@@ -6,20 +6,20 @@ FF_sbend::FF_sbend()
 
 }
 
-double FF_sbend::get_reference_cdt(double length, double strength, double angle, 
+double FF_sbend::get_reference_cdt(double length, double strength, double angle,
                                    bool ledge, bool redge,
                                    double e1, double e2, double dphi,
                                    std::complex<double> const & phase,
                                    std::complex<double> const & term,
-                                   Reference_particle &reference_particle) 
+                                   Reference_particle &reference_particle)
 {
     double reference_cdt;
 
-    if (length == 0) 
+    if (length == 0)
     {
         reference_cdt = 0.0;
-    } 
-    else 
+    }
+    else
     {
         double pref = reference_particle.get_momentum();
         double m = reference_particle.get_mass();
@@ -61,7 +61,7 @@ double FF_sbend::get_reference_cdt(double length, double strength, double angle,
 
 
 double FF_sbend::get_reference_cdt(double length, double angle, double strength,
-                                   Reference_particle &reference_particle) 
+                                   Reference_particle &reference_particle)
 {
     double reference_cdt;
     if (length == 0) {
@@ -142,6 +142,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double e1 = 0.0;
     double e2 = 0.0;
 
+    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle const & ref_b = bunch.get_reference_particle();
+
     if (slice.get_lattice_element().has_double_attribute("e1"))
         e1 = slice.get_lattice_element().get_double_attribute("e1");
     if (slice.get_lattice_element().has_double_attribute("e2"))
@@ -199,9 +202,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    double reference_momentum = bunch.get_reference_particle().get_momentum();
+    double reference_momentum = ref_l.get_momentum();
     double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
-    int    reference_charge   = bunch.get_reference_particle().get_charge();
+    int    reference_charge   = ref_l.get_charge();
     double m = bunch.get_mass();
 
     double strength = reference_brho * a / l;
@@ -213,21 +216,24 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                                 std::complex<double>(1.0 - cos_angle, - sin_angle) *
                                 std::complex<double>(cos(dsFaceAngle), -sin(dsFaceAngle));
 
-    double pref = reference_momentum;
+    // the particle dpop is with respect to this momentum which goes with the bunch
+    double pref = ref_b.get_momentum();
+    double bunch_brho = pref / PH_CNV_brho_to_p;
 
     double ce1 = cos(-e1);
     double se1 = sin(-e1);
     double ce2 = cos(-e2);
     double se2 = sin(-e2);
 
-    double us_edge_k =   ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(usAngle) / reference_brho;
-    double ds_edge_k = - ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(dsAngle) / reference_brho;
+    double us_edge_k =   ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(usAngle) / bunch_brho;
+    double ds_edge_k = - ((reference_charge > 0) ? 1.0 : -1.0) * strength * tan(dsAngle) / bunch_brho;
 
-    double us_edge_k_p =   ((reference_charge > 0) ? 1.0 : -1.0) * strength / reference_brho;
-    double ds_edge_k_p = - ((reference_charge > 0) ? 1.0 : -1.0) * strength / reference_brho;
+    double us_edge_k_p =   ((reference_charge > 0) ? 1.0 : -1.0) * strength / bunch_brho;
+    double ds_edge_k_p = - ((reference_charge > 0) ? 1.0 : -1.0) * strength / bunch_brho;
 
+    // the reference time uses the momentum of the lattice
     double reference_cdt = get_reference_cdt(length, strength, angle, ledge, redge, e1, e2, dphi,
-            phase, term, bunch.get_reference_particle());
+            phase, term, ref_l);
 
     std::complex<double> phase_e1 = FF_algorithm::bend_edge_phase(e1);
     std::complex<double> phase_e2 = FF_algorithm::bend_edge_phase(e2);
@@ -246,7 +252,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     {
         // no combined function
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < local_num; ++part)
         {
             double x   (particles[part][Bunch::x   ]);
             double xp  (particles[part][Bunch::xp  ]);
@@ -292,7 +298,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     {
         // with combined function
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < local_num; ++part)
         {
             double x   (particles[part][Bunch::x   ]);
             double xp  (particles[part][Bunch::xp  ]);
