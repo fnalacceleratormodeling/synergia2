@@ -12,9 +12,10 @@ from synergia.bunch import Bunch
 from synergia.utils import Commxx, Logger, read_lsexpr_file
 from synergia.simulation import Lattice_simulator, Independent_stepper
 
-def fill(particles, delta):
-    assert(particles.shape[0] == 7)
-    for i in range(0, particles.shape[0]):
+def fill(particles, num_parts, delta):
+    assert(num_parts == 7)
+    assert(particles.shape[0] >= num_parts)
+    for i in range(0, num_parts):
         particles[i, :] = 0.0
         particles[i, 6] = i
         if i > 0:
@@ -35,8 +36,8 @@ def general_exam(orig, simp, num_steps, map_order, places):
     bunch_simp = Bunch(simp.get_reference_particle(), total_num,
             real_num, Commxx());
     delta = [0.001, 0.0001, 0.001, 0.0001, 0.1, 0.005]
-    fill(bunch_orig.get_local_particles(), delta)
-    fill(bunch_simp.get_local_particles(), delta)
+    fill(bunch_orig.get_local_particles(), bunch_orig.get_local_num(), delta)
+    fill(bunch_simp.get_local_particles(), bunch_simp.get_local_num(), delta)
 
     lattice_simulator_orig = Lattice_simulator(orig, map_order)
     lattice_simulator_simp = Lattice_simulator(simp, map_order)
