@@ -49,7 +49,7 @@ private:
     double * storage;
     double * alt_storage;
     MArray2d_ref *local_particles, *alt_local_particles;
-    int local_num, total_num;
+    int local_num, total_num, local_num_padded;
     double real_num;
     int bucket_index;
     int sort_period, sort_counter;
