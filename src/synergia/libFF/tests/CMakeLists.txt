@@ -10,6 +10,10 @@ add_test_executable(test_libff_drift test_libff_drift.cc)
 target_link_libraries(test_libff_drift synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_drift COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_drift>)
 
+add_test_executable(test_libff_mem_align test_libff_mem_align.cc)
+target_link_libraries(test_libff_mem_align synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_libff_mem_align COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_mem_align>)
+
 add_test_executable(test_libff_on_chef test_libff_on_chef.cc)
 target_link_libraries(test_libff_on_chef synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_on_chef COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_on_chef>)
