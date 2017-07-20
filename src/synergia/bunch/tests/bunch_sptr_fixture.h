@@ -34,6 +34,7 @@ struct Bunch_sptr_fixture
                 local_num * comm_sptr->get_size(), real_num, comm_sptr))
     {
         BOOST_TEST_MESSAGE("setup fixture");
+        total_num = local_num * comm_sptr->get_size();
         dummy_populate(*bunch_sptr);
         bunch_sptr->get_reference_particle().set_trajectory(turns, turn_length,
                 partial_s);
