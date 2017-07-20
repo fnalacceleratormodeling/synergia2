@@ -13,6 +13,7 @@ private:
     int min_particle_id, max_particle_id;
     void
     receive_other_local_particles(std::vector<int > const& local_nums,
+            std::vector<int> const & local_nums_padded,
             Hdf5_file_sptr file_sptr);
     void
     send_local_particles();

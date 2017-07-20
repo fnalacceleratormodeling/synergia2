@@ -108,6 +108,7 @@ target_link_libraries(test_diagnostics_particles_mpi synergia_bunch
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_particles_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_particles_mpi>)
 add_test(NAME test_diagnostics_particles_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_diagnostics_particles_mpi>)
+add_test(NAME test_diagnostics_particles_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_diagnostics_particles_mpi>)
 add_test(NAME test_diagnostics_particles_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_diagnostics_particles_mpi>)
 
 add_test_executable(test_diagnostics_track_mpi test_diagnostics_track_mpi.cc)
