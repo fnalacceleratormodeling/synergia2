@@ -169,6 +169,7 @@ Diagnostics_particles::write()
             file_sptr->write(rep, "rep");
             double s_n = get_bunch().get_reference_particle().get_s_n();
             file_sptr->write(s_n, "s_n");
+            file_sptr->write(0, "particles_storage_order");
             get_write_helper().finish_write();
         } else {
             send_local_particles();
