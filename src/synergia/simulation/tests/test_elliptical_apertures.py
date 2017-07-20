@@ -101,7 +101,7 @@ def test_elliptical_aperture_cut_all_but_last():
     for i in range(local_num-1):
         local_particles[i, 0] = 2.0
 
-    orig_last_particle_id = int(local_particles[-1,6])
+    orig_last_particle_id = int(local_particles[local_num-1,6])
 
     stepper = synergia.simulation.Independent_stepper(lattice, 1, 1)
 
