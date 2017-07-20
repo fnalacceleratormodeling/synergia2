@@ -217,6 +217,10 @@ public:
     int
     get_local_num() const;
 
+    /// Get the number of padded macroparticles (first dimension of the particles[][] array)
+    int
+    get_local_num_padded() const;
+
     /// Get the total number of macroparticles.
     int
     get_total_num() const;

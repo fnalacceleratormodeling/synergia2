@@ -142,7 +142,7 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
         if (local_num % 4 == 0) {
             local_num_padded = local_num;
         } else {
-            local_num_padded = local_num  + 4 - (local_num % 4);
+            local_num_padded = local_num + 4 - (local_num % 4);
         }
 
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
@@ -574,6 +574,12 @@ int
 Bunch::get_local_num() const
 {
     return local_num;
+}
+
+int
+Bunch::get_local_num_padded() const
+{
+    return local_num_padded;
 }
 
 int
