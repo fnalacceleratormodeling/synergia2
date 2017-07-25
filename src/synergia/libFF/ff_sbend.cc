@@ -153,11 +153,12 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     int cf = 0;  // combined function
     double kl[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double scale_to_bunch_momentum = ref_l.get_momentum()/ref_b.get_momentum();
 
     if (slice.get_lattice_element().has_double_attribute("k1"))
     {
         // quad component
-        kl[0] = slice.get_lattice_element().get_double_attribute("k1");
+        kl[0] = slice.get_lattice_element().get_double_attribute("k1")*scale_to_bunch_momentum;
         kl[1] = 0.0;
 
         if (kl[0] != 0) cf = 1;
@@ -166,7 +167,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     if (slice.get_lattice_element().has_double_attribute("k2"))
     {
         // sextupole component
-        kl[2] = slice.get_lattice_element().get_double_attribute("k2");
+        kl[2] = slice.get_lattice_element().get_double_attribute("k2")*scale_to_bunch_momentum;
         kl[3] = 0.0;
 
         if (kl[2] != 0) cf = 2;
@@ -175,7 +176,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     if (slice.get_lattice_element().has_double_attribute("k3"))
     {
         // octupole component
-        kl[4] = slice.get_lattice_element().get_double_attribute("k3");
+        kl[4] = slice.get_lattice_element().get_double_attribute("k3")*scale_to_bunch_momentum;
         kl[5] = 0.0;
 
         if (kl[4] != 0) cf = 3;
