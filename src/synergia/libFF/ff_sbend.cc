@@ -246,7 +246,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double step_length = length / steps;
     double step_strength[6] = { kl[0] * step_length, kl[1] * step_length,
                                 kl[2] * step_length, kl[3] * step_length,
-                                kl[2] * step_length, kl[3] * step_length };
+                                kl[4] * step_length, kl[5] * step_length };
 
     if (cf == 0)
     {
