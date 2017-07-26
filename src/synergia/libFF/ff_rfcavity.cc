@@ -74,15 +74,21 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    double reference_momentum = bunch.get_reference_particle().get_momentum();
+    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle const & ref_b = bunch.get_reference_particle();
+
+    // The bunch particles momentum is with respect to the bunch reference particle
+    double reference_momentum = ref_b.get_momentum();
+
     double m = bunch.get_mass();
 
     double new_ref_p = FF_algorithm::thin_rfcavity_pnew(reference_momentum, m, str, phi_s);
 
-    double reference_cdt = get_reference_cdt(length, bunch.get_reference_particle());
+    // reference_cdt uses the lattice reference particle
+    double reference_cdt = get_reference_cdt(length, ref_l);
 
     #pragma omp parallel for
-    for (int part = 0; part < local_num; ++part) 
+    for (int part = 0; part < local_num; ++part)
     {
         double x   (particles[part][Bunch::x   ]);
         double xp  (particles[part][Bunch::xp  ]);
@@ -91,13 +97,13 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double cdt (particles[part][Bunch::cdt ]);
         double dpop(particles[part][Bunch::dpop]);
 
-        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
+        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
                 0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
 
         FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop,
                 w_rf, str, phi_s, m, reference_momentum, new_ref_p);
 
-        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
+        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
                 0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
 
         particles[part][Bunch::x]    = x;
