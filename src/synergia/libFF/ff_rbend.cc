@@ -10,15 +10,15 @@ FF_rbend::FF_rbend()
 double FF_rbend::get_reference_cdt(double length, double strength, double angle,
                                    std::complex<double> const & phase,
                                    std::complex<double> const & term,
-                                   Reference_particle &reference_particle) 
+                                   Reference_particle &reference_particle)
 {
     double reference_cdt;
 
-    if (length == 0) 
+    if (length == 0)
     {
         reference_cdt = 0.0;
-    } 
-    else 
+    }
+    else
     {
         double pref = reference_particle.get_momentum();
         double m = reference_particle.get_mass();
@@ -38,7 +38,7 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
 
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
-        FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
+        FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
                     0.0, strength, pref, m, 0.0, phase, term);
 
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
@@ -51,7 +51,7 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
 
 
 double FF_rbend::get_reference_cdt(double length, double * k,
-                                   Reference_particle &reference_particle) 
+                                   Reference_particle &reference_particle)
 {
     double reference_cdt;
     if (length == 0) {
@@ -60,7 +60,7 @@ double FF_rbend::get_reference_cdt(double length, double * k,
         double reference_momentum = reference_particle.get_momentum();
         double m = reference_particle.get_mass();
         double step_length = length/steps;
-        double step_strength[6] = 
+        double step_strength[6] =
             { k[0]*step_length, k[1]*step_length,
               k[2]*step_length, k[3]*step_length,
               k[4]*step_length, k[5]*step_length };
@@ -157,7 +157,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     std::complex<double> term = length * std::complex<double> ( cos(dsFaceAngle), -sin(dsFaceAngle) );
 
     // charge, strength, and scaling
-    Reference_particle const & ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle ref_l(get_ref_particle_from_slice(slice));
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     double pref_l = ref_l.get_momentum();
@@ -186,8 +186,8 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     if (k[2] == 0.0 && k[4] == 0.0)
     {
-        double reference_cdt = get_reference_cdt(length, strength, angle, phase, term, 
-                bunch.get_reference_particle());
+        double reference_cdt = get_reference_cdt(length, strength, angle, phase, term,
+                ref_l);
 
         double * RESTRICT xa, * RESTRICT xpa;
         double * RESTRICT ya, * RESTRICT ypa;
@@ -218,8 +218,8 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
             // bend
             // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
-            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
-                    dphi, strength, pref_b, m, reference_cdt, 
+            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
+                    dphi, strength, pref_b, m, reference_cdt,
                     phase, term);
 
             // downstream edge
@@ -233,13 +233,13 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             particles[part][Bunch::y]   = y;
             particles[part][Bunch::yp]  = yp;
             particles[part][Bunch::cdt] = cdt;
- 
+
         }
 
-        for (int part = block_last; part < local_num; ++part) 
+        for (int part = block_last; part < local_num; ++part)
 #else
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < local_num; ++part)
 #endif
         {
             double x   (particles[part][Bunch::x   ]);
@@ -258,8 +258,8 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
             // bend
             // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
-            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop, 
-                    dphi, eB, pref_b, m, reference_cdt, 
+            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
+                    dphi, eB, pref_b, m, reference_cdt,
                     phase, term);
 
             // downstream edge
@@ -288,7 +288,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         // with combined high order function, use yoshida approximation
         #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part) 
+        for (int part = 0; part < local_num; ++part)
         {
             double x   (particles[part][Bunch::x   ]);
             double xp  (particles[part][Bunch::xp  ]);
