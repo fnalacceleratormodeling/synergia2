@@ -24,6 +24,7 @@
 
 #include "synergia/utils/boost_test_mpi_fixture.h"
 
+#include "synergia/libFF/ff_element_map.h"
 
 #define ELEMENT_FIXTURE(ele) \
     struct ele ## _fixture : public propagator_fixture \
@@ -140,10 +141,12 @@ ELEMENT_FIXTURE(sbend);
 ELEMENT_FIXTURE(cfsbend);
 ELEMENT_FIXTURE(quadrupole);
 ELEMENT_FIXTURE(quadrupole2);
+#if 0
 ELEMENT_FIXTURE(sextupole);
 ELEMENT_FIXTURE(sextupole2);
 ELEMENT_FIXTURE(octupole);
 ELEMENT_FIXTURE(octupole2);
+#endif
 ELEMENT_FIXTURE(rfc);
 ELEMENT_FIXTURE(mp1);
 ELEMENT_FIXTURE(mp2);
@@ -366,25 +369,35 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole_with_tilt, quadrupole2_fixture )
     BOOST_CHECK(true);
 }
 
-
+// tests comparing sextupoles and octupoles against chef have been
+// removed because they make no sense.  CHEF only uses one thin kick
+// in the middle of the element compared to a yoshida expansion for libff.
+// The yoshida expansion agrees with the mad-x by the way.
+#if 0
 BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
 {
+    the_big_giant_global_ff_element_map.get_element_type("sextupole")->set_yoshida_steps(6);
+    std::cout << "lattice_chef: " << lattice_chef->as_string() << std::endl;
+    std::cout << "lattice_ff: " << lattice_ff->as_string() << std::endl;
+    BmlPtr chef_beamline(stepper_chef->get_lattice_simulator().get_chef_lattice().get_beamline_sptr());
+    std::cout << "chef_beamline: " << chef_beamline_as_string(chef_beamline) << std::endl;
+
     MArray2d_ref pcf = p_chef();
     MArray2d_ref pff = p_ff();
 
-    pcf[0][0] = 0.1;
-    pcf[0][1] = 0.1;
-    pcf[0][2] = 0.1;
-    pcf[0][3] = 0.1;
-    pcf[0][4] = 0.1;
-    pcf[0][5] = 0.1;
+    pcf[0][0] = 0.01;
+    pcf[0][1] = 0.01;
+    pcf[0][2] = 0.01;
+    pcf[0][3] = 0.01;
+    pcf[0][4] = 0.01;
+    pcf[0][5] = 0.01;
 
-    pff[0][0] = 0.1;
-    pff[0][1] = 0.1;
-    pff[0][2] = 0.1;
-    pff[0][3] = 0.1;
-    pff[0][4] = 0.1;
-    pff[0][5] = 0.1;
+    pff[0][0] = 0.01;
+    pff[0][1] = 0.01;
+    pff[0][2] = 0.01;
+    pff[0][3] = 0.01;
+    pff[0][4] = 0.01;
+    pff[0][5] = 0.01;
 
     std::cout << std::setprecision(16);
     std::cout << "\nsextupole\n";
@@ -398,7 +411,8 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
     }
 
     // tolerance is looser beccause libFF does yoshida but chef doesn't
-    element_check(pff, pcf, 0.001);
+    //element_check(pff, pcf, 0.001);
+    element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -506,6 +520,7 @@ BOOST_FIXTURE_TEST_CASE( test_octupole_with_tilt, octupole2_fixture )
     element_check(pff, pcf, 0.001);
     BOOST_CHECK(true);
 }
+#endif
 
 BOOST_FIXTURE_TEST_CASE( test_rfc, rfc_fixture )
 {

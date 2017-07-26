@@ -7,8 +7,8 @@ qd:   drift, l=1.0;
 qr:   rbend, l=1.0, angle=0.17;
 qf:   quadrupole, l=1.0, k1=0.311872401;
 qf2:  quadrupole, l=1.0, k1=0.311872401, tilt=0.1;
-qs:   sextupole, l=1.0, k2=0.02, k2s=0.01;
-qs2:  sextupole, l=1.0, k2=0.02, k2s=0.01, tilt=30*RADDEG;
+qs:   sextupole, l=0.024, k2=8.0, k2s=0.1;
+qs2:  sextupole, l=0.024, k2=1.0, k2s=0.1, tilt=30*RADDEG;
 qoct:   octupole, l=1.0, k3=0.005, k2s=0.01;
 qoct2:  octupole, l=1.0, k3=0.005, k2s=0.001, tilt=30*RADDEG;
 qsb:  sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.035;
@@ -65,28 +65,28 @@ sq11: qf2, at=0;
 sq12: qd0, at=1.0;
 endsequence;
 
-seq_sextupole: sequence, l=1.0, refer=entry;
+seq_sextupole: sequence, l=1.0, refer=centre;
 ss00: qd0, at=0;
-ss01: qs, at=0;
+ss01: qs, at=0.5;
 ss02: qd0, at=1.0;
 endsequence;
 
-seq_sextupole2: sequence, l=1.0, refer=entry;
+seq_sextupole2: sequence, l=1.0, refer=centre;
 ss10: qd0, at=0;
-ss11: qs2, at=0;
+ss11: qs2, at=0.5;
 ss12: qd0, at=1.0;
 endsequence;
 
 seq_octupole: sequence, l=1.0, refer=entry;
-ss00: qd0, at=0;
-ss01: qoct, at=0;
-ss02: qd0, at=1.0;
+sc00: qd0, at=0;
+sc01: qoct, at=0;
+sc02: qd0, at=1.0;
 endsequence;
 
 seq_octupole2: sequence, l=1.0, refer=entry;
-ss10: qd0, at=0;
-ss11: qoct2, at=0;
-ss12: qd0, at=1.0;
+sc10: qd0, at=0;
+sc11: qoct2, at=0;
+sc12: qd0, at=1.0;
 endsequence;
 
 seq_rfc: sequence, l=3.998, refer=entry;
