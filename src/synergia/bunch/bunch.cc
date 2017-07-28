@@ -204,7 +204,7 @@ Bunch::operator=(Bunch const& bunch)
         state = bunch.state;
         longitudinal_extent=bunch.longitudinal_extent;
         z_periodic=bunch.z_periodic;
-        longitudinal_aperture=bunch.longitudinal_aperture;        
+        longitudinal_aperture=bunch.longitudinal_aperture;
         if (bunch.converter_ptr == &(bunch.default_converter)) {
             converter_ptr = &default_converter;
         } else {
@@ -258,8 +258,8 @@ Bunch::set_total_num(int totalnum)
 {
     int old_total_num = total_num;
     total_num = totalnum;
-   
-    if (old_total_num != 0.0) {
+
+    if (old_total_num != 0) {
         real_num = (total_num * real_num) / old_total_num;
     } else {
         real_num = 0.0;
@@ -506,7 +506,7 @@ Bunch::set_bucket_index(int index)
 int
 Bunch::get_bucket_index() const
 {
-  if (!bucket_index_assigned)  throw std::runtime_error("bucket index has not been assigned yet"); 
+  if (!bucket_index_assigned)  throw std::runtime_error("bucket index has not been assigned yet");
   return bucket_index;
 }
 
@@ -538,7 +538,7 @@ Bunch::get_comm_sptr() const
 void
 Bunch::inject(Bunch const& bunch)
 {
-    const double weight_tolerance = 1.0e-10;
+    const double weight_tolerance = 1.0e-14;
     const double particle_tolerance = 1.0e-14;
 
     // The charge and mass of the bunch particles must match
@@ -556,10 +556,13 @@ Bunch::inject(Bunch const& bunch)
         // target bunch is empty.  Set the weights from the injected bunch
         real_num = bunch.get_real_num();
         total_num = bunch.get_total_num();
-    } else if (std::abs(real_num/total_num - bunch.get_real_num()/bunch.get_total_num())
-        > weight_tolerance) {
-        throw std::runtime_error(
+    } else {
+        double wgt1 = real_num/total_num;
+        double wgt2 = bunch.get_real_num()/bunch.get_total_num();
+        if (std::abs(wgt1/wgt2 - 1.0) > weight_tolerance) {
+            throw std::runtime_error(
                 "Bunch.inject: macroparticle weight of injected bunch does not match.");
+        }
     }
     int old_local_num = local_num;
     set_local_num(old_local_num + bunch.get_local_num());
@@ -610,14 +613,14 @@ Bunch::inject(Bunch const& bunch)
 void
 Bunch::read_file(std::string const & filename)
 {
-  
+
    if (comm_sptr->has_this_rank()) {
-        Hdf5_file file(filename, Hdf5_file::read_only); 
+        Hdf5_file file(filename, Hdf5_file::read_only);
         MArray2d* read_particles= new MArray2d(file.read<MArray2d > ("particles"));
         int num_particles=read_particles->shape()[0];
-        if (total_num !=num_particles) { 
+        if (total_num !=num_particles) {
            // std::cout<<"required bunch total_num="<<total_num<<"  bunch file num_particles="<<num_particles<<std::endl;
-          throw std::runtime_error( " the initial bunch file has a different number of particles");     
+          throw std::runtime_error( " the initial bunch file has a different number of particles");
         }
 
         std::vector<int > offsets(comm_sptr->get_size()), counts(comm_sptr->get_size());
@@ -625,21 +628,21 @@ Bunch::read_file(std::string const & filename)
 
         if (local_num !=  counts[comm_sptr->get_rank()]) {
         //   std::cout<<"local num="<<local_num<<"  counts[rank]=  ="<<counts[comm_sptr->get_rank()]<<std::endl;
-           throw std::runtime_error( " local_num incompatibility when initializing the bunch"); 
+           throw std::runtime_error( " local_num incompatibility when initializing the bunch");
         }
 
         int offset = offsets[comm_sptr->get_rank()];
-        
+
         for (int part = 0; part < local_num; ++part) {
             int rpart=part+offset;
             for (int i = 0; i < 7; ++i) {
               (*local_particles)[part][i]=(*read_particles)[rpart][i];
-            }   
+            }
         }
-        
-   } 
-   
-}  
+
+   }
+
+}
 
 void Bunch::check_pz2_positive()
 {
