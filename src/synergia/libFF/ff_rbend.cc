@@ -12,11 +12,9 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
                                    std::complex<double> const & term,
                                    Reference_particle &reference_particle)
 {
-    double reference_cdt;
-
     if (length == 0)
     {
-        reference_cdt = 0.0;
+        return 0.0;
     }
     else
     {
@@ -31,10 +29,8 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
         double xp(reference_particle.get_state()[Bunch::xp]);
         double y(reference_particle.get_state()[Bunch::y]);
         double yp(reference_particle.get_state()[Bunch::yp]);
-        double cdt(reference_particle.get_state()[Bunch::cdt]);
+        double cdt(0.0);
         double dpop(reference_particle.get_state()[Bunch::dpop]);
-
-        double cdt_orig = cdt;
 
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
@@ -43,12 +39,10 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
 
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
-        reference_cdt = cdt - cdt_orig;
+        reference_particle.set_state(x, xp, y, yp, cdt, dpop);
 
-        reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
+        return cdt;
     }
-
-    return reference_cdt;
 }
 
 

@@ -5,8 +5,6 @@
 
 double FF_vkicker::get_reference_cdt(double length, double k, Reference_particle &reference_particle) 
 {
-    double reference_cdt;
-
     double pref = reference_particle.get_momentum();
     double m = reference_particle.get_mass();
     double step_length = length / steps;
@@ -16,10 +14,8 @@ double FF_vkicker::get_reference_cdt(double length, double k, Reference_particle
     double xp(reference_particle.get_state()[Bunch::xp]);
     double y(reference_particle.get_state()[Bunch::y]);
     double yp(reference_particle.get_state()[Bunch::yp]);
-    double cdt(reference_particle.get_state()[Bunch::cdt]);
+    double cdt(0.0);
     double dpop(reference_particle.get_state()[Bunch::dpop]);
-
-    double cdt_orig = cdt;
 
 #if 0
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
@@ -40,10 +36,9 @@ double FF_vkicker::get_reference_cdt(double length, double k, Reference_particle
               step_length, step_strength, steps );
     }
 
-    reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
-    reference_cdt = cdt - cdt_orig;
+    reference_particle.set_state(x, xp, y, yp, cdt, dpop);
 
-    return reference_cdt;
+    return cdt;
 }
 
 void FF_vkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)

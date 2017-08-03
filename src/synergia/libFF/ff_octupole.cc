@@ -9,10 +9,12 @@ FF_octupole::FF_octupole()
 
 double FF_octupole::get_reference_cdt(double length, double * k, Reference_particle &reference_particle) 
 {
-    double reference_cdt;
-    if (length == 0) {
-        reference_cdt = 0.0;
-    } else {
+    if (length == 0) 
+    {
+        return 0.0;
+    } 
+    else 
+    {
         double reference_momentum = reference_particle.get_momentum();
         double m = reference_particle.get_mass();
         double step_length = length/steps;
@@ -22,21 +24,20 @@ double FF_octupole::get_reference_cdt(double length, double * k, Reference_parti
         double xp(reference_particle.get_state()[Bunch::xp]);
         double y(reference_particle.get_state()[Bunch::y]);
         double yp(reference_particle.get_state()[Bunch::yp]);
-        double cdt(reference_particle.get_state()[Bunch::cdt]);
+        double cdt(0.0);
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
-        double cdt_orig = cdt;
         FF_algorithm::yoshida<double, FF_algorithm::thin_octupole_unit<double>, 4, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   0.0,
                   step_length, step_strength, steps );
-        reference_cdt = cdt - cdt_orig;
 
         // propagate and update the lattice reference particle state
-        reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
+        reference_particle.set_state(x, xp, y, yp, cdt, dpop);
+
+        return cdt;
     }
-    return reference_cdt;
 }
 
 void FF_octupole::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)

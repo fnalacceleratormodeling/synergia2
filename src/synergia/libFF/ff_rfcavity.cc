@@ -14,16 +14,15 @@ double get_reference_cdt(double length, Reference_particle & reference_particle)
     double xp(reference_particle.get_state()[Bunch::xp]);
     double y(reference_particle.get_state()[Bunch::y]);
     double yp(reference_particle.get_state()[Bunch::yp]);
-    double cdt(reference_particle.get_state()[Bunch::cdt]);
+    double cdt(0.0);
     double dpop(reference_particle.get_state()[Bunch::dpop]);
     double reference_momentum = reference_particle.get_momentum();
     double m = reference_particle.get_mass();
 
-    double cdt_orig = cdt;
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
-    reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
+    reference_particle.set_state(x, xp, y, yp, cdt, dpop);
 
-    return cdt - cdt_orig;
+    return cdt;
 }
 
 
