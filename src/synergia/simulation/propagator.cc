@@ -168,9 +168,18 @@ void
 Propagator::do_before_start(State & state, double & t, Logger & logger)
 {
     if (state.first_turn == 0) {
+
+        Reference_particle const & lattice_reference_particle = 
+                stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle();
+
         if (state.bunch_simulator_ptr) {
             state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
                     *stepper_sptr, state.bunch_simulator_ptr->get_bunch());
+
+            // set the bunch design_reference_particle from lattice reference particle
+            state.bunch_simulator_ptr->get_bunch().set_design_reference_particle(
+                    lattice_reference_particle);
+
         } else {
             size_t num_bunches =
                     state.bunch_train_simulator_ptr->get_bunch_train().get_size();
@@ -179,6 +188,10 @@ Propagator::do_before_start(State & state, double & t, Logger & logger)
                         i)->first_action(*stepper_sptr,
                         *(state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(
                                 i)));
+
+                // set the bunch design_reference_particle from lattice reference particle
+                state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(i)
+                    ->set_design_reference_particle(lattice_reference_particle);
             }
         }
         t = simple_timer_show(t, "propagate-diagnostics_actions_first");
