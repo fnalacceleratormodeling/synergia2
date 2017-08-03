@@ -45,6 +45,7 @@ private:
     double z_period_length;
     bool z_periodic;
     Reference_particle reference_particle;
+    Reference_particle design_reference_particle;
     int particle_charge;
     double * storage;
     double * alt_storage;
@@ -175,6 +176,15 @@ public:
 
     Reference_particle const&
     get_reference_particle() const;
+
+    Reference_particle &
+    get_design_reference_particle();
+
+    Reference_particle const &
+    get_design_reference_particle() const;
+
+    void
+    set_design_reference_particle(Reference_particle const & ref_part);
 
     /// Get the array containing the macroparticles on this processor.
     /// The array has length (length,7), where length of the array may be

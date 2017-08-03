@@ -187,28 +187,41 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
     }
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr) :
-        z_period_length(0.0), z_periodic(0), reference_particle(
-                reference_particle), bucket_index(0), comm_sptr(comm_sptr), default_converter()
+Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double real_num, 
+             Commxx_sptr comm_sptr) :
+        z_period_length(0.0), 
+        z_periodic(0), 
+        reference_particle(reference_particle), 
+        design_reference_particle(reference_particle),
+        bucket_index(0), 
+        comm_sptr(comm_sptr), 
+        default_converter()
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr, int particle_charge) :
-        z_period_length(0.0), z_periodic(0), reference_particle(
-                reference_particle), bucket_index(0), comm_sptr(comm_sptr), default_converter()
+Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double real_num, 
+             Commxx_sptr comm_sptr, int particle_charge) :
+        z_period_length(0.0), 
+        z_periodic(0), 
+        reference_particle(reference_particle), 
+        design_reference_particle(reference_particle),
+        bucket_index(0), 
+        comm_sptr(comm_sptr), 
+        default_converter()
 {
     construct(particle_charge, total_num, real_num);
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr, double z_period_length,
-        int bucket_index) :
-        z_period_length(z_period_length), z_periodic(true), reference_particle(
-                reference_particle), bucket_index(bucket_index), comm_sptr(
-                comm_sptr), default_converter()
+Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double real_num, 
+             Commxx_sptr comm_sptr, double z_period_length, int bucket_index) :
+        z_period_length(z_period_length), 
+        z_periodic(true), 
+        reference_particle(reference_particle), 
+        design_reference_particle(reference_particle),
+        bucket_index(bucket_index), 
+        comm_sptr(comm_sptr), 
+        default_converter()
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
@@ -219,8 +232,10 @@ Bunch::Bunch()
 
 
 Bunch::Bunch(Bunch const& bunch) :
-    reference_particle(bunch.reference_particle), comm_sptr(bunch.comm_sptr),
-            default_converter()
+    reference_particle(bunch.reference_particle), 
+    design_reference_particle(bunch.design_reference_particle),
+    comm_sptr(bunch.comm_sptr), 
+    default_converter()
 {
     particle_charge = bunch.particle_charge;
     total_num = bunch.total_num;
@@ -258,6 +273,7 @@ Bunch::operator=(Bunch const& bunch)
 {
     if (this != &bunch) {
         reference_particle = bunch.reference_particle;
+        design_reference_particle = bunch.design_reference_particle;
         comm_sptr = bunch.comm_sptr;
         particle_charge = bunch.particle_charge;
         total_num = bunch.total_num;
@@ -500,7 +516,6 @@ Bunch::convert_to_state(State state)
 }
 
 
-
 Reference_particle &
 Bunch::get_reference_particle()
 {
@@ -511,6 +526,24 @@ Reference_particle const&
 Bunch::get_reference_particle() const
 {
     return reference_particle;
+}
+
+Reference_particle &
+Bunch::get_design_reference_particle()
+{
+    return design_reference_particle;
+}
+
+Reference_particle const&
+Bunch::get_design_reference_particle() const
+{
+    return design_reference_particle;
+}
+
+void
+Bunch::set_design_reference_particle(Reference_particle const & ref_part)
+{
+    design_reference_particle = ref_part;
 }
 
 MArray2d_ref
@@ -751,6 +784,7 @@ template<class Archive>
         ar << BOOST_SERIALIZATION_NVP(z_period_length)
                 << BOOST_SERIALIZATION_NVP(z_periodic)
                 << BOOST_SERIALIZATION_NVP(reference_particle)
+                << BOOST_SERIALIZATION_NVP(design_reference_particle)
                 << BOOST_SERIALIZATION_NVP(particle_charge)
                 << BOOST_SERIALIZATION_NVP(total_num)
                 << BOOST_SERIALIZATION_NVP(real_num)
@@ -795,6 +829,7 @@ template<class Archive>
         ar >> BOOST_SERIALIZATION_NVP(z_period_length)
                 >> BOOST_SERIALIZATION_NVP(z_periodic)
                 >> BOOST_SERIALIZATION_NVP(reference_particle)
+                >> BOOST_SERIALIZATION_NVP(design_reference_particle)
                 >> BOOST_SERIALIZATION_NVP(particle_charge)
                 >> BOOST_SERIALIZATION_NVP(total_num)
                 >> BOOST_SERIALIZATION_NVP(real_num)
