@@ -62,7 +62,7 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
         tn.resize(knl.size(), tilt);
-   }
+    }
     else
     {
         // in Mad 8 format
@@ -99,7 +99,7 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     // scaling
-    Reference_particle const & ref_l = get_ref_particle_from_slice(slice);
+    Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
@@ -118,6 +118,23 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
+    // propagate and update the design reference particle
+    double x  = ref_l.get_state()[Bunch::x];
+    double xp = ref_l.get_state()[Bunch::xp];
+    double y  = ref_l.get_state()[Bunch::y];
+    double yp = ref_l.get_state()[Bunch::yp];
+    double dpop = ref_l.get_state()[Bunch::dpop];
+
+    for (int n = 0; n < knl.size(); ++n) {
+        if (knl[n] || ksl[n]) {
+            kL[0] = knl[n]; kL[1] = ksl[n];
+            FF_algorithm::thin_magnet_unit(x, xp, y, yp, kL, n+1);
+        }
+    }
+
+    ref_l.set_state(x, xp, y, yp, 0.0, dpop);
+
+    // propagate bunch particles
     for (int part = 0; part < local_num; ++part) 
     {
         double x   (particles[part][Bunch::x   ]);

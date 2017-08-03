@@ -21,6 +21,9 @@ double FF_drift::get_reference_cdt(double length, Reference_particle & reference
     double cdt_orig = cdt;
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
 
+    // propagate and update the bunch design reference particle state
+    reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
+
     return cdt - cdt_orig;
 }
 
@@ -62,7 +65,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const int  local_num = bunch.get_local_num();
     const double    mass = bunch.get_mass();
 
-    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
     const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 

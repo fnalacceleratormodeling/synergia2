@@ -54,6 +54,8 @@ double FF_sbend::get_reference_cdt(double length, double strength, double angle,
         }
 
         reference_cdt = cdt - cdt_orig;
+
+        reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
     }
 
     return reference_cdt;
@@ -142,7 +144,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double e1 = 0.0;
     double e2 = 0.0;
 
-    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     if (slice.get_lattice_element().has_double_attribute("e1"))
@@ -153,7 +155,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     int cf = 0;  // combined function
     double kl[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    double scale_to_bunch_momentum = ref_l.get_momentum()/ref_b.get_momentum();
+    double scale_to_bunch_momentum = ref_l.get_momentum()/(ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]));
 
     if (slice.get_lattice_element().has_double_attribute("k1"))
     {

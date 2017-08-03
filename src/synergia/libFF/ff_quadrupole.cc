@@ -4,8 +4,8 @@
 #include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
 
-double FF_quadrupole::get_reference_cdt(double length, double * k,
-                                        Reference_particle &reference_particle) {
+double FF_quadrupole::get_reference_cdt(double length, double * k, Reference_particle &reference_particle) 
+{
     double reference_cdt;
     if (length == 0) {
         reference_cdt = 0.0;
@@ -29,6 +29,9 @@ double FF_quadrupole::get_reference_cdt(double length, double * k,
                   0.0,
                   step_length, step_strength, steps );
         reference_cdt = cdt - cdt_orig;
+
+        // propagate and update the lattice reference particle state
+        reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
     }
     return reference_cdt;
 }
@@ -110,7 +113,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     // scaling
-    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
@@ -120,7 +123,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     k[0] *= scale;
     k[1] *= scale;
-
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
@@ -137,6 +139,24 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     if (length == 0.0)
     {
+        // propagate the bunch design reference particle
+        double x  = ref_l.get_state()[Bunch::x];
+        double xp = ref_l.get_state()[Bunch::xp];
+        double y  = ref_l.get_state()[Bunch::y];
+        double yp = ref_l.get_state()[Bunch::yp];
+        double dpop = ref_l.get_state()[Bunch::dpop];
+
+        x -= xoff;
+        y -= yoff;
+
+        FF_algorithm::thin_quadrupole_unit(x, xp,  y, yp, k);
+
+        x += xoff;
+        y += yoff;
+
+        ref_l.set_state(x, xp, y, yp, 0.0, dpop);
+
+        // propagate the bunch particles
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += gsvsize)
         {
@@ -149,6 +169,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             y -= vyoff;
 
             FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+            x += vxoff;
+            y += vyoff;
 
             xp.store(&xpa[part]);
             yp.store(&ypa[part]);
@@ -165,6 +188,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             y -= yoff;
 
             FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+            x += xoff;
+            y += yoff;
 
             xpa[part] = xp;
             ypa[part] = yp;

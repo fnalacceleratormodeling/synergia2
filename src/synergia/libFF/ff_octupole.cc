@@ -7,8 +7,8 @@ FF_octupole::FF_octupole()
 
 }
 
-double FF_octupole::get_reference_cdt(double length, double * k,
-                                       Reference_particle &reference_particle) {
+double FF_octupole::get_reference_cdt(double length, double * k, Reference_particle &reference_particle) 
+{
     double reference_cdt;
     if (length == 0) {
         reference_cdt = 0.0;
@@ -32,6 +32,9 @@ double FF_octupole::get_reference_cdt(double length, double * k,
                   0.0,
                   step_length, step_strength, steps );
         reference_cdt = cdt - cdt_orig;
+
+        // propagate and update the lattice reference particle state
+        reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
     }
     return reference_cdt;
 }
@@ -104,7 +107,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     // scaling
-    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
@@ -120,6 +123,16 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     if (length == 0.0)
     {
+        // propagate the bunch design reference particle
+        double x  = ref_l.get_state()[Bunch::x];
+        double xp = ref_l.get_state()[Bunch::xp];
+        double y  = ref_l.get_state()[Bunch::y];
+        double yp = ref_l.get_state()[Bunch::yp];
+        double dpop = ref_l.get_state()[Bunch::dpop];
+
+        FF_algorithm::thin_octupole_unit(x, xp,  y, yp, k);
+        ref_l.set_state(x, xp, y, yp, 0.0, dpop);
+
         #pragma omp parallel for
         for (int part = 0; part < local_num; ++part)
         {
@@ -138,8 +151,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     {
         double reference_momentum = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
-        double reference_cdt = get_reference_cdt(length, k,
-                                                 ref_l);
+        double reference_cdt = get_reference_cdt(length, k, ref_l);
         double step_reference_cdt = reference_cdt/steps;
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };

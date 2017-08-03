@@ -21,6 +21,7 @@ double get_reference_cdt(double length, Reference_particle & reference_particle)
 
     double cdt_orig = cdt;
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
+    reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
 
     return cdt - cdt_orig;
 }
@@ -74,7 +75,7 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     // The bunch particles momentum is with respect to the bunch reference particle

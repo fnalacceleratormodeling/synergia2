@@ -44,6 +44,8 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
         FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
         reference_cdt = cdt - cdt_orig;
+
+        reference_particle.set_state(x, xp, y, yp, 0.0, dpop);
     }
 
     return reference_cdt;
@@ -157,7 +159,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     std::complex<double> term = length * std::complex<double> ( cos(dsFaceAngle), -sin(dsFaceAngle) );
 
     // charge, strength, and scaling
-    Reference_particle ref_l(get_ref_particle_from_slice(slice));
+    Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     double pref_l = ref_l.get_momentum();

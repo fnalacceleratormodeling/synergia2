@@ -100,7 +100,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double l = slice.get_lattice_element().get_double_attribute("l", 0.0);
     double k = slice.get_lattice_element().get_double_attribute("kick");
 
-    Reference_particle const & ref_lattice = get_ref_particle_from_slice(slice);
+    Reference_particle       & ref_lattice = bunch.get_design_reference_particle();
     Reference_particle const & ref_bunch   = bunch.get_reference_particle();
 
     k = k * ref_bunch.get_charge() / ref_lattice.get_charge();
@@ -124,7 +124,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     if ( close_to_zero(l) ) 
     {
         // update the reference particle
-        double reference_cdt = get_reference_cdt(0.0, k, bunch.get_reference_particle());
+        double reference_cdt = get_reference_cdt(0.0, k, ref_lattice);
 
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += gsvsize) 
@@ -151,7 +151,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         double pref = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
-        double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
+        double reference_cdt = get_reference_cdt(length, k, ref_lattice);
 
         double step_reference_cdt = reference_cdt / steps;
         double step_length = length / steps;

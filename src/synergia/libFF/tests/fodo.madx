@@ -98,25 +98,25 @@ endsequence;
 seq_mp1: sequence, l=1.0, refer=entry;
 sm10: qd0, at=0;
 sm11: qmp1, at=0;
-sm12: qd1, at=0.0;
+sm12: qd, at=0.0;
 endsequence;
 
 seq_mp2: sequence, l=1.0, refer=entry;
 sm20: qd0, at=0;
 sm21: qmp2, at=0;
-sm22: qd1, at=0.0;
+sm22: qd, at=0.0;
 endsequence;
 
 seq_mp3: sequence, l=1.0, refer=entry;
 sm30: qd0, at=0;
 sm31: qmp3, at=0;
-sm32: qd1, at=0.0;
+sm32: qd, at=0.0;
 endsequence;
 
 seq_mp4: sequence, l=1.0, refer=entry;
 sm40: qd0, at=0;
 sm41: qmp4, at=0;
-sm42: qd1, at=0.0;
+sm42: qd, at=0.0;
 endsequence;
 
 seq_hkicker: sequence, l=1.0, refer=entry;
