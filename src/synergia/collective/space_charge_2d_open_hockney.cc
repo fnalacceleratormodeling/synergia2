@@ -810,6 +810,9 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
         bunch.get_local_particles()[part][1] += factor * grid_val.real();
         bunch.get_local_particles()[part][3] += factor * grid_val.imag();
     }
+
+    // release the particle_bin buffer
+    particle_bin_sptr.reset();
 }
 
 void
