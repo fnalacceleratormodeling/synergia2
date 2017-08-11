@@ -15,7 +15,7 @@ public:
     template <typename T>
     inline static void drift_unit
       (T & x, T const& xp, T & y, T const& yp, T & cdt, T const& dpop,
-       double length, double reference_momentum, double m, double reference_cdt) 
+       double length, double reference_momentum, double m, double reference_cdt)
     {
         T uni(1.0);
         T sig((0.0<length) - (length<0.0));
@@ -97,7 +97,7 @@ public:
     // exact solution for dipole without high order combined functions
     template <typename T>
     inline static void dipole_unit
-      (T & x, T & xp, T & y, T & yp, T & cdt, T const & dpop, double l, double k0) 
+      (T & x, T & xp, T & y, T & yp, T & cdt, T const & dpop, double l, double k0)
     {
         T xp1 = xp - k0 * l / (dpop + 1.0);
         T yp1 = yp;
@@ -210,7 +210,7 @@ public:
         cdt += ncdt - cdt_ref;
         xp   = vuf.imag() / (Ef * PH_MKS_c);
     }
-    
+
     inline static std::complex<double> bend_unit_phase(double theta)
     { return std::exp( std::complex<double>(0.0, theta) ); }
 
@@ -271,7 +271,7 @@ public:
 
     template <typename T>
     inline static void thin_cf_quadrupole_unit
-      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
         T vk0(kL[0]);
         T vk1(kL[1]);
@@ -309,25 +309,25 @@ public:
     }
 
     template <typename T>
-    inline static T thin_cf_quadrupole_bx (T const& x, T const& y, double r0) 
+    inline static T thin_cf_quadrupole_bx (T const& x, T const& y, double r0)
     { return r0 * y / (r0 + x); }
 
     template <typename T>
-    inline static T thin_cf_quadrupole_by (T const& x, T const& y, double r0, double alf) 
+    inline static T thin_cf_quadrupole_by (T const& x, T const& y, double r0, double alf)
     { return r0 * log(1.0 + alf); }
 
     template <typename T>
-    inline static T thin_cf_sextupole_bx (T const& x, T const& y, double alf) 
-    { return x * (2.0 + alf) * y / (1.0 + alf); } 
+    inline static T thin_cf_sextupole_bx (T const& x, T const& y, double alf)
+    { return x * (2.0 + alf) * y / (1.0 + alf); }
 
     template <typename T>
-    inline static T thin_cf_sextupole_by (T const& x, T const& y, double r0, double alf) 
+    inline static T thin_cf_sextupole_by (T const& x, T const& y, double r0, double alf)
     { return 0.5 * (x*x + 2.0*x*r0) - y*y - r0*r0*log(1.0 + alf); }
 
     // combined function sbends kick up to quadrupole
     template <typename T>
     inline static void thin_cf_kick_1
-      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
         T vk1n(kL[0]);
         T vk1s(kL[1]);
@@ -341,7 +341,7 @@ public:
     // combined function sbends kick up to sextupole
     template <typename T>
     inline static void thin_cf_kick_2
-      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
         T vk1n(kL[0]);
         T vk1s(kL[1]);
@@ -370,8 +370,8 @@ public:
         double sepLength       = ( len - 2.0*frontLength ) / 3.0;
         double kl[2]           = {str[0] * len / 4.0, str[1] * len / 4.0};
 
-        if( kicks == 1 ) 
-        {           
+        if( kicks == 1 )
+        {
             kl[0] = str[0] * len;
             kl[1] = str[1] * len;
 
@@ -379,8 +379,8 @@ public:
             thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len
             drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * len, pref, m, substep_ref_cdt );
         }
-        else if( (kicks % 4) == 0 ) 
-        { 
+        else if( (kicks % 4) == 0 )
+        {
             int    u     = kicks/4;
             double xu    = u;
             frontLength /= xu;
@@ -388,12 +388,12 @@ public:
             kl[0]       /= xu;
             kl[1]       /= xu;
 
-            for( int i=0; i<u; ++i) 
+            for( int i=0; i<u; ++i)
             {
                 drift_unit( x, xp, y, yp, cdt, dpop, frontLength, pref, m, substep_ref_cdt );
                 thin_quadrupole_unit(x, xp, y, yp, kl);  // quaterStrength
 
-                for( int i=0; i<3; ++i) 
+                for( int i=0; i<3; ++i)
                 {
                     drift_unit( x, xp, y, yp, cdt, dpop, sepLength, pref, m, substep_ref_cdt );
                     thin_quadrupole_unit(x, xp, y, yp, kl);  // quaterStrength
@@ -402,15 +402,15 @@ public:
                 drift_unit( x, xp, y, yp, cdt, dpop, frontLength, pref, m, substep_ref_cdt );
             }
         }
-        else 
-        {                   
+        else
+        {
             kl[0] = str[0] * len / kicks;
             kl[1] = str[1] * len / kicks;
 
             drift_unit( x, xp, y, yp, cdt, dpop, len / (2.0*kicks), pref, m, substep_ref_cdt );
             thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len/kicks
 
-            for( int i=0; i<kicks-1; ++i ) 
+            for( int i=0; i<kicks-1; ++i )
             {
                 drift_unit( x, xp, y, yp, cdt, dpop, len / kicks, pref, m, substep_ref_cdt );
                 thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len/kicks
@@ -423,7 +423,7 @@ public:
     // thin kick dipole
     template <typename T>
     inline static void thin_dipole_unit
-      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp = xp - kL[0];
         yp = yp + kL[1];
@@ -431,7 +431,7 @@ public:
 
     template <typename T>
     inline static void thin_quadrupole_unit
-      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         T vk0(kL[0]);
         T vk1(kL[1]);
@@ -442,7 +442,7 @@ public:
 
     template <typename T>
     inline static void thin_sextupole_unit
-      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         T vk0(kL[0]);
         T vk1(kL[1]);
@@ -453,9 +453,9 @@ public:
 
     template <typename T>
     inline static void thin_octupole_unit
-      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
-        xp += - 0.5 * kL[0] * (x * x * x / 3.0 - x * y * y) 
+        xp += - 0.5 * kL[0] * (x * x * x / 3.0 - x * y * y)
               + 0.5 * kL[1] * (x * x * y - y * y * y / 3.0);
         yp += - 0.5 * kL[0] * (y * y * y / 3.0 - x * x * y)
               + 0.5 * kL[1] * (x * x * x / 3.0 - x * y * y);
@@ -463,7 +463,7 @@ public:
 
     template <typename T>
     inline static void thin_rbend_unit
-      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         thin_dipole_unit(x, xp, y, yp, kL);
         thin_quadrupole_unit(x, xp, y, yp, kL + 2);
@@ -472,14 +472,14 @@ public:
 
     template <typename T>
     inline static void thin_kicker_unit
-      (T & p, double kL) 
+      (T & p, double kL)
     {
         p = p + T(kL);
     }
 
     template <typename T>
     inline static void thin_kicker_unit
-      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp = xp + T(kL[0]);
         yp = yp + T(kL[1]);
@@ -508,8 +508,8 @@ public:
 
     template <typename T>
     inline static void thin_rfcavity_unit
-      (T & px, T & py, T const & cdt, T & dpop, 
-       double w_rf, double volt, double phi_s, double m, double old_ref_p, double new_ref_p)
+      (T & px, T & py, T const & cdt, T & dpop,
+       double w_rf, double volt, double phi_s, double m, double old_ref_p, double & new_ref_p)
     {
         double const anh_phase             = 0.0;
         double const mhp_harmonic_multiple = 1.0;
@@ -520,7 +520,7 @@ public:
 
         double strength_factor = 0.0;
 
-        strength_factor += mhp_relative_strength * 
+        strength_factor += mhp_relative_strength *
             sin( mhp_harmonic_multiple * (phi_s + phase_slip_argument) + mhp_phase_shift );
 
         double p = old_ref_p * (dpop + 1.0);
@@ -542,49 +542,49 @@ public:
     {
         for(int k = 0; k < n; k += 4)
         {
-            xp += -kL[0] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
+            xp += -kL[0] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k)
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 2; k < n; k += 4)
         {
-            xp += +kL[0] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
+            xp += +kL[0] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k)
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 1; k < n; k += 4)
         {
-            xp += +kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
+            xp += +kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k)
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 3; k < n; k += 4)
         {
-            xp += -kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
+            xp += -kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k)
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 4; k <= n; k += 4)
         {
-            yp += -kL[0] * k * std::pow(x, n-k) * std::pow(y, k-1) 
+            yp += -kL[0] * k * std::pow(x, n-k) * std::pow(y, k-1)
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 2; k <= n; k += 4)
         {
-            yp += +kL[0] * k * std::pow(x, n-k) * std::pow(y, k-1) 
+            yp += +kL[0] * k * std::pow(x, n-k) * std::pow(y, k-1)
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 1; k <= n; k += 4)
         {
-            yp += +kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1) 
+            yp += +kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1)
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 3; k <= n; k += 4)
         {
-            yp += -kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1) 
+            yp += -kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1)
                          / (factorial(n-k) * factorial(k));
         }
     }
@@ -593,7 +593,7 @@ public:
     {
         if (n == 0) return 1.0;
 
-        double r = 1; 
+        double r = 1;
         for(int i = 1; i <= n; ++i) r *= i;
         return r;
     }
@@ -725,7 +725,7 @@ public:
 
     // hardwired 2nd order yoshida
     template <
-        typename T, 
+        typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
     inline static void yoshida2(T & x, T & xp,
@@ -736,7 +736,7 @@ public:
                                 double step_length, double * step_strength,
                                 int steps)
     {
-        for(int i = 0; i < steps; ++i) 
+        for(int i = 0; i < steps; ++i)
         {
             drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
                        m, substep_reference_cdt);
@@ -750,7 +750,7 @@ public:
 
     // hardwired 4th order yoshida
     template <
-        typename T, 
+        typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
     inline static void yoshida4(T & x, T & xp,
@@ -786,7 +786,7 @@ public:
             k3[i*2+1] = d3 * step_strength[i*2+1];
         }
 
-        for(int i = 0; i < steps; ++i) 
+        for(int i = 0; i < steps; ++i)
         {
             drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
@@ -814,7 +814,7 @@ public:
 
     // hardwired 6th order yoshida
     template <
-        typename T, 
+        typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
     inline static void yoshida6(T & x, T & xp,
@@ -856,7 +856,7 @@ public:
             k4[i*2+1] = d4 * step_strength[i*2+1];
         }
 
-        for(int i = 0; i < steps; ++i) 
+        for(int i = 0; i < steps; ++i)
         {
             drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
@@ -910,7 +910,7 @@ public:
 
 
     template <
-        typename T, 
+        typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),
         int components >
     inline static void bend_yoshida4(T & x, T & xp,
@@ -919,7 +919,7 @@ public:
                                 double reference_momentum,
                                 double m, double step_reference_cdt,
                                 double step_angle, double * step_strength,
-                                double r0, double bend_strength, 
+                                double r0, double bend_strength,
                                 int steps)
     {
         // see yoshida4.py for formulas
@@ -989,7 +989,7 @@ public:
             sr0 = r0;
         }
 
-        for(int i = 0; i < steps; ++i) 
+        for(int i = 0; i < steps; ++i)
         {
             bend_unit(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c1_step_phase, c1_step_term);

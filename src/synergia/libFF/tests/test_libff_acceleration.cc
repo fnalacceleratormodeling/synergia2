@@ -215,9 +215,14 @@ BOOST_AUTO_TEST_CASE(accelerate_particles)
     double momentum = pmom.get_momentum();
     lattice1_sptr->set_reference_particle(refpart1);
 
+    Commxx_sptr comm_sptr(new Commxx);
+    // libff needs a method to get the total time so that the RF cavity frequency
+    // can be set like what registration does in CHEF.
+    Bunch_sptr pilot_sptr(new Bunch(refpart1, 1, 1.0e10, comm_sptr));
+
     const int macro_particles = 3;
     const double real_particles = 1.0e9;
-    Commxx_sptr comm_sptr(new Commxx);
+    //Commxx_sptr comm_sptr(new Commxx);
     Bunch_sptr bunch1_sptr( new Bunch(refpart1, macro_particles, real_particles, comm_sptr));
 
     double initial_energy = bunch1_sptr->get_reference_particle().get_total_energy();

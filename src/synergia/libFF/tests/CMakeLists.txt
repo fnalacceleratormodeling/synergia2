@@ -26,7 +26,7 @@ add_test_executable(test_sis18 test_sis18.cc)
 target_link_libraries(test_sis18 synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_sis18 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_sis18>)
 
-add_test_executable(test_libff_acceleration test_acceleration.cc)
+add_test_executable(test_libff_acceleration test_libff_acceleration.cc)
 target_link_libraries(test_libff_acceleration synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_acceleration COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_acceleration>)
 
