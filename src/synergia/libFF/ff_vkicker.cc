@@ -3,10 +3,11 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 
-double FF_vkicker::get_reference_cdt(double length, double k, int steps, Reference_particle &reference_particle)
+double FF_vkicker::get_reference_cdt(double length, double k, Reference_particle &reference_particle)
 {
     double pref = reference_particle.get_momentum();
     double m = reference_particle.get_mass();
+    // steps comes from base class, set in apply method
     double step_length = length / steps;
     // for 0 length, hk,vk is the total strength of the kick
     // for >0 length, hk,vk is the strength/length of the kick
@@ -130,7 +131,7 @@ void FF_vkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // the reference time is calculated with the design reference particle which
         // relative to plattice.
         // also update the reference particle
-        double reference_cdt = get_reference_cdt(0.0, k, 1, ref_lattice);
+        double reference_cdt = get_reference_cdt(0.0, k, ref_lattice);
 
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += gsvsize)
@@ -157,7 +158,7 @@ void FF_vkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         double pref = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
-        double reference_cdt = get_reference_cdt(length, k, steps, ref_lattice);
+        double reference_cdt = get_reference_cdt(length, k, ref_lattice);
 
         double step_reference_cdt = reference_cdt / steps;
         double step_length = length / steps;

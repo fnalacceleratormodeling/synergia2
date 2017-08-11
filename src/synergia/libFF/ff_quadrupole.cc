@@ -4,16 +4,17 @@
 #include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
 
-double FF_quadrupole::get_reference_cdt(double length, double * k, Reference_particle &reference_particle) 
+double FF_quadrupole::get_reference_cdt(double length, double * k, Reference_particle &reference_particle)
 {
-    if (length == 0) 
+    if (length == 0)
     {
         return 0.0;
-    } 
-    else 
+    }
+    else
     {
         double reference_momentum = reference_particle.get_momentum();
         double m = reference_particle.get_mass();
+        // steps comes from base class, set in apply
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 

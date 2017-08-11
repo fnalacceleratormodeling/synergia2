@@ -7,7 +7,7 @@ class FF_kicker : public FF_element
 {
 private:
     double get_reference_cdt(double length, double hk, double vk,
-            int steps, Reference_particle & reference_particle);
+            Reference_particle & reference_particle);
 
 public:
     FF_kicker() { };
