@@ -6,7 +6,7 @@
 class FF_hkicker : public FF_element
 {
 private:
-    double get_reference_cdt(double length, double k, Reference_particle & reference_particle);
+    double get_reference_cdt(double length, double k, int steps, Reference_particle & reference_particle);
 
 public:
     FF_hkicker() { };

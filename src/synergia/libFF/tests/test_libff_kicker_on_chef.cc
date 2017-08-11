@@ -71,9 +71,15 @@ struct propagator_fixture
         stepper_chef.reset(new Independent_stepper(lattice_chef, map_order, num_steps));
         propagator_chef = new Propagator(stepper_chef);
 
-        bunch_chef.reset(new Bunch(lattice_chef->get_reference_particle(), 1, 1.0e9, commxx));
+        Reference_particle refpart(lattice_chef->get_reference_particle());
+        Four_momentum four_momentum(refpart.get_four_momentum());
+        double momentum = four_momentum.get_momentum();
+        four_momentum.set_momentum(momentum*0.25);
+        refpart.set_four_momentum(four_momentum);
+
+        bunch_chef.reset(new Bunch(refpart, 1, 1.0e9, commxx));
         bunch_simulator_chef = new Bunch_simulator(bunch_chef);
-    
+
         // libff propgator
         lattice_ff = reader.get_lattice_sptr(seq_name, "fodo.madx");
         lattice_ff->set_all_string_attribute("extractor_type", "libff");
@@ -81,7 +87,7 @@ struct propagator_fixture
         stepper_ff.reset(new Independent_stepper(lattice_ff, map_order, num_steps));
         propagator_ff = new Propagator(stepper_ff);
 
-        bunch_ff.reset(new Bunch(lattice_ff->get_reference_particle(), 1, 1.0e9, commxx));
+        bunch_ff.reset(new Bunch(refpart, 1, 1.0e9, commxx));
         bunch_simulator_ff = new Bunch_simulator(bunch_ff);
     }
 
@@ -134,6 +140,10 @@ ELEMENT_FIXTURE(vkicker);
 ELEMENT_FIXTURE(kicker);
 
 ELEMENT_FIXTURE_STEPS(kicker2, 2);
+
+ELEMENT_FIXTURE(long_hkicker);
+ELEMENT_FIXTURE(long_vkicker);
+ELEMENT_FIXTURE(long_kicker);
 
 BOOST_FIXTURE_TEST_CASE( test_hkicker, hkicker_fixture )
 {
@@ -238,6 +248,111 @@ BOOST_FIXTURE_TEST_CASE( test_kicker, kicker_fixture )
     BOOST_CHECK(true);
 }
 
+// the tolerance for the long kicker tests is so loose because CHEF uses
+// a drift-single kick-drift algorithm but libff is using a 6th order yoshida algorithm.
+const double long_kicker_tolerance = 1.0;
+BOOST_FIXTURE_TEST_CASE( test_long_hkicker, long_hkicker_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nlong_hkicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, long_kicker_tolerance);
+    BOOST_CHECK(true);
+}
+
+
+BOOST_FIXTURE_TEST_CASE( test_long_vkicker, long_vkicker_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nlong_vkicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, long_kicker_tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_long_kicker, long_kicker_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nlong_kicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, long_kicker_tolerance);
+    BOOST_CHECK(true);
+}
 
 BOOST_FIXTURE_TEST_CASE( test_kicker_steps, kicker2_fixture )
 {

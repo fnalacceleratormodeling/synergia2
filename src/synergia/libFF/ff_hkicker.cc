@@ -3,12 +3,14 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 
-double FF_hkicker::get_reference_cdt(double length, double k, Reference_particle &reference_particle) 
+double FF_hkicker::get_reference_cdt(double length, double k, int steps, Reference_particle &reference_particle)
 {
     double pref = reference_particle.get_momentum();
     double m = reference_particle.get_mass();
     double step_length = length / steps;
-    double step_strength[2] = { k * step_length, 0.0 };
+    // for 0 length, hk,vk is the total strength of the kick
+    // for >0 length, hk,vk is the strength/length of the kick
+    double step_strength[2] = { k*step_length, 0.0 };
 
     double x(reference_particle.get_state()[Bunch::x]);
     double xp(reference_particle.get_state()[Bunch::xp]);
@@ -31,7 +33,7 @@ double FF_hkicker::get_reference_cdt(double length, double k, Reference_particle
     {
         FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
             ( x, xp, y, yp, cdt, dpop,
-              pref, m, 0.0, 
+              pref, m, 0.0,
               step_length, step_strength, steps );
     }
 
@@ -62,11 +64,11 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
     Component_t & cdt(state[Chef::cdt]);
     Component_t & dpop(state[Chef::dpop]);
 
-    if ( close_to_zero(l) ) 
+    if ( close_to_zero(length) )
     {
         FF_algorithm::thin_kicker_unit(xp, k);
-    } 
-    else 
+    }
+    else
     {
         k = k * length / l;
 
@@ -98,6 +100,13 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     Reference_particle       & ref_lattice = bunch.get_design_reference_particle();
     Reference_particle const & ref_bunch   = bunch.get_reference_particle();
 
+    double plattice = ref_lattice.get_momentum();
+    double pbunch = ref_bunch.get_momentum();
+    // scale is to scale the kick strength defined relative to the lattice momentum to
+    // the scale of the bunch particles defined relative to the bunch momentum
+    double scale = plattice/pbunch;
+
+    // kick strength is defined as momentum change/reference momentum
     k = k * ref_bunch.get_charge() / ref_lattice.get_charge();
 
     int local_num = bunch.get_local_num();
@@ -116,27 +125,29 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const int num_blocks = local_num / gsvsize;
     const int block_last = num_blocks * gsvsize;
 
-    if ( close_to_zero(l) ) 
+    if ( close_to_zero(length) )
     {
-        // update the reference particle
-        double reference_cdt = get_reference_cdt(0.0, k, ref_lattice);
+        // the reference time is calculated with the design reference particle which
+        // relative to plattice.
+        // also update the reference particle
+        double reference_cdt = get_reference_cdt(0.0, k, 1, ref_lattice);
 
         #pragma omp parallel for
-        for (int part = 0; part < block_last; part += gsvsize) 
+        for (int part = 0; part < block_last; part += gsvsize)
         {
             GSVector xp(&xpa[part]);
-            FF_algorithm::thin_kicker_unit(xp, k);
+            FF_algorithm::thin_kicker_unit(xp, k*scale);
             xp.store(&xpa[part]);
         }
 
-        for (int part = block_last; part < local_num; ++part) 
+        for (int part = block_last; part < local_num; ++part)
         {
             double xp(xpa[part]);
-            FF_algorithm::thin_kicker_unit(xp, k);
+            FF_algorithm::thin_kicker_unit(xp, k*scale);
             xpa[part] = xp;
         }
-    } 
-    else 
+    }
+    else
     {
         // yoshida steps
         steps = (int)slice.get_lattice_element().get_double_attribute("yoshida_steps", 4.0);
@@ -146,14 +157,14 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         double pref = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
-        double reference_cdt = get_reference_cdt(length, k, ref_lattice);
+        double reference_cdt = get_reference_cdt(length, k, steps, ref_lattice);
 
         double step_reference_cdt = reference_cdt / steps;
         double step_length = length / steps;
-        double step_strength[2] = { k * step_length, 0.0 };
+        double step_strength[2] = { k * step_length * scale, 0.0 };
 
         #pragma omp parallel for
-        for (int part = 0; part < block_last; part += gsvsize) 
+        for (int part = 0; part < block_last; part += gsvsize)
         {
             GSVector x(&xa[part]);
             GSVector xp(&xpa[part]);
@@ -170,7 +181,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
             FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_kicker_unit<GSVector>, 1>
                 ( x, xp, y, yp, cdt, dpop,
-                  pref, m, step_reference_cdt, 
+                  pref, m, step_reference_cdt,
                   step_length, step_strength, steps );
 
             x.store(&xa[part]);
@@ -181,7 +192,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             dpop.store(&dpopa[part]);
         }
 
-        for (int part = block_last; part < local_num; ++part) 
+        for (int part = block_last; part < local_num; ++part)
         {
             double x(xa[part]);
             double xp(xpa[part]);
@@ -198,7 +209,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
             FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
                 ( x, xp, y, yp, cdt, dpop,
-                  pref, m, step_reference_cdt, 
+                  pref, m, step_reference_cdt,
                   step_length, step_strength, steps );
 
             xa[part] = x;

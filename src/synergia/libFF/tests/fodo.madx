@@ -23,7 +23,10 @@ qmp3: multipole, l=0.0, knl={0.00, 0.01, 0.02, 0.03, 0.04, 0.05}, ksl={0.00, 0.0
 qmp4: multipole, l=0.0, knl={0.0, 0.2}, ksl={0.0, 0.1}, tilt=0.1;
 qhk: hkicker, l=0.0, kick=0.07;
 qvk: vkicker, l=0.0, kick=0.07;
-qk:  kicker, l=0.0, hkick=0.035, vkick=0.035;
+qk:  kicker, l=0.0, hkick=0.07, vkick=0.07;
+long_qhk: hkicker, l=0.25, kick=0.07;
+long_qvk: vkicker, l=0.25, kick=0.07;
+long_qk: kicker, l=0.25, hkick=0.07, vkick=0.07;
 //qk:  kicker, l=1.0, hkick=0.1;
 //qhk: hkicker, l=1.0, kick=0.07;
 //qvk: vkicker, l=1.0, kick=0.07;
@@ -135,6 +138,24 @@ seq_kicker: sequence, l=1.0, refer=entry;
 sk10: qd0, at=0;
 sk11: qk, at=0;
 sk12: qd, at=0.0;
+endsequence;
+
+seq_long_hkicker: sequence, l=1.25, refer=entry;
+slhk0: qd0, at=0;
+slhk1: long_qhk, at=0;
+slhk2: qd, at=0.25;
+endsequence;
+
+seq_long_vkicker: sequence, l=1.25, refer=entry;
+slvk0: qd0, at=0;
+slvk1: long_qvk, at=0;
+slvk2: qd, at=0.0.25;
+endsequence;
+
+seq_long_kicker: sequence, l=1.25, refer=entry;
+slk10: qd0, at=0;
+slk11: long_qk, at=0;
+slk12: qd, at=0.25;
 endsequence;
 
 seq_kicker2: sequence, l=1.0, refer=entry;
