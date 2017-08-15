@@ -28,9 +28,7 @@ BOOST_PYTHON_MODULE(bunch)
             no_init);
     class_<Fixed_t_z_zeroth, bases<Fixed_t_z_converter > > ("Fixed_t_z_zeroth",
             init< > ());
-    class_<Fixed_t_z_ballistic, bases<Fixed_t_z_converter > > (
-            "Fixed_t_z_ballistic", init< > ());
-
+  
     class_<Diagnostics, Diagnostics_sptr, boost::noncopyable >
         ("Diagnostics", no_init)
         .def("get_filename", &Diagnostics::get_filename,
@@ -136,6 +134,8 @@ BOOST_PYTHON_MODULE(bunch)
     		.staticmethod("calculate_min")
     		.def("calculate_max", &Core_diagnostics::calculate_max)
     		.staticmethod("calculate_max")
+            .def("print_bunch_parameters", &Core_diagnostics::print_bunch_parameters)
+            .staticmethod("print_bunch_parameters")
     		;
 
 
@@ -162,6 +162,11 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_uniform_cylinder", populate_uniform_cylinder);
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
     def("populate_two_particles", populate_two_particles);
+    def("get_correlation_matrix",get_correlation_matrix);
+    def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
+    def("populate_transverseKV_logitudinalGaussian", populate_transverseKV_logitudinalGaussian);
+    def("populate_longitudinal_boxcar", populate_longitudinal_boxcar);
+    def("populate_longitudinal_uniform",populate_longitudinal_uniform);
 
     container_conversions::from_python_sequence<std::vector<Bunch_sptr >,
             container_conversions::variable_capacity_policy >();
@@ -182,17 +187,13 @@ BOOST_PYTHON_MODULE(bunch)
     scope
         Bunch_scope =
             class_<Bunch, Bunch_sptr > ("Bunch", init<Reference_particle const&,
-                    int, double, Commxx_sptr > ())
-                .def(init<Reference_particle const&, int, double,
-                        Commxx_sptr, int >())
-                .def(init<Reference_particle const&, int, double,
-                        Commxx_sptr, double >())
-                .def(init<Reference_particle const&, int, double,
-                        Commxx_sptr, double, int >())
+                    int, double, Commxx_sptr > ())                        
                 .def("set_particle_charge", &Bunch::set_particle_charge)
                 .def("set_real_num", &Bunch::set_real_num)
                 .def("set_local_num", &Bunch::set_local_num)
                 .def("set_bucket_index", &Bunch::set_bucket_index)
+                .def("set_z_period_length", &Bunch::set_z_period_length)
+                .def("set_longitudinal_aperture_length", &Bunch::set_longitudinal_aperture_length)
                 .def("update_total_num", &Bunch::update_total_num)
                 .def("set_sort_period", &Bunch::set_sort_period)
                 .def("sort", &Bunch::sort)
@@ -213,15 +214,17 @@ BOOST_PYTHON_MODULE(bunch)
                 .def("get_total_num", &Bunch::get_total_num)
                 .def("get_state", &Bunch::get_state)
                 .def("get_z_period_length", &Bunch::get_z_period_length)
+                .def("get_longitudinal_aperture_length", &Bunch::get_longitudinal_aperture_length)
                 .def("get_bucket_index", &Bunch::get_bucket_index)
                 .def("is_periodic", &Bunch::is_z_periodic)
+                .def("has_longitudinal_aperture", &Bunch::has_longitudinal_aperture)
+                .def("is_bucket_index_assigned", &Bunch::is_bucket_index_assigned)
                 .def("get_comm", &Bunch::get_comm_sptr)
                 .def("inject", &Bunch::inject)
+                .def("read_file", &Bunch::read_file)
                 ;
 
     enum_<Bunch::State > ("State")
-        .value("fixed_z", Bunch::fixed_z)
-        .value("fixed_t", Bunch::fixed_t)
         .value("fixed_z_lab", Bunch::fixed_z_lab)
         .value("fixed_t_lab", Bunch::fixed_t_lab)
         .value("fixed_z_bunch", Bunch::fixed_z_bunch)

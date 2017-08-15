@@ -7,6 +7,8 @@
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 
+
+
 BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const double tolerance = 1.0e-14;
@@ -77,7 +79,14 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance,
     BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch2.get_real_num(), tolerance);
     BOOST_CHECK_EQUAL(bunch1.get_local_num(), bunch2.get_local_num());
     BOOST_CHECK_EQUAL(bunch1.get_total_num(), bunch2.get_total_num());
-    BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
+    BOOST_CHECK_EQUAL(bunch1.is_bucket_index_assigned(), bunch2.is_bucket_index_assigned());
+    if (bunch1.is_bucket_index_assigned()){
+        BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
+    }
+    BOOST_CHECK_EQUAL(bunch1.get_z_period_length(), bunch2.get_z_period_length());
+    BOOST_CHECK_EQUAL(bunch1.get_longitudinal_aperture_length(), bunch2.get_longitudinal_aperture_length());
+    BOOST_CHECK_EQUAL(bunch1.is_z_periodic(), bunch2.is_z_periodic());
+    BOOST_CHECK_EQUAL(bunch1.has_longitudinal_aperture(),  bunch2.has_longitudinal_aperture());
     if (check_state) {
         BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
     }
@@ -107,11 +116,60 @@ BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
 }
 
-BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
+
+BOOST_FIXTURE_TEST_CASE(set_bucket_index, Fixture)
 {
-    Bunch electron_bunch(reference_particle, total_num, real_num, comm_sptr,
-            pconstants::electron_charge);
+  bunch.set_bucket_index(4);
+  BOOST_CHECK_EQUAL(bunch.is_bucket_index_assigned(),true);
+  BOOST_CHECK_EQUAL(bunch.get_bucket_index(),4);
+  
 }
+
+BOOST_FIXTURE_TEST_CASE(set_z_period, Fixture)
+{
+  double z_length=5.5;
+  bunch.set_z_period_length(z_length);
+  BOOST_CHECK_EQUAL(bunch.is_z_periodic(),true);
+  BOOST_CHECK_EQUAL(bunch.has_longitudinal_aperture(), false);
+  BOOST_CHECK_EQUAL(bunch.get_z_period_length(),z_length);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_longitudinal_aperture, Fixture)
+{
+  double z_length=5.5;
+  bunch.set_longitudinal_aperture_length(z_length);
+  BOOST_CHECK_EQUAL(bunch.is_z_periodic(),false);
+  BOOST_CHECK_EQUAL(bunch.has_longitudinal_aperture(), true);
+  BOOST_CHECK_EQUAL(bunch.get_longitudinal_aperture_length(),z_length);
+}
+
+BOOST_FIXTURE_TEST_CASE(conflict_longitudinal_aperture_z_periodic, Fixture)
+{
+  double z_length=5.5;
+  bunch.set_longitudinal_aperture_length(z_length);
+  bool caught_error = false;
+  try {
+      bunch.set_z_period_length(z_length);
+  }catch (std::runtime_error) {
+        caught_error = true;
+  }
+  BOOST_CHECK(caught_error);
+  
+}
+
+BOOST_FIXTURE_TEST_CASE(conflict_z_periodic_longitudinal_aperture, Fixture)
+{
+  double z_length=5.5;
+  bunch.set_z_period_length(z_length);
+  bool caught_error = false;
+  try {      
+     bunch.set_longitudinal_aperture_length(z_length);
+  }catch (std::runtime_error) {
+        caught_error = true;
+  }
+  BOOST_CHECK(caught_error);
+  
+} 
 
 BOOST_FIXTURE_TEST_CASE(check_ids, Fixture)
 {
@@ -150,13 +208,6 @@ BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
     BOOST_CHECK_EQUAL(bunch.get_particle_charge(), pconstants::proton_charge);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_particle_charge2, Fixture)
-{
-    Bunch electron_bunch(reference_particle, total_num, real_num, comm_sptr,
-            pconstants::electron_charge);
-    BOOST_CHECK_EQUAL(electron_bunch.get_particle_charge(),
-            pconstants::electron_charge);
-}
 
 BOOST_FIXTURE_TEST_CASE(get_mass, Fixture)
 {
@@ -317,7 +368,7 @@ BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
 {
     Bunch::State state;
     state = bunch.get_state();
-    BOOST_CHECK_EQUAL(state,Bunch::fixed_z);
+    BOOST_CHECK_EQUAL(state,Bunch::fixed_z_lab);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_comm, Fixture)
@@ -337,10 +388,10 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     }
 
     Bunch second_bunch(bunch);
-    bunch.convert_to_state(Bunch::fixed_t);
+    bunch.convert_to_state(Bunch::fixed_t_bunch);
 
-    BOOST_CHECK(bunch.get_state() == Bunch::fixed_t);
-    BOOST_CHECK(second_bunch.get_state() == Bunch::fixed_z);
+    BOOST_CHECK(bunch.get_state() == Bunch::fixed_t_bunch);
+    BOOST_CHECK(second_bunch.get_state() == Bunch::fixed_z_lab);
 
     // verify that transverse means are unaffected by state transformation
     MArray1d accel_mean(Core_diagnostics::calculate_mean(second_bunch));
@@ -386,7 +437,7 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     }
 
     // Check that the roundtrip transformation is the identity
-    bunch.convert_to_state(Bunch::fixed_z);
+    bunch.convert_to_state(Bunch::fixed_z_lab);
     const double convert_tolerance = 5.0e-8;
     compare_bunches(bunch, second_bunch, convert_tolerance);
 }
@@ -399,7 +450,7 @@ BOOST_FIXTURE_TEST_CASE(convert_to_fixed_t_bad_pz, Fixture)
     bunch.get_local_particles()[bad_particle_id][Bunch::yp] = -0.7;
     bool caught_error = false;
     try {
-        bunch.convert_to_state(Bunch::fixed_t);
+        bunch.convert_to_state(Bunch::fixed_t_bunch);
     }
     catch (std::runtime_error) {
         caught_error = true;
@@ -452,7 +503,7 @@ BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)
     bunch.set_converter(converter);
     dummy_populate(bunch);
     Bunch second_bunch(bunch);
-    bunch.convert_to_state(Bunch::fixed_t);
+    bunch.convert_to_state(Bunch::fixed_t_bunch);
     compare_bunches(bunch, second_bunch, tolerance, false);
 }
 

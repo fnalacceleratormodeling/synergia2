@@ -10,25 +10,25 @@ const double tolerance = 1.0e-14;
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    Fast_mapping_term fast_mapping_term(order);
+    Fast_mapping_term<double> fast_mapping_term(order);
 }
 
 BOOST_AUTO_TEST_CASE(get_order)
 {
-    Fast_mapping_term fast_mapping_term(order);
+    Fast_mapping_term<double> fast_mapping_term(order);
     BOOST_CHECK_EQUAL(fast_mapping_term.order(), order);
 }
 
 BOOST_AUTO_TEST_CASE(get_set_coeff)
 {
-    Fast_mapping_term fast_mapping_term(order);
+    Fast_mapping_term<double> fast_mapping_term(order);
     fast_mapping_term.coeff() = coeff;
     BOOST_CHECK_CLOSE(fast_mapping_term.coeff(), coeff, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(get_set_indices)
 {
-    Fast_mapping_term fast_mapping_term(2);
+    Fast_mapping_term<double> fast_mapping_term(2);
     int indices[] = { 0, 2, 4 };
     fast_mapping_term.index(0) = indices[0];
     fast_mapping_term.index(1) = indices[1];
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(get_set_indices)
 
 BOOST_FIXTURE_TEST_CASE(copy_construct, Fast_mapping_term_fixture)
 {
-    Fast_mapping_term fast_mapping_term2(fast_mapping_term);
+    Fast_mapping_term<double> fast_mapping_term2(fast_mapping_term);
 
     BOOST_CHECK_EQUAL(fast_mapping_term.order(), fast_mapping_term2.order());
     BOOST_CHECK_CLOSE(fast_mapping_term.coeff(), fast_mapping_term2.coeff(),
@@ -58,7 +58,7 @@ BOOST_FIXTURE_TEST_CASE(write_read_stream, Fast_mapping_term_fixture)
     out_file.close();
 
     ifstream in_file("test_fast_mapping_term.dat");
-    Fast_mapping_term fast_mapping_term2(in_file);
+    Fast_mapping_term<double> fast_mapping_term2(in_file);
     in_file.close();
 
     BOOST_CHECK_EQUAL(fast_mapping_term.order(), fast_mapping_term2.order());
@@ -71,9 +71,9 @@ BOOST_FIXTURE_TEST_CASE(write_read_stream, Fast_mapping_term_fixture)
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Fast_mapping_term_fixture)
 {
-    xml_save<Fast_mapping_term > (fast_mapping_term, "fast_mapping_term.xml");
-    Fast_mapping_term fast_mapping_term2;
-    xml_load<Fast_mapping_term > (fast_mapping_term2, "fast_mapping_term.xml");
+    xml_save<Fast_mapping_term<double> > (fast_mapping_term, "fast_mapping_term.xml");
+    Fast_mapping_term<double> fast_mapping_term2;
+    xml_load<Fast_mapping_term<double> > (fast_mapping_term2, "fast_mapping_term.xml");
 
     BOOST_CHECK_EQUAL(fast_mapping_term.order(), fast_mapping_term2.order());
     BOOST_CHECK_CLOSE(fast_mapping_term.coeff(), fast_mapping_term2.coeff(),

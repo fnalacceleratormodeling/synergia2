@@ -152,6 +152,8 @@ Sbend_madx_adaptor::Sbend_madx_adaptor()
     get_default_element().set_double_attribute("b5", 0.0); // dodecapole
     get_default_element().set_double_attribute("b6", 0.0); // tetradecapole
     get_default_element().set_double_attribute("b7", 0.0); // hexdecapole
+    get_default_element().set_double_attribute("entry_edge_kick", 1.0);
+    get_default_element().set_double_attribute("exit_edge_kick", 1.0);
 }
 
 Chef_elements
@@ -168,6 +170,8 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k2 = lattice_element.get_double_attribute("k2");
     double tilt = lattice_element.get_double_attribute("tilt");
     int kicks = floor(lattice_element.get_double_attribute("kicks"));
+    bool entry_edge_kick = !(std::abs(lattice_element.get_double_attribute("entry_edge_kick")) < 1.0e-300);
+    bool exit_edge_kick = !(std::abs(lattice_element.get_double_attribute("exit_edge_kick")) < 1.0e-300);
 
     bool simple = ((k1 == 0.0) && (k2 == 0.0));
 
@@ -220,9 +224,15 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     		elm = ElmPtr(
     				new drift((lattice_element.get_name()+"_conv2drft").c_str(), length));
     	} else {
-    		elm = ElmPtr(
-    				new sbend(lattice_element.get_name().c_str(), length,
-    						brho * angle / length, angle, e1, e2));
+            elm = ElmPtr(
+                         new sbend(lattice_element.get_name().c_str(), length,
+                                   brho * angle / length, angle, e1, e2));
+            if (!entry_edge_kick) {
+                boost::dynamic_pointer_cast<sbend>(elm)->nullEntryEdge();
+            }
+            if (!exit_edge_kick) {
+                boost::dynamic_pointer_cast<sbend>(elm)->nullExitEdge();
+            }
     	}
         elm->setTag("SBEND");
         if (tilt != 0.0) elm->setAlignment(aligner);
@@ -273,6 +283,12 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             throw std::runtime_error(
                         "Sbend_madx_adaptor::get_chef_elements: bad propagator_type \"" +
                         lattice_element.get_string_attribute("propagator_type") + "\"");
+        }
+        if (!entry_edge_kick) {
+            (elm)->nullEntryEdge();
+        }
+        if (!exit_edge_kick) {
+            (elm)->nullExitEdge();
         }
         ElmPtr elmP(elm);
         retval.push_back(elmP);
@@ -344,6 +360,8 @@ Rbend_madx_adaptor::Rbend_madx_adaptor()
     get_default_element().set_double_attribute("b5", 0.0); // dodecapole
     get_default_element().set_double_attribute("b6", 0.0); // tetradecapole
     get_default_element().set_double_attribute("b7", 0.0); // hexdecapole
+    get_default_element().set_double_attribute("entry_edge_kick", 1.0);
+    get_default_element().set_double_attribute("exit_edge_kick", 1.0);
 
 }
 
@@ -380,6 +398,8 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k2 = lattice_element.get_double_attribute("k2");
     double tilt = lattice_element.get_double_attribute("tilt");
     bool simple = ((k1 == 0.0) && (k2 == 0.0) && (tilt == 0.0));
+    bool entry_edge_kick = !(std::abs(lattice_element.get_double_attribute("entry_edge_kick")) < 1.0e-300);
+    bool exit_edge_kick = !(std::abs(lattice_element.get_double_attribute("exit_edge_kick")) < 1.0e-300);
 
     double ak[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently a0-a7
     double bk[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently b0-b7
@@ -417,7 +437,7 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     }
 
     if (simple) {
-        bmlnElmnt * bmelmnt;
+        rbend * bmelmnt;
 
         if ((0.0 == e1) && (0.0 == e2)) {
             bmelmnt = new rbend(lattice_element.get_name().c_str(), length,
@@ -427,6 +447,12 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             bmelmnt = new rbend(lattice_element.get_name().c_str(), length,
                     brho * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2);
             bmelmnt->setTag("RBEND");
+        }
+        if (!entry_edge_kick) {
+            bmelmnt->nullEntryEdge();
+        }
+        if (!exit_edge_kick) {
+            bmelmnt->nullExitEdge();
         }
         ElmPtr elm(bmelmnt);
         // if there are no multipoles, I'm done.
@@ -483,6 +509,12 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             dynamic_cast<CF_rbend* >(elm)->setSextupole(multipoleStrength);
         }
 
+        if (!entry_edge_kick) {
+            dynamic_cast<CF_rbend* >(elm)->nullEntryEdge();
+        }
+        if (!exit_edge_kick) {
+            dynamic_cast<CF_rbend* >(elm)->nullExitEdge();
+        }
         ElmPtr elmP(elm);
         retval.push_back(elmP);
         return retval;
@@ -1119,7 +1151,7 @@ Solenoid_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double ks = lattice_element.get_double_attribute("ks");
 
     if (length == 0.0) {
-        throw 
+        throw
         std::runtime_error("Solenoid_madx_adaptor: zero-length solenoids not yet handled");
     }
     bmlnElmnt * generic_elm;
@@ -2074,7 +2106,7 @@ Dipedge_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double tilt = lattice_element.get_double_attribute("tilt");
     double length = 0.0;
     double strength = 0.0;
-    
+
     ElmPtr elm(
             new Dipedge(lattice_element.get_name().c_str(), length, strength,
             h, e1, fint, hgap, tilt));

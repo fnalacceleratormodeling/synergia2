@@ -10,9 +10,10 @@
 #include <boost/get_pointer.hpp>
 #include "synergia/collective/impedance.h"
 #include "synergia/bunch/period.h"
+#include "synergia/simulation/stepper.h"
 
 Step::Step(double length) :
-    operators(), time_fractions(), length(length)
+    operators(), time_fractions(), step_betas(), length(length)
 {
 }
 
@@ -37,13 +38,13 @@ Step::append(Operators const& the_operators, double time_fraction)
         time_fractions.push_back(time_fraction);
     }
 }
-
 void
 Step::apply(Bunch & bunch, int verbosity,
         Diagnosticss const& per_operator_diagnostics,
-        Diagnosticss const& per_operation_diagnostics, Logger & logger)
+        Diagnosticss const& per_operation_diagnostics, Stepper & stepper, Logger & logger)
 {
     double t_total = simple_timer_current();
+    
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin();
             it != operators.end(); ++it) {
@@ -53,7 +54,7 @@ Step::apply(Bunch & bunch, int verbosity,
         double t0 = MPI_Wtime();
         double t = simple_timer_current();
         (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity,
-                per_operation_diagnostics, logger);
+                per_operation_diagnostics, logger);      
         std::string label("step_apply-" + (*it)->get_type() + "_operator_apply");
         t = simple_timer_show(t, label.c_str());
         double t1 = MPI_Wtime();
@@ -71,66 +72,77 @@ Step::apply(Bunch & bunch, int verbosity,
             (*itd)->update_and_write();
         }
         t = simple_timer_show(t, "diagnostics-operator");
-
         if (bunch.is_z_periodic()) {
-            double plength = bunch.get_z_period_length();
-            apply_longitudinal_periodicity(bunch, plength);
+             double zlength=bunch.get_z_period_length();
+             apply_longitudinal_periodicity(bunch, zlength);           
         }
+        else if(bunch.has_longitudinal_aperture()){         
+          double zlength=bunch.get_longitudinal_aperture_length();
+          Diagnostics_loss_sptr diagnostics_sptr;                      
+          Diagnostics_losses diagnostics_list=
+          stepper.get_lattice_simulator().get_lattice_sptr()->get_loss_diagnostics_list();                                               
+          for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
+                    d_it != diagnostics_list.end(); ++d_it){
+                    if  ((*d_it)->get_type()==Diagnostics_loss::zcut_type) { 
+                                diagnostics_sptr=(*d_it);                   
+                  }
+           }                       
+           apply_zcut(bunch, zlength, diagnostics_sptr);          
+        }        
         ++fractions_it;
     }
     t_total = simple_timer_show(t_total, "step_apply-total");
 }
 
-void
-Step::apply(Bunch_train & bunch_train, int verbosity,
-        Train_diagnosticss const& per_operator_train_diagnosticss,
-        Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger)
-{
-    // time [s] in accelerator frame
-    double time = length
-            / (bunch_train.get_bunches()[0]->get_reference_particle().get_beta()
-                    * pconstants::c);
-    std::list<double >::const_iterator fractions_it = time_fractions.begin();
-    for (Operators::const_iterator it = operators.begin();
-            it != operators.end(); ++it) {
-        double t0 = MPI_Wtime();
-        (*it)->apply(bunch_train, (*fractions_it) * time, *this, verbosity,
-                per_operation_train_diagnosticss, logger);
-        double t1 = MPI_Wtime();
-        if (verbosity > 2) {
-            logger << "Step: operator: name = " << (*it)->get_name()
-                    << ", type = " << (*it)->get_type() << ", time = "
-                    << std::fixed << std::setprecision(3) << t1 - t0 << "s_n"
-                    << std::endl;
-        }
-
-        double t = simple_timer_current();
-        size_t num_bunches = bunch_train.get_size();
-        for (int i = 0; i < num_bunches; ++i) {
-            for (Diagnosticss::const_iterator itd =
-                    per_operator_train_diagnosticss.at(i).begin();
-                    itd != per_operator_train_diagnosticss.at(i).end(); ++itd) {
-                (*itd)->update_and_write();
-            }
-        }
-        t = simple_timer_show(t, "diagnostics-operator");
-        // jfa: what should we do here? Move particles between bunches?
-	// am: this should be changed soon, for now assume the effect is small
-        for (int i = 0; i < num_bunches; ++i) {
-	   if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
-                Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
-		double plength=bunch_sptr->get_z_period_length();
-                if (bunch_sptr->is_z_periodic()){              
-                    apply_longitudinal_periodicity(*bunch_sptr, plength);
-                } 
-                else{                 
-                    apply_zcut(*bunch_sptr, plength);
-                }
-	   }                  
-        }           
-        ++fractions_it;
-    }
-}
+// void
+// Step::apply(Bunch_train & bunch_train, int verbosity,
+//         Train_diagnosticss const& per_operator_train_diagnosticss,
+//         Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger)
+// {
+//     // time [s] in accelerator frame
+//     double time = length
+//             / (bunch_train.get_bunches()[0]->get_reference_particle().get_beta()
+//                     * pconstants::c);
+//     std::list<double >::const_iterator fractions_it = time_fractions.begin();
+//     for (Operators::const_iterator it = operators.begin();
+//             it != operators.end(); ++it) {
+//         double t0 = MPI_Wtime();
+//         (*it)->apply(bunch_train, (*fractions_it) * time, *this, verbosity,
+//                 per_operation_train_diagnosticss, logger);
+//         double t1 = MPI_Wtime();
+//         if (verbosity > 2) {
+//             logger << "Step: operator: name = " << (*it)->get_name()
+//                     << ", type = " << (*it)->get_type() << ", time = "
+//                     << std::fixed << std::setprecision(3) << t1 - t0 << "s_n"
+//                     << std::endl;
+//         }
+// 
+//         double t = simple_timer_current();
+//         size_t num_bunches = bunch_train.get_size();
+//         for (int i = 0; i < num_bunches; ++i) {
+//             for (Diagnosticss::const_iterator itd =
+//                     per_operator_train_diagnosticss.at(i).begin();
+//                     itd != per_operator_train_diagnosticss.at(i).end(); ++itd) {
+//                 (*itd)->update_and_write();
+//             }
+//         }
+//         t = simple_timer_show(t, "diagnostics-operator");
+//         for (int i = 0; i < num_bunches; ++i) {
+//               if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
+//                     Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
+//                     if (bunch_sptr->is_z_periodic()){
+//                         double zlength=bunch_sptr->get_z_period_length();
+//                         apply_longitudinal_periodicity(*bunch_sptr, zlength);
+//                     }
+//                     else if(bunch_sptr->has_longitudinal_aperture()){
+//                       double zlength=bunch_sptr->get_longitudinal_aperture_length();
+//                       apply_zcut(*bunch_sptr, zlength);
+//                     }                 
+//               }                  
+//         }           
+//         ++fractions_it;
+//     }
+// }
 
 
 void        
@@ -171,20 +183,29 @@ Step::apply(Bunch_train & bunch_train, int verbosity,
                 (*itd)->update_and_write();
             }
         }
-        t = simple_timer_show(t, "diagnostics-operator");
-        // jfa: what should we do here? Move particles between bunches?
-    // am: this should be changed soon, for now assume the effect is small
+        t = simple_timer_show(t, "diagnostics-operator");      
         for (int i = 0; i < num_bunches; ++i) {
-       if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
-                Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
-        double plength=bunch_sptr->get_z_period_length();
-                if (bunch_sptr->is_z_periodic()){              
-                    apply_longitudinal_periodicity(*bunch_sptr, plength);
-                } 
-                else{                 
-                    apply_zcut(*bunch_sptr, plength);
-                }
-       }                  
+            if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
+                      Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
+                      if (bunch_sptr->is_z_periodic()){
+                          double zlength=bunch_sptr->get_z_period_length();
+                          apply_longitudinal_periodicity(*bunch_sptr, zlength);
+                      }
+                      else if(bunch_sptr->has_longitudinal_aperture()){
+                        double zlength=bunch_sptr->get_longitudinal_aperture_length();
+                        Diagnostics_loss_sptr diagnostics_sptr;                      
+                        Diagnostics_losses diagnostics_list=
+                        stepper.get_lattice_simulator().get_lattice_sptr()->get_loss_diagnostics_list();                                               
+                        for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
+                                  d_it != diagnostics_list.end(); ++d_it){
+                              if ( ((*d_it)->get_bunch().get_bucket_index()==bunch_sptr->get_bucket_index()) &&
+                                    ((*d_it)->get_type()==Diagnostics_loss::zcut_type) ){ 
+                                              diagnostics_sptr=(*d_it);                   
+                                }
+                        }                       
+                         apply_zcut(*bunch_sptr, zlength, diagnostics_sptr);
+                      }                
+            }                  
         }           
         ++fractions_it;
     }
@@ -215,7 +236,18 @@ Step::get_length() const
     return length;
 }
 
+void
+Step::set_betas(double betax, double betay)
+{
+ this->step_betas.push_back(betax);
+ this->step_betas.push_back(betay);
+}
 
+std::vector<double >
+Step::get_betas()
+{
+ return step_betas;
+}
 
 void
 Step::print(int index) const
@@ -233,7 +265,8 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_NVP(operators);
         ar & BOOST_SERIALIZATION_NVP(time_fractions);
-        ar & BOOST_SERIALIZATION_NVP(length);       
+        ar & BOOST_SERIALIZATION_NVP(length); 
+        ar & BOOST_SERIALIZATION_NVP(step_betas);
     }
 
 template

@@ -14,10 +14,10 @@ Dense_mapping::Dense_mapping(Fast_mapping const& fast_mapping) :
             linear[i][j] = 0.0;
         }
     }
-    std::vector<std::vector<Fast_mapping_terms > > const& terms =
+    std::vector<std::vector<std::list<Fast_mapping_term<double>   > > >const& terms =
             fast_mapping.get_terms();
     for (int i = 0; i < 6; ++i) {
-        Fast_mapping_terms::const_iterator telem;
+        std::list<Fast_mapping_term<double>   >::const_iterator telem;
         for (telem = terms[i][0].begin(); telem != terms[i][0].end(); ++telem) {
             constant[i] += telem->coeff();
         }

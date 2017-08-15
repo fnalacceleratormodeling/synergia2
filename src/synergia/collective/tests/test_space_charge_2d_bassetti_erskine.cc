@@ -79,9 +79,10 @@ struct Round_rod_bunch_fixture_lowgamma
         four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length)
+                            comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Round_rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length);
         const double rod_radius = stdx * std::sqrt(2.0);
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
@@ -402,9 +403,10 @@ struct Round_rod_bunch_fixture_highgamma
         four_momentum(mass, mass*rod_highgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length)
+                            comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Round_rod bunch fixture highgamma");
+        bunch.set_z_period_length(rod_length);
         const double rod_radius = stdx * std::sqrt(2.0);
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
@@ -724,9 +726,10 @@ struct Elliptical_rod_bunch_fixture_lowgamma
         four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length)
+                            comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Elliptical_rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length);
         const double rod_radius_x = stdx * std::sqrt(2.0)*1.01;
         const double rod_radius_y = stdx * std::sqrt(2.0)*0.99;
         bunch.set_sort_period(-1);

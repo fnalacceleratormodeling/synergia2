@@ -1,5 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
+#include "synergia/simulation/lattice_simulator.h"
+#include "synergia/simulation/independent_stepper.h"
 #include "synergia/simulation/step.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/utils/serialization.h"
@@ -63,9 +65,16 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
 
     const int verbosity = 3;
     Logger logger(0);
+    Lattice_element o("drift", "o");
+    Lattice_sptr lattice_sptr(new Lattice("test_lattice"));   
+    lattice_sptr->append(o);
+    Reference_particle reference_particle(1, pconstants::mp, 2.);
+    lattice_sptr->set_reference_particle(reference_particle);
+    Lattice_simulator lattice_simulator(lattice_sptr,1);
+    Independent_stepper stepper(lattice_simulator,1);
     Diagnosticss per_operator_diagnosticss, per_operation_diagnosticss;
     step.apply(bunch, verbosity, per_operator_diagnosticss,
-            per_operation_diagnosticss, logger);
+            per_operation_diagnosticss, stepper, logger);
 }
 
 BOOST_AUTO_TEST_CASE(get_operators)

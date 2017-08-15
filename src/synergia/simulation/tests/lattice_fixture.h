@@ -272,6 +272,9 @@ Foborodobo32_fixture() :
   Bunch_sptr bunch_sptr;
 };
 
+
+
+
 struct Fosobodosobo_sbend_fixture
 {
     Fosobodosobo_sbend_fixture() :
@@ -346,5 +349,28 @@ struct Fosobodosobo_sbend_fixture
     Lattice_sptr lattice_sptr;
     int n_cells;
 };
+
+
+struct Nonlinearlattice_fixture
+{
+
+Nonlinearlattice_fixture()
+  {
+      BOOST_TEST_MESSAGE("Nonlinearlattice_fixture");
+      lattice_sptr = Lattice_sptr(
+          new Lattice(read_lsexpr_file("lattices/nonlinear_lattice.lsx")));
+     
+  }
+
+  ~Nonlinearlattice_fixture()
+  {
+    BOOST_TEST_MESSAGE("teardown Nonlinearlattice_fixture");
+  }
+
+  Lattice_sptr lattice_sptr;
+  
+};
+
+
 
 #endif /* LATTICE_FIXTURE_H_ */

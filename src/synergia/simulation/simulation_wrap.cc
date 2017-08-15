@@ -18,6 +18,7 @@
 #include "calculate_closed_orbit.h"
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/numpy_multi_ref_converter.h"
+#include "fast_normal_form.h"
 
 
 using namespace boost::python;
@@ -138,6 +139,9 @@ as_independent_operator(Operator_sptr & operator_sptr)
     return boost::dynamic_pointer_cast<Independent_operator >(operator_sptr);
 }
 
+void (Fast_mapping::*apply1)(Bunch &)=&Fast_mapping::apply;
+void (Fast_mapping::*apply2)(MArray1d_ref)=&Fast_mapping::apply;
+
 Fast_mapping_operation_sptr
 as_fast_mapping_operation(Independent_operation_sptr & independent_operation_sptr)
 {
@@ -210,11 +214,14 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_chromaticities_overloads46,
 		 Lattice_simulator::adjust_chromaticities, 4, 6)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads46,
 		 Lattice_simulator::adjust_tunes, 4, 6)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_chef_overloads57,
+         Lattice_simulator::adjust_tunes_chef, 5, 7)		 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_linear_one_turn_map_overloads01,
 			Lattice_simulator::get_linear_one_turn_map, 0, 1)       
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_closed_orbit_overloads01,
             Lattice_simulator::get_closed_orbit, 0, 1)
-
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(register_closed_orbit_overloads01,
+            Lattice_simulator::register_closed_orbit, 0, 1)
 
 
 void (Bunch_train_simulator::*bts_add_per_turn1)(int, Diagnostics_sptr, int)
@@ -317,11 +324,20 @@ BOOST_PYTHON_MODULE(simulation)
             .def(init<std::string const& >())
             .def("set_length", &Fast_mapping::set_length)
             .def("get_length", &Fast_mapping::get_length)
-            .def("apply", &Fast_mapping::apply)
+            .def("apply", apply1)
+            .def("apply", apply2)
             .def("as_string", &Fast_mapping::as_string)
             .def("write_to_file", &Fast_mapping::write_to_file)
             ;
-
+    class_<Fast_normal_form >("Fast_normal_form", init<normalFormSage &  >())
+        .def("get_stationary_actions", &Fast_normal_form::get_stationary_actions)
+        .def("convert_to_normal_form", &Fast_normal_form::convert_to_normal_form)
+        .def("convert_from_normal_form", &Fast_normal_form::convert_from_normal_form)
+        .def("convert_normal_to_xyz", &Fast_normal_form::convert_normal_to_xyz)
+        .def("convert_xyz_to_normal", &Fast_normal_form::convert_xyz_to_normal)
+         ;
+            
+            
     class_<Dense_mapping >("Dense_mapping", init<Fast_mapping const& >())
             .def("get_length", &Dense_mapping::get_length)
             .def("get_constant_term", &Dense_mapping::get_constant_term)
@@ -411,6 +427,11 @@ BOOST_PYTHON_MODULE(simulation)
         .def("update", &Lattice_simulator::update)
         .def("get_closed_orbit", &Lattice_simulator::get_closed_orbit,
              get_closed_orbit_overloads01())
+        .def("register_closed_orbit", &Lattice_simulator::register_closed_orbit, 
+             register_closed_orbit_overloads01())  
+        .def("get_rf_frequency",&Lattice_simulator::get_rf_frequency)
+        .def("get_closed_orbit_length",&Lattice_simulator::get_closed_orbit_length)
+        .def("set_rf_bucket_length",&Lattice_simulator::set_rf_bucket_length)
         .def("calculate_element_lattice_functions",
                 &Lattice_simulator::calculate_element_lattice_functions)
         .def("calculate_slice_lattice_functions",
@@ -427,6 +448,8 @@ BOOST_PYTHON_MODULE(simulation)
 	                          get_both_tunes_overloads01())
         .def("adjust_tunes", &Lattice_simulator::adjust_tunes,
 	                           adjust_tunes_overloads46())
+	    .def("adjust_tunes_chef", &Lattice_simulator::adjust_tunes_chef,
+                               adjust_tunes_chef_overloads57())                      
         .def("get_horizontal_chromaticity", &Lattice_simulator::get_horizontal_chromaticity,
 	                     get_horizontal_chromaticity_overloads01())
         .def("get_horizontal_chromaticities", &Lattice_simulator::get_horizontal_chromaticities,
@@ -451,8 +474,8 @@ BOOST_PYTHON_MODULE(simulation)
       .def("get_linear_one_turn_map", &Lattice_simulator::get_linear_one_turn_map,
 			    get_linear_one_turn_map_overloads01())
       .def("check_linear_normal_form", &Lattice_simulator::check_linear_normal_form)
-      .def("convert_normal_to_human", &Lattice_simulator::convert_normal_to_human)
-      .def("convert_human_to_normal", &Lattice_simulator::convert_human_to_normal)
+      .def("convert_normal_to_xyz", &Lattice_simulator::convert_normal_to_xyz)
+      .def("convert_xyz_to_normal", &Lattice_simulator::convert_xyz_to_normal)
       .def("get_stationary_actions", &Lattice_simulator::get_stationary_actions)
 //         .def("print_CS_lattice_functions", &Lattice_simulator::print_cs_lattice_functions)
 //         .def("print_ET_lattice_functions", &Lattice_simulator::print_et_lattice_functions)
@@ -482,8 +505,10 @@ BOOST_PYTHON_MODULE(simulation)
         .def_readonly("arc_length", &Lattice_functions::arc_length)
         ;
 
-    void (Step::*apply1)(Bunch &, int, Diagnosticss const&, Diagnosticss const&, Logger &) = &Step::apply;
-    void (Step::*apply2)(Bunch_train &, int, Train_diagnosticss const&, Train_diagnosticss const&, Logger &) = &Step::apply;
+    void (Step::*apply1)(Bunch &, int, Diagnosticss const&, Diagnosticss const&, Stepper &, Logger &) = &Step::apply;
+   // void (Step::*apply2)(Bunch_train &, int, Train_diagnosticss const&, Train_diagnosticss const&, Logger &) = &Step::apply;
+    void (Step::*apply2)(Bunch_train &, int, Train_diagnosticss const&, Train_diagnosticss const&, 
+                         Propagate_actions *, Stepper &, int,  int , Logger &) = &Step::apply;
     Operators& (Step::*get_operators1)() = &Step::get_operators;
     class_<Step, Step_sptr >("Step", init<double >())
 //            .def("append", remember how to overload methods...)
@@ -510,6 +535,8 @@ BOOST_PYTHON_MODULE(simulation)
         .def("force_update_operations_no_collective",
                 &Stepper::force_update_operations_no_collective)
         .def("print_", &Stepper::print)
+        .def("cs_step_lattice_functions", &Stepper::cs_step_lattice_functions)
+        .def("print_cs_step_betas", &Stepper::print_cs_step_betas)
         ;
 
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",

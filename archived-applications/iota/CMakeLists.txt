@@ -1,0 +1,7 @@
+add_executable(cxx_iota cxx_iota.cc)
+target_link_libraries(cxx_iota synergia_simulation synergia_collective)
+
+add_executable(cxx_iota_resume cxx_iota_resume.cc)
+target_link_libraries(cxx_iota_resume synergia_lattice synergia_simulation synergia_collective)
+
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")

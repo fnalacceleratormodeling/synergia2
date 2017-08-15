@@ -11,6 +11,7 @@ enable_testing()
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
 # needed to avoid warnings about rpath policy on Mac OSX
+# no known difference between "OLD" and "NEW" policies for us
 if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
@@ -70,7 +71,7 @@ LINK_DIRECTORIES(${CHEF_LIB_DIR})
 
 # numpy
 find_package(NUMPY REQUIRED)
-list(APPEND extra_includes ${NUMPY_INCLUDE_DIR})
+include_directories(${NUMPY_INCLUDE_DIR})
 
 if (BUILD_PYTHON_BINDINGS)
     # mpi4py
@@ -94,7 +95,7 @@ if(FFTW3_MPI_FOUND)
     if(OPENMP_FOUND)
         set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
     else(OPENMP_FOUND)
-        set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})
+    set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})
     endif(OPENMP_FOUND)
     if(NOT PARALLEL_FFTW_FOUND)
         message("-- Using FFTW3 for parallel FFTs")
@@ -142,6 +143,11 @@ if (NOT VECTOR_FLAGS)
     set(VECTOR_FLAGS "SSE")
 endif()
 
+# Additional CXXFLAGS
+if(EXTRA_CXX_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
+endif(EXTRA_CXX_FLAGS)
+
 message("-- VECTOR_FLAGS to ${VECTOR_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGSV_${VECTOR_FLAGS}")
 
@@ -158,6 +164,11 @@ if(USE_SIMPLE_TIMER)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER_MEM")
     endif(USE_SIMPLE_TIMER_MEM)
 endif(USE_SIMPLE_TIMER)
+
+# Additional CXXFLAGS
+if(EXTRA_CXX_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
+endif(EXTRA_CXX_FLAGS)
 
 # External libraries generate many warnings
 #add_definitions(-Wall -pedantic -Wno-long-long)

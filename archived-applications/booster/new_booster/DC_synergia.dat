@@ -1,0 +1,6 @@
+! file created for synergia for one specific timeslot
+I_DOGL03 := 3.234000e+02;
+I_SEXL4 := 5.775000e-01;
+I_SEXL5 := 0.000000e+00;
+I_SEXL6 := 2.970000e+00;
+I_SEXL7 := 8.250000e-02;

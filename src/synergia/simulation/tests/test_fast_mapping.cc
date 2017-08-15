@@ -16,8 +16,9 @@ BOOST_AUTO_TEST_CASE(construct)
 
 BOOST_FIXTURE_TEST_CASE(construct2, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping(mapping, mapping_length);
 }
+
 
 BOOST_FIXTURE_TEST_CASE(set_get_length, Mapping_fixture)
 {
@@ -28,7 +29,7 @@ BOOST_FIXTURE_TEST_CASE(set_get_length, Mapping_fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_length, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping( mapping, mapping_length);
     BOOST_CHECK_CLOSE(fast_mapping.get_length(), mapping_length, tolerance);
 }
 
@@ -40,7 +41,7 @@ BOOST_FIXTURE_TEST_CASE(add_term, Fast_mapping_term_fixture)
 
 BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping( mapping, mapping_length);
     fast_mapping.apply(b.bunch);
 }
 
@@ -49,7 +50,7 @@ BOOST_FIXTURE_TEST_CASE(apply_detail, Mapping_fixture)
     int order = 2;
     Fast_mapping fast_mapping(order);
 
-    Fast_mapping_term term1(1);
+    Fast_mapping_term<double> term1(1);
     double c1 = 7.2;
     int i10 = 3;
     term1.coeff() = c1;
@@ -57,7 +58,7 @@ BOOST_FIXTURE_TEST_CASE(apply_detail, Mapping_fixture)
     int ip1 = 2;
     fast_mapping.add_term(ip1, term1);
 
-    Fast_mapping_term term2(2);
+    Fast_mapping_term<double> term2(2);
     double c2 = 0.37;
     int i20 = 0;
     int i21 = 1;
@@ -85,7 +86,7 @@ BOOST_FIXTURE_TEST_CASE(apply_detail, Mapping_fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_read_file, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping( mapping, mapping_length);
     fast_mapping.set_length(mapping_length);
 
     fast_mapping.write_to_file("test_fast_mapping.dat");
@@ -99,7 +100,7 @@ BOOST_FIXTURE_TEST_CASE(write_read_file, Mapping_fixture)
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping fast_mapping( mapping, mapping_length);
     fast_mapping.set_length(mapping_length);
 
     xml_save<Fast_mapping>(fast_mapping,"test_fast_mapping.xml");

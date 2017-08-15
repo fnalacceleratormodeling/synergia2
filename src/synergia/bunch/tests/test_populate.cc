@@ -289,3 +289,47 @@ BOOST_FIXTURE_TEST_CASE(populate_uniform_cylinder_general, Fixture)
     BOOST_CHECK_CLOSE(max, radius, tolerance);
     BOOST_CHECK_CLOSE(sum/num, 2.0*radius/3.0, tolerance);
 }
+
+///==================================================================
+
+// populate a KV distribution with specific emittances and lattice parameters.
+// verify that the resulting distribution reflects those values.
+BOOST_FIXTURE_TEST_CASE(populate_KVlongitudinal, Fixture)
+{
+    const double kvtolerance = 1.5;  // tolerance for populate tests is large because
+    // of finite statistics.  Also notice that alphax and alphay are not zero because
+    // statistics of the distributions will not get you correlations close to zero.
+    const double emitx = 5.0e-6; // 5 mm-mrad
+    const double betax = 10.0;
+    const double alphax = 0.75;
+    const double emity = 7.0e-6; // 7 mm-mrad
+    const double betay = 60.0;
+    const double alphay = -1.2;
+
+    populate_transverse_KV_GaussLong(distribution, bunch, emitx, alphax, betax,
+                                     emity, alphay, betay, 0.1, 0.0);
+
+    MArray1d mean(Core_diagnostics::calculate_mean(bunch));
+    MArray1d std(Core_diagnostics::calculate_std(bunch, mean));
+    MArray2d mom2(Core_diagnostics::calculate_mom2(bunch, mean));
+
+    double temitx = std::sqrt(mom2[0][0]*mom2[1][1]-mom2[0][1]*mom2[1][0]);
+    double temity = std::sqrt(mom2[2][2]*mom2[3][3]-mom2[2][3]*mom2[3][2]);
+    double tmomxx = mom2[0][0];
+    double tmomxxp = mom2[0][1];
+    double tmomxpxp = mom2[1][1];
+    double tmomyy = mom2[2][2];
+    double tmomyyp = mom2[2][3];
+    double tmomypyp = mom2[3][3];
+
+    BOOST_CHECK_CLOSE(tmomxx, emitx*betax, kvtolerance);
+    BOOST_CHECK_CLOSE(tmomxxp, -alphax*emitx, kvtolerance);
+    BOOST_CHECK_CLOSE(tmomxpxp, (1.0+alphax*alphax)*emitx/betax, kvtolerance);
+    BOOST_CHECK_CLOSE(temitx, emitx, kvtolerance);
+
+    BOOST_CHECK_CLOSE(tmomyy, emity*betay, kvtolerance);
+    BOOST_CHECK_CLOSE(tmomyyp, -alphay*emity, kvtolerance);
+    BOOST_CHECK_CLOSE(tmomypyp, (1.0+alphay*alphay)*emity/betay, kvtolerance);
+    BOOST_CHECK_CLOSE(temity, emity, kvtolerance);
+
+}

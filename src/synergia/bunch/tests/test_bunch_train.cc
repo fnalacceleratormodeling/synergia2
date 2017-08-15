@@ -16,10 +16,17 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = default_toleran
     BOOST_CHECK_EQUAL(bunch1.get_particle_charge(),
             bunch2.get_particle_charge());
     BOOST_CHECK_CLOSE(bunch1.get_mass(), bunch2.get_mass(), tolerance);
-    BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch1.get_real_num(), tolerance);
+    BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch2.get_real_num(), tolerance);
     BOOST_CHECK_EQUAL(bunch1.get_local_num(), bunch2.get_local_num());
     BOOST_CHECK_EQUAL(bunch1.get_total_num(), bunch2.get_total_num());
-    BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
+    BOOST_CHECK_EQUAL(bunch1.is_bucket_index_assigned(), bunch2.is_bucket_index_assigned());
+    if (bunch1.is_bucket_index_assigned()){
+        BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
+    }
+    BOOST_CHECK_EQUAL(bunch1.get_z_period_length(), bunch2.get_z_period_length());
+    BOOST_CHECK_EQUAL(bunch1.get_longitudinal_aperture_length(), bunch2.get_longitudinal_aperture_length());
+    BOOST_CHECK_EQUAL(bunch1.is_z_periodic(), bunch2.is_z_periodic());
+    BOOST_CHECK_EQUAL(bunch1.has_longitudinal_aperture(),  bunch2.has_longitudinal_aperture());
     if (check_state) {
         BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
     }
@@ -44,6 +51,7 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = default_toleran
         }
     }
 }
+
 
 
 BOOST_FIXTURE_TEST_CASE(construct1, Bunches_fixture)

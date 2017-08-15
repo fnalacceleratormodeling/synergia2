@@ -1,5 +1,6 @@
 test_bunch_simulator
 test_bunch_train_simulator
+test_calculate_closed_orbit
 test_chef_propagator
 test_fast_mapping_term
 test_fast_mapping_term.dat

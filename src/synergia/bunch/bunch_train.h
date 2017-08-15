@@ -35,6 +35,15 @@ public:
     get_bunches();
     std::vector<double > &
     get_spacings();
+    
+    // update the total particle number for all bunches in the bunch train
+    // note that calling each bunch's update_total_num() wont do the actual
+    // work if the caller's rank is not part of the bunch's communicator.
+    // on the other hand, calling bunch_train's update_bunch_total_num() 
+    // gurantees that all bunches are updated for all ranks
+    void 
+    update_bunch_total_num();
+    
     std::vector< int> &
     get_proc_counts_for_impedance();
     std::vector< int> &

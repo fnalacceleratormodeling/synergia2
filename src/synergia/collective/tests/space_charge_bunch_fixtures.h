@@ -6,7 +6,7 @@ const double mass = pconstants::mp;
 const double real_num = 1.7e11;
 const int total_num = 10000;
 const double total_energy = 125.0;
-struct Ellipsoidal_bunch_fixture
+struct Ellipsoidal_bunch_fixture 
 {
     Ellipsoidal_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
@@ -50,6 +50,9 @@ struct Ellipsoidal_bunch_fixture
     double stdx, stdy, stdz;
     std::vector<int > grid_shape;
 };
+
+
+
 
 struct Spherical_bunch_fixture
 {
@@ -249,10 +252,11 @@ struct Rod_bunch_fixture_lowgamma
         four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length),
+                            comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length); 
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
@@ -331,11 +335,10 @@ struct Rod_bunch_fixture_lowgamma2
     Rod_bunch_fixture_lowgamma2() :
         four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length),
-                grid_shape(3)
+                rod_num_particles, rod_real_num, comm_sptr), grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length);       
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
@@ -414,10 +417,11 @@ struct Rod_bunch_fixture_highgamma
         four_momentum(mass, mass*rod_highgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length),
+                            comm_sptr), 
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Rod bunch fixture highgamma");
+        bunch.set_z_period_length(rod_length); 
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
@@ -497,10 +501,11 @@ struct Rod_bunch_fixture_highgamma2
         four_momentum(mass, mass*rod_highgamma), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
                 rod_num_particles, rod_real_num,
-                            comm_sptr, rod_length),
+                            comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Rod bunch fixture highgamma");
+        bunch.set_z_period_length(rod_length); 
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
@@ -739,5 +744,49 @@ struct Toy_bunch_fixture_2d
     MArray2dc expected_2dc;
     MArray1d expected_1d;
 };
+
+
+struct gaussian_3d_bunch_fixture 
+{
+    gaussian_3d_bunch_fixture () :
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                1000000, real_num, comm_sptr), seed(718281828), distribution(seed, *comm_sptr)
+              
+    {
+        BOOST_TEST_MESSAGE("setup ellipsoidal bunch fixture");
+        MArray2d covariances(boost::extents[6][6]);
+        MArray1d means(boost::extents[6]);
+        for (int i = 0; i < 6; ++i) {
+            means[i] = 0.0;
+            for (int j = i; j < 6; ++j) {
+                covariances[i][j] = 0.0;
+            }
+        }
+        stdx = 1.1e-3;
+        stdy = 2.3e-3;
+        stdz = 1.e-1;;
+        covariances[0][0] = stdx * stdx;
+        covariances[2][2] = stdy * stdy;
+        covariances[4][4] = stdz * stdz;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
+        populate_6d(distribution, bunch, means, covariances);
+    
+    }
+
+    ~gaussian_3d_bunch_fixture()
+    {
+        BOOST_TEST_MESSAGE("gaussian_3d_bunch_fixture");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx_sptr comm_sptr;
+    Bunch bunch;
+    unsigned long int seed;
+    Random_distribution distribution;
+    double stdx, stdy, stdz;
+};
+
 
 #endif /* SPACE_CHARGE_BUNCH_FIXTURES_H_ */

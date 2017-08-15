@@ -88,22 +88,22 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Commxx_divider_sptr commxx_divider_sptr, std::vector<int > const & grid_shape,
         bool need_state_conversion, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-                Collective_operator("space charge 2D open hockney"), 
+                Collective_operator("space charge 2D open hockney"),
                 grid_shape(3),
-                doubled_grid_shape(3), 
+                doubled_grid_shape(3),
                 periodic_z(periodic_z),
-                z_period(z_period), 
+                z_period(z_period),
                 grid_entire_period(grid_entire_period),
                 commxx_divider_sptr(commxx_divider_sptr),
-                comm1_sptr(), 
-                comm2_sptr(), 
-                n_sigma(n_sigma), 
+                comm1_sptr(),
+                comm2_sptr(),
+                n_sigma(n_sigma),
                 domain_fixed(false),
                 have_domains(false),
                 need_state_conversion(need_state_conversion),
-                use_cell_coords(true), 
-                exfile(""), 
-                eyfile(""), 
+                use_cell_coords(true),
+                exfile(""),
+                eyfile(""),
                 dumped(true)
 {
     if (this->periodic_z) {
@@ -126,22 +126,22 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
         bool need_state_conversion, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-                Collective_operator("space charge 2D open hockney"), 
+                Collective_operator("space charge 2D open hockney"),
                 grid_shape(3),
-                doubled_grid_shape(3), 
+                doubled_grid_shape(3),
                 periodic_z(periodic_z),
-                z_period(z_period), 
+                z_period(z_period),
                 grid_entire_period(grid_entire_period),
                 commxx_divider_sptr(new Commxx_divider),
-                comm1_sptr(), 
-                comm2_sptr(), 
-                n_sigma(n_sigma), 
+                comm1_sptr(),
+                comm2_sptr(),
+                n_sigma(n_sigma),
                 domain_fixed(false),
                 have_domains(false),
                 need_state_conversion(need_state_conversion),
-                use_cell_coords(true), 
-                exfile(""), 
-                eyfile(""), 
+                use_cell_coords(true),
+                exfile(""),
+                eyfile(""),
                 dumped(true)
 {
     if (this->periodic_z) {
@@ -623,10 +623,6 @@ Space_charge_2d_open_hockney::get_local_force2(
     // average line density for macro particles
     normalization *= 2.0 * doubled_domain_sptr->get_physical_size()[2]
             / (hz * bunch_total_num);
-    // additional normlization factor for non-state-conversion
-    if (!need_state_conversion) {
-        normalization *= 1.0 / (beta * gamma);
-    }
     normalization *= bunch_particle_charge * pconstants::e;
     normalization *= charge_density2.get_normalization();
     normalization *= green_fn2.get_normalization();
@@ -756,15 +752,36 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
         Distributed_rectangular_grid const& rho2,
         Rectangular_grid const& Fn, double delta_t)
 {
+    // EGS ported AM changes for kicks in lab frame from 3D solver
+    //AM: kicks are done in the z_lab frame
     // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
     // delta_t_beam: [s] in beam frame
+    //  See chapter 11, jackson electrodynamics, for field transformation from bunch frame (BF)
+    //  to the lab frame (LF). Keep in mind that \vec{B}_BF=0.
+    //  Ex_LF=gamma*Ex_BF, Ey_LF=gamma*Ey_BF, Ez_LF=Ez_BF
+    //  Bx_LF=gamma*beta*Ey_BF, By_LF=-gamma*beta*Ex_BF, Bz_LF=Bz_BF=0
+    //  Transverse Lorentz force in the lab frame: Fx_LF=q*(Ex_L-beta_z*By_LF)=q*gamma*(1-beta*beta_z)*Ex_BF
+    //  Longitudinal Lorentz force in the lab frame:
+    //        Fz=q*(Ez_LF+beta_x*By_LF-beta_y*Bx_LF)=q*(Ez_BF-gamma*beta*(beta_x*Ex_BF+beta_y*Ey_BF ))
+    // In order to get a conservative approximation!:
+    // The following approximations are done: beta_z=beta, beta_x=beta_y=0, thus suppresing
+    // the particles' movement relative to the reference particle. The same approximation was employed when
+    // the field in the bunch frame was calculated.
+    // Thus: Fx_LF=q*Ex_BF/gamma, Fz=q*Ez_BF
     double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
     // unit_conversion: [N] = [kg m/s^2] to [Gev/c]
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
     // scaled p = p/p_ref
+    double gamma=bunch.get_reference_particle().get_gamma();
+    double beta=bunch.get_reference_particle().get_beta();
     double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
+    // gamma*beta factor introduced here when we are no longer going to the t_bunch frame.
+    // That factor was introduced in the fixed_z_lab to fixed_t_bunch conversion.  Physically,
+    // gamma factor comes from the lorentz expansion longitudinally in the bunch
+    // frame and beta comes because the stored coordinate is c*dt whereas the actual
+    // domain is beta*c*dt.
     double factor = unit_conversion * delta_t_beam * Fn.get_normalization()
-            * p_scale;
+            * p_scale / (gamma * beta);
     Rectangular_grid_domain & domain(*Fn.get_domain_sptr());
     MArray2dc_ref grid_points(Fn.get_grid_points_2dc());
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
@@ -789,6 +806,9 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
         bunch.get_local_particles()[part][1] += factor * grid_val.real();
         bunch.get_local_particles()[part][3] += factor * grid_val.imag();
     }
+
+    // release the particle_bin buffer
+    particle_bin_sptr.reset();
 }
 
 void
@@ -807,10 +827,8 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
         double t, t_total;
         t_total = simple_timer_current();
         t = t_total;
-        if (need_state_conversion) {
-            bunch.convert_to_state(Bunch::fixed_t);
-            t = simple_timer_show(t, "sc2doh-convert_to_state");
-        }
+        bunch.convert_to_state(Bunch::fixed_z_lab);
+        t = simple_timer_show(t, "sc2doh-convert_to_state");
         bunch.periodic_sort(Bunch::z);
         t = simple_timer_show(t, "sc2doh-sort");
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]

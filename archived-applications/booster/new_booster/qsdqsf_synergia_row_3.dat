@@ -1,0 +1,4 @@
+! file created for synergia for one specific timeslot
+TIME := 3.100000;
+qsd := -57.72919636e-3;
+qsf := 54.42533685e-3;

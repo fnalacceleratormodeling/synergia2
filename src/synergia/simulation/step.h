@@ -19,6 +19,7 @@ private:
     Operators operators;
     std::list<double > time_fractions;
     double length;
+    std::vector<double > step_betas;
    
 
 public:
@@ -32,13 +33,8 @@ public:
     virtual void
     apply(Bunch & bunch, int verbosity,
             Diagnosticss const& per_operator_diagnostics,
-            Diagnosticss const& per_operation_diagnostics, Logger & logger);
-    virtual void
-    apply(Bunch_train & bunch_train, int verbosity, 
-            Train_diagnosticss const& per_operator_train_diagnosticss,
-            Train_diagnosticss const& per_operation_train_diagnosticss,
-            Logger & logger);
-            
+            Diagnosticss const& per_operation_diagnostics, Stepper & stepper, Logger & logger);
+
     virtual void
     apply(Bunch_train & bunch_train, int verbosity,
         Train_diagnosticss const& per_operator_train_diagnosticss,
@@ -55,6 +51,10 @@ public:
     get_time_fractions() const;
     double
     get_length() const;
+    void
+    set_betas(double betax, double betay);
+    std::vector<double >
+    get_betas();
     virtual void
     print(int index) const;
     template<class Archive>

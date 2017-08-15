@@ -154,6 +154,23 @@ target_link_libraries(test_space_charge_2d_bassetti_erskine synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_space_charge_2d_bassetti_erskine COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_bassetti_erskine>)
 
+add_test_executable(test_space_charge_2d_kv
+test_space_charge_2d_kv.cc gaussian_charge_density.cc)
+target_link_libraries(test_space_charge_2d_kv synergia_collective
+    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_space_charge_2d_kv COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_kv>)
+
+add_test_executable(test_diagnostics_space_charge test_diagnostics_space_charge.cc )
+target_link_libraries(test_diagnostics_space_charge synergia_collective
+    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_diagnostics_space_charge COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_space_charge>)
+
+add_test_executable(test_diagnostics_space_charge_3d_hockney test_diagnostics_space_charge_3d_hockney.cc )
+target_link_libraries(test_diagnostics_space_charge_3d_hockney synergia_collective
+    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_diagnostics_space_charge_3d_hockney COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_space_charge_3d_hockney>)
+
+
 add_test_executable(test_impedance test_impedance.cc)
 target_link_libraries(test_impedance synergia_collective
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

@@ -1,6 +1,7 @@
 #ifndef SERIALIZATION_FILES_H_
 #define SERIALIZATION_FILES_H_
 
+#include <iostream>
 #include <mpi.h>
 #include <iostream>
 #include <fstream>
@@ -10,6 +11,8 @@
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
+
+#pragma clang diagnostic ignored "-Wc++11-extensions"
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -104,10 +107,6 @@ template<typename T, typename A>
                 std::cout<<" boost archive exception  has been thrown: "<<be.what()<<
                     "; trying again archive_save; trying number= "<< try_no<<std::endl<<std::flush;
                 sleep(3);
-            }
-            catch(...) {
-                std::cout<<"AAAAAAAAAAAA an unknown exception was thrown"<<std::endl<<std::flush;
-                MPI_Abort(MPI_COMM_WORLD, 135);
             }
         }
     }

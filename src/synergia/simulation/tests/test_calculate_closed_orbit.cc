@@ -15,7 +15,7 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 #include "synergia/simulation/calculate_closed_orbit.h"
 
-double tolerance = 1.0e-11;
+double tolerance = 1.0e-13;
 
 const double quad_length = 0.2;
 const double drift_length = 0.8;

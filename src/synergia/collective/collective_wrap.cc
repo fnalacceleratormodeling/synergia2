@@ -3,6 +3,7 @@
 #include "space_charge_2d_open_hockney.h"
 #include "interpolate_rectangular_zyx.h"
 #include "space_charge_2d_bassetti_erskine.h"
+#include "space_charge_2d_kv.h"
 #include "space_charge_rectangular.h"
 #include "impedance.h"
 #include "wake_field.h"
@@ -39,6 +40,12 @@ BOOST_PYTHON_MODULE(collective)
         .def("get_cell_size", &Rectangular_grid_domain::get_cell_size,
              return_value_policy<copy_const_reference>())
         .def("is_periodic", &Rectangular_grid_domain::is_periodic);
+                
+    class_<Diagnostics_space_charge_3d_hockney,  Diagnostics_space_charge_3d_hockney_sptr, bases<Diagnostics > >
+        ("Diagnostics_space_charge_3d_hockney",init<std::string const& >())    
+        .def(init<std::string const& , std::string const& >())
+        .def("set_bunch", &Diagnostics_space_charge_3d_hockney::set_bunch_sptr)
+        ;   
 
     class_<Space_charge_3d_open_hockney, Space_charge_3d_open_hockney_sptr,
         bases<Collective_operator > >("Space_charge_3d_open_hockney",
@@ -74,6 +81,7 @@ BOOST_PYTHON_MODULE(collective)
                         double, bool, double >())
                 .def("set_fixed_domain", &Space_charge_3d_open_hockney::set_fixed_domain)
                 .def("apply", &Space_charge_3d_open_hockney::apply)
+                .def("add_diagnostics", &Space_charge_3d_open_hockney::add_diagnostics)
         ;
 
     class_<Space_charge_2d_open_hockney, Space_charge_2d_open_hockney_sptr,
@@ -95,31 +103,67 @@ BOOST_PYTHON_MODULE(collective)
                 .def("set_files", &Space_charge_2d_open_hockney::set_files)
         ;
 
-    scope Space_charge_2d_bassetti_erskine_scope =
-        class_<Space_charge_2d_bassetti_erskine, Space_charge_2d_bassetti_erskine_sptr,
-        bases<Collective_operator > >("Space_charge_2d_bassetti_erskine",
-                init<>())
-        .def("apply", &Space_charge_2d_bassetti_erskine::apply)
-        .def("set_longitudinal", &Space_charge_2d_bassetti_erskine::set_longitudinal)
-        ;
-    scope().attr("longitudinal_uniform") = Space_charge_2d_bassetti_erskine::longitudinal_uniform;
-    scope().attr("longitudinal_gaussian") = Space_charge_2d_bassetti_erskine::longitudinal_gaussian;
+    {
+      scope Space_charge_2d_bassetti_erskine_scope =
+          class_<Space_charge_2d_bassetti_erskine,
+                 Space_charge_2d_bassetti_erskine_sptr,
+                 bases<Collective_operator> >("Space_charge_2d_bassetti_erskine",
+                                             init<>())
+              .def("apply", &Space_charge_2d_bassetti_erskine::apply)
+              .def("set_longitudinal",
+                   &Space_charge_2d_bassetti_erskine::set_longitudinal);
+      scope().attr("longitudinal_uniform") =
+          Space_charge_2d_bassetti_erskine::longitudinal_uniform;
+      scope().attr("longitudinal_gaussian") =
+          Space_charge_2d_bassetti_erskine::longitudinal_gaussian;
+    }
 
-   class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
-        bases<Collective_operator > >("Space_charge_rectangular",
-              init<Commxx_sptr, std::vector<double >, std::vector<int > , bool >())
-           //   .def(init<Commxx_sptr, std::vector<double >, std::vector<int >, bool >())
-              .def(init<std::vector<double >, std::vector<int > >())
-              //.def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper,
-		//                  set_fftw_helper_member_overloads12())
-	      .def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper)                  
-              .def("get_pipe_size", &Space_charge_rectangular::get_pipe_size)
-              .def("get_grid_shape", &Space_charge_rectangular::get_grid_shape)
-              .def("apply", &Space_charge_rectangular::apply)
+    {
+      scope Space_charge_2d_kv_scope =
+          class_<Space_charge_2d_kv, Space_charge_2d_kv_sptr,
+                 bases<Collective_operator> >("Space_charge_2d_kv", init<>())
+              .def("apply", &Space_charge_2d_kv::apply)
+              .def("set_longitudinal", &Space_charge_2d_kv::set_longitudinal)
+              .def("get_longitudinal", &Space_charge_2d_kv::get_longitudinal)
+              .def("set_strictly_linear", &Space_charge_2d_kv::set_strictly_linear)
+              .def("get_strictly_linear", &Space_charge_2d_kv::get_strictly_linear)
+              .def("set_strictly_centered", &Space_charge_2d_kv::set_strictly_centered)
+              .def("get_strictly_centered", &Space_charge_2d_kv::get_strictly_centered)
+              ;
+      scope().attr("longitudinal_uniform") =
+          Space_charge_2d_kv::longitudinal_uniform;
+      scope().attr("longitudinal_gaussian") =
+          Space_charge_2d_kv::longitudinal_gaussian;
+      scope().attr("field_centered") =
+          Space_charge_2d_kv::field_centered;
+      scope().attr("field_not_centered") =
+          Space_charge_2d_kv::field_not_centered;
+    }
+
+   class_<Diagnostics_space_charge_rectangular,  Diagnostics_space_charge_rectangular_sptr, bases<Diagnostics > >
+        ("Diagnostics_space_charge_rectangular",init<std::string const& >())    
+        .def(init<std::string const& , std::string const& >())
+        .def("set_bunch", &Diagnostics_space_charge_rectangular::set_bunch_sptr)
+        ;  
+        
+    class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
+           bases<Collective_operator> >(
+        "Space_charge_rectangular",
+        init<Commxx_sptr, std::vector<double>, std::vector<int>, bool>())
+        //   .def(init<Commxx_sptr, std::vector<double >, std::vector<int >,
+        //   bool >())
+        .def(init<std::vector<double>, std::vector<int> >())
+        //.def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper,
+        //                  set_fftw_helper_member_overloads12())
+        .def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper)
+        .def("get_pipe_size", &Space_charge_rectangular::get_pipe_size)
+        .def("get_grid_shape", &Space_charge_rectangular::get_grid_shape)
+        .def("apply", &Space_charge_rectangular::apply)
+        .def("add_diagnostics", &Space_charge_rectangular::add_diagnostics)
         ;
 
     class_<Wake_field,Wake_field_sptr>("Wake_field",
-	        init<std::string const & , std::string const &  >())
+            init<std::string const & , std::string const &  >())
          .def("get_wake_file_name", &Wake_field::get_wake_file_name)
          .def("get_wake_type", &Wake_field::get_wake_type)
          .def("get_xw_lead", &Wake_field::get_xw_lead)
@@ -133,13 +177,13 @@ BOOST_PYTHON_MODULE(collective)
          .def("multiply_yw_trail", &Wake_field::multiply_yw_trail)
          .def("multiply_z_wake", &Wake_field::multiply_z_wake)
          ;
- 
+
     class_<Impedance,Impedance_sptr,
         bases<Collective_operator > >("Impedance",
                 init<std::string const &,std::string const &, int const  &,  double const &, double const &,
-		int const, bool, std::vector<int > >())	
-	 .def(init<std::string const &,std::string const &, int const  &,  double const &, int const &,
-		int const, bool, std::vector<int >  >())	
+        int const, bool, std::vector<int > >())
+     //.def(init<std::string const &,std::string const &, int const  &,  double const &, int const &,
+     //   int const, bool, std::vector<int >  >())
         .def("get_orbit_length", &Impedance::get_orbit_length)
         .def("get_bunch_spacing", &Impedance::get_bunch_spacing)
         .def("get_z_grid", &Impedance::get_z_grid)
@@ -150,7 +194,7 @@ BOOST_PYTHON_MODULE(collective)
         .def("apply", apply_bunch_train)
         ;
 
-	
-	
+
+
     def("interpolate_rectangular_zyx", &interpolate_rectangular_zyx);
 }

@@ -113,7 +113,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 comm1_sptr(),
                 n_sigma(n_sigma),
                 domain_fixed(false),
-                have_domains(false)
+                have_domains(false),
+                have_diagnostics(false)
 {
     constructor_common(grid_shape);
 }
@@ -136,7 +137,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 comm1_sptr(),
                 n_sigma(n_sigma),
                 domain_fixed(false),
-                have_domains(false)
+                have_domains(false),
+                have_diagnostics(false)
 {
     constructor_common(grid_shape);
 }
@@ -158,7 +160,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 comm1_sptr(),
                 n_sigma(n_sigma),
                 domain_fixed(false),
-                have_domains(false)
+                have_domains(false),
+                have_diagnostics(false)
 {
     constructor_common(grid_shape);
 }
@@ -193,6 +196,22 @@ Space_charge_3d_open_hockney::clone()
 {
     return new Space_charge_3d_open_hockney(*this);
 }
+
+void
+Space_charge_3d_open_hockney::add_diagnostics(Diagnostics_space_charge_3d_hockney_sptr ddiagnostics_sptr)
+{
+  diagnostics_list.push_back(ddiagnostics_sptr);
+  this->have_diagnostics=true;
+}
+
+void
+Space_charge_3d_open_hockney::set_diagnostics_list(Diagnostics_space_charge_3d_hockneys diagnostics_list)
+{
+  this->diagnostics_list =diagnostics_list;
+  this->have_diagnostics=true;
+}
+
+
 
 double
 Space_charge_3d_open_hockney::get_n_sigma() const
@@ -808,8 +827,8 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 
     Distributed_rectangular_grid_sptr phi2(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
-
+                    distributed_fft3d_sptr->get_padded_shape_real(),
+                    comm2_sptr));
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     normalization *= charge_density2.get_normalization();
@@ -984,6 +1003,13 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
         Distributed_rectangular_grid const& dist_field)
 {
     Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
+    for (int i = 0; i < grid_shape[0]; ++i) {
+        for (int j = 0; j < grid_shape[1]; ++j) {
+            for (int k = 0; k < grid_shape[2]; ++k) {
+                global_field->get_grid_points()[i][j][k] = 0.0;
+            }
+        }
+    }
 
     std::memset( (void*)global_field->get_grid_points().data(), 0, 
             global_field->get_grid_points().num_elements()*sizeof(double) );
@@ -1032,22 +1058,49 @@ void
 Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_t, int component)
 {
-// $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
+  
+  
+  //AM: kicks  in the z_lab frame 
+ //Delta p_x&=& F_x \Delta t&=& - q \frac{1}{\gamma^2} \frac{\partial \Phi'}{\partial x} \Delta t=q \frac{1}{\beta \gamma^2} E_{grid~x} \Delta t\\
+ //Delta E &= & q E_z \Delta s&=& q \frac{1}{\gamma^2 \beta} \frac{\partial \Phi'}{\partial ct} \beta c\Delta t=-q \frac{c}{\beta \gamma^2 }E_{grid~z} \Delta t\\
+ // 1/beta factor in E_grid from charge deposition on (x,y,cdt) coordinates grid,  \Phi'=\frac{1}{\beta}\Phi_{grid}
+
+ 
+ 
+
+    bunch.convert_to_state(Bunch::fixed_z_lab);
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
-// delta_t_beam: [s] in beam frame
-    double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
+    double gamma=bunch.get_reference_particle().get_gamma();
+    double beta=bunch.get_reference_particle().get_beta();
 // unit_conversion: [kg m/s] to [Gev/c]
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
 // scaled p = p/p_ref
-    double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
-    double factor = unit_conversion * q * delta_t_beam * En.get_normalization()
-            * p_scale;
+    double p_ref=bunch.get_reference_particle().get_momentum();
+    double factor = unit_conversion * q * delta_t* En.get_normalization()/
+            (p_ref*gamma*gamma*beta); // transverse kicks
+   
 
     int ps_component = 2 * component + 1;
     Rectangular_grid_domain & domain(*En.get_domain_sptr());
     MArray3d_ref grid_points(En.get_grid_points());
-
-    #pragma omp parallel for
+    if (component==2){
+        factor *= -p_ref; 
+        double m = bunch.get_mass();
+        #pragma omp parallel for
+        for (int part = 0; part < bunch.get_local_num(); ++part) {
+            double x = bunch.get_local_particles()[part][Bunch::x];
+            double y = bunch.get_local_particles()[part][Bunch::y];
+            double z = bunch.get_local_particles()[part][Bunch::z];   
+            double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
+                    grid_points);
+            double p=p_ref +bunch.get_local_particles()[part][Bunch::dpop] * p_ref;        
+            double Eoc_i = std::sqrt(p * p + m * m);
+            double Eoc_f=  Eoc_i + factor * grid_val;
+            double delta_dpop=(std::sqrt(Eoc_f*Eoc_f-m*m)-std::sqrt(Eoc_i*Eoc_i-m*m))/p_ref;
+            bunch.get_local_particles()[part][ps_component] += delta_dpop;
+        }      
+    }
+    else{
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
@@ -1055,6 +1108,7 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
                 grid_points);
         bunch.get_local_particles()[part][ps_component] += factor * grid_val;
+        }
     }
 }
 
@@ -1074,7 +1128,10 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
                     "Space_charge_3d_open_hockney: set_charge_density_comm(charge_allreduce) required when comm != bunch comm");
         }
         t = simple_timer_show(t, "sc-setup-communication");
-        bunch.convert_to_state(Bunch::fixed_t_bunch);
+
+     
+        bunch.convert_to_state(Bunch::fixed_z_lab);
+        
         t = simple_timer_show(t, "sc-convert-to-state");
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
         t = simple_timer_show(t, "sc-get-local-rho");
@@ -1098,7 +1155,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         G2.reset();
         Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
         t = simple_timer_show(t, "sc-get-phi");
-        bunch.periodic_sort(Bunch::z);
+      //  bunch.periodic_sort(Bunch::z); // A.M this causes troubles
         t = simple_timer_show(t, "sc-sort");
         phi2.reset();
         int max_component;
@@ -1114,6 +1171,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
             Rectangular_grid_sptr En(
                     get_global_electric_field_component(*local_En)); // [V/m]
             t = simple_timer_show(t, "sc-get-global-en");
+            do_diagnostics(*En,component, time_step,step, bunch);
             apply_kick(bunch, *En, time_step, component);
             t = simple_timer_show(t, "sc-apply-kick");
         }
@@ -1139,7 +1197,9 @@ template<class Archive>
         & BOOST_SERIALIZATION_NVP(have_domains)
         & BOOST_SERIALIZATION_NVP(green_fn_type)
         & BOOST_SERIALIZATION_NVP(charge_density_comm)
-        & BOOST_SERIALIZATION_NVP(e_field_comm);
+        & BOOST_SERIALIZATION_NVP(e_field_comm)
+        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
+        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
     }
 template<class Archive>
     void
@@ -1159,7 +1219,9 @@ template<class Archive>
         & BOOST_SERIALIZATION_NVP(have_domains)
         & BOOST_SERIALIZATION_NVP(green_fn_type)
         & BOOST_SERIALIZATION_NVP(charge_density_comm)
-        & BOOST_SERIALIZATION_NVP(e_field_comm);
+        & BOOST_SERIALIZATION_NVP(e_field_comm)
+        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
+        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
         if (comm2_sptr) {
             setup_derived_communication();
         }

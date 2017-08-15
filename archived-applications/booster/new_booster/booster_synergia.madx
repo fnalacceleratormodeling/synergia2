@@ -1,0 +1,162 @@
+  title, 'FNAL Booster lattice';
+ ! Converted from MAD8 version by M. McAteer and C.Y. Tan 
+ ! Operational values of corrector package magnet currents and dogleg current have been added -MM
+ ! Pseudo-quad errors from LOCO analysis of 3/4/13 ORM measurement have been added -MM
+ ! Dogleg layout has been altered to match drawing of layout -MM
+ ! Note: layout of dogleg magnet (particularly location of U3L bpm) still needs to be verified by copmassarison with survey data -MM
+ ! Eliana has corrected dogleg layout on the basis of Kyiomi layout
+ ! Added in switches for LOCO -- cytan
+ !I changed booster.seq from sequence to line mode in order to put drift in between elements for now. The problem of current file was
+ !that all elements were set on a beam trajectory which had a fixed length. If the bending current was changed, the position of 
+ !the element center was not moved in the trajectory and the length of drifts before and after the element were adjusted automatically. 
+ !I'll change the  booster.seq file to sequence mode with arbitrary arc length later. It should not make any change on twiss output.  04/08/14 -K.Seiya
+ !The length between ORBUMP1 and 2 and ORBUMP2 and 4 were different in booster.ele.  The locations were fixed and the orbit was closed at injection and extraction energy.
+ !ORBUMPs and DOGLEGs were changed from RBEND magnets to SBEND.  09/08/14 -K.Seiya 
+ !The magnet lengths were changed for both F and D magnets.  'RBARC' setting  has to be 'RBARC=TRUE' which is default.    The megnets were defined as 'RBEND' and the length means 'straight length', NOT 'arc length'. "blength" is used as an 'arc length' in order to calculate the bending angle. -09/17/14 K. Seiya
+! Changed ORBUMP length from 0.4823 to 0.5585. -09/24/14 K. Seiya
+!Since DHZ and DVT were defined as kickers, not dipole, 'CALIB = 0.000366 /  0.024 / Brho' was changed to   'CALIB = 0.000366 / Brho';  -06/25/15 K. Seiya
+!CALIB for sextupole and skew sextupole was changed by factor 2. The number N[T/m/A] from measurement is equal to 1/2 * B2 * L when By = B0 + B1 * x + 1/2 B2 * x^2 + ... , therefore K2 = 1 / Brho * B2 = 1 / Brho * 2 * N / L.   - 06/26/15 K. Seiya
+! New calibration of sextupole strengths that are dependent on ke are from "Fermilab Booster Magnets Sextupole Components", A. Drozhdin, J. DiMarco, R. Tomlin, October 31, 2003.
+! Gradient magnet quad strengths now vary with ke.
+!E1 and E2 are changed on doglegs
+
+ option, -echo, warn, info;
+ set,  format="20.10f";
+ !option, RBARC=false;
+
+ 
+/**********
+   choose time in acceleration rapmass to use by choosing a "slot" on the magnet setting table (ie QL.dat table):
+   set errorSwicth=1 if error tables are needed to be used.
+   set isLOCO = 1 if this file is used for LOCO fitting.
+
+   IMPORTANT!!!!! For LOCO fitting, timeSlot must be set to 1 because there there will only be 1 data line in QL*.dat, QS*.dat etc.
+***************************/
+errorSwitch=0;
+isLOCO=0;
+
+!if(isLOCO==1){
+!  timeSlot=1;
+!}
+!else {
+!  timeSlot=3; // user selected time slot
+!}
+/**********
+  if the timeSlot value is changed, modify ALL the corrector files (but not DC_synergia.dat) accordingly
+  for example: for timeSlot=5,  QL_synergia_row_3.dat  should be replaced by QL_synergia_row_5.dat
+      in order to create QL_synergia_row_5.dat run: "python adapt_files_to_synergia.py QL.dat synergia 5"
+***************************/
+timeSlot=3;
+
+/*****************************************************************************/
+
+/************ read in settings for corrector package magnets, dogleg, and pseudo-quad errors from tables: ***************************/
+
+! strength of doglegs, harmonic correctors, and other DC elements:
+!READMYTABLE,file="DC.dat",table=DCtable;
+!setvars, table=DCtable,row= 1;
+call, file = 'DC_synergia.dat';
+value, i_DOGL03;
+
+
+! strengths of corrector package elements:
+!READMYTABLE,file="QL.dat",table=QLtable;
+!setvars, table=QLtable,row= timeSlot;
+call, file = 'QL_synergia_row_3.dat';
+
+!READMYTABLE,file="QS.dat",table=QStable;
+!setvars, table=QStable,row= timeSlot;
+call, file = 'QS_synergia_row_3.dat';
+
+!READMYTABLE,file="SQL.dat",table=SQLtable;
+!setvars, table=SQLtable,row= timeSlot;
+call, file = 'SQL_synergia_row_3.dat';
+
+!READMYTABLE,file="SQS.dat",table=SQStable;
+!setvars, table=SQStable,row= timeSlot;
+call, file = 'SQS_synergia_row_3.dat';
+
+!READMYTABLE,file="SXL.dat",table=SXLtable;
+!setvars, table=SXLtable,row= timeSlot;
+call, file = 'SXL_synergia_row_3.dat';
+
+!READMYTABLE,file="SXS.dat",table=SXStable;
+!setvars, table=SXStable,row= timeSlot;
+call, file = 'SXS_synergia_row_3.dat';
+
+!READMYTABLE,file="SSL.dat",table=SSLtable;
+!setvars, table=SSLtable,row= timeSlot;
+call, file = 'SSL_synergia_row_3.dat';
+
+!READMYTABLE,file="SSS.dat",table=SSStable;
+!setvars, table=SSStable,row= timeSlot;
+call, file = 'SSS_synergia_row_3.dat';
+
+!
+! The gradient magnets do not have constant quad strengths
+! but vary with ke.
+!
+! The qsdqsf.dat file was created by fitting qsd and qsf to the measured tune data.
+! This fit was found using 13 Nov 2015 measured data.
+! Above transition only a rough fit is done at this time.
+!
+!READMYTABLE,file="qsdqsf.dat",table=qsqdtable;
+!setvars, table=qsqdtable,row= timeSlot;
+
+call, file = 'qsdqsf_synergia_row_3.dat';
+t0=time;
+value, t0;
+
+! pseudoquads from LOCO calibration:
+value, errorswitch;
+If (errorSwitch==1)
+{value, errorswitch;
+	!READMYTABLE,file="QLerr.dat",table=QLerrtable;
+	!setvars, table=QLerrtable,row= timeSlot;
+    call, file = 'QLerr_synergia_row_3.dat';
+
+	!READMYTABLE,file="QSerr.dat",table=QSerrtable;
+	!setvars, table=QSerrtable,row= timeSlot;
+    call, file = 'QSerr_synergia_row_3.dat';
+
+	!READMYTABLE,file="SQLerr.dat",table=SQLerrtable;
+	!setvars, table=SQLerrtable,row= timeSlot;
+    call, file = 'SQLerr_synergia_row_3.dat';
+
+	!READMYTABLE,file="SQSerr.dat",table=SQSerrtable;
+	!setvars, table=SQSerrtable,row= timeSlot;
+    call, file = 'SQSerr_synergia_row_3.dat';
+}
+/*****************************************************************************/
+
+KE0=.4;  											! injection kinetic energy (in GeV)
+KEext=8.0;  										! extraction kinetic energy (in GeV)
+pcInj = sqrt(( KE0+ pmass)*( KE0+ pmass)- pmass* pmass); 		 ! injection momentum
+pcExt = sqrt(( KEext+ pmass)*( KEext+ pmass)- pmass*pmass); 	 ! extraction momentum
+pc = (pcExt + pcInj)/2 - (pcExt - pcInj)/2 * cos(2*PI*15*(t0-2)/1000);		! momentum at chosen time point
+kpc=pcInj/pc;
+Brho= pc/ clight *1e9;  
+Brho0= pcInj/ clight *1e9;
+
+etot=sqrt(pc*pc+pmass*pmass);				! total energy
+ke1 = etot - pmass;					! kinetic energy at that breakpoint
+
+value, pmass, pc, etot, ke1;
+
+!call, file = 'booster_dog0.ele';
+!call, file = 'booster_dog0.seq';
+!call, file = 'booster_dog_workaround.ele';
+!call, file = 'booster_dog_workaround.seq';
+call, file = 'booster_synergia.ele';
+call, file = 'booster_synergia.seq';
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!! corrector:
+!I_HS24 = 0.05;
+
+beam, particle = PROTON, pc= pc;  
+use, sequence = booster;
+
+
+
+STOP;

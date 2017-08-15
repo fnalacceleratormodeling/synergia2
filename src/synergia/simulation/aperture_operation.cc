@@ -27,6 +27,12 @@ Aperture_operation::Aperture_operation() :
 {
 }
 
+Lattice_element_slice_sptr 
+Aperture_operation::get_slice_sptr() const
+{
+  return slice_sptr;
+} 
+
 void
 Aperture_operation::deposit_charge(double charge)
 {

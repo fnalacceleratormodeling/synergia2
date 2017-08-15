@@ -8,13 +8,13 @@ const std::string Stepper::force_diagnostics_attribute("force_diagnostics");
 const double Stepper::fixed_step_tolerance = 1.0e-8;
 
 Stepper::Stepper(Lattice_sptr lattice_sptr, int map_order) :
-    lattice_simulator(lattice_sptr, map_order)
+    lattice_simulator(lattice_sptr, map_order), have_step_betas(false)
 {
 
 }
 
 Stepper::Stepper(Lattice_simulator const& lattice_simulator) :
-    lattice_simulator(lattice_simulator)
+    lattice_simulator(lattice_simulator), have_step_betas(false)
 {
 
 }
@@ -72,12 +72,115 @@ Stepper::print() const
     }
 }
 
+void
+Stepper::print_cs_step_betas() 
+{
+  try {
+     cs_step_lattice_functions();
+     Logger flogger(0, "CS_step_betas.dat", false, true);
+     flogger << "#    step_no  length   beta_x[m]   beta_y[m]  "<< std::endl;
+     flogger << "#" << std::endl;
+     int index = 0;
+     double s_length=0.0;
+     for (Steps::const_iterator s_it = steps.begin(); s_it != steps.end(); ++s_it) {
+            ++index;
+            s_length += (*s_it)->get_length();
+            flogger << std::setw(19) << index<<"   "<<s_length << "    "<<std::setprecision(16)
+            <<(*s_it)->get_betas()[0]<<"   "<<(*s_it)->get_betas()[1]<<std::endl;
+           
+     }
+     
+     
+  }
+  catch (std::exception const& e) {
+        std::cout << e.what() << std::endl;
+  }
+}
+
+
+
+void
+Stepper::cs_step_lattice_functions()
+{
+    if (!have_step_betas){
+      try {
+          
+          int index = 0;
+          double s_length=0.0;
+          double step_tunex=0.0;
+          double step_tuney=0.0;
+          double step_tunex1=0.0;
+          double step_tuney1=0.0;
+          for (Steps::const_iterator s_it = steps.begin(); s_it != steps.end(); ++s_it) {
+              ++index;
+              s_length += (*s_it)->get_length();
+              Lattice_element_slices step_slices;
+              for (Operators::const_iterator o_it = (*s_it)->get_operators().begin(); o_it
+                      != (*s_it)->get_operators().end(); ++o_it) {
+                  if ((*o_it)->get_type() == "independent") {                
+                      Lattice_element_slices
+                              element_slices(
+                                      boost::static_pointer_cast<Independent_operator >(
+                                              *o_it)->get_slices());                                            
+                  step_slices.splice(step_slices.end(), element_slices);   
+                  }
+              }
+    
+            double step_beta_x=0.;
+            double step_beta_y=0.;
+            double step_inv_beta_x=0.;
+            double step_inv_beta_y=0.;            
+            for (Lattice_element_slices::const_iterator it = step_slices.begin(); it != step_slices.end(); ++it) {               
+                  Lattice_functions lfs = get_lattice_simulator().get_lattice_functions(*(*it));     
+                  double slice_lenght= (*it)->get_right()- (*it)->get_left();              
+                  step_beta_x += lfs.beta_x*slice_lenght;
+                  step_beta_y += lfs.beta_y*slice_lenght;  
+                  step_inv_beta_x += slice_lenght/lfs.beta_x;
+                  step_inv_beta_y += slice_lenght/lfs.beta_y;
+                
+            }
+            step_tunex  += step_inv_beta_x;
+            step_tuney  += step_inv_beta_y;          
+            if  ((*s_it)->get_length()!= 0){  
+                
+                step_beta_x /=(*s_it)->get_length();
+                step_beta_y/=(*s_it)->get_length();   
+                step_inv_beta_x/=(*s_it)->get_length(); 
+                step_inv_beta_y/=(*s_it)->get_length(); 
+                step_tunex1  += (*s_it)->get_length()/step_beta_x;
+                step_tuney1  += (*s_it)->get_length()/step_beta_y;                         
+            }           
+            (*s_it)->set_betas(step_beta_x, step_beta_y);
+            
+          }   
+          
+          
+          step_tunex /= 2.*mconstants::pi;
+          step_tuney /= 2.*mconstants::pi;
+          step_tunex1 /= 2.*mconstants::pi;
+          step_tuney1 /= 2.*mconstants::pi;
+          
+          Logger logger(0);
+          logger<<"STEP TUNE X approx 1 (better)="<<step_tunex<< "  STEP TUNE Y approx 1 (better)="<<step_tuney<<std::endl;
+          logger<<"STEP TUNE X approx 2="<<step_tunex1<< "  STEP TUNE Y approx 2="<<step_tuney1<<std::endl;
+          
+          have_step_betas=true;
+        
+      }
+      catch (std::exception const& e) {
+          std::cout << e.what() << std::endl;
+      }
+    }
+}
+
+
 template<class Archive>
     void
     Stepper::serialize(Archive & ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_NVP(steps);
         ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
+        ar & BOOST_SERIALIZATION_NVP(have_step_betas);
     }
 
 template

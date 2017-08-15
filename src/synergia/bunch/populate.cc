@@ -3,8 +3,8 @@
 #include "populate.h"
 #include "diagnostics.h"
 
-#include "eigen3/Eigen/Eigen"
-#include "eigen3/Eigen/Cholesky"
+#include "Eigen/Eigen"
+#include "Eigen/Cholesky"
 
 using namespace Eigen;
 
@@ -230,8 +230,8 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
     }
 }
 void
-populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x, double epsilMax_y,
-        double alpha_x, double beta_x, double alpha_y, double beta_y,
+populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax_x,
+        double alpha_x, double beta_x, double epsilMax_y, double alpha_y, double beta_y,
         double cdt, double stddpop){
     MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
@@ -242,7 +242,7 @@ populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilM
 //
       double d12 = 2.;
       double x1 = 0.; double x2=0.;
-// Pick first wo points within a 2D circle, flat distribution
+// Pick first two points within a 2D circle, flat distribution
       while (d12 > 1.0) {
         x1 = 2.0*dist.get() - 1.0;
         x2 = 2.0*dist.get() - 1.0; 
@@ -261,12 +261,13 @@ populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilM
       const double w = x4 * std::sqrt((1.0 - x1*x1 - x2*x2)/(x3*x3 + x4*x4));
 // Now move from normal coordinate to physical using lattice functios
       const double phi2X = std::atan2(x2,x1);
-      const double a2X = std::sqrt((x1*x1 + x2*x2) * epsilMax_x*beta_x); // The amplitude.. X physical plane
+      // 4.0 is factor for x rms of uniform circular distribution
+      const double a2X = std::sqrt((x1*x1 + x2*x2) * 4.0 * epsilMax_x*beta_x); // The amplitude.. X physical plane
       particles[part][Bunch::x] = a2X*std::sin(phi2X);
       particles[part][Bunch::xp] = (1.0/beta_x)*(a2X*std::cos(phi2X) - alpha_x*particles[part][Bunch::x]);
       //  Repeat in y,y' plane 
       const double phi2Y = std::atan2(w,z);
-      const double a2Y = std::sqrt((w*w + z*z)*epsilMax_y*beta_y); // The amplitude.. 
+      const double a2Y = std::sqrt((w*w + z*z) * 4.0 * epsilMax_y*beta_y); // The amplitude..
       particles[part][Bunch::y] = a2Y*std::sin(phi2Y);
       particles[part][Bunch::yp] = (1.0/beta_y)*(a2Y*std::cos(phi2Y) - alpha_y*particles[part][Bunch::y]);
     }
@@ -293,3 +294,196 @@ populate_two_particles(Bunch &bunch,
     particles[1][Bunch::y] = p2y; particles[1][Bunch::yp] = p2yp;
     particles[1][Bunch::cdt] = p2cdt; particles[1][Bunch::dpop] = p2dpop;
 } 
+
+
+
+void
+populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref one_turn_map, double length)
+{
+/// the corelation between the longitudinal and the transverse plane is neglected  
+
+    double cosmu=0.5*(one_turn_map[Bunch::cdt][Bunch::cdt]+one_turn_map[Bunch::dpop][Bunch::dpop]);
+    if (fabs(cosmu)>1.) throw std::runtime_error("longitudinal modes: cosmu larger than zero");
+    double sinmu=sqrt(1.-cosmu*cosmu);
+    double alpha_z=(one_turn_map[Bunch::cdt][Bunch::cdt]-cosmu)/sinmu;
+    double beta_z=one_turn_map[Bunch::cdt][Bunch::dpop]/sinmu;
+
+    MArray2d_ref particles(bunch.get_local_particles());
+    int num_part = particles.shape()[0];
+    dist.fill_uniform(particles[boost::indices[range()][Bunch::dpop]], 0.0, 2.0*mconstants::pi);
+    dist.fill_uniform(particles[boost::indices[range()][Bunch::cdt]], 0.0, 1.0);
+    for (int part = 0; part < num_part; ++part) {
+        double radius=length*sqrt(particles[part][Bunch::cdt]*(2.0-particles[part][Bunch::cdt]));
+        double phase=particles[part][Bunch::dpop];
+        particles[part][Bunch::cdt]=radius*cos(phase);
+        particles[part][Bunch::dpop]=-radius*(sin(phase)+alpha_z*cos(phase))/beta_z;
+    }
+
+}
+
+void
+populate_longitudinal_uniform(Distribution &dist, Bunch &bunch,   double length)
+{
+    double half_length=0.5*length/bunch.get_reference_particle().get_beta();
+    MArray2d_ref particles(bunch.get_local_particles());
+    int num_part = particles.shape()[0];
+    dist.fill_uniform(particles[boost::indices[range()][Bunch::cdt]], -half_length, half_length);
+    
+}
+
+void
+populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref one_turn_map, 
+                             double radiusx,  double radiusy,    double ctrms)
+                             
+{
+  
+// generates transversally a beam with radii radiusx and radiusy
+// the transverse standard deviations will be xrms=radiusx/2,  yrms=radiusy/2
+// valid for uncoupled linear maps
+
+   double  cosmu=0.5*(one_turn_map[0][0]+one_turn_map[1][1]); 
+   if (fabs(cosmu)>1.) throw std::runtime_error("populate KV alpha_x: cosmu larger than zero");
+   double sinmu=sqrt(1.-cosmu*cosmu);
+   double alpha_x=(one_turn_map[0][0]-cosmu)/sinmu;
+   double   beta_x=one_turn_map[0][1]/sinmu;
+   
+   cosmu=0.5*(one_turn_map[2][2]+one_turn_map[3][3]);
+   if (fabs(cosmu)>1.) throw std::runtime_error("populate KV alpha_y: cosmu larger than zero");
+   sinmu=sqrt(1.-cosmu*cosmu);
+   double alpha_y=(one_turn_map[2][2]-cosmu)/sinmu;
+   double beta_y=one_turn_map[2][3]/sinmu;
+   
+   cosmu=0.5*(one_turn_map[4][4]+one_turn_map[5][5]);
+   if (fabs(cosmu)>1.) throw std::runtime_error("populate KV alpha_z: cosmu larger than zero");
+   sinmu=sqrt(1.-cosmu*cosmu);
+   double alpha_z=(one_turn_map[4][4]-cosmu)/sinmu;
+   double beta_z=one_turn_map[4][5]/sinmu;
+   
+   
+  
+   MArray2d_ref particles(bunch.get_local_particles());
+   int num_part = particles.shape()[0];
+// generate 6 gaussian distributions  
+   dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::x]]);
+   dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::xp]]);
+   dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::y]]);
+   dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::yp]]);
+   dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::z]]);
+   dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::zp]]);
+   for (int part = 0; part < num_part; ++part) {
+      double r=sqrt( particles[part][Bunch::x]*particles[part][Bunch::x]+
+             particles[part][Bunch::xp]*particles[part][Bunch::xp]+
+             particles[part][Bunch::y]*particles[part][Bunch::y]+
+             particles[part][Bunch::yp]*particles[part][Bunch::yp]   );
+      //transverse distribution       
+      if (r>0.){
+        particles[part][Bunch::x] *= radiusx/r;
+        particles[part][Bunch::xp] =
+              (radiusx*particles[part][Bunch::xp]/r-alpha_x*particles[part][Bunch::x])/beta_x;
+        
+        
+        particles[part][Bunch::y] *= radiusy/r;
+        particles[part][Bunch::yp]=
+          (radiusy*particles[part][Bunch::yp]/r-alpha_y*particles[part][Bunch::y])/beta_y;                                       
+      }
+      else{ // very unlikely  case, what should be done???
+        throw std::runtime_error(
+          "generating KV fails, zero radius point for 4d sphere, need to be fixed, try different seed");
+      } 
+     // longitudinal distribution
+    
+     particles[part][Bunch::z]*= ctrms;
+     particles[part][Bunch::zp]= 
+           (ctrms*particles[part][Bunch::zp]-alpha_z*particles[part][Bunch::z])/beta_z;      
+  } //for part
+  
+  
+  
+}
+
+
+MArray2d
+get_correlation_matrix(Const_MArray2d_ref one_turn_map, double arms, double brms, double crms, 
+                       double beta, std::vector<int> rms_index)
+{  
+
+  
+  if (rms_index.size() ==0) {
+    rms_index.push_back(Bunch::x);
+    rms_index.push_back(Bunch::y);
+    rms_index.push_back(Bunch::z);
+  }
+  
+  if (rms_index.size() !=3)
+      throw std::runtime_error(
+                "only 3 rms indices (from x, xp, y, yp, z, dpp) should be provided, correspondid to arms, brms and crms ");
+
+    int map_size=one_turn_map.size();
+    Eigen::MatrixXd eigen_map(map_size,map_size);
+    for (int i=0;i<map_size;++i){
+      for (int j=0;j<map_size;++j){
+        eigen_map(i,j)=one_turn_map[i][j];   
+      }
+    } 
+    EigenSolver<MatrixXd> es(eigen_map);
+    VectorXcd evals=es.eigenvalues();
+    MatrixXcd evect_matrix=es.eigenvectors();
+ 
+    std::vector<MatrixXd> F;
+    std::vector<int>  remaining;
+    for (int j=5;j>-1;j--){
+         remaining.push_back(j);
+    }
+      
+    for (int i=0;i<3;i++){
+      //find complex conjugate among remaining eigenvectors
+       int first = remaining.back();
+       remaining.pop_back();
+        double best = 1.0e30;
+       int conj = -1;
+       for (int item=0;item<remaining.size();item++){           
+           VectorXcd sum=evect_matrix.col(first)+evect_matrix.col(remaining[item]);    
+           if (sum.imag().cwiseAbs().maxCoeff()<best){
+              best=sum.imag().cwiseAbs().maxCoeff();
+              conj=remaining[item];
+           }           
+       }
+       if (conj==-1) throw std::runtime_error( "failed to find a conjugate pair in _get_correlation_matrix");       
+       remaining.erase(std::remove(remaining.begin(), remaining.end(), conj), remaining.end());
+
+       MatrixXd tmp=(evect_matrix.col(first)*evect_matrix.col(first).conjugate().transpose()
+                      +evect_matrix.col(conj)*evect_matrix.col(conj).conjugate().transpose()).real();
+       F.push_back(tmp); 
+       //  F[i] is effectively 2*e[i] cross e^H[i].
+    }
+//      The correlation matrix is a linear combination of F[i] with
+//      appropriate coefficients such that the diagonal elements C[i,i] i=(0,2,4)
+//      come out to be the desired 2nd moments.
+      Eigen::MatrixXd S(3,3);
+      for (int i=0;i<3;i++){
+        for (int j=0;j<3;j++){
+           S(i,j)=F[j](rms_index[i],rms_index[i]);
+        }        
+      }
+     Eigen::MatrixXd Sinv=S.inverse();
+     
+     std::vector<double> units(6,1.);
+     units[4]=1./beta;
+     double cd1=arms*units[rms_index[0]]*arms*units[rms_index[0]];
+     double cd2=brms*units[rms_index[1]]*brms*units[rms_index[1]];
+     double cd3=crms*units[rms_index[2]]*crms*units[rms_index[2]];
+                
+    MArray2d correlation_matrix(boost::extents[6][6]); 
+    for (int i=0;i<6;i++){
+       for (int j=0;j<6;j++){
+         correlation_matrix[i][j]=0.;
+         for (int k=0;k<3;k++){           
+            correlation_matrix[i][j] += F[k](i,j) * (Sinv(k, 0)* cd1 + Sinv(k, 1) * cd2 + Sinv(k, 2) * cd3);           
+         }
+       }
+    }
+    
+   
+    return correlation_matrix;
+}
+

@@ -23,7 +23,8 @@ def test_elliptical_aperture_cut_all():
     lattice.set_reference_particle(refpart)
     
     commxx = synergia.utils.Commxx()
-    bunch = synergia.bunch.Bunch(refpart, 5, 1.0e10, commxx, 0.5)
+    bunch = synergia.bunch.Bunch(refpart, 5, 1.0e10, commxx)
+    bunch.set_z_period_length(0.5)
     bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
     
     local_particles = bunch.get_local_particles()
@@ -58,7 +59,8 @@ def test_elliptical_aperture_cut_last():
     lattice.set_reference_particle(refpart)
     
     commxx = synergia.utils.Commxx()
-    bunch = synergia.bunch.Bunch(refpart, 5, 1.0e10, commxx, 0.5)
+    bunch = synergia.bunch.Bunch(refpart, 5, 1.0e10, commxx)
+    bunch.set_z_period_length(0.5)
     bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
     
     local_particles = bunch.get_local_particles()
@@ -92,7 +94,8 @@ def test_elliptical_aperture_cut_all_but_last():
     lattice.set_reference_particle(refpart)
     
     commxx = synergia.utils.Commxx()
-    bunch = synergia.bunch.Bunch(refpart, 5, 1.0e10, commxx, 0.5)
+    bunch = synergia.bunch.Bunch(refpart, 5, 1.0e10, commxx)
+    bunch.set_z_period_length(0.5)
     bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
     
     local_particles = bunch.get_local_particles()

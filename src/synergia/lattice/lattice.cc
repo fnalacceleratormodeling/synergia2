@@ -8,14 +8,14 @@
 
 Lattice::Lattice() :
         name(""), reference_particle_allocated(false), reference_particle_ptr(
-                0), elements(), element_adaptor_map_sptr(new Mad8_adaptor_map)
+                0), elements(), element_adaptor_map_sptr(new Mad8_adaptor_map), have_loss_diagnostics(0)
 {
 }
 
 Lattice::Lattice(std::string const& name) :
         name(name), reference_particle_allocated(false), reference_particle_ptr(0),
         elements(), element_adaptor_map_sptr(
-                new Mad8_adaptor_map)
+                new Mad8_adaptor_map), have_loss_diagnostics(0)
 {
 }
 
@@ -23,7 +23,7 @@ Lattice::Lattice(std::string const& name,
         Element_adaptor_map_sptr element_adaptor_map_sptr) :
         name(name), reference_particle_allocated(false), reference_particle_ptr(0),
         elements(), element_adaptor_map_sptr(
-                element_adaptor_map_sptr)
+                element_adaptor_map_sptr), have_loss_diagnostics(0)
 {
 }
 
@@ -48,6 +48,7 @@ Lattice::Lattice(Lattice const& lattice) :
     } else {
         throw std::runtime_error("unknown element adaptor type: " + lattice.get_element_adaptor_map_sptr()->get_label());
     }
+    have_loss_diagnostics=false;
 }
 
 Lattice::Lattice(Lsexpr const& lsexpr) :
@@ -55,7 +56,8 @@ Lattice::Lattice(Lsexpr const& lsexpr) :
     , reference_particle_allocated(false)
     , reference_particle_ptr(0)
     , elements()
-    , element_adaptor_map_sptr()
+    , element_adaptor_map_sptr(), 
+      have_loss_diagnostics(0)
 {
     for (Lsexpr::const_iterator_t it = lsexpr.begin(); it != lsexpr.end();
          ++it) {
@@ -280,6 +282,33 @@ Lattice::get_total_angle() const
     return angle;
 }
 
+ bool 
+Lattice::get_have_loss_diagnostics() const
+{
+  return have_loss_diagnostics;
+} 
+
+
+Diagnostics_losses 
+Lattice::get_loss_diagnostics_list()
+{
+    return diagnostics_loss_list;
+} 
+
+// Diagnostics_apertures_losses 
+// Lattice::get_diagnostics_list() const
+// {
+//     return diagnostics_list;
+// }
+
+void
+Lattice::add_loss_diagnostics(Diagnostics_loss_sptr diagnostics_sptr)
+{
+  diagnostics_loss_list.push_back(diagnostics_sptr);
+  this->have_loss_diagnostics=true;
+}
+
+
 std::string
 Lattice::as_string() const
 {
@@ -316,7 +345,9 @@ template<class Archive>
             ar & BOOST_SERIALIZATION_NVP(reference_particle_ptr);
         }
         ar & BOOST_SERIALIZATION_NVP(elements);
-        ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
+        ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr)
+        &  BOOST_SERIALIZATION_NVP(have_loss_diagnostics)
+        &  BOOST_SERIALIZATION_NVP(diagnostics_loss_list);
     }
 
 template

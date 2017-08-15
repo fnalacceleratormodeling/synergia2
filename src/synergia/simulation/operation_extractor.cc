@@ -75,7 +75,7 @@ extract_fast_mapping(Reference_particle const& reference_particle,
         mapping_length += (*cls_it)->OrbitLength(particle);
         (*cls_it)->propagate(particle);
     }
-    Fast_mapping fast_mapping(reference_particle, jet_particle.State(),
+    Fast_mapping fast_mapping(jet_particle.State(),
             mapping_length);
     Fast_mapping_operation_sptr fast_mapping_operation_sptr(
             new Fast_mapping_operation(fast_mapping));

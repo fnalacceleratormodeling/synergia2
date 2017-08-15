@@ -33,6 +33,8 @@ public:
     {
         return y_offset;
     }
+    Lattice_element_slice_sptr 
+    get_slice_sptr() const;
     virtual void
     apply(Bunch & bunch, int verbosity, Logger & logger)=0;
     void

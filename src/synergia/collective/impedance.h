@@ -63,6 +63,7 @@ private:
     double N_factor;
     double cell_size_z;
     double bunch_z_mean;
+    double bunch_z_left;
     int bunch_bucket;
 
 

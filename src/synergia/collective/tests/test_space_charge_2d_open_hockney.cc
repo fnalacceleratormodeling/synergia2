@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(construct2)
     bool grid_entire_period(true);
     double n_sigma(7.0);
 
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, 
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape,
             need_state_conversion, periodic_z, z_period, grid_entire_period,
             n_sigma);
 }
@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_CASE(construct_bad_period)
 
     bool caught_error(false);
     try {
-        Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, 
-                need_state_conversion, periodic_z, z_period, 
+        Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape,
+                need_state_conversion, periodic_z, z_period,
                 grid_entire_period, n_sigma);
     }
     catch (std::runtime_error) {
@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(get_n_sigma)
     bool grid_entire_period(true);
     double n_sigma(7.0);
 
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, 
-            need_state_conversion, periodic_z, z_period, grid_entire_period, 
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape,
+            need_state_conversion, periodic_z, z_period, grid_entire_period,
             n_sigma);
     BOOST_CHECK_CLOSE(space_charge.get_n_sigma(), n_sigma, tolerance);
 }
@@ -667,7 +667,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgam
     domain_offset[0] = 0.0;
     domain_offset[1] = 0.0;
     domain_offset[2] = 0.0;
-    domain_size[0] = bunch.get_local_particles()[0][Bunch::x] * 4;
+    domain_size[0] = bunch.get_local_particles()[0][Bunch::x] * 1.2;
     domain_size[1] = domain_size[0];
     domain_size[2] = bunchlen / beta;
 
@@ -914,7 +914,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highg
     domain_offset[0] = 0.0;
     domain_offset[1] = 0.0;
     domain_offset[2] = 0.0;
-    domain_size[0] = bunch.get_local_particles()[0][Bunch::x] * 4;
+    domain_size[0] = bunch.get_local_particles()[0][Bunch::x] * 1.2;
     domain_size[1] = domain_size[0];
     domain_size[2] = bunchlen / beta;
 

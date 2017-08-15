@@ -1,0 +1,68 @@
+! File fobodobo_s.lat
+! 
+! Written for the January, 2007 USPAS.
+! To be used in conjunction with CHEF.
+! 
+! Send complaints to the author: Leo Michelotti
+! 
+! Add an RF cavity (EGS) 01/30/2009
+!
+! ------------------
+! Parameters
+! ------------------
+twopi       :=   6.2831853072
+n           :=   32                   !         : number of cells
+momentum    := 10                   ! [GeV/c] : particle momentum; 
+                                     !         :   arbitrary number
+bendangle   := twopi/(2*n)           ! [rad]   : dipole bend angle
+focus       :=   7                   ! [m]     : focal length of equivalent 
+                                     !         :   thin quad
+sepn        :=  10                   ! [m]     : distance between quad centers
+quadlength  :=   0.2                 ! [m]     : quadrupole length
+strength    := 1/(focus*quadlength)  ! [m**-2] : quadrupole strength
+                                     !         :   = B'/brho, where
+                                     !         :   brho = momentum/0.299792458
+pct         :=   0.4                 !         : fraction of space between
+                                     !         :   quads occupied by dipole
+bendlength  := pct*(sepn-quadlength) ! [m]     : length of dipole
+! bendlength := 0.4*(10-0.2) = 3.92
+driftlength := (sepn-quadlength-bendlength)/2
+! driftlenth := (10-0.2-3.92)/2 = 2.94
+beam, particle=proton, pc=momentum
+! harmonic number = 80  harmonic number, yields 2 meter wavelength
+! the actual frequence is harmno following
+harmno=128
+lambda = 160.0/harmno
+
+!hvoltage = 12500
+hvoltage = 5.0
+
+cavlen = 1. ! rf cavity length 1 meter, (half bucket length)
+shortdlen = (driftlength - cavlen)/2.0   ! 0.97 m
+! this lattice has 32 copies of a 20 m cell.
+
+! ------------------
+! Elements
+! ------------------
+o: drift,      l=driftlength
+os: drift,      l=shortdlen
+f: quadrupole, l=quadlength, k1=strength
+d: quadrupole, l=quadlength, k1=(-strength)
+b: sbend,      l=bendlength, angle=bendangle
+!b: drift,      l=bendlength
+r: rfcavity,   l=cavlen, volt=hvoltage, harmon=128, lag=0.5
+!r: rfcavity,   l=cavlen, volt=hvoltage, harmon=128, lag=0.
+s1: sextupole, l=quadlength, k2=strength*0.5
+s2: sextupole, l=quadlength, k2=-strength*0.5
+
+
+! ------------------
+! Lattices
+! ------------------
+fobodobo:  line=( f, o, b, o, d, o, b, o )
+fobrdobo:  line=( f, o, b, os, r, os, d, o, b, o)
+!fosobrdosobo:  line=( f, o,   b, os, r, os, d, o, b, o)
+fosobrdosobo:  line=( f, o, s1, o,  b, os, r, os, d, o, s2, o, b, o)
+!model:     line=(fobrdobo ,31*fobodobo )
+model:     line=( fosobrdosobo,31*fosobrdosobo )
+! Doesn't work: model:     line=( n*fobodobo )

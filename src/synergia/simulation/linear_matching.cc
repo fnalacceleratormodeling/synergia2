@@ -1,7 +1,7 @@
 #include "linear_matching.h"
 
-#include "eigen3/Eigen/Eigen"
-#include "eigen3/Eigen/Cholesky"
+#include "Eigen/Eigen"
+#include "Eigen/Cholesky"
 
 using namespace Eigen;
 

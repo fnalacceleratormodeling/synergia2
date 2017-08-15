@@ -11,10 +11,30 @@ template<typename T>
     Aperture_operation::apply_impl(T & t, Bunch & bunch, int verbosity, Logger & logger)
     {
         double t0 = MPI_Wtime();
+        bool write_loss=false;
+        int b_index=-1; // AM: this value is written in the aperture_loss file when the bunch has no bucket index assigned
+        Diagnostics_losses diagnostics_list=
+             get_slice_sptr()->get_lattice_element().get_lattice().get_loss_diagnostics_list();
+        Diagnostics_loss_sptr diagnostics_sptr;
+        for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
+            d_it != diagnostics_list.end(); ++d_it){
+                if ( ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()) &&
+                    ((*d_it)->get_type()==Diagnostics_loss::aperture_type) )
+                { 
+                  diagnostics_sptr=(*d_it);
+                  write_loss=true;
+                }
+        }          
 
         int nt;
         #pragma omp parallel
         { nt = omp_get_num_threads(); }
+
+        if   (bunch.is_bucket_index_assigned())  b_index=bunch.get_bucket_index();
+        int repetition=bunch.get_reference_particle().get_repetition();
+        double s=bunch.get_reference_particle().get_s();
+        double s_n=bunch.get_reference_particle().get_s_n();
+        MArray1d coords(boost::extents[7]);
 
         MArray2d_ref particles(bunch.get_local_particles());
         int npart = bunch.get_local_num();
@@ -38,7 +58,7 @@ template<typename T>
                 {
                     discard[s + discard_counts[it]] = part;
                     ++ discard_counts[it];
-                }
+                    }
             }
         }
 
@@ -58,7 +78,7 @@ template<typename T>
             if (discard[n] == npart-1) {
                 // this is the last particle, just reduce count
                 --npart;
-            } else {
+                } else {
                 // move the last particle into the position of this discarded particle then reduce count
                 int idx = discard[n];
                 int last = npart - 1;
@@ -71,9 +91,9 @@ template<typename T>
                 particles[idx][5] = particles[last][5];
                 particles[idx][6] = particles[last][6];
                 --npart;
+                }
             }
         }
-
         double charge = 0.0;
         if (total_discarded > 0) {
         	charge = total_discarded * bunch.get_real_num() / bunch.get_total_num();

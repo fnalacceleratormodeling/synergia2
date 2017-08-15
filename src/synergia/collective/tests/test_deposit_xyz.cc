@@ -131,10 +131,10 @@ BOOST_FIXTURE_TEST_CASE(x_displaced_particle1, Fixture)
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
 
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 1; i < 2; ++i) {
         for (int j = 3; j < 5; ++j) {
             for (int k = 3; k < 5; ++k) {
-                expected[i][j][k] = 0.125 * density_norm;
+                expected[i][j][k] = 0.125 * density_norm;               
             }
         }
     }
@@ -172,7 +172,7 @@ BOOST_FIXTURE_TEST_CASE(y_displaced_particle1, Fixture)
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
 
     for (int i = 3; i < 5; ++i) {
-        for (int j = 0; j < 2; ++j) {
+        for (int j = 1; j < 2; ++j) {
             for (int k = 3; k < 5; ++k) {
                 expected[i][j][k] = 0.125 * density_norm;
             }
@@ -301,8 +301,8 @@ BOOST_FIXTURE_TEST_CASE(yz_displaced_particle_periodic, Fixture)
     for (int i = 3; i < 5; ++i) {
                 expected[i][1][0] = 0.125 * density_norm;
                 expected[i][1][7] = 0.125 * density_norm;
-                expected[i][0][0] = 0.125 * density_norm;
-                expected[i][0][7] = 0.125 * density_norm;
+               // expected[i][0][0] = 0.125 * density_norm;
+               // expected[i][0][7] = 0.125 * density_norm;
     }
 
     multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
@@ -326,8 +326,8 @@ BOOST_FIXTURE_TEST_CASE(yz_displaced_particle_periodic1, Fixture)
     for (int i = 3; i < 5; ++i) {
                 expected[i][1][0] = 0.125 * density_norm;
                 expected[i][1][7] = 0.125 * density_norm;
-                expected[i][0][0] = 0.125 * density_norm;
-                expected[i][0][7] = 0.125 * density_norm;
+             //   expected[i][0][0] = 0.125 * density_norm;
+              //  expected[i][0][7] = 0.125 * density_norm;
     }
 
     multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,

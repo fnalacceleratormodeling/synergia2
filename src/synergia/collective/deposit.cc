@@ -41,9 +41,9 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
                     for (int k = 0; k < 2; ++k) {
                         int cellx = ix + i;
                         int celly = iy + j;
-                        if ((cellx >= 0) && (cellx < int(rho.shape()[2]))
-                                && (celly >= 0)
-                                && (celly < int(rho.shape()[1]))) {
+                        if ((cellx >0) && (cellx < int(rho.shape()[2]-1))
+                                && (celly > 0)
+                                && (celly < int(rho.shape()[1]-1))) {
                             int cellz = iz + k;
                             if (cellz >= 0) {
                                 cellz = cellz % rho.shape()[0];
@@ -72,12 +72,14 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
                     for (int k = 0; k < 2; ++k) {
                         int cellx = ix + i;
                         int celly = iy + j;
-                        int cellz = iz + k;
-                        if ((cellx >= 0) && (cellx < int(rho.shape()[2]))
-                                && (celly >= 0)
-                                && (celly < int(rho.shape()[1]))
-                                && (cellz >= 0)
-                                && (cellz < int(rho.shape()[0]))) {
+                        int cellz = iz + k;                                               
+//AM!  make sure the charge distribution is zero at the edge of the grid
+// THIS toghether with zero electric field at the edge of the grid is essential for a conservative approximation                      
+                        if ((cellx >0) && (cellx < int(rho.shape()[2]-1))
+                                && (celly > 0)
+                                && (celly < int(rho.shape()[1]-1))
+                                && (cellz > 0)
+                                && (cellz < int(rho.shape()[0]-1))) {                                                     
                             double weight = weight0 * (1 - i - (1 - 2 * i)
                                     * offx) * (1 - j - (1 - 2 * j) * offy) * (1
                                     - k - (1 - 2 * k) * offz);
@@ -548,7 +550,6 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
     
     MArray3d_ref rho(rho_grid.get_grid_points());
     Const_MArray2d_ref parts(bunch.get_local_particles());
- //   double total_charge_per_cell_vol(0.);
     if (zero_first) {    
         for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
             for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
@@ -558,16 +559,7 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
             }
         }
     } 
-//     else {
-//         for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
-//             for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
-//                 for (unsigned int k = 0; k < rho.shape()[2]; ++k) {
-//                 total_charge_per_cell_vol += weight0*rho[i][j][k];
-//                 }
-//             }
-//         }
-//     }       
-             
+
             
     int ix, iy, iz;
     double offx, offy, offz;
@@ -580,20 +572,17 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
                         int cellx = ix + i;
                         int celly = iy + j;
                         for (int k = 0; k < 2; ++k) {
-                            int cellz = iz + k;
-                            int period = rho.shape()[2];
-                            cellz = (cellz % period)*(cellz >= 0)+(period - 1 - ((-cellz - 1) % period))*(cellz < 0);
-//                             if (cellz >= 0) {
-//                                 cellz = cellz % period;
-//                             }
-//                             else{
-//                                 cellz = period - 1 - ((-cellz - 1) % period);
-//                             } 
-                            double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
-                                        (1 - j - (1 - 2 * j) * offy) *
-                                        (1 - k - (1 - 2 * k) * offz); 
-                            rho[cellx][celly][cellz] += weight;  
-                           // total_charge_per_cell_vol += weight;
+                            if ((cellx >0) && (cellx < int(rho.shape()[0]-1))
+                                && (celly > 0)
+                                && (celly < int(rho.shape()[1]-1))) {
+                                  int cellz = iz + k;
+                                  int period = rho.shape()[2];
+                                  cellz = (cellz % period)*(cellz >= 0)+(period - 1 - ((-cellz - 1) % period))*(cellz < 0);
+                                  double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
+                                              (1 - j - (1 - 2 * j) * offy) *
+                                              (1 - k - (1 - 2 * k) * offz); 
+                                  rho[cellx][celly][cellz] += weight;                             
+                           }
                        }
                     }
                 }
@@ -610,11 +599,16 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
                             int cellx = ix + i;
                             int celly = iy + j;
                             int cellz = iz + k;
-                            double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
-                                        (1 - j - (1 - 2 * j) * offy) *
-                                        (1 - k - (1 - 2 * k) * offz); 
-                            rho[cellx][celly][cellz] += weight; 
-                       //     total_charge_per_cell_vol += weight; 
+                            if ((cellx >0) && (cellx < int(rho.shape()[0]-1))
+                                && (celly > 0)
+                                && (celly < int(rho.shape()[1]-1))
+                                && (cellz > 0)
+                                && (cellz < int(rho.shape()[2]-1))) { 
+                                      double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
+                                                  (1 - j - (1 - 2 * j) * offy) *
+                                                  (1 - k - (1 - 2 * k) * offz); 
+                                      rho[cellx][celly][cellz] += weight;                       
+                            }
                         }                   
                     }
                 }
