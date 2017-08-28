@@ -152,11 +152,10 @@ slvk1: long_qvk, at=0;
 slvk2: qd, at=0.0.25;
 endsequence;
 
-seq_long_kicker: sequence, l=0.25, refer=entry;
+seq_long_kicker: sequence, l=1.25, refer=entry;
 slk10: qd0, at=0;
 slk11: long_qk, at=0;
-slk12: qd0, at=0.25;
-//slk12: qd, at=0.25;
+slk12: qd, at=0.25;
 endsequence;
 
 seq_kicker2: sequence, l=1.0, refer=entry;
