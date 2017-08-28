@@ -145,6 +145,9 @@ ELEMENT_FIXTURE_STEPS(kicker2, 2);
 ELEMENT_FIXTURE(long_hkicker);
 ELEMENT_FIXTURE(long_vkicker);
 ELEMENT_FIXTURE(long_kicker);
+
+ELEMENT_FIXTURE(long_hkicker_simple);
+ELEMENT_FIXTURE(long_vkicker_simple);
 ELEMENT_FIXTURE(long_kicker_simple);
 
 BOOST_FIXTURE_TEST_CASE( test_hkicker, hkicker_fixture )
@@ -253,6 +256,7 @@ BOOST_FIXTURE_TEST_CASE( test_kicker, kicker_fixture )
 // the tolerance for the long kicker tests is so loose because CHEF uses
 // a drift-single kick-drift algorithm but libff is using a 6th order yoshida algorithm.
 const double long_kicker_tolerance = 1.0;
+
 BOOST_FIXTURE_TEST_CASE( test_long_hkicker, long_hkicker_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -284,6 +288,40 @@ BOOST_FIXTURE_TEST_CASE( test_long_hkicker, long_hkicker_fixture )
     }
 
     element_check(pff, pcf, long_kicker_tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_long_hkicker_simple, long_hkicker_simple_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nlong_hkicker_simple\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, simple_tolerance);
     BOOST_CHECK(true);
 }
 
@@ -319,6 +357,40 @@ BOOST_FIXTURE_TEST_CASE( test_long_vkicker, long_vkicker_fixture )
     }
 
     element_check(pff, pcf, long_kicker_tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_long_vkicker_simple, long_vkicker_simple_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nlong_vkicker_simple\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, simple_tolerance);
     BOOST_CHECK(true);
 }
 
