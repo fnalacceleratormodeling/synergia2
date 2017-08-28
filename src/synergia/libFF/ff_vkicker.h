@@ -6,7 +6,7 @@
 class FF_vkicker : public FF_element
 {
 private:
-    double get_reference_cdt(double length, double k, Reference_particle & reference_particle);
+    double get_reference_cdt(double length, double k, Reference_particle & reference_particle, bool simple);
 
 public:
     FF_vkicker() { };
