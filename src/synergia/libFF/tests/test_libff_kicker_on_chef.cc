@@ -59,6 +59,7 @@ struct propagator_fixture
     : commxx(new Commxx())
     , seq_name(sname)
     {
+        std::cout << "\n\nstart fixture\n";
         BOOST_TEST_MESSAGE("setup propagator fixture");
 
         const int map_order = 1;

@@ -3,15 +3,10 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 
-double FF_kicker::get_reference_cdt(double length, double hk, double vk, Reference_particle &reference_particle)
+double FF_kicker::get_reference_cdt(double length, double hk, double vk, Reference_particle &reference_particle, bool simple)
 {
     double pref = reference_particle.get_momentum();
     double m = reference_particle.get_mass();
-    // steps comes from base class, set in apply method
-    double step_length = length / steps;
-    // for 0 length, hk,vk is the total strength of the kick
-    // for >0 length, hk,vk is the strength/length of the kick
-    double step_strength[2] = { hk*step_length, vk*step_length };
 
     double x   (reference_particle.get_state()[Bunch::x]);
     double xp  (reference_particle.get_state()[Bunch::xp]);
@@ -20,23 +15,38 @@ double FF_kicker::get_reference_cdt(double length, double hk, double vk, Referen
     double cdt (0.0);
     double dpop(reference_particle.get_state()[Bunch::dpop]);
 
-#if 0
-    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
-    FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
-    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
-#endif
-
     if ( close_to_zero(length) )
     {
+        // for 0 length, hk,vk is the total strength of the kick
         FF_algorithm::thin_kicker_unit(xp, hk);
         FF_algorithm::thin_kicker_unit(yp, vk);
     }
     else
     {
-        FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
-            ( x, xp, y, yp, cdt, dpop,
-              pref, m, 0.0,
-              step_length, step_strength, steps );
+        if (simple)
+        {
+            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, 0.0);
+
+            // for >0 length, hk,vk is the strength/length of the kick
+            FF_algorithm::thin_kicker_unit(xp, hk * length);
+            FF_algorithm::thin_kicker_unit(yp, vk * length);
+
+            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, 0.0);
+        }
+        else
+        {
+            // steps comes from base class, set in apply method
+            double step_length = length / steps;
+
+            // for >0 length, hk,vk is the strength/length of the kick
+            double step_strength[2] = { hk*step_length, vk*step_length };
+
+            // propagate
+            FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
+                ( x, xp, y, yp, cdt, dpop,
+                  pref, m, 0.0,
+                  step_length, step_strength, steps );
+        }
     }
 
     reference_particle.set_state(x, xp, y, yp, cdt, dpop);
@@ -108,6 +118,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     double length = slice.get_right() - slice.get_left();
 
+    // hk and vk are the hk/vk under lattice reference momentum
     double  l = slice.get_lattice_element().get_double_attribute("l", 0.0);
     double hk = slice.get_lattice_element().get_double_attribute("hkick");
     double vk = slice.get_lattice_element().get_double_attribute("vkick");
@@ -122,8 +133,12 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double scale = plattice/pbunch;
 
     // kick strength is defined as momentum change/reference momentum
+#if 0
     hk = hk * ref_bunch.get_charge() / ref_lattice.get_charge();
     vk = vk * ref_bunch.get_charge() / ref_lattice.get_charge();
+#endif
+    double b_hk = hk * ( ref_bunch.get_charge() / ref_lattice.get_charge() ) * scale;
+    double b_vk = vk * ( ref_bunch.get_charge() / ref_lattice.get_charge() ) * scale;
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
@@ -140,6 +155,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const int gsvsize = GSVector::size();
     const int num_blocks = local_num / gsvsize;
     const int block_last = num_blocks * gsvsize;
+
     if ( close_to_zero(length) )
     {
         GSVector gdummy(1.0);
@@ -148,9 +164,11 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // only to update the reference particle
         // the reference time is calculated with the design reference particle which
         // is at plattice
-        double reference_cdt = get_reference_cdt(0.0, hk, vk, ref_lattice);
+        double reference_cdt = get_reference_cdt(0.0, hk, vk, ref_lattice, false);
 
-        double k[2] = {hk*scale, vk*scale};
+        //double k[2] = {hk*scale, vk*scale};
+        double k[2] = { b_hk, b_vk };
+
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += gsvsize)
         {
@@ -179,74 +197,122 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // yoshida steps
         steps = (int)slice.get_lattice_element().get_double_attribute("yoshida_steps", 4.0);
 
-        // strength per unit length
-        hk = hk / l;
-        vk = vk / l;
+        // simple drift-kick-drift scheme
+        double simple_d = slice.get_lattice_element().get_double_attribute("simple", 0.0);
+        bool simple = fabs(simple_d) > 1e-16;
+
+        // strength per unit length, pul = per unit length
+        double hk_pul = hk / l;
+        double vk_pul = vk / l;
 
         double pref = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
-        double reference_cdt = get_reference_cdt(length, hk, vk, ref_lattice);
+        double reference_cdt = get_reference_cdt(length, hk_pul, vk_pul, ref_lattice, simple);
 
-        double step_reference_cdt = reference_cdt / steps;
-        double step_length = length / steps;
-        double step_strength[2] = { hk * step_length * scale, vk * step_length * scale };
+        std::cout << "refcdt = " << reference_cdt << "\n";
 
-        #pragma omp parallel for
-        for (int part = 0; part < block_last; part += gsvsize)
+        if (simple)
         {
-            GSVector x(&xa[part]);
-            GSVector xp(&xpa[part]);
-            GSVector y(&ya[part]);
-            GSVector yp(&ypa[part]);
-            GSVector cdt(&cdta[part]);
-            GSVector dpop(&dpopa[part]);
+            #pragma omp parallel for
+            for (int part = 0; part < block_last; part += gsvsize)
+            {
+                GSVector x(&xa[part]);
+                GSVector xp(&xpa[part]);
+                GSVector y(&ya[part]);
+                GSVector yp(&ypa[part]);
+                GSVector cdt(&cdta[part]);
+                GSVector dpop(&dpopa[part]);
 
-#if 0
-            // simple drift - kick - drift scheme, this is how CHEF does it
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
-            FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
-#endif
+                // simple drift - kick - drift scheme, this is how CHEF does it
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
+                FF_algorithm::thin_kicker_unit(xp, b_hk);
+                FF_algorithm::thin_kicker_unit(yp, b_vk);
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
 
-            FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_kicker_unit<GSVector>, 1>
-                ( x, xp, y, yp, cdt, dpop,
-                  pref, m, step_reference_cdt,
-                  step_length, step_strength, steps );
+                   x.store(&xa[part]);
+                  xp.store(&xpa[part]);
+                   y.store(&ya[part]);
+                  yp.store(&ypa[part]);
+                 cdt.store(&cdta[part]);
+                dpop.store(&dpopa[part]);
+            }
 
-               x.store(&xa[part]);
-              xp.store(&xpa[part]);
-               y.store(&ya[part]);
-              yp.store(&ypa[part]);
-             cdt.store(&cdta[part]);
-            dpop.store(&dpopa[part]);
+            for (int part = block_last; part < local_num; ++part)
+            {
+                double x(xa[part]);
+                double xp(xpa[part]);
+                double y(ya[part]);
+                double yp(ypa[part]);
+                double cdt(cdta[part]);
+                double dpop(dpopa[part]);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
+                FF_algorithm::thin_kicker_unit(xp, b_hk);
+                FF_algorithm::thin_kicker_unit(yp, b_vk);
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
+
+                   xa[part] = x;
+                  xpa[part] = xp;
+                   ya[part] = y;
+                  ypa[part] = yp;
+                 cdta[part] = cdt;
+                dpopa[part] = dpop;
+            }
         }
-
-        for (int part = block_last; part < local_num; ++part)
+        else
         {
-            double x(xa[part]);
-            double xp(xpa[part]);
-            double y(ya[part]);
-            double yp(ypa[part]);
-            double cdt(cdta[part]);
-            double dpop(dpopa[part]);
+            double b_hk_pul = b_hk / l;
+            double b_vk_pul = b_vk / l;
 
-#if 0
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
-            FF_algorithm::thin_kicker_unit(xp, yp, hk, vk);
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
-#endif
+            double step_reference_cdt = reference_cdt / steps;
+            double step_length = length / steps;
+            double step_strength[2] = { b_hk_pul * step_length, b_vk_pul * step_length };
 
-            FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
-                ( x, xp, y, yp, cdt, dpop,
-                  pref, m, step_reference_cdt,
-                  step_length, step_strength, steps );
+            #pragma omp parallel for
+            for (int part = 0; part < block_last; part += gsvsize)
+            {
+                GSVector x(&xa[part]);
+                GSVector xp(&xpa[part]);
+                GSVector y(&ya[part]);
+                GSVector yp(&ypa[part]);
+                GSVector cdt(&cdta[part]);
+                GSVector dpop(&dpopa[part]);
 
-               xa[part] = x;
-              xpa[part] = xp;
-               ya[part] = y;
-              ypa[part] = yp;
-             cdta[part] = cdt;
-            dpopa[part] = dpop;
+                // yoshida kick
+                FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_kicker_unit<GSVector>, 1>
+                    ( x, xp, y, yp, cdt, dpop,
+                      pref, m, step_reference_cdt,
+                      step_length, step_strength, steps );
+
+                   x.store(&xa[part]);
+                  xp.store(&xpa[part]);
+                   y.store(&ya[part]);
+                  yp.store(&ypa[part]);
+                 cdt.store(&cdta[part]);
+                dpop.store(&dpopa[part]);
+            }
+
+            for (int part = block_last; part < local_num; ++part)
+            {
+                double x(xa[part]);
+                double xp(xpa[part]);
+                double y(ya[part]);
+                double yp(ypa[part]);
+                double cdt(cdta[part]);
+                double dpop(dpopa[part]);
+
+                FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
+                    ( x, xp, y, yp, cdt, dpop,
+                      pref, m, step_reference_cdt,
+                      step_length, step_strength, steps );
+
+                   xa[part] = x;
+                  xpa[part] = xp;
+                   ya[part] = y;
+                  ypa[part] = yp;
+                 cdta[part] = cdt;
+                dpopa[part] = dpop;
+            }
         }
 
         bunch.get_reference_particle().increment_trajectory(length);
