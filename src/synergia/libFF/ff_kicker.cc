@@ -209,8 +209,6 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, hk_pul, vk_pul, ref_lattice, simple);
 
-        std::cout << "refcdt = " << reference_cdt << "\n";
-
         if (simple)
         {
             #pragma omp parallel for
