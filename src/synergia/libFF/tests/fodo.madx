@@ -26,7 +26,8 @@ qvk: vkicker, l=0.0, kick=0.07;
 qk:  kicker, l=0.0, hkick=0.07, vkick=0.07;
 long_qhk: hkicker, l=0.25, kick=0.07;
 long_qvk: vkicker, l=0.25, kick=0.07;
-long_qk: kicker, l=0.25, hkick=0.07, vkick=0.07, simple=0;
+long_qk: kicker, l=0.25, hkick=0.07, vkick=0.07;
+long_qk_s: kicker, l=0.25, hkick=0.07, vkick=0.07, simple=1;
 //qk:  kicker, l=1.0, hkick=0.1;
 //qhk: hkicker, l=1.0, kick=0.07;
 //qvk: vkicker, l=1.0, kick=0.07;
@@ -156,6 +157,12 @@ seq_long_kicker: sequence, l=1.25, refer=entry;
 slk10: qd0, at=0;
 slk11: long_qk, at=0;
 slk12: qd, at=0.25;
+endsequence;
+
+seq_long_kicker_simple: sequence, l=1.25, refer=entry;
+slks10: qd0, at=0;
+slks11: long_qk_s, at=0;
+slks12: qd, at=0.25;
 endsequence;
 
 seq_kicker2: sequence, l=1.0, refer=entry;

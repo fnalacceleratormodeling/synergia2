@@ -39,6 +39,7 @@
 BOOST_GLOBAL_FIXTURE(MPI_fixture); // needed to initialize MPI
 
 const double tolerance = 1.0e-8;
+const double simple_tolerance = 1.0e-12;
 
 
 void element_check(MArray2d_ref pff, MArray2d_ref pcf, double tolerance)
@@ -59,7 +60,6 @@ struct propagator_fixture
     : commxx(new Commxx())
     , seq_name(sname)
     {
-        std::cout << "\n\nstart fixture\n";
         BOOST_TEST_MESSAGE("setup propagator fixture");
 
         const int map_order = 1;
@@ -145,6 +145,7 @@ ELEMENT_FIXTURE_STEPS(kicker2, 2);
 ELEMENT_FIXTURE(long_hkicker);
 ELEMENT_FIXTURE(long_vkicker);
 ELEMENT_FIXTURE(long_kicker);
+ELEMENT_FIXTURE(long_kicker_simple);
 
 BOOST_FIXTURE_TEST_CASE( test_hkicker, hkicker_fixture )
 {
@@ -354,6 +355,41 @@ BOOST_FIXTURE_TEST_CASE( test_long_kicker, long_kicker_fixture )
     element_check(pff, pcf, long_kicker_tolerance);
     BOOST_CHECK(true);
 }
+
+BOOST_FIXTURE_TEST_CASE( test_long_kicker_simple, long_kicker_simple_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nlong_kicker_simple\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, simple_tolerance);
+    BOOST_CHECK(true);
+}
+
 
 BOOST_FIXTURE_TEST_CASE( test_kicker_steps, kicker2_fixture )
 {
