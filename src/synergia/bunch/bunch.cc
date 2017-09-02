@@ -186,10 +186,15 @@ Bunch::construct(int total_num, double real_num)
     }
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr) :
-        longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
-                reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
+Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double real_num,
+             Commxx_sptr comm_sptr) :
+        longitudinal_extent(0.0),
+        z_periodic(0),
+        reference_particle(reference_particle),
+        design_reference_particle(reference_particle),
+        bucket_index(0),
+        comm_sptr(comm_sptr),
+        default_converter()
 {
     this->particle_charge =reference_particle.get_charge();
     construct(total_num, real_num);
@@ -203,15 +208,16 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
 //     construct(particle_charge, total_num, real_num);
 // }
 
+
 Bunch::Bunch()
 {
 }
 
 
 Bunch::Bunch(Bunch const& bunch) :
-    reference_particle(bunch.reference_particle), 
+    reference_particle(bunch.reference_particle),
     design_reference_particle(bunch.design_reference_particle),
-    comm_sptr(bunch.comm_sptr), 
+    comm_sptr(bunch.comm_sptr),
             default_converter()
 {
     particle_charge = bunch.particle_charge;
@@ -221,13 +227,18 @@ Bunch::Bunch(Bunch const& bunch) :
     local_num_padded = bunch.local_num_padded;
     bucket_index=bunch.bucket_index;
     bucket_index_assigned= bunch.bucket_index_assigned;
-    local_particles = new MArray2d(*(bunch.local_particles));
-    alt_local_particles = new MArray2d(*(bunch.alt_local_particles));
-#endif
+    storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
+    alt_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
 
+    memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
+    memcpy(alt_storage, bunch.alt_storage, sizeof(double)*local_num_padded*7);
+
+    local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
+    alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
     state = bunch.state;
     longitudinal_extent=bunch.longitudinal_extent;
     z_periodic=bunch.z_periodic;
+    longitudinal_aperture=bunch.longitudinal_aperture;
     if (bunch.converter_ptr == &(bunch.default_converter)) {
         converter_ptr = &default_converter;
     } else {
@@ -240,6 +251,7 @@ Bunch::operator=(Bunch const& bunch)
 {
     if (this != &bunch) {
         reference_particle = bunch.reference_particle;
+        design_reference_particle = bunch.design_reference_particle;
         comm_sptr = bunch.comm_sptr;
         particle_charge = bunch.particle_charge;
         total_num = bunch.total_num;
@@ -247,7 +259,7 @@ Bunch::operator=(Bunch const& bunch)
         local_num = bunch.local_num;
         local_num_padded = bunch.local_num_padded;
 	bucket_index=bunch.bucket_index;
-
+        bucket_index_assigned= bunch.bucket_index_assigned;
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
         alt_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
 
@@ -256,9 +268,6 @@ Bunch::operator=(Bunch const& bunch)
 
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
         alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-
-#if 0
-        local_particles = new MArray2d(*(bunch.local_particles));
         state = bunch.state;
         longitudinal_extent=bunch.longitudinal_extent;
         z_periodic=bunch.z_periodic;
@@ -288,8 +297,6 @@ void
 Bunch::set_local_num(int local_num)
 {
     if (local_num > this->local_num) {
-        // throw std::runtime_error("set num not supported");
-
         if (local_num % 4 == 0) {
             local_num_padded = local_num;
         } else {
@@ -320,16 +327,8 @@ Bunch::set_local_num(int local_num)
 
         delete prev_local_particles;
         delete prev_alt_local_particles;
-
-
-#if 0
-        MArray2d *prev_local_particles = local_particles;
-        int prev_local_num = this->local_num;
-         local_particles = new MArray2d(boost::extents[local_num][7]);
-         (*local_particles)[ boost::indices[range(0,prev_local_num)][range()] ] =
-                (*prev_local_particles)[ boost::indices[range(0,prev_local_num)][range()] ];
-        delete prev_local_particles;
      }
+
     this->local_num = local_num;
 }
 
@@ -347,10 +346,16 @@ Bunch::update_total_num()
 }
 
 void
-Bunch::set_sort_period(int period)
+Bunch::set_total_num(int totalnum)
 {
-    sort_period = period;
-    sort_counter = period;
+    int old_total_num = total_num;
+    total_num = totalnum;
+
+    if (old_total_num != 0) {
+        real_num = (total_num * real_num) / old_total_num;
+    } else {
+        real_num = 0.0;
+    }
 }
 
 namespace {
@@ -363,7 +368,6 @@ inline bool do_compare(unsigned int const& a, unsigned int const& b)
             semi_global_t[semi_global_start_pos+b];
     return retval;
 }
-
 void do_sort(double * t, size_t rows, size_t cols, size_t cols_padded, size_t ord_col)
 {
     semi_global_t = t;
@@ -386,6 +390,13 @@ void do_sort(double * t, size_t rows, size_t cols, size_t cols_padded, size_t or
         }
     }
 }
+}   // ends namespace
+
+void
+Bunch::set_sort_period(int period)
+{
+    sort_period = period;
+    sort_counter = period;
 }
 
 void
@@ -475,6 +486,7 @@ Bunch::convert_to_state(State state)
 }
 
 
+
 Reference_particle &
 Bunch::get_reference_particle()
 {
@@ -553,13 +565,41 @@ Bunch::get_real_num() const
 double
  Bunch::get_z_period_length() const
 {
-    return z_period_length;
+    return longitudinal_extent;
+}
+
+void
+ Bunch::set_z_period_length(double z_period_length)
+{
+    if (longitudinal_aperture)  throw std::runtime_error("longitudinal_aperture is true, cannot make the bunch z periodic");
+    this->longitudinal_extent=z_period_length;
+    this->z_periodic=true;
 }
 
 bool
  Bunch::is_z_periodic() const
 {
     return z_periodic;
+}
+
+double
+Bunch::get_longitudinal_aperture_length() const
+{
+    return longitudinal_extent;
+}
+
+void
+Bunch::set_longitudinal_aperture_length(double longitudinal_extent)
+{
+    if (z_periodic)  throw std::runtime_error("z_periodic is true, cannot put a longitudinal_aperture");
+    this->longitudinal_extent=longitudinal_extent;
+    this->longitudinal_aperture=true;
+}
+
+bool
+Bunch::has_longitudinal_aperture() const
+{
+  return longitudinal_aperture;
 }
 
 int
@@ -652,7 +692,7 @@ Bunch::inject(Bunch const& bunch)
         double wgt1 = real_num/total_num;
         double wgt2 = bunch.get_real_num()/bunch.get_total_num();
         if (std::abs(wgt1/wgt2 - 1.0) > weight_tolerance) {
-        throw std::runtime_error(
+            throw std::runtime_error(
                 "Bunch.inject: macroparticle weight of injected bunch does not match.");
         }
     }
@@ -828,6 +868,7 @@ boost::filesystem::remove(get_local_particles_serialization_path());
         }
     }
 
+
 template<class Archive>
     void
     Bunch::load(Archive & ar, const unsigned int version)
@@ -836,6 +877,7 @@ template<class Archive>
                 >> BOOST_SERIALIZATION_NVP(z_periodic)
                 >> BOOST_SERIALIZATION_NVP(longitudinal_aperture)
                 >> BOOST_SERIALIZATION_NVP(reference_particle)
+                >> BOOST_SERIALIZATION_NVP(design_reference_particle)
                 >> BOOST_SERIALIZATION_NVP(particle_charge)
                 >> BOOST_SERIALIZATION_NVP(total_num)
                 >> BOOST_SERIALIZATION_NVP(real_num)

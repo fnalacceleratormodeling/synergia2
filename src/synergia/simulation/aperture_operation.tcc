@@ -93,7 +93,7 @@ template<typename T>
                 --npart;
                 }
             }
-        }
+
         double charge = 0.0;
         if (total_discarded > 0) {
         	charge = total_discarded * bunch.get_real_num() / bunch.get_total_num();
