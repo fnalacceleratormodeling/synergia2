@@ -39,7 +39,7 @@ struct Closed_orbit_params
         // turn off any RF cavities because they screw up the closed orbit calcation
         for (Lattice_elements::const_iterator lep=working_lattice_sptr->get_elements().begin();
              lep!=working_lattice_sptr->get_elements().end(); ++lep) {
-            if ((*lep)->get_name() == "rfcavity") {
+            if ((*lep)->get_type() == "rfcavity") {
                 (*lep)->set_double_attribute("volt", 0.0);
             }
         }
