@@ -306,8 +306,9 @@ public:
     // find the closed orbit for the circular lattice, propagate the lattice reference 
     // particle through the lattice slices using the closed orbit, and set the reference 
     // c*t for each lattice slice after tuning.
+    // return values is the state for calcualted closed orbit
     // note that all the rf cavities will be set to 0 strength during the tuning process
-    void
+    MArray1d
     tune_circular_lattice();
 
     template<class Archive>
