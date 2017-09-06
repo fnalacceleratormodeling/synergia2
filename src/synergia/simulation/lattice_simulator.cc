@@ -2049,6 +2049,50 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 }
 
 void
+Lattice_simulator::tune_linear_lattice()
+{
+    if (!have_slices)
+    {
+        throw std::runtime_error("Lattice_simulator::tune_linear_lattice() must be called after setting up the lattice slices");
+    }
+
+    // construct the bunch
+    Commxx_sptr commxx(new Commxx());
+    Bunch bunch(lattice_sptr->get_reference_particle(), commxx->get_size(), 1.0e10, commxx);
+
+    // propagate through all slices
+    Lattice_element_slices::iterator sit = slices.begin();
+    for (; sit != slices.end(); ++sit)
+    {
+        std::string slice_type = (*sit)->get_lattice_element().get_type();
+
+        double volt = 0;
+        if (slice_type == "rfcavity")
+        {
+            // save the volt(strength)
+            volt = (*sit)->get_lattice_element().get_double_attribute("volt");
+
+            // set strength to 0
+            (*sit)->get_lattice_element().set_double_attribute("volt", 0.0);
+        }
+
+        the_big_giant_global_ff_element_map.get_element_type(slice_type)->apply(*(*sit), bunch);
+        (*sit)->set_reference_ct(bunch.get_design_reference_particle().get_state()[Bunch::cdt]);
+
+        if (slice_type == "rfcavity")
+        {
+            // restore the strength
+            (*sit)->get_lattice_element().set_double_attribute("volt", volt);
+        }
+    }
+}
+
+void
+Lattice_simulator::tune_circular_lattice()
+{
+}
+
+void
 Lattice_simulator::print_cs_lattice_functions()
 {
     try {

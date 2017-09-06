@@ -297,6 +297,19 @@ public:
             Lattice_elements const& vertical_correctors, double tolerance =
                     1.0e-4, int max_steps = 6);
 
+    // propagate the lattice reference particle through the lattice slices and set the 
+    // reference c*t for each lattice slice after tuning.
+    // note that all the rf cavities will be set to 0 strength during the tuning process
+    void
+    tune_linear_lattice();
+
+    // find the closed orbit for the circular lattice, propagate the lattice reference 
+    // particle through the lattice slices using the closed orbit, and set the reference 
+    // c*t for each lattice slice after tuning.
+    // note that all the rf cavities will be set to 0 strength during the tuning process
+    void
+    tune_circular_lattice();
+
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const;
