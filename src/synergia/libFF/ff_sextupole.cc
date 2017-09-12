@@ -7,6 +7,7 @@ double FF_sextupole::get_reference_cdt(double length, double * k, Reference_part
 {
     if (length == 0) 
     {
+        reference_particle.set_state_cdt(0.0);
         return 0.0;
     } 
     else 

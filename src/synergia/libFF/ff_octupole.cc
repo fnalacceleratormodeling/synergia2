@@ -11,6 +11,7 @@ double FF_octupole::get_reference_cdt(double length, double * k, Reference_parti
 {
     if (length == 0) 
     {
+        reference_particle.set_state_cdt(0.0);
         return 0.0;
     } 
     else 
