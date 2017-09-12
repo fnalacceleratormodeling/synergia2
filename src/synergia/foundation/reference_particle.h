@@ -71,6 +71,24 @@ public:
     void
     set_state(double x, double xp, double y, double yp, double cdt, double dpop);
 
+    void
+    set_state_x(double x);
+
+    void
+    set_state_xp(double xp);
+
+    void
+    set_state_y(double y);
+
+    void
+    set_state_yp(double yp);
+
+    void
+    set_state_cdt(double cdt);
+
+    void
+    set_state_dpop(double dpop);
+
     /// Set the total energy.
     /// @param total_energy in GeV in the lab frame
     void

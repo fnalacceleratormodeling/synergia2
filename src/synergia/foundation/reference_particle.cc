@@ -134,6 +134,42 @@ Reference_particle::set_state(double x, double xp, double y, double yp, double c
 }
 
 void
+Reference_particle::set_state_x(double x)
+{
+    this->state[0] = x;
+}
+
+void
+Reference_particle::set_state_xp(double xp)
+{
+    this->state[1] = xp;
+}
+
+void
+Reference_particle::set_state_y(double y)
+{
+    this->state[2] = y;
+}
+
+void
+Reference_particle::set_state_yp(double yp)
+{
+    this->state[3] = yp;
+}
+
+void
+Reference_particle::set_state_cdt(double cdt)
+{
+    this->state[4] = cdt;
+}
+
+void
+Reference_particle::set_state_dpop(double dpop)
+{
+    this->state[5] = dpop;
+}
+
+void
 Reference_particle::set_total_energy(double total_energy)
 {
     four_momentum.set_total_energy(total_energy);
