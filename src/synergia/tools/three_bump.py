@@ -64,7 +64,7 @@ class Three_bump:
             end_idx = elem_names.index(self.end_name)
         except:
             raise RuntimeError, "Three_bump: end_name: %s not found"%self.end_name
-    
+
         if start_idx < end_idx:
             for elem in self.lattice_elements[start_idx:end_idx+1]:
                 self.bump_lattice.append(elem)
@@ -76,8 +76,8 @@ class Three_bump:
 
         # self.bump_idx[] is the index pointing to the original elements in self.lattice_elements
 
-        for elem in self.bump_lattice.get_elements():
-            elem.set_string_attribute("extractor_type", "chef_propagate")
+        #for elem in self.bump_lattice.get_elements():
+        #    elem.set_string_attribute("extractor_type", "chef_propagate")
 
         if self.verbose > 2:
             print "bump lattice:"
@@ -236,7 +236,7 @@ class Three_bump:
             f = solver.getf()
             if self.verbose:
                 print "  %5d % .7g % .7g % .7g % .7g  % .7g  % .7g" %(iter, f[0], f[1], f[2], f[3], f[4], f[5])
- 
+
             status = multiroots.test_residual(f, 1.0e-13)
             if status == pygslerrno.GSL_SUCCESS:
                 if self.verbose: print "Converged!!"
@@ -251,7 +251,7 @@ class Three_bump:
             self.lattice_elements[self.vcorr_idx[i]].set_double_attribute("kick", x[i+3])
 
         return x
-        
+
     ##################################################
     ##################################################
 #  just a little tester for the class
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     hcorr_names = ('hc1', 'hc2', 'hc3')
     vcorr_names = ('vc1', 'vc2', 'vc3')
     three_bump = Three_bump(lattice, 'm1', 'm2', hcorr_names, vcorr_names, 'm3', (0,2), True)
- 
+
     bump_settings = three_bump.set_bump((0.001, -0.0005))
 
     print "bump_settings: ", bump_settings[0], bump_settings[1], bump_settings[2], bump_settings[3], bump_settings[4], bump_settings[5]

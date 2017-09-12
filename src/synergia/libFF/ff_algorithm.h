@@ -511,6 +511,10 @@ public:
       (T & px, T & py, T const & cdt, T & dpop,
        double w_rf, double volt, double phi_s, double m, double old_ref_p, double & new_ref_p)
     {
+        // 0 strength RF cavity does nothing (fast)
+        if (volt == 0.0) {
+            return;
+        }
         double const anh_phase             = 0.0;
         double const mhp_harmonic_multiple = 1.0;
         double const mhp_relative_strength = 1.0;

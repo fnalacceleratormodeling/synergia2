@@ -168,6 +168,8 @@ private:
     get_chromaticities(double dpp);
     void
     get_alt_chromaticities(double dpp);
+    MArray1d
+    tune_rfcavities();
 public:
     /// @param lattice_sptr the Lattice
     /// @param map_order order for Chef_map operations
@@ -300,7 +302,7 @@ public:
     // propagate the lattice reference particle through the lattice slices and set the 
     // reference c*t for each lattice slice after tuning.
     // note that all the rf cavities will be set to 0 strength during the tuning process
-    void
+    MArray1d
     tune_linear_lattice();
 
     // find the closed orbit for the circular lattice, propagate the lattice reference 

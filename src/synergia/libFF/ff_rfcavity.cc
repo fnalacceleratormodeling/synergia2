@@ -19,6 +19,8 @@ double get_reference_cdt(double length, Reference_particle & reference_particle)
     double reference_momentum = reference_particle.get_momentum();
     double m = reference_particle.get_mass();
 
+    // By definition, the reference particle receives no kick in the RF cavity because it is
+    // perfectly in sync with the RF waveform.
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
     reference_particle.set_state(x, xp, y, yp, cdt, dpop);
 
@@ -61,11 +63,11 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double length = slice.get_right() - slice.get_left();
     Lattice_element const & elm = slice.get_lattice_element();
 
-    int    harmonic_number = elm.get_double_attribute("harmon");
-    double            volt = elm.get_double_attribute("volt");
-    double             lag = elm.get_double_attribute("lag");
-    double           shunt = elm.get_double_attribute("shunt");
-    double            freq = elm.get_double_attribute("freq");
+    int    harmonic_number = elm.get_double_attribute("harmon", -1.0);
+    double            volt = elm.get_double_attribute("volt", 0.0);
+    double             lag = elm.get_double_attribute("lag", 0.0);
+    double           shunt = elm.get_double_attribute("shunt", 0.0);
+    double            freq = elm.get_double_attribute("freq", -1.0);
 
     double   str = volt * 1.0e-3;
     double phi_s = 2.0 * mconstants::pi * lag;
