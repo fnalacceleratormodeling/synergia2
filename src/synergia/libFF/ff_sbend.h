@@ -42,12 +42,20 @@ public:
 
     double get_reference_cdt(double length, double strength, double angle, 
                              bool ledge, bool redge,
-                             double e1, double e2, double dphi,
+                             double e1, double e2, 
+                             double us_edge_k_p, double ds_edge_k_p,
+                             double dphi,
                              std::complex<double> const & phase,
                              std::complex<double> const & term,
                              Reference_particle &reference_particle);
 
     double get_reference_cdt(double length, double angle, double strength,
+                             bool ledge, bool redge,
+                             double e1, double e2, 
+                             double us_edge_k_p, double ds_edge_k_p,
+                             std::complex<double> phase_e1, 
+                             std::complex<double> phase_e2, 
+                             double * kl,
                              Reference_particle &reference_particle);
 
     template<class Archive>
