@@ -2068,7 +2068,7 @@ Lattice_simulator::tune_linear_lattice()
 
 
 MArray1d
-Lattice_simulator::tune_circular_lattice()
+Lattice_simulator::tune_circular_lattice(double tolerance)
 {
     if (!have_slices)
     {
@@ -2076,7 +2076,7 @@ Lattice_simulator::tune_circular_lattice()
     }
 
     // calculate closed orbit
-    MArray1d state = calculate_closed_orbit(lattice_sptr);
+    MArray1d state = calculate_closed_orbit(lattice_sptr, 0.0, tolerance);
     lattice_sptr->get_reference_particle().set_state(state);
     
     return tune_rfcavities();

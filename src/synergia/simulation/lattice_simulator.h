@@ -311,7 +311,7 @@ public:
     // return values is the state for calcualted closed orbit
     // note that all the rf cavities will be set to 0 strength during the tuning process
     MArray1d
-    tune_circular_lattice();
+    tune_circular_lattice(double tolerance=1.0e-13);
 
     template<class Archive>
         void
