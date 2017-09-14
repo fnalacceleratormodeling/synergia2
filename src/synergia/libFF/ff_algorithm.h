@@ -1015,6 +1015,178 @@ public:
         }
     }
 
+#if 1
+    // hardwired 6th order yoshida
+    template <
+        typename T,
+        void(kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),
+        int components >
+    inline static void bend_yoshida6(T & x, T & xp,
+                                T & y, T & yp,
+                                T & cdt, T const& dpop,
+                                double reference_momentum,
+                                double m, double step_reference_cdt,
+                                double step_angle, double * step_strength,
+                                double r0, double bend_strength,
+                                int steps)
+    {
+        // see yoshida4.py for formulas
+        const double c1 = 0.79361246386112147294625603763;
+        const double c2 = -0.206276584816439780698721319354;
+        const double c3 = -0.118008867881292655922412133144;
+        const double c4 = 0.236949573653050744373598734219;
+
+        const double d1 = 1.58722492772224294589251207526;
+        const double d2 = -1.99977809735512250728995471397;
+        const double d3 = -1.82324266348482825773733634154;
+        const double d4 = 2.29714181079092974648453380998;
+
+        // 10 drifts per step
+        double substep_reference_cdt = step_reference_cdt * 0.1;
+
+        double k1[components * 2], k2[components * 2], k3[components * 2], k4[components * 2];
+
+        for (int i=0; i<components; ++i)
+        {
+            k1[i*2+0] = d1 * step_strength[i*2+0];
+            k1[i*2+1] = d1 * step_strength[i*2+1];
+
+            k2[i*2+0] = d2 * step_strength[i*2+0];
+            k2[i*2+1] = d2 * step_strength[i*2+1];
+
+            k3[i*2+0] = d3 * step_strength[i*2+0];
+            k3[i*2+1] = d3 * step_strength[i*2+1];
+
+            k4[i*2+0] = d4 * step_strength[i*2+0];
+            k4[i*2+1] = d4 * step_strength[i*2+1];
+        }
+
+        static double stheta = 0.0;
+        static double sr0 = 0.0;
+
+        static std::complex<double> c1_step_phase = bend_unit_phase(c1 * stheta);
+        static std::complex<double> c2_step_phase = bend_unit_phase(c2 * stheta);
+        static std::complex<double> c3_step_phase = bend_unit_phase(c3 * stheta);
+        static std::complex<double> c4_step_phase = bend_unit_phase(c4 * stheta);
+
+        static std::complex<double> c1_step_term = bend_unit_term(sr0, c1 * stheta);
+        static std::complex<double> c2_step_term = bend_unit_term(sr0, c2 * stheta);
+        static std::complex<double> c3_step_term = bend_unit_term(sr0, c3 * stheta);
+        static std::complex<double> c4_step_term = bend_unit_term(sr0, c4 * stheta);
+
+        double theta = step_angle;
+
+        if (theta != stheta)
+        {
+            // updates both phase and term
+            c1_step_phase = bend_unit_phase(c1 * theta);
+            c2_step_phase = bend_unit_phase(c2 * theta);
+            c3_step_phase = bend_unit_phase(c3 * theta);
+            c4_step_phase = bend_unit_phase(c4 * theta);
+
+            c1_step_term = bend_unit_term(r0, c1 * theta);
+            c2_step_term = bend_unit_term(r0, c2 * theta);
+            c3_step_term = bend_unit_term(r0, c3 * theta);
+            c4_step_term = bend_unit_term(r0, c4 * theta);
+
+            stheta = theta;
+            sr0 = r0;
+        }
+        else if (r0 != sr0)
+        {
+            // update term only
+            c1_step_term = bend_unit_term(r0, c1 * theta);
+            c2_step_term = bend_unit_term(r0, c2 * theta);
+            c3_step_term = bend_unit_term(r0, c3 * theta);
+            c4_step_term = bend_unit_term(r0, c4 * theta);
+
+            sr0 = r0;
+        }
+
+        for(int i = 0; i < steps; ++i)
+        {
+            //drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
+            //          m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c1_step_phase, c1_step_term);
+
+            kf( x, xp, y, yp, r0, k1 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+
+            kf( x, xp, y, yp, r0, k2 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+
+            kf( x, xp, y, yp, r0, k1 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c3 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c3_step_phase, c3_step_term);
+
+            kf( x, xp, y, yp, r0, k3 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c4 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c4_step_phase, c4_step_term);
+
+            kf( x, xp, y, yp, r0, k4 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c4 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c4_step_phase, c4_step_term);
+
+            kf( x, xp, y, yp, r0, k3 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c3 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c3_step_phase, c3_step_term);
+
+            kf( x, xp, y, yp, r0, k1 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+
+            kf( x, xp, y, yp, r0, k2 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+
+            kf( x, xp, y, yp, r0, k1 );
+
+            //drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
+            //           m, substep_reference_cdt);
+
+            bend_unit(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
+                       m, substep_reference_cdt, c1_step_phase, c1_step_term);
+
+        }
+    }
+
+#endif
 
 
 };
