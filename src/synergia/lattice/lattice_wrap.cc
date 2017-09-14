@@ -170,6 +170,8 @@ BOOST_PYTHON_MODULE(lattice)
             .def("has_right_edge", &Lattice_element_slice::has_right_edge)
             .def("get_left", &Lattice_element_slice::get_left)
             .def("get_right", &Lattice_element_slice::get_right)
+            .def("get_reference_ct", &Lattice_element_slice::get_reference_ct)
+            .def("set_reference_ct", &Lattice_element_slice::set_reference_ct)
             .def("get_lattice_element",
                     get_lattice_element_non_const_type(&Lattice_element_slice::get_lattice_element),
                     return_internal_reference< >())
@@ -216,6 +218,7 @@ BOOST_PYTHON_MODULE(lattice)
             .def(init<std::string const&, MadX_adaptor_map_sptr >())
             .def(init<>())
             .def(init<Lsexpr const&>())
+            .def(init<Lattice >())
             .def("as_lsexpr", &Lattice::as_lsexpr)
             .def("get_name", &Lattice::get_name,
                     return_value_policy<copy_const_reference>())
