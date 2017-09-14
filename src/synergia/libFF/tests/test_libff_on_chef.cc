@@ -25,6 +25,7 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 
 #include "synergia/libFF/ff_element_map.h"
+#include "synergia/libFF/ff_rbend.h"
 
 #define ELEMENT_FIXTURE(ele) \
     struct ele ## _fixture : public propagator_fixture \
@@ -68,13 +69,14 @@ struct propagator_fixture
         lattice_chef = reader.get_lattice_sptr(seq_name, "fodo.madx");
         lattice_chef->set_all_string_attribute("extractor_type", "chef_propagate");
 
-        stepper_chef.reset(new Independent_stepper(lattice_chef, map_order, num_steps));
+        stepper_chef.reset(new Independent_stepper_elements(lattice_chef, map_order, num_steps));
         propagator_chef = new Propagator(stepper_chef);
 
         Reference_particle refpart(lattice_chef->get_reference_particle());
         Four_momentum four_momentum(refpart.get_four_momentum());
         double momentum = four_momentum.get_momentum();
         four_momentum.set_momentum(momentum*0.95);
+        //four_momentum.set_momentum(momentum*1.0);
         refpart.set_four_momentum(four_momentum);
 
         bunch_chef.reset(new Bunch(refpart, 1, 1.0e9, commxx));
@@ -84,7 +86,21 @@ struct propagator_fixture
         lattice_ff = reader.get_lattice_sptr(seq_name, "fodo.madx");
         lattice_ff->set_all_string_attribute("extractor_type", "libff");
 
-        stepper_ff.reset(new Independent_stepper(lattice_ff, map_order, num_steps));
+        stepper_ff.reset(new Independent_stepper_elements(lattice_ff, map_order, num_steps));
+
+#if 0
+        Lattice_elements & elements = lattice_ff->get_elements();
+        for(Lattice_elements::const_iterator it = elements.begin(); it!=elements.end(); ++it)
+        {
+            if ((*it)->get_type() == "rbend")
+            {
+                std::cout << "rbend.get_length = " << (*it)->get_length() << "\n";
+                double x = FF_rbend::adjust_rbend(*it, lattice_ff->get_reference_particle());
+                std::cout << x << "\n";
+            }
+        }
+#endif
+
         propagator_ff = new Propagator(stepper_ff);
 
         bunch_ff.reset(new Bunch(refpart, 1, 1.0e9, commxx));
@@ -122,8 +138,8 @@ struct propagator_fixture
     Lattice_sptr lattice_chef;
     Lattice_sptr lattice_ff;
 
-    Independent_stepper_sptr stepper_chef;
-    Independent_stepper_sptr stepper_ff;
+    Independent_stepper_elements_sptr stepper_chef;
+    Independent_stepper_elements_sptr stepper_ff;
 
     Propagator * propagator_chef;
     Propagator * propagator_ff;
@@ -137,6 +153,7 @@ struct propagator_fixture
 
 ELEMENT_FIXTURE(drift);
 ELEMENT_FIXTURE(rbend);
+ELEMENT_FIXTURE(cfrbend);
 ELEMENT_FIXTURE(sbend);
 ELEMENT_FIXTURE(cfsbend);
 ELEMENT_FIXTURE(quadrupole);
@@ -225,7 +242,44 @@ BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
         //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
 
+    //element_check(pff, pcf, 3e-5);
     element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_cfrbend, cfrbend_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    //FF_rbend::set_yoshida_steps(1);
+
+    std::cout << std::setprecision(16);
+    std::cout << "\ncf rbend\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, 3e-5);
     BOOST_CHECK(true);
 }
 

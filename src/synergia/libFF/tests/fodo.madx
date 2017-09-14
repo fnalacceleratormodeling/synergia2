@@ -4,7 +4,8 @@ beam, particle=proton, pc=3.0;
 qd0:  drift, l=0.0;
 qd1:  drift, l=0.0;
 qd:   drift, l=1.0;
-qr:   rbend, l=1.0, angle=0.17;
+qr:   rbend, l=1.0, angle=0.07;
+qrbcf: rbend, l=1.0, angle=0.07, k1=0.1;
 qf:   quadrupole, l=1.0, k1=0.311872401;
 qf2:  quadrupole, l=1.0, k1=0.311872401, tilt=0.1;
 qs:   sextupole, l=0.024, k2=8.0, k2s=0.1;
@@ -41,10 +42,16 @@ sd01: qd, at=0;
 sd02: qd0, at=1.0;
 endsequence;
 
-seq_rbend: sequence, l=3.0, refer=entry;
+seq_rbend: sequence, l=1.0, refer=entry;
 srb00: qd1, at=0;
-srb01: qr, at=1.0;
-srb02: qd1, at=2.0;
+srb01: qr, at=0.0;
+srb02: qd1, at=1.0;
+endsequence;
+
+seq_cfrbend: sequence, l=1.0, refer=entry;
+srb10: qd1, at=0;
+srb11: qrbcf, at=0.0;
+srb12: qd1, at=1.0;
 endsequence;
 
 seq_sbend: sequence, l=1.0, refer=entry;
