@@ -391,8 +391,8 @@ BOOST_FIXTURE_TEST_CASE( test_cfsbend2, cfsbend2_fixture )
     {
         //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
     }
-
-    element_check(pff, pcf, 3e-5);
+    // the sextupole model in CHEF doesn't work the same way as in libff
+    element_check(pff, pcf, 0.038);
     //element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }

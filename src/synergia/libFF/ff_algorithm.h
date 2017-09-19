@@ -269,6 +269,9 @@ public:
         xp   = vuf.imag() / (Ef * PH_MKS_c);
     }
 
+// thin_cf_quadrupole_unit is not used.  It follows expressions in
+// CHEF's InducedKickPropagators which are now contained in
+// thin_cf_quadrupole_b{x|y} and retained here for historical reference
     template <typename T>
     inline static void thin_cf_quadrupole_unit
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
@@ -308,6 +311,9 @@ public:
 #endif
     }
 
+    // the expressions in thin_cf_quadrupole_b{x|y} come from
+    // Zolkin, Sector magnets or transverse electromagnetic fields in cylindrical coordinates,
+    // Phys.Rev.Accel.Beams 20 (2017) no.4, 043501 Table XIII
     template <typename T>
     inline static T thin_cf_quadrupole_bx (T const& x, T const& y, double r0)
     { return r0 * y / (r0 + x); }
@@ -316,8 +322,11 @@ public:
     inline static T thin_cf_quadrupole_by (T const& x, T const& y, double r0, double alf)
     { return r0 * log(1.0 + alf); }
 
+   // the expressions in thin_cf_sectupole_b{x|y} come from
+    // Zolkin, Sector magnets or transverse electromagnetic fields in cylindrical coordinates,
+    // Phys.Rev.Accel.Beams 20 (2017) no.4, 043501 Table XIII
     template <typename T>
-    inline static T thin_cf_sextupole_bx (T const& x, T const& y, double alf)
+    inline static T thin_cf_sextupole_bx (T const& x, T const& y, double r0, double alf)
     { return x * (2.0 + alf) * y / (1.0 + alf); }
 
     template <typename T>
@@ -355,7 +364,7 @@ public:
                 - vk2n * (1.0 + alf) * thin_cf_sextupole_by(x, y, r0, alf) * 0.5;
 
         yp = yp + vk1n * (1.0 + alf) * thin_cf_quadrupole_bx(x, y, r0)
-                + vk2n * (1.0 + alf) * thin_cf_sextupole_bx(x, y, alf) * 0.5;
+                + vk2n * (1.0 + alf) * thin_cf_sextupole_bx(x, y, r0, alf) * 0.5;
     }
 
 
