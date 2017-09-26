@@ -72,16 +72,18 @@ void
 Propagator::State::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
+// omp_threads >= 0 uses the number of threads set by default or by the OMP_NUM_THREADS
+// environmental variable
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
         stepper_sptr(stepper_sptr), checkpoint_period(
                 default_checkpoint_period), checkpoint_dir(
                 default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(
-                default_concurrent_io), final_checkpoint(false), omp_threads(1)
+                default_concurrent_io), final_checkpoint(false), omp_threads(-1)
 {
 }
 
 Propagator::Propagator()
-    : omp_threads(1)
+    : omp_threads(-1)
 {
 }
 
@@ -154,6 +156,9 @@ Propagator::get_concurrent_io() const
 void
 Propagator::set_num_threads(int nt)
 {
+    if (nt <= 0) {
+         return;
+    }
     omp_threads = nt;
     omp_set_num_threads(omp_threads);
 }
@@ -169,7 +174,7 @@ Propagator::do_before_start(State & state, double & t, Logger & logger)
 {
     if (state.first_turn == 0) {
 
-        Reference_particle const & lattice_reference_particle = 
+        Reference_particle const & lattice_reference_particle =
                 stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle();
 
         if (state.bunch_simulator_ptr) {
@@ -254,20 +259,20 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
             per_operation_train_diagnosticss.at(i) =
                     diagnostics_actionss.at(i)->get_per_operation_diagnosticss();
         }
-      
-        
+
+
         //if (state.propagate_actions_ptr->get_type()=="lattice_elements_actions") {
           step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
-                    per_operation_train_diagnosticss, 
+                    per_operation_train_diagnosticss,
                     state.propagate_actions_ptr, *stepper_sptr, step_count, turn,
-                    logger);  
-//         } 
+                    logger);
+//         }
 //         else{
 //           step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
 //                   per_operation_train_diagnosticss,logger);
-//         }  
-                 
-                
+//         }
+
+
         t = simple_timer_show(t, "propagate-step_apply");
         for (int i = 0; i < num_bunches; ++i) {
             diagnostics_actionss.at(i)->step_end_action(*stepper_sptr, step,
@@ -379,7 +384,9 @@ void
 Propagator::propagate(State & state)
 {
     // set number of openmp threads
-    omp_set_num_threads(omp_threads);
+    if (omp_threads > 0) {
+        omp_set_num_threads(omp_threads);
+    }
 
     try {
         Logger logger(0, log_file_name);
@@ -413,7 +420,7 @@ Propagator::propagate(State & state)
                 break;
             }
             ++turns_since_checkpoint;
-            do_turn_end(turn, state, t, t_turn0, logger);	   
+            do_turn_end(turn, state, t, t_turn0, logger);
             if ((turns_since_checkpoint == checkpoint_period) || ((turn
 								   == (state.num_turns - 1)) && final_checkpoint)) {
                 t = simple_timer_current();
