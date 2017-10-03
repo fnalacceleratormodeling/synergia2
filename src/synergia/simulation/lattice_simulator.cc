@@ -1042,8 +1042,11 @@ Lattice_simulator::calculate_element_dispersion_functions()
 {
     if (!have_element_dispersion) {
         ConstBmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+        // calculate dispersion in a beamline context clone in which the rf cavities have been deactivated
+        BmlContextPtr beamline_context_clone(get_beamline_context_clone());
+        beamline_context_clone->deactivateRF();
         std::vector<DispersionSage::Info > Disp_Info(
-                get_beamline_context_clone()->getDispersionArray());
+                beamline_context_clone->getDispersionArray());
         beamline::const_iterator it = beamline_sptr->begin();
         for (int i = 0; i < Disp_Info.size(); ++i) {
             ElmPtr chef_element(*it);
@@ -2413,7 +2416,7 @@ Lattice_simulator::print_cs_lattice_functions()
     try {
         Logger flogger(0, "CS_lattice_functions.dat", false, true);
         flogger << "#    element      arc[m]     beta_x[m]      beta_y[m]     alpha_x     alpha_y      "
-                    << " psi_x      psi_y       D_x[m]      D_y[m]      Dprime_x     Dprime_y    k1"
+                    << " psi_x      psi_y      k1"
                     << std::endl;
         flogger << "#" << std::endl;
 
@@ -2434,9 +2437,8 @@ Lattice_simulator::print_cs_lattice_functions()
                     << std::setprecision(16) << lfs.arc_length << "   " << lfs.beta_x << "    "
                     << lfs.beta_y << "   " << lfs.alpha_x << "   "
                     << lfs.alpha_y << "    " << lfs.psi_x << "   "
-                    << lfs.psi_y << "   " << lfs.D_x << "    " << lfs.D_y
-                    << "   " << lfs.Dprime_x << "   " << lfs.Dprime_y
-                    << "   "<<k1<< std::endl;
+                    << lfs.psi_y
+                    << "   " << k1 << std::endl;
 
         }
         // remake beamline after it's all over to restore RF
