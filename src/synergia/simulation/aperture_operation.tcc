@@ -51,7 +51,7 @@ template<typename T>
             total_discarded += discard_counts[t];
         }
 
-        for (int n = 0; n < total_discarded; ++n)
+        for (int n = total_discarded - 1; n >= 0; --n)
         {
             // handle each particle in the list of discards
 
