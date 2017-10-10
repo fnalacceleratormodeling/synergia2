@@ -72,7 +72,7 @@ template<typename T>
 
         } while(head < tail);
 
-        double charge = (discarded > 0) ? 0.0 : discarded * bunch.get_real_num() / bunch.get_total_num();
+        double charge = (discarded > 0) ? discarded * bunch.get_real_num() / bunch.get_total_num() : 0.0;
 
         deposit_charge(charge);
         bunch.set_local_num(npart - discarded);
