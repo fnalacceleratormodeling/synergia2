@@ -259,7 +259,7 @@ BOOST_FIXTURE_TEST_CASE(cut, Lattice_fixture)
         keep_particles[i+2*nkeepers][2] = -keeper_list[i][1];
         // totate 270 degrees clockwise
         keep_particles[i+3*nkeepers][0] = -keeper_list[i][1];
-        keep_particles[i+3*nkeepers][2] = -keeper_list[i][0];
+        keep_particles[i+3*nkeepers][2] = keeper_list[i][0];
      }
 
     for (int i=0; i<nlosers; ++i) {
@@ -356,7 +356,7 @@ BOOST_FIXTURE_TEST_CASE(cut_offset, Lattice_fixture)
         keep_particles[i+2*nkeepers][2] = -keeper_list[i][1]+yoffset;
         // totate 270 degrees clockwise
         keep_particles[i+3*nkeepers][0] = -keeper_list[i][1]+xoffset;
-        keep_particles[i+3*nkeepers][2] = -keeper_list[i][0]+yoffset;
+        keep_particles[i+3*nkeepers][2] = keeper_list[i][0]+yoffset;
      }
 
     for (int i=0; i<nlosers; ++i) {
