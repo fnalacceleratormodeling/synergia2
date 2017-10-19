@@ -269,17 +269,18 @@ Independent_operator::update_operations(
         group.push_back(*it);
         last_extractor_type = extractor_type;
         if (need_right_aperture) {
+            Independent_operations group_operations =
+                    operation_extractor_map_sptr->get_extractor(extractor_type)->extract(
+                            reference_particle, group);
+            operations.splice(operations.end(), group_operations);
+            group.clear();
+
             Aperture_operation_extractor_sptr extractor(
                     aperture_operation_extractor_map_sptr->get_extractor(
                             aperture_type));
             Aperture_operation_sptr aperture_operation_sptr(
                     extractor->extract(*it));
             operations.push_back(aperture_operation_sptr);
-            Independent_operations group_operations =
-                    operation_extractor_map_sptr->get_extractor(extractor_type)->extract(
-                            reference_particle, group);
-            operations.splice(operations.end(), group_operations);
-            group.clear();
         }
         operations_revisions.push_back(
                 (*it)->get_lattice_element().get_revision());
