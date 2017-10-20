@@ -197,6 +197,10 @@ target_link_libraries(test_diagnostics_normal_form_mpi synergia_simulation syner
 add_test(NAME test_diagnostics_normal_form_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_normal_form_mpi>)
 add_test(NAME test_diagnostics_normal_form_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_diagnostics_normal_form_mpi>)
 
+add_test_executable(test_propagate_with_apertures test_propagate_with_apertures.cc)
+target_link_libraries(test_propagate_with_apertures synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_propagate_with_apertures COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_propagate_with_apertures>)
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
