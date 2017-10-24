@@ -201,6 +201,10 @@ add_test_executable(test_propagate_with_apertures test_propagate_with_apertures.
 target_link_libraries(test_propagate_with_apertures synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_propagate_with_apertures COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_propagate_with_apertures>)
 
+add_test_executable(test_extractor_type test_extractor_type.cc)
+target_link_libraries(test_extractor_type synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_extractor_type COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_extractor_type>)
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
