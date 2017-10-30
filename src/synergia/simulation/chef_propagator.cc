@@ -1,6 +1,6 @@
 #include "chef_propagator.h"
 #include "synergia/lattice/chef_utils.h"
-#include <omp.h>
+#include "synergia/utils/synergia_omp.h"
 
 Chef_propagator::Chef_propagator(
         Chef_lattice_section_sptr chef_lattice_section_sptr) :
