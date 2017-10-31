@@ -67,11 +67,22 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double            volt = elm.get_double_attribute("volt", 0.0);
     double             lag = elm.get_double_attribute("lag", 0.0);
     double           shunt = elm.get_double_attribute("shunt", 0.0);
+    // freq is the synchronous frequency of the cavity in MHz
     double            freq = elm.get_double_attribute("freq", -1.0);
+    // delta_freq is the frequency offset from synchronous in MHz like freq
+    double            delta_freq = elm.get_double_attribute("delta_freq", 0.0);
 
     double   str = volt * 1.0e-3;
+    // keep lag within the range of [0, 1).
+    while (lag < 0.0) {
+        lag += 1.0;
+    }
+    while (lag >= 1.0) {
+        lag -= 1.0;
+    }
+    //elm.set_double_attribute("lag", lag);
     double phi_s = 2.0 * mconstants::pi * lag;
-    double  w_rf = 2.0 * mconstants::pi * freq * 1.0e6;
+    double  w_rf = 2.0 * mconstants::pi * (freq + delta_freq) * 1.0e6;
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
