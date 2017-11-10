@@ -1,5 +1,4 @@
 #include "stepper.h"
-#include "synergia/utils/floating_point.h"
 #include "synergia/utils/string_utils.h"
 #include "synergia/bunch/bunch.h"
 #include <cmath>
@@ -123,8 +122,7 @@ Stepper::get_fixed_step(std::string const& name,
     bool complete = false;
     while (!complete) {
         double right = (*lattice_it)->get_length();
-        if (floating_point_leq(length + (right - left), step_length,
-                fixed_step_tolerance)) {
+        if (length + (right - left) - fixed_step_tolerance <= step_length) {
             // The rest of the element fits in the half step
             Lattice_element_slice_sptr slice(
                     new Lattice_element_slice(*lattice_it, left, right));
@@ -141,8 +139,7 @@ Stepper::get_fixed_step(std::string const& name,
             }
             ++lattice_it;
             left = 0.0;
-            if (floating_point_equal(length, step_length,
-                    fixed_step_tolerance)) {
+            if (std::abs(length - step_length) < fixed_step_tolerance) {
                 if ((lattice_it == lattice_end)
                         || ((*lattice_it)->get_length() != 0.0)) {
                     complete = true;
@@ -158,11 +155,12 @@ Stepper::get_fixed_step(std::string const& name,
             bool end_within_error = false;
             double old_right = right;
             right = step_length - length + left;
-            if ((old_right - right) < fixed_step_tolerance) {
+            if (std::abs(old_right - right) < fixed_step_tolerance) {
                 // ... unless we are within an accumulated tolerance of the end
                 right = old_right;
                 end_within_error = true;
             }
+
             Lattice_element_slice_sptr slice(
                     new Lattice_element_slice(*lattice_it, left, right));
             retval->append_slice(slice);
