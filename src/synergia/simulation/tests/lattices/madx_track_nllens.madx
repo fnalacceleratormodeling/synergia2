@@ -1,0 +1,65 @@
+call, file=nllens_channel.seq;
+
+set,format=22.16g;
+
+
+ke = 0.0025; ! 2.5 MeV kinetic energy protons
+etot = pmass+ke;
+beam, particle=proton, energy=etot;
+
+set,format=22.16;
+
+use,sequence=channel;
+
+t_offset = 1.0e-3;
+s2o2 = sqrt(2.0)/2.0;
+s3o2 = sqrt(3.0)/2.0;
+
+track, onepass=true, onetable=true, dump=true, file=track_nllens;
+
+start, x=t_offset, y=0.0;
+start, x=t_offset*s3o2, y=t_offset*0.5;
+start, x=t_offset*s2o2, y=t_offset*s2o2;
+start, x=t_offset*0.5, y=t_offset*s3o2;
+
+start, x=0.0, y=t_offset;
+start, x=-t_offset*0.5, y=t_offset*s3o2;
+start, x=-t_offset*s2o2, y=t_offset*s2o2;
+start, x=-t_offset*s3o2, y=t_offset*0.5;
+
+start, x=-t_offset, y=0.0;
+start, x=-t_offset*s3o2, y=-t_offset*0.5;
+start, x=-t_offset*s2o2, y=-t_offset*s2o2;
+start, x=-t_offset*0.5, y=-t_offset*s3o2;
+
+start, x=0.0, y=-t_offset;
+start, x=t_offset*0.5, y=-t_offset*s3o2;
+start, x=t_offset*s2o2, y=-t_offset*s2o2;
+start, x=t_offset*s3o2, y=-t_offset*0.5;
+
+! repeat pattern but shifted over 0.5mm down 0.25mm
+x2_offset = 0.0005;
+y2_offset = -0.00025;
+
+start, x=x2_offset+t_offset, y=y2_offset;
+start, x=x2_offset+t_offset*s3o2, y=y2_offset+t_offset*0.5;
+start, x=x2_offset+t_offset*s2o2, y=y2_offset+t_offset*s2o2;
+start, x=x2_offset+t_offset*0.5, y=y2_offset+t_offset*s3o2;
+
+start, x=x2_offset, y=y2_offset+t_offset;
+start, x=x2_offset-t_offset*0.5, y=y2_offset+t_offset*s3o2;
+start, x=x2_offset-t_offset*s2o2, y=y2_offset+t_offset*s2o2;
+start, x=x2_offset-t_offset*s3o2, y=y2_offset+t_offset*0.5;
+
+start, x=x2_offset-t_offset, y=y2_offset;
+start, x=x2_offset-t_offset*s3o2, y=y2_offset-t_offset*0.5;
+start, x=x2_offset-t_offset*s2o2, y=y2_offset-t_offset*s2o2;
+start, x=x2_offset-t_offset*0.5, y=y2_offset-t_offset*s3o2;
+
+start, x=x2_offset, y=y2_offset-t_offset;
+start, x=x2_offset+t_offset*0.5, y=y2_offset-t_offset*s3o2;
+start, x=x2_offset+t_offset*s2o2, y=y2_offset-t_offset*s2o2;
+start, x=x2_offset+t_offset*s3o2, y=y2_offset-t_offset*0.5;
+
+run, turns=1;
+endtrack;
