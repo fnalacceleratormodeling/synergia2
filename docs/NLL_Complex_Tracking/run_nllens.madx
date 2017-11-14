@@ -1,0 +1,23 @@
+call, file=nllens.seq;
+
+ke = 0.0025; ! 2.5 MeV kinetic energy protons
+etot = pmass+ke;
+beam, particle=proton, energy=etot;
+
+set,format=22.16;
+
+use,sequence=channel;
+
+track, onepass=true;
+start;
+start, x=0.001, y=-0.002;
+run, turns=1;
+endtrack;
+
+!ptc_create_universe;
+!ptc_create_layout, model=2, method=6, nst=10, time=true,exact;
+!ptc_start;
+!ptc_start, x=0.001, y=-0.002;
+!ptc_track, closed_orbit=false, icase=4;
+!ptc_track_end;
+!ptc_end;
