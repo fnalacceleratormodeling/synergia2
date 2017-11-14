@@ -256,7 +256,7 @@ class Three_bump:
     ##################################################
 #  just a little tester for the class
 if __name__ == "__main__":
-    lattice = synergia.lattice.MadX_reader().get_lattice("model", "foborodobo128.madx")
+    lattice = synergia.lattice.MadX_reader().get_lattice("model", "tests/lattices/foborodobo128.madx")
     print "read lattice: ", len(lattice.get_elements()), " elements, length = ", lattice.get_length()
     hcorr_names = ('hc1', 'hc2', 'hc3')
     vcorr_names = ('vc1', 'vc2', 'vc3')
