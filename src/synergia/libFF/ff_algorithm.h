@@ -627,6 +627,23 @@ public:
         yp += dpy;
     }
 
+    template <typename T>
+    inline static void dipedge_unit
+        (T & x, T & xp, T & y, T & yp, double re_2_1, double re_4_3, double const * te)
+    {
+        // linear terms
+        xp = xp + T(re_2_1) * x;
+        yp = yp + T(re_4_3) * y;
+
+        // quadratic terms
+        x  = x  + T(te[0]) * x*x + T(te[1]) * y*y;
+        xp = xp + T(te[2]) * x*x + T(te[4]) * y*y + T(te[3]) * x*xp*T(2) + T(te[5]) * y*yp*T(2);
+        y  = y  + T(te[6]) * x*y*T(2);
+        yp = yp + T(te[7]) * x*y*T(2) + T(te[8]) * x*yp*T(2) + T(te[9]) * y*xp*T(2);
+    }
+
+
+
     inline static double factorial(int n)
     {
         if (n == 0) return 1.0;
