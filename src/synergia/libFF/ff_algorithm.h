@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <complex>
+#include <stdexcept>
 
 #include "basic_toolkit/PhysicsConstants.h"
 #include "synergia/utils/invsqrt.h"
@@ -600,6 +601,30 @@ public:
             yp += -kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1)
                          / (factorial(n-k) * factorial(k));
         }
+    }
+
+    inline static void nllens_unit
+        (double x, double y, double & xp, double & yp, double icnll, double kick)
+    {
+        double xbar = x * icnll;
+        double ybar = y * icnll;
+
+        if (ybar == 0 && fabs(xbar) >= 1.0)
+            throw std::runtime_error("cannot propagate NonLinearLens with singular point");
+
+        std::complex<double> c_i(0.0, 1.0);
+        std::complex<double> c_1(1.0, 0.0);
+
+        std::complex<double> zeta(xbar, ybar);
+        std::complex<double> croot = sqrt(c_1 - zeta*zeta);
+        std::complex<double> carcsin = -c_i * log(c_i * zeta + croot);
+        std::complex<double> dF = zeta/(croot*croot) + carcsin/(croot*croot*croot);
+
+        double dpx = kick * dF.real();
+        double dpy = -kick * dF.imag();
+
+        xp += dpx;
+        yp += dpy;
     }
 
     inline static double factorial(int n)
