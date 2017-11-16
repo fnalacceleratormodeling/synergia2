@@ -19,6 +19,9 @@ double FF_nllens::get_reference_cdt(double icnll, double kick, Reference_particl
     // propagate
     FF_algorithm::nllens_unit(x, y, xp, yp, icnll, kick);
 
+    if (std::isnan(xp) || std::isnan(yp))
+        throw std::runtime_error("the bunch reference particle hits the sigularity region when propagating through a nonlinearlens");
+
     // update the bunch design reference particle state
     reference_particle.set_state(x, xp, y, yp, cdt, dpop);
 

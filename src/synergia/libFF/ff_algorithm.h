@@ -2,6 +2,7 @@
 #define FF_ALGORITHM_H
 
 #include <cmath>
+#include <limits>
 #include <complex>
 #include <stdexcept>
 
@@ -610,7 +611,11 @@ public:
         double ybar = y * icnll;
 
         if (ybar == 0 && fabs(xbar) >= 1.0)
-            throw std::runtime_error("cannot propagate NonLinearLens with singular point");
+        {
+            xp = std::numeric_limits<double>::quiet_NaN();
+            yp = std::numeric_limits<double>::quiet_NaN();
+            return;
+        }
 
         std::complex<double> c_i(0.0, 1.0);
         std::complex<double> c_1(1.0, 0.0);
