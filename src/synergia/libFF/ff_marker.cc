@@ -22,7 +22,8 @@ void FF_marker::apply(Lattice_element_slice const& slice, JetParticle& jet_parti
 
 void FF_marker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-    // marker does nothing
+    // marker does nothing (except for resetting the refernce cdt)
+    bunch.get_design_reference_particle().set_state_cdt(0.0);
     return;
 }
 

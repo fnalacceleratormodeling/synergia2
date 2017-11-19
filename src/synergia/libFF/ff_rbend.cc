@@ -2,6 +2,101 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_roots.h>
+
+
+namespace
+{
+    struct Rbend_adjusting_params
+    {
+        Rbend_adjusting_params(Lattice_element_sptr rbend, Reference_particle const & ref_part)
+        : commxx_sptr(new Commxx())
+        , bunch(ref_part, commxx_sptr->get_size(), 1.0e10, commxx_sptr)
+        , slice(rbend)
+        , ff_rbend()
+        {
+        }
+
+        Commxx_sptr commxx_sptr;
+        Bunch bunch;
+        Lattice_element_slice slice;
+        FF_rbend ff_rbend;
+    };
+
+    double rbend_propagate(double x, void * params)
+    {
+        struct Rbend_adjusting_params * p = (struct Rbend_adjusting_params *)params;
+
+        Lattice_element_slice & slice = p->slice;
+        Bunch & bunch = p->bunch;
+
+        MArray2d_ref part = bunch.get_local_particles();
+
+        part[0][0] = x;
+        part[0][1] = 0;
+        part[0][2] = 0;
+        part[0][3] = 0;
+        part[0][4] = 0;
+        part[0][5] = 0;
+
+        p->ff_rbend.apply(slice, bunch);
+
+        //std::cout << "x0=" << x << ", x=" << part[0][0] << ", " << part[0][1] << ", " << part[0][2] << ", " << part[0][3] << ", " << part[0][4] << ", " << part[0][5] << "\n";
+
+        return part[0][0] - x;
+    }
+}
+
+double FF_rbend::adjust_rbend(Lattice_element_sptr rbend, Reference_particle const & ref_part)
+{
+    const gsl_root_fsolver_type *T;
+    gsl_root_fsolver *s;
+    gsl_function F;
+
+    struct Rbend_adjusting_params params(rbend, ref_part);
+
+    F.function = &rbend_propagate;
+    F.params = &params;
+
+    std::cout << F.function(-5, &params) << "\n";
+    std::cout << F.function(+5, &params) << "\n";
+
+    T = gsl_root_fsolver_brent;
+    s = gsl_root_fsolver_alloc(T);
+    gsl_root_fsolver_set(s, &F, -5.0, +5.0);
+
+    int iter = 0;
+    int max_iter = 100;
+
+    double r = 0.0;
+    double r0 = 0.0;
+
+    int status;
+
+    do
+    {
+        ++iter;
+        status = gsl_root_fsolver_iterate(s);
+
+        r0 = r;
+        r = gsl_root_fsolver_root(s);
+
+        double x_lo = gsl_root_fsolver_x_lower(s);
+        double x_hi = gsl_root_fsolver_x_upper(s);
+
+        status = gsl_root_test_interval(x_lo, x_hi, 0, 0.001);
+        //status = gsl_root_test_delta(r, r0, 1e-8, 0.0);
+
+        //std::cout << x_lo << "\t" << x_hi << "\t" << r << "\n";
+
+    } while(status == GSL_CONTINUE && iter < max_iter);
+
+    gsl_root_fsolver_free(s);
+
+    return r;
+}
+
 FF_rbend::FF_rbend()
 {
 
@@ -14,6 +109,7 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
 {
     if (length == 0)
     {
+        reference_particle.set_state_cdt(0.0);
         return 0.0;
     }
     else
@@ -46,38 +142,59 @@ double FF_rbend::get_reference_cdt(double length, double strength, double angle,
 }
 
 
-double FF_rbend::get_reference_cdt(double length, double * k,
+double FF_rbend::get_reference_cdt(double length, double angle, double edge_k_p, double * k,
                                    Reference_particle &reference_particle)
 {
-    double reference_cdt;
-    if (length == 0) {
-        reference_cdt = 0.0;
-    } else {
-        double reference_momentum = reference_particle.get_momentum();
+    if (length == 0) 
+    {
+        reference_particle.set_state_cdt(0.0);
+        return 0.0;
+    }
+    else 
+    {
+        double pref = reference_particle.get_momentum();
         double m = reference_particle.get_mass();
+
         double step_length = length/steps;
         double step_strength[6] =
             { k[0]*step_length, k[1]*step_length,
               k[2]*step_length, k[3]*step_length,
               k[4]*step_length, k[5]*step_length };
 
+        double theta = angle / 2.0;
+        double ct = cos(-theta);
+        double st = sin(-theta);
+
         double x(reference_particle.get_state()[Bunch::x]);
         double xp(reference_particle.get_state()[Bunch::xp]);
         double y(reference_particle.get_state()[Bunch::y]);
         double yp(reference_particle.get_state()[Bunch::yp]);
-        double cdt(reference_particle.get_state()[Bunch::cdt]);
+        double cdt(0.0);
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
-        double cdt_orig = cdt;
+        // upstream slot
+        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
 
-        FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
+        // upstream edge
+        // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
+        FF_algorithm::edge_unit(y, xp, yp, dpop, edge_k_p);    // edge kick based on particle angle
+
+        // bend
+        FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 6, 3 >
             ( x, xp, y, yp, cdt, dpop,
-              reference_momentum, m,
+              pref, m,
               0.0, step_length, step_strength, steps );
 
-        reference_cdt = cdt - cdt_orig;
+        // downstream edge
+        // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
+        FF_algorithm::edge_unit(y, xp, yp, dpop, -edge_k_p);   // edge kick based on particle angle
+
+        // upstream slot
+        FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref, m);
+
+        reference_particle.set_state(x, xp, y, yp, cdt, dpop);
+        return cdt;
     }
-    return reference_cdt;
 }
 
 void FF_rbend::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
@@ -131,10 +248,10 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[0] = 2.0 * sin( angle / 2.0 ) / l;
     k[1] = 0;
 
-    k[2]  = slice.get_lattice_element().get_double_attribute("k1");
+    k[2]  = slice.get_lattice_element().get_double_attribute("k1", 0.0);
     k[3]  = 0;  // k1s
 
-    k[4]  = slice.get_lattice_element().get_double_attribute("k2");
+    k[4]  = slice.get_lattice_element().get_double_attribute("k2", 0.0);
     k[5]  = 0;  // k2s
 
     int local_num = bunch.get_local_num();
@@ -164,8 +281,13 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     double scale = s_brho_l / s_brho_b;
 
-    double m = bunch.get_mass();
+    double scaled_k[6] = { 
+        k[0] * scale, k[1] * scale,
+        k[2] * scale, k[3] * scale,
+        k[4] * scale, k[4] * scale
+    };
 
+    double m = bunch.get_mass();
 
     int charge_l = ref_l.get_charge();
     int charge_b = ref_b.get_charge();
@@ -182,8 +304,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     if (k[2] == 0.0 && k[4] == 0.0)
     {
-        double reference_cdt = get_reference_cdt(length, strength, angle, phase, term,
-                ref_l);
+        double reference_cdt = get_reference_cdt(length, strength, angle, phase, term, ref_l);
 
         double * RESTRICT xa, * RESTRICT xpa;
         double * RESTRICT ya, * RESTRICT ypa;
@@ -275,11 +396,11 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     else
     {
         double step_length = length/steps;
-        double step_strength[6] = { k[0]*step_length, k[1]*step_length,
-                                    k[2]*step_length, k[3]*step_length,
-                                    k[4]*step_length, k[5]*step_length };
+        double step_strength[6] = { scaled_k[0]*step_length, scaled_k[1]*step_length,
+                                    scaled_k[2]*step_length, scaled_k[3]*step_length,
+                                    scaled_k[4]*step_length, scaled_k[5]*step_length };
 
-        double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
+        double reference_cdt = get_reference_cdt(length, angle, edge_k_p/scale, k, ref_l);
         double step_reference_cdt = reference_cdt/steps;
 
         // with combined high order function, use yoshida approximation
@@ -293,11 +414,26 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double cdt (particles[part][Bunch::cdt ]);
             double dpop(particles[part][Bunch::dpop]);
 
-            FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
+            // upstream slot
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref_b, m);
+
+            // upstream edge
+            // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
+            FF_algorithm::edge_unit(y, xp, yp, dpop, edge_k_p);    // edge kick based on particle angle
+
+            // bend
+            FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 6, 3 >
                 ( x, xp, y, yp, cdt, dpop,
                   pref_b, m,
                   step_reference_cdt,
                   step_length, step_strength, steps );
+
+            // downstream edge
+            // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
+            FF_algorithm::edge_unit(y, xp, yp, dpop, -edge_k_p);   // edge kick based on particle angle
+
+            // downstream slot
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ct, st, pref_b, m);
 
             particles[part][Bunch::x]  = x;
             particles[part][Bunch::xp] = xp;

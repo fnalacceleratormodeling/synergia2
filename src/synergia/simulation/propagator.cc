@@ -72,16 +72,18 @@ void
 Propagator::State::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
+// omp_threads >= 0 uses the number of threads set by default or by the OMP_NUM_THREADS
+// environmental variable
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
         stepper_sptr(stepper_sptr), checkpoint_period(
                 default_checkpoint_period), checkpoint_dir(
                 default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(
-                default_concurrent_io), final_checkpoint(false), omp_threads(1)
+                default_concurrent_io), final_checkpoint(false), omp_threads(-1)
 {
 }
 
 Propagator::Propagator()
-    : omp_threads(1)
+    : omp_threads(-1)
 {
 }
 
@@ -154,6 +156,9 @@ Propagator::get_concurrent_io() const
 void
 Propagator::set_num_threads(int nt)
 {
+    if (nt <= 0) {
+         return;
+    }
     omp_threads = nt;
     omp_set_num_threads(omp_threads);
 }
@@ -227,9 +232,9 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
 {
     double t_step0 = MPI_Wtime();
     if (state.bunch_simulator_ptr) {
-        Bunch & bunch(state.bunch_simulator_ptr->get_bunch());       
+        Bunch & bunch(state.bunch_simulator_ptr->get_bunch());
         Diagnostics_actions & diagnostics_actions(
-                state.bunch_simulator_ptr->get_diagnostics_actions());          
+                state.bunch_simulator_ptr->get_diagnostics_actions());
         step.apply(bunch, state.verbosity,
                 diagnostics_actions.get_per_operator_diagnosticss(),
                 diagnostics_actions.get_per_operation_diagnosticss(), *stepper_sptr, logger);       
@@ -239,7 +244,7 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
         t = simple_timer_show(t, "propagate-diagnostics_actions_step");
         state.propagate_actions_ptr->step_end_action(*stepper_sptr, step, bunch,
                 turn, step_count);
-    } else {      
+    } else {
         Bunch_train & bunch_train(
                 state.bunch_train_simulator_ptr->get_bunch_train());
         Diagnostics_actionss & diagnostics_actionss(
@@ -256,14 +261,11 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
         }
       
         
-     
           step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
                     per_operation_train_diagnosticss, 
                     state.propagate_actions_ptr, *stepper_sptr, step_count, turn,
                     logger);  
-                  
-
-                 
+                
                 
         t = simple_timer_show(t, "propagate-step_apply");
         for (int i = 0; i < num_bunches; ++i) {
@@ -360,7 +362,7 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
         logger << "Propagator:";
         logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
                 << "/" << state.num_turns;
-        if (state.bunch_simulator_ptr) {           
+        if (state.bunch_simulator_ptr) {
             logger << ", macroparticles = "
                     << state.bunch_simulator_ptr->get_bunch().get_total_num();
         } else {
@@ -383,15 +385,15 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
         logger << std::endl;
         cout.precision(p);
     }
-    
-
 }
 
 void
 Propagator::propagate(State & state)
 {
     // set number of openmp threads
+    if (omp_threads > 0) {
     omp_set_num_threads(omp_threads);
+    }
 
     try {
         Logger logger(0, log_file_name);
@@ -411,11 +413,11 @@ Propagator::propagate(State & state)
             double t_turn0 = MPI_Wtime();
             do_start_repetition(state);
             int step_count = 0;
-            int num_steps = stepper_sptr->get_steps().size();          
+            int num_steps = stepper_sptr->get_steps().size();
             for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                     != stepper_sptr->get_steps().end(); ++it) {
-                ++step_count;               
-            	do_step(*(*it), step_count, num_steps, turn, state, t, logger);               
+                ++step_count;
+            	do_step(*(*it), step_count, num_steps, turn, state, t, logger);
                 out_of_particles = check_out_of_particles(state, logger);
                 if (out_of_particles) {
                     break;

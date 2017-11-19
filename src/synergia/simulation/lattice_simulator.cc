@@ -6,6 +6,7 @@
 #include "synergia/utils/digits.h"
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/libFF/ff_element_map.h"
+#include "synergia/simulation/calculate_closed_orbit.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
@@ -469,7 +470,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 extractor_map_sptr(new Operation_extractor_map),
                 aperture_extractor_map_sptr(
                         new Aperture_operation_extractor_map),
-               map_order(map_order),
+                map_order(map_order),
                 bucket_length(0.),
                 rf_bucket_length(0.),                
                 closed_orbit_length(0.),
@@ -500,6 +501,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
 {
     construct_extractor_map();
     construct_aperture_extractor_map();
+    construct_big_giant_global_ff_element_map();
     set_bucket_length();
 }
 
@@ -2028,7 +2030,7 @@ Lattice_simulator::get_chromaticities(double dpp)
         calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_plus,  tune_v_plus, c_delta_t_plus);
         calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), -dpp, beamline_sptr, copy_beamline_sptr,
-               tune_h_minus,  tune_v_minus, c_delta_t_minus);		       
+               tune_h_minus,  tune_v_minus, c_delta_t_minus);
 
         calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), 2.0*dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_plusplus,  tune_v_plusplus, c_delta_t_plusplus);
@@ -2103,7 +2105,8 @@ Lattice_simulator::get_chromaticities(double dpp)
         horizontal_chromaticity_prime = 2.0*(16*qxp_p_qxm_m2qx0 - qxpp_p_qxmm_m2qx0)/(24.0*dpp*dpp);
         vertical_chromaticity_prime = 2.0*(16*qyp_p_qym_m2qy0 - qypp_p_qymm_m2qy0)/(24.0*dpp*dpp);
 
-        have_chromaticities = true;	
+        have_chromaticities = true;
+
     }
 }
 
@@ -2347,6 +2350,7 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 
     while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
             && (count < max_steps)) {
+        int status = beamline_context.changeChromaticityBy(dh, dv);
 
        if (verbosity>0){
           logger<< "  step=" << count << " chromaticity (H,V):  (" << chr_h<<", "
@@ -2365,6 +2369,10 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
       logger<< " after steps=" << count << " chromaticity (H,V):  (" << chr_h<<", "
                <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl; 
     }
+
+    extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
+    extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
+    update();
 
     Logger flogger(0, "sextupole_correctors.txt", false, true);
     flogger      << "! the sextupole correctors  for the chromaticity (H, V):  ("
@@ -2407,6 +2415,114 @@ Lattice_simulator::change_chromaticityby(double dh, double dv,  Lattice_elements
      update();
      have_chromaticities = false;
      
+}
+
+// Both tune_linear_lattice() and tune_circular_lattice() set the frequency of the rfcavities
+// based on the momentum of the lattice reference particle.  tune_linear_lattice uses the state of the reference
+// particle as the starting point for propagation.  tune_circular_lattice() calculates a closed orbit and uses that
+// as the starting point.  Both returns return a MArray1d state, the transverse coordinates are the final coordinates.
+// cdt is the c * the total propagation time of the particle which gives the total path length.
+MArray1d
+Lattice_simulator::tune_linear_lattice()
+{
+    if (!have_slices)
+    {
+        throw std::runtime_error("Lattice_simulator::tune_linear_lattice() must be called after setting up the lattice slices");
+    }
+    
+    // tune the rf cavities based on the state of the lattice reference particle
+    return tune_rfcavities();
+}
+
+
+MArray1d
+Lattice_simulator::tune_circular_lattice(double tolerance)
+{
+    if (!have_slices)
+    {
+        throw std::runtime_error("Lattice_simulator::tune_circular_lattice() must be called after setting up the lattice slices");
+    }
+
+    // calculate closed orbit
+    MArray1d state = calculate_closed_orbit(lattice_sptr, 0.0, tolerance);
+    lattice_sptr->get_reference_particle().set_state(state);
+    
+    return tune_rfcavities();
+}
+
+MArray1d
+Lattice_simulator::tune_rfcavities()
+{
+    // construct the bunch
+    Commxx_sptr commxx(new Commxx());
+    Bunch bunch(lattice_sptr->get_reference_particle(), commxx->get_size(), 1.0e10, commxx);
+
+    // set the state of the bunch's design reference particle to the state of the lattice reference particle
+    // which will be either the closed orbit or the requested starting point for a line.
+    bunch.get_design_reference_particle().set_state(lattice_sptr->get_reference_particle().get_state());
+
+    // propagate through all slices accumulating slice cdt
+    double accum_cdt = 0.0;
+    
+    MArray1d state(lattice_sptr->get_reference_particle().get_state());
+
+    Lattice_element_slices::iterator sit = slices.begin();
+    for (; sit != slices.end(); ++sit)
+    {
+        std::string slice_type = (*sit)->get_lattice_element().get_type();
+
+        double volt = 0;
+        if (slice_type == "rfcavity")
+        {
+            // save the volt(strength)
+            volt = (*sit)->get_lattice_element().get_double_attribute("volt");
+
+            // set strength to 0
+            (*sit)->get_lattice_element().set_double_attribute("volt", 0.0);
+        }
+
+        // cdt should always start at 0 for each element for calculating slice cdt
+        state = bunch.get_reference_particle().get_state();
+        state[Bunch::cdt] = 0.0;
+        bunch.get_reference_particle().set_state(state);
+        the_big_giant_global_ff_element_map.get_element_type(slice_type)->apply(*(*sit), bunch);
+        double slice_cdt = bunch.get_design_reference_particle().get_state()[Bunch::cdt];
+        accum_cdt += slice_cdt;
+        (*sit)->set_reference_ct(slice_cdt);
+
+        if (slice_type == "rfcavity")
+        {
+            // restore the strength
+            (*sit)->get_lattice_element().set_double_attribute("volt", volt);
+        }
+    }
+    state = bunch.get_reference_particle().get_state();
+
+    // go back and set the frequency of the cavities based on the accumulated cdt
+    double f = pconstants::c/accum_cdt;
+
+    sit = slices.begin();
+    for (; sit != slices.end(); ++sit)
+    {
+        std::string slice_type = (*sit)->get_lattice_element().get_type();
+        if (slice_type == "rfcavity")
+        {
+
+            // set the frequency of the cavity if it doesn't already have one set and
+            // there is a reasonable harmonic number
+            if ( ((*sit)->get_lattice_element().get_double_attribute("freq", -1.0) <= 0.0) &&
+                 ((*sit)->get_lattice_element().get_double_attribute("harmon", -1.0) > 0.0) )
+            {
+                double harmon = (*sit)->get_lattice_element().get_double_attribute("harmon");
+                // MAD-X definition of frequency is MHz
+                (*sit)->get_lattice_element().set_double_attribute("freq", harmon*f*1.0e-6);
+            }
+        }
+    }
+    
+    // the cdt component of the returned state gives the accumulated cdt
+    state[Bunch::cdt] = accum_cdt;
+    return state;
 }
 
 
@@ -2665,8 +2781,6 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(lb_lattice_functions_slice_map);
         ar & BOOST_SERIALIZATION_NVP(dispersion_element_map);
         ar & BOOST_SERIALIZATION_NVP(dispersion_slice_map);
-        
-        
         normal_form_sage_sptr.reset();
         if (have_close_orbit_registered) register_closed_orbit();
     }

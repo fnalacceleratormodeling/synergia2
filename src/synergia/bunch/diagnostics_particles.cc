@@ -57,35 +57,35 @@ Diagnostics_particles::receive_other_local_particles(
         Hdf5_file_sptr file_sptr)
 {
     if (get_bunch().get_comm().has_this_rank()){
-	int myrank = get_bunch().get_comm().get_rank();
-	int size = get_bunch().get_comm().get_size();
-	Hdf5_chunked_array2d_writer
-		writer_particles(
-			&(file_sptr->get_h5file()),
-			"particles",
-			get_bunch().get_local_particles());
-	for (int rank = 0; rank < size; ++rank) {
-	    int local_num = local_nums[rank];
+        int myrank = get_bunch().get_comm().get_rank();
+        int size = get_bunch().get_comm().get_size();
+        Hdf5_chunked_array2d_writer
+                writer_particles(
+                    &(file_sptr->get_h5file()),
+                    "particles",
+                    get_bunch().get_local_particles());
+        for (int rank = 0; rank < size; ++rank) {
+            int local_num = local_nums[rank];
             int local_num_padded = local_nums_padded[rank];
-	    if (rank == myrank) {
-		write_selected_particles(writer_particles,
-			get_bunch().get_local_particles(), local_num,
-			min_particle_id, max_particle_id);
-	    } else {
-		MPI_Status status;
+            if (rank == myrank) {
+                write_selected_particles(writer_particles,
+                                         get_bunch().get_local_particles(), local_num,
+                                         min_particle_id, max_particle_id);
+            } else {
+                MPI_Status status;
                 Raw_MArray2d received(boost::extents[local_num_padded][7], boost::fortran_storage_order());
                 int message_size = 7 * local_num_padded;
-		MPI_Comm comm = get_bunch().get_comm().get();
-		int error = MPI_Recv((void*) received.m.origin(), message_size,
-			MPI_DOUBLE, rank, rank, comm, &status);
-		if (error != MPI_SUCCESS) {
-		    throw std::runtime_error(
-			    "Diagnostics_particles::receive_other_local_particles: MPI_Recv failed.");
-		}
-		write_selected_particles(writer_particles, received.m, local_num,
-			min_particle_id, max_particle_id);
-	    }
-	}
+                MPI_Comm comm = get_bunch().get_comm().get();
+                int error = MPI_Recv((void*) received.m.origin(), message_size,
+                                     MPI_DOUBLE, rank, rank, comm, &status);
+                if (error != MPI_SUCCESS) {
+                    throw std::runtime_error(
+                                "Diagnostics_particles::receive_other_local_particles: MPI_Recv failed.");
+                }
+                write_selected_particles(writer_particles, received.m, local_num,
+                                         min_particle_id, max_particle_id);
+            }
+        }
     }
 }
 
@@ -96,17 +96,17 @@ Diagnostics_particles::send_local_particles()
         int local_num_padded = get_bunch().get_local_num_padded();
         void * send_buffer = (void*) get_bunch().get_local_particles().origin();
 
-	int status;
+        int status;
         int message_size = 7 * local_num_padded;
-	int receiver = get_write_helper().get_writer_rank();
-	int rank = get_bunch().get_comm().get_rank();
-	MPI_Comm comm = get_bunch().get_comm().get();
-	status = MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
-		comm);
-	if (status != MPI_SUCCESS) {
-	    throw std::runtime_error(
-		    "Diagnostics_particles::send_local_particles: MPI_Send failed.");
-	}
+        int receiver = get_write_helper().get_writer_rank();
+        int rank = get_bunch().get_comm().get_rank();
+        MPI_Comm comm = get_bunch().get_comm().get();
+        status = MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
+                          comm);
+        if (status != MPI_SUCCESS) {
+            throw std::runtime_error(
+                        "Diagnostics_particles::send_local_particles: MPI_Send failed.");
+        }
     }
 }
 
@@ -114,29 +114,30 @@ void
 Diagnostics_particles::write()
 {
     if (get_bunch().get_comm().has_this_rank()){
-      
-	get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-	MPI_Comm comm = get_bunch().get_comm().get();
 
-	int local_num = get_bunch().get_local_num();
+        get_bunch().convert_to_state(get_bunch().fixed_z_lab);
+        MPI_Comm comm = get_bunch().get_comm().get();
+
+        int local_num = get_bunch().get_local_num();
         int local_num_padded = get_bunch().get_local_num_padded();
 
-	int num_procs = get_bunch().get_comm().get_size();
+        int num_procs = get_bunch().get_comm().get_size();
 
-	std::vector<int > local_nums(num_procs);
+        std::vector<int > local_nums(num_procs);
         std::vector<int > local_nums_padded(num_procs);
 
-	void * local_nums_buf = (void *) &local_nums[0];
+        void * local_nums_buf = (void *) &local_nums[0];
         void * local_nums_padded_buf = (void *) &local_nums_padded[0];
 
-	int root = get_write_helper().get_writer_rank();
-	int status;
-	status = MPI_Gather((void*) &local_num, 1, MPI_INT, local_nums_buf, 1,
-		MPI_INT, root, comm);
-	if (status != MPI_SUCCESS) {
-	    throw std::runtime_error(
+        int root = get_write_helper().get_writer_rank();
+
+        int status;
+        status = MPI_Gather((void*) &local_num, 1, MPI_INT, local_nums_buf, 1,
+                            MPI_INT, root, comm);
+        if (status != MPI_SUCCESS) {
+            throw std::runtime_error(
                         "Diagnostics_particles::write: MPI_Gather local_nums failed.");
-	}
+        }
 
         status = MPI_Gather((void*) &local_num_padded, 1, MPI_INT, local_nums_padded_buf, 1,
                             MPI_INT, root, comm);
@@ -145,30 +146,31 @@ Diagnostics_particles::write()
                         "Diagnostics_particles::write: MPI_Gather local_num_padded failed.");
         }
 
-	
-	
-	if (get_write_helper().write_locally()) {
-	    Hdf5_file_sptr file_sptr = get_write_helper().get_hdf5_file_sptr();
+
+
+        if (get_write_helper().write_locally()) {
+
+            Hdf5_file_sptr file_sptr = get_write_helper().get_hdf5_file_sptr();
             receive_other_local_particles(local_nums, local_nums_padded, file_sptr);
-	    Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
-	    int chg = get_bunch().get_reference_particle().get_charge();
-	    file_sptr->write(chg, "charge");
-	    double pmass = fourp.get_mass();
-	    file_sptr->write(pmass, "mass");
-	    double pz = fourp.get_momentum();
-	    file_sptr->write(pz, "pz");
-	    double tlen =
-		    get_bunch().get_reference_particle().get_s();
-	    file_sptr->write(tlen, "tlen");
-	    int rep = get_bunch().get_reference_particle().get_repetition();
-	    file_sptr->write(rep, "rep");
-	    double s_n = get_bunch().get_reference_particle().get_s_n();
-	    file_sptr->write(s_n, "s_n");
-	    get_write_helper().finish_write();
-	} else {
-	    send_local_particles();
+            Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
+            int chg = get_bunch().get_reference_particle().get_charge();
+            file_sptr->write(chg, "charge");
+            double pmass = fourp.get_mass();
+            file_sptr->write(pmass, "mass");
+            double pz = fourp.get_momentum();
+            file_sptr->write(pz, "pz");
+            double tlen = get_bunch().get_reference_particle().get_s();
+            file_sptr->write(tlen, "tlen");
+            int rep = get_bunch().get_reference_particle().get_repetition();
+            file_sptr->write(rep, "rep");
+            double s_n = get_bunch().get_reference_particle().get_s_n();
+            file_sptr->write(s_n, "s_n");
+            file_sptr->write(0, "particles_storage_order");
+            get_write_helper().finish_write();
+        } else {
+            send_local_particles();
         }
-    }  
+    }
 }
 
 template<class Archive>

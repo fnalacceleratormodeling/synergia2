@@ -165,6 +165,8 @@ private:
     get_chromaticities(double dpp);
     void
     get_alt_chromaticities(double dpp);
+    MArray1d
+    tune_rfcavities();
 public:
     /// @param lattice_sptr the Lattice
     /// @param map_order order for Chef_map operations
@@ -316,6 +318,20 @@ public:
     void 
     change_chromaticityby(double dh, double dv,  Lattice_elements const& horizontal_correctors,
         Lattice_elements const& vertical_correctors, Logger & logger, int verbosity);               
+
+    // propagate the lattice reference particle through the lattice slices and set the 
+    // reference c*t for each lattice slice after tuning.
+    // note that all the rf cavities will be set to 0 strength during the tuning process
+    MArray1d
+    tune_linear_lattice();
+
+    // find the closed orbit for the circular lattice, propagate the lattice reference 
+    // particle through the lattice slices using the closed orbit, and set the reference 
+    // c*t for each lattice slice after tuning.
+    // return values is the state for calcualted closed orbit
+    // note that all the rf cavities will be set to 0 strength during the tuning process
+    MArray1d
+    tune_circular_lattice(double tolerance=1.0e-13);
 
     template<class Archive>
         void

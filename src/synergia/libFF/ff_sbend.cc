@@ -8,13 +8,16 @@ FF_sbend::FF_sbend()
 
 double FF_sbend::get_reference_cdt(double length, double strength, double angle,
                                    bool ledge, bool redge,
-                                   double e1, double e2, double dphi,
+                                   double e1, double e2, 
+                                   double us_edge_k_p, double ds_edge_k_p,
+                                   double dphi,
                                    std::complex<double> const & phase,
                                    std::complex<double> const & term,
                                    Reference_particle &reference_particle)
 {
     if (length == 0)
     {
+        reference_particle.set_state_cdt(0.0);
         return 0.0;
     }
     else
@@ -37,7 +40,7 @@ double FF_sbend::get_reference_cdt(double length, double strength, double angle,
         if (ledge)
         {
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
-            //FF_algorithm::edge_unit(y, yp, us_edge_k);
+            FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
          }
 
         FF_algorithm::bend_complete(x, xp, y, yp, cdt, dpop,
@@ -45,46 +48,85 @@ double FF_sbend::get_reference_cdt(double length, double strength, double angle,
 
         if (redge)
         {
-            //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+            FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
         }
 
         reference_particle.set_state(x, xp, y, yp, cdt, dpop);
-
         return cdt;
     }
 }
 
 
 double FF_sbend::get_reference_cdt(double length, double angle, double strength,
+                                   bool ledge, bool redge,
+                                   double e1, double e2, 
+                                   double us_edge_k_p, double ds_edge_k_p,
+                                   std::complex<double> phase_e1, 
+                                   std::complex<double> phase_e2, 
+                                   double * kl,
                                    Reference_particle &reference_particle)
 {
-    double reference_cdt;
-    if (length == 0) {
-        reference_cdt = 0.0;
-    } else {
-        double reference_momentum = reference_particle.get_momentum();
+    if (length == 0) 
+    {
+        reference_particle.set_state_cdt(0.0);
+        return 0.0;
+    } 
+    else 
+    {
+        double pref = reference_particle.get_momentum();
         double m = reference_particle.get_mass();
 
         double x(reference_particle.get_state()[Bunch::x]);
         double xp(reference_particle.get_state()[Bunch::xp]);
         double y(reference_particle.get_state()[Bunch::y]);
         double yp(reference_particle.get_state()[Bunch::yp]);
-        double cdt(reference_particle.get_state()[Bunch::cdt]);
+        double cdt(0.0);
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
-        std::complex<double> phase = std::exp( std::complex<double>(0.0, angle) );
-        std::complex<double> term = std::complex<double>(0.0, length / angle) *
-                                    std::complex<double>(1.0 - cos(angle), - sin(angle));
+        double ce1 = cos(-e1);
+        double se1 = sin(-e1);
+        double ce2 = cos(-e2);
+        double se2 = sin(-e2);
 
-        double cdt_orig = cdt;
-        sbend_unit2(x, xp, y, yp, cdt, dpop,
-                    length, angle, strength,
-                    reference_momentum, m,
-                    0.0, phase, term );
-        reference_cdt = cdt - cdt_orig;
+        double step_length = length / steps;
+        double step_angle  = angle / steps;
+        double r0 = length / angle;
+
+        double step_strength[6] = { kl[0] * step_length, kl[1] * step_length,
+                                    kl[2] * step_length, kl[3] * step_length,
+                                    kl[4] * step_length, kl[5] * step_length };
+
+        if (ledge)
+        {
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
+
+            //FF_algorithm::edge_unit(y, yp, us_edge_k);
+            FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+
+            FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref, m);
+        }
+
+        // bend
+        FF_algorithm::bend_yoshida6<double, FF_algorithm::thin_cf_kick_2<double>, 2>
+            ( x, xp, y, yp, cdt, dpop,
+              pref, m, 0.0 /* step ref_cdt */,
+              step_angle, step_strength,
+              r0, strength, steps );
+
+        if (redge)
+        {
+            FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref, m);
+
+            //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+            FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+
+            FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
+        }
+
+        reference_particle.set_state(x, xp, y, yp, cdt, dpop);
+        return cdt;
     }
-    return reference_cdt;
 }
 
 void FF_sbend::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
@@ -149,12 +191,11 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     int cf = 0;  // combined function
     double kl[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    double scale_to_bunch_momentum = ref_l.get_momentum()/(ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]));
 
     if (slice.get_lattice_element().has_double_attribute("k1"))
     {
         // quad component
-        kl[0] = slice.get_lattice_element().get_double_attribute("k1")*scale_to_bunch_momentum;
+        kl[0] = slice.get_lattice_element().get_double_attribute("k1");
         kl[1] = 0.0;
 
         if (kl[0] != 0) cf = 1;
@@ -163,7 +204,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     if (slice.get_lattice_element().has_double_attribute("k2"))
     {
         // sextupole component
-        kl[2] = slice.get_lattice_element().get_double_attribute("k2")*scale_to_bunch_momentum;
+        kl[2] = slice.get_lattice_element().get_double_attribute("k2");
         kl[3] = 0.0;
 
         if (kl[2] != 0) cf = 2;
@@ -172,12 +213,16 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     if (slice.get_lattice_element().has_double_attribute("k3"))
     {
         // octupole component
-        kl[4] = slice.get_lattice_element().get_double_attribute("k3")*scale_to_bunch_momentum;
+        kl[4] = slice.get_lattice_element().get_double_attribute("k3");
         kl[5] = 0.0;
 
         if (kl[4] != 0) cf = 3;
     }
 
+    double scale = ref_l.get_momentum()/(ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]));
+    double scaled_kl[6] = { kl[0] * scale, kl[1] * scale,
+                            kl[2] * scale, kl[3] * scale,
+                            kl[4] * scale, kl[5] * scale};
 
     double usAngle = e1;
     double dsAngle = -e2;
@@ -228,25 +273,12 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double us_edge_k_p =   ((reference_charge > 0) ? 1.0 : -1.0) * strength / bunch_brho;
     double ds_edge_k_p = - ((reference_charge > 0) ? 1.0 : -1.0) * strength / bunch_brho;
 
-    // the reference time uses the momentum of the lattice
-    double reference_cdt = get_reference_cdt(length, strength, angle, ledge, redge, e1, e2, dphi,
-            phase, term, ref_l);
-
-    std::complex<double> phase_e1 = FF_algorithm::bend_edge_phase(e1);
-    std::complex<double> phase_e2 = FF_algorithm::bend_edge_phase(e2);
-
-    std::complex<double> phase_unit = FF_algorithm::bend_unit_phase(angle);
-    std::complex<double>  term_unit = FF_algorithm::bend_unit_term(r0, angle);
-
-    double step_reference_cdt = reference_cdt / steps;
-    double step_angle = angle / steps;
-    double step_length = length / steps;
-    double step_strength[6] = { kl[0] * step_length, kl[1] * step_length,
-                                kl[2] * step_length, kl[3] * step_length,
-                                kl[4] * step_length, kl[5] * step_length };
-
     if (cf == 0)
     {
+        // the reference time uses the momentum of the lattice
+        double reference_cdt = get_reference_cdt(length, strength, angle, ledge, redge, 
+                e1, e2, us_edge_k_p/scale, ds_edge_k_p/scale, dphi, phase, term, ref_l);
+
         // no combined function
         #pragma omp parallel for
         for (int part = 0; part < local_num; ++part)
@@ -293,6 +325,23 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
     else
     {
+        std::complex<double> phase_e1 = FF_algorithm::bend_edge_phase(e1);
+        std::complex<double> phase_e2 = FF_algorithm::bend_edge_phase(e2);
+
+        std::complex<double> phase_unit = FF_algorithm::bend_unit_phase(angle);
+        std::complex<double>  term_unit = FF_algorithm::bend_unit_term(r0, angle);
+
+        double step_angle = angle / steps;
+        double step_length = length / steps;
+        double step_strength[6] = { scaled_kl[0] * step_length, scaled_kl[1] * step_length,
+                                    scaled_kl[2] * step_length, scaled_kl[3] * step_length,
+                                    scaled_kl[4] * step_length, scaled_kl[5] * step_length };
+
+        double ref_cdt = get_reference_cdt(length, angle, strength, ledge, redge,
+                e1, e2, us_edge_k_p/scale, ds_edge_k_p/scale, phase_e1, phase_e2, kl, ref_l);
+
+        double step_reference_cdt = ref_cdt / steps;
+
         // with combined function
         #pragma omp parallel for
         for (int part = 0; part < local_num; ++part)
@@ -315,7 +364,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             }
 
             // bend
-            FF_algorithm::bend_yoshida4<double, FF_algorithm::thin_cf_kick_2<double>, 2>
+            FF_algorithm::bend_yoshida6<double, FF_algorithm::thin_cf_kick_2<double>, 2>
                 ( x, xp, y, yp, cdt, dpop,
                   pref, m, step_reference_cdt,
                   step_angle, step_strength,

@@ -95,7 +95,7 @@ run(Benchmark_options const& opts)
     Propagator propagator(stepper_sptr);
     propagator.set_checkpoint_period(100);
     propagator.set_final_checkpoint(false);
-    propagator.set_num_threads(opts.omp_threads);
+    // propagator.set_num_threads(opts.omp_threads);
 
     Bunch_simulator bunch_simulator(bunch_sptr);
     if (opts.diagnostics) {

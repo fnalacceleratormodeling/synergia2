@@ -9,14 +9,14 @@ const double split_element_tolerance = 1.0e-9;
 
 Lattice_element_slice::Lattice_element_slice(Lattice_element_sptr lattice_element_sptr) :
     element_sptr(lattice_element_sptr), whole(true), left_edge(true), right_edge(
-            true), left(0.0)
+            true), left(0.0), ref_ct(0.0)
 {
     right = lattice_element_sptr->get_length();
 }
 
 Lattice_element_slice::Lattice_element_slice(Lattice_element_sptr lattice_element_sptr,
         double left, double right) :
-    element_sptr(lattice_element_sptr), left(left), right(right)
+    element_sptr(lattice_element_sptr), left(left), right(right), ref_ct(0.0)
 {
     if (left < 0.0) {
         throw std::range_error("Lattice_element_slice: left must be >= 0.0");
@@ -78,6 +78,18 @@ double
 Lattice_element_slice::get_right() const
 {
     return right;
+}
+
+void
+Lattice_element_slice::set_reference_ct(double ct)
+{
+    ref_ct = ct;
+}
+
+double
+Lattice_element_slice::get_reference_ct() const
+{
+    return ref_ct;
 }
 
 const Lattice_element &

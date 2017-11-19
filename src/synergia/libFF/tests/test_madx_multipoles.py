@@ -93,7 +93,7 @@ def multipole_bunch(refpart):
 
     return bunch
 
-def run_a_multipole(lattice_file_name):
+def run_a_multipole(lattice_file_name, digs=12):
     lattice = read_madx_multipole_lattice(lattice_file_name)
     bunch = multipole_bunch(lattice.get_reference_particle())
     bunch_simulator = Bunch_simulator(bunch)
@@ -106,7 +106,7 @@ def run_a_multipole(lattice_file_name):
     assert(numpart == 16)
     for p in range(numpart):
         for j in range(4):
-            assert_almost_equal(lp[p, j], mxp[p, j], 12)
+            assert_almost_equal(lp[p, j], mxp[p, j], digs)
     
 def test_mpole_k1():
     run_a_multipole("mpole_k1")
@@ -161,3 +161,10 @@ def test_mpole_k6s():
 
 def test_mpole_k6_tilt():
     run_a_multipole("mpole_k1_tilt")
+
+def test_cfsbend_sext():
+    run_a_multipole("cfsbend_dipole")
+
+def test_cfsbend_sext():
+    run_a_multipole("cfsbend_sext", 8)
+

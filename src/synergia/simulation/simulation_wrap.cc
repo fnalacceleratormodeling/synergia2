@@ -190,18 +190,18 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_tune_overloads01,
         Lattice_simulator::get_horizontal_tune, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_tune_overloads01,
         Lattice_simulator::get_vertical_tune, 0, 1)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_chromaticity_overloads01, 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_chromaticity_overloads01,
     Lattice_simulator::get_horizontal_chromaticity, 0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_chromaticities_overloads01,
     Lattice_simulator::get_horizontal_chromaticities, 0, 1)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_chromaticity_overloads01, 
-	Lattice_simulator::get_vertical_chromaticity, 0,1)  
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_chromaticity_overloads01,
+	Lattice_simulator::get_vertical_chromaticity, 0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_chromaticities_overloads01,
     Lattice_simulator::get_vertical_chromaticities, 0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_alt_horizontal_chromaticity_overloads01,
-	Lattice_simulator::get_alt_horizontal_chromaticity, 0,1)				
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_alt_vertical_chromaticity_overloads01, 
-	Lattice_simulator::get_alt_vertical_chromaticity, 0,1)  
+	Lattice_simulator::get_alt_horizontal_chromaticity, 0,1)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_alt_vertical_chromaticity_overloads01,
+	Lattice_simulator::get_alt_vertical_chromaticity, 0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_slip_factor_overloads01,
 	Lattice_simulator::get_slip_factor,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_slip_factors_overloads01,
@@ -217,7 +217,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads46,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_chef_overloads57,
          Lattice_simulator::adjust_tunes_chef, 5, 7)		 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_linear_one_turn_map_overloads01,
-			Lattice_simulator::get_linear_one_turn_map, 0, 1)       
+			Lattice_simulator::get_linear_one_turn_map, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_closed_orbit_overloads01,
             Lattice_simulator::get_closed_orbit, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(register_closed_orbit_overloads01,
@@ -226,7 +226,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(register_closed_orbit_overloads01,
 
 void (Bunch_train_simulator::*bts_add_per_turn1)(int, Diagnostics_sptr, int)
                             = &Bunch_train_simulator::add_per_turn;
-			    
+
 void (Bunch_train_simulator::*bts_add_per_turn2)(int, Diagnostics_sptr,
         std::list<int > const&)
                             = &Bunch_train_simulator::add_per_turn;
@@ -482,6 +482,8 @@ BOOST_PYTHON_MODULE(simulation)
 //         .def("print_LB_lattice_functions", &Lattice_simulator::print_lb_lattice_functions)
 //         .def("print_dispersion_closedOrbit", &Lattice_simulator::print_dispersion_closedOrbit)
         .def("print_lattice_functions", &Lattice_simulator::print_lattice_functions)
+        .def("tune_linear_lattice", &Lattice_simulator::tune_linear_lattice)
+        .def("tune_circular_lattice", &Lattice_simulator::tune_circular_lattice)
         ;
 
     def("populate_6d_stationary_torus", &populate_6d_stationary_torus);
@@ -592,24 +594,24 @@ BOOST_PYTHON_MODULE(simulation)
                  &Propagate_actions_callback::get_python_object)
             .enable_pickling()
             ;
-     
+
      class_<std::map<int, std::list<int> > >("Map_turn_bunches")
             .def(map_indexing_suite<std::map< int, std::list<int> > >() )
             ;
-      
+
       class_<Kick_element >("Kick_element",
-            init<std::string, std::string >()) 
+            init<std::string, std::string >())
             .def_readwrite("element",&Kick_element::element)
             .def_readwrite("map_turn_bunches",&Kick_element::map_turn_bunches)
             ;
-     
+
       class_<Lattice_elements_actions, bases<Propagate_actions > >("Lattice_elements_actions",init< >())
            .def("add_element_to_kick", &Lattice_elements_actions::add_element_to_kick)
           // .def("get_map_step_to_elements", &Lattice_elements_actions::get_map_step_to_elements)
            .def("get_kick_turns", &Lattice_elements_actions::get_kick_turns,return_value_policy<copy_non_const_reference >())
            .def("print_actions", &Lattice_elements_actions::print_actions)
            .def("operator_begin_action", &Lattice_elements_actions::operator_begin_action)
-           ;       
+           ;
 
     class_<Diagnostics_actions, Diagnostics_actions_sptr >(
             "Diagnostics_actions", init< >())
@@ -780,12 +782,12 @@ BOOST_PYTHON_MODULE(simulation)
             .def_readwrite("lattice", &Resume::Content::lattice_sptr)
             ;
     }
-    
-    class_<Dense_mapping_calculator>("Dense_mapping_calculator", 
+
+    class_<Dense_mapping_calculator>("Dense_mapping_calculator",
                                      init<Lattice_simulator&, bool>())
             .def("get_dense_mapping", &Dense_mapping_calculator::get_dense_mappping)
             ;
-            
+
     def("calculate_closed_orbit", &calculate_closed_orbit,
         calculate_closed_orbit_overloads13())
     ;

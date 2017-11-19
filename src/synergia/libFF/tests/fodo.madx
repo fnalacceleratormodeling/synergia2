@@ -4,7 +4,8 @@ beam, particle=proton, pc=3.0;
 qd0:  drift, l=0.0;
 qd1:  drift, l=0.0;
 qd:   drift, l=1.0;
-qr:   rbend, l=1.0, angle=0.17;
+qr:   rbend, l=1.0, angle=0.07;
+qrbcf: rbend, l=1.0, angle=0.07, k1=0.1;
 qf:   quadrupole, l=1.0, k1=0.311872401;
 qf2:  quadrupole, l=1.0, k1=0.311872401, tilt=0.1;
 qs:   sextupole, l=0.024, k2=8.0, k2s=0.1;
@@ -13,6 +14,7 @@ qoct:   octupole, l=1.0, k3=0.005, k2s=0.01;
 qoct2:  octupole, l=1.0, k3=0.005, k2s=0.001, tilt=30*RADDEG;
 qsb:  sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.035;
 qsbcf: sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.035, k1=0.1;
+qsbcf2: sbend, l=1.0, angle=15*RADDEG, e1=1*7.3*RADDEG, e2=1*8.3*RADDEG, hgap=0.035, k1=0.1, k2=0.08;
 //qsb: sbend, l=1.0, angle=1e-6, k1=0.311872401;
 //qsb: sbend, l=1.0, angle=1e-6, k2=0.02;
 //qrfc: rfcavity, l=2.998, volt=3.38965e-07, harmon=1, lag=0, freq=55.43860156259074;
@@ -25,8 +27,11 @@ qhk: hkicker, l=0.0, kick=0.07;
 qvk: vkicker, l=0.0, kick=0.07;
 qk:  kicker, l=0.0, hkick=0.07, vkick=0.07;
 long_qhk: hkicker, l=0.25, kick=0.07;
+long_qhk_s: hkicker, l=0.25, kick=0.07, simple=1;
 long_qvk: vkicker, l=0.25, kick=0.07;
+long_qvk_s: vkicker, l=0.25, kick=0.07, simple=1;
 long_qk: kicker, l=0.25, hkick=0.07, vkick=0.07;
+long_qk_s: kicker, l=0.25, hkick=0.07, vkick=0.07, simple=1;
 //qk:  kicker, l=1.0, hkick=0.1;
 //qhk: hkicker, l=1.0, kick=0.07;
 //qvk: vkicker, l=1.0, kick=0.07;
@@ -38,10 +43,16 @@ sd01: qd, at=0;
 sd02: qd0, at=1.0;
 endsequence;
 
-seq_rbend: sequence, l=3.0, refer=entry;
+seq_rbend: sequence, l=1.0, refer=entry;
 srb00: qd1, at=0;
-srb01: qr, at=1.0;
-srb02: qd1, at=2.0;
+srb01: qr, at=0.0;
+srb02: qd1, at=1.0;
+endsequence;
+
+seq_cfrbend: sequence, l=1.0, refer=entry;
+srb10: qd1, at=0;
+srb11: qrbcf, at=0.0;
+srb12: qd1, at=1.0;
 endsequence;
 
 seq_sbend: sequence, l=1.0, refer=entry;
@@ -54,6 +65,12 @@ seq_cfsbend: sequence, l=1.0, refer=entry;
 ssb10: qd0, at=0;
 ssb11: qsbcf, at=0;
 ssb12: qd0, at=1.0;
+endsequence;
+
+seq_cfsbend2: sequence, l=1.0, refer=entry;
+ssb20: qd0, at=0;
+ssb21: qsbcf2, at=0;
+ssb22: qd0, at=1.0;
 endsequence;
 
 seq_quadrupole: sequence, l=1.0, refer=entry;
@@ -146,16 +163,34 @@ slhk1: long_qhk, at=0;
 slhk2: qd, at=0.25;
 endsequence;
 
+seq_long_hkicker_simple: sequence, l=1.25, refer=entry;
+slhks0: qd0, at=0;
+slhks1: long_qhk_s, at=0;
+slhks2: qd, at=0.25;
+endsequence;
+
 seq_long_vkicker: sequence, l=1.25, refer=entry;
 slvk0: qd0, at=0;
 slvk1: long_qvk, at=0;
 slvk2: qd, at=0.0.25;
 endsequence;
 
+seq_long_vkicker_simple: sequence, l=1.25, refer=entry;
+slvks0: qd0, at=0;
+slvks1: long_qvk_s, at=0;
+slvks2: qd, at=0.0.25;
+endsequence;
+
 seq_long_kicker: sequence, l=1.25, refer=entry;
 slk10: qd0, at=0;
 slk11: long_qk, at=0;
 slk12: qd, at=0.25;
+endsequence;
+
+seq_long_kicker_simple: sequence, l=1.25, refer=entry;
+slks10: qd0, at=0;
+slks11: long_qk_s, at=0;
+slks12: qd, at=0.25;
 endsequence;
 
 seq_kicker2: sequence, l=1.0, refer=entry;

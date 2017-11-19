@@ -16,6 +16,7 @@ private:
     bool right_edge;
     double left;
     double right;
+    double ref_ct;
 
 public:
     Lattice_element_slice(Lattice_element_sptr lattice_element_sptr);
@@ -33,6 +34,13 @@ public:
     get_left() const;
     double
     get_right() const;
+
+    void
+    set_reference_ct(double ct);
+
+    double
+    get_reference_ct() const;
+
     Lattice_element const&
     get_lattice_element() const;
     Lattice_element &
