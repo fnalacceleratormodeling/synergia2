@@ -21,6 +21,10 @@ def read_nllens_lattice():
     # read in the nllens lattice
     lattice = MadX_reader().get_lattice("channel", "./lattices/nllens_channel.seq")
     lattice.set_reference_particle(refpart)
+
+    for elem in lattice.get_elements():
+        elem.set_string_attribute("extractor_type", "libff")
+
     return lattice
 
 def multipole_bunch(refpart):
