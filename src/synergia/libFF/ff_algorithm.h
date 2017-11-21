@@ -648,6 +648,50 @@ public:
     }
 
 
+    inline static void solenoid_unit
+        (double & x, double & xp, double & y, double & yp, double & cdt, double & dpop,
+         double ks, double ksl, double length, double ref_p, double mass, double ref_cdt)
+    {
+        double p2 = (1.0 + dpop) * (1.0 + dpop);
+        double zp = sqrt(p2 - xp*xp - yp*yp);
+        double dtheta = ksl / zp;
+
+        double sn = sin(dtheta);
+        double cs = cos(dtheta);
+
+        double xi = x;
+        double yi = y;
+        double xpi = xp;
+        double ypi = yp;
+
+        xp =    cs*xpi + sn*ypi;
+        yp = (-sn)*xpi + cs*ypi;
+
+        cs -= 1.0;
+
+        x += (    cs * (-ypi) + sn * xpi ) / ks;
+        y += ( (-sn) * (-ypi) + cs * xpi ) / ks;
+
+        double en = sqrt(p2 * ref_p * ref_p + mass * mass);
+        double duration = length / (zp * ref_p / en );
+
+        cdt += duration - ref_cdt;
+    }
+
+    inline static void solenoid_in_edge_kick
+        (double const & x, double & xp, double const & y, double & yp, double kse)
+    {
+        xp += kse * y;
+        yp -= kse * x;
+    }
+
+    inline static void solenoid_out_edge_kick
+        (double const & x, double & xp, double const & y, double & yp, double kse)
+    {
+        xp -= kse * y;
+        yp += kse * x;
+    }
+
 
     inline static double factorial(int n)
     {

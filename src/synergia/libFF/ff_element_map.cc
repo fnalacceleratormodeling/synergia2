@@ -75,6 +75,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(FF_element_map)
 #include "ff_constfoc.h"
 #include "ff_nllens.h"
 #include "ff_dipedge.h"
+#include "ff_solenoid.h"
 #include "ff_misc_elements.h"
 
 FF_element_map the_big_giant_global_ff_element_map;
@@ -98,5 +99,6 @@ void construct_big_giant_global_ff_element_map()
     the_big_giant_global_ff_element_map.set_element_type("constfoc",   FF_constfoc_sptr(new FF_constfoc()));
     the_big_giant_global_ff_element_map.set_element_type("nllens",     FF_nllens_sptr(new FF_nllens()));
     the_big_giant_global_ff_element_map.set_element_type("dipedge",    FF_dipedge_sptr(new FF_dipedge()));
+    the_big_giant_global_ff_element_map.set_element_type("solenoid",   FF_solenoid_sptr(new FF_solenoid()));
     the_big_giant_global_ff_element_map.set_element_type("instrument", FF_instrument_sptr(new FF_instrument()));
 }

@@ -16,6 +16,7 @@ add_library(synergia_libFF
     ff_element_map.cc
     ff_nllens.cc
     ff_dipedge.cc
+    ff_solenoid.cc
     )
 target_link_libraries(synergia_libFF
    synergia_bunch synergia_lattice synergia_serialization synergia_parallel_utils)

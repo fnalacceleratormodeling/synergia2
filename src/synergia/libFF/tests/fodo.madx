@@ -38,6 +38,7 @@ long_qk_s: kicker, l=0.25, hkick=0.07, vkick=0.07, simple=1;
 cf:   constfoc, l=1.0, betaH=0.1, betaV=0.2, betaL=0.3, nuL=0.4;
 nll:  nllens, l=0.0, knll=0.3, cnll=0.2;
 dipe: dipedge, h=0.1, e1=0.13, fint=0.16, hgap=0.19, tilt=0.05;
+sol:  solenoid, l=1.0, ks=0.1;
 
 seq_drift: sequence, l=1.0, refer=entry;
 sd00: qd0, at=0;
@@ -217,5 +218,11 @@ seq_dipe: sequence, l=1.0, refer=entry;
 sdipe0: qd, at=0;
 sdipe1: dipe, at=1.0;
 sdipe2: qd1, at=1.0;
+endsequence;
+
+seq_sol: sequence, l=1.0, refer=entry;
+ssol0: qd0, at=0;
+ssol1: sol, at=0.0;
+ssol2: qd1, at=1.0;
 endsequence;
 

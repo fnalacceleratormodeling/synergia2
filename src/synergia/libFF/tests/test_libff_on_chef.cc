@@ -173,6 +173,7 @@ ELEMENT_FIXTURE(mp4);
 ELEMENT_FIXTURE(constfoc);
 ELEMENT_FIXTURE(nll);
 ELEMENT_FIXTURE(dipe);
+ELEMENT_FIXTURE(sol);
 
 ELEMENT_FIXTURE(hkicker);
 ELEMENT_FIXTURE(vkicker);
@@ -880,6 +881,40 @@ BOOST_FIXTURE_TEST_CASE( test_dipe, dipe_fixture )
 
     std::cout << std::setprecision(16);
     std::cout << "\ndipedge\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_sol, sol_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nsolenoid\n";
 
     propagate_chef();
     propagate_ff();
