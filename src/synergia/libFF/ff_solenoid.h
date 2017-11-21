@@ -7,7 +7,9 @@
 class FF_solenoid : public FF_element
 {
 private:
-    double get_reference_cdt(double length, Reference_particle & reference_particle);
+    double get_reference_cdt_drift(double length, Reference_particle & reference_particle);
+    double get_reference_cdt_solenoid(double length, Reference_particle & reference_particle,
+            bool in_edge, bool out_edge, double ks, double kse, double ksl);
 public:
     FF_solenoid();
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);

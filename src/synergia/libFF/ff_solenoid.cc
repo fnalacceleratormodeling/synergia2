@@ -7,7 +7,7 @@ FF_solenoid::FF_solenoid()
 {
 }
 
-double FF_solenoid::get_reference_cdt(double length, Reference_particle & reference_particle)
+double FF_solenoid::get_reference_cdt_drift(double length, Reference_particle & reference_particle)
 {
     double x(reference_particle.get_state()[Bunch::x]);
     double xp(reference_particle.get_state()[Bunch::xp]);
@@ -15,7 +15,8 @@ double FF_solenoid::get_reference_cdt(double length, Reference_particle & refere
     double yp(reference_particle.get_state()[Bunch::yp]);
     double cdt(0.0);
     double dpop(reference_particle.get_state()[Bunch::dpop]);
-    double reference_momentum = reference_particle.get_momentum();
+
+    double reference_momentum = reference_particle.get_momentum()*(1+dpop);
     double m = reference_particle.get_mass();
 
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
@@ -25,6 +26,42 @@ double FF_solenoid::get_reference_cdt(double length, Reference_particle & refere
 
     return cdt;
 }
+
+double FF_solenoid::get_reference_cdt_solenoid(double length, Reference_particle & reference_particle,
+        bool in_edge, bool out_edge, double ks, double kse, double ksl)
+{
+    double x(reference_particle.get_state()[Bunch::x]);
+    double xp(reference_particle.get_state()[Bunch::xp]);
+    double y(reference_particle.get_state()[Bunch::y]);
+    double yp(reference_particle.get_state()[Bunch::yp]);
+    double cdt(0.0);
+    double dpop(reference_particle.get_state()[Bunch::dpop]);
+
+    double ref_p = reference_particle.get_momentum()*(1+dpop);
+    double mass  = reference_particle.get_mass();
+
+    // in edge
+    if (in_edge)
+    {
+        FF_algorithm::solenoid_in_edge_kick(x, xp, y, yp, kse);
+    }
+
+    // body
+    FF_algorithm::solenoid_unit( x, xp, y, yp, cdt, dpop,
+            ksl, ks, length, ref_p, mass, 0.0);
+
+    // out edge
+    if (out_edge)
+    {
+        FF_algorithm::solenoid_out_edge_kick(x, xp, y, yp, kse);
+    }
+
+    // propagate and update the bunch design reference particle state
+    reference_particle.set_state(x, xp, y, yp, cdt, dpop);
+
+    return cdt;
+}
+
 
 void FF_solenoid::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
@@ -48,7 +85,6 @@ void FF_solenoid::apply(Lattice_element_slice const& slice, Bunch& bunch)
     Reference_particle const & ref_b = bunch.get_reference_particle();
     const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
-    const double ref_cdt = get_reference_cdt(length, ref_l);
     double * RESTRICT xa, * RESTRICT xpa;
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
@@ -61,6 +97,9 @@ void FF_solenoid::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     if (fabs(ks) < 1e-12)
     {
+        // reference cdt
+        const double ref_cdt = get_reference_cdt_drift(length, ref_l);
+
         // this is a drift
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += gsvsize)
@@ -106,6 +145,10 @@ void FF_solenoid::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 ks = ks * scale;
         double ksl = ks * length;
         double kse = ks * 0.5;
+
+        // reference cdt
+        const double ref_cdt = get_reference_cdt_solenoid(length, ref_l, 
+                has_in_edge, has_out_edge, ks, kse, ksl);
 
         #pragma omp parallel for
         for (int part = 0; part < local_num; ++part)
