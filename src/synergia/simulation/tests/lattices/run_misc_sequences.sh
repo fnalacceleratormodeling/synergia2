@@ -1,6 +1,6 @@
 #!/bin/bash
 
-seqs="m_base_quad m_skew_quad m_tilt_quad"
+seqs="m_base_quad m_skew_quad m_tilt_quad seq_bend_edge"
 
 for s in $seqs
 do

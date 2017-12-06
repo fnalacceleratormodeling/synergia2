@@ -109,7 +109,9 @@ def run_a_misc_element(elem_name):
     numpart = lp.shape[0]
     assert(numpart == 32)
     for p in range(numpart):
+        print "    particle ", p
         for j in range(4):
+            print "        coordinate ", j
             assert_almost_equal(lp[p, j], m8p[p, j], 13)
     
 def test_base_quad():
@@ -120,3 +122,9 @@ def test_skew_quad():
 
 def test_tilt_quad():
     run_a_misc_element("m_tilt_quad")
+    
+# test_bend_edge would currently fail because chef edges don't match very well
+# with MADX/PTC edges.
+#def test_bend_edge():
+#    run_a_misc_element("seq_bend_edge")
+

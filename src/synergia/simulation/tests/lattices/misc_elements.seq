@@ -4,6 +4,10 @@ base_quad: quadrupole, k1=-0.085357, l=elem_len;
 skew_quad: quadrupole, k1=-0.085357, l=elem_len, tilt=pi/4;
 tilt_quad: quadrupole, k1=-0.085357, l=elem_len, tilt=pi/19;
 
+m2rlen = 0.7330382858;
+m2r: sbend,l:=m2rlen ,angle:= 1.047197551;
+dedge: dipedge,e1:= 0,h:= 1.428571428,hgap:= 0.01,fint:= 0.5; 
+
 m_base_quad: sequence, l=elem_len, refer=entry;
 base_quad, at=0.0;
 endsequence;
@@ -15,3 +19,9 @@ endsequence;
 m_tilt_quad: sequence, l=elem_len, refer=entry;
 tilt_quad, at=0.0;
 endsequence; 
+
+seq_bend_edge: sequence, l=m2rlen;
+   //dedge, at = 0.0;
+   m2r, at = m2rlen/2.0;
+   //dedge, at = m2rlen;
+endsequence;
