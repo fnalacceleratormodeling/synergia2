@@ -76,6 +76,8 @@ install(FILES
     serialization_files.h
     digits.h
     logger.h
+    lsexpr.h
+    synergia_omp.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/utils)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
