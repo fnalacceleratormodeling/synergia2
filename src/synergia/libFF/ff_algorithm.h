@@ -85,6 +85,14 @@ public:
 
     template <typename T>
     inline static void edge_unit
+      (T const & y, T & xp, T & yp, double kx, double ky, char)
+    {
+        yp -= kx * y;
+        xp += ky * y;
+    }
+
+    template <typename T>
+    inline static void edge_unit
       (T const & y, T & xp, T & yp, T const & dpop, double k)
     {
         T zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
