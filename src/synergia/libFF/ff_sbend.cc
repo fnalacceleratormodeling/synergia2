@@ -41,7 +41,7 @@ double FF_sbend::get_reference_cdt(double length, double strength, double angle,
         {
             FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
             FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
-         }
+        }
 
         FF_algorithm::bend_complete(x, xp, y, yp, cdt, dpop,
                    dphi, strength, pref, m, 0.0/*ref cdt*/, phase, term);
@@ -219,10 +219,11 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         if (kl[4] != 0) cf = 3;
     }
 
-    double scale = ref_l.get_momentum()/(ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]));
+    double scale = ref_l.get_momentum() / (ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]));
+
     double scaled_kl[6] = { kl[0] * scale, kl[1] * scale,
                             kl[2] * scale, kl[3] * scale,
-                            kl[4] * scale, kl[5] * scale};
+                            kl[4] * scale, kl[5] * scale };
 
     double usAngle = e1;
     double dsAngle = -e2;
@@ -273,12 +274,62 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double us_edge_k_p =   ((reference_charge > 0) ? 1.0 : -1.0) * strength / bunch_brho;
     double ds_edge_k_p = - ((reference_charge > 0) ? 1.0 : -1.0) * strength / bunch_brho;
 
+    double us_edge_k_p_x = 0.0;
+    double us_edge_k_p_y = 0.0;
+
+    double ds_edge_k_p_x = 0.0;
+    double ds_edge_k_p_y = 0.0;
+
     if (cf == 0)
     {
+#if 0
         // the reference time uses the momentum of the lattice
         double reference_cdt = get_reference_cdt(length, strength, angle, ledge, redge, 
                 e1, e2, us_edge_k_p/scale, ds_edge_k_p/scale, dphi, phase, term, ref_l);
+#endif
 
+        // propagate the reference particle, and set the edge kick strength 
+        // from the reference particle
+        double pref_l = ref_l.get_momentum();
+        double    m_l = ref_l.get_mass();
+        double    x_l = ref_l.get_state()[Bunch::x];
+        double   xp_l = ref_l.get_state()[Bunch::xp];
+        double    y_l = ref_l.get_state()[Bunch::y];
+        double   yp_l = ref_l.get_state()[Bunch::yp];
+        double  cdt_l = 0.0;
+        double dpop_l = ref_l.get_state()[Bunch::dpop];
+
+        if (ledge)
+        {
+            FF_algorithm::slot_unit(x_l, xp_l, y_l, yp_l, cdt_l, dpop_l, ce1, se1, pref_l, m_l);
+
+            double p_l = 1.0 + dpop_l;
+            double zp_l = sqrt(p_l*p_l - xp_l*xp_l - yp_l*yp_l);
+
+            us_edge_k_p_x = us_edge_k_p * (xp_l/zp_l);
+            us_edge_k_p_y = us_edge_k_p * (yp_l/zp_l);
+
+            FF_algorithm::edge_unit(y_l, xp_l, yp_l, us_edge_k_p_x, us_edge_k_p_y, 0);
+        }
+
+        FF_algorithm::bend_complete(x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
+                   dphi, strength, pref_l, m_l, 0.0/*ref cdt*/, phase, term);
+
+        if (redge)
+        {
+            double p_l = 1.0 + dpop_l;
+            double zp_l = sqrt(p_l*p_l - xp_l*xp_l - yp_l*yp_l);
+
+            ds_edge_k_p_x = ds_edge_k_p * (xp_l/zp_l);
+            ds_edge_k_p_y = ds_edge_k_p * (yp_l/zp_l);
+
+            FF_algorithm::edge_unit(y_l, xp_l, yp_l, ds_edge_k_p_x, ds_edge_k_p_y, 0);
+            FF_algorithm::slot_unit(x_l, xp_l, y_l, yp_l, cdt_l, dpop_l, ce2, se2, pref_l, m_l);
+        }
+
+        ref_l.set_state(x_l, xp_l, y_l, yp_l, cdt_l, dpop_l);
+        double reference_cdt = cdt_l;
+ 
         // no combined function
         #pragma omp parallel for
         for (int part = 0; part < local_num; ++part)
@@ -296,8 +347,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
 
                 // edge
-                // FF_algorithm::edge_unit(y, yp, us_edge_k);
-                FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+                // FF_algorithm::edge_unit(y, yp, us_edge_k);                              // chef fixed angle
+                // FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);                  // chef per-particle angle
+                FF_algorithm::edge_unit(y, xp, yp, us_edge_k_p_x, us_edge_k_p_y, 0);       // ref particle angle
             }
 
             // bend
@@ -309,7 +361,8 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             {
                 // edge
                 // FF_algorithm::edge_unit(y, yp, ds_edge_k);
-                FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                // FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                FF_algorithm::edge_unit(y, xp, yp, ds_edge_k_p_x, ds_edge_k_p_y, 0);
 
                 // slot
                 FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
@@ -358,7 +411,8 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref, m);
 
                 //FF_algorithm::edge_unit(y, yp, us_edge_k);
-                FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+                //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+                FF_algorithm::edge_unit(y, xp, yp, us_edge_k_p_x, us_edge_k_p_y, 0);
 
                 FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref, m);
             }
@@ -375,7 +429,8 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref, m);
 
                 //FF_algorithm::edge_unit(y, yp, ds_edge_k);
-                FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                FF_algorithm::edge_unit(y, xp, yp, ds_edge_k_p_x, ds_edge_k_p_y, 0);
 
                 FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref, m);
             }
