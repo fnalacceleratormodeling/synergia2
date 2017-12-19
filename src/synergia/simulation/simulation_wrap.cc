@@ -502,8 +502,8 @@ void
     def("populate_6d_stationary_gaussian", &populate_6d_stationary_gaussian);
     def("populate_6d_stationary_truncated_longitudinal_gaussian", &populate_6d_stationary_truncated_longitudinal_gaussian);
     def("populate_6d_stationary_clipped_longitudinal_gaussian", &populate_6d_stationary_clipped_longitudinal_gaussian);
-    def("populate_6d_stationary_gaussian_truncated_FNF", populate_6d_stationary_gaussian_truncated_FNF);
-    def("populate_6d_stationary_gaussian_truncated_ls", populate_6d_stationary_gaussian_truncated_ls);
+    def("populate_6d_stationary_gaussian_truncated", populate_6d_stationary_gaussian_truncated_FNF);
+    def("populate_6d_stationary_gaussian_truncated", populate_6d_stationary_gaussian_truncated_ls);
 
     class_<Lattice_functions >("Lattice_functions",
             init<LattFuncSage::lattFunc const& >())
