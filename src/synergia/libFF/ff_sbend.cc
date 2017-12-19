@@ -108,11 +108,13 @@ double FF_sbend::get_reference_cdt(double length, double angle, double strength,
         }
 
         // bend
+#if 0
         FF_algorithm::bend_yoshida6<double, FF_algorithm::thin_cf_kick_2<double>, 2>
             ( x, xp, y, yp, cdt, dpop,
               pref, m, 0.0 /* step ref_cdt */,
               step_angle, step_strength,
               r0, strength, steps );
+#endif
 
         if (redge)
         {
@@ -442,7 +444,12 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             FF_algorithm::bend_edge(x_l, xp_l, y_l, yp_l, cdt_l, dpop_l, e1, phase_e1, strength, pref_l, m_l);
         }
 
-        FF_algorithm::bend_yoshida6<double, FF_algorithm::thin_cf_kick_2<double>, 2>
+        FF_algorithm::bend_yoshida6< double, 
+                                     FF_algorithm::thin_cf_kick_2<double>, 
+                                     FF_algorithm::sbend_unit_phase,
+                                     FF_algorithm::sbend_unit_term,
+                                     FF_algorithm::sbend_dphi,
+                                     2 >
             ( x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
               pref_l, m_l, 0.0 /* step ref_cdt */,
               step_angle, step_kl_l,
@@ -498,7 +505,12 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
             }
 
             // bend body
-            FF_algorithm::bend_yoshida6<double, FF_algorithm::thin_cf_kick_2<double>, 2>
+            FF_algorithm::bend_yoshida6< double, 
+                                         FF_algorithm::thin_cf_kick_2<double>, 
+                                         FF_algorithm::sbend_unit_phase,
+                                         FF_algorithm::sbend_unit_term,
+                                         FF_algorithm::sbend_dphi,
+                                         2 >
                 ( x, xp, y, yp, cdt, dpop,
                   pref_b, m_b, step_ref_cdt,
                   step_angle, step_kl_b,
