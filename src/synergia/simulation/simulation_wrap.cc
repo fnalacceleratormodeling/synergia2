@@ -484,10 +484,26 @@ BOOST_PYTHON_MODULE(simulation)
         .def("print_lattice_functions", &Lattice_simulator::print_lattice_functions)
         ;
 
+// The two signatures for populate_6d_stationary_gaussian_truncated both have five arguments.
+// For python wrapping, call them by different names.
+void
+(*populate_6d_stationary_gaussian_truncated_FNF)(Distribution& dist, Bunch& bunch,
+                                                 const std::vector<double> actions,
+                                                 Fast_normal_form& fnf, Const_MArray1d_ref limits) =
+        &populate_6d_stationary_gaussian_truncated;
+
+void
+(*populate_6d_stationary_gaussian_truncated_ls)(Distribution& dist, Bunch& bunch,
+                                               const std::vector<double> actions,
+                                               Lattice_simulator& ls, Const_MArray1d_ref limits) =
+        &populate_6d_stationary_gaussian_truncated;
+
     def("populate_6d_stationary_torus", &populate_6d_stationary_torus);
     def("populate_6d_stationary_gaussian", &populate_6d_stationary_gaussian);
     def("populate_6d_stationary_truncated_longitudinal_gaussian", &populate_6d_stationary_truncated_longitudinal_gaussian);
     def("populate_6d_stationary_clipped_longitudinal_gaussian", &populate_6d_stationary_clipped_longitudinal_gaussian);
+    def("populate_6d_stationary_gaussian_truncated_FNF", populate_6d_stationary_gaussian_truncated_FNF);
+    def("populate_6d_stationary_gaussian_truncated_ls", populate_6d_stationary_gaussian_truncated_ls);
 
     class_<Lattice_functions >("Lattice_functions",
             init<LattFuncSage::lattFunc const& >())
