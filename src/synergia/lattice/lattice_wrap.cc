@@ -75,6 +75,12 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_string_attribute_over
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_vector_attribute_overloads,
         has_vector_attribute, 1, 2);
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_set_all_string_attribute_overloads,
+        set_all_string_attribute, 2, 3);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_set_all_double_attribute_overloads,
+        set_all_double_attribute, 2, 3);
+
 Lattice_sptr (MadX_reader::*get_lattice_sptr1)(std::string const&)
         =&MadX_reader::get_lattice_sptr;
 Lattice_sptr (MadX_reader::*get_lattice_sptr2)(std::string const&, std::string const&)
@@ -229,8 +235,10 @@ BOOST_PYTHON_MODULE(lattice)
                      &Lattice::get_reference_particle),
                  return_internal_reference< >())
             .def("append", &Lattice::append)
-            .def("set_all_double_attribute", &Lattice::set_all_double_attribute)
-            .def("set_all_string_attribute", &Lattice::set_all_string_attribute)
+            .def("set_all_double_attribute", &Lattice::set_all_double_attribute,
+                 Lattice_set_all_double_attribute_overloads())
+            .def("set_all_string_attribute", &Lattice::set_all_string_attribute,
+                 Lattice_set_all_string_attribute_overloads())
             .def("get_elements", &Lattice::get_elements,
                     return_value_policy<copy_non_const_reference >())
             .def("get_length", &Lattice::get_length)

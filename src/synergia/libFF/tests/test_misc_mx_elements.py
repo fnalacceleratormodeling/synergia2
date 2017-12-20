@@ -19,6 +19,7 @@ momentum = 1.5
 # the reference particle for the lattice is a proton at momentum 1.5 GeV/c
 def read_madx_misc_element_lattice(elem_name):
     lattice = MadX_reader().get_lattice(elem_name, "./lattices/misc_elements.seq")
+    lattice.set_all_string_attribute("extractor_type", "libff")
     four_momentum = Four_momentum(pconstants.mp)
     four_momentum.set_momentum(momentum)
     refpart = Reference_particle(1, four_momentum)

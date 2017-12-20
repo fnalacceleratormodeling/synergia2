@@ -49,3 +49,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_madx_multipoles.py
 add_test(NAME test_nllensff_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_nllens.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_nllens.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(NAME test_madx_misc_elementsff_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_misc_mx_elements.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_misc_mx_elements.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
