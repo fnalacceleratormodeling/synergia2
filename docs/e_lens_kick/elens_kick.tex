@@ -1,0 +1,114 @@
+\documentclass[acus]{jacow}
+
+\usepackage[ascii]{inputenc}
+\usepackage{graphicx}
+
+%\pagestyle{empty}
+
+\begin{document}
+
+\title{Momentum Kick to a Proton Traversing an Electron Lens}
+
+\author{Eric G. Stern}
+
+\maketitle
+
+\begin{abstract}
+  I calculate the momentum kick for a proton passing through an electron lens
+  with a cylindrically round Gaussian density profile.
+  This calculation is valid for non-relativistic protons.
+\end{abstract}
+
+\section{Introduction}
+
+\begin{figure}[!htb]
+   \centering
+   \includegraphics*[width=\columnwidth]{e_lens_sketch.pdf}
+   \caption{Diagram of electron lens configuration }
+   \label{e_lens_sketch}
+\end{figure}
+
+
+I consider the momentum kick of a proton passing through an electron lens
+of length L with a cylindrically round Gaussian density profile.
+The proton flow direction is opposite to the electron progagation so the
+EM force is focussing for protons to counteract the defocussing space charge
+force.
+The configuration is illustrated in~Fig.~\ref{e_lens_sketch}.
+
+\begin{table}[!hbt]
+   \centering
+   \caption{Parameters and symbols used in the calculation}
+   \begin{tabular}{lr}
+       \toprule
+       \textbf{Parameter} & \textbf{Definition} \\
+       \midrule
+       $J$       & Electron current \\
+       $L$       & Electron lens length  \\
+       $e$       & unit of electric charge \\
+       $c$       & speed of light \\
+       $m$       & proton mass \\
+       $r_p$     & proton classical radius $e^2/4 \pi \epsilon_0 m c^2$ \\
+       $\sigma$ & RMS radius of current distribution     \\
+       $\beta_e$    & electron velocity/$c$   \\
+       $\beta_p$  & proton velocity/$c$ \\
+       $\beta_b$  & reference proton beam velocity/$c$ \\
+       $\gamma_b$ & reference proton beam relativistic factor \\
+       \bottomrule
+   \end{tabular}
+   \label{parameters}
+\end{table}
+  
+
+The names and symbols of parameters used in the calculation are shown in
+Table~\ref{parameters}.
+
+\section{Calculation}
+
+The electric and magnetic fields experienced by a particle at radius~$r$ are
+determined the amount of charge and current countained within the cylinder
+of radius~$r$.
+For the Gaussian profile, this is:
+$$
+\int_0^{r} e^{-{{r^2} / { 2 \sigma^2}}} r dr = 1 - e^{-{{r^2} / {2 \sigma^2}}}
+$$
+
+Using 2D Gauss's law, the normal electric field in the electron lens at radius~$r$ is
+$$
+E_n = -{ J \over {2 \pi \epsilon_0 \beta_e c}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} ) {1 \over r}
+$$
+identifying the charge density is $J / \beta_e c$.
+The electric momentum kick $q e E \Delta t$ for a single charge over length $L$ is
+$$
+\Delta p_E = -{ J e \over {2 \pi \epsilon_0 \beta_e c}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} )  {1 \over r}{ L \over { \beta_p c }}
+$$
+
+The magnetic field from the 2D Ampere's law is
+$$
+B_\theta = {  J \over {2 \pi \epsilon_0 c^2}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} )  {1 \over r}
+$$
+where I have used the identity $\epsilon_0 \mu_0 = 1/c^2$.
+The magnetic momentum kick $q v \times B \Delta t$ for a single charge over length $L$ is
+$$
+\Delta p_M = - {  J e \beta_p c \over {2 \pi \epsilon_0 c^2}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} )  {1 \over r}{ L \over { \beta_p c }}
+$$
+
+The total momentum kick is the sum of the electric and magnetic kicks:
+$$
+\Delta p_{E+M} = - {  J L e (1 + \beta_e \beta_p) \over {2 \pi \epsilon_0 \beta_e \beta_p c^2}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} ) {1 \over r}
+$$
+
+In Synergia, the particle momentum is normalized by the reference beam momentum, given by $m \beta_b \gamma_b c$.
+The momentum kick can be expressed by
+$$
+{\Delta p \over p_b} = - {  J L e (1 + \beta_e \beta_p) \over {2 \pi \epsilon_0 m c^2 \beta_e \beta_p \beta_b \gamma_b c}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} ) {1 \over r}
+$$
+which can be rewritten using the proton classical radius $r_p$ as
+$$
+{\Delta p \over p_b} = - {  2 J L r_p (1 + \beta_e \beta_p) \over {e \beta_e \beta_p \beta_b \gamma_b c}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} ) {1 \over r}
+$$
+
+
+\end{document}
+
+
