@@ -53,7 +53,12 @@ def test_bend_with_edges():
     bend.set_double_attribute("angle", bend_angle)
     bend.set_double_attribute("e1", bend_angle/2.0)
     bend.set_double_attribute("e2", bend_angle/2.0)
+    zd = Lattice_element("drift", "zd")
+    zd.set_double_attribute("l", 0.0)
+    
+    lattice.append(zd)
     lattice.append(bend)
+    lattice.append(zd)
     lattice.set_reference_particle(create_reference_particle(momentum))
     particles = run_bend(lattice)
     print particles[0,:]
@@ -68,7 +73,13 @@ def test_bend_no_edges():
     bend.set_double_attribute("e2", bend_angle/2.0)
     bend.set_double_attribute("entry_edge_kick", 0.0)
     bend.set_double_attribute("exit_edge_kick", 0.0)
+    zd = Lattice_element("drift", "zd")
+    zd.set_double_attribute("l", 0.0)
+    
+    lattice.append(zd)
     lattice.append(bend)
+    lattice.append(zd)
+    
     lattice.set_reference_particle(create_reference_particle(momentum))
     particles = run_bend(lattice)
     print particles[0,:]
