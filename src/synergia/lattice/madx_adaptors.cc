@@ -16,7 +16,6 @@
 #endif
 #include <beamline/beamline_elements.h>
 #include <beamline/YoshidaPropagator.h>
-#include <beamline/sector.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
 #endif
@@ -2403,3 +2402,78 @@ Matrix_madx_adaptor::~Matrix_madx_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Matrix_madx_adaptor)
+
+Elens_madx_adaptor::Elens_madx_adaptor()
+{
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("current", 0.0);
+    get_default_element().set_double_attribute("eenergy", 0.0);
+    get_default_element().set_double_attribute("radius", 0.0);
+    get_default_element().set_double_attribute("gaussian", 0.0);
+    get_default_element().set_double_attribute("uniform", 0.0);
+}
+
+Chef_elements
+Elens_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    double lenslen = lattice_element.get_double_attribute("l");
+    double current = lattice_element.get_double_attribute("current");
+    double eenergy = lattice_element.get_double_attribute("eenergy")*0.001;  // convert eenergy from MV to GV
+    double radius = lattice_element.get_double_attribute("radius");
+    bool gaussian = !(lattice_element.get_double_attribute("gaussian") == 0.0);
+    bool uniform = !(lattice_element.get_double_attribute("uniform") == 0.0);
+
+
+    if (!(uniform || gaussian)) {
+        throw std::runtime_error("elens must set either gaussian or uniform attribute");
+    }
+    if (gaussian && uniform) {
+        throw std::runtime_error("elens must not set both gaussian and uniform attributes");
+    }
+
+    elens::e_profile_t prof(elens::undefined);
+    if (gaussian) {
+        prof = elens::gaussian;
+    } else if (uniform) {
+        prof = elens::uniform;
+    }
+    ElensPtr elensptr(new elens(lattice_element.get_name().c_str(), lenslen, current, eenergy, radius, prof));
+
+    retval.push_back(elensptr);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Elens_madx_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Elens_madx_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Elens_madx_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Elens_madx_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Elens_madx_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Elens_madx_adaptor::~Elens_madx_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Elens_madx_adaptor)
