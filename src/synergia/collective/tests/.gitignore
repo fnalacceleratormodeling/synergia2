@@ -22,6 +22,10 @@ test_deposit_xyz
 test_interpolate_rectangular_xyz
 test_space_charge_rectangular
 test_wake_field
+test_diagnostics_space_charge
+test_diagnostics_space_charge_3d_hockney
+test_space_charge_2d_kv
+
 
 *.h5
 *.xml

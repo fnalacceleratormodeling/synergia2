@@ -32,7 +32,14 @@ test_polygon_aperture_operation
 test_split_operator_stepper_choice
 test_beamline_element_dynamics
 test_lattice_elements_action
+test_calculate_closed_orbit
+test_diagnostics_normal_form_mpi
+test_extractor_type
+test_fast_normal_form
+test_propagate_with_apertures
 
+
+quad_correctors.txt
 quadrupole_correctors.txt
 sextupole_correctors.txt
 
