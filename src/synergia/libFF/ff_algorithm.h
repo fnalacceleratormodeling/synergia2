@@ -8,6 +8,7 @@
 
 #include "basic_toolkit/PhysicsConstants.h"
 #include "synergia/utils/invsqrt.h"
+#include "synergia/foundation/physical_constants.h"
 
 class FF_algorithm
 {
@@ -706,6 +707,62 @@ public:
     {
         xp -= kse * y;
         yp += kse * x;
+    }
+
+    inline static void elens_kick_gaussian
+        (double x, double & xp, double y, double & yp, double dpop,
+         double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
+    {
+        const double small_radius = 1.0e-10;
+        double r = sqrt( x * x + y * y );
+
+        // no kick at r = 0.0
+        if (r == 0.0) return;
+
+        double betagamma_p = (1.0 + dpop) * beta_b * gamma_b;
+        double beta_p = betagamma_p / sqrt(1.0 + betagamma_p * betagamma_p);
+
+        double factors = -2.0 * ioe * l * pconstants::rp * 
+            (1.0 + beta_e * beta_p) / (beta_e * beta_p * beta_b * gamma_b * pconstants::c);
+
+
+        double kick = 0.0;
+
+        if (r < small_radius)
+        {
+            kick = factors * ( r / (2.0 * radius * radius) - 
+                    (1.0 / 2.0) * ((r*r*r) / (4*radius*radius*radius*radius)) +
+                    (1.0 / 6.0) * ((r*r*r*r*r) / (8*radius*radius*radius*radius*radius*radius)) );
+        }
+        else
+        {
+            kick = factors * (1.0 - exp( - r * r / (2.0 * radius * radius))) / r;
+        }
+
+        xp += kick * x / r;
+        yp += kick * y / r;
+    }
+
+    inline static void elens_kick_uniform
+        (double x, double & xp, double y, double & yp, double dpop,
+         double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
+    {
+        const double small_radius = 1.0e-10;
+        double r = sqrt( x * x + y * y );
+
+        // no kick at r = 0.0
+        if (r == 0.0) return;
+
+        double betagamma_p = (1.0 + dpop) * beta_b * gamma_b;
+        double beta_p = betagamma_p / sqrt(1.0 + betagamma_p * betagamma_p);
+
+        double factors = -2.0 * ioe * l * pconstants::rp * 
+            (1.0 + beta_e * beta_p) / (beta_e * beta_p * beta_b * gamma_b * pconstants::c);
+
+        double kick = factors * r / (radius * radius);
+
+        xp += kick * x / r;
+        yp += kick * y / r;
     }
 
 

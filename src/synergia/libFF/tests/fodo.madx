@@ -40,6 +40,7 @@ nll:  nllens, l=0.0, knll=0.3, cnll=0.2;
 //dipe: dipedge, h=0.1, e1=0.13, fint=0.16, hgap=0.19, tilt=0.05;
 dipe: dipedge, e1=0, fint=0.5, h=1.428571428, hgap=0.029;
 sol:  solenoid, l=1.0, ks=0.1;
+lens: elens, l=2.0, current=1.2, eenergy=001, radius=0.001, gaussian;
 
 // elements from the iota lattice
 ior: marker;
@@ -247,6 +248,12 @@ seq_sol: sequence, l=1.0, refer=entry;
 ssol0: qd0, at=0;
 ssol1: sol, at=0.0;
 ssol2: qd1, at=1.0;
+endsequence;
+
+seq_elens: sequence, l=2.0, refer=entry;
+selens0: qd0,  at=0.0;
+selens1: lens, at=0.0;
+selens2: qd1,  at=2.0;
 endsequence;
 
 //isqstart = 2.315;
