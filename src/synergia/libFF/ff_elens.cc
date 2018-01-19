@@ -3,54 +3,6 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 
-double FF_elens::get_reference_cdt(double length, double k, Reference_particle &reference_particle, bool simple)
-{
-    double pref = reference_particle.get_momentum();
-    double m = reference_particle.get_mass();
-
-    double x(reference_particle.get_state()[Bunch::x]);
-    double xp(reference_particle.get_state()[Bunch::xp]);
-    double y(reference_particle.get_state()[Bunch::y]);
-    double yp(reference_particle.get_state()[Bunch::yp]);
-    double cdt(0.0);
-    double dpop(reference_particle.get_state()[Bunch::dpop]);
-
-    if ( close_to_zero(length) )
-    {
-        // for 0 length, hk,vk is the total strength of the kick
-        FF_algorithm::thin_kicker_unit(xp, k);
-    }
-    else
-    {
-        if (simple)
-        {
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, 0.0);
-
-            // for >0 length, hk,vk is the strength/length of the kick
-            FF_algorithm::thin_kicker_unit(xp, k * length);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, 0.0);
-        }
-        else
-        {
-            // steps comes from base class, set in apply method
-            double step_length = length / steps;
-
-            // for >0 length, hk,vk is the strength/length of the kick
-            double step_strength[2] = { k*step_length, 0.0 };
-
-            // propagate
-            FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
-                ( x, xp, y, yp, cdt, dpop,
-                  pref, m, 0.0,
-                  step_length, step_strength, steps );
-        }
-    }
-
-    reference_particle.set_state(x, xp, y, yp, cdt, dpop);
-
-    return cdt;
-}
 
 void FF_elens::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
