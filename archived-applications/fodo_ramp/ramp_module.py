@@ -14,8 +14,13 @@ class Pickle_helper:
         self.__dict__ = state
 
 class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
+    # The arguments to __init__ are what the Ramp_actions instance is
+    # initialized with
     def __init__(self, multiplier):
         synergia.simulation.Propagate_actions.__init__(self)
+        # pickling the arguments to the initializer allows the
+        # module to resume after checkpointing.  They should be in the same
+        # order as the arguments to __init__.
         Pickle_helper.__init__(self, multiplier)
         self.multiplier = multiplier
     def turn_end_action(self, stepper, bunch, turn_num):
