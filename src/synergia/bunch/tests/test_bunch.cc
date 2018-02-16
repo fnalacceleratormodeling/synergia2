@@ -69,7 +69,7 @@ random_populate(Bunch &bunch)
 
 void
 compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance,
-        bool check_state = true, bool check_ids = true)
+        bool check_state = true, bool check_ids = true, bool check_bucket_index = true)
 {
     BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
             bunch2.get_reference_particle().get_total_energy());
@@ -79,10 +79,14 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance,
     BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch2.get_real_num(), tolerance);
     BOOST_CHECK_EQUAL(bunch1.get_local_num(), bunch2.get_local_num());
     BOOST_CHECK_EQUAL(bunch1.get_total_num(), bunch2.get_total_num());
-    BOOST_CHECK_EQUAL(bunch1.is_bucket_index_assigned(), bunch2.is_bucket_index_assigned());
-    if (bunch1.is_bucket_index_assigned()){
-        BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
+
+    if (check_bucket_index) {
+        BOOST_CHECK_EQUAL(bunch1.is_bucket_index_assigned(), bunch2.is_bucket_index_assigned());
+        if (bunch1.is_bucket_index_assigned()){
+            BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
+        }
     }
+
     BOOST_CHECK_EQUAL(bunch1.get_z_period_length(), bunch2.get_z_period_length());
     BOOST_CHECK_EQUAL(bunch1.get_longitudinal_aperture_length(), bunch2.get_longitudinal_aperture_length());
     BOOST_CHECK_EQUAL(bunch1.is_z_periodic(), bunch2.is_z_periodic());
@@ -634,7 +638,7 @@ BOOST_FIXTURE_TEST_CASE(inject_into_empty_bunch, Fixture)
     dummy_populate(bunch_to_inject);
     new_bunch.inject(bunch_to_inject);
     // new_bunch should be the same as old bunch
-    compare_bunches(new_bunch, bunch_to_inject, inject_tolerance, true, false);
+    compare_bunches(new_bunch, bunch_to_inject, inject_tolerance, true, false, false);
 }
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Fixture)
