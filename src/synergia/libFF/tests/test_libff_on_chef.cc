@@ -171,6 +171,13 @@ ELEMENT_FIXTURE(mp2);
 ELEMENT_FIXTURE(mp3);
 ELEMENT_FIXTURE(mp4);
 ELEMENT_FIXTURE(constfoc);
+ELEMENT_FIXTURE(nll);
+ELEMENT_FIXTURE(dipe);
+ELEMENT_FIXTURE(sol);
+ELEMENT_FIXTURE(elens);
+ELEMENT_FIXTURE(elens_uniform);
+
+ELEMENT_FIXTURE(iota);
 
 ELEMENT_FIXTURE(hkicker);
 ELEMENT_FIXTURE(vkicker);
@@ -394,6 +401,7 @@ BOOST_FIXTURE_TEST_CASE( test_cfsbend2, cfsbend2_fixture )
 
     // the sextupole model in CHEF doesn't work the same way as in libff
     element_check(pff, pcf, 3e-05);
+    //element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
 
@@ -822,6 +830,211 @@ BOOST_FIXTURE_TEST_CASE( test_constfoc, constfoc_fixture )
     BOOST_CHECK(true);
 }
 
+BOOST_FIXTURE_TEST_CASE( test_nll, nll_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.001;
+    pcf[0][1] = 0.001;
+    pcf[0][2] = 0.001;
+    pcf[0][3] = 0.001;
+    pcf[0][4] = 0.001;
+    pcf[0][5] = 0.001;
+
+    pff[0][0] = 0.001;
+    pff[0][1] = 0.001;
+    pff[0][2] = 0.001;
+    pff[0][3] = 0.001;
+    pff[0][4] = 0.001;
+    pff[0][5] = 0.001;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nnonlinearlens\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+
+BOOST_FIXTURE_TEST_CASE( test_dipe, dipe_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\ndipedge\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        //std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_sol, sol_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nsolenoid\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_elens, elens_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nelens gaussian\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+
+BOOST_FIXTURE_TEST_CASE( test_elens_uniform, elens_uniform_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nelens uniform\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_iota, iota_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = -0.00171090887340559;
+    pcf[0][1] = -0.00154341073914047;
+    pcf[0][2] = -0.00407240368042679;
+    pcf[0][3] = -0.0027155614225723;
+    pcf[0][4] = -0.0532406406114278;
+    pcf[0][5] = 0.0;
+
+    pff[0][0] = -0.00171090887340559;
+    pff[0][1] = -0.00154341073914047;
+    pff[0][2] = -0.00407240368042679;
+    pff[0][3] = -0.0027155614225723;
+    pff[0][4] = -0.0532406406114278;
+    pff[0][5] = 0.0;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\niota\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
 
 #if 0
 

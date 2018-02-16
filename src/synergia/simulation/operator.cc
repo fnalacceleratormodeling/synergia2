@@ -268,7 +268,7 @@ Independent_operator::update_operations(
         }
         group.push_back(*it);
         last_extractor_type = extractor_type;
-        if (need_right_aperture) {           
+        if (need_right_aperture) {
             Independent_operations group_operations =
                     operation_extractor_map_sptr->get_extractor(extractor_type)->extract(
                             reference_particle, group);

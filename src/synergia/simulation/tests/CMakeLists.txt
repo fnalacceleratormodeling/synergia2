@@ -64,6 +64,10 @@ add_test(NAME test_madx_multipoles_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG}
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_madx_multipoles.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test(NAME test_nllens_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_nllens.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_nllens.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_test(NAME test_quad_mad8_v_madx_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_quad_mad8_v_madx.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_quad_mad8_v_madx.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -196,6 +200,14 @@ add_test_executable(test_diagnostics_normal_form_mpi test_diagnostics_normal_for
 target_link_libraries(test_diagnostics_normal_form_mpi synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_normal_form_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_normal_form_mpi>)
 add_test(NAME test_diagnostics_normal_form_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_diagnostics_normal_form_mpi>)
+
+add_test_executable(test_propagate_with_apertures test_propagate_with_apertures.cc)
+target_link_libraries(test_propagate_with_apertures synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_propagate_with_apertures COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_propagate_with_apertures>)
+
+add_test_executable(test_extractor_type test_extractor_type.cc)
+target_link_libraries(test_extractor_type synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_extractor_type COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_extractor_type>)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

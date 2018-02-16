@@ -10,6 +10,10 @@ add_test_executable(test_libff_drift test_libff_drift.cc)
 target_link_libraries(test_libff_drift synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_drift COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_drift>)
 
+add_test_executable(test_libff_elens test_libff_elens.cc)
+target_link_libraries(test_libff_elens synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_libff_elens COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_elens>)
+
 add_test_executable(test_libff_mem_align test_libff_mem_align.cc)
 target_link_libraries(test_libff_mem_align synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_mem_align COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_mem_align>)
@@ -17,6 +21,10 @@ add_test(NAME test_libff_mem_align COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 
 add_test_executable(test_libff_on_chef test_libff_on_chef.cc)
 target_link_libraries(test_libff_on_chef synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_on_chef COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_on_chef>)
+
+add_test_executable(test_libff_on_iota test_libff_on_iota.cc)
+target_link_libraries(test_libff_on_iota synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_libff_on_iota COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_on_iota>)
 
 add_test_executable(test_libff_kicker_on_chef test_libff_kicker_on_chef.cc)
 target_link_libraries(test_libff_kicker_on_chef synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -40,4 +48,12 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_mad8_multipoles.py
 
 add_test(NAME test_libff_madx_multipoles_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_madx_multipoles.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_madx_multipoles.py
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(NAME test_nllensff_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_nllens.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_nllens.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(NAME test_madx_misc_elementsff_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_misc_mx_elements.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_misc_mx_elements.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

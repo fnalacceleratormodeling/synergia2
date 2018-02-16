@@ -116,6 +116,10 @@ MadX_adaptor_map::MadX_adaptor_map() :
     boost::shared_ptr<Matrix_madx_adaptor > matrix_madx_adaptor(
             new Matrix_madx_adaptor);
     set_adaptor("matrix", matrix_madx_adaptor);
+
+    boost::shared_ptr<Elens_madx_adaptor > elens_madx_adaptor(
+            new Elens_madx_adaptor);
+    set_adaptor("elens", elens_madx_adaptor);
 }
 
 template<class Archive>

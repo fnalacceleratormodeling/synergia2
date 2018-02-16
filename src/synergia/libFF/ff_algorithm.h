@@ -2,10 +2,13 @@
 #define FF_ALGORITHM_H
 
 #include <cmath>
+#include <limits>
 #include <complex>
+#include <stdexcept>
 
 #include "basic_toolkit/PhysicsConstants.h"
 #include "synergia/utils/invsqrt.h"
+#include "synergia/foundation/physical_constants.h"
 
 class FF_algorithm
 {
@@ -79,6 +82,14 @@ public:
       (T const & y, T & yp, double k)
     {
         yp -= k * y;
+    }
+
+    template <typename T>
+    inline static void edge_unit
+      (T const & y, T & xp, T & yp, double kx, double ky, char)
+    {
+        yp -= kx * y;
+        xp += ky * y;
     }
 
     template <typename T>
@@ -480,6 +491,14 @@ public:
     }
 
     template <typename T>
+    inline static void rbend_thin_cf_kick
+      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
+    {
+        thin_quadrupole_unit(x, xp, y, yp, kL + 0);
+        thin_sextupole_unit(x, xp, y, yp, kL + 2);
+    }
+
+    template <typename T>
     inline static void thin_kicker_unit
       (T & p, double kL)
     {
@@ -601,6 +620,151 @@ public:
                          / (factorial(n-k) * factorial(k));
         }
     }
+
+    inline static void nllens_unit
+        (double x, double y, double & xp, double & yp, double icnll, double kick)
+    {
+        double xbar = x * icnll;
+        double ybar = y * icnll;
+
+        if (ybar == 0 && fabs(xbar) >= 1.0)
+        {
+            xp = std::numeric_limits<double>::quiet_NaN();
+            yp = std::numeric_limits<double>::quiet_NaN();
+            return;
+        }
+
+        std::complex<double> c_i(0.0, 1.0);
+        std::complex<double> c_1(1.0, 0.0);
+
+        std::complex<double> zeta(xbar, ybar);
+        std::complex<double> croot = sqrt(c_1 - zeta*zeta);
+        std::complex<double> carcsin = -c_i * log(c_i * zeta + croot);
+        std::complex<double> dF = zeta/(croot*croot) + carcsin/(croot*croot*croot);
+
+        double dpx = kick * dF.real();
+        double dpy = -kick * dF.imag();
+
+        xp += dpx;
+        yp += dpy;
+    }
+
+    template <typename T>
+    inline static void dipedge_unit
+        (T & x, T & xp, T & y, T & yp, double re_2_1, double re_4_3, double const * te)
+    {
+        // linear terms
+        xp = xp + T(re_2_1) * x;
+        yp = yp + T(re_4_3) * y;
+
+        // quadratic terms
+        x  = x  + T(te[0]) * x*x + T(te[1]) * y*y;
+        xp = xp + T(te[2]) * x*x + T(te[4]) * y*y + T(te[3]) * x*xp*T(2) + T(te[5]) * y*yp*T(2);
+        y  = y  + T(te[6]) * x*y*T(2);
+        yp = yp + T(te[7]) * x*y*T(2) + T(te[8]) * x*yp*T(2) + T(te[9]) * y*xp*T(2);
+    }
+
+
+    inline static void solenoid_unit
+        (double & x, double & xp, double & y, double & yp, double & cdt, double & dpop,
+         double ks, double ksl, double length, double ref_p, double mass, double ref_cdt)
+    {
+        double p2 = (1.0 + dpop) * (1.0 + dpop);
+        double zp = sqrt(p2 - xp*xp - yp*yp);
+        double dtheta = ksl / zp;
+
+        double sn = sin(dtheta);
+        double cs = cos(dtheta);
+
+        double xi = x;
+        double yi = y;
+        double xpi = xp;
+        double ypi = yp;
+
+        xp =    cs*xpi + sn*ypi;
+        yp = (-sn)*xpi + cs*ypi;
+
+        cs -= 1.0;
+
+        x += (    cs * (-ypi) + sn * xpi ) / ks;
+        y += ( (-sn) * (-ypi) + cs * xpi ) / ks;
+
+        double en = sqrt(p2 * ref_p * ref_p + mass * mass);
+        double duration = length / (zp * ref_p / en );
+
+        cdt += duration - ref_cdt;
+    }
+
+    inline static void solenoid_in_edge_kick
+        (double const & x, double & xp, double const & y, double & yp, double kse)
+    {
+        xp += kse * y;
+        yp -= kse * x;
+    }
+
+    inline static void solenoid_out_edge_kick
+        (double const & x, double & xp, double const & y, double & yp, double kse)
+    {
+        xp -= kse * y;
+        yp += kse * x;
+    }
+
+    inline static void elens_kick_gaussian
+        (double x, double & xp, double y, double & yp, double dpop,
+         double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
+    {
+        const double small_radius = 1.0e-10;
+        double r = sqrt( x * x + y * y );
+
+        // no kick at r = 0.0
+        if (r == 0.0) return;
+
+        double betagamma_p = (1.0 + dpop) * beta_b * gamma_b;
+        double beta_p = betagamma_p / sqrt(1.0 + betagamma_p * betagamma_p);
+
+        double factors = -2.0 * ioe * l * pconstants::rp * 
+            (1.0 + beta_e * beta_p) / (beta_e * beta_p * beta_b * gamma_b * pconstants::c);
+
+
+        double kick = 0.0;
+
+        if (r < small_radius)
+        {
+            kick = factors * ( r / (2.0 * radius * radius) - 
+                    (1.0 / 2.0) * ((r*r*r) / (4*radius*radius*radius*radius)) +
+                    (1.0 / 6.0) * ((r*r*r*r*r) / (8*radius*radius*radius*radius*radius*radius)) );
+        }
+        else
+        {
+            kick = factors * (1.0 - exp( - r * r / (2.0 * radius * radius))) / r;
+        }
+
+        xp += kick * x / r;
+        yp += kick * y / r;
+    }
+
+    inline static void elens_kick_uniform
+        (double x, double & xp, double y, double & yp, double dpop,
+         double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
+    {
+        const double small_radius = 1.0e-10;
+        double r = sqrt( x * x + y * y );
+
+        // no kick at r = 0.0
+        if (r == 0.0) return;
+
+        double betagamma_p = (1.0 + dpop) * beta_b * gamma_b;
+        double beta_p = betagamma_p / sqrt(1.0 + betagamma_p * betagamma_p);
+
+        double factors = -2.0 * ioe * l * pconstants::rp * 
+            (1.0 + beta_e * beta_p) / (beta_e * beta_p * beta_b * gamma_b * pconstants::c);
+
+        double kick = factors * r / (radius * radius);
+
+        xp += kick * x / r;
+        yp += kick * y / r;
+    }
+
 
     inline static double factorial(int n)
     {
@@ -960,22 +1124,22 @@ public:
             k3[i*2+1] = d3 * step_strength[i*2+1];
         }
 
-        static double stheta = 0.0;
+        static double ssd = 0.0;
         static double sr0 = 0.0;
 
-        static std::complex<double> c1_step_phase = bend_unit_phase(c1 * stheta);
-        static std::complex<double> c2_step_phase = bend_unit_phase(c2 * stheta);
-        static std::complex<double> c3_step_phase = bend_unit_phase(c3 * stheta);
-        static std::complex<double> c4_step_phase = bend_unit_phase(c4 * stheta);
+        static std::complex<double> c1_step_phase = bend_unit_phase(c1 * ssd);
+        static std::complex<double> c2_step_phase = bend_unit_phase(c2 * ssd);
+        static std::complex<double> c3_step_phase = bend_unit_phase(c3 * ssd);
+        static std::complex<double> c4_step_phase = bend_unit_phase(c4 * ssd);
 
-        static std::complex<double> c1_step_term = bend_unit_term(sr0, c1 * stheta);
-        static std::complex<double> c2_step_term = bend_unit_term(sr0, c2 * stheta);
-        static std::complex<double> c3_step_term = bend_unit_term(sr0, c3 * stheta);
-        static std::complex<double> c4_step_term = bend_unit_term(sr0, c4 * stheta);
+        static std::complex<double> c1_step_term = bend_unit_term(sr0, c1 * ssd);
+        static std::complex<double> c2_step_term = bend_unit_term(sr0, c2 * ssd);
+        static std::complex<double> c3_step_term = bend_unit_term(sr0, c3 * ssd);
+        static std::complex<double> c4_step_term = bend_unit_term(sr0, c4 * ssd);
 
         double theta = step_angle;
 
-        if (theta != stheta)
+        if (theta != ssd)
         {
             // updates both phase and term
             c1_step_phase = bend_unit_phase(c1 * theta);
@@ -988,7 +1152,7 @@ public:
             c3_step_term = bend_unit_term(r0, c3 * theta);
             c4_step_term = bend_unit_term(r0, c4 * theta);
 
-            stheta = theta;
+            ssd = theta;
             sr0 = r0;
         }
         else if (r0 != sr0)
@@ -1024,18 +1188,39 @@ public:
         }
     }
 
+    inline static std::complex<double> sbend_unit_phase(double c, double delta)
+    { return bend_unit_phase(c * delta); }
+
+    inline static std::complex<double> rbend_unit_phase(double c, double delta)
+    { return bend_unit_phase(0.0); }
+
+    inline static std::complex<double> sbend_unit_term (double c, double delta, double r0)
+    { return bend_unit_term(r0, c * delta); }
+
+    inline static std::complex<double> rbend_unit_term (double c, double delta, double r0)
+    { return c * delta; }
+
+    inline static double sbend_dphi(double c, double delta)
+    { return - c * delta; }
+
+    inline static double rbend_dphi(double c, double delta)
+    { return 0.0; }
+
 #if 1
     // hardwired 6th order yoshida
     template <
         typename T,
-        void(kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),
+        void(f_kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),   // kick
+        std::complex<double>(f_bup) (double c, double delta),                                 // bend unit phase
+        std::complex<double>(f_but) (double c, double delta, double r0),                      // bend unit term
+        double(f_dphi)              (double c, double delta),                                 // c_dphi
         int components >
     inline static void bend_yoshida6(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
                                 double m, double step_reference_cdt,
-                                double step_angle, double * step_strength,
+                                double step_delta, double * step_strength,
                                 double r0, double bend_strength,
                                 int steps)
     {
@@ -1070,45 +1255,43 @@ public:
             k4[i*2+1] = d4 * step_strength[i*2+1];
         }
 
-        static double stheta = 0.0;
-        static double sr0 = 0.0;
+        static double ssd = 0.0;  // stored step_delta
+        static double sr0 = 0.0;  // stored r0
 
-        static std::complex<double> c1_step_phase = bend_unit_phase(c1 * stheta);
-        static std::complex<double> c2_step_phase = bend_unit_phase(c2 * stheta);
-        static std::complex<double> c3_step_phase = bend_unit_phase(c3 * stheta);
-        static std::complex<double> c4_step_phase = bend_unit_phase(c4 * stheta);
+        static std::complex<double> c1_step_phase = f_bup(c1, ssd);
+        static std::complex<double> c2_step_phase = f_bup(c2, ssd);
+        static std::complex<double> c3_step_phase = f_bup(c3, ssd);
+        static std::complex<double> c4_step_phase = f_bup(c4, ssd);
 
-        static std::complex<double> c1_step_term = bend_unit_term(sr0, c1 * stheta);
-        static std::complex<double> c2_step_term = bend_unit_term(sr0, c2 * stheta);
-        static std::complex<double> c3_step_term = bend_unit_term(sr0, c3 * stheta);
-        static std::complex<double> c4_step_term = bend_unit_term(sr0, c4 * stheta);
+        static std::complex<double> c1_step_term = f_but(c1, ssd, sr0);
+        static std::complex<double> c2_step_term = f_but(c2, ssd, sr0);
+        static std::complex<double> c3_step_term = f_but(c3, ssd, sr0);
+        static std::complex<double> c4_step_term = f_but(c4, ssd, sr0);
 
-        double theta = step_angle;
+        static double c1_dphi = f_dphi(c1, ssd);
+        static double c2_dphi = f_dphi(c2, ssd);
+        static double c3_dphi = f_dphi(c3, ssd);
+        static double c4_dphi = f_dphi(c4, ssd);
 
-        if (theta != stheta)
+        if (step_delta != ssd || sr0 != r0)
         {
             // updates both phase and term
-            c1_step_phase = bend_unit_phase(c1 * theta);
-            c2_step_phase = bend_unit_phase(c2 * theta);
-            c3_step_phase = bend_unit_phase(c3 * theta);
-            c4_step_phase = bend_unit_phase(c4 * theta);
+            c1_step_phase = f_bup(c1, step_delta);
+            c2_step_phase = f_bup(c2, step_delta);
+            c3_step_phase = f_bup(c3, step_delta);
+            c4_step_phase = f_bup(c4, step_delta);
 
-            c1_step_term = bend_unit_term(r0, c1 * theta);
-            c2_step_term = bend_unit_term(r0, c2 * theta);
-            c3_step_term = bend_unit_term(r0, c3 * theta);
-            c4_step_term = bend_unit_term(r0, c4 * theta);
+            c1_step_term = f_but(c1, step_delta, r0);
+            c2_step_term = f_but(c2, step_delta, r0);
+            c3_step_term = f_but(c3, step_delta, r0);
+            c4_step_term = f_but(c4, step_delta, r0);
 
-            stheta = theta;
-            sr0 = r0;
-        }
-        else if (r0 != sr0)
-        {
-            // update term only
-            c1_step_term = bend_unit_term(r0, c1 * theta);
-            c2_step_term = bend_unit_term(r0, c2 * theta);
-            c3_step_term = bend_unit_term(r0, c3 * theta);
-            c4_step_term = bend_unit_term(r0, c4 * theta);
+            c1_dphi = f_dphi(c1, step_delta);
+            c2_dphi = f_dphi(c2, step_delta);
+            c3_dphi = f_dphi(c3, step_delta);
+            c4_dphi = f_dphi(c4, step_delta);
 
+            ssd = step_delta;
             sr0 = r0;
         }
 
@@ -1117,86 +1300,85 @@ public:
             //drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
             //          m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c1_dphi , bend_strength, reference_momentum,
                        m, substep_reference_cdt, c1_step_phase, c1_step_term);
 
-            kf( x, xp, y, yp, r0, k1 );
+            f_kf( x, xp, y, yp, r0, k1 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c2_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c2_step_phase, c2_step_term);
 
-            kf( x, xp, y, yp, r0, k2 );
+            f_kf( x, xp, y, yp, r0, k2 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c2_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c2_step_phase, c2_step_term);
 
-            kf( x, xp, y, yp, r0, k1 );
+            f_kf( x, xp, y, yp, r0, k1 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c3 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c3_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c3_step_phase, c3_step_term);
 
-            kf( x, xp, y, yp, r0, k3 );
+            f_kf( x, xp, y, yp, r0, k3 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c4 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c4_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c4_step_phase, c4_step_term);
 
-            kf( x, xp, y, yp, r0, k4 );
+            f_kf( x, xp, y, yp, r0, k4 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c4 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c4_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c4_step_phase, c4_step_term);
 
-            kf( x, xp, y, yp, r0, k3 );
+            f_kf( x, xp, y, yp, r0, k3 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c3 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c3_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c3_step_phase, c3_step_term);
 
-            kf( x, xp, y, yp, r0, k1 );
+            f_kf( x, xp, y, yp, r0, k1 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c2_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c2_step_phase, c2_step_term);
 
-            kf( x, xp, y, yp, r0, k2 );
+            f_kf( x, xp, y, yp, r0, k2 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c2_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c2_step_phase, c2_step_term);
 
-            kf( x, xp, y, yp, r0, k1 );
+            f_kf( x, xp, y, yp, r0, k1 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
+            bend_unit(x, xp, y, yp, cdt, dpop, c1_dphi, bend_strength, reference_momentum,
                        m, substep_reference_cdt, c1_step_phase, c1_step_term);
 
         }
     }
 
 #endif
-
 
 };
 

@@ -40,6 +40,92 @@ template<typename T>
         int npart = bunch.get_local_num();
 
         int * discard = new int[npart];
+        int * discard_count = new int[nt];
+
+        int part_per_thread = npart / nt;
+        #pragma omp parallel shared(nt, npart, particles, discard, discard_count)
+        {
+            int it = omp_get_thread_num();
+            discard_count[it] = 0;
+
+            int s = it * part_per_thread;
+            int e = (it==nt-1) ? npart : (s+part_per_thread);
+
+            for (int part = s; part < e; ++part)
+            {
+                if (t(particles, part)) 
+                {
+                    discard[part] = 1;
+                    ++discard_count[it];
+                }
+                else
+                {
+                    discard[part] = 0;
+                }
+            }
+        }
+
+        int discarded = 0;
+        for (int i=0; i<nt; ++i) discarded += discard_count[i];
+
+        int head = 0;
+        int tail = npart - 1;
+
+        do
+        {
+            while (!discard[head] && head<tail) ++head;
+            if (head >= tail) break;
+
+            while ( discard[tail] && tail>head) --tail;
+            if (head >= tail) break;
+
+            particles[head][0] = particles[tail][0];
+            particles[head][1] = particles[tail][1];
+            particles[head][2] = particles[tail][2];
+            particles[head][3] = particles[tail][3];
+            particles[head][4] = particles[tail][4];
+            particles[head][5] = particles[tail][5];
+            particles[head][6] = particles[tail][6];
+
+            ++head;
+            --tail;
+
+        } while(head < tail);
+
+        double charge = (discarded > 0) ? discarded * bunch.get_real_num() / bunch.get_total_num() : 0.0;
+
+        deposit_charge(charge);
+        bunch.set_local_num(npart - discarded);
+
+        double t1 = MPI_Wtime();
+        if (verbosity > 5) 
+        {
+            logger << "Aperture_operation: type = " << get_aperture_type()
+                   << ", discarded: " << discarded
+                   << ", time = " << std::fixed << std::setprecision(3) << t1
+                    - t0 << "s_n" << std::endl;
+        }
+
+        delete [] discard;
+        delete [] discard_count;
+    }
+
+
+#if 0
+template<typename T>
+    void
+    Aperture_operation::apply_impl(T & t, Bunch & bunch, int verbosity, Logger & logger)
+    {
+        double t0 = MPI_Wtime();
+
+        int nt;
+        #pragma omp parallel
+        { nt = omp_get_num_threads(); }
+
+        MArray2d_ref particles(bunch.get_local_particles());
+        int npart = bunch.get_local_num();
+
+        int * discard = new int[npart];
         int * discard_counts = new int[nt];
 
         int part_per_thread = npart / nt;
@@ -60,6 +146,9 @@ template<typename T>
                     ++ discard_counts[it];
                     }
             }
+            //std::cout << "i = " << it << ", discarded = " << discard_counts[it] << "\n";
+
+            #pragma omp barrier
         }
 
         int total_discarded = discard_counts[0];
@@ -71,7 +160,7 @@ template<typename T>
             total_discarded += discard_counts[t];
         }
 
-        for (int n = 0; n < total_discarded; ++n)
+        for (int n = total_discarded - 1; n >= 0; --n)
         {
             // handle each particle in the list of discards
 
@@ -111,6 +200,7 @@ template<typename T>
         delete [] discard;
         delete [] discard_counts;
     }
+#endif
 
 template<typename T>
     void

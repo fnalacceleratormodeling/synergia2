@@ -1,5 +1,6 @@
 #include "chef_propagator.h"
 #include "synergia/lattice/chef_utils.h"
+#include "synergia/utils/synergia_omp.h"
 
 Chef_propagator::Chef_propagator(
         Chef_lattice_section_sptr chef_lattice_section_sptr) :
@@ -61,41 +62,45 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
+    int nt;
+    #pragma omp parallel
+    { nt = omp_get_num_threads(); }
 
-#if 1
+    int part_per_thread = local_num / nt;
 
-    #pragma omp parallel for
-    for (int part = 0; part < local_num; ++part) {
+    #pragma omp parallel shared(nt, local_num, particles, initial_reference_energy)
+    {
+        int it = omp_get_thread_num();
 
-    Particle particle(reference_particle_to_chef_particle(bunch.get_reference_particle()));
+        int s = it * part_per_thread;
+        int e = (it==nt-1) ? local_num : (s + part_per_thread);
 
-#else
+        Particle particle(reference_particle_to_chef_particle(bunch.get_reference_particle()));
 
-    #pragma omp parallel for firstprivate(particle)
-    for (int part = 0; part < local_num; ++part) {
-        // propagation through an RF cavity cavity section changes the ReferenceEnergy of particle,
-        // so I have to reset it each loop
-        particle.SetReferenceEnergy(initial_reference_energy);
-#endif
-        particle.set_x(particles[part][Bunch::x]);
-        particle.set_npx(particles[part][Bunch::xp]);
-        particle.set_y(particles[part][Bunch::y]);
-        particle.set_npy(particles[part][Bunch::yp]);
-        particle.set_cdt(particles[part][Bunch::cdt]);
-        particle.set_ndp(particles[part][Bunch::dpop]);
+        for (int part = s; part < e; ++part) 
+        {
+            particle.SetReferenceEnergy(initial_reference_energy);
+            particle.set_x(particles[part][Bunch::x]);
+            particle.set_npx(particles[part][Bunch::xp]);
+            particle.set_y(particles[part][Bunch::y]);
+            particle.set_npy(particles[part][Bunch::yp]);
+            particle.set_cdt(particles[part][Bunch::cdt]);
+            particle.set_ndp(particles[part][Bunch::dpop]);
 
-        for (Chef_lattice_section::iterator it =
-                chef_lattice_section_sptr->begin(); it
-                != chef_lattice_section_sptr->end(); ++it) {
-            (*it)->propagate(particle);
+            for (Chef_lattice_section::iterator it =
+                    chef_lattice_section_sptr->begin(); it
+                    != chef_lattice_section_sptr->end(); ++it) {
+                (*it)->propagate(particle);
+            }
+
+            particles[part][Bunch::x] = particle.get_x();
+            particles[part][Bunch::xp] = particle.get_npx();
+            particles[part][Bunch::y] = particle.get_y();
+            particles[part][Bunch::yp] = particle.get_npy();
+            particles[part][Bunch::cdt] = particle.get_cdt();
+            particles[part][Bunch::dpop] = particle.get_ndp();
         }
 
-        particles[part][Bunch::x] = particle.get_x();
-        particles[part][Bunch::xp] = particle.get_npx();
-        particles[part][Bunch::y] = particle.get_y();
-        particles[part][Bunch::yp] = particle.get_npy();
-        particles[part][Bunch::cdt] = particle.get_cdt();
-        particles[part][Bunch::dpop] = particle.get_ndp();
     }
 
     // update the reference particle if there was an energy change

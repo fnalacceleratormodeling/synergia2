@@ -97,7 +97,7 @@ def multipole_bunch(refpart):
 
     return bunch
 
-def run_a_misc_element(elem_name):
+def run_a_misc_element(elem_name, places=13):
     lattice = read_madx_misc_element_lattice(elem_name)
     bunch = multipole_bunch(lattice.get_reference_particle())
     bunch_simulator = Bunch_simulator(bunch)
@@ -109,8 +109,10 @@ def run_a_misc_element(elem_name):
     numpart = lp.shape[0]
     assert(numpart == 32)
     for p in range(numpart):
+        print "    particle ", p
         for j in range(4):
-            assert_almost_equal(lp[p, j], m8p[p, j], 13)
+            print "        coordinate ", j
+            assert_almost_equal(lp[p, j], m8p[p, j], places)
     
 def test_base_quad():
     run_a_misc_element("m_base_quad")
@@ -123,3 +125,9 @@ def test_tilt_quad():
 
 def test_nllens():
     run_a_misc_element("m_nllens")
+    
+# test_bend_edge has relaxed tolerance because of a difference
+# with MADX/PTC edges.
+def test_bend_edge():
+    run_a_misc_element("seq_bend_edge", 5)
+
