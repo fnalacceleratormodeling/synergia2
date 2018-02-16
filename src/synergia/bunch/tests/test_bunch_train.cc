@@ -189,6 +189,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Bunches_fixture)
     
     Bunch_train bunch_loaded;
     xml_load(bunch_loaded, "bunch_train.xml");
+
     size_t num_bunches=bunch_train.get_bunches().size();
     size_t num_loaded=bunch_loaded.get_bunches().size();
     BOOST_CHECK_EQUAL(num_bunches, num_loaded);
@@ -201,6 +202,4 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Bunches_fixture)
     for (size_t i=0; i<num_bunches; ++i){
       compare_bunches( *bunch_train.get_bunches().at(i), *bunch_loaded.get_bunches().at(i));
     }
-    
- 
 }

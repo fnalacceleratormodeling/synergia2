@@ -161,10 +161,10 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_NVP(bunches);
         ar & BOOST_SERIALIZATION_NVP(spacings);
-	ar & BOOST_SERIALIZATION_NVP(has_parent_comm);
-	ar & BOOST_SERIALIZATION_NVP(parent_comm_sptr);
-	ar & BOOST_SERIALIZATION_NVP(proc_counts_imped);
-	ar & BOOST_SERIALIZATION_NVP(proc_offsets_imped);
+        ar & BOOST_SERIALIZATION_NVP(has_parent_comm);
+        ar & BOOST_SERIALIZATION_NVP(parent_comm_sptr);
+        ar & BOOST_SERIALIZATION_NVP(proc_counts_imped);
+        ar & BOOST_SERIALIZATION_NVP(proc_offsets_imped);
     }
 
 template

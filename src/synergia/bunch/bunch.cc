@@ -190,6 +190,7 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double
              Commxx_sptr comm_sptr) :
         longitudinal_extent(0.0),
         z_periodic(0),
+        longitudinal_aperture(false),
         reference_particle(reference_particle),
         design_reference_particle(reference_particle),
         bucket_index(0),
