@@ -193,6 +193,7 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double
         reference_particle(reference_particle),
         design_reference_particle(reference_particle),
         bucket_index(0),
+        bucket_index_assigned(false),
         comm_sptr(comm_sptr),
         default_converter()
 {
