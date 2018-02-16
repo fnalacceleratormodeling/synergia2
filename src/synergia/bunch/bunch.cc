@@ -932,4 +932,5 @@ Bunch::~Bunch()
     boost::alignment::aligned_free(alt_storage);
 
     delete local_particles;
+    delete alt_local_particles;
 }
