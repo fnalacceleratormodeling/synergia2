@@ -651,3 +651,9 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Fixture)
 
     compare_bunches(bunch, loaded, tolerance);
 }
+
+BOOST_FIXTURE_TEST_CASE(default_construct_no_segfault, Fixture)
+{
+    Bunch b;
+}
+
