@@ -226,7 +226,11 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double
     construct(reference_particle.get_charge(), total_num, real_num);
 }
 
-Bunch::Bunch()
+Bunch::Bunch() :
+        storage(NULL),
+        alt_storage(NULL),
+        local_particles(NULL),
+        alt_local_particles(NULL)
 {
 }
 
@@ -879,9 +883,9 @@ Bunch::load<boost::archive::xml_iarchive >(
 
 Bunch::~Bunch()
 {
-    boost::alignment::aligned_free(storage);
-    boost::alignment::aligned_free(alt_storage);
+    if (storage) boost::alignment::aligned_free(storage);
+    if (alt_storage) boost::alignment::aligned_free(alt_storage);
 
-    delete local_particles;
-    delete alt_local_particles;
+    if (local_particles) delete local_particles;
+    if (alt_local_particles) delete alt_local_particles;
 }
