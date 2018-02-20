@@ -1041,17 +1041,46 @@ Rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_electric_field_component(
         Distributed_rectangular_grid const& dist_field)
 {
-    switch (e_field_comm) {
-    case gatherv_bcast:
-        return get_global_electric_field_component_gatherv_bcast(dist_field);
-    case allgatherv:
-        return get_global_electric_field_component_allgatherv(dist_field);
-    case e_field_allreduce:
-        return get_global_electric_field_component_allreduce(dist_field);
-    default:
-        throw runtime_error(
-                "Space_charge_3d_open_hockney: invalid e_field_comm");
+    Rectangular_grid_sptr global_electric_field_sptr;
+    if (e_field_comm==gatherv_bcast) {
+        global_electric_field_sptr=get_global_electric_field_component_gatherv_bcast(dist_field);
     }
+    else if(e_field_comm==allgatherv){
+        global_electric_field_sptr=get_global_electric_field_component_allgatherv(dist_field);
+    }
+    else if(e_field_comm==e_field_allreduce){
+        global_electric_field_sptr=get_global_electric_field_component_allreduce(dist_field);
+    }
+    else throw runtime_error(
+                 "Space_charge_3d_open_hockney: invalid e_field_comm");
+
+
+//AM!  make sure the field is zero at the edge of the grid
+// THIS toghether with zero charge distribution at the edge of the grid is essential for a conservative approximation
+    MArray3d_ref grid_points(global_electric_field_sptr->get_grid_points());
+    if (!global_electric_field_sptr->get_domain_sptr()->is_periodic()){
+          for (int k=0; k<grid_points.shape()[2];++k){
+              for (int j=0; j<grid_points.shape()[1];++j){
+                  grid_points[0][j][k]=0.;
+                  grid_points[grid_points.shape()[0]-1][j][k]=0.;      
+              }
+          } 
+    }
+    for (int i=0; i<grid_points.shape()[0];++i){
+        for (int j=0; j<grid_points.shape()[1];++j){
+            grid_points[i][j][0]=0.;
+            grid_points[i][j][grid_points.shape()[2]-1]=0.;
+            
+        }
+    } 
+   
+    for (int i=0; i<grid_points.shape()[0];++i){
+        for (int k=0; k<grid_points.shape()[2];++k){
+            grid_points[i][0][k]=0.;         
+            grid_points[i][grid_points.shape()[1]-1][k]=0.;
+        }
+    }
+    return global_electric_field_sptr; 
 }
 
 void
