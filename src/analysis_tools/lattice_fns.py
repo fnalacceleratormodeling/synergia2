@@ -32,6 +32,7 @@ class Options:
     def __init__(self):
         self.filename = None
         self.xmlfile = False
+        self.lsxfile = False
         self.line = None
         self.plots = []
         self.reader = None
@@ -79,9 +80,13 @@ def handle_args(args, plotparams):
     for arg in args_to_remove:
         args.remove(arg)
     options.filename = args[0]
-    # is this a lattice file or an xml file?
+    # is this a lattice file or an xml/lsx file?
     if os.path.splitext(options.filename)[1] == '.xml':
         options.xmlfile = True
+        options.line = "not_needed"
+        start_args = 1
+    if os.path.splitext(options.filename)[1] == '.lsx':
+        options.lsxfile = True
         options.line = "not_needed"
         start_args = 1
     else:
@@ -131,6 +136,12 @@ def get_lf_info():
             adaptor_map_obj = synergia.lattice.MadX_adaptor_map()
         lattice = synergia.lattice.Lattice("lattice_from_xmlfile", adaptor_map_obj)
         synergia.lattice.xml_load_lattice(lattice, options.filename)
+    elif options.lsxfile:
+        if options.reader == 'mad8':
+            adaptor_map_obj = synergia.lattice.Mad8_adaptor_map()
+        elif options.reader == 'madx':
+            adaptor_map_obj = synergia.lattice.MadX_adaptor_map()
+        lattice = synergia.lattice.Lattice(synergia.utils.read_lsexpr_file(options.filename))
     elif options.reader == 'madx':
         lattice = synergia.lattice.MadX_reader().get_lattice(options.line, options.filename)
     else:

@@ -47,7 +47,6 @@ add_test_executable(test_fast_normal_form test_fast_normal_form.cc)
 target_link_libraries(test_fast_normal_form synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_fast_normal_form COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_fast_normal_form>)
     
-    
 add_test(NAME test_mad8_multipoles_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_multipoles.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_mad8_multipoles.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -195,11 +194,6 @@ add_test(NAME test_beamline_element_dynamics COMMAND ${MPIEXEC} ${MPIEXEC_NUMPRO
 add_test_executable(test_acceleration test_acceleration.cc)
 target_link_libraries(test_acceleration synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_acceleration COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_acceleration>)
-
-add_test_executable(test_diagnostics_normal_form_mpi test_diagnostics_normal_form_mpi.cc)
-target_link_libraries(test_diagnostics_normal_form_mpi synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_diagnostics_normal_form_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_normal_form_mpi>)
-add_test(NAME test_diagnostics_normal_form_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_diagnostics_normal_form_mpi>)
 
 add_test_executable(test_propagate_with_apertures test_propagate_with_apertures.cc)
 target_link_libraries(test_propagate_with_apertures synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

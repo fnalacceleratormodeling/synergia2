@@ -117,7 +117,7 @@ def test_nllens_map():
     lattice = read_nllens_lattice()
     # get knll and cnll parameters from first element
     nll = lattice.get_elements()[0]
-    assert_equal(nll.get_type(), "nllens")
+    assert(nll.get_name(), "nllens")
     knll = nll.get_double_attribute("knll")
     cnll = nll.get_double_attribute("cnll")
     k = 2*knll/cnll**2
