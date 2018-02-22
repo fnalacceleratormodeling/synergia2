@@ -42,7 +42,7 @@ install(FILES
     mx_parse.h
     mx_tree.h
     diagnostics_apertures_loss.h
-    DESTINATION include/synergia/lattice)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/lattice)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py

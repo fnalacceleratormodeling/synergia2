@@ -30,6 +30,6 @@ target_link_libraries(synergia_libFF
 install(TARGETS synergia_libFF DESTINATION lib)
 install(FILES
     ff_element.h
-    DESTINATION include/synergia/libFF)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/libFF)
 
 add_subdirectory(tests)

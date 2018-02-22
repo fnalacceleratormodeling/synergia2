@@ -50,14 +50,14 @@ install(FILES
     dense_mapping.h
     calculate_closed_orbit.h
     diagnostics_normal_form.h
-    DESTINATION include/synergia/simulation)
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/simulation)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py
-        DESTINATION lib/synergia/simulation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
     install(TARGETS
         simulation
-        DESTINATION lib/synergia/simulation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
 endif ()
 
 add_subdirectory(tests)
