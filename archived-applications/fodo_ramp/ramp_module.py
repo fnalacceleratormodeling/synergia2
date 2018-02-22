@@ -14,10 +14,16 @@ class Pickle_helper:
         self.__dict__ = state
 
 class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
+    # The arguments to __init__ are what the Ramp_actions instance is
+    # initialized with
     def __init__(self, multiplier):
         synergia.simulation.Propagate_actions.__init__(self)
+        # pickling the arguments to the initializer allows the
+        # module to resume after checkpointing.  They should be in the same
+        # order as the arguments to __init__.
         Pickle_helper.__init__(self, multiplier)
         self.multiplier = multiplier
+
     def turn_end_action(self, stepper, bunch, turn_num):
         print "modifying lattice"
         for element in stepper.get_lattice_simulator().get_lattice().get_elements():
@@ -27,4 +33,13 @@ class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
                 print "  updated", element.get_name(),"k1 =", self.multiplier*old_k1
         stepper.get_lattice_simulator().update()
 
+    # other possible actions which could be present.
+    # actions that are not present will default to internal stubs
+    def first_action(self, stepper, bunch):
+        pass
 
+    def step_end_action(self, stepper, step, bunch, turn_num, step_num):
+        pass
+
+    def before_resume_action(self, stepper, bunch):
+        pass

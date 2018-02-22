@@ -603,6 +603,8 @@ void
                     &Propagate_actions_callback::default_turn_end_action)
             .def("step_end_action",
                     &Propagate_actions_callback::default_step_end_action)
+            .def("before_resume_action",
+                    &Propagate_actions_callback::default_before_resume_action)
             .def("get_python_object",
                  &Propagate_actions_callback::get_python_object)
             .enable_pickling()
