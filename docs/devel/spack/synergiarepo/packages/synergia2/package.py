@@ -7,8 +7,6 @@ class Synergia2(CMakePackage):
     
     version('devel', git='http://cdcvs.fnal.gov/projects/synergia2',
             branch='devel')
-    version('2016.03.09.00', '885b54ea479077346be0f10a6362d5fc')
-    version('2016.03.01.00', 'acb36fd53d63c0c958cebf614d88479f')
     
     depends_on("cmake")
     depends_on("mpi")
