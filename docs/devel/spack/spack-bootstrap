@@ -12,19 +12,15 @@ if [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ] ; then
     exit 1
 fi
 
-if [ -z "$1" ]; then
+if [ ! -z "$1" ]; then
     spackdir="$(cd $1; /bin/pwd)"
 fi
-scriptdir="$(dirname $0)"
+scriptdir="$(cd $(dirname $0); /bin/pwd)"
 if [ -z "$spackdir" ]; then
-    spackdir="$(cd \"$scriptdir/../../..\"; /bin/pwd)/spack"
+    spackdir="$(cd $scriptdir/../../..; /bin/pwd)/spack"
 fi
 
 # install spack if not available
-# type -p spack >& /dev/null
-# retval=$?
-# if [ "$?" = "0" ]; then
-
 if [ -z "${SPACK_ROOT}" ]; then
     echo "installing spack in"
     echo "    $spackdir"
