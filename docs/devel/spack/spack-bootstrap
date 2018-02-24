@@ -1,0 +1,57 @@
+#/bin/sh
+
+spackcurrentversion=v0.11.2
+if [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ] ; then
+    echo "usage:"
+    echo "$0 [-f] [spackdir]"
+    echo "    installs spack if not available"
+    echo "    adds synergia spack repo to spack if not available"
+    echo "options:"
+    echo "        -f: force new spack installation even if spack found"
+    echo '[spackdir]: install spack in spackdir (default is synergia directory)'
+    exit 1
+fi
+
+if [ -z "$1" ]; then
+    spackdir="$(cd $1; /bin/pwd)"
+fi
+scriptdir="$(dirname $0)"
+if [ -z "$spackdir" ]; then
+    spackdir="$(cd \"$scriptdir/../../..\"; /bin/pwd)/spack"
+fi
+
+# install spack if not available
+# type -p spack >& /dev/null
+# retval=$?
+# if [ "$?" = "0" ]; then
+
+if [ -z "${SPACK_ROOT}" ]; then
+    echo "installing spack in"
+    echo "    $spackdir"
+    if [ -f "$spackdir" ]; then
+        echo "error: $spackdir exists"
+        echo "exiting"
+        exit 1
+    fi
+    cd $(dirname $spackdir)
+    git clone https://github.com/spack/spack.git
+    cd spack
+    git checkout -b $spackcurrentversion origin/releases/$spackcurrentversion
+    . share/spack/setup-env.sh
+    echo "spack version $(spack --version)"
+else
+    echo "found spack in ${SPACK_ROOT}"
+    echo "spack version $(spack --version)"
+fi
+
+spackrepocount="$(spack repo list | grep -c '^synergiarepo')"
+if [ "$spackrepocount" = "0" ]; then
+    echo "adding synergiarepo"
+    spack repo add "$scriptdir/synergiarepo"
+else
+    echo "synergiarepo already added to spack"
+fi
+
+echo ". ${SPACK_ROOT}/share/spack/setup-env.sh" > $scriptdir/../../../spack-setup.sh
+echo "created spack-setup.sh"
+
