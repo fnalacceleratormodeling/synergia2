@@ -55,4 +55,5 @@ CMakeLists.txt.user
 spack-build
 spack-build.*
 spack-setup.sh
+spack
 
