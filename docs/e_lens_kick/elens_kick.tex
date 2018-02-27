@@ -109,6 +109,20 @@ $$
 {\Delta p \over p_b} = - {  2 J L r_p (1 + \beta_e \beta_p) \over {e \beta_e \beta_p \beta_b \gamma_b c}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} ) {1 \over r}
 $$
 
+In this form, $1/r$ does not have a derivative at $r=0$ so its behavior at the
+origin is not manifest.
+It becomes clear by separating $x$ and~$y$ components by multiplying by the
+unit vector component $x/r$ or~$y/r$.
+\begin{eqnarray*}
+{\Delta p_x \over p_b} &=& - {  2 J L r_p (1 + \beta_e \beta_p) \over {e \beta_e \beta_p \beta_b \gamma_b c}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} ) {x \over {r^2}} \\
+{\Delta p_y \over p_b} &=& - {  2 J L r_p (1 + \beta_e \beta_p) \over {e \beta_e \beta_p \beta_b \gamma_b c}} ( 1 - e^{-{{r^2} / {2 \sigma^2}}} ) {y \over {r^2}}\\
+\end{eqnarray*}
+Expanding the factor $1 - e^{-{r^2}/{2 \sigma^2}}$ near the origin gives $r^2/2\sigma^2$ so the electron lens kick near the origin resembles a focussing lens in both planes.
+\begin{eqnarray*}
+{\Delta p_x \over p_b} &\approx& - {  2 J L r_p (1 + \beta_e \beta_p) \over {e \beta_e \beta_p \beta_b \gamma_b c}}  {x \over {2 \sigma^2}} \\
+{\Delta p_y \over p_b} &\approx& - {  2 J L r_p (1 + \beta_e \beta_p) \over {e \beta_e \beta_p \beta_b \gamma_b c}} {y \over {2\sigma^2}}\\
+\end{eqnarray*}
+
 \section{Uniform electron beam}
 In the case of a uniform electron beam, the factor $( 1 - e^{-{{r^2} / {2 \sigma^2}}} )$ is replaced by
 $r^2/a^2$.
