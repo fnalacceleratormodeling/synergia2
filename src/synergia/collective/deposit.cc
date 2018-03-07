@@ -760,9 +760,11 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
     g1 = rho_2dc.shape()[1];
     g2 = rho_1d.shape()[0];
 
+#if 0
     int G0 = g0 + 2;
     int G1 = g1 + 2;
     int G2 = g2 + 2;
+#endif
 
     int npart = bunch.get_local_num();
 
@@ -771,16 +773,21 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
     #pragma omp parallel shared(nt)
     { nt = omp_get_num_threads(); }
 
-    double * lrho2d = new double[G0*G1*nt];
-    double * lrho1d = new double[G2*nt];
+    double * lrho2d = new double[g0*g1*nt];
+    double * lrho1d = new double[g2*nt];
 
-    if (zero_first) {
-        for (unsigned int i = 0; i < g0; ++i) {           // x
-            for (unsigned int j = 0; j < g1; ++j) {       // y
+    if (zero_first) 
+    {
+        for (unsigned int i = 0; i < g0; ++i)         // x
+        {  
+            for (unsigned int j = 0; j < g1; ++j)     // y
+            {
                 rho_2dc[i][j] = 0.0;
             }
         }
-        for (unsigned int k = 0; k < g2; ++k) {            // z
+
+        for (unsigned int k = 0; k < g2; ++k)         // z
+        {
             rho_1d[k] = 0.0;
         }
     }
@@ -790,7 +797,8 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
             * bunch.get_particle_charge() * pconstants::e
             / (h[0] * h[1]); // * h[2]);
 
-    if (g2 == 1) {
+    if (g2 == 1) 
+    {
         double mean(Core_diagnostics::calculate_z_mean(bunch));
         double std(Core_diagnostics::calculate_z_std(bunch, mean));
         rho_1d[0] = bunch.get_local_num() / (std::sqrt(12.0) * std);
@@ -799,7 +807,7 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
     #pragma omp parallel \
         default(none) \
         shared(nt, npart, parts, lrho2d, lrho1d, h, \
-               G0, G1, G2, g0, g1, g2, particle_bin, \
+               g0, g1, g2, particle_bin, \
                weight0, rho_2dc, rho_1d, rho_grid)
     {
         int ix, iy, iz;
@@ -811,12 +819,12 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
         int s  = it * l;                      // start particle
         int e  = (it==nt-1) ? npart : (s+l);  // end particle
 
-        double * r2d = lrho2d + it * G0 * G1;
-        double * r1d = lrho1d + it * G2;
+        double * r2d = lrho2d + it * g0 * g1;
+        double * r1d = lrho1d + it * g2;
 
         // zero buffer
-        std::memset( r2d, 0, sizeof(double)*G0*G1 );
-        std::memset( r1d, 0, sizeof(double)*G2    );
+        std::memset( r2d, 0, sizeof(double)*g0*g1 );
+        std::memset( r1d, 0, sizeof(double)*g2    );
 
         for (int n = s; n < e; ++n) {
             // no xyz->zyx transformation
@@ -837,22 +845,35 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
             if( cellz1>=0 && cellz1<g2 ) r1d[cellz1] += (1.0 - offz) / h[2];
             if( cellz2>=0 && cellz2<g2 ) r1d[cellz2] += offz / h[2];
 
-            if( ix<-1 || ix>g0-1 || iy<-1 || iy>g1-1 ) continue;
+            if( ix<0 || ix>g0-1 || iy<0 || iy>g1-1 ) continue;
 
             int cellx1, cellx2, celly1, celly2;
             cellx1 = ix;
-            cellx2 = cellx1 + 1;
+            cellx2 = ix + 1;
             celly1 = iy;
-            celly2 = celly1 + 1;
+            celly2 = iy + 1;
 
             double aoffx, aoffy;
             aoffx = 1. - offx;
             aoffy = 1. - offy;
 
-            r2d[celly1*G0 + cellx1] += weight0 * aoffx * aoffy;
-            r2d[celly1*G0 + cellx2] += weight0 *  offx * aoffy;
-            r2d[celly2*G0 + cellx1] += weight0 * aoffx *  offy;
-            r2d[celly2*G0 + cellx2] += weight0 *  offx *  offy;
+            r2d[celly1*g0 + cellx1] += weight0 * aoffx * aoffy;
+            r2d[celly1*g0 + cellx2] += weight0 *  offx * aoffy;
+            r2d[celly2*g0 + cellx1] += weight0 * aoffx *  offy;
+            r2d[celly2*g0 + cellx2] += weight0 *  offx *  offy;
+        }
+
+        // set boundary to zero
+        for (int x=0; x<g0; ++x) 
+        {
+            r2d[x] = 0.0;
+            r2d[(g1-1)*g0 + x] = 0.0;
+        }
+
+        for (int y=0; y<g1; ++y)
+        {
+            r2d[y*g0] = 0.0;
+            r2d[y*g0 + g0 - 1] = 0.0;
         }
     }
 
@@ -860,11 +881,11 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
     {
         for (int y = 0; y < g1; ++y)
             for (int x = 0; x < g0; ++x)
-                rho_2dc[x][y] += lrho2d[t*G0*G1 + y*G0 + x];
+                rho_2dc[x][y] += lrho2d[t*g0*g1 + y*g0 + x];
 
         if (g2 > 1)
             for (int z = 0; z < g2; ++z)
-                rho_1d[z] += lrho1d[t*G2 + z];
+                rho_1d[z] += lrho1d[t*g2 + z];
     }
 
     delete [] lrho2d;

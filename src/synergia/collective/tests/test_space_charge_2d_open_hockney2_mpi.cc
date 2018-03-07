@@ -292,16 +292,26 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_exact_rho, Spherical_bunch_fixture_2d)
     for (int i = local_force2->get_lower(); i < local_force2->get_upper();
             ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
-            // Fx
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].real(),
+            if (i == 0 || i == doubled_shape[0]-1 || j == 0 || j == doubled_shape[1]-1) {
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].real(),
                     tolerance);
-            // Fy
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].imag(),
+
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].imag(),
                     tolerance);
+            } else {
+                // Fx
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].real(),
+                        global_force2->get_grid_points_2dc()[i][j].real(),
+                        tolerance);
+                // Fy
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].imag(),
+                        global_force2->get_grid_points_2dc()[i][j].imag(),
+                        tolerance);
+            }
         }
     }
 }
@@ -316,8 +326,11 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_gatherv_bcast_exact_rho,
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr local_force2(
             space_charge.get_local_force2(*rho2, *G2)); // [N]
+
+    space_charge.set_e_force_comm(Space_charge_2d_open_hockney::gatherv_bcast);
+
     Rectangular_grid_sptr global_force2(
-            space_charge.get_global_electric_force2_gatherv_bcast(
+            space_charge.get_global_electric_force2(
                     *local_force2));
 
     std::vector<int > doubled_shape(
@@ -325,16 +338,26 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_gatherv_bcast_exact_rho,
     for (int i = local_force2->get_lower(); i < local_force2->get_upper();
             ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
-            // Fx
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].real(),
+            if (i == 0 || i == doubled_shape[0]-1 || j == 0 || j == doubled_shape[1]-1) {
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].real(),
                     tolerance);
-            // Fy
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].imag(),
+
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].imag(),
                     tolerance);
+            } else {
+                // Fx
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].real(),
+                        global_force2->get_grid_points_2dc()[i][j].real(),
+                        tolerance);
+                // Fy
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].imag(),
+                        global_force2->get_grid_points_2dc()[i][j].imag(),
+                        tolerance);
+            }
         }
     }
 }
@@ -349,8 +372,11 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_allgatherv_exact_rho,
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr local_force2(
             space_charge.get_local_force2(*rho2, *G2)); // [N]
+
+    space_charge.set_e_force_comm(Space_charge_2d_open_hockney::allgatherv);
+
     Rectangular_grid_sptr global_force2(
-            space_charge.get_global_electric_force2_allgatherv(
+            space_charge.get_global_electric_force2(
                     *local_force2));
 
     std::vector<int > doubled_shape(
@@ -359,16 +385,26 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_allgatherv_exact_rho,
     for (int i = local_force2->get_lower(); i < local_force2->get_upper();
             ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
-            // Fx
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].real(),
+            if (i == 0 || i == doubled_shape[0]-1 || j == 0 || j == doubled_shape[1]-1) {
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].real(),
                     tolerance);
-            // Fy
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].imag(),
+
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].imag(),
                     tolerance);
+            } else {
+                // Fx
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].real(),
+                        global_force2->get_grid_points_2dc()[i][j].real(),
+                        tolerance);
+                // Fy
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].imag(),
+                        global_force2->get_grid_points_2dc()[i][j].imag(),
+                        tolerance);
+            }
         }
     }
 }
@@ -383,24 +419,37 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_allreduce_exact_rho,
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr local_force2(
             space_charge.get_local_force2(*rho2, *G2)); // [N]
+
+    space_charge.set_e_force_comm(Space_charge_2d_open_hockney::e_force_allreduce);
+
     Rectangular_grid_sptr global_force2(
-            space_charge.get_global_electric_force2_allreduce(*local_force2));
+            space_charge.get_global_electric_force2(*local_force2));
 
     std::vector<int > doubled_shape(
              space_charge.get_doubled_domain_sptr()->get_grid_shape());
     for (int i = local_force2->get_lower(); i < local_force2->get_upper();
             ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
-            // Fx
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].real(),
+            if (i == 0 || i == doubled_shape[0]-1 || j == 0 || j == doubled_shape[1]-1) {
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].real(),
                     tolerance);
-            // Fy
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].imag(),
+
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].imag(),
                     tolerance);
+            } else {
+                // Fx
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].real(),
+                        global_force2->get_grid_points_2dc()[i][j].real(),
+                        tolerance);
+                // Fy
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].imag(),
+                        global_force2->get_grid_points_2dc()[i][j].imag(),
+                        tolerance);
+            }
         }
     }
 }
@@ -424,16 +473,26 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2, Spherical_bunch_fixture_2d)
     for (int i = local_force2->get_lower(); i < local_force2->get_upper();
             ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
-            // Fx
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].real(),
+            if (i == 0 || i == doubled_shape[0]-1 || j == 0 || j == doubled_shape[1]-1) {
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].real(),
                     tolerance);
-            // Fy
-            BOOST_CHECK_CLOSE(
-                    local_force2->get_grid_points_2dc()[i][j].imag(),
+
+                BOOST_CHECK_CLOSE(0.0,
                     global_force2->get_grid_points_2dc()[i][j].imag(),
                     tolerance);
+            } else {
+                // Fx
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].real(),
+                        global_force2->get_grid_points_2dc()[i][j].real(),
+                        tolerance);
+                // Fy
+                BOOST_CHECK_CLOSE(
+                        local_force2->get_grid_points_2dc()[i][j].imag(),
+                        global_force2->get_grid_points_2dc()[i][j].imag(),
+                        tolerance);
+            }
         }
     }
 }

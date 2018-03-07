@@ -734,17 +734,41 @@ Rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_global_electric_force2(
         Distributed_rectangular_grid const& dist_force)
 {
+    Rectangular_grid_sptr global_electric_field_sptr;
+
     switch (e_force_comm) {
     case gatherv_bcast:
-        return get_global_electric_force2_gatherv_bcast(dist_force);
+        global_electric_field_sptr = get_global_electric_force2_gatherv_bcast(dist_force);
+        break;
     case allgatherv:
-        return get_global_electric_force2_allgatherv(dist_force);
+        global_electric_field_sptr = get_global_electric_force2_allgatherv(dist_force);
+        break;
     case e_force_allreduce:
-        return get_global_electric_force2_allreduce(dist_force);
+        global_electric_field_sptr = get_global_electric_force2_allreduce(dist_force);
+        break;
     default:
         throw runtime_error(
                 "Space_charge_2d_open_hockney: invalid e_force_comm");
     }
+
+    // make sure the field is zero at the edge of the grid
+    MArray2dc_ref grid_points = global_electric_field_sptr->get_grid_points_2dc();
+    int g0 = grid_points.shape()[0];
+    int g1 = grid_points.shape()[1];
+
+    for (int i=0; i<g0; ++i)
+    {
+        grid_points[i][0] = 0.0;
+        grid_points[i][g1-1] = 0.0;
+    }
+
+    for (int j=0; j<g1; ++j)
+    {
+        grid_points[0][j] = 0.0;
+        grid_points[g0-1][j] = 0.0;
+    }
+
+    return global_electric_field_sptr;
 }
 
 void

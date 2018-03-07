@@ -293,16 +293,27 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_exact_rho,
             for (int j = 0; j
                     < local_force2->get_domain().get_grid_shape()[1];
                     ++j) {
-                // Fx
-                BOOST_CHECK_CLOSE(
-                        local_force2->get_grid_points_2dc()[i][j].real(),
+                if (i == 0 || i == local_force2->get_domain().get_grid_shape()[0]-1 || 
+                    j == 0 || j == local_force2->get_domain().get_grid_shape()[1]-1) {
+                    BOOST_CHECK_CLOSE(0.0,
                         force2->get_grid_points_2dc()[i][j].real(),
                         tolerance);
-                // Fy
-                BOOST_CHECK_CLOSE(
-                        local_force2->get_grid_points_2dc()[i][j].imag(),
+
+                    BOOST_CHECK_CLOSE(0.0,
                         force2->get_grid_points_2dc()[i][j].imag(),
                         tolerance);
+                } else {
+                    // Fx
+                    BOOST_CHECK_CLOSE(
+                            local_force2->get_grid_points_2dc()[i][j].real(),
+                            force2->get_grid_points_2dc()[i][j].real(),
+                            tolerance);
+                    // Fy
+                    BOOST_CHECK_CLOSE(
+                            local_force2->get_grid_points_2dc()[i][j].imag(),
+                            force2->get_grid_points_2dc()[i][j].imag(),
+                            tolerance);
+                }
             }
         }
     }
