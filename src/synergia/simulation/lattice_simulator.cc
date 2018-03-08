@@ -507,6 +507,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
 
 Lattice_simulator::Lattice_simulator()
 {
+    construct_big_giant_global_ff_element_map();
 }
 
 Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator) :
@@ -548,6 +549,7 @@ Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator)
 {
     construct_extractor_map();
     construct_aperture_extractor_map();
+    construct_big_giant_global_ff_element_map();
     set_bucket_length();
     if (have_close_orbit_registered) register_closed_orbit();
 }
@@ -781,6 +783,7 @@ Lattice_simulator::update()
     chef_lattice_sptr = Chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     construct_extractor_map();
     construct_aperture_extractor_map();
+    construct_big_giant_global_ff_element_map();
     if (have_slices) {
         construct_sliced_chef_beamline();
     }
