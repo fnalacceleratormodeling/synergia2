@@ -86,7 +86,9 @@ public:
     void
     set_diagnostics_list(Diagnostics_space_charge_3d_hockneys diagnosticss);   
     void
-    add_diagnostics(Diagnostics_space_charge_3d_hockney_sptr diagnostics_sptr); 
+    add_diagnostics(Diagnostics_space_charge_3d_hockney_sptr diagnostics_sptr);
+    bool
+    has_diagnostics();
     void
     setup_communication(Commxx_sptr const& bunch_comm_sptr);
     void

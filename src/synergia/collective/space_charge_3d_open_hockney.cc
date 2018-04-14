@@ -114,6 +114,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 n_sigma(n_sigma),
                 domain_fixed(false),
                 have_domains(false),
+                diagnostics_list(),
                 have_diagnostics(false),
                 kick_scale(kick_scale)
 {
@@ -139,6 +140,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 n_sigma(n_sigma),
                 domain_fixed(false),
                 have_domains(false),
+                diagnostics_list(),
                 have_diagnostics(false),
                 kick_scale(kick_scale)
 {
@@ -163,6 +165,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 n_sigma(n_sigma),
                 domain_fixed(false),
                 have_domains(false),
+                diagnostics_list(),
                 have_diagnostics(false),
                 kick_scale(kick_scale)
 {
@@ -214,7 +217,11 @@ Space_charge_3d_open_hockney::set_diagnostics_list(Diagnostics_space_charge_3d_h
   this->have_diagnostics=true;
 }
 
-
+bool
+Space_charge_3d_open_hockney::has_diagnostics()
+{
+    return have_diagnostics;
+}
 
 double
 Space_charge_3d_open_hockney::get_n_sigma() const
