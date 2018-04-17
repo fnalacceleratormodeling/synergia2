@@ -116,7 +116,9 @@ Split_operator_stepper::construct(
                                 collective_operators.begin();
                                 coll_op_it != collective_operators.end();
                                 ++coll_op_it) {
-                            remain_sptr->append(*coll_op_it, 1.0);
+                            Collective_operator_sptr copied_collective_operator_sptr(
+                                    (*coll_op_it)->clone());
+                            remain_sptr->append(copied_collective_operator_sptr, 1.0);
                         }
                         remain_sptr->append(remain_second_half_op_sptr, 0.5);
                     }
@@ -134,7 +136,9 @@ Split_operator_stepper::construct(
             for (Collective_operators::const_iterator coll_op_it =
                     collective_operators.begin();
                     coll_op_it != collective_operators.end(); ++coll_op_it) {
-                step->append(*coll_op_it, 1.0);
+                Collective_operator_sptr copied_collective_operator_sptr(
+                        (*coll_op_it)->clone());
+                step->append(copied_collective_operator_sptr, 1.0);
             }
             step->append(second_half_op_sptr, 0.5);
             get_steps().push_back(step);
