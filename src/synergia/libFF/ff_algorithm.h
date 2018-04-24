@@ -537,23 +537,30 @@ public:
     template <typename T>
     inline static void thin_rfcavity_unit
       (T & px, T & py, T const & cdt, T & dpop,
-       double w_rf, double volt, double phi_s, double m, double old_ref_p, double & new_ref_p)
+       double w_rf, double volt, double phi_s, double m, double old_ref_p, double & new_ref_p, double * mhp, int nh)
     {
         // 0 strength RF cavity does nothing (fast)
         if (volt == 0.0) {
             return;
         }
         double const anh_phase             = 0.0;
-        double const mhp_harmonic_multiple = 1.0;
-        double const mhp_relative_strength = 1.0;
-        double const mhp_phase_shift       = 0.0;
+        double       mhp_harmonic_multiple = 1.0;
+        double       mhp_relative_strength = 1.0;
+        double       mhp_phase_shift       = 0.0;
 
         double phase_slip_argument = ( cdt * w_rf / PH_MKS_c ) + anh_phase;
 
         double strength_factor = 0.0;
 
-        strength_factor += mhp_relative_strength *
-            sin( mhp_harmonic_multiple * (phi_s + phase_slip_argument) + mhp_phase_shift );
+        for (int i=0; i<nh; ++i)
+        {
+            mhp_harmonic_multiple = mhp[i*3  ];
+            mhp_relative_strength = mhp[i*3+1];
+            mhp_phase_shift       = mhp[i*3+2];
+
+            strength_factor += mhp_relative_strength *
+                sin( mhp_harmonic_multiple * (phi_s + phase_slip_argument) + mhp_phase_shift );
+        }
 
         double p = old_ref_p * (dpop + 1.0);
         double E = sqrt(p * p + m * m);

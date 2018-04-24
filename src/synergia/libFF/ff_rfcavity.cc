@@ -72,14 +72,47 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     // delta_freq is the frequency offset from synchronous in MHz like freq
     double            delta_freq = elm.get_double_attribute("delta_freq", 0.0);
 
+    // harmonics, 
+    // mhp[h*3]   = harmonic multiple
+    // mhp[h*3+1] = relative strength
+    // mhp[h*3+2] = phase shift
+    // nh = number of harmonics
+    double mhp[30]; int nh = 1;
+    mhp[0] = 1.0; mhp[1] = 1.0; mhp[2] = 0.0;
+
+    // harmonic multiple = 2
+    if (elm.has_double_attribute("h2_str"))
+    {
+        mhp[nh*3+0] = 2; 
+        mhp[nh*3+1] = elm.get_double_attribute("h2_str", 0.0);
+        mhp[nh*3+2] = elm.get_double_attribute("h2_phase", 0.0);
+        ++nh;
+    }
+
+    // harmonic multiple = 3
+    if (elm.has_double_attribute("h3_str"))
+    {
+        mhp[nh*3+0] = 3; 
+        mhp[nh*3+1] = elm.get_double_attribute("h3_str", 0.0);
+        mhp[nh*3+2] = elm.get_double_attribute("h3_phase", 0.0);
+        ++nh;
+    }
+
+    // harmonic multiple = 4
+    if (elm.has_double_attribute("h4_str"))
+    {
+        mhp[nh*3+0] = 4; 
+        mhp[nh*3+1] = elm.get_double_attribute("h4_str", 0.0);
+        mhp[nh*3+2] = elm.get_double_attribute("h4_phase", 0.0);
+        ++nh;
+    }
+
     double   str = volt * 1.0e-3;
+
     // keep lag within the range of [0, 1).
-    while (lag < 0.0) {
-        lag += 1.0;
-    }
-    while (lag >= 1.0) {
-        lag -= 1.0;
-    }
+    while (lag < 0.0)  { lag += 1.0; }
+    while (lag >= 1.0) { lag -= 1.0; }
+
     //elm.set_double_attribute("lag", lag);
     double phi_s = 2.0 * mconstants::pi * lag;
     double  w_rf = 2.0 * mconstants::pi * (freq + delta_freq) * 1.0e6;
@@ -114,7 +147,7 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
 
         FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop,
-                w_rf, str, phi_s, m, reference_momentum, new_ref_p);
+                w_rf, str, phi_s, m, reference_momentum, new_ref_p, mhp, nh);
 
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
                 0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
