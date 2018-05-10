@@ -145,10 +145,7 @@ Bunch::construct(int total_num, double real_num)
         }
 
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-        alt_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
 
         #pragma omp parallel for
         for (int i=0; i<local_num_padded; ++i)
@@ -156,33 +153,16 @@ Bunch::construct(int total_num, double real_num)
             for(int j=0; j<7; ++j)
             {
                 (*local_particles)[i][j] = 0.0;
-                (*alt_local_particles)[i][j] = 0.0;
             }
         }
 
-
-#if 0
-        local_particles = new MArray2d(boost::extents[local_num][7],
-                boost::fortran_storage_order());
-        alt_local_particles = new MArray2d(boost::extents[local_num][7],
-                boost::fortran_storage_order());
-#endif
         assign_ids(offsets[comm_sptr->get_rank()]);
     } else {
         local_num = 0;
         local_num_padded = 0;
 
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-        alt_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-
-#if 0
-        local_particles = new MArray2d(boost::extents[local_num][7],
-                boost::fortran_storage_order());
-        alt_local_particles = new MArray2d(boost::extents[local_num][7],
-                boost::fortran_storage_order());
-#endif
     }
 }
 
@@ -198,7 +178,7 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double
         comm_sptr(comm_sptr),
         default_converter()
 {
-    this->particle_charge =reference_particle.get_charge();
+    this->particle_charge = reference_particle.get_charge();
     construct(total_num, real_num);
 }
 
@@ -213,9 +193,7 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num, double
 
 Bunch::Bunch() :
         storage(NULL),
-        alt_storage(NULL),
-        local_particles(NULL),
-        alt_local_particles(NULL)
+        local_particles(NULL)
 {
 }
 
@@ -231,20 +209,15 @@ Bunch::Bunch(Bunch const& bunch) :
     real_num = bunch.real_num;
     local_num = bunch.local_num;
     local_num_padded = bunch.local_num_padded;
-    bucket_index=bunch.bucket_index;
-    bucket_index_assigned= bunch.bucket_index_assigned;
+    bucket_index = bunch.bucket_index;
+    bucket_index_assigned = bunch.bucket_index_assigned;
     storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-    alt_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-
     memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
-    memcpy(alt_storage, bunch.alt_storage, sizeof(double)*local_num_padded*7);
-
     local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-    alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
     state = bunch.state;
-    longitudinal_extent=bunch.longitudinal_extent;
-    z_periodic=bunch.z_periodic;
-    longitudinal_aperture=bunch.longitudinal_aperture;
+    longitudinal_extent = bunch.longitudinal_extent;
+    z_periodic = bunch.z_periodic;
+    longitudinal_aperture = bunch.longitudinal_aperture;
     if (bunch.converter_ptr == &(bunch.default_converter)) {
         converter_ptr = &default_converter;
     } else {
@@ -264,20 +237,15 @@ Bunch::operator=(Bunch const& bunch)
         real_num = bunch.real_num;
         local_num = bunch.local_num;
         local_num_padded = bunch.local_num_padded;
-	bucket_index=bunch.bucket_index;
-        bucket_index_assigned= bunch.bucket_index_assigned;
+        bucket_index=bunch.bucket_index;
+        bucket_index_assigned = bunch.bucket_index_assigned;
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-        alt_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-
         memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
-        memcpy(alt_storage, bunch.alt_storage, sizeof(double)*local_num_padded*7);
-
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
         state = bunch.state;
-        longitudinal_extent=bunch.longitudinal_extent;
-        z_periodic=bunch.z_periodic;
-        longitudinal_aperture=bunch.longitudinal_aperture;
+        longitudinal_extent = bunch.longitudinal_extent;
+        z_periodic = bunch.z_periodic;
+        longitudinal_aperture = bunch.longitudinal_aperture;
         if (bunch.converter_ptr == &(bunch.default_converter)) {
             converter_ptr = &default_converter;
         } else {
@@ -310,29 +278,19 @@ Bunch::set_local_num(int local_num)
         }
 
         double * prev_storage = storage;
-        double * prev_alt_storage = alt_storage;
-
         MArray2d_ref * prev_local_particles = local_particles;
-        MArray2d_ref * prev_alt_local_particles = alt_local_particles;
 
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-        alt_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
 
         for (int i=0; i<this->local_num; ++i) {
             for (int j=0; j<7; ++j) {
                 (*local_particles)[i][j] = (*prev_local_particles)[i][j];
-                (*alt_local_particles)[i][j] = (*prev_alt_local_particles)[i][j];
             }
         }
 
         delete [] prev_storage;
-        delete [] prev_alt_storage;
-
         delete prev_local_particles;
-        delete prev_alt_local_particles;
      }
 
     this->local_num = local_num;
@@ -533,18 +491,6 @@ Const_MArray2d_ref
 Bunch::get_local_particles() const
 {
     return *local_particles;
-}
-
-MArray2d_ref
-Bunch::get_alt_local_particles()
-{
-    return *alt_local_particles;
-}
-
-Const_MArray2d_ref
-Bunch::get_alt_local_particles() const
-{
-    return *alt_local_particles;
 }
 
 int
@@ -813,20 +759,6 @@ void Bunch::set_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
     dpopa = origin + stride*Bunch::dpop;
 }
 
-void Bunch::set_alt_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
-                       double * RESTRICT &ya, double * RESTRICT &ypa,
-                       double * RESTRICT &cdta, double * RESTRICT &dpopa)
-{
-    double *origin = alt_local_particles->origin();
-    int stride = alt_local_particles->shape()[0];
-    xa = origin + stride*Bunch::x;
-    xpa = origin + stride*Bunch::xp;
-    ya = origin + stride*Bunch::y;
-    ypa = origin + stride*Bunch::yp;
-    cdta = origin + stride*Bunch::cdt;
-    dpopa = origin + stride*Bunch::dpop;
-}
-
 template<class Archive>
     void
     Bunch::save(Archive & ar, const unsigned int version) const
@@ -901,16 +833,12 @@ template<class Archive>
             local_num = file.read<int > ("local_num");
             local_num_padded = file.read<int > ("local_num_padded");
             storage = file.read<double *>("local_storage");
-            alt_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
             local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-            alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
         } else {
             local_num = 0;
             local_num_padded = 0;
             storage = NULL;
-            alt_storage = NULL;
             local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-            alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
         }
     }
 
@@ -935,8 +863,5 @@ Bunch::load<boost::archive::xml_iarchive >(
 Bunch::~Bunch()
 {
     if (storage) boost::alignment::aligned_free(storage);
-    if (alt_storage) boost::alignment::aligned_free(alt_storage);
-
     if (local_particles) delete local_particles;
-    if (alt_local_particles) delete alt_local_particles;
 }
