@@ -52,3 +52,8 @@ log
 .Rhistory
 SYNERGIA2.cbp
 CMakeLists.txt.user
+spack-build
+spack-build.*
+spack-setup.sh
+spack
+

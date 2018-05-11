@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ] ; then
+    echo "usage:"
+    echo "$0"
+    echo "    creates spack-build-setup.sh"
+    exit 1
+fi
+
+scriptdir="$(cd $(dirname $0); /bin/pwd)"
+cd $scriptdir
+cd ../../..
+
+if [ ! -f "spack-build.env" ]; then
+    echo "spack-build.env not found"
+    echo "run this script after spack diy"
+    exit 1
+fi
+
+grep SPACK spack-build.env > spack-build-setup.sh
+

@@ -43,9 +43,23 @@ if (NOT BUILD_PYTHON_BINDINGS)
 endif ()
 
 # MPI
-FIND_PACKAGE(MPI REQUIRED)
-INCLUDE(CMakeForceCompiler)
-CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
+FIND_PACKAGE(MPI REQUIRED CXX)
+execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
+if(${MPI_VERSION} MATCHES "OpenRTE.* 3")
+    set(MPI_OVERSUBSCRIBE_FLAG "--oversubscribe")
+else ()
+    set(MPI_OVERSUBSCRIBE_FLAG "")
+endif()
+set(MPIEXEC_NUMPROC_FLAG ${MPI_OVERSUBSCRIBE_FLAG} ${MPIEXEC_NUMPROC_FLAG})
+if (CMAKE_VERSION VERSION_LESS 3.0.0)
+    INCLUDE(CMakeForceCompiler)
+    CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
+else()
+    # jfa: this is really ugly, but provides compatibility 
+    # with both CMake 2 and 3
+    include_directories(${MPI_CXX_INCLUDE_PATH})
+    link_libraries(${MPI_CXX_LIBRARIES})
+endif ()
 
 # OpenMP
 FIND_PACKAGE(OpenMP)
@@ -75,7 +89,7 @@ find_package(HDF5 REQUIRED CXX)
 list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
 
 # chef
-find_package(CHEF 2016.03 REQUIRED CONFIG)
+find_package(CHEF REQUIRED)
 list(APPEND extra_includes ${CHEF_INCLUDE_DIR})
 LINK_DIRECTORIES(${CHEF_LIB_DIR})
 

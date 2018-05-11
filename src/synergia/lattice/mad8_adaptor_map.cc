@@ -99,6 +99,11 @@ Mad8_adaptor_map::Mad8_adaptor_map() :
     boost::shared_ptr<Srot_mad8_adaptor > srot_mad8_adaptor(
             new Srot_mad8_adaptor);
     set_adaptor("srot", srot_mad8_adaptor);
+
+    boost::shared_ptr<Elens_mad8_adaptor > elens_mad8_adaptor(
+            new Elens_mad8_adaptor);
+    set_adaptor("elens", elens_mad8_adaptor);
+
 }
 
 template<class Archive>
