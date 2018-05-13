@@ -45,7 +45,8 @@ fi
 cores_per_mpi=$(( @@numnode@@ * $cores_per_box/@@numproc@@ ))
 
 echo "Job start at `date`"
-srun -n @@numproc@@ -c $cores_per_mpi --cpu_bind=cores @@synergia_executable@@ @@script@@ @@args@@
+#srun -n @@numproc@@ -c $cores_per_mpi --cpu_bind=cores @@synergia_executable@@ @@script@@ @@args@@
+srun --ntasks=@@numproc@@ --ntasks-per-node=@@procspernode@@ --mpi=pmi2 --cpu_bind=cores @@synergia_executable@@ @@script@@ @@args@@
 
 echo "Job end at `date`"
 
