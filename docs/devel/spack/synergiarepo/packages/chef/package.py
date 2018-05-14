@@ -13,6 +13,7 @@ class Chef(CMakePackage):
     depends_on("fftw+mpi")
     depends_on("python")
     depends_on("py-numpy")
+    depends_on("gsl")
 
     def cmake_args(self):
         spec = self.spec
