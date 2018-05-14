@@ -8,6 +8,7 @@
 #include <beamline/CF_sbend.h>
 #include <beamline/CF_rbend.h>
 #include <beamline/rfcavity.h>
+#include <beamline/elens.h>
 #include <physics_toolkit/ClosedOrbitSage.h>
 
 std::string
@@ -50,6 +51,16 @@ chef_element_as_string(ElmPtr element_sptr)
                 ", Harmon="
                 << boost::static_pointer_cast<thinrfcavity>(element_sptr)->getHarmonicNumber() <<
                    ", Phi=" <<  boost::static_pointer_cast<thinrfcavity>(element_sptr)->getPhi();
+    } else if ( std::strcmp((element_sptr)->Type(), "elens") == 0) {
+    sstream << ", eenergy: "
+//            << boost::static_pointer_cast<elens>(element_sptr)->get_eenergy <<
+//            ", radius: "
+//            << boost::static_pointer_cast<elens>(element_sptr)->get_radius() <<
+//               ", longrms: " <<  boost::static_pointer_cast<elens>(element_sptr)->get_longrms();
+            << elens::elens_core_access::get_eenergy(*boost::static_pointer_cast<elens>(element_sptr)) <<
+            ", radius: "
+            << elens::elens_core_access::get_radius(*boost::static_pointer_cast<elens>(element_sptr)) <<
+               ", longrms: " <<  elens::elens_core_access::get_longrms(*boost::static_pointer_cast<elens>(element_sptr));
     }
     sstream << ", reftime: " << element_sptr->getReferenceTime();
     sstream << std::endl;
@@ -99,7 +110,14 @@ full_chef_beamline_as_string(BmlPtr beamline_sptr)
                     << boost::static_pointer_cast<thinrfcavity>(*it)->getRadialFrequency()/(2.0*mconstants::pi) <<
                     ", Harmon="
                     << boost::static_pointer_cast<thinrfcavity>(*it)->getHarmonicNumber();
-        }
+        } else if ( std::strcmp((*it)->Type(), "elens") == 0) {
+            sstream << ", eenergy: "
+                    << elens::elens_core_access::get_eenergy(*boost::static_pointer_cast<elens>(*it)) <<
+                    ", radius: "
+                    << elens::elens_core_access::get_radius(*boost::static_pointer_cast<elens>(*it)) <<
+                       ", longrms: " << elens::elens_core_access::get_longrms(*boost::static_pointer_cast<elens>(*it));
+            }
+
         sstream << std::endl;
     }
     return sstream.str();

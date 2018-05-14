@@ -99,7 +99,7 @@ Space_charge_3d_open_hockney::constructor_common(
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         std::vector<int > const & grid_shape, bool longitudinal_kicks,
         bool periodic_z, double z_period, bool grid_entire_period,
-        double n_sigma) :
+        double n_sigma, double kick_scale) :
                 Collective_operator("space charge 3D open hockney"),
                 grid_shape(3),
                 doubled_grid_shape(3),
@@ -114,7 +114,9 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 n_sigma(n_sigma),
                 domain_fixed(false),
                 have_domains(false),
-                have_diagnostics(false)
+                diagnostics_list(),
+                have_diagnostics(false),
+                kick_scale(kick_scale)
 {
     constructor_common(grid_shape);
 }
@@ -123,7 +125,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         Commxx_divider_sptr commxx_divider_sptr,
         std::vector<int > const & grid_shape, bool longitudinal_kicks,
         bool periodic_z, double z_period, bool grid_entire_period,
-        double n_sigma) :
+        double n_sigma, double kick_scale) :
                 Collective_operator("space charge 3D open hockney"),
                 grid_shape(3),
                 doubled_grid_shape(3),
@@ -138,7 +140,9 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 n_sigma(n_sigma),
                 domain_fixed(false),
                 have_domains(false),
-                have_diagnostics(false)
+                diagnostics_list(),
+                have_diagnostics(false),
+                kick_scale(kick_scale)
 {
     constructor_common(grid_shape);
 }
@@ -146,7 +150,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
         bool longitudinal_kicks, bool periodic_z, double z_period,
-        bool grid_entire_period, double n_sigma) :
+        bool grid_entire_period, double n_sigma, double kick_scale) :
                 Collective_operator("space charge 3D open hockney"),
                 grid_shape(3),
                 doubled_grid_shape(3),
@@ -161,7 +165,9 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                 n_sigma(n_sigma),
                 domain_fixed(false),
                 have_domains(false),
-                have_diagnostics(false)
+                diagnostics_list(),
+                have_diagnostics(false),
+                kick_scale(kick_scale)
 {
     constructor_common(grid_shape);
 }
@@ -211,7 +217,11 @@ Space_charge_3d_open_hockney::set_diagnostics_list(Diagnostics_space_charge_3d_h
   this->have_diagnostics=true;
 }
 
-
+bool
+Space_charge_3d_open_hockney::has_diagnostics()
+{
+    return have_diagnostics;
+}
 
 double
 Space_charge_3d_open_hockney::get_n_sigma() const
@@ -1084,6 +1094,18 @@ Space_charge_3d_open_hockney::get_global_electric_field_component(
 }
 
 void
+Space_charge_3d_open_hockney::set_kick_scale(double ks)
+{
+    kick_scale = ks;
+}
+
+double
+Space_charge_3d_open_hockney::get_kick_scale() const
+{
+    return kick_scale;
+}
+
+void
 Space_charge_3d_open_hockney::do_diagnostics(Rectangular_grid const& En, int component, double time_step, Step & step, 
                                           Bunch & bunch)
 {   
@@ -1131,7 +1153,7 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
 // scaled p = p/p_ref
     double p_ref=bunch.get_reference_particle().get_momentum();
-    double factor = unit_conversion * q * delta_t* En.get_normalization()/
+    double factor = kick_scale * unit_conversion * q * delta_t* En.get_normalization()/
             (p_ref*gamma*gamma*beta); // transverse kicks
    
 
@@ -1156,13 +1178,13 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         }      
     }
     else{
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        double x = bunch.get_local_particles()[part][Bunch::x];
-        double y = bunch.get_local_particles()[part][Bunch::y];
-        double z = bunch.get_local_particles()[part][Bunch::z];
-        double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
-                grid_points);
-        bunch.get_local_particles()[part][ps_component] += factor * grid_val;
+        for (int part = 0; part < bunch.get_local_num(); ++part) {
+              double x = bunch.get_local_particles()[part][Bunch::x];
+              double y = bunch.get_local_particles()[part][Bunch::y];
+              double z = bunch.get_local_particles()[part][Bunch::z];   
+              double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
+                    grid_points);      
+              bunch.get_local_particles()[part][ps_component] += factor * grid_val;
         }
     }
 }
@@ -1254,7 +1276,8 @@ template<class Archive>
         & BOOST_SERIALIZATION_NVP(charge_density_comm)
         & BOOST_SERIALIZATION_NVP(e_field_comm)
         &  BOOST_SERIALIZATION_NVP(have_diagnostics)
-        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
+        &  BOOST_SERIALIZATION_NVP(diagnostics_list)
+        &  BOOST_SERIALIZATION_NVP(kick_scale);
     }
 template<class Archive>
     void
@@ -1276,7 +1299,8 @@ template<class Archive>
         & BOOST_SERIALIZATION_NVP(charge_density_comm)
         & BOOST_SERIALIZATION_NVP(e_field_comm)
         &  BOOST_SERIALIZATION_NVP(have_diagnostics)
-        &  BOOST_SERIALIZATION_NVP(diagnostics_list);
+        &  BOOST_SERIALIZATION_NVP(diagnostics_list)
+        &  BOOST_SERIALIZATION_NVP(kick_scale);
         if (comm2_sptr) {
             setup_derived_communication();
         }
