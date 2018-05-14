@@ -1,6 +1,5 @@
 #!/bin/bash
 #SBATCH -N @@numnode@@
-##SBATCH -C knl,quad,cache
 __queue{{#SBATCH -p @@queue@@}}{{}}__
 #SBATCH --mail-user=egstern@fnal.gov
 #SBATCH --mail-type=ALL
@@ -41,6 +40,8 @@ fi
 cores_per_mpi=$(( @@numnode@@ * $cores_per_box/@@numproc@@ ))
 
 echo "Job start at `date`"
+# suppress openmpi fork() warning messages
+export OMPI_MCA_mpi_warn_on_fork=0
 srun --ntasks=@@numproc@@ --ntasks-per-node=@@procspernode@@ --mpi=pmi2 --cpu_bind=cores @@synergia_resume_executable@@
 
 echo "Job end at `date`"
