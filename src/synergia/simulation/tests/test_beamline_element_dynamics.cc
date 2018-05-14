@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE(matrix_propagation)
 
 static std::string elens_channel =
   "beam, particle=proton, energy=0.25+pmass;\
-   lens: elens, l=2.0, current=1.2, eenergy=0.01, radius=0.001, gaussian;\
+   lens: elens, l=2.0, current=1.2, eenergy=0.01, radius=0.001, longrms=1.0, gaussian;\
    channel: sequence, l=2.0, refer=entry;\
    lens, at=0.0;\
    endsequence;";
@@ -367,12 +367,14 @@ static std::string elens_channel =
 // same channel as above but with a integrated current and 0 length
    static std::string elens_channel2 =
      "beam, particle=proton, energy=0.25+pmass;\
-      lens: elens, l=0.0, current=2.4, eenergy=0.01, radius=0.001, gaussian;\
-      channel: sequence, l=2.0, refer=entry;\
-      lens, at=1.0;\
+      lens: elens, l=0.0, current=2.4, eenergy=0.01, radius=0.001, longrms=1.0, gaussian;\
+      channel: sequence, l=0.0, refer=entry;\
+      lens, at=0.0;\
       endsequence;";
 
 #define signbit(x) ((x<0.0)?(-1):(1))
+
+#if 0
 
 BOOST_AUTO_TEST_CASE(elens_kick)
 {
@@ -380,18 +382,22 @@ BOOST_AUTO_TEST_CASE(elens_kick)
     MadX_reader reader;
     reader.parse(elens_channel);
     Lattice_sptr lattice_sptr(reader.get_lattice_sptr("channel"));
+    std::cout << "egs: elens lattice: " << lattice_sptr->as_string() << std::endl;
     // extract the parameters of the electron lens for later calculation
     Lattice_elements lelems(lattice_sptr->get_elements());
     double current;
     double eenergy;
     double radius;
     double len;
+    double longrms;
     for (Lattice_elements::const_iterator lit=lelems.begin(); lit!= lelems.end(); ++lit) {
         if ((*lit)->get_type() == "elens") {
             current = (*lit)->get_double_attribute("current");
             radius = (*lit)->get_double_attribute("radius");
             eenergy = (*lit)->get_double_attribute("eenergy")*1.0e-3;
             len = (*lit)->get_double_attribute("l");
+            longrms = (*lit)->get_double_attribute("longrms");
+            std::cout << "egs: longrms: " << longrms << std::endl;
         }
     }
     if (current == 0.0) {
@@ -436,15 +442,18 @@ BOOST_AUTO_TEST_CASE(elens_kick)
             local_particles[i+16][j] = local_particles[i][j]*smallfactor;
         }
     }
-    // set dp/p of all particles to 0.001
-    for (int i=0; i<total_num; ++i) {
-        local_particles[i][5] = 0.001;
-    }
 
+    const double momentum_offset = 1.001
+    // give a momentum offset to all the particles
+    for (int i=0; i<total_num; ++i) {
+        local_particles[i][5] = momentum_offset;
+    }
+    bunch_sptr->set_local_num(1);
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     Independent_stepper_sptr stepper(
             new Independent_stepper(lattice_sptr, 1, 1));
+    std:cout << "chef beamline\n" << chef_beamline_as_string(stepper->get_lattice_simulator().get_chef_lattice_sptr()->get_beamline_sptr()) << std::endl;
 
     Propagator propagator(stepper);
     propagator.set_final_checkpoint(false);
@@ -456,23 +465,30 @@ BOOST_AUTO_TEST_CASE(elens_kick)
     double gamma_b = refpart.get_gamma();
     double gamma_e = (eenergy + pconstants::me)/pconstants::me;
     double beta_e = std::sqrt(1.0 - 1.0/(gamma_e*gamma_e));
-    double betagamma_p = 1.001*refpart.get_beta()*refpart.get_gamma();
+    double betagamma_p = momentum_offset*refpart.get_beta()*refpart.get_gamma();
     double gamma_p = std::sqrt(betagamma_p*betagamma_p + 1.0);
     double beta_p = betagamma_p/gamma_p;
 
+    // calculate cdt due to initial dp/p of particle over half the elens length
+    double z = (len/2.0) * (beta_b/beta_p - 1.0);
+    std::cout << "egs: z: " << std::setprecision(16) << z << std::endl;
+    double long_factor = std::exp(-0.5*z*z/(longrms*longrms));
+    std::cout << "long profile factor: " << std::setprecision(16) << long_factor << std::endl;
+
     double kick = -2.0 * current * len * pconstants::rp *
-            (1.0 + beta_e*beta_p) *
+            (1.0 + beta_e*beta_p) * long_factor *
             (1.0 - std::exp(-0.5*xoffset*xoffset/(radius*radius)))/
             (pconstants::e*beta_e*beta_p*beta_b*gamma_b*pconstants::c*xoffset);
+    std::cout << "egs: kick: " << std::setprecision(16) << kick << std::endl;
 
     double smallkick = -2.0 * current * len * pconstants::rp *
-            (1.0 + beta_e*beta_p) *
+            (1.0 + beta_e*beta_p) * long_factor *
             (1.0 - std::exp(-0.5*smalloffset*smalloffset/(radius*radius)))/
             (pconstants::e*beta_e*beta_p*beta_b*gamma_b*pconstants::c*smalloffset);
 
     const double tolerance= 1.0e-10;
-
-    for (int i=0; i<total_num; ++i) {
+    //for (int i=0; i<total_num; ++i) {
+    for (int i=0; i<1; ++i) {
         double angle = std::atan2(local_particles[i][2], local_particles[i][0]);
         double kick_angle = std::atan2(local_particles[i][3], local_particles[i][1]);
         // check kick angle is opposite of position
@@ -483,12 +499,14 @@ BOOST_AUTO_TEST_CASE(elens_kick)
         double yp = local_particles[i][3];
         double tot_kick = std::sqrt(xp*xp + yp*yp);
         if (i < 16) {
+            std::cout << "egs: -tot_kick: " << std::setprecision(16) << -tot_kick << std::endl;
             BOOST_CHECK(floating_point_equal(kick, -tot_kick, tolerance));
         } else {
             BOOST_CHECK(floating_point_equal(smallkick, -tot_kick, tolerance));
         }
     }
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(elens_kick2)
 {
@@ -501,11 +519,13 @@ BOOST_AUTO_TEST_CASE(elens_kick2)
     double current;
     double eenergy;
     double radius;
+    double longrms;
     double len;
     for (Lattice_elements::const_iterator lit=lelems.begin(); lit!= lelems.end(); ++lit) {
         if ((*lit)->get_type() == "elens") {
             current = (*lit)->get_double_attribute("current");
             radius = (*lit)->get_double_attribute("radius");
+            longrms = (*lit)->get_double_attribute("longrms");
             eenergy = (*lit)->get_double_attribute("eenergy")*1.0e-3;
             len = (*lit)->get_double_attribute("l");
         }
@@ -560,11 +580,17 @@ BOOST_AUTO_TEST_CASE(elens_kick2)
             local_particles[i+16][j] = local_particles[i][j]*smallfactor;
         }
     }
-    // set dp/p of all particles to 0.001
+
+    double zoffset = 0.5*longrms;
+    // Offset particles half of longrms
+    const double momentum_offset = 0.001;
+    // give a momentum offset to all the particles
     for (int i=0; i<total_num; ++i) {
-        local_particles[i][5] = 0.001;
+        local_particles[i][4] = zoffset/refpart.get_beta();
+        local_particles[i][5] = momentum_offset;
     }
 
+    //bunch_sptr->set_local_num(1);  //  XXXXXXXXXXXXXXXXXXXXX egs delete me
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     Independent_stepper_sptr stepper(
@@ -580,17 +606,22 @@ BOOST_AUTO_TEST_CASE(elens_kick2)
     double gamma_b = refpart.get_gamma();
     double gamma_e = (eenergy + pconstants::me)/pconstants::me;
     double beta_e = std::sqrt(1.0 - 1.0/(gamma_e*gamma_e));
-    double betagamma_p = 1.001*refpart.get_beta()*refpart.get_gamma();
+    double betagamma_p = (1.0+momentum_offset) * refpart.get_beta()*refpart.get_gamma();
     double gamma_p = std::sqrt(betagamma_p*betagamma_p + 1.0);
     double beta_p = betagamma_p/gamma_p;
 
+    double long_factor = std::exp(-0.5*zoffset*zoffset/(longrms*longrms));
+    //std::cout << "long profile factor: " << std::setprecision(16) << long_factor << std::endl;
+
+
     double kick = -2.0 * integrated_strength * pconstants::rp *
-            (1.0 + beta_e*beta_p) *
+            (1.0 + beta_e*beta_p) * long_factor *
             (1.0 - std::exp(-0.5*xoffset*xoffset/(radius*radius)))/
             (pconstants::e*beta_e*beta_p*beta_b*gamma_b*pconstants::c*xoffset);
+    //std::cout << "egs: kick: " << std::setprecision(16) << kick << std::endl;
 
     double smallkick = -2.0 * integrated_strength * pconstants::rp *
-            (1.0 + beta_e*beta_p) *
+            (1.0 + beta_e*beta_p) * long_factor *
             (1.0 - std::exp(-0.5*smalloffset*smalloffset/(radius*radius)))/
             (pconstants::e*beta_e*beta_p*beta_b*gamma_b*pconstants::c*smalloffset);
 
@@ -607,6 +638,7 @@ BOOST_AUTO_TEST_CASE(elens_kick2)
         double yp = local_particles[i][3];
         double tot_kick = std::sqrt(xp*xp + yp*yp);
         if (i < 16) {
+            //std::cout << "egs: -tot_kick: " << std::setprecision(16) << -tot_kick << std::endl;
             BOOST_CHECK(floating_point_equal(kick, -tot_kick, tolerance));
         } else {
             BOOST_CHECK(floating_point_equal(smallkick, -tot_kick, tolerance));

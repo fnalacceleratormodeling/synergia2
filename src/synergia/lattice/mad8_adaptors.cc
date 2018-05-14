@@ -2075,6 +2075,7 @@ Elens_mad8_adaptor::Elens_mad8_adaptor()
     get_default_element().set_double_attribute("current", 0.0);
     get_default_element().set_double_attribute("eenergy", 0.0);
     get_default_element().set_double_attribute("radius", 0.0);
+    get_default_element().set_double_attribute("longrms", -1.0);
     get_default_element().set_double_attribute("gaussian", 0.0);
     get_default_element().set_double_attribute("uniform", 0.0);
 }
@@ -2089,6 +2090,7 @@ Elens_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double current = lattice_element.get_double_attribute("current");
     double eenergy = lattice_element.get_double_attribute("eenergy")*0.001;  // convert eenergy from MV to GV
     double radius = lattice_element.get_double_attribute("radius");
+    double longrms = lattice_element.get_double_attribute("longrms");
     bool gaussian = !(lattice_element.get_double_attribute("gaussian") == 0.0);
     bool uniform = !(lattice_element.get_double_attribute("uniform") == 0.0);
 
@@ -2106,7 +2108,7 @@ Elens_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     } else if (uniform) {
         prof = elens::uniform;
     }
-    ElensPtr elensptr(new elens(lattice_element.get_name().c_str(), lenslen, current, eenergy, radius, prof));
+    ElensPtr elensptr(new elens(lattice_element.get_name().c_str(), lenslen, current, eenergy, radius, longrms, prof));
 
     retval.push_back(elensptr);
     return retval;

@@ -59,6 +59,8 @@ BOOST_PYTHON_MODULE(collective)
                         double, bool >())
                 .def(init<Commxx_divider_sptr, std::vector<int >, bool, bool,
                         double, bool, double >())
+            .def(init<Commxx_divider_sptr, std::vector<int >, bool, bool,
+                    double, bool, double, double >())
                 .def(init<std::vector<int > >())
                 .def(init<std::vector<int >, bool >())
                 .def(init<std::vector<int >, bool, bool >())
@@ -79,9 +81,13 @@ BOOST_PYTHON_MODULE(collective)
                         double, bool >())
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool,
                         double, bool, double >())
+            .def(init<Commxx_sptr, std::vector<int >, bool, bool,
+                    double, bool, double, double >())
                 .def("set_fixed_domain", &Space_charge_3d_open_hockney::set_fixed_domain)
                 .def("apply", &Space_charge_3d_open_hockney::apply)
                 .def("add_diagnostics", &Space_charge_3d_open_hockney::add_diagnostics)
+                .def("get_kick_scale", &Space_charge_3d_open_hockney::get_kick_scale)
+                .def("set_kick_scale", &Space_charge_3d_open_hockney::set_kick_scale)
         ;
 
     class_<Space_charge_2d_open_hockney, Space_charge_2d_open_hockney_sptr,

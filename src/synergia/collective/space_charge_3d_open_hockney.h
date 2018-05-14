@@ -52,6 +52,7 @@ private:
     bool have_domains;
     Diagnostics_space_charge_3d_hockneys diagnostics_list;
     bool have_diagnostics;
+    double kick_scale;
     void
     constructor_common(std::vector<int > const& grid_shape);
     void
@@ -60,18 +61,18 @@ public:
     Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
             bool longitudinal_kicks = true, bool periodic_z = false,
             double z_period = 0.0, bool grid_entire_period = false,
-            double n_sigma = 8.0);
+            double n_sigma = 8.0, double kick_scale=1.0);
     Space_charge_3d_open_hockney(Commxx_divider_sptr commxx_divider_sptr,
             std::vector<int > const & grid_shape,
             bool longitudinal_kicks = true, bool periodic_z = false,
             double z_period = 0.0, bool grid_entire_period = false,
-            double n_sigma = 8.0);
+            double n_sigma = 8.0, double kick_scale=1.0);
     /// Deprecated. The comm_sptr argument is ignored.
     Space_charge_3d_open_hockney(Commxx_sptr comm_sptr,
             std::vector<int > const & grid_shape,
             bool longitudinal_kicks = true, bool periodic_z = false,
             double z_period = 0.0, bool grid_entire_period = false,
-            double n_sigma = 8.0);
+            double n_sigma = 8.0, double kick_scale=1.0);
     /// Note: Use Space_charge_3d_open_hockney::get_internal_grid_shape for
     /// Distributed_fft3d.
     /// jfa: unnecessary complication
@@ -85,7 +86,9 @@ public:
     void
     set_diagnostics_list(Diagnostics_space_charge_3d_hockneys diagnosticss);   
     void
-    add_diagnostics(Diagnostics_space_charge_3d_hockney_sptr diagnostics_sptr); 
+    add_diagnostics(Diagnostics_space_charge_3d_hockney_sptr diagnostics_sptr);
+    bool
+    has_diagnostics();
     void
     setup_communication(Commxx_sptr const& bunch_comm_sptr);
     void
@@ -161,6 +164,11 @@ public:
     get_global_electric_field_component(
             Distributed_rectangular_grid const& dist_field);
             
+    void
+    set_kick_scale(const double kick_scale);
+    double
+    get_kick_scale() const;
+
     void
     do_diagnostics(Rectangular_grid const& En, int component, double time_step, Step & step, Bunch & bunch);                 
     void
