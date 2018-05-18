@@ -933,6 +933,7 @@ BOOST_FIXTURE_TEST_CASE( test_sol, sol_fixture )
     BOOST_CHECK(true);
 }
 
+#if 0
 BOOST_FIXTURE_TEST_CASE( test_elens, elens_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -1001,6 +1002,7 @@ BOOST_FIXTURE_TEST_CASE( test_elens_uniform, elens_uniform_fixture )
     element_check(pff, pcf, tolerance);
     BOOST_CHECK(true);
 }
+#endif
 
 BOOST_FIXTURE_TEST_CASE( test_iota, iota_fixture )
 {
