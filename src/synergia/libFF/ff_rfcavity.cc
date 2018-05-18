@@ -125,13 +125,43 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     // The bunch particles momentum is with respect to the bunch reference particle
     double reference_momentum = ref_b.get_momentum();
-
     double m = bunch.get_mass();
-
     double new_ref_p = FF_algorithm::thin_rfcavity_pnew(reference_momentum, m, str, phi_s);
 
     // reference_cdt uses the lattice reference particle
-    double reference_cdt = get_reference_cdt(length, ref_l);
+    // double reference_cdt = get_reference_cdt(length, ref_l);
+
+    double ref_l_x    = ref_l.get_state()[Bunch::x];
+    double ref_l_xp   = ref_l.get_state()[Bunch::xp];
+    double ref_l_y    = ref_l.get_state()[Bunch::y];
+    double ref_l_yp   = ref_l.get_state()[Bunch::yp];
+    double ref_l_cdt  = 0.0;
+    double ref_l_dpop = ref_l.get_state()[Bunch::dpop];
+
+    double ref_l_p = ref_l.get_momentum();
+    double ref_l_m = ref_l.get_mass();
+
+    double new_ref_l_p = FF_algorithm::thin_rfcavity_pnew(ref_l_p, ref_l_m, str, phi_s);
+
+    // first half drift
+    FF_algorithm::drift_unit(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop,
+            0.5 * length, ref_l_p, ref_l_m, 0.0);
+
+    // do not give it the new_ref_l_p because the xp and yp dont get scaled, the momentum 
+    // of the lattice reference particle remains unchanged, only the dpop of the state
+    // has been changed
+    FF_algorithm::thin_rfcavity_unit(ref_l_xp, ref_l_yp, ref_l_cdt, ref_l_dpop,
+            w_rf, str, phi_s, ref_l_m, ref_l_p, ref_l_p, mhp, nh);
+
+    // second half drift
+    FF_algorithm::drift_unit(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop,
+            0.5 * length, ref_l_p, ref_l_m, 0.0);
+
+    // save the state
+    ref_l.set_state(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop);
+
+    // and finally the reference time
+    double reference_cdt = ref_l_cdt;
 
     #pragma omp parallel for
     for (int part = 0; part < local_num; ++part)
