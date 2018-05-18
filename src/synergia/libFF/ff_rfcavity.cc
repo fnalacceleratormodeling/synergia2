@@ -120,8 +120,8 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    Reference_particle       & ref_l = bunch.get_design_reference_particle();
-    Reference_particle const & ref_b = bunch.get_reference_particle();
+    Reference_particle & ref_l = bunch.get_design_reference_particle();
+    Reference_particle & ref_b = bunch.get_reference_particle();
 
     // The bunch particles momentum is with respect to the bunch reference particle
     double reference_momentum = ref_b.get_momentum();
@@ -160,7 +160,13 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
         particles[part][Bunch::dpop] = dpop;
     }
 
-    bunch.get_reference_particle().increment_trajectory(length);
+    // updated four momentum
+    Four_momentum fm = ref_b.get_four_momentum();
+    fm.set_momentum(new_ref_p);
+
+    // update the bunch reference particle with the updated ref_p
+    ref_b.set_four_momentum(fm);
+    ref_b.increment_trajectory(length);
 }
 
 template<class Archive>
