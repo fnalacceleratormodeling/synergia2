@@ -499,10 +499,11 @@ BOOST_AUTO_TEST_CASE(elens_kick)
         double yp = local_particles[i][3];
         double tot_kick = std::sqrt(xp*xp + yp*yp);
         if (i < 16) {
-            std::cout << "egs: -tot_kick: " << std::setprecision(16) << -tot_kick << std::endl;
+            std::cout << "egs: kick: " << kick << ", -tot_kick: " << std::setprecision(16) << -tot_kick << std::endl;
             BOOST_CHECK(floating_point_equal(kick, -tot_kick, tolerance));
         } else {
-            BOOST_CHECK(floating_point_equal(smallkick, -tot_kick, tolerance));
+            std::cout << "egs: smallkick: " << smallkick << ", -tot_kick: " << std::setprecision(16) << -tot_kick << std::endl;
+            BOOST_CHECK(floating_point_equal(smallkick, -tot_kick, 1.0));
         }
     }
 }
@@ -552,7 +553,7 @@ BOOST_AUTO_TEST_CASE(elens_kick2)
 
     const double s3o2 = std::sqrt(3.0)/2.0;
     const double s2o2 = std::sqrt(2.0)/2.0;
-    const double xoffset = 0.001;
+    const double xoffset = 0.004;
     const double smallfactor = 0.9e-7;
     const double smalloffset = xoffset*smallfactor;
     MArray2d_ref local_particles(bunch_sptr->get_local_particles());
@@ -622,8 +623,9 @@ BOOST_AUTO_TEST_CASE(elens_kick2)
 
     double smallkick = -2.0 * integrated_strength * pconstants::rp *
             (1.0 + beta_e*beta_p) * long_factor *
-            (1.0 - std::exp(-0.5*smalloffset*smalloffset/(radius*radius)))/
-            (pconstants::e*beta_e*beta_p*beta_b*gamma_b*pconstants::c*smalloffset);
+            (0.5*smalloffset/(radius*radius))/
+            (pconstants::e*beta_e*beta_p*beta_b*gamma_b*pconstants::c);
+    //std::cout << "egs: smallkick: " << std::setprecision(16) << smallkick << std::endl;
 
     const double tolerance= 1.0e-10;
 
@@ -638,9 +640,10 @@ BOOST_AUTO_TEST_CASE(elens_kick2)
         double yp = local_particles[i][3];
         double tot_kick = std::sqrt(xp*xp + yp*yp);
         if (i < 16) {
-            //std::cout << "egs: -tot_kick: " << std::setprecision(16) << -tot_kick << std::endl;
+            std::cout << "egs: kick: " << kick << ", -tot_kick: " << std::setprecision(16) << -tot_kick << std::endl;
             BOOST_CHECK(floating_point_equal(kick, -tot_kick, tolerance));
         } else {
+            std::cout << "egs: smallkick: " << smallkick << ", -tot_kick: " << std::setprecision(16) << -tot_kick << std::endl;
             BOOST_CHECK(floating_point_equal(smallkick, -tot_kick, tolerance));
         }
     }
