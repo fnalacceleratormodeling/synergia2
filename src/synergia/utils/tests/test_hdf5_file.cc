@@ -109,6 +109,7 @@ BOOST_FIXTURE_TEST_CASE(read_data, Hdf5_file_fixture)
     multi_array_check_equal(a3d_read, a3d, tolerance);
 }
 
+#if 1
 BOOST_FIXTURE_TEST_CASE(get_member_names, Hdf5_file_fixture)
 {
     Hdf5_file read_file(filename, Hdf5_file::read_only);
@@ -125,7 +126,9 @@ BOOST_FIXTURE_TEST_CASE(get_member_names, Hdf5_file_fixture)
     BOOST_CHECK_EQUAL(std::count(member_names.begin(),
                                  member_names.end(), array3d_label), 1);
 }
+#endif
 
+#if 0
 BOOST_FIXTURE_TEST_CASE(get_atomic_type, Hdf5_file_fixture)
 {
     Hdf5_file read_file(filename, Hdf5_file::read_only);
@@ -193,3 +196,4 @@ BOOST_AUTO_TEST_CASE(test_serialize)
     BOOST_CHECK_EQUAL(1,final_file.read<int>("one"));
     BOOST_CHECK_EQUAL(2,final_file.read<int>("two"));
 }
+#endif

@@ -866,13 +866,19 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
                 std::cout << "jfa: dumping Fx to " << exfile
                         << std::endl;
                 Hdf5_file fx(exfile, Hdf5_file::truncate);
-                Hdf5_writer<MArray2d> wx(&(fx.get_h5file()), "F");
+                fx.write(Fx.m, "F");
+#if 0
+                Hdf5_writer<MArray2d> wx(fx.get_h5file(), "F");
                 wx.write(Fx.m);
+#endif
                 std::cout << "jfa: dumping Fy to " << exfile
                         << std::endl;
                 Hdf5_file fy(eyfile, Hdf5_file::truncate);
-                Hdf5_writer<MArray2d> wy(&(fy.get_h5file()), "F");
+                fy.write(Fy.m, "F");
+#if 0
+                Hdf5_writer<MArray2d> wy(fy.get_h5file(), "F");
                 wy.write(Fy.m);
+#endif
             }
             dumped = true;
         }

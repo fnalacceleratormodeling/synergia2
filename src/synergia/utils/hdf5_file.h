@@ -1,13 +1,57 @@
 #ifndef HDF5_FILE_H_
 #define HDF5_FILE_H_
 #include <string>
-#include "H5Cpp.h"
+//#include "H5Cpp.h"
+#include "hdf5.h"
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/utils/hdf5_writer.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/commxx.h"
+
+#include <exception>
+
+
+// hdf5 exceptions
+struct Hdf5_exception : public std::exception
+{
+    Hdf5_exception(const char * msg = "")
+        : hdf5_msg(), user_msg(msg)
+    { 
+        std::stringstream buf;
+        cerr_redirect cr(buf.rdbuf());
+
+        H5Eprint(H5E_DEFAULT, stderr);
+        H5Eclear(H5E_DEFAULT);
+
+        hdf5_msg = buf.str();
+    }
+
+    ~Hdf5_exception() throw() { }
+
+    virtual const char * what() const throw()
+    {
+        std::string res = "USER MESSAGE:\n" + user_msg + "\n"
+            + "HDF5 MESSAGE:\n" + hdf5_msg;
+        return res.c_str();
+    }
+
+private:
+
+    struct cerr_redirect
+    {
+        cerr_redirect(std::streambuf * new_buf) : old(std::cerr.rdbuf(new_buf)) { }
+        ~cerr_redirect() { std::cerr.rdbuf(old); }
+
+        std::streambuf * old;
+    };
+
+private:
+
+    std::string hdf5_msg;
+    std::string user_msg;
+};
 
 class Hdf5_file
 {
@@ -23,7 +67,8 @@ public:
 
 private:
     std::string file_name;
-    H5::H5File * h5file_ptr;
+    //H5::H5File * h5file_ptr;
+    hid_t h5file_ptr;
     bool is_open;
     Flag current_flag;
     unsigned int
@@ -57,8 +102,13 @@ public:
     get_atomic_type(std::string const& name);
     std::vector<int >
     get_dims(std::string const& name);
+#if 0
     H5::H5File &
     get_h5file();
+#endif
+    hid_t
+    get_h5file();
+
     template<typename T>
         void
         write(T const& data, std::string const& name);

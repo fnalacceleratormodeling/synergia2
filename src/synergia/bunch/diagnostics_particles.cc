@@ -59,7 +59,7 @@ Diagnostics_particles::receive_other_local_particles(
         int size = get_bunch().get_comm().get_size();
         Hdf5_chunked_array2d_writer
                 writer_particles(
-                    &(file_sptr->get_h5file()),
+                    file_sptr->get_h5file(),
                     "particles",
                     get_bunch().get_local_particles());
         for (int rank = 0; rank < size; ++rank) {

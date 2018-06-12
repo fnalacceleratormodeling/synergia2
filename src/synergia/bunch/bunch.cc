@@ -695,7 +695,7 @@ boost::filesystem::remove(get_local_particles_serialization_path());
                     file.close();
                     fail=false;
                 }
-                catch(H5::Exception& he) {
+                catch(Hdf5_exception& he) {
                     ++attempts;
                     fail=true;
                     std::cout<<"bunch.cc: H5 Exception thrown, attempts number="

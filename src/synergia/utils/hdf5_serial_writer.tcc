@@ -3,8 +3,10 @@
 #include <stdexcept>
 #include <iostream>
 
+#if 0
 #ifndef H5_NO_NAMESPACE
 using namespace H5;
+#endif
 #endif
 
 template<typename T>
@@ -17,6 +19,7 @@ template<typename T>
         max_dims.resize(data_rank + 1);
         size.resize(data_rank + 1);
         offset.resize(data_rank + 1);
+
         for (int i = 0; i < data_rank; ++i) {
             dims[i] = data_dims.at(i);
             max_dims[i] = data_dims.at(i);
@@ -24,8 +27,11 @@ template<typename T>
             chunk_dims[i] = data_dims.at(i);
             offset[i] = 0;
         }
+
         max_dims[data_rank] = H5S_UNLIMITED;
+
         if (resume) {
+#if 0
             dataset = file_sptr->get_h5file().openDataSet(name.c_str());
             DataSpace dataspace = dataset.getSpace();
             int file_rank = dataspace.getSimpleExtentNdims();
@@ -34,6 +40,19 @@ template<typename T>
                         "Hdf5_serial_writer::resumed data has wrong rank");
             }
             dataspace.getSimpleExtentDims(&dims[0], NULL);
+#endif
+            dataset = H5Dopen(file_sptr->get_h5file(), name.c_str(), H5P_DEFAULT);
+            hid_t dataspace = H5Dget_space(dataset);
+            int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+            if (file_rank != data_rank + 1) {
+                throw std::runtime_error(
+                        "Hdf5_serial_writer::resumed data has wrong rank");
+            }
+
+            H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+            H5Sclose(dataspace);
+
             size[data_rank] = dims[data_rank];
             offset[data_rank] = dims[data_rank];
             dims[data_rank] = 1;
@@ -50,12 +69,25 @@ template<typename T>
             } else {
                 chunk_dims[data_rank] = 1;
             }
+
+#if 0
             DSetCreatPropList cparms;
             cparms.setChunk(data_rank + 1, &chunk_dims[0]);
             DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
             dataset = file_sptr->get_h5file().createDataSet(name.c_str(),
                     atomic_type, dataspace, cparms);
+#endif
+
+            hid_t cparms = H5Pcreate(H5P_DATASET_CREATE);
+            H5Pset_chunk(cparms, data_rank + 1, &chunk_dims[0]);
+            hid_t dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
+            dataset = H5Dcreate(file_sptr->get_h5file(), name.c_str(), atomic_type, 
+                    dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
+
+            H5Pclose(cparms);
+            H5Sclose(dataspace);
         }
+
         have_setup = true;
     }
 
@@ -105,6 +137,8 @@ template<typename T>
             // be 0, but that would not compile
             setup(data_dims);
         }
+
+#if 0
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
         dataset.extend(&size[0]);
@@ -113,6 +147,19 @@ template<typename T>
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
         dataset.write(&data, atomic_type, dataspace, filespace);
         ++offset[data_rank];
+#endif
+
+        hid_t dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
+        ++size[data_rank];
+        H5Dextend(dataset, &size[0]);
+
+        hid_t filespace = H5Dget_space(dataset);
+        H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &dims[0], NULL);
+        H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, &data);
+        ++offset[data_rank];
+
+        H5Sclose(dataspace);
+        H5Sclose(filespace);
     }
 
 template<>
@@ -130,4 +177,9 @@ template<>
 template<typename T>
     Hdf5_serial_writer<T >::~Hdf5_serial_writer()
     {
+        if (have_setup)
+        {
+            H5Tclose(atomic_type);
+            H5Dclose(dataset);
+        }
     }

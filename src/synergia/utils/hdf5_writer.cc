@@ -1,7 +1,7 @@
 #include "hdf5_writer.h"
 
 template<>
-    Hdf5_writer<MArray1d_ref >::Hdf5_writer(H5File * file_ptr,
+    Hdf5_writer<MArray1d_ref >::Hdf5_writer(hid_t file_ptr,
             std::string const& name) :
         data_rank(1), dims(1), name(name), file_ptr(file_ptr)
     {
@@ -9,7 +9,7 @@ template<>
     }
 
 template<>
-    Hdf5_writer<MArray2d_ref >::Hdf5_writer(H5File * file_ptr,
+    Hdf5_writer<MArray2d_ref >::Hdf5_writer(hid_t file_ptr,
             std::string const& name) :
         data_rank(2), dims(2), name(name), file_ptr(file_ptr)
     {
@@ -17,7 +17,7 @@ template<>
     }
 
 template<>
-    Hdf5_writer<MArray3d_ref >::Hdf5_writer(H5File * file_ptr,
+    Hdf5_writer<MArray3d_ref >::Hdf5_writer(hid_t file_ptr,
             std::string const& name) :
         data_rank(3), dims(3), name(name), file_ptr(file_ptr)
     {
@@ -68,7 +68,7 @@ template<>
     }
 
 template<>
-    Hdf5_writer<MArray1d >::Hdf5_writer(H5File * file_ptr,
+    Hdf5_writer<MArray1d >::Hdf5_writer(hid_t file_ptr,
             std::string const& name) :
         data_rank(1), dims(1), name(name), file_ptr(file_ptr)
     {
@@ -76,7 +76,7 @@ template<>
     }
 
 template<>
-    Hdf5_writer<MArray2d >::Hdf5_writer(H5File * file_ptr,
+    Hdf5_writer<MArray2d >::Hdf5_writer(hid_t file_ptr,
             std::string const& name) :
         data_rank(2), dims(2), name(name), file_ptr(file_ptr)
     {
@@ -84,7 +84,7 @@ template<>
     }
 
 template<>
-    Hdf5_writer<MArray3d >::Hdf5_writer(H5File * file_ptr,
+    Hdf5_writer<MArray3d >::Hdf5_writer(hid_t file_ptr,
             std::string const& name) :
         data_rank(3), dims(3), name(name), file_ptr(file_ptr)
     {

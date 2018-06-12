@@ -57,6 +57,8 @@ template<>
             data_size = sizeof(double) * data.num_elements();
             setup(data_dims);
         }
+
+#if 0
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
         dataset.extend(&size[0]);
@@ -65,6 +67,19 @@ template<>
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
         dataset.write(data.origin(), atomic_type, dataspace, filespace);
         ++offset[data_rank];
+#endif
+
+        hid_t dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
+        ++size[data_rank];
+        H5Dextend(dataset, &size[0]);
+
+        hid_t filespace = H5Dget_space(dataset);
+        H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &dims[0], NULL);
+        H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
+        ++offset[data_rank];
+
+        H5Sclose(dataspace);
+        H5Sclose(filespace);
     }
 
 template<>
@@ -79,6 +94,7 @@ template<>
             data_size = sizeof(double) * data.num_elements();
             setup(data_dims);
         }
+#if 0
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
         dataset.extend(&size[0]);
@@ -87,6 +103,19 @@ template<>
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
         dataset.write(data.origin(), atomic_type, dataspace, filespace);
         ++offset[data_rank];
+#endif
+
+        hid_t dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
+        ++size[data_rank];
+        H5Dextend(dataset, &size[0]);
+
+        hid_t filespace = H5Dget_space(dataset);
+        H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &dims[0], NULL);
+        H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
+        ++offset[data_rank];
+
+        H5Sclose(dataspace);
+        H5Sclose(filespace);
     }
 
 template<>
@@ -101,6 +130,7 @@ template<>
             data_size = sizeof(double) * data.num_elements();
             setup(data_dims);
         }
+#if 0
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
         dataset.extend(&size[0]);
@@ -109,4 +139,17 @@ template<>
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
         dataset.write(data.origin(), atomic_type, dataspace, filespace);
         ++offset[data_rank];
+#endif
+
+        hid_t dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
+        ++size[data_rank];
+        H5Dextend(dataset, &size[0]);
+
+        hid_t filespace = H5Dget_space(dataset);
+        H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &dims[0], NULL);
+        H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
+        ++offset[data_rank];
+
+        H5Sclose(dataspace);
+        H5Sclose(filespace);
     }
