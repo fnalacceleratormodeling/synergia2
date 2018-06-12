@@ -40,6 +40,12 @@ template<typename T>
         hid_t  memspace = H5Screate_simple(data_rank, &dims[0], NULL);
 
         H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, &retval);
+
+        H5Tclose(atomic_type);
+        H5Sclose(dataspace);
+        H5Sclose(memspace);
+        H5Dclose(dataset);
+
         return retval;
     }
 
