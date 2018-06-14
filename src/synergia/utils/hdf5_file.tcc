@@ -29,22 +29,21 @@ template<typename T>
 #endif
         T retval;
 
-        hid_t dataset = H5Dopen2(h5file_ptr, name.c_str(), H5P_DEFAULT);
-        hid_t atomic_type = hdf5_atomic_data_type<T>();
+        Hdf5_handler atomic_type = hdf5_atomic_data_type<T>();
+        Hdf5_handler dataset = H5Dopen2(h5file_ptr, name.c_str(), H5P_DEFAULT);
 
         std::vector<hsize_t > dims(1);
         dims.at(0) = 1;
         int data_rank = 0;
 
-        hid_t dataspace = H5Screate_simple(data_rank, &dims[0], NULL);
-        hid_t  memspace = H5Screate_simple(data_rank, &dims[0], NULL);
+        Hdf5_handler dataspace = H5Screate_simple(data_rank, &dims[0], NULL);
+        Hdf5_handler memspace = H5Screate_simple(data_rank, &dims[0], NULL);
 
-        H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, &retval);
+        herr_t res = H5Dread(dataset.hid, atomic_type.hid, memspace.hid, 
+                dataspace.hid, H5P_DEFAULT, &retval);
 
-        H5Tclose(atomic_type);
-        H5Sclose(dataspace);
-        H5Sclose(memspace);
-        H5Dclose(dataset);
+        if (res < 0) 
+            throw Hdf5_exception("Error at reading Dataset " + name + " from HDF5 file");
 
         return retval;
     }

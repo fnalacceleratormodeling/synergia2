@@ -48,13 +48,13 @@ Hdf5_file::open(Flag flag)
     {
         // create
         h5file_ptr = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-        if (h5file_ptr < 0) throw Hdf5_exception();
+        if (h5file_ptr < 0) throw Hdf5_exception("error at create h5 file");
     }
     else
     {
         // open
         h5file_ptr = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), H5P_DEFAULT);
-        if (h5file_ptr < 0) throw Hdf5_exception();
+        if (h5file_ptr < 0) throw Hdf5_exception("error at open h5 file");
     }
 
     is_open = true;
@@ -101,12 +101,13 @@ Hdf5_file::get_member_names()
     delete root_group_ptr;
 #endif
 
-    hid_t root_group = H5Gopen(h5file_ptr, "/", H5P_DEFAULT);
-    herr_t status = H5Literate(root_group, H5_INDEX_NAME,
+    Hdf5_handler root_group = H5Gopen(h5file_ptr, "/", H5P_DEFAULT);
+    herr_t status = H5Literate(root_group.hid, H5_INDEX_NAME,
                                H5_ITER_NATIVE, NULL,
                                &get_member_names_callback,
                                (void *) &member_names);
-    H5Gclose(root_group);
+
+    if (status < 0) throw Hdf5_exception("error at get hdf5 member names");
 
     return member_names;
 }
@@ -130,9 +131,9 @@ Hdf5_file::get_atomic_type(std::string const& name)
     return retval;
 #endif
 
-    hid_t dataset  = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
-    hid_t datatype = H5Dget_type(dataset);
-    H5T_class_t the_class = H5Tget_class(datatype);
+    Hdf5_handler dataset  = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler datatype = H5Dget_type(dataset.hid);
+    H5T_class_t the_class = H5Tget_class(datatype.hid);
 
     Hdf5_file::Atomic_type retval;
 
@@ -148,9 +149,6 @@ Hdf5_file::get_atomic_type(std::string const& name)
     {
         throw std::runtime_error("Hdf5_file::get_atomic_type: type not handled");
     }
-
-    H5Tclose(datatype);
-    H5Dclose(dataset);
 
     return retval;
 }
@@ -170,18 +168,16 @@ Hdf5_file::get_dims(std::string const& name)
     return retval;
 #endif
 
-    hid_t dataset   = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
-    hid_t dataspace = H5Dget_space(dataset);
+    Hdf5_handler dataset   = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace = H5Dget_space(dataset.hid);
 
-    int rank = H5Sget_simple_extent_ndims(dataspace);
+    int rank = H5Sget_simple_extent_ndims(dataspace.hid);
     std::vector<hsize_t> dims(rank);
-    H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+    herr_t res = H5Sget_simple_extent_dims(dataspace.hid, &dims[0], NULL);
+    if (res<0) throw Hdf5_exception("error at getting dims");
 
     std::vector<int > retval(rank);
     std::copy(dims.begin(), dims.end(), retval.begin());
-
-    H5Sclose(dataspace);
-    H5Dclose(dataset);
 
     return retval;
 }
@@ -223,12 +219,12 @@ template<>
         return retval;
 #endif
 
-        hid_t dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
-        hid_t dataspace   = H5Dget_space(dataset);
-        hid_t atomic_type = hdf5_atomic_data_type<double>();
+        Hdf5_handler dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataspace   = H5Dget_space(dataset.hid);
+        Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
 
         const int rank = 1;
-        int file_rank = H5Sget_simple_extent_ndims(dataspace);
+        int file_rank = H5Sget_simple_extent_ndims(dataspace.hid);
 
         if (file_rank != rank)
         {
@@ -237,17 +233,17 @@ template<>
         }
 
         std::vector<hsize_t> dims(rank);
-        H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+        herr_t res = H5Sget_simple_extent_dims(dataspace.hid, &dims[0], NULL);
+
+        if (res < 0) throw Hdf5_exception("error getting dims from dataspace");
 
         MArray1d retval(boost::extents[dims[0]]);
 
-        hid_t memspace = H5Screate_simple(rank, &dims[0], NULL);
-        H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
+        Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+        res = H5Dread(dataset.hid, atomic_type.hid, memspace.hid, 
+                dataspace.hid, H5P_DEFAULT, retval.origin());
 
-        H5Tclose(atomic_type);
-        H5Sclose(dataspace);
-        H5Sclose(memspace);
-        H5Dclose(dataset);
+        if (res < 0) throw Hdf5_exception("error reading from hdf5 file");
 
         return retval;
     }
@@ -277,12 +273,12 @@ template<>
         return retval;
 #endif
 
-        hid_t dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
-        hid_t dataspace   = H5Dget_space(dataset);
-        hid_t atomic_type = hdf5_atomic_data_type<double>();
+        Hdf5_handler dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataspace   = H5Dget_space(dataset.hid);
+        Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
 
         const int rank = 2;
-        int file_rank = H5Sget_simple_extent_ndims(dataspace);
+        int file_rank = H5Sget_simple_extent_ndims(dataspace.hid);
 
         if (file_rank != rank)
         {
@@ -291,17 +287,16 @@ template<>
         }
 
         std::vector<hsize_t> dims(rank);
-        H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+        herr_t res = H5Sget_simple_extent_dims(dataspace.hid, &dims[0], NULL);
+        if (res < 0) throw Hdf5_exception();
 
         MArray2d retval(boost::extents[dims[0]][dims[1]]);
 
-        hid_t memspace = H5Screate_simple(rank, &dims[0], NULL);
-        H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
+        Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+        res = H5Dread(dataset.hid, atomic_type.hid, memspace.hid, 
+                dataspace.hid, H5P_DEFAULT, retval.origin());
 
-        H5Tclose(atomic_type);
-        H5Sclose(dataspace);
-        H5Sclose(memspace);
-        H5Dclose(dataset);
+        if (res < 0) throw Hdf5_exception();
 
         return retval;
     }
@@ -331,12 +326,12 @@ template<>
         return retval;
 #endif
 
-        hid_t dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
-        hid_t dataspace   = H5Dget_space(dataset);
-        hid_t atomic_type = hdf5_atomic_data_type<double>();
+        Hdf5_handler dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataspace   = H5Dget_space(dataset.hid);
+        Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
 
         const int rank = 3;
-        int file_rank = H5Sget_simple_extent_ndims(dataspace);
+        int file_rank = H5Sget_simple_extent_ndims(dataspace.hid);
 
         if (file_rank != rank)
         {
@@ -345,17 +340,16 @@ template<>
         }
 
         std::vector<hsize_t> dims(rank);
-        H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+        herr_t res = H5Sget_simple_extent_dims(dataspace.hid, &dims[0], NULL);
+        if (res < 0) throw Hdf5_exception();
 
         MArray3d retval(boost::extents[dims[0]][dims[1]][dims[2]]);
 
-        hid_t memspace = H5Screate_simple(rank, &dims[0], NULL);
-        H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
+        Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+        res = H5Dread(dataset.hid, atomic_type.hid, memspace.hid, 
+                dataspace.hid, H5P_DEFAULT, retval.origin());
 
-        H5Tclose(atomic_type);
-        H5Sclose(dataspace);
-        H5Sclose(memspace);
-        H5Dclose(dataset);
+        if (res < 0) throw Hdf5_exception();
 
         return retval;
     }
@@ -385,12 +379,12 @@ template<>
         return retval;
 #endif
 
-        hid_t dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
-        hid_t dataspace   = H5Dget_space(dataset);
-        hid_t atomic_type = hdf5_atomic_data_type<int>();
+        Hdf5_handler dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataspace   = H5Dget_space(dataset.hid);
+        Hdf5_handler atomic_type = hdf5_atomic_data_type<int>();
 
         const int rank = 1;
-        int file_rank = H5Sget_simple_extent_ndims(dataspace);
+        int file_rank = H5Sget_simple_extent_ndims(dataspace.hid);
 
         if (file_rank != rank)
         {
@@ -399,17 +393,16 @@ template<>
         }
 
         std::vector<hsize_t> dims(rank);
-        H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+        herr_t res = H5Sget_simple_extent_dims(dataspace.hid, &dims[0], NULL);
+        if (res < 0) throw Hdf5_exception();
 
         MArray1i retval(boost::extents[dims[0]]);
 
-        hid_t memspace = H5Screate_simple(rank, &dims[0], NULL);
-        H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
+        Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+        res = H5Dread(dataset.hid, atomic_type.hid, memspace.hid, 
+                dataspace.hid, H5P_DEFAULT, retval.origin());
 
-        H5Tclose(atomic_type);
-        H5Sclose(dataspace);
-        H5Sclose(memspace);
-        H5Dclose(dataset);
+        if (res < 0) throw Hdf5_exception();
 
         return retval;
     }
