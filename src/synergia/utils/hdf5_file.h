@@ -22,7 +22,7 @@ struct Hdf5_exception : public std::exception
         std::stringstream buf;
         cerr_redirect cr(buf.rdbuf());
 
-        H5Eprint(H5E_DEFAULT, stderr);
+        //H5Eprint(H5E_DEFAULT, stderr);
         H5Eclear(H5E_DEFAULT);
 
         hdf5_msg = buf.str();
@@ -32,8 +32,11 @@ struct Hdf5_exception : public std::exception
 
     virtual const char * what() const throw()
     {
-        std::string res = "USER MESSAGE:\n" + user_msg + "\n"
-            + "HDF5 MESSAGE:\n" + hdf5_msg;
+        std::string res = std::string("\n")
+            + "===================================\n" 
+            + "USER MESSAGE:\n" + user_msg + "\n"
+            + "HDF5 MESSAGE:\n" + hdf5_msg + "\n"
+            + "===================================\n";
         return res.c_str();
     }
 
