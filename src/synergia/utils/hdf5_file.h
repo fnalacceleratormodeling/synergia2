@@ -16,7 +16,7 @@
 // hdf5 exceptions
 struct Hdf5_exception : public std::exception
 {
-    Hdf5_exception(const char * msg = "")
+    Hdf5_exception(std::string const & msg = "")
         : hdf5_msg(), user_msg(msg)
     { 
         std::stringstream buf;
@@ -34,7 +34,7 @@ struct Hdf5_exception : public std::exception
     {
         std::string res = std::string("\n")
             + "===================================\n" 
-            + "USER MESSAGE:\n" + user_msg + "\n"
+            + "USER MESSAGE:\n" + user_msg + "\n\n"
             + "HDF5 MESSAGE:\n" + hdf5_msg + "\n"
             + "===================================\n";
         return res.c_str();
@@ -54,6 +54,33 @@ private:
 
     std::string hdf5_msg;
     std::string user_msg;
+};
+
+// handles the closing of resources in the RAII way
+struct Hdf5_handler
+{
+    Hdf5_handler(hid_t handler)
+      : hid(handler), htype(H5Iget_type(handler))
+    { 
+        if (hid<0 || htype==H5I_BADID) 
+            throw Hdf5_exception("Bad HDF5 Handler");
+    }
+
+    ~Hdf5_handler()
+    {
+        switch(htype)
+        {
+        case H5I_FILE:      H5Fclose(hid); break;
+        case H5I_GROUP:     H5Gclose(hid); break;
+        case H5I_DATATYPE:  H5Tclose(hid); break;
+        case H5I_DATASPACE: H5Sclose(hid); break;
+        case H5I_DATASET:   H5Dclose(hid); break;
+        case H5I_ATTR:      H5Aclose(hid); break;
+        }
+    }
+
+    hid_t hid;
+    H5I_type_t htype;
 };
 
 class Hdf5_file
