@@ -4,7 +4,7 @@
 
 Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag) 
     : file_name(file_name)
-    , h5file_ptr(0)
+    , h5file()
     , is_open(false)
 {
     // turn off error printing
@@ -14,7 +14,7 @@ Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag)
     current_flag = flag;
 }
 
-Hdf5_file::Hdf5_file() : h5file_ptr(0)
+Hdf5_file::Hdf5_file() : h5file()
 {
 }
 
@@ -47,14 +47,12 @@ Hdf5_file::open(Flag flag)
     if (flag == Hdf5_file::truncate)
     {
         // create
-        h5file_ptr = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-        if (h5file_ptr < 0) throw Hdf5_exception("error at create h5 file");
+        h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     }
     else
     {
         // open
-        h5file_ptr = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), H5P_DEFAULT);
-        if (h5file_ptr < 0) throw Hdf5_exception("error at open h5 file");
+        h5file = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), H5P_DEFAULT);
     }
 
     is_open = true;
@@ -68,7 +66,7 @@ Hdf5_file::close()
         h5file_ptr->close();
         delete h5file_ptr;
 #endif
-        H5Fclose(h5file_ptr);
+        h5file.close();
         is_open = false;
     }
 }
@@ -77,7 +75,7 @@ void
 Hdf5_file::flush() const
 {
     //h5file_ptr->flush(H5F_SCOPE_GLOBAL);
-    H5Fflush(h5file_ptr, H5F_SCOPE_GLOBAL);
+    H5Fflush(h5file.hid, H5F_SCOPE_GLOBAL);
 }
 
 extern "C" herr_t get_member_names_callback(hid_t group, const char *name,
@@ -101,7 +99,7 @@ Hdf5_file::get_member_names()
     delete root_group_ptr;
 #endif
 
-    Hdf5_handler root_group = H5Gopen(h5file_ptr, "/", H5P_DEFAULT);
+    Hdf5_handler root_group = H5Gopen(h5file.hid, "/", H5P_DEFAULT);
     herr_t status = H5Literate(root_group.hid, H5_INDEX_NAME,
                                H5_ITER_NATIVE, NULL,
                                &get_member_names_callback,
@@ -131,7 +129,7 @@ Hdf5_file::get_atomic_type(std::string const& name)
     return retval;
 #endif
 
-    Hdf5_handler dataset  = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataset  = H5Dopen(h5file.hid, name.c_str(), H5P_DEFAULT);
     Hdf5_handler datatype = H5Dget_type(dataset.hid);
     H5T_class_t the_class = H5Tget_class(datatype.hid);
 
@@ -168,7 +166,7 @@ Hdf5_file::get_dims(std::string const& name)
     return retval;
 #endif
 
-    Hdf5_handler dataset   = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataset   = H5Dopen(h5file.hid, name.c_str(), H5P_DEFAULT);
     Hdf5_handler dataspace = H5Dget_space(dataset.hid);
 
     int rank = H5Sget_simple_extent_ndims(dataspace.hid);
@@ -186,7 +184,7 @@ hid_t
 Hdf5_file::get_h5file()
 {
     //return *h5file_ptr;
-    return h5file_ptr;
+    return h5file.hid;
 }
 
 Hdf5_file::~Hdf5_file()
@@ -219,7 +217,7 @@ template<>
         return retval;
 #endif
 
-        Hdf5_handler dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataset     = H5Dopen(h5file.hid, name.c_str(), H5P_DEFAULT);
         Hdf5_handler dataspace   = H5Dget_space(dataset.hid);
         Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
 
@@ -273,7 +271,7 @@ template<>
         return retval;
 #endif
 
-        Hdf5_handler dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataset     = H5Dopen(h5file.hid, name.c_str(), H5P_DEFAULT);
         Hdf5_handler dataspace   = H5Dget_space(dataset.hid);
         Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
 
@@ -326,7 +324,7 @@ template<>
         return retval;
 #endif
 
-        Hdf5_handler dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataset     = H5Dopen(h5file.hid, name.c_str(), H5P_DEFAULT);
         Hdf5_handler dataspace   = H5Dget_space(dataset.hid);
         Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
 
@@ -379,7 +377,7 @@ template<>
         return retval;
 #endif
 
-        Hdf5_handler dataset     = H5Dopen(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataset     = H5Dopen(h5file.hid, name.c_str(), H5P_DEFAULT);
         Hdf5_handler dataspace   = H5Dget_space(dataset.hid);
         Hdf5_handler atomic_type = hdf5_atomic_data_type<int>();
 

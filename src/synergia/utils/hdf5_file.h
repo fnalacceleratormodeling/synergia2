@@ -59,15 +59,19 @@ private:
 // handles the closing of resources in the RAII way
 struct Hdf5_handler
 {
-    Hdf5_handler(hid_t handler = 0)
-      : hid(handler), htype(H5Iget_type(handler))
+    Hdf5_handler(hid_t handler = 0) : hid(handler)
     { 
         if (hid<0) throw Hdf5_exception("Bad HDF5 Handler");
     }
 
     ~Hdf5_handler()
     {
-        switch(htype)
+        close();
+    }
+
+    void close()
+    {
+        switch(H5Iget_type(hid))
         {
         case H5I_FILE:      H5Fclose(hid); break;
         case H5I_GROUP:     H5Gclose(hid); break;
@@ -76,10 +80,11 @@ struct Hdf5_handler
         case H5I_DATASET:   H5Dclose(hid); break;
         case H5I_ATTR:      H5Aclose(hid); break;
         }
+
+        hid = 0;
     }
 
     hid_t hid;
-    H5I_type_t htype;
 };
 
 class Hdf5_file
@@ -97,7 +102,7 @@ public:
 private:
     std::string file_name;
     //H5::H5File * h5file_ptr;
-    hid_t h5file_ptr;
+    Hdf5_handler h5file;
     bool is_open;
     Flag current_flag;
     unsigned int

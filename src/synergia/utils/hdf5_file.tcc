@@ -7,7 +7,7 @@ template<typename T>
     void
     Hdf5_file::write(T const& data, std::string const& name)
     {
-        Hdf5_writer<T > (h5file_ptr, name).write(data);
+        Hdf5_writer<T > (h5file.hid, name).write(data);
     }
 
 template<typename T>
@@ -30,7 +30,7 @@ template<typename T>
         T retval;
 
         Hdf5_handler atomic_type = hdf5_atomic_data_type<T>();
-        Hdf5_handler dataset = H5Dopen2(h5file_ptr, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler dataset = H5Dopen2(h5file.hid, name.c_str(), H5P_DEFAULT);
 
         std::vector<hsize_t > dims(1);
         dims.at(0) = 1;
