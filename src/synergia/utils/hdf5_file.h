@@ -59,11 +59,10 @@ private:
 // handles the closing of resources in the RAII way
 struct Hdf5_handler
 {
-    Hdf5_handler(hid_t handler)
+    Hdf5_handler(hid_t handler = 0)
       : hid(handler), htype(H5Iget_type(handler))
     { 
-        if (hid<0 || htype==H5I_BADID) 
-            throw Hdf5_exception("Bad HDF5 Handler");
+        if (hid<0) throw Hdf5_exception("Bad HDF5 Handler");
     }
 
     ~Hdf5_handler()
