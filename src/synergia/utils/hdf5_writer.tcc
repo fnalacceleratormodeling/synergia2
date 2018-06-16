@@ -11,9 +11,9 @@ using namespace H5;
 
 template<typename T>
     Hdf5_writer<T >::Hdf5_writer(hid_t file_ptr, std::string const& name) :
-        data_rank(0), dims(1), name(name), file_ptr(file_ptr)
+        data_rank(0), dims(1), name(name), file_ptr(file_ptr),
+        atomic_type(hdf5_atomic_data_type<T>())
     {
-        atomic_type = hdf5_atomic_data_type<T > ();
     }
 
 template<typename T>
@@ -42,20 +42,20 @@ template<typename T>
         dataset.write(get_data_ptr(data), atomic_type, dataspace);
 #endif
 
-        hid_t dataspace = H5Screate_simple(data_rank, &dims[0], NULL);
-        hid_t dataset   = H5Dcreate(file_ptr, name.c_str(), atomic_type,
+        Hdf5_handler dataspace = H5Screate_simple(data_rank, &dims[0], NULL);
+        Hdf5_handler dataset   = H5Dcreate(file_ptr, name.c_str(), atomic_type,
                 dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        H5Dwrite(dataset, atomic_type, dataspace, H5S_ALL, H5P_DEFAULT, 
+
+        herr_t res = H5Dwrite(dataset, atomic_type, dataspace, H5S_ALL, H5P_DEFAULT, 
                 get_data_ptr(data));
 
-        H5Sclose(dataspace);
-        H5Dclose(dataset);
+        if (res < 0) throw Hdf5_exception();
+
     }
 
 template<typename T>
     Hdf5_writer<T >::~Hdf5_writer()
     {
-        H5Tclose(atomic_type);
     }
 
 template<>

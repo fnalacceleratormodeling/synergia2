@@ -6,6 +6,8 @@
 //#include "H5Cpp.h"
 #include "hdf5.h"
 
+#include "synergia/utils/hdf5_misc.h"
+
 template<typename T>
     class Hdf5_writer
     {
@@ -17,8 +19,10 @@ template<typename T>
         H5::H5File * file_ptr;
         H5::DataType atomic_type;
 #endif
-        hid_t file_ptr;
-        hid_t atomic_type;
+
+        // use hid_t type since the writer doesnt own the file object
+        hid_t file_ptr;    
+        Hdf5_handler atomic_type;
 
         void
         update_dims(T const& data);
