@@ -5,106 +5,12 @@
 #include "hdf5.h"
 #include <boost/shared_ptr.hpp>
 
+#include "synergia/utils/hdf5_misc.h"
 #include "synergia/utils/hdf5_writer.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/commxx.h"
 
-#include <exception>
-
-
-// hdf5 exceptions
-struct Hdf5_exception : public std::exception
-{
-    Hdf5_exception(std::string const & msg = "")
-        : hdf5_msg(), user_msg(msg)
-    { 
-        std::stringstream buf;
-        cerr_redirect cr(buf.rdbuf());
-
-        //H5Eprint(H5E_DEFAULT, stderr);
-        H5Eclear(H5E_DEFAULT);
-
-        hdf5_msg = buf.str();
-    }
-
-    ~Hdf5_exception() throw() { }
-
-    virtual const char * what() const throw()
-    {
-        std::string res = std::string("\n")
-            + "===================================\n" 
-            + "USER MESSAGE:\n" + user_msg + "\n\n"
-            + "HDF5 MESSAGE:\n" + hdf5_msg + "\n"
-            + "===================================\n";
-        return res.c_str();
-    }
-
-private:
-
-    struct cerr_redirect
-    {
-        cerr_redirect(std::streambuf * new_buf) : old(std::cerr.rdbuf(new_buf)) { }
-        ~cerr_redirect() { std::cerr.rdbuf(old); }
-
-        std::streambuf * old;
-    };
-
-private:
-
-    std::string hdf5_msg;
-    std::string user_msg;
-};
-
-// handles the closing of resources in the RAII way
-struct Hdf5_handler
-{
-    Hdf5_handler(hid_t handler = 0) : hid(handler)
-    { 
-        if (hid < 0) throw Hdf5_exception("Bad HDF5 Handler");
-    }
-
-    ~Hdf5_handler()
-    {
-        close();
-    }
-
-    void close()
-    {
-        switch(H5Iget_type(hid))
-        {
-        case H5I_FILE:      H5Fclose(hid); break;
-        case H5I_GROUP:     H5Gclose(hid); break;
-        case H5I_DATATYPE:  H5Tclose(hid); break;
-        case H5I_DATASPACE: H5Sclose(hid); break;
-        case H5I_DATASET:   H5Dclose(hid); break;
-        case H5I_ATTR:      H5Aclose(hid); break;
-        }
-
-        hid = 0;
-    }
-
-    Hdf5_handler & operator= (hid_t handler)
-    {
-        hid = handler; 
-        if (hid < 0) throw Hdf5_exception("Bad HDF5 Handler");
-
-        return *this;
-    }
-
-    operator hid_t const()
-    {
-        return hid;
-    }
-
-    hid_t hid;
-
-private:
-
-    // disable copy and assignment
-    // Hdf5_handler(Hdf5_handler const &) { }
-    Hdf5_handler & operator= (Hdf5_handler const &) { }
-};
 
 class Hdf5_file
 {
