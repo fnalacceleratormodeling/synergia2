@@ -61,7 +61,7 @@ struct Hdf5_handler
 {
     Hdf5_handler(hid_t handler = 0) : hid(handler)
     { 
-        if (hid<0) throw Hdf5_exception("Bad HDF5 Handler");
+        if (hid < 0) throw Hdf5_exception("Bad HDF5 Handler");
     }
 
     ~Hdf5_handler()
@@ -84,7 +84,26 @@ struct Hdf5_handler
         hid = 0;
     }
 
+    Hdf5_handler & operator= (hid_t handler)
+    {
+        hid = handler; 
+        if (hid < 0) throw Hdf5_exception("Bad HDF5 Handler");
+
+        return *this;
+    }
+
+    operator hid_t const()
+    {
+        return hid;
+    }
+
     hid_t hid;
+
+private:
+
+    // disable copy and assignment
+    // Hdf5_handler(Hdf5_handler const &) { }
+    Hdf5_handler & operator= (Hdf5_handler const &) { }
 };
 
 class Hdf5_file
