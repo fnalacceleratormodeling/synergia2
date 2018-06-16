@@ -22,8 +22,8 @@ template<typename T>
         H5::DataSet dataset;
         H5::DataType atomic_type;
 #endif
-        hid_t dataset;
-        hid_t atomic_type;
+        Hdf5_handler dataset;
+        Hdf5_handler atomic_type;
 
         bool have_setup;
         bool resume;
