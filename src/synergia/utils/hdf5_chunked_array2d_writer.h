@@ -15,8 +15,8 @@ private:
     H5::DataSet dataset;
     H5::DataType atomic_type;
 #endif
-    hid_t dataset;
-    hid_t atomic_type;
+    Hdf5_handler dataset;
+    Hdf5_handler atomic_type;
 
 public:
     Hdf5_chunked_array2d_writer(hid_t file_ptr, std::string const& name,

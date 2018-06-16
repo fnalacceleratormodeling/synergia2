@@ -36,14 +36,13 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t file_ptr,
             cparms);
 #endif
 
-    hid_t cparms = H5Pcreate(H5P_DATASET_CREATE);
-    H5Pset_chunk(cparms, 2, &chunk_dims[0]);
-    hid_t dataspace = H5Screate_simple(2, &dims[0], &max_dims[0]);
+    Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
+    herr_t res = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
+    if (res < 0) throw Hdf5_exception();
+
+    Hdf5_handler dataspace = H5Screate_simple(2, &dims[0], &max_dims[0]);
     dataset = H5Dcreate(file_ptr, name.c_str(), atomic_type,
             dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
-
-    H5Pclose(cparms);
-    H5Sclose(dataspace);
 }
 
 Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t file_ptr,
@@ -73,14 +72,13 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t file_ptr,
             cparms);
 #endif
 
-    hid_t cparms = H5Pcreate(H5P_DATASET_CREATE);
-    H5Pset_chunk(cparms, 2, &chunk_dims[0]);
-    hid_t dataspace = H5Screate_simple(2, &dims[0], &max_dims[0]);
+    Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
+    herr_t res = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
+    if (res < 0) throw Hdf5_exception();
+
+    Hdf5_handler dataspace = H5Screate_simple(2, &dims[0], &max_dims[0]);
     dataset = H5Dcreate(file_ptr, name.c_str(), atomic_type,
             dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
-
-    H5Pclose(cparms);
-    H5Sclose(dataspace);
 }
 
 void
@@ -103,23 +101,23 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
 
-    hid_t cparms = H5Pcreate(H5P_DATASET_CREATE);
-    H5Pset_chunk(cparms, 2, &chunk_dims[0]);
+    Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
+    herr_t res = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
+    if (res < 0) throw Hdf5_exception();
 
     size[0] += data.shape()[0];
-    H5Dextend(dataset, &size[0]);
+    res = H5Dextend(dataset, &size[0]);
+    if (res < 0) throw Hdf5_exception();
 
-    hid_t filespace = H5Dget_space(dataset);
-    H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &chunk_dims[0], NULL);
+    Hdf5_handler filespace = H5Dget_space(dataset);
+    res = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &chunk_dims[0], NULL);
+    if (res < 0) throw Hdf5_exception();
 
-    hid_t dataspace = H5Screate_simple(2, &chunk_dims[0], &max_dims[0]);
+    Hdf5_handler dataspace = H5Screate_simple(2, &chunk_dims[0], &max_dims[0]);
+    res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
+    if (res < 0) throw Hdf5_exception();
 
-    H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
     offset[0] += data.shape()[0];
-
-    H5Sclose(dataspace);
-    H5Sclose(filespace);
-    H5Pclose(cparms);
 }
 
 void
@@ -142,27 +140,25 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
 
-    hid_t cparms = H5Pcreate(H5P_DATASET_CREATE);
-    H5Pset_chunk(cparms, 2, &chunk_dims[0]);
+    Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
+    herr_t res = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
+    if (res < 0) throw Hdf5_exception();
 
     size[0] += data.shape()[0];
-    H5Dextend(dataset, &size[0]);
+    res = H5Dextend(dataset, &size[0]);
+    if (res < 0) throw Hdf5_exception();
 
-    hid_t filespace = H5Dget_space(dataset);
-    H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &chunk_dims[0], NULL);
+    Hdf5_handler filespace = H5Dget_space(dataset);
+    res = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &chunk_dims[0], NULL);
+    if (res < 0) throw Hdf5_exception();
 
-    hid_t dataspace = H5Screate_simple(2, &chunk_dims[0], &max_dims[0]);
+    Hdf5_handler dataspace = H5Screate_simple(2, &chunk_dims[0], &max_dims[0]);
+    res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
+    if (res < 0) throw Hdf5_exception();
 
-    H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
     offset[0] += data.shape()[0];
-
-    H5Sclose(dataspace);
-    H5Sclose(filespace);
-    H5Pclose(cparms);
 }
 
 Hdf5_chunked_array2d_writer::~Hdf5_chunked_array2d_writer()
 {
-    H5Tclose(atomic_type);
-    H5Dclose(dataset);
 }
