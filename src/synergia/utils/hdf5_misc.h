@@ -78,6 +78,7 @@ struct Hdf5_handler
         case H5I_DATASPACE: H5Sclose(hid); break;
         case H5I_DATASET:   H5Dclose(hid); break;
         case H5I_ATTR:      H5Aclose(hid); break;
+        case H5I_GENPROP_LST: H5Pclose(hid); break;
         }
 
         hid = 0;
