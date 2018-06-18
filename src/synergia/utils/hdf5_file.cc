@@ -42,13 +42,18 @@ Hdf5_file::open(Flag flag)
                 // open
                 h5file = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), H5P_DEFAULT);
             }
+
+            fail = false;
         }
         catch(Hdf5_exception & e)
         {
             ++attempts;
             fail = true;
+
+            std::cout << e.what() << "\n";
             std::cout << "caught hdf5 open file error, attempts number="
                 << attempts << " on rank=" << Commxx().get_rank() << std::endl;
+
             sleep(3);
         }
     }
