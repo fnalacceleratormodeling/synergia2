@@ -44,15 +44,32 @@ Hdf5_file::open(Flag flag)
     }
 #endif
 
-    if (flag == Hdf5_file::truncate)
+    int attempts = 0;
+    bool fail = true;
+
+    while ((attempts < 5) && fail)
     {
-        // create
-        h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    }
-    else
-    {
-        // open
-        h5file = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), H5P_DEFAULT);
+        try
+        {
+            if (flag == Hdf5_file::truncate)
+            {
+                // create
+                h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+            }
+            else
+            {
+                // open
+                h5file = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), H5P_DEFAULT);
+            }
+        }
+        catch(Hdf5_exception & e)
+        {
+            ++attempts;
+            fail = true;
+            std::cout << "caught hdf5 open file error, attempts number="
+                << attempts << " on rank=" << Commxx().get_rank() << std::endl;
+            sleep(3);
+        }
     }
 
     is_open = true;
