@@ -2,7 +2,7 @@
 #define HDF5_CHUNKED_ARRAY2D_WRITER_H_
 #include <vector>
 #include <string>
-//#include "H5Cpp.h"
+
 #include "hdf5_file.h"
 #include "synergia/utils/multi_array_typedefs.h"
 
@@ -11,10 +11,7 @@ class Hdf5_chunked_array2d_writer
 private:
     std::vector<hsize_t > dims, max_dims, size, offset, chunk_dims;
     std::string name;
-#if 0
-    H5::DataSet dataset;
-    H5::DataType atomic_type;
-#endif
+
     Hdf5_handler dataset;
     Hdf5_handler atomic_type;
 

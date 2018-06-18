@@ -3,12 +3,6 @@
 #include <stdexcept>
 #include <iostream>
 
-#if 0
-#ifndef H5_NO_NAMESPACE
-using namespace H5;
-#endif
-#endif
-
 template<typename T>
     void
     Hdf5_serial_writer<T >::setup(std::vector<int > const& data_dims)
@@ -31,16 +25,6 @@ template<typename T>
         max_dims[data_rank] = H5S_UNLIMITED;
 
         if (resume) {
-#if 0
-            dataset = file_sptr->get_h5file().openDataSet(name.c_str());
-            DataSpace dataspace = dataset.getSpace();
-            int file_rank = dataspace.getSimpleExtentNdims();
-            if (file_rank != data_rank + 1) {
-                throw std::runtime_error(
-                        "Hdf5_serial_writer::resumed data has wrong rank");
-            }
-            dataspace.getSimpleExtentDims(&dims[0], NULL);
-#endif
             dataset = H5Dopen(file_sptr->get_h5file(), name.c_str(), H5P_DEFAULT);
             Hdf5_handler dataspace = H5Dget_space(dataset);
             int file_rank = H5Sget_simple_extent_ndims(dataspace);
@@ -69,14 +53,6 @@ template<typename T>
             } else {
                 chunk_dims[data_rank] = 1;
             }
-
-#if 0
-            DSetCreatPropList cparms;
-            cparms.setChunk(data_rank + 1, &chunk_dims[0]);
-            DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
-            dataset = file_sptr->get_h5file().createDataSet(name.c_str(),
-                    atomic_type, dataspace, cparms);
-#endif
 
             Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
             herr_t res = H5Pset_chunk(cparms, data_rank + 1, &chunk_dims[0]);
@@ -136,17 +112,6 @@ template<typename T>
             // be 0, but that would not compile
             setup(data_dims);
         }
-
-#if 0
-        DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
-        ++size[data_rank];
-        dataset.extend(&size[0]);
-
-        DataSpace filespace = dataset.getSpace();
-        filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
-        dataset.write(&data, atomic_type, dataspace, filespace);
-        ++offset[data_rank];
-#endif
 
         Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];

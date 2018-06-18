@@ -1,7 +1,6 @@
 #ifndef HDF5_FILE_H_
 #define HDF5_FILE_H_
 #include <string>
-//#include "H5Cpp.h"
 #include "hdf5.h"
 #include <boost/shared_ptr.hpp>
 
@@ -26,7 +25,6 @@ public:
 
 private:
     std::string file_name;
-    //H5::H5File * h5file_ptr;
     Hdf5_handler h5file;
     bool is_open;
     Flag current_flag;
@@ -61,10 +59,6 @@ public:
     get_atomic_type(std::string const& name);
     std::vector<int >
     get_dims(std::string const& name);
-#if 0
-    H5::H5File &
-    get_h5file();
-#endif
     hid_t
     get_h5file();
 

@@ -3,12 +3,6 @@
 #include <stdexcept>
 #include <iostream>
 
-#if 0
-#ifndef H5_NO_NAMESPACE
-using namespace H5;
-#endif
-#endif
-
 Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t file_ptr,
         std::string const& name, Const_MArray2d_view const & initial_data,
         int chunk_size) :
@@ -27,14 +21,6 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t file_ptr,
     size[0] = 0;
     size[1] = initial_data.shape()[1];
     max_dims[0] = H5S_UNLIMITED;
-
-#if 0
-    DSetCreatPropList cparms;
-    cparms.setChunk(2, &chunk_dims[0]);
-    DataSpace dataspace(2, &dims[0], &max_dims[0]);
-    dataset = file_ptr->createDataSet(name.c_str(), atomic_type, dataspace,
-            cparms);
-#endif
 
     Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
     herr_t res = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
@@ -64,14 +50,6 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t file_ptr,
     size[1] = initial_data.shape()[1];
     max_dims[0] = H5S_UNLIMITED;
 
-#if 0
-    DSetCreatPropList cparms;
-    cparms.setChunk(2, &chunk_dims[0]);
-    DataSpace dataspace(2, &dims[0], &max_dims[0]);
-    dataset = file_ptr->createDataSet(name.c_str(), atomic_type, dataspace,
-            cparms);
-#endif
-
     Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
     herr_t res = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
     if (res < 0) throw Hdf5_exception();
@@ -84,20 +62,6 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t file_ptr,
 void
 Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
 {
-#if 0
-    chunk_dims[0] = data.shape()[0];
-    chunk_dims[1] = data.shape()[1];
-    DSetCreatPropList cparms;
-    cparms.setChunk(2, &chunk_dims[0]);
-    size[0] += data.shape()[0];
-    dataset.extend(&size[0]);
-    DataSpace filespace = dataset.getSpace();
-    filespace.selectHyperslab(H5S_SELECT_SET, &chunk_dims[0], &offset[0]);
-    DataSpace dataspace(2, &chunk_dims[0], &max_dims[0]);
-    dataset.write(data.origin(), atomic_type, dataspace, filespace);
-    offset[0] += data.shape()[0];
-#endif
-
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
 
@@ -123,20 +87,6 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
 void
 Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
 {
-#if 0
-    chunk_dims[0] = data.shape()[0];
-    chunk_dims[1] = data.shape()[1];
-    DSetCreatPropList cparms;
-    cparms.setChunk(2, &chunk_dims[0]);
-    size[0] += data.shape()[0];
-    dataset.extend(&size[0]);
-    DataSpace filespace = dataset.getSpace();
-    filespace.selectHyperslab(H5S_SELECT_SET, &chunk_dims[0], &offset[0]);
-    DataSpace dataspace(2, &chunk_dims[0], &max_dims[0]);
-    dataset.write(data.origin(), atomic_type, dataspace, filespace);
-    offset[0] += data.shape()[0];
-#endif
-
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
 

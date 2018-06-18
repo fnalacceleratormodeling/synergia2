@@ -3,12 +3,6 @@
 #include <stdexcept>
 #include <iostream>
 
-#if 0
-#ifndef H5_NO_NAMESPACE
-using namespace H5;
-#endif
-#endif
-
 template<typename T>
     Hdf5_writer<T >::Hdf5_writer(hid_t file_ptr, std::string const& name) :
         data_rank(0), dims(1), name(name), file_ptr(file_ptr),
@@ -35,12 +29,6 @@ template<typename T>
     Hdf5_writer<T >::write(T const& data)
     {
         update_dims(data);
-#if 0
-        DataSpace dataspace(data_rank, &dims[0]);
-        DataSet dataset = file_ptr->createDataSet(name.c_str(), atomic_type,
-                dataspace);
-        dataset.write(get_data_ptr(data), atomic_type, dataspace);
-#endif
 
         Hdf5_handler dataspace = H5Screate_simple(data_rank, &dims[0], NULL);
         Hdf5_handler dataset   = H5Dcreate(file_ptr, name.c_str(), atomic_type,

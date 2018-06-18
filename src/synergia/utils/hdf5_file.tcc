@@ -14,19 +14,6 @@ template<typename T>
     T
     Hdf5_file::read(std::string const& name)
     {
-#if 0
-        T retval;
-        DataSet dataset = h5file_ptr->openDataSet(name.c_str());
-        H5::DataType atomic_type = hdf5_atomic_data_type<T > ();
-        std::vector<hsize_t > dims(1);
-        dims.at(0) = 1;
-        int data_rank = 0;
-        DataSpace dataspace(data_rank, &dims[0]);
-        DataSpace memspace(data_rank, &dims[0]);
-        T * data_out = &retval;
-        dataset.read(data_out, atomic_type, memspace, dataspace);
-        return retval;
-#endif
         T retval;
 
         Hdf5_handler atomic_type = hdf5_atomic_data_type<T>();

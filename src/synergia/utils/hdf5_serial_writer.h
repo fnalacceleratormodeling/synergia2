@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 
-//#include "H5Cpp.h"
 #include "hdf5.h"
 
 #include "synergia/utils/hdf5_file.h"
@@ -18,10 +17,6 @@ template<typename T>
         std::string name;
 
         Hdf5_file_sptr file_sptr;
-#if 0
-        H5::DataSet dataset;
-        H5::DataType atomic_type;
-#endif
         Hdf5_handler dataset;
         Hdf5_handler atomic_type;
 
