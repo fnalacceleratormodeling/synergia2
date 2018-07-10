@@ -1,4 +1,7 @@
+
 #include "analysis.h"
+#include "synergia/utils/hdf5_misc.h"
+
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -58,30 +61,40 @@ void Analysis::uploadCoords() {
      } 
      inFileTmp.close();
      inFileTmp.clear();
-     H5::H5File file=H5::H5File(fullname.c_str(), H5F_ACC_RDONLY);
-     H5::DataSet bunch_ds = file.openDataSet("particles");
-     H5::FloatType datatypeDble(H5::PredType::NATIVE_DOUBLE);
-     H5::DataSpace spaceBunch = bunch_ds.getSpace();
+
+     Hdf5_handler file = H5Fopen(fullname.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+     Hdf5_handler bunch_ds = H5Dopen(file, "particles", H5P_DEFAULT);
+     Hdf5_handler spaceBunch = H5Dget_space(bunch_ds);
+     Hdf5_handler datatypeDble = hdf5_atomic_data_type<double>();
+
      size_t nTotalEntries = (size_t) dims_out[0];
 //     std::cerr << " Number of particle at turn " << numTurns << " is " << nTotalEntries << std::endl;
      hsize_t      countVect[2]={1,7};    // size of the hyperslab in the file
-     H5::DataSpace  memspace(2, countVect);
+
+     Hdf5_handler memspace = H5Screate_simple(2, countVect, NULL);
+
      MArray1d aPartCoord(boost::extents[7]); // coordinate values.
      if (coords.shape()[1] == 1)  {
          coords.resize(boost::extents[maxNumberOfTurn][nTotalEntries][2]);
          for(size_t i=0; i!=maxNumberOfTurn; i++) { 
-	   for(size_t j=0; j!=nTotalEntries; j++) { 
-	     coords[i][j][0] = ((double) FLT_MAX) ;
-	     coords[i][j][1] = ((double) FLT_MAX) ;
-	   }
-	 }
+             for(size_t j=0; j!=nTotalEntries; j++) { 
+               coords[i][j][0] = ((double) FLT_MAX) ;
+               coords[i][j][1] = ((double) FLT_MAX) ;
+             }
+         }
      }
+
      size_t nEntry=0;
      int nGoodParticles=0;
      while (nEntry < nTotalEntries) { // Slow and tedious get every X or y position, 
        offset[0] = nEntry;
-       spaceBunch.selectHyperslab( H5S_SELECT_SET, countVect, offset );
-       bunch_ds.read(&aPartCoord[0], datatypeDble, memspace, spaceBunch );
+
+       herr_t res = H5Sselect_hyperslab(spaceBunch, H5S_SELECT_SET, offset, NULL, countVect, NULL);
+       if (res < 0) throw Hdf5_exception();
+
+       res = H5Dread(bunch_ds, datatypeDble, memspace, spaceBunch, H5P_DEFAULT, &aPartCoord[0]);
+       if (res < 0) throw Hdf5_exception();
+
        size_t partNum = (size_t) ( (int) aPartCoord[Bunch::id]);
        if (partNum >= nTotalEntries) {nEntry++; continue; } // Should not happen, but depend on algorithms to define 
                                                 // Selected particles. 
@@ -93,7 +106,6 @@ void Analysis::uploadCoords() {
        numParticles1rstBunch = nGoodParticles;
      }
      numTurns++;
-     file.close();
   } // on Files, one file per turn. 
 }
 
@@ -144,19 +156,27 @@ std::vector<double> Analysis::get_transverse_action_for_particle(bool isH,
      if (!inFileTmp.is_open()) break; // We do not increment the turn number. 
      inFileTmp.close();
      inFileTmp.clear();
-     H5::H5File file=H5::H5File(fullname.c_str(), H5F_ACC_RDONLY);
-     H5::DataSet bunch_ds = file.openDataSet("particles");
-     H5::FloatType datatypeDble(H5::PredType::NATIVE_DOUBLE);
-     H5::DataSpace spaceBunch = bunch_ds.getSpace();
+
+     Hdf5_handler file = H5Fopen(fullname.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+     Hdf5_handler bunch_ds = H5Dopen(file, "particles", H5P_DEFAULT);
+     Hdf5_handler spaceBunch = H5Dget_space(bunch_ds);
+     Hdf5_handler datatypeDble = hdf5_atomic_data_type<double>();
+
      size_t nTotalEntries = (size_t) dims_out[0];
      hsize_t      countVect[2]={1,7};    // size of the hyperslab in the file
-     H5::DataSpace  memspace(2, countVect);
+     Hdf5_handler memspace = H5Screate_simple(2, countVect, NULL);
+
      MArray1d aPartCoord(boost::extents[7]); // coordinate values.
      size_t nEntry=0;
      while (nEntry < nTotalEntries) { // Slow and tedious get every X or y position, 
        offset[0] = nEntry;
-       spaceBunch.selectHyperslab( H5S_SELECT_SET, countVect, offset );
-       bunch_ds.read(&aPartCoord[0], datatypeDble, memspace, spaceBunch );
+
+       herr_t res = H5Sselect_hyperslab(spaceBunch, H5S_SELECT_SET, offset, NULL, countVect, NULL);
+       if (res < 0) throw Hdf5_exception();
+
+       res = H5Dread(bunch_ds, datatypeDble, memspace, spaceBunch, H5P_DEFAULT, &aPartCoord[0]);
+       if (res < 0) throw Hdf5_exception();
+
        size_t partNum = (size_t) ( (int) aPartCoord[Bunch::id]);
        if (partNumber != partNum) {nEntry++; continue;}
        double action=0;
@@ -170,7 +190,6 @@ std::vector<double> Analysis::get_transverse_action_for_particle(bool isH,
        break;
       } // on Entries within a turn...  
     nTurns++;
-    file.close();
   } // on Files, one file per turn. 
   return cVals;
 } 
@@ -191,22 +210,31 @@ std::vector<double> Analysis::get_transverse_action_for_bunch(bool isH,
   if (!inFileTmp.is_open()) return cVals; // Empty, no such turns 
   inFileTmp.close();
   inFileTmp.clear();
-  H5::H5File file=H5::H5File(fullname.c_str(), H5F_ACC_RDONLY);
-  H5::DataSet bunch_ds = file.openDataSet("particles");
-  H5::FloatType datatypeDble(H5::PredType::NATIVE_DOUBLE);
-  H5::DataSpace spaceBunch = bunch_ds.getSpace();
+
+  Hdf5_handler file = H5Fopen(fullname.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  Hdf5_handler bunch_ds = H5Dopen(file, "particles", H5P_DEFAULT);
+  Hdf5_handler spaceBunch = H5Dget_space(bunch_ds);
+  Hdf5_handler datatypeDble = hdf5_atomic_data_type<double>();
+
   hsize_t	offset[2]={0,0};   // hyperslab offset in the file
   hsize_t      dims_out[2]={0,0};   // the whole thing.
   size_t nTotalEntries = (size_t) dims_out[0];
   hsize_t	countVect[2]={1,7};    // size of the hyperslab in the file
-  H5::DataSpace  memspace(2, countVect);
+
+  Hdf5_handler memspace = H5Screate_simple(2, countVect, NULL);
+
   size_t nEntry=0;
   double gamma = (1. + alpha*alpha)/beta;
   MArray1d aPartCoord(boost::extents[7]); // coordinate values.
   while (nEntry < nTotalEntries) { // Slow and tedious get every X or y position, 
     offset[0] = nEntry;
-    spaceBunch.selectHyperslab( H5S_SELECT_SET, countVect, offset );
-    bunch_ds.read(&aPartCoord[0], datatypeDble, memspace, spaceBunch );
+
+    herr_t res = H5Sselect_hyperslab(spaceBunch, H5S_SELECT_SET, offset, NULL, countVect, NULL);
+    if (res < 0) throw Hdf5_exception();
+
+    res = H5Dread(bunch_ds, datatypeDble, memspace, spaceBunch, H5P_DEFAULT, &aPartCoord[0]);
+    if (res < 0) throw Hdf5_exception();
+
     double action=0;
     if (isH) action = beta*aPartCoord[Bunch::xp]*aPartCoord[Bunch::xp] + 
         			 2.0*alpha*aPartCoord[Bunch::x]*aPartCoord[Bunch::xp] +
