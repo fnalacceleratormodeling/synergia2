@@ -1156,7 +1156,7 @@ Solenoid_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     if (ks == 0.0) {
         generic_elm = new drift(lattice_element.get_name().c_str(), length);
     } else {
-        generic_elm = new Solenoid(lattice_element.get_name().c_str(), length, ks);
+        generic_elm = new Solenoid(lattice_element.get_name().c_str(), length, ks*brho);
     }
     ElmPtr elm(generic_elm);
     retval.push_back(elm);
