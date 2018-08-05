@@ -19,7 +19,7 @@
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "fast_normal_form.h"
-
+#include <physics_toolkit/EdwardsTengSage.h>
 
 using namespace boost::python;
 
@@ -364,6 +364,20 @@ BOOST_PYTHON_MODULE(simulation)
     (Lattice_simulator::*get_lattice_functions2)(Lattice_element_slice &) =
             &Lattice_simulator::get_lattice_functions;
 
+    ET_lattice_functions const&
+    (Lattice_simulator::*get_et_lattice_functions1)(Lattice_element &) =
+            &Lattice_simulator::get_et_lattice_functions;
+    ET_lattice_functions const&
+    (Lattice_simulator::*get_et_lattice_functions2)(Lattice_element_slice &) =
+            &Lattice_simulator::get_et_lattice_functions;
+
+    LB_lattice_functions const&
+    (Lattice_simulator::*get_lb_lattice_functions1)(Lattice_element &) =
+            &Lattice_simulator::get_lb_lattice_functions;
+    LB_lattice_functions const&
+    (Lattice_simulator::*get_lb_lattice_functions2)(Lattice_element_slice &) =
+            &Lattice_simulator::get_lb_lattice_functions;
+
     class_<Aperture_operation_extractor, boost::noncopyable >
             Aperture_operation_extractor_("Aperture_operation_extractor_",
                     no_init);
@@ -440,6 +454,14 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_lattice_functions", get_lattice_functions2,
                 return_value_policy<copy_const_reference >())
+            .def("get_et_lattice_functions", get_et_lattice_functions1,
+                    return_value_policy<copy_const_reference >())
+            .def("get_et_lattice_functions", get_et_lattice_functions2,
+                    return_value_policy<copy_const_reference >())
+            .def("get_lb_lattice_functions", get_lb_lattice_functions1,
+                    return_value_policy<copy_const_reference >())
+            .def("get_lb_lattice_functions", get_lb_lattice_functions2,
+                    return_value_policy<copy_const_reference >())
         .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune,
 	                          get_horizontal_tune_overloads01())
         .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune,
@@ -522,6 +544,35 @@ void
         .def_readonly("Dprime_y", &Lattice_functions::Dprime_y)
         .def_readonly("arc_length", &Lattice_functions::arc_length)
         ;
+
+    class_<ET_lattice_functions >("ET_lattice_functions",
+            init<EdwardsTengSage::Info const& >())
+            .def_readonly("beta_x", &ET_lattice_functions::beta_x)
+            .def_readonly("beta_y", &ET_lattice_functions::beta_y)
+            .def_readonly("alpha_x", &ET_lattice_functions::alpha_x)
+            .def_readonly("alpha_y", &ET_lattice_functions::alpha_y)
+            .def_readonly("phi", &ET_lattice_functions::phi)
+            .def_readonly("arc_length", &ET_lattice_functions::arc_length)
+            ;
+
+    class_<LB_lattice_functions >("LB_lattice_functions",
+            init<LBSage::Info const& >())
+            .def_readonly("beta_1x", &LB_lattice_functions::beta_1x)
+            .def_readonly("beta_1y", &LB_lattice_functions::beta_1y)
+            .def_readonly("beta_2x", &LB_lattice_functions::beta_2x)
+            .def_readonly("beta_2y", &LB_lattice_functions::beta_2y)
+            .def_readonly("alpha_1x", &LB_lattice_functions::alpha_1x)
+            .def_readonly("alpha_1y", &LB_lattice_functions::alpha_1y)
+            .def_readonly("alpha_2x", &LB_lattice_functions::alpha_2x)
+            .def_readonly("alpha_2y", &LB_lattice_functions::alpha_2y)
+            .def_readonly("u1", &LB_lattice_functions::u1)
+            .def_readonly("u2", &LB_lattice_functions::u2)
+            .def_readonly("u3", &LB_lattice_functions::u3)
+            .def_readonly("u4", &LB_lattice_functions::u4)
+            .def_readonly("nu_1", &LB_lattice_functions::nu_1)
+            .def_readonly("nu_2", &LB_lattice_functions::nu_2)
+            .def_readonly("arc_length", &LB_lattice_functions::arc_length)
+            ;
 
     void (Step::*apply1)(Bunch &, int, Diagnosticss const&, Diagnosticss const&, Stepper &, Logger &) = &Step::apply;
    // void (Step::*apply2)(Bunch_train &, int, Train_diagnosticss const&, Train_diagnosticss const&, Logger &) = &Step::apply;
