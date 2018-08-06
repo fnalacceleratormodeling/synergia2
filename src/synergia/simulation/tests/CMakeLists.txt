@@ -67,6 +67,10 @@ add_test(NAME test_nllens_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNE
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_nllens.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test(NAME test_solenoid_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_solenoid.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_solenoid.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_test(NAME test_quad_mad8_v_madx_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_quad_mad8_v_madx.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_quad_mad8_v_madx.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

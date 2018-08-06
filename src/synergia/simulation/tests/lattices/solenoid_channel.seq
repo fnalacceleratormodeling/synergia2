@@ -1,0 +1,8 @@
+sol_length = 1.0;
+ks1 = 0.01;
+
+sol: solenoid, l=sol_length, ks = ks1;
+
+channel: sequence, l=sol_length, refer=entry;
+sol, at = 0.0;
+endsequence;
