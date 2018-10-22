@@ -46,10 +46,18 @@ private:
     Reference_particle reference_particle;
     Reference_particle design_reference_particle;
     int particle_charge;
+
     double * storage;
+    double * s_storage;
+
     MArray2d_ref *local_particles;
+    MArray2d_ref *local_s_particles;
+
     int local_num, total_num, local_num_padded;
+    int local_s_num, total_s_num, local_s_num_padded;
+
     double real_num;
+
     int bucket_index;
     bool bucket_index_assigned;
     int sort_period, sort_counter;
@@ -64,7 +72,7 @@ private:
     std::string
     get_local_particles_serialization_path() const;
     void
-    construct(int total_num, double real_num);
+    construct(int total_num, double real_num, int total_s_num);
 public:
     //!
     //! Constructor:
@@ -79,10 +87,10 @@ public:
     /// @param comm_sptr the comm_sptrunicator.
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx_sptr comm_sptr);
- 
 
-            
-            
+    Bunch(Reference_particle const& reference_particle, int total_num, int total_spectator_num,
+            double real_num, Commxx_sptr comm_sptr);
+
      ///// Obsolete, please replace the following constructor with the previous one followed by 
      /////set_particle_charge(particle_charge)    
      //    Bunch(Reference_particle const& reference_particle, int total_num,
@@ -201,6 +209,12 @@ public:
     Const_MArray2d_ref
     get_local_particles() const;
 
+    MArray2d_ref
+    get_local_spectator_particles();
+
+    Const_MArray2d_ref
+    get_local_spectator_particles() const;
+
     /// Get the particle charge in units of e.
     int
     get_particle_charge() const;
@@ -252,6 +266,18 @@ public:
     int
     get_total_num() const;
 
+    /// Get the number of spectator particles stored on this processor.
+    int
+    get_local_spectator_num() const;
+
+    /// Get the number of padded spectator particles (first dimension of the particles[][] array)
+    int
+    get_local_spectator_num_padded() const;
+
+    /// Get the total number of spectator particles.
+    int
+    get_total_spectator_num() const;
+
     /// Get the period for periodic_sort
     int
     get_sort_period() const;
@@ -294,12 +320,18 @@ public:
                     double * RESTRICT &ya, double * RESTRICT &ypa,
                     double * RESTRICT &cdta, double * RESTRICT &dpopa);
 
+    void set_spectator_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
+                    double * RESTRICT &ya, double * RESTRICT &ypa,
+                    double * RESTRICT &cdta, double * RESTRICT &dpopa);
+
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const;
+
     template<class Archive>
         void
         load(Archive & ar, const unsigned int version);
+
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     virtual
