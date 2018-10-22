@@ -199,7 +199,7 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
             }
         }
 
-        assign_ids(s_offsets[comm_sptr->get_rank()]);
+        //assign_ids(s_offsets[comm_sptr->get_rank()]);
     } 
     else 
     {
