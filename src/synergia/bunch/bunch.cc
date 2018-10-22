@@ -408,10 +408,49 @@ Bunch::set_local_num(int local_num)
 }
 
 void
+Bunch::set_local_spectator_num(int local_s_num)
+{
+    if (local_s_num > this->local_s_num) 
+    {
+        if (local_s_num % 4 == 0) 
+        {
+            local_s_num_padded = local_s_num;
+        } 
+        else 
+        {
+            local_s_num_padded = local_s_num + 4 - (local_s_num % 4);
+        }
+
+        double * prev_s_storage = s_storage;
+        MArray2d_ref * prev_local_s_particles = local_s_particles;
+
+        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_padded * 7 * sizeof(double));
+        local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_padded][7], boost::fortran_storage_order());
+
+        for (int i=0; i<this->local_s_num; ++i) 
+        {
+            for (int j=0; j<7; ++j) 
+            {
+                (*local_s_particles)[i][j] = (*prev_local_s_particles)[i][j];
+            }
+        }
+
+        delete [] prev_s_storage;
+        delete prev_local_s_particles;
+     }
+
+    this->local_s_num = local_s_num;
+}
+
+void
 Bunch::update_total_num()
 {
+    // total real particle number
     int old_total_num = total_num;
     MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM, comm_sptr->get());
+
+    // total spectator particle number
+    MPI_Allreduce(&local_s_num, &total_s_num, 1, MPI_INT, MPI_SUM, comm_sptr->get());
 
     if (old_total_num != 0) 
     {
@@ -768,13 +807,6 @@ Bunch::inject(Bunch const& bunch)
     const double weight_tolerance = 1.0e-14;
     const double particle_tolerance = 1.0e-14;
 
-    // injection with spectator particles is not implemented yet
-    if (total_s_num || bunch.get_total_spectator_num())
-    {
-        throw std::runtime_error(
-                "Bunch.inject: injection with spectator particles are not implemented yet");
-    }
-
     // The charge and mass of the bunch particles must match
     if (particle_charge != bunch.get_particle_charge()) 
     {
@@ -808,12 +840,12 @@ Bunch::inject(Bunch const& bunch)
         }
     }
 
-    int old_local_num = local_num;
-    set_local_num(old_local_num + bunch.get_local_num());
-
     Const_MArray2d_ref injected_particles(bunch.get_local_particles());
+    Const_MArray2d_ref injected_spectator_particles(bunch.get_local_spectator_particles());
+
     double target_momentum = reference_particle.get_momentum();
     double injected_momentum = bunch.get_reference_particle().get_momentum();
+
     MArray1d ref_state_diff(boost::extents[6]);
     MArray1d target_state(boost::extents[6]);
     MArray1d injected_state(boost::extents[6]);
@@ -829,6 +861,10 @@ Bunch::inject(Bunch const& bunch)
         target_state[i] = reference_particle.get_state()[i];
         injected_state[i] = bunch.get_reference_particle().get_state()[i];
     }
+
+    // real particles
+    int old_local_num = local_num;
+    set_local_num(old_local_num + bunch.get_local_num());
 
     for (int part = 0; part < bunch.get_local_num(); ++part) 
     {
@@ -857,6 +893,38 @@ Bunch::inject(Bunch const& bunch)
                 = injected_particles[part][Bunch::id];
     }
 
+    // spectator particles
+    int old_local_s_num = local_s_num;
+    set_local_spectator_num(old_local_s_num + bunch.get_local_spectator_num());
+
+    for (int part = 0; part < bunch.get_local_spectator_num(); ++part) 
+    {
+        // space-like coordinates
+        for (int i = 0; i < 6; i += 2) 
+        {
+            (*local_s_particles)[old_local_s_num + part][i]
+                    = injected_spectator_particles[part][i] + ref_state_diff[i];
+        }
+
+        // npx and npy coordinates are scaled with p_ref which can be different
+        // for different bunches
+        for (int i = 1; i < 4; i += 2) 
+        {
+            (*local_s_particles)[old_local_s_num + part][i] =
+                    (injected_momentum/target_momentum) *
+                    (injected_spectator_particles[part][i] - injected_state[i]) + target_state[i];
+        }
+
+        // ndp coordinate is delta-p scaled with pref
+        (*local_s_particles)[old_local_s_num + part][5] =
+                (injected_momentum/target_momentum) *
+                (1.0 + injected_spectator_particles[part][5] - injected_state[5]) + target_state[5] - 1.0;
+
+        (*local_s_particles)[old_local_s_num + part][Bunch::id]
+                = injected_spectator_particles[part][Bunch::id];
+    }
+
+    // update total number, for both real and spectator particles
     update_total_num();
 }
 

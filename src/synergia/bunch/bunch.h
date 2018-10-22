@@ -141,13 +141,16 @@ public:
     void
     set_local_num(int local_num);
 
+    void
+    set_local_spectator_num(int local_s_num);
+
     ///
     /// Update the total number and real number of particles after the local
     /// number has been changed. Requires comm_sptrunication.
     void
     update_total_num();
     
-     ///
+    ///
     /// Set the total number (and the real number) of particles
     void
     set_total_num(int totalnum);
