@@ -37,16 +37,26 @@ template<typename T>
         MArray1d coords(boost::extents[7]);
 
         MArray2d_ref particles(bunch.get_local_particles());
+        MArray2d_ref s_particles(bunch.get_local_spectator_particles());
+
         int npart = bunch.get_local_num();
+        int npart_s = bunch.get_local_spectator_num();
 
         int * discard = new int[npart];
         int * discard_count = new int[nt];
 
+        int * discard_s = new int[npart_s];
+        int * discard_s_count = new int[nt];
+
         int part_per_thread = npart / nt;
-        #pragma omp parallel shared(nt, npart, particles, discard, discard_count)
+        int s_part_per_thread = npart_s / nt;
+
+        #pragma omp parallel shared(nt, npart, npart_s, particles, s_particles, discard, discard_s, discard_count, discard_s_count)
         {
             int it = omp_get_thread_num();
+
             discard_count[it] = 0;
+            discard_s_count[it] = 0;
 
             int s = it * part_per_thread;
             int e = (it==nt-1) ? npart : (s+part_per_thread);
@@ -63,8 +73,25 @@ template<typename T>
                     discard[part] = 0;
                 }
             }
+
+            s = it * s_part_per_thread;
+            e = (it==nt-1) ? npart_s : (s + s_part_per_thread);
+
+            for (int part = s; part < e; ++part)
+            {
+                if (t(s_particles, part)) 
+                {
+                    discard_s[part] = 1;
+                    ++discard_s_count[it];
+                }
+                else
+                {
+                    discard_s[part] = 0;
+                }
+            }
         }
 
+        // move all the discarded particles to the tail of the array
         int discarded = 0;
         for (int i=0; i<nt; ++i) discarded += discard_count[i];
 
@@ -93,21 +120,54 @@ template<typename T>
         } while(head < tail);
 
         double charge = (discarded > 0) ? discarded * bunch.get_real_num() / bunch.get_total_num() : 0.0;
-
         deposit_charge(charge);
         bunch.set_local_num(npart - discarded);
+
+        // move all the discarded spectator particles to the tail of the array
+        int discarded_s = 0;
+        for (int i=0; i<nt; ++i) discarded_s += discard_s_count[i];
+
+        head = 0;
+        tail = npart_s - 1;
+
+        do
+        {
+            while (!discard_s[head] && head<tail) ++head;
+            if (head >= tail) break;
+
+            while ( discard_s[tail] && tail>head) --tail;
+            if (head >= tail) break;
+
+            s_particles[head][0] = s_particles[tail][0];
+            s_particles[head][1] = s_particles[tail][1];
+            s_particles[head][2] = s_particles[tail][2];
+            s_particles[head][3] = s_particles[tail][3];
+            s_particles[head][4] = s_particles[tail][4];
+            s_particles[head][5] = s_particles[tail][5];
+            s_particles[head][6] = s_particles[tail][6];
+
+            ++head;
+            --tail;
+
+        } while(head < tail);
+
+        bunch.set_local_spectator_num(npart_s - discarded_s);
 
         double t1 = MPI_Wtime();
         if (verbosity > 5) 
         {
             logger << "Aperture_operation: type = " << get_aperture_type()
                    << ", discarded: " << discarded
+                   << ", discarded spectators: " << discarded_s
                    << ", time = " << std::fixed << std::setprecision(3) << t1
                     - t0 << "s_n" << std::endl;
         }
 
         delete [] discard;
         delete [] discard_count;
+
+        delete [] discard_s;
+        delete [] discard_s_count;
     }
 
 
