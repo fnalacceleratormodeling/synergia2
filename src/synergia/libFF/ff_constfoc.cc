@@ -75,17 +75,14 @@ void FF_constfoc::apply(Lattice_element_slice const& slice, Bunch& bunch)
         FF_algorithm::constfoc_unit(y, yp, csv, snv, BV, iBV);
         FF_algorithm::constfoc_unit(cdt, dpop, csl, snl, BL, iBL);
 
+        cdt = cdt - GSVector(ref_cdt);
+
         x.store(&xa[part]);
         xp.store(&xpa[part]);
         y.store(&ya[part]);
         yp.store(&ypa[part]);
         cdt.store(&cdta[part]);
         dpop.store(&dpopa[part]);
-
-        for(int i=0; i<gsvsize; ++i)
-        {
-            cdta[part+i] -= ref_cdt;
-        }
     }
 
     for (int part = block_last; part < local_num; ++part) 
