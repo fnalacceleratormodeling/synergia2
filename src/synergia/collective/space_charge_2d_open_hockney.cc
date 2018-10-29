@@ -833,6 +833,21 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
 
     // release the particle_bin buffer
     particle_bin_sptr.reset();
+
+    // kick the spectator particles
+    #pragma omp parallel for
+    for (int part = 0; part < bunch.get_local_spectator_num(); ++part) 
+    {
+        double x = bunch.get_local_spectator_particles()[part][Bunch::x];
+        double y = bunch.get_local_spectator_particles()[part][Bunch::y];
+        double z = bunch.get_local_spectator_particles()[part][Bunch::z];
+
+        std::complex<double> grid_val = 
+            interpolate_rectangular_2d(x, y, z, domain, grid_points, grid_points_1d);
+
+        bunch.get_local_spectator_particles()[part][1] += factor * grid_val.real();
+        bunch.get_local_spectator_particles()[part][3] += factor * grid_val.imag();
+    }
 }
 
 void
