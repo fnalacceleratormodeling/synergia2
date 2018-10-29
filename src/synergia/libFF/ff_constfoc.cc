@@ -30,6 +30,7 @@ void FF_constfoc::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     const double  length = slice.get_right() - slice.get_left();
     const int  local_num = bunch.get_local_num();
+    const int  local_s_num = bunch.get_local_spectator_num();
 
     const double BH = slice.get_lattice_element().get_double_attribute("betah");
     const double BV = slice.get_lattice_element().get_double_attribute("betav");
@@ -55,58 +56,114 @@ void FF_constfoc::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
 
-    bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-    const int gsvsize = GSVector::size();
-    const int num_blocks = local_num / gsvsize;
-    const int block_last = num_blocks * gsvsize;
-
-    #pragma omp parallel for
-    for (int part = 0; part < block_last; part += gsvsize) 
     {
-        GSVector x(&xa[part]);
-        GSVector xp(&xpa[part]);
-        GSVector y(&ya[part]);
-        GSVector yp(&ypa[part]);
-        GSVector cdt(&cdta[part]);
-        GSVector dpop(&dpopa[part]);
+        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-        FF_algorithm::constfoc_unit(x, xp, csh, snh, BH, iBH);
-        FF_algorithm::constfoc_unit(y, yp, csv, snv, BV, iBV);
-        FF_algorithm::constfoc_unit(cdt, dpop, csl, snl, BL, iBL);
+        const int gsvsize = GSVector::size();
+        const int num_blocks = local_num / gsvsize;
+        const int block_last = num_blocks * gsvsize;
 
-        cdt = cdt - GSVector(ref_cdt);
+        #pragma omp parallel for
+        for (int part = 0; part < block_last; part += gsvsize) 
+        {
+            GSVector x(&xa[part]);
+            GSVector xp(&xpa[part]);
+            GSVector y(&ya[part]);
+            GSVector yp(&ypa[part]);
+            GSVector cdt(&cdta[part]);
+            GSVector dpop(&dpopa[part]);
 
-        x.store(&xa[part]);
-        xp.store(&xpa[part]);
-        y.store(&ya[part]);
-        yp.store(&ypa[part]);
-        cdt.store(&cdta[part]);
-        dpop.store(&dpopa[part]);
+            FF_algorithm::constfoc_unit(x, xp, csh, snh, BH, iBH);
+            FF_algorithm::constfoc_unit(y, yp, csv, snv, BV, iBV);
+            FF_algorithm::constfoc_unit(cdt, dpop, csl, snl, BL, iBL);
+
+            cdt = cdt - GSVector(ref_cdt);
+
+            x.store(&xa[part]);
+            xp.store(&xpa[part]);
+            y.store(&ya[part]);
+            yp.store(&ypa[part]);
+            cdt.store(&cdta[part]);
+            dpop.store(&dpopa[part]);
+       }
+
+        for (int part = block_last; part < local_num; ++part) 
+        {
+            double x(xa[part]);
+            double xp(xpa[part]);
+            double y(ya[part]);
+            double yp(ypa[part]);
+            double cdt(cdta[part]);
+            double dpop(dpopa[part]);
+
+            FF_algorithm::constfoc_unit(x, xp, csh, snh, BH, iBH);
+            FF_algorithm::constfoc_unit(y, yp, csv, snv, BV, iBV);
+            FF_algorithm::constfoc_unit(cdt, dpop, csl, snl, BL, iBL);
+
+            xa[part] = x;
+            xpa[part] = xp;
+            ya[part] = y;
+            ypa[part] = yp;
+            cdta[part] = cdt - ref_cdt;
+            dpopa[part] = dpop;
+        }
+
+        bunch.get_reference_particle().increment_trajectory(length);
     }
 
-    for (int part = block_last; part < local_num; ++part) 
+    // spectator particles
     {
-        double x(xa[part]);
-        double xp(xpa[part]);
-        double y(ya[part]);
-        double yp(ypa[part]);
-        double cdt(cdta[part]);
-        double dpop(dpopa[part]);
+        bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-        FF_algorithm::constfoc_unit(x, xp, csh, snh, BH, iBH);
-        FF_algorithm::constfoc_unit(y, yp, csv, snv, BV, iBV);
-        FF_algorithm::constfoc_unit(cdt, dpop, csl, snl, BL, iBL);
+        const int gsvsize = GSVector::size();
+        const int num_blocks = local_s_num / gsvsize;
+        const int block_last = num_blocks * gsvsize;
 
-        xa[part] = x;
-        xpa[part] = xp;
-        ya[part] = y;
-        ypa[part] = yp;
-        cdta[part] = cdt - ref_cdt;
-        dpopa[part] = dpop;
+        #pragma omp parallel for
+        for (int part = 0; part < block_last; part += gsvsize) 
+        {
+            GSVector x(&xa[part]);
+            GSVector xp(&xpa[part]);
+            GSVector y(&ya[part]);
+            GSVector yp(&ypa[part]);
+            GSVector cdt(&cdta[part]);
+            GSVector dpop(&dpopa[part]);
+
+            FF_algorithm::constfoc_unit(x, xp, csh, snh, BH, iBH);
+            FF_algorithm::constfoc_unit(y, yp, csv, snv, BV, iBV);
+            FF_algorithm::constfoc_unit(cdt, dpop, csl, snl, BL, iBL);
+
+            cdt = cdt - GSVector(ref_cdt);
+
+            x.store(&xa[part]);
+            xp.store(&xpa[part]);
+            y.store(&ya[part]);
+            yp.store(&ypa[part]);
+            cdt.store(&cdta[part]);
+            dpop.store(&dpopa[part]);
+       }
+
+        for (int part = block_last; part < local_num; ++part) 
+        {
+            double x(xa[part]);
+            double xp(xpa[part]);
+            double y(ya[part]);
+            double yp(ypa[part]);
+            double cdt(cdta[part]);
+            double dpop(dpopa[part]);
+
+            FF_algorithm::constfoc_unit(x, xp, csh, snh, BH, iBH);
+            FF_algorithm::constfoc_unit(y, yp, csv, snv, BV, iBV);
+            FF_algorithm::constfoc_unit(cdt, dpop, csl, snl, BL, iBL);
+
+            xa[part] = x;
+            xpa[part] = xp;
+            ya[part] = y;
+            ypa[part] = yp;
+            cdta[part] = cdt - ref_cdt;
+            dpopa[part] = dpop;
+        }
     }
-
-    bunch.get_reference_particle().increment_trajectory(length);
 }
 
 template<class Archive>
