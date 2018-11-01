@@ -101,34 +101,71 @@ void FF_dipedge::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
 
-    bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-    const int  local_num = bunch.get_local_num();
+    const int local_num = bunch.get_local_num();
+    const int local_s_num = bunch.get_local_spectator_num();
 
-    const int gsvsize = GSVector::size();
-    const int num_blocks = local_num / gsvsize;
-    const int block_last = num_blocks * gsvsize;
-
-    #pragma omp parallel for
-    for (int part = 0; part < block_last; part += gsvsize)
+    // real particles
     {
-        GSVector x(&xa[part]);
-        GSVector xp(&xpa[part]);
-        GSVector y(&ya[part]);
-        GSVector yp(&ypa[part]);
-        GSVector cdt(&cdta[part]);
-        GSVector dpop(&dpopa[part]);
+        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-        FF_algorithm::dipedge_unit(x, xp, y, yp, re_2_1, re_4_3, te);
+        const int gsvsize = GSVector::size();
+        const int num_blocks = local_num / gsvsize;
+        const int block_last = num_blocks * gsvsize;
 
-        x.store(&xa[part]);
-        xp.store(&xpa[part]);
-        y.store(&ya[part]);
-        yp.store(&ypa[part]);
+        #pragma omp parallel for
+        for (int part = 0; part < block_last; part += gsvsize)
+        {
+            GSVector x(&xa[part]);
+            GSVector xp(&xpa[part]);
+            GSVector y(&ya[part]);
+            GSVector yp(&ypa[part]);
+            GSVector cdt(&cdta[part]);
+            GSVector dpop(&dpopa[part]);
+
+            FF_algorithm::dipedge_unit(x, xp, y, yp, re_2_1, re_4_3, te);
+
+            x.store(&xa[part]);
+            xp.store(&xpa[part]);
+            y.store(&ya[part]);
+            yp.store(&ypa[part]);
+        }
+     
+        for (int part = block_last; part < local_num; ++part)
+        {
+            FF_algorithm::dipedge_unit(xa[part], xpa[part], ya[part], ypa[part], re_2_1, re_4_3, te);
+        }
     }
- 
-    for (int part = block_last; part < local_num; ++part)
+
+    // spectators
     {
-        FF_algorithm::dipedge_unit(xa[part], xpa[part], ya[part], ypa[part], re_2_1, re_4_3, te);
+        bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+
+        const int gsvsize = GSVector::size();
+        const int num_blocks = local_s_num / gsvsize;
+        const int block_last = num_blocks * gsvsize;
+
+        #pragma omp parallel for
+        for (int part = 0; part < block_last; part += gsvsize)
+        {
+            GSVector x(&xa[part]);
+            GSVector xp(&xpa[part]);
+            GSVector y(&ya[part]);
+            GSVector yp(&ypa[part]);
+            GSVector cdt(&cdta[part]);
+            GSVector dpop(&dpopa[part]);
+
+            FF_algorithm::dipedge_unit(x, xp, y, yp, re_2_1, re_4_3, te);
+
+            x.store(&xa[part]);
+            xp.store(&xpa[part]);
+            y.store(&ya[part]);
+            yp.store(&ypa[part]);
+        }
+     
+        for (int part = block_last; part < local_num; ++part)
+        {
+            FF_algorithm::dipedge_unit(xa[part], xpa[part], ya[part], ypa[part], re_2_1, re_4_3, te);
+        }
     }
 }
 
