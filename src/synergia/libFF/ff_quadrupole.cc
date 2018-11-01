@@ -128,17 +128,16 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[1] *= scale;
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     double * RESTRICT xa, * RESTRICT xpa;
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
 
-    bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
     const int gsvsize = GSVector::size();
-    const int num_blocks = local_num / gsvsize;
-    const int block_last = num_blocks * gsvsize;
 
     if (length == 0.0)
     {
@@ -160,43 +159,97 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         ref_l.set_state(x, xp, y, yp, 0.0, dpop);
 
         // propagate the bunch particles
-        #pragma omp parallel for
-        for (int part = 0; part < block_last; part += gsvsize)
         {
-            GSVector  x( &xa[part]);
-            GSVector xp(&xpa[part]);
-            GSVector  y( &ya[part]);
-            GSVector yp(&ypa[part]);
+            bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-            x -= vxoff;
-            y -= vyoff;
+            const int num_blocks = local_num / gsvsize;
+            const int block_last = num_blocks * gsvsize;
 
-            FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+            #pragma omp parallel for
+            for (int part = 0; part < block_last; part += gsvsize)
+            {
+                GSVector  x( &xa[part]);
+                GSVector xp(&xpa[part]);
+                GSVector  y( &ya[part]);
+                GSVector yp(&ypa[part]);
 
-            x += vxoff;
-            y += vyoff;
+                x -= vxoff;
+                y -= vyoff;
 
-            xp.store(&xpa[part]);
-            yp.store(&ypa[part]);
+                FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+                x += vxoff;
+                y += vyoff;
+
+                xp.store(&xpa[part]);
+                yp.store(&ypa[part]);
+            }
+
+            for (int part = block_last; part < local_num; ++part)
+            {
+                double  x( xa[part]);
+                double xp(xpa[part]);
+                double  y( ya[part]);
+                double yp(ypa[part]);
+
+                x -= xoff;
+                y -= yoff;
+
+                FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+                x += xoff;
+                y += yoff;
+
+                xpa[part] = xp;
+                ypa[part] = yp;
+            }
         }
 
-        for (int part = block_last; part < local_num; ++part)
+        // propagate the bunch spectator particles
         {
-            double  x( xa[part]);
-            double xp(xpa[part]);
-            double  y( ya[part]);
-            double yp(ypa[part]);
+            bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-            x -= xoff;
-            y -= yoff;
+            const int num_blocks = local_s_num / gsvsize;
+            const int block_last = num_blocks * gsvsize;
 
-            FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+            #pragma omp parallel for
+            for (int part = 0; part < block_last; part += gsvsize)
+            {
+                GSVector  x( &xa[part]);
+                GSVector xp(&xpa[part]);
+                GSVector  y( &ya[part]);
+                GSVector yp(&ypa[part]);
 
-            x += xoff;
-            y += yoff;
+                x -= vxoff;
+                y -= vyoff;
 
-            xpa[part] = xp;
-            ypa[part] = yp;
+                FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+                x += vxoff;
+                y += vyoff;
+
+                xp.store(&xpa[part]);
+                yp.store(&ypa[part]);
+            }
+
+            for (int part = block_last; part < local_num; ++part)
+            {
+                double  x( xa[part]);
+                double xp(xpa[part]);
+                double  y( ya[part]);
+                double yp(ypa[part]);
+
+                x -= xoff;
+                y -= yoff;
+
+                FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+
+                x += xoff;
+                y += yoff;
+
+                xpa[part] = xp;
+                ypa[part] = yp;
+            }
         }
     }
     else
@@ -212,88 +265,188 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-        #pragma omp parallel for
-        for (int part = 0; part < block_last; part += gsvsize)
+        // bunch particles
         {
-            GSVector    x(   &xa[part]);
-            GSVector   xp(  &xpa[part]);
-            GSVector    y(   &ya[part]);
-            GSVector   yp(  &ypa[part]);
-            GSVector  cdt( &cdta[part]);
-            GSVector dpop(&dpopa[part]);
+            bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-            x -= vxoff;
-            y -= vyoff;
+            const int num_blocks = local_num / gsvsize;
+            const int block_last = num_blocks * gsvsize;
+
+            #pragma omp parallel for
+            for (int part = 0; part < block_last; part += gsvsize)
+            {
+                GSVector    x(   &xa[part]);
+                GSVector   xp(  &xpa[part]);
+                GSVector    y(   &ya[part]);
+                GSVector   yp(  &ypa[part]);
+                GSVector  cdt( &cdta[part]);
+                GSVector dpop(&dpopa[part]);
+
+                x -= vxoff;
+                y -= vyoff;
 
 #if 0
-            FF_algorithm::yoshida<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 6/*order*/, 1/*components*/ >
-                    ( x, xp, y, yp, cdt, dpop,
-                      reference_momentum, m,
-                      step_reference_cdt,
-                      step_length, step_strength, steps );
+                FF_algorithm::yoshida<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 6/*order*/, 1/*components*/ >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
 #endif
 
 #if 1
-            FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
-                    ( x, xp, y, yp, cdt, dpop,
-                      reference_momentum, m,
-                      step_reference_cdt,
-                      step_length, step_strength, steps );
+                FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
 #endif
 
 #if 0
-            FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
-                    ( x, xp, y, yp, cdt, dpop,
-                      reference_momentum, m,
-                      step_reference_cdt,
-                      step_length, step_strength, steps );
+                FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
 #endif
 
 #if 0
-            FF_algorithm::quadrupole_chef<GSVector>
-                    ( x, xp, y, yp, cdt, dpop,
-                      reference_momentum, m,
-                      reference_cdt, length, k, 40 /* kicks */ );
+                FF_algorithm::quadrupole_chef<GSVector>
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          reference_cdt, length, k, 40 /* kicks */ );
 #endif
 
-            x += vxoff;
-            y += vyoff;
+                x += vxoff;
+                y += vyoff;
 
-               x.store(&xa[part]);
-              xp.store(&xpa[part]);
-               y.store(&ya[part]);
-              yp.store(&ypa[part]);
-             cdt.store(&cdta[part]);
-            dpop.store(&dpopa[part]);
+                   x.store(&xa[part]);
+                  xp.store(&xpa[part]);
+                   y.store(&ya[part]);
+                  yp.store(&ypa[part]);
+                 cdt.store(&cdta[part]);
+                dpop.store(&dpopa[part]);
+            }
+
+            for (int part = block_last; part < local_num; ++part)
+            {
+                double    x(   xa[part]);
+                double   xp(  xpa[part]);
+                double    y(   ya[part]);
+                double   yp(  ypa[part]);
+                double  cdt( cdta[part]);
+                double dpop(dpopa[part]);
+
+                x -= xoff;
+                y -= yoff;
+
+                FF_algorithm::yoshida6<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
+
+                x += xoff;
+                y += yoff;
+
+                   xa[part] = x;
+                  xpa[part] = xp;
+                   ya[part] = y;
+                  ypa[part] = yp;
+                 cdta[part] = cdt;
+                dpopa[part] = dpop;
+            }
         }
 
-        for (int part = block_last; part < local_num; ++part)
+        // bunch spectator particles
         {
-            double    x(   xa[part]);
-            double   xp(  xpa[part]);
-            double    y(   ya[part]);
-            double   yp(  ypa[part]);
-            double  cdt( cdta[part]);
-            double dpop(dpopa[part]);
+            bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-            x -= xoff;
-            y -= yoff;
+            const int num_blocks = local_s_num / gsvsize;
+            const int block_last = num_blocks * gsvsize;
 
-            FF_algorithm::yoshida6<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
-                    ( x, xp, y, yp, cdt, dpop,
-                      reference_momentum, m,
-                      step_reference_cdt,
-                      step_length, step_strength, steps );
+            #pragma omp parallel for
+            for (int part = 0; part < block_last; part += gsvsize)
+            {
+                GSVector    x(   &xa[part]);
+                GSVector   xp(  &xpa[part]);
+                GSVector    y(   &ya[part]);
+                GSVector   yp(  &ypa[part]);
+                GSVector  cdt( &cdta[part]);
+                GSVector dpop(&dpopa[part]);
 
-            x += xoff;
-            y += yoff;
+                x -= vxoff;
+                y -= vyoff;
 
-               xa[part] = x;
-              xpa[part] = xp;
-               ya[part] = y;
-              ypa[part] = yp;
-             cdta[part] = cdt;
-            dpopa[part] = dpop;
+#if 0
+                FF_algorithm::yoshida<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 6/*order*/, 1/*components*/ >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
+#endif
+
+#if 1
+                FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
+#endif
+
+#if 0
+                FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
+#endif
+
+#if 0
+                FF_algorithm::quadrupole_chef<GSVector>
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          reference_cdt, length, k, 40 /* kicks */ );
+#endif
+
+                x += vxoff;
+                y += vyoff;
+
+                   x.store(&xa[part]);
+                  xp.store(&xpa[part]);
+                   y.store(&ya[part]);
+                  yp.store(&ypa[part]);
+                 cdt.store(&cdta[part]);
+                dpop.store(&dpopa[part]);
+            }
+
+            for (int part = block_last; part < local_num; ++part)
+            {
+                double    x(   xa[part]);
+                double   xp(  xpa[part]);
+                double    y(   ya[part]);
+                double   yp(  ypa[part]);
+                double  cdt( cdta[part]);
+                double dpop(dpopa[part]);
+
+                x -= xoff;
+                y -= yoff;
+
+                FF_algorithm::yoshida6<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
+
+                x += xoff;
+                y += yoff;
+
+                   xa[part] = x;
+                  xpa[part] = xp;
+                   ya[part] = y;
+                  ypa[part] = yp;
+                 cdta[part] = cdt;
+                dpopa[part] = dpop;
+            }
         }
 
         bunch.get_reference_particle().increment_trajectory(length);
