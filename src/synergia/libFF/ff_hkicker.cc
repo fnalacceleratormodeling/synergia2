@@ -369,7 +369,6 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     dpopa[part] = dpop;
                 }
 
-                bunch.get_reference_particle().increment_trajectory(length);
             }
 
             // spectator particles
@@ -424,8 +423,9 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     dpopa[part] = dpop;
                 }
             }
-
         }
+
+        bunch.get_reference_particle().increment_trajectory(length);
     }
 }
 
