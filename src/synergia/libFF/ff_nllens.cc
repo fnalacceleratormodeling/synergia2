@@ -48,13 +48,28 @@ void FF_nllens::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
 
-    bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-    const int  local_num = bunch.get_local_num();
-
-    #pragma omp parallel for
-    for (int part = 0; part < local_num; ++part)
+    // bunch particles
     {
-        FF_algorithm::nllens_unit(xa[part], ya[part], xpa[part], ypa[part], icnll, kick);
+        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+        const int  local_num = bunch.get_local_num();
+
+        #pragma omp parallel for
+        for (int part = 0; part < local_num; ++part)
+        {
+            FF_algorithm::nllens_unit(xa[part], ya[part], xpa[part], ypa[part], icnll, kick);
+        }
+    }
+
+    // bunch spectator particles
+    {
+        bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+        const int  local_s_num = bunch.get_local_spectator_num();
+
+        #pragma omp parallel for
+        for (int part = 0; part < local_s_num; ++part)
+        {
+            FF_algorithm::nllens_unit(xa[part], ya[part], xpa[part], ypa[part], icnll, kick);
+        }
     }
 }
 
