@@ -121,7 +121,10 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[1] *= scale;
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     if (length == 0.0)
     {
@@ -135,19 +138,39 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         FF_algorithm::thin_octupole_unit(x, xp,  y, yp, k);
         ref_l.set_state(x, xp, y, yp, 0.0, dpop);
 
-        #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part)
+        // bunch particles
         {
-            double x(particles[part][Bunch::x]);
-            double xp(particles[part][Bunch::xp]);
-            double y(particles[part][Bunch::y]);
-            double yp(particles[part][Bunch::yp]);
+            #pragma omp parallel for
+            for (int part = 0; part < local_num; ++part)
+            {
+                double x(particles[part][Bunch::x]);
+                double xp(particles[part][Bunch::xp]);
+                double y(particles[part][Bunch::y]);
+                double yp(particles[part][Bunch::yp]);
 
-            FF_algorithm::thin_octupole_unit(x, xp, y, yp, k);
+                FF_algorithm::thin_octupole_unit(x, xp, y, yp, k);
 
-            particles[part][Bunch::xp] = xp;
-            particles[part][Bunch::yp] = yp;
-       }
+                particles[part][Bunch::xp] = xp;
+                particles[part][Bunch::yp] = yp;
+           }
+        }
+
+        // bunch spectator particles
+        {
+            #pragma omp parallel for
+            for (int part = 0; part < local_s_num; ++part)
+            {
+                double x(s_particles[part][Bunch::x]);
+                double xp(s_particles[part][Bunch::xp]);
+                double y(s_particles[part][Bunch::y]);
+                double yp(s_particles[part][Bunch::yp]);
+
+                FF_algorithm::thin_octupole_unit(x, xp, y, yp, k);
+
+                s_particles[part][Bunch::xp] = xp;
+                s_particles[part][Bunch::yp] = yp;
+           }
+        }
     }
     else
     {
@@ -158,28 +181,58 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-        #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part)
+        // bunch particles
         {
-            double x(particles[part][Bunch::x]);
-            double xp(particles[part][Bunch::xp]);
-            double y(particles[part][Bunch::y]);
-            double yp(particles[part][Bunch::yp]);
-            double cdt(particles[part][Bunch::cdt]);
-            double dpop(particles[part][Bunch::dpop]);
+            #pragma omp parallel for
+            for (int part = 0; part < local_num; ++part)
+            {
+                double x(particles[part][Bunch::x]);
+                double xp(particles[part][Bunch::xp]);
+                double y(particles[part][Bunch::y]);
+                double yp(particles[part][Bunch::yp]);
+                double cdt(particles[part][Bunch::cdt]);
+                double dpop(particles[part][Bunch::dpop]);
 
-            FF_algorithm::yoshida<double, FF_algorithm::thin_octupole_unit<double>, 4, 1 >
-                    ( x, xp, y, yp, cdt, dpop,
-                      reference_momentum, m,
-                      step_reference_cdt,
-                      step_length, step_strength, steps );
+                FF_algorithm::yoshida<double, FF_algorithm::thin_octupole_unit<double>, 4, 1 >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
 
-            particles[part][Bunch::x] = x;
-            particles[part][Bunch::xp] = xp;
-            particles[part][Bunch::y] = y;
-            particles[part][Bunch::yp] = yp;
-            particles[part][Bunch::cdt] = cdt;
+                particles[part][Bunch::x] = x;
+                particles[part][Bunch::xp] = xp;
+                particles[part][Bunch::y] = y;
+                particles[part][Bunch::yp] = yp;
+                particles[part][Bunch::cdt] = cdt;
+            }
         }
+
+        // bunch spectator particles
+        {
+            #pragma omp parallel for
+            for (int part = 0; part < local_s_num; ++part)
+            {
+                double x(s_particles[part][Bunch::x]);
+                double xp(s_particles[part][Bunch::xp]);
+                double y(s_particles[part][Bunch::y]);
+                double yp(s_particles[part][Bunch::yp]);
+                double cdt(s_particles[part][Bunch::cdt]);
+                double dpop(s_particles[part][Bunch::dpop]);
+
+                FF_algorithm::yoshida<double, FF_algorithm::thin_octupole_unit<double>, 4, 1 >
+                        ( x, xp, y, yp, cdt, dpop,
+                          reference_momentum, m,
+                          step_reference_cdt,
+                          step_length, step_strength, steps );
+
+                s_particles[part][Bunch::x] = x;
+                s_particles[part][Bunch::xp] = xp;
+                s_particles[part][Bunch::y] = y;
+                s_particles[part][Bunch::yp] = yp;
+                s_particles[part][Bunch::cdt] = cdt;
+            }
+        }
+
         bunch.get_reference_particle().increment_trajectory(length);
     }
 }
