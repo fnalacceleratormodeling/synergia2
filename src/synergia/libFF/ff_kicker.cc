@@ -218,7 +218,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 yp.store(&ypa[part]);
             }
 
-            for (int part = block_last; part < local_num; ++part)
+            for (int part = block_last; part < local_s_num; ++part)
             {
                 double xp(xpa[part]);
                 double yp(ypa[part]);
@@ -334,7 +334,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     dpop.store(&dpopa[part]);
                 }
 
-                for (int part = block_last; part < local_num; ++part)
+                for (int part = block_last; part < local_s_num; ++part)
                 {
                     double x(xa[part]);
                     double xp(xpa[part]);
@@ -451,7 +451,7 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     dpop.store(&dpopa[part]);
                 }
 
-                for (int part = block_last; part < local_num; ++part)
+                for (int part = block_last; part < local_s_num; ++part)
                 {
                     double x(xa[part]);
                     double xp(xpa[part]);

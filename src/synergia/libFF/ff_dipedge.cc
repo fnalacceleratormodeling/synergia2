@@ -162,7 +162,7 @@ void FF_dipedge::apply(Lattice_element_slice const& slice, Bunch& bunch)
             yp.store(&ypa[part]);
         }
      
-        for (int part = block_last; part < local_num; ++part)
+        for (int part = block_last; part < local_s_num; ++part)
         {
             FF_algorithm::dipedge_unit(xa[part], xpa[part], ya[part], ypa[part], re_2_1, re_4_3, te);
         }

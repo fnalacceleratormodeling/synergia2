@@ -180,7 +180,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 xp.store(&xpa[part]);
             }
 
-            for (int part = block_last; part < local_num; ++part)
+            for (int part = block_last; part < local_s_num; ++part)
             {
                 double xp(xpa[part]);
                 FF_algorithm::thin_kicker_unit(xp, b_k);
@@ -286,7 +286,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     dpop.store(&dpopa[part]);
                 }
 
-                for (int part = block_last; part < local_num; ++part)
+                for (int part = block_last; part < local_s_num; ++part)
                 {
                     double x(xa[part]);
                     double xp(xpa[part]);
@@ -401,7 +401,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     dpop.store(&dpopa[part]);
                 }
 
-                for (int part = block_last; part < local_num; ++part)
+                for (int part = block_last; part < local_s_num; ++part)
                 {
                     double x(xa[part]);
                     double xp(xpa[part]);

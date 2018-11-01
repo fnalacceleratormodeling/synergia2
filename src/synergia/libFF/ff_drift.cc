@@ -71,6 +71,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
     const double ref_cdt = get_reference_cdt(length, ref_l);
+
     double * RESTRICT xa, * RESTRICT xpa;
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
@@ -144,7 +145,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
             cdt.store(&cdta[part]);
         }
 
-        for (int part = block_last; part < local_num; ++part)
+        for (int part = block_last; part < local_s_num; ++part)
         {
             double x(xa[part]);
             double xp(xpa[part]);

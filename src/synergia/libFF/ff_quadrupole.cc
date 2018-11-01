@@ -419,7 +419,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 dpop.store(&dpopa[part]);
             }
 
-            for (int part = block_last; part < local_num; ++part)
+            for (int part = block_last; part < local_s_num; ++part)
             {
                 double    x(   xa[part]);
                 double   xp(  xpa[part]);
