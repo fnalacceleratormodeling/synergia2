@@ -56,7 +56,7 @@ write_selected_particles(Hdf5_chunked_array2d_writer & writer,
 
 void
 Diagnostics_particles::receive_other_local_particles(
-        std::vector<int > const& local_nums, 
+        std::vector<int> const & local_nums, 
         std::vector<int> const & local_nums_padded, 
         Hdf5_file_sptr file_sptr)
 {
@@ -67,7 +67,7 @@ Diagnostics_particles::receive_other_local_particles(
 
         Hdf5_chunked_array2d_writer
                 writer_particles(
-                    &(file_sptr->get_h5file()),
+                    file_sptr->get_h5file(),
                     "particles",
                     get_bunch().get_local_particles());
 

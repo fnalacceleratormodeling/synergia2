@@ -1081,7 +1081,7 @@ Bunch::save(Archive & ar, const unsigned int version) const
                 file.close();
                 fail=false;
             }
-            catch(H5::Exception& he) 
+            catch(Hdf5_exception & he) 
             {
                 ++attempts;
                 fail=true;

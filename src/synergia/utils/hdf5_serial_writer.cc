@@ -57,13 +57,21 @@ template<>
             data_size = sizeof(double) * data.num_elements();
             setup(data_dims);
         }
-        DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
-        ++size[data_rank];
-        dataset.extend(&size[0]);
 
-        DataSpace filespace = dataset.getSpace();
-        filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
-        dataset.write(data.origin(), atomic_type, dataspace, filespace);
+        Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
+        ++size[data_rank];
+
+        herr_t res = H5Dextend(dataset, &size[0]);
+        if (res < 0) throw Hdf5_exception();
+
+        Hdf5_handler filespace = H5Dget_space(dataset);
+
+        res = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &dims[0], NULL);
+        if (res < 0) throw Hdf5_exception();
+
+        res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
+        if (res < 0) throw Hdf5_exception();
+
         ++offset[data_rank];
     }
 
@@ -79,13 +87,21 @@ template<>
             data_size = sizeof(double) * data.num_elements();
             setup(data_dims);
         }
-        DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
-        ++size[data_rank];
-        dataset.extend(&size[0]);
 
-        DataSpace filespace = dataset.getSpace();
-        filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
-        dataset.write(data.origin(), atomic_type, dataspace, filespace);
+        Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
+        ++size[data_rank];
+
+        herr_t res = H5Dextend(dataset, &size[0]);
+        if (res < 0) throw Hdf5_exception();
+
+        Hdf5_handler filespace = H5Dget_space(dataset);
+
+        res = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &dims[0], NULL);
+        if (res < 0) throw Hdf5_exception();
+
+        res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
+        if (res < 0) throw Hdf5_exception();
+
         ++offset[data_rank];
     }
 
@@ -101,12 +117,20 @@ template<>
             data_size = sizeof(double) * data.num_elements();
             setup(data_dims);
         }
-        DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
-        ++size[data_rank];
-        dataset.extend(&size[0]);
 
-        DataSpace filespace = dataset.getSpace();
-        filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
-        dataset.write(data.origin(), atomic_type, dataspace, filespace);
+        Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
+        ++size[data_rank];
+
+        herr_t res = H5Dextend(dataset, &size[0]);
+        if (res < 0) throw Hdf5_exception();
+
+        Hdf5_handler filespace = H5Dget_space(dataset);
+
+        res = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &dims[0], NULL);
+        if (res < 0) throw Hdf5_exception();
+
+        res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
+        if (res < 0) throw Hdf5_exception();
+
         ++offset[data_rank];
     }

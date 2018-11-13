@@ -85,7 +85,7 @@ list(APPEND extra_includes ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # hdf5
-find_package(HDF5 REQUIRED CXX)
+find_package(HDF5)
 list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
 
 # chef
