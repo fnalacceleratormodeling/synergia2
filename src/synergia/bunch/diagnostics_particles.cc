@@ -3,11 +3,15 @@
 
 const char Diagnostics_particles::name[] = "diagnostics_particles";
 
-Diagnostics_particles::Diagnostics_particles(std::string const& filename,
-        int min_particle_id, int max_particle_id, std::string const& local_dir) :
-        Diagnostics_particles::Diagnostics(Diagnostics_particles::name,
-                filename, local_dir), have_writers(false), min_particle_id(
-                min_particle_id), max_particle_id(max_particle_id)
+Diagnostics_particles::Diagnostics_particles(
+        std::string const& filename,
+        int min_particle_id, 
+        int max_particle_id, 
+        std::string const& local_dir ) 
+    : Diagnostics_particles::Diagnostics(Diagnostics_particles::name, filename, local_dir)
+    , have_writers(false)
+    , min_particle_id(min_particle_id)
+    , max_particle_id(max_particle_id)
 {
 }
 
@@ -56,34 +60,48 @@ Diagnostics_particles::receive_other_local_particles(
         std::vector<int> const & local_nums_padded, 
         Hdf5_file_sptr file_sptr)
 {
-    if (get_bunch().get_comm().has_this_rank()){
+    if (get_bunch().get_comm().has_this_rank())
+    {
         int myrank = get_bunch().get_comm().get_rank();
         int size = get_bunch().get_comm().get_size();
+
         Hdf5_chunked_array2d_writer
                 writer_particles(
                     &(file_sptr->get_h5file()),
                     "particles",
                     get_bunch().get_local_particles());
-        for (int rank = 0; rank < size; ++rank) {
+
+        for (int rank = 0; rank < size; ++rank) 
+        {
             int local_num = local_nums[rank];
             int local_num_padded = local_nums_padded[rank];
-            if (rank == myrank) {
-                write_selected_particles(writer_particles,
-                                         get_bunch().get_local_particles(), local_num,
-                                         min_particle_id, max_particle_id);
-            } else {
+            if (rank == myrank) 
+            {
+                write_selected_particles(
+                        writer_particles, get_bunch().get_local_particles(), 
+                        local_num, min_particle_id, max_particle_id );
+            } 
+            else 
+            {
                 MPI_Status status;
-                Raw_MArray2d received(boost::extents[local_num_padded][7], boost::fortran_storage_order());
+                Raw_MArray2d received(
+                        boost::extents[local_num_padded][7], 
+                        boost::fortran_storage_order());
+
                 int message_size = 7 * local_num_padded;
                 MPI_Comm comm = get_bunch().get_comm().get();
                 int error = MPI_Recv((void*) received.m.origin(), message_size,
                                      MPI_DOUBLE, rank, rank, comm, &status);
-                if (error != MPI_SUCCESS) {
+
+                if (error != MPI_SUCCESS) 
+                {
                     throw std::runtime_error(
                                 "Diagnostics_particles::receive_other_local_particles: MPI_Recv failed.");
                 }
-                write_selected_particles(writer_particles, received.m, local_num,
-                                         min_particle_id, max_particle_id);
+
+                write_selected_particles(
+                        writer_particles, received.m, 
+                        local_num, min_particle_id, max_particle_id );
             }
         }
     }
@@ -113,8 +131,8 @@ Diagnostics_particles::send_local_particles()
 void
 Diagnostics_particles::write()
 {
-    if (get_bunch().get_comm().has_this_rank()){
-
+    if (get_bunch().get_comm().has_this_rank())
+    {
         get_bunch().convert_to_state(get_bunch().fixed_z_lab);
         MPI_Comm comm = get_bunch().get_comm().get();
 
@@ -131,43 +149,56 @@ Diagnostics_particles::write()
 
         int root = get_write_helper().get_writer_rank();
 
-        int status;
-        status = MPI_Gather((void*) &local_num, 1, MPI_INT, local_nums_buf, 1,
-                            MPI_INT, root, comm);
-        if (status != MPI_SUCCESS) {
+        int status = MPI_Gather(
+                (void*) &local_num, 1, MPI_INT, local_nums_buf, 
+                1, MPI_INT, root, comm);
+
+        if (status != MPI_SUCCESS) 
+        {
             throw std::runtime_error(
                         "Diagnostics_particles::write: MPI_Gather local_nums failed.");
         }
 
-        status = MPI_Gather((void*) &local_num_padded, 1, MPI_INT, local_nums_padded_buf, 1,
-                            MPI_INT, root, comm);
-        if (status != MPI_SUCCESS) {
+        status = MPI_Gather(
+                (void*) &local_num_padded, 1, MPI_INT, local_nums_padded_buf, 
+                1, MPI_INT, root, comm);
+
+        if (status != MPI_SUCCESS) 
+        {
             throw std::runtime_error(
                         "Diagnostics_particles::write: MPI_Gather local_num_padded failed.");
         }
 
-
-
-        if (get_write_helper().write_locally()) {
-
+        if (get_write_helper().write_locally()) 
+        {
             Hdf5_file_sptr file_sptr = get_write_helper().get_hdf5_file_sptr();
+
             receive_other_local_particles(local_nums, local_nums_padded, file_sptr);
             Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
+
             int chg = get_bunch().get_reference_particle().get_charge();
             file_sptr->write(chg, "charge");
+
             double pmass = fourp.get_mass();
             file_sptr->write(pmass, "mass");
+
             double pz = fourp.get_momentum();
             file_sptr->write(pz, "pz");
+
             double tlen = get_bunch().get_reference_particle().get_s();
             file_sptr->write(tlen, "tlen");
+
             int rep = get_bunch().get_reference_particle().get_repetition();
             file_sptr->write(rep, "rep");
+
             double s_n = get_bunch().get_reference_particle().get_s_n();
             file_sptr->write(s_n, "s_n");
             file_sptr->write(0, "particles_storage_order");
+
             get_write_helper().finish_write();
-        } else {
+        } 
+        else 
+        {
             send_local_particles();
         }
     }
