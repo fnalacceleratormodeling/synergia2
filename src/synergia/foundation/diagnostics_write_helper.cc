@@ -22,18 +22,30 @@ std::string
 Diagnostics_write_helper::get_filename(bool include_local_dir)
 {
     std::stringstream sstream;
-    if (include_local_dir && (local_dir != "")) {
+
+    if (include_local_dir && (local_dir != "")) 
+    {
         sstream << local_dir;
         sstream << "/";
     }
+
     sstream << filename_base;
-    if (!serial) {
+
+    if (!filename_appendix.empty()) 
+    {
+        sstream << "_" << filename_appendix;
+    }
+
+    if (!serial) 
+    {
         sstream << "_";
         sstream << std::setw(4);
         sstream << std::setfill('0');
         sstream << count;
     }
+
     sstream << filename_suffix;
+
     return sstream.str();
 }
 
@@ -47,16 +59,27 @@ Diagnostics_write_helper::open_file()
     }
 }
 
-Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-		bool serial, Commxx_sptr commxx_sptr, std::string const& local_dir,
-		int writer_rank) :
-		filename(filename), local_dir(local_dir), serial(serial), commxx_sptr(
-				commxx_sptr), have_file(false), count(0) {
+Diagnostics_write_helper::Diagnostics_write_helper(
+        std::string const & filename,
+        bool serial, 
+        Commxx_sptr commxx_sptr, 
+        std::string const & local_dir,
+        std::string const & filename_appendix,
+        int writer_rank ) 
+    : filename(filename)
+    , filename_appendix(filename_appendix)
+    , local_dir(local_dir)
+    , serial(serial)
+    , commxx_sptr(commxx_sptr)
+    , have_file(false)
+    , count(0) 
+{
 	if (writer_rank == default_rank) {
 		this->writer_rank = commxx_sptr->get_size() - 1;
     } else {
         this->writer_rank = writer_rank;
     }
+
     std::string::size_type idx = filename.rfind('.');
     if (idx == std::string::npos) {
         filename_base = filename;
@@ -145,7 +168,8 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(have_file)
                 & BOOST_SERIALIZATION_NVP(count)
                 & BOOST_SERIALIZATION_NVP(filename_base)
-                & BOOST_SERIALIZATION_NVP(filename_suffix);
+                & BOOST_SERIALIZATION_NVP(filename_suffix)
+                & BOOST_SERIALIZATION_NVP(filename_appendix);
     }
 
 template
