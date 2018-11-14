@@ -110,7 +110,7 @@ Diagnostics::get_extra_write_helper(std::string const & name)
         return extra_writers.insert( std::pair<std::string, Diagnostics_write_helper>(
                 name,
                 Diagnostics_write_helper(
-                    get_filename()+"_"+name, 
+                    get_filename() + "_" + name, 
                     is_serial(), get_bunch().get_comm_sptr(), local_dir )
             ) ).first->second;
     }
