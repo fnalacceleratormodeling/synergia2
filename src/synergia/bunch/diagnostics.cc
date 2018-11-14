@@ -19,6 +19,7 @@ Diagnostics ::Diagnostics(
     , have_bunch_(false)
     , write_helper_ptr(0)
     , have_write_helper_(0)
+    , extra_writers()
 {
 }
 
@@ -89,6 +90,36 @@ Diagnostics::get_write_helper()
     return *write_helper_ptr;
 }
 
+void
+Diagnostics::delete_extra_write_helper(std::string const & name)
+{
+    extra_writers.erase(name);
+}
+
+bool
+Diagnostics::have_extra_write_helper(std::string const & name) const
+{
+    return (extra_writers.find(name) != extra_writers.end());
+}
+
+Diagnostics_write_helper &
+Diagnostics::get_extra_write_helper(std::string const & name)
+{
+    if (!have_extra_write_helper(name))
+    {
+        return extra_writers.insert( std::pair<std::string, Diagnostics_write_helper>(
+                name,
+                Diagnostics_write_helper(
+                    get_filename()+"_"+name, 
+                    is_serial(), get_bunch().get_comm_sptr(), local_dir )
+            ) ).first->second;
+    }
+    else
+    {
+        return extra_writers.find(name)->second;
+    }
+}
+
 Diagnostics::Diagnostics()
 {
 }
@@ -104,6 +135,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(have_bunch_);
         ar & BOOST_SERIALIZATION_NVP(write_helper_ptr);
         ar & BOOST_SERIALIZATION_NVP(have_write_helper_);
+        ar & BOOST_SERIALIZATION_NVP(extra_writers);
     }
 
 template

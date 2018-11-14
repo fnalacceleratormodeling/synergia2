@@ -22,7 +22,9 @@ private:
     std::string local_dir;
     bool serial;
     Commxx_sptr commxx_sptr;
+
     Hdf5_file_sptr file_sptr;
+
     bool have_file;
     int count;
     std::string filename_base, filename_suffix;
