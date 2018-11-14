@@ -11,12 +11,22 @@ public:
 private:
     bool have_writers;
     int min_particle_id, max_particle_id;
+
     void
-    receive_other_local_particles(std::vector<int > const& local_nums,
+    receive_other_local_particles(
+            std::vector<int> const & local_nums,
             std::vector<int> const & local_nums_padded,
-            Hdf5_file_sptr file_sptr);
+            MArray2d_ref local_particles,
+            int min_part_id,
+            int max_part_id,
+            Hdf5_file_sptr file_sptr );
+
     void
-    send_local_particles();
+    send_local_particles(
+            int local_num_padded,
+            MArray2d_ref local_particles,
+            Diagnostics_write_helper & helper );
+
 public:
     /// Create a Diagnostics_particles object
     /// @param bunch_sptr the Bunch
