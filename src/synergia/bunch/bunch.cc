@@ -126,8 +126,11 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
 {
     sort_counter = 0;
     sort_period = 10000;
+
     this->total_num = total_num;
     this->real_num = real_num;
+    this->total_s_num = total_s_num;
+
     state = fixed_z_lab;
     converter_ptr = &default_converter;
 
