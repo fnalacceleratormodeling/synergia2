@@ -2,7 +2,6 @@
 #define DIAGNOSTICS_WRITE_HELPER_H_
 #include <string>
 #include <list>
-#include "H5Cpp.h"
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/utils/commxx.h"

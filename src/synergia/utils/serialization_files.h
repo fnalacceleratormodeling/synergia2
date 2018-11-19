@@ -96,7 +96,9 @@ template<typename T, typename A>
                 std::string object_typename(typeid(object).name());
                 output_archive << BOOST_SERIALIZATION_NVP(object_typename);
                 output_archive << BOOST_SERIALIZATION_NVP(object);
-                output_stream.close();
+                // Do not close the stream before the archive, which might use
+                // it, is destroyed. The destructor of ofstream will close it.
+                //output_stream.close();
                 fail=false;
             }
             catch(boost::archive::archive_exception& be){
@@ -129,7 +131,6 @@ template<typename T, typename A>
         std::string object_typename;
         input_archive >> BOOST_SERIALIZATION_NVP(object_typename);
         input_archive >> BOOST_SERIALIZATION_NVP(object);
-        input_stream.close();
     }
 
 template<typename T>

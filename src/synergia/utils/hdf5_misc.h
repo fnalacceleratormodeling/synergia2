@@ -77,6 +77,7 @@ struct Hdf5_handler
         case H5I_DATASET:   H5Dclose(hid); break;
         case H5I_ATTR:      H5Aclose(hid); break;
         case H5I_GENPROP_LST: H5Pclose(hid); break;
+        default:            break;
         }
 
         hid = 0;
@@ -101,7 +102,8 @@ private:
 
     // disable copy and assignment
     // Hdf5_handler(Hdf5_handler const &) { }
-    Hdf5_handler & operator= (Hdf5_handler const &) { }
+  // TODO: use C++11 delete'd function
+    Hdf5_handler & operator= (Hdf5_handler const &);
 };
 
 
