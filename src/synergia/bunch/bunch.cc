@@ -61,6 +61,21 @@ Bunch::assign_ids(int local_offset)
     }
 }
 
+void
+Bunch::assign_spectator_ids(int local_offset)
+{
+    int global_offset, request_num;
+    if (comm_sptr->get_rank() == 0) {
+        request_num = total_s_num;
+    } else {
+        request_num = 0;
+    }
+    global_offset = particle_id_offset.get(request_num, *comm_sptr);
+    for (int i = 0; i < local_s_num; ++i) {
+        (*local_s_particles)[i][id] = i + local_offset + global_offset;
+    }
+}
+
 
 
 template<class T, size_t C, int I>
@@ -202,7 +217,7 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
             }
         }
 
-        //assign_ids(s_offsets[comm_sptr->get_rank()]);
+        assign_spectator_ids(s_offsets[comm_sptr->get_rank()]);
     } 
     else 
     {
