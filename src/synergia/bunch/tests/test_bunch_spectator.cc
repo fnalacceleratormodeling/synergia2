@@ -257,6 +257,62 @@ BOOST_FIXTURE_TEST_CASE(get_const_local_spectator_particles, Fix_p100_s10)
     BOOST_CHECK(particles.shape()[0] == u_local_num_padded);
 }
 
+BOOST_FIXTURE_TEST_CASE(set_local_spectator_num, Fix_p100_s10)
+{
+    int new_local_num = total_spectator_num / comm_sptr->get_size() - 5;
+
+    bunch.set_local_spectator_num(new_local_num);
+    BOOST_CHECK_EQUAL(bunch.get_local_spectator_num(), new_local_num);
+    BOOST_CHECK_EQUAL(bunch.get_local_num(), 100);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_total_spectator_num, Fix_p100_s10)
+{
+    BOOST_CHECK_EQUAL(bunch.get_total_spectator_num(), 10);
+}
+
+BOOST_FIXTURE_TEST_CASE(update_total_num_with_new_spectator, Fix_p100_s10)
+{
+    const int new_local_num = bunch.get_local_num() - 7;
+    bunch.set_local_spectator_num(new_local_num);
+    bunch.update_total_num();
+
+    BOOST_CHECK_EQUAL(
+            bunch.get_total_spectator_num(), 
+            new_local_num*Commxx().get_size() );
+
+    BOOST_CHECK_EQUAL(bunch.get_total_num(), 100);
+}
+
+#if 0
+BOOST_FIXTURE_TEST_CASE(set_local_num, Fix_p100_s10)
+{
+    int new_local_num = total_num / comm_sptr->get_size() - 5;
+
+    bunch.set_local_spectator_num(new_local_num);
+    BOOST_CHECK_EQUAL(bunch.get_local_spectator_num(), new_local_num);
+    BOOST_CHECK_EQUAL(bunch.get_local_num(), 100);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_total_spectator_num, Fix_p100_s10)
+{
+    BOOST_CHECK_EQUAL(bunch.get_total_spectator_num(), 10);
+}
+
+BOOST_FIXTURE_TEST_CASE(update_total_num_with_new_spectator, Fix_p100_s10)
+{
+    const int new_local_num = bunch.get_local_num() - 7;
+    bunch.set_local_spectator_num(new_local_num);
+    bunch.update_total_num();
+
+    BOOST_CHECK_EQUAL(
+            bunch.get_total_spectator_num(), 
+            new_local_num*Commxx().get_size() );
+
+    BOOST_CHECK_EQUAL(bunch.get_total_num(), 100);
+}
+#endif
+
 
 
 #if 0
