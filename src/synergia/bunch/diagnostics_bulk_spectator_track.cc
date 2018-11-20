@@ -1,18 +1,18 @@
 #include <string>
 #include <iostream>
-#include "diagnostics_bulk_track.h"
+#include "diagnostics_bulk_spectator_track.h"
 #include "synergia/utils/parallel_utils.h"
 
-const char Diagnostics_bulk_track::name[] = "diagnostics_bulk_track";
+const char Diagnostics_bulk_spectator_track::name[] = "diagnostics_bulk_spectator_track";
 
 const int no_local_num_tracks = -1;
 
-Diagnostics_bulk_track::Diagnostics_bulk_track(
+Diagnostics_bulk_spectator_track::Diagnostics_bulk_spectator_track(
         std::string const& filename,
         int num_tracks, 
         int offset, 
         std::string const& local_dir) 
-    : Diagnostics(Diagnostics_bulk_track::name, filename, local_dir)
+    : Diagnostics(Diagnostics_bulk_spectator_track::name, filename, local_dir)
     , num_tracks(num_tracks)
     , local_num_tracks(no_local_num_tracks)
     , offset(offset)
@@ -29,18 +29,18 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(
 {
 }
 
-Diagnostics_bulk_track::Diagnostics_bulk_track() : have_writers(false)
+Diagnostics_bulk_spectator_track::Diagnostics_bulk_spectator_track() : have_writers(false)
 {
 }
 
 bool
-Diagnostics_bulk_track::is_serial() const
+Diagnostics_bulk_spectator_track::is_serial() const
 {
     return true;
 }
 
 //Diagnostics_write_helper *
-//Diagnostics_bulk_track::new_write_helper_ptr()
+//Diagnostics_bulk_spectator_track::new_write_helper_ptr()
 //{
 //    delete_write_helper_ptr();
 //    std::stringstream sstream;
@@ -67,7 +67,7 @@ Diagnostics_bulk_track::is_serial() const
 //}
 
 void
-Diagnostics_bulk_track::update()
+Diagnostics_bulk_spectator_track::update()
 {
     if (get_bunch().get_comm().has_this_rank())
     {
@@ -81,9 +81,9 @@ Diagnostics_bulk_track::update()
         // first time, set the status of the tracks that are being followed
         if (diag_track_status.empty()) 
         {
-            if (local_num_tracks + local_offset > get_bunch().get_local_num()) 
+            if (local_num_tracks + local_offset > get_bunch().get_local_spectator_num()) 
             {
-                local_num_tracks = get_bunch().get_local_num() - local_offset;
+                local_num_tracks = get_bunch().get_local_spectator_num() - local_offset;
             }
 
             // loop over my local tracks
@@ -94,7 +94,7 @@ Diagnostics_bulk_track::update()
                 dts.found = true;
                 dts.last_index = idxtrk+local_offset;
                 dts.particle_id =
-                        static_cast<int >(get_bunch().get_local_particles()[idxtrk+local_offset][Bunch::id]);
+                        static_cast<int >(get_bunch().get_local_spectator_particles()[idxtrk+local_offset][Bunch::id]);
                 diag_track_status.push_back(dts);
             }
         }
@@ -115,10 +115,10 @@ Diagnostics_bulk_track::update()
                 dtsptr->found = false;
 
                 if ((dtsptr->last_index > -1)
-                        && (dtsptr->last_index < get_bunch().get_local_num())) 
+                        && (dtsptr->last_index < get_bunch().get_local_spectator_num())) 
                 {
                     if (dtsptr->particle_id
-                            == static_cast<int >(get_bunch().get_local_particles()[dtsptr->last_index][Bunch::id])) 
+                            == static_cast<int >(get_bunch().get_local_spectator_particles()[dtsptr->last_index][Bunch::id])) 
                     {
                         // this track is still where it was last time I looked
                         index = dtsptr->last_index;
@@ -130,14 +130,14 @@ Diagnostics_bulk_track::update()
                 {
                     // it wasn't there, I have to look for it again
                     index = 0;
-                    while ((index < get_bunch().get_local_num())
+                    while ((index < get_bunch().get_local_spectator_num())
                            && (dtsptr->particle_id
-                               != static_cast<int >(get_bunch().get_local_particles()[index][Bunch::id]))) 
+                               != static_cast<int >(get_bunch().get_local_spectator_particles()[index][Bunch::id]))) 
                     {
                         index += 1;
                     }
 
-                    if (index < get_bunch().get_local_num()) 
+                    if (index < get_bunch().get_local_spectator_num()) 
                     {
                         // found it
                         dtsptr->found = true;
@@ -161,7 +161,7 @@ Diagnostics_bulk_track::update()
                     // diag_track_status[0..local_num_tracks] has status for tracks originally
                     // at local_particles[local_offset..local_offset+local_num_tracks]
                     track_coords[ boost::indices[idxtrk][range()] ] =
-                            get_bunch().get_local_particles()[boost::indices[index][range()]];
+                            get_bunch().get_local_spectator_particles()[boost::indices[index][range()]];
                } 
                else 
                {
@@ -185,7 +185,7 @@ Diagnostics_bulk_track::update()
 }
 
 void
-Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
+Diagnostics_bulk_spectator_track::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
         Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
@@ -207,7 +207,7 @@ Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
 }
 
 void
-Diagnostics_bulk_track::receive_other_local_coords(
+Diagnostics_bulk_spectator_track::receive_other_local_coords(
         std::vector<int > const& local_nums)
 {
     if (get_bunch().get_comm().has_this_rank()){
@@ -231,7 +231,7 @@ Diagnostics_bulk_track::receive_other_local_coords(
                                      message_size, MPI_DOUBLE, rank, rank, comm, &status);
                 if (error != MPI_SUCCESS) {
                     throw std::runtime_error(
-                                "Diagnostics_bulk_track::receive_other_local_coords: MPI_Recv failed.");
+                                "Diagnostics_bulk_spectator_track::receive_other_local_coords: MPI_Recv failed.");
                 }
                 array_offset += local_num;
             }
@@ -241,7 +241,7 @@ Diagnostics_bulk_track::receive_other_local_coords(
 }
 
 void
-Diagnostics_bulk_track::send_local_coords()
+Diagnostics_bulk_spectator_track::send_local_coords()
 {
     if (get_bunch().get_comm().has_this_rank()){
         void * send_buffer =
@@ -255,13 +255,13 @@ Diagnostics_bulk_track::send_local_coords()
                           comm);
         if (status != MPI_SUCCESS) {
             throw std::runtime_error(
-                        "Diagnostics_bulk_track::send_local_coords: MPI_Send failed.");
+                        "Diagnostics_bulk_spectator_track::send_local_coords: MPI_Send failed.");
         }
     }
 }
 
 void
-Diagnostics_bulk_track::write()
+Diagnostics_bulk_spectator_track::write()
 {   if (get_bunch().get_comm().has_this_rank()){
         MPI_Comm comm = get_bunch().get_comm().get();
         int num_procs = get_bunch().get_comm().get_size();
@@ -274,7 +274,7 @@ Diagnostics_bulk_track::write()
                             local_num_tracks_buf, 1, MPI_INT, root, comm);
         if (status != MPI_SUCCESS) {
             throw std::runtime_error(
-                        "Diagnostics_bulk_track::write: MPI_Gather failed.");
+                        "Diagnostics_bulk_spectator_track::write: MPI_Gather failed.");
         }
 
         if (get_write_helper().write_locally()) {
@@ -293,7 +293,7 @@ Diagnostics_bulk_track::write()
 
 template<class Archive>
 void
-Diagnostics_bulk_track::serialize(Archive & ar, const unsigned int version)
+Diagnostics_bulk_spectator_track::serialize(Archive & ar, const unsigned int version)
 {
     ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
     ar & BOOST_SERIALIZATION_NVP(num_tracks);
@@ -317,7 +317,7 @@ Diagnostics_bulk_track::serialize(Archive & ar, const unsigned int version)
 
 template<class Archive>
 void
-Diagnostics_bulk_track::Track_status::serialize(Archive & ar, const unsigned int version)
+Diagnostics_bulk_spectator_track::Track_status::serialize(Archive & ar, const unsigned int version)
 {
     ar & BOOST_SERIALIZATION_NVP(found) &
             BOOST_SERIALIZATION_NVP(last_index) &
@@ -326,46 +326,46 @@ Diagnostics_bulk_track::Track_status::serialize(Archive & ar, const unsigned int
 
 template
 void
-Diagnostics_bulk_track::Track_status::serialize<boost::archive::binary_oarchive >(
+Diagnostics_bulk_spectator_track::Track_status::serialize<boost::archive::binary_oarchive >(
 boost::archive::binary_oarchive &ar, const unsigned int version);
 
 template
 void
-Diagnostics_bulk_track::Track_status::serialize<boost::archive::xml_oarchive >(
+Diagnostics_bulk_spectator_track::Track_status::serialize<boost::archive::xml_oarchive >(
 boost::archive::xml_oarchive &ar, const unsigned int version);
 
 template
 void
-Diagnostics_bulk_track::Track_status::serialize<boost::archive::binary_iarchive >(
+Diagnostics_bulk_spectator_track::Track_status::serialize<boost::archive::binary_iarchive >(
 boost::archive::binary_iarchive &ar, const unsigned int version);
 
 template
 void
-Diagnostics_bulk_track::Track_status::serialize<boost::archive::xml_iarchive >(
+Diagnostics_bulk_spectator_track::Track_status::serialize<boost::archive::xml_iarchive >(
 boost::archive::xml_iarchive &ar, const unsigned int version);
 
 
 template
 void
-Diagnostics_bulk_track::serialize<boost::archive::binary_oarchive >(
+Diagnostics_bulk_spectator_track::serialize<boost::archive::binary_oarchive >(
 boost::archive::binary_oarchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_bulk_track::serialize<boost::archive::xml_oarchive >(
+Diagnostics_bulk_spectator_track::serialize<boost::archive::xml_oarchive >(
 boost::archive::xml_oarchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_bulk_track::serialize<boost::archive::binary_iarchive >(
+Diagnostics_bulk_spectator_track::serialize<boost::archive::binary_iarchive >(
 boost::archive::binary_iarchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_bulk_track::serialize<boost::archive::xml_iarchive >(
+Diagnostics_bulk_spectator_track::serialize<boost::archive::xml_iarchive >(
 boost::archive::xml_iarchive & ar, const unsigned int version);
 
-Diagnostics_bulk_track::~Diagnostics_bulk_track()
+Diagnostics_bulk_spectator_track::~Diagnostics_bulk_spectator_track()
 {
     if (have_writers) {
         delete writer_pz;
@@ -375,6 +375,6 @@ Diagnostics_bulk_track::~Diagnostics_bulk_track()
         delete writer_coords;
     }
 }
-BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_bulk_track)
+BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_bulk_spectator_track)
 
 
