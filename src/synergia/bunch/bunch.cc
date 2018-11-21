@@ -64,6 +64,7 @@ Bunch::assign_ids(int local_offset)
 void
 Bunch::assign_spectator_ids(int local_offset)
 {
+#if 0
     int global_offset, request_num;
     if (comm_sptr->get_rank() == 0) {
         request_num = total_s_num;
@@ -71,6 +72,8 @@ Bunch::assign_spectator_ids(int local_offset)
         request_num = 0;
     }
     global_offset = particle_id_offset.get(request_num, *comm_sptr);
+#endif
+    int global_offset = 0;
     for (int i = 0; i < local_s_num; ++i) {
         (*local_s_particles)[i][id] = i + local_offset + global_offset;
     }
