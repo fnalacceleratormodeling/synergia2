@@ -70,6 +70,7 @@ target_link_libraries(test_chef_lattice_section synergia_lattice synergia_founda
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_chef_lattice_section COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_chef_lattice_section>)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/foo.dbx DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 add_test_executable(test_madx_parser test_madx_parser.cc)
 target_link_libraries(test_madx_parser synergia_lattice
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
