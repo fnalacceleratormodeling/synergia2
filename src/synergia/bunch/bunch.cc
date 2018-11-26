@@ -8,6 +8,22 @@
 #include <algorithm>
 #include <sstream>
 
+#if 0
+// default padding
+#define PARTICLE_PADDING 4
+
+// particle padding based on GSVector settings
+#if defined(GSV_SSE)
+  #define PARTICLE_PADDING 4
+#elif defined(GSV_AVX)
+  #define PARTICLE_PADDING 4
+#elif defined(GSV_AVX512)
+  #define PARTICLE_PADDING 8
+#elif defined(GSV_QPX)
+  #define PARTICLE_PADDING 4
+#endif
+#endif
+
 const int Bunch::x;
 const int Bunch::xp;
 const int Bunch::y;
@@ -238,50 +254,101 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
     }
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num, 
-        double real_num, Commxx_sptr comm_sptr) :
-        longitudinal_extent(0.0),
-        z_periodic(0),
-        longitudinal_aperture(false),
-        reference_particle(reference_particle),
-        design_reference_particle(reference_particle),
-        bucket_index(0),
-        bucket_index_assigned(false),
-        comm_sptr(comm_sptr),
-        default_converter()
+Bunch::Bunch(
+        Reference_particle const& reference_particle, 
+        int total_num, 
+        double real_num, 
+        Commxx_sptr comm_sptr) 
+    : longitudinal_extent(0.0)
+    , z_periodic(false)
+    , longitudinal_aperture(false)
+    , reference_particle(reference_particle)
+    , design_reference_particle(reference_particle)
+    , particle_charge(reference_particle.get_charge())
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
+    , local_num(0)
+    , total_num(total_num)
+    , local_num_padded(0)
+    , local_s_num(0)
+    , total_s_num(0)
+    , local_s_num_padded(0)
+    , real_num(real_num)
+    , bucket_index(0)
+    , bucket_index_assigned(false)
+    , sort_period(10000)
+    , sort_counter(0)
+    , state()
+    , comm_sptr(comm_sptr)
+    , default_converter()
+    , converter_ptr(&default_converter)
 {
-    this->particle_charge = reference_particle.get_charge();
     construct(total_num, real_num, 0);
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num, int total_spectator_num, 
-        double real_num, Commxx_sptr comm_sptr) :
-        longitudinal_extent(0.0),
-        z_periodic(0),
-        longitudinal_aperture(false),
-        reference_particle(reference_particle),
-        design_reference_particle(reference_particle),
-        bucket_index(0),
-        bucket_index_assigned(false),
-        comm_sptr(comm_sptr),
-        default_converter()
+Bunch::Bunch(
+        Reference_particle const& reference_particle, 
+        int total_num, 
+        int total_spectator_num, 
+        double real_num, 
+        Commxx_sptr comm_sptr) 
+    : longitudinal_extent(0.0)
+    , z_periodic(false)
+    , longitudinal_aperture(false)
+    , reference_particle(reference_particle)
+    , design_reference_particle(reference_particle)
+    , particle_charge(reference_particle.get_charge())
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
+    , local_num(0)
+    , total_num(total_num)
+    , local_num_padded(0)
+    , local_s_num(0)
+    , total_s_num(total_spectator_num)
+    , local_s_num_padded(0)
+    , real_num(real_num)
+    , bucket_index(0)
+    , bucket_index_assigned(false)
+    , sort_period(10000)
+    , sort_counter(0)
+    , state()
+    , comm_sptr(comm_sptr)
+    , default_converter()
+    , converter_ptr(&default_converter)
 {
-    this->particle_charge = reference_particle.get_charge();
     construct(total_num, real_num, total_spectator_num);
 }
 
-// Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-//         double real_num, Commxx_sptr comm_sptr, int particle_charge) :
-//         longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
-//                 reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
-// {
-//     construct(particle_charge, total_num, real_num);
-// }
-
-
-Bunch::Bunch() :
-        storage(NULL),
-        local_particles(NULL)
+Bunch::Bunch() 
+    : longitudinal_extent(0.0)
+    , z_periodic(false)
+    , longitudinal_aperture(false)
+    , reference_particle()
+    , design_reference_particle()
+    , particle_charge(1)
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
+    , local_num(0)
+    , total_num(0)
+    , local_num_padded(0)
+    , local_s_num(0)
+    , total_s_num(0)
+    , local_s_num_padded(0)
+    , real_num(real_num)
+    , bucket_index(0)
+    , bucket_index_assigned(false)
+    , sort_period(10000)
+    , sort_counter(0)
+    , state()
+    , comm_sptr()
+    , default_converter()
+    , converter_ptr(NULL)
 {
 }
 

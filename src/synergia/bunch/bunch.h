@@ -60,11 +60,13 @@ private:
 
     int bucket_index;
     bool bucket_index_assigned;
+
     int sort_period, sort_counter;
+
     State state;
     Commxx_sptr comm_sptr;    
-    Fixed_t_z_converter *converter_ptr;
     Fixed_t_z_zeroth default_converter;
+    Fixed_t_z_converter *converter_ptr;
     // Fixed_t_z_alex default_converter;
     //  Fixed_t_z_synergia20 default_converter;
     void
