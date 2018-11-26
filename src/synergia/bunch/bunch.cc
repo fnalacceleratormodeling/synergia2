@@ -265,16 +265,16 @@ Bunch::Bunch(
     , reference_particle(reference_particle)
     , design_reference_particle(reference_particle)
     , particle_charge(reference_particle.get_charge())
-    , storage(NULL)
-    , s_storage(NULL)
-    , local_particles(NULL)
-    , local_s_particles(NULL)
     , local_num(0)
     , total_num(total_num)
     , local_num_padded(0)
     , local_s_num(0)
     , total_s_num(0)
     , local_s_num_padded(0)
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
     , real_num(real_num)
     , bucket_index(0)
     , bucket_index_assigned(false)
@@ -300,10 +300,6 @@ Bunch::Bunch(
     , reference_particle(reference_particle)
     , design_reference_particle(reference_particle)
     , particle_charge(reference_particle.get_charge())
-    , storage(NULL)
-    , s_storage(NULL)
-    , local_particles(NULL)
-    , local_s_particles(NULL)
     , local_num(0)
     , total_num(total_num)
     , local_num_padded(0)
@@ -311,6 +307,10 @@ Bunch::Bunch(
     , total_s_num(total_spectator_num)
     , local_s_num_padded(0)
     , real_num(real_num)
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
     , bucket_index(0)
     , bucket_index_assigned(false)
     , sort_period(10000)
@@ -330,10 +330,6 @@ Bunch::Bunch()
     , reference_particle()
     , design_reference_particle()
     , particle_charge(1)
-    , storage(NULL)
-    , s_storage(NULL)
-    , local_particles(NULL)
-    , local_s_particles(NULL)
     , local_num(0)
     , total_num(0)
     , local_num_padded(0)
@@ -341,6 +337,10 @@ Bunch::Bunch()
     , total_s_num(0)
     , local_s_num_padded(0)
     , real_num(real_num)
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
     , bucket_index(0)
     , bucket_index_assigned(false)
     , sort_period(10000)
@@ -353,49 +353,46 @@ Bunch::Bunch()
 }
 
 
-Bunch::Bunch(Bunch const& bunch) :
-    reference_particle(bunch.reference_particle),
-    design_reference_particle(bunch.design_reference_particle),
-    comm_sptr(bunch.comm_sptr),
-            default_converter()
+Bunch::Bunch(Bunch const& bunch) 
+    : longitudinal_extent(bunch.longitudinal_extent)
+    , z_periodic(bunch.z_periodic)
+    , longitudinal_aperture(bunch.longitudinal_aperture)
+    , reference_particle(bunch.reference_particle)
+    , design_reference_particle(bunch.design_reference_particle)
+    , particle_charge(bunch.particle_charge)
+
+    , local_num(bunch.local_num)
+    , total_num(bunch.total_num)
+    , local_num_padded(bunch.local_num_padded)
+
+    , local_s_num(bunch.local_s_num)
+    , total_s_num(bunch.total_s_num)
+    , local_s_num_padded(bunch.local_s_num_padded)
+
+    , real_num(bunch.real_num)
+
+    , storage((double*)boost::alignment::aligned_alloc(
+                8 * sizeof(double), local_num_padded * 7 * sizeof(double)))
+    , s_storage((double*)boost::alignment::aligned_alloc(
+                8 * sizeof(double), local_s_num_padded * 7 * sizeof(double)))
+
+    , local_particles(new MArray2d_ref(storage, 
+                boost::extents[local_num_padded][7], boost::fortran_storage_order()))
+    , local_s_particles(new MArray2d_ref(s_storage, 
+                boost::extents[local_s_num_padded][7], boost::fortran_storage_order()))
+
+    , bucket_index(bunch.bucket_index)
+    , bucket_index_assigned(bunch.bucket_index_assigned)
+    , sort_period(bunch.sort_period)
+    , sort_counter(bunch.sort_counter)
+    , state(bunch.state)
+    , comm_sptr(bunch.comm_sptr)
+    , default_converter()
+    , converter_ptr( (bunch.converter_ptr==&(bunch.default_converter)) 
+            ? &default_converter : bunch.converter_ptr )
 {
-    particle_charge = bunch.particle_charge;
-
-    real_num = bunch.real_num;
-
-    total_num = bunch.total_num;
-    local_num = bunch.local_num;
-    local_num_padded = bunch.local_num_padded;
-
-    total_s_num = bunch.total_s_num;
-    local_s_num = bunch.local_s_num;
-    local_s_num_padded = bunch.local_s_num_padded;
-
-    bucket_index = bunch.bucket_index;
-    bucket_index_assigned = bunch.bucket_index_assigned;
-
-    storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
     memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
-    local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-
-    s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_padded * 7 * sizeof(double));
     memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_padded*7);
-    local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_padded][7], boost::fortran_storage_order());
-
-    state = bunch.state;
-
-    longitudinal_extent = bunch.longitudinal_extent;
-    z_periodic = bunch.z_periodic;
-    longitudinal_aperture = bunch.longitudinal_aperture;
-
-    if (bunch.converter_ptr == &(bunch.default_converter)) 
-    {
-        converter_ptr = &default_converter;
-    } 
-    else 
-    {
-        converter_ptr = bunch.converter_ptr;
-    }
 }
 
 Bunch &

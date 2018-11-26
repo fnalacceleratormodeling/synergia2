@@ -40,23 +40,25 @@ public:
     static const int dpop = 5;
     static const int id = 6;
 private:
+
     double longitudinal_extent;    
     bool z_periodic;
     bool longitudinal_aperture;
+
     Reference_particle reference_particle;
     Reference_particle design_reference_particle;
     int particle_charge;
+
+    int local_num, total_num, local_num_padded;
+    int local_s_num, total_s_num, local_s_num_padded;
+
+    double real_num;
 
     double * storage;
     double * s_storage;
 
     MArray2d_ref *local_particles;
     MArray2d_ref *local_s_particles;
-
-    int local_num, total_num, local_num_padded;
-    int local_s_num, total_s_num, local_s_num_padded;
-
-    double real_num;
 
     int bucket_index;
     bool bucket_index_assigned;
