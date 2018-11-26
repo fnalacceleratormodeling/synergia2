@@ -1,0 +1,18 @@
+
+!set,format=22.16g;
+BEAM, PARTICLE=PROTON,PC=1.5;
+
+focus = 7.0;
+separation = 10.0;
+
+sexstrength := 1;
+
+f: multipole, knl={0, 1/focus};
+d: multipole, knl={0, -1/focus};
+s: multipole, knl={0, 0, sexstrength};
+
+model: sequence, refer=entry, l=2*separation;
+f, at=0.0;
+d, at=separation;
+s, at=2*separation;
+endsequence;
