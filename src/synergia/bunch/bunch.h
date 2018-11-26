@@ -39,13 +39,23 @@ public:
     static const int cdt = 4;
     static const int dpop = 5;
     static const int id = 6;
+
 private:
+
+    const static int particle_padding;
+
     double longitudinal_extent;    
     bool z_periodic;
     bool longitudinal_aperture;
+
     Reference_particle reference_particle;
     Reference_particle design_reference_particle;
     int particle_charge;
+
+    int local_num, total_num, local_num_padded;
+    int local_s_num, total_s_num, local_s_num_padded;
+
+    double real_num;
 
     double * storage;
     double * s_storage;
@@ -53,18 +63,15 @@ private:
     MArray2d_ref *local_particles;
     MArray2d_ref *local_s_particles;
 
-    int local_num, total_num, local_num_padded;
-    int local_s_num, total_s_num, local_s_num_padded;
-
-    double real_num;
-
     int bucket_index;
     bool bucket_index_assigned;
+
     int sort_period, sort_counter;
+
     State state;
     Commxx_sptr comm_sptr;    
-    Fixed_t_z_converter *converter_ptr;
     Fixed_t_z_zeroth default_converter;
+    Fixed_t_z_converter *converter_ptr;
     // Fixed_t_z_alex default_converter;
     //  Fixed_t_z_synergia20 default_converter;
     void

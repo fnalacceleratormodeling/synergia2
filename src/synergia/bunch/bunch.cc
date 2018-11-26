@@ -8,6 +8,19 @@
 #include <algorithm>
 #include <sstream>
 
+// particle padding based on GSVector settings
+#if defined(GSV_SSE)
+  const int Bunch::particle_padding = 4;
+#elif defined(GSV_AVX)
+  const int Bunch::particle_padding = 4;
+#elif defined(GSV_AVX512)
+  const int Bunch::particle_padding = 8;
+#elif defined(GSV_QPX)
+  const int Bunch::particle_padding = 4;
+#else
+  const int Bunch::particle_padding = 4;
+#endif
+
 const int Bunch::x;
 const int Bunch::xp;
 const int Bunch::y;
@@ -165,13 +178,13 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_num = counts[comm_sptr->get_rank()];
 
         // padding the local_num so the memory for each particle component is aligned
-        if (local_num % 4 == 0) 
+        if (local_num % particle_padding == 0) 
         {
             local_num_padded = local_num;
         } 
         else 
         {
-            local_num_padded = local_num + 4 - (local_num % 4);
+            local_num_padded = local_num + particle_padding - (local_num % particle_padding);
         }
 
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
@@ -199,13 +212,13 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_s_num = s_counts[comm_sptr->get_rank()];
 
         // padding the local_num so the memory for each particle component is aligned
-        if (local_s_num % 4 == 0) 
+        if (local_s_num % particle_padding == 0) 
         {
             local_s_num_padded = local_s_num;
         } 
         else 
         {
-            local_s_num_padded = local_s_num + 4 - (local_s_num % 4);
+            local_s_num_padded = local_s_num + particle_padding - (local_s_num % particle_padding);
         }
 
         s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_padded * 7 * sizeof(double));
@@ -238,97 +251,145 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
     }
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num, 
-        double real_num, Commxx_sptr comm_sptr) :
-        longitudinal_extent(0.0),
-        z_periodic(0),
-        longitudinal_aperture(false),
-        reference_particle(reference_particle),
-        design_reference_particle(reference_particle),
-        bucket_index(0),
-        bucket_index_assigned(false),
-        comm_sptr(comm_sptr),
-        default_converter()
+Bunch::Bunch(
+        Reference_particle const& reference_particle, 
+        int total_num, 
+        double real_num, 
+        Commxx_sptr comm_sptr) 
+    : longitudinal_extent(0.0)
+    , z_periodic(false)
+    , longitudinal_aperture(false)
+    , reference_particle(reference_particle)
+    , design_reference_particle(reference_particle)
+    , particle_charge(reference_particle.get_charge())
+    , local_num(0)
+    , total_num(total_num)
+    , local_num_padded(0)
+    , local_s_num(0)
+    , total_s_num(0)
+    , local_s_num_padded(0)
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
+    , real_num(real_num)
+    , bucket_index(0)
+    , bucket_index_assigned(false)
+    , sort_period(10000)
+    , sort_counter(0)
+    , state()
+    , comm_sptr(comm_sptr)
+    , default_converter()
+    , converter_ptr(&default_converter)
 {
-    this->particle_charge = reference_particle.get_charge();
     construct(total_num, real_num, 0);
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int total_num, int total_spectator_num, 
-        double real_num, Commxx_sptr comm_sptr) :
-        longitudinal_extent(0.0),
-        z_periodic(0),
-        longitudinal_aperture(false),
-        reference_particle(reference_particle),
-        design_reference_particle(reference_particle),
-        bucket_index(0),
-        bucket_index_assigned(false),
-        comm_sptr(comm_sptr),
-        default_converter()
+Bunch::Bunch(
+        Reference_particle const& reference_particle, 
+        int total_num, 
+        int total_spectator_num, 
+        double real_num, 
+        Commxx_sptr comm_sptr) 
+    : longitudinal_extent(0.0)
+    , z_periodic(false)
+    , longitudinal_aperture(false)
+    , reference_particle(reference_particle)
+    , design_reference_particle(reference_particle)
+    , particle_charge(reference_particle.get_charge())
+    , local_num(0)
+    , total_num(total_num)
+    , local_num_padded(0)
+    , local_s_num(0)
+    , total_s_num(total_spectator_num)
+    , local_s_num_padded(0)
+    , real_num(real_num)
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
+    , bucket_index(0)
+    , bucket_index_assigned(false)
+    , sort_period(10000)
+    , sort_counter(0)
+    , state()
+    , comm_sptr(comm_sptr)
+    , default_converter()
+    , converter_ptr(&default_converter)
 {
-    this->particle_charge = reference_particle.get_charge();
     construct(total_num, real_num, total_spectator_num);
 }
 
-// Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-//         double real_num, Commxx_sptr comm_sptr, int particle_charge) :
-//         longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
-//                 reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
-// {
-//     construct(particle_charge, total_num, real_num);
-// }
-
-
-Bunch::Bunch() :
-        storage(NULL),
-        local_particles(NULL)
+Bunch::Bunch() 
+    : longitudinal_extent(0.0)
+    , z_periodic(false)
+    , longitudinal_aperture(false)
+    , reference_particle()
+    , design_reference_particle()
+    , particle_charge(1)
+    , local_num(0)
+    , total_num(0)
+    , local_num_padded(0)
+    , local_s_num(0)
+    , total_s_num(0)
+    , local_s_num_padded(0)
+    , real_num(real_num)
+    , storage(NULL)
+    , s_storage(NULL)
+    , local_particles(NULL)
+    , local_s_particles(NULL)
+    , bucket_index(0)
+    , bucket_index_assigned(false)
+    , sort_period(10000)
+    , sort_counter(0)
+    , state()
+    , comm_sptr()
+    , default_converter()
+    , converter_ptr(NULL)
 {
 }
 
 
-Bunch::Bunch(Bunch const& bunch) :
-    reference_particle(bunch.reference_particle),
-    design_reference_particle(bunch.design_reference_particle),
-    comm_sptr(bunch.comm_sptr),
-            default_converter()
+Bunch::Bunch(Bunch const& bunch) 
+    : longitudinal_extent(bunch.longitudinal_extent)
+    , z_periodic(bunch.z_periodic)
+    , longitudinal_aperture(bunch.longitudinal_aperture)
+    , reference_particle(bunch.reference_particle)
+    , design_reference_particle(bunch.design_reference_particle)
+    , particle_charge(bunch.particle_charge)
+
+    , local_num(bunch.local_num)
+    , total_num(bunch.total_num)
+    , local_num_padded(bunch.local_num_padded)
+
+    , local_s_num(bunch.local_s_num)
+    , total_s_num(bunch.total_s_num)
+    , local_s_num_padded(bunch.local_s_num_padded)
+
+    , real_num(bunch.real_num)
+
+    , storage((double*)boost::alignment::aligned_alloc(
+                8 * sizeof(double), local_num_padded * 7 * sizeof(double)))
+    , s_storage((double*)boost::alignment::aligned_alloc(
+                8 * sizeof(double), local_s_num_padded * 7 * sizeof(double)))
+
+    , local_particles(new MArray2d_ref(storage, 
+                boost::extents[local_num_padded][7], boost::fortran_storage_order()))
+    , local_s_particles(new MArray2d_ref(s_storage, 
+                boost::extents[local_s_num_padded][7], boost::fortran_storage_order()))
+
+    , bucket_index(bunch.bucket_index)
+    , bucket_index_assigned(bunch.bucket_index_assigned)
+    , sort_period(bunch.sort_period)
+    , sort_counter(bunch.sort_counter)
+    , state(bunch.state)
+    , comm_sptr(bunch.comm_sptr)
+    , default_converter()
+    , converter_ptr( (bunch.converter_ptr==&(bunch.default_converter)) 
+            ? &default_converter : bunch.converter_ptr )
 {
-    particle_charge = bunch.particle_charge;
-
-    real_num = bunch.real_num;
-
-    total_num = bunch.total_num;
-    local_num = bunch.local_num;
-    local_num_padded = bunch.local_num_padded;
-
-    total_s_num = bunch.total_s_num;
-    local_s_num = bunch.local_s_num;
-    local_s_num_padded = bunch.local_s_num_padded;
-
-    bucket_index = bunch.bucket_index;
-    bucket_index_assigned = bunch.bucket_index_assigned;
-
-    storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
     memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
-    local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
-
-    s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_padded * 7 * sizeof(double));
     memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_padded*7);
-    local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_padded][7], boost::fortran_storage_order());
-
-    state = bunch.state;
-
-    longitudinal_extent = bunch.longitudinal_extent;
-    z_periodic = bunch.z_periodic;
-    longitudinal_aperture = bunch.longitudinal_aperture;
-
-    if (bunch.converter_ptr == &(bunch.default_converter)) 
-    {
-        converter_ptr = &default_converter;
-    } 
-    else 
-    {
-        converter_ptr = bunch.converter_ptr;
-    }
 }
 
 Bunch &
@@ -355,6 +416,14 @@ Bunch::operator=(Bunch const& bunch)
         bucket_index = bunch.bucket_index;
         bucket_index_assigned = bunch.bucket_index_assigned;
 
+        // delete current storages
+        if (storage) boost::alignment::aligned_free(storage);
+        if (local_particles) delete local_particles;
+
+        if (s_storage) boost::alignment::aligned_free(s_storage);
+        if (local_s_particles) delete local_s_particles;
+
+        // and allocate new
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
         memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
@@ -398,13 +467,13 @@ Bunch::set_local_num(int local_num)
 {
     if (local_num > this->local_num) 
     {
-        if (local_num % 4 == 0) 
+        if (local_num % particle_padding == 0) 
         {
             local_num_padded = local_num;
         } 
         else 
         {
-            local_num_padded = local_num + 4 - (local_num % 4);
+            local_num_padded = local_num + particle_padding - (local_num % particle_padding);
         }
 
         double * prev_storage = storage;
@@ -421,9 +490,19 @@ Bunch::set_local_num(int local_num)
             }
         }
 
+        // set the extended particle (till local_num_padded) coordinates to 0
+        // TODO: what should be the id for the extended particles
+        for (int i=this->local_num; i<local_num_padded; ++i)
+        {
+            for (int j=0; j<7; ++j) 
+            {
+                (*local_particles)[i][j] = 0.0;
+            }
+        }
+
         delete [] prev_storage;
         delete prev_local_particles;
-     }
+    }
 
     this->local_num = local_num;
 }
@@ -433,13 +512,13 @@ Bunch::set_local_spectator_num(int local_s_num)
 {
     if (local_s_num > this->local_s_num) 
     {
-        if (local_s_num % 4 == 0) 
+        if (local_s_num % particle_padding == 0) 
         {
             local_s_num_padded = local_s_num;
         } 
         else 
         {
-            local_s_num_padded = local_s_num + 4 - (local_s_num % 4);
+            local_s_num_padded = local_s_num + particle_padding - (local_s_num % particle_padding);
         }
 
         double * prev_s_storage = s_storage;
@@ -456,9 +535,19 @@ Bunch::set_local_spectator_num(int local_s_num)
             }
         }
 
+        // set the extended particle (till local_num_padded) coordinates to 0
+        // TODO: what should be the id for the extended particles
+        for (int i=this->local_s_num; i<local_s_num_padded; ++i)
+        {
+            for (int j=0; j<7; ++j) 
+            {
+                (*local_s_particles)[i][j] = 0.0;
+            }
+        }
+
         delete [] prev_s_storage;
         delete prev_local_s_particles;
-     }
+    }
 
     this->local_s_num = local_s_num;
 }
