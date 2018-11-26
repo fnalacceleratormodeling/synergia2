@@ -419,6 +419,14 @@ Bunch::operator=(Bunch const& bunch)
         bucket_index = bunch.bucket_index;
         bucket_index_assigned = bunch.bucket_index_assigned;
 
+        // delete current storages
+        if (storage) boost::alignment::aligned_free(storage);
+        if (local_particles) delete local_particles;
+
+        if (s_storage) boost::alignment::aligned_free(s_storage);
+        if (local_s_particles) delete local_s_particles;
+
+        // and allocate new
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
         memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
