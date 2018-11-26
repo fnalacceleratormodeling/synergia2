@@ -8,20 +8,17 @@
 #include <algorithm>
 #include <sstream>
 
-#if 0
-// default padding
-#define PARTICLE_PADDING 4
-
 // particle padding based on GSVector settings
 #if defined(GSV_SSE)
-  #define PARTICLE_PADDING 4
+  const int Bunch::particle_padding = 4;
 #elif defined(GSV_AVX)
-  #define PARTICLE_PADDING 4
+  const int Bunch::particle_padding = 4;
 #elif defined(GSV_AVX512)
-  #define PARTICLE_PADDING 8
+  const int Bunch::particle_padding = 8;
 #elif defined(GSV_QPX)
-  #define PARTICLE_PADDING 4
-#endif
+  const int Bunch::particle_padding = 4;
+#else
+  const int Bunch::particle_padding = 4;
 #endif
 
 const int Bunch::x;
@@ -181,13 +178,13 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_num = counts[comm_sptr->get_rank()];
 
         // padding the local_num so the memory for each particle component is aligned
-        if (local_num % 4 == 0) 
+        if (local_num % particle_padding == 0) 
         {
             local_num_padded = local_num;
         } 
         else 
         {
-            local_num_padded = local_num + 4 - (local_num % 4);
+            local_num_padded = local_num + particle_padding - (local_num % particle_padding);
         }
 
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
@@ -215,13 +212,13 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_s_num = s_counts[comm_sptr->get_rank()];
 
         // padding the local_num so the memory for each particle component is aligned
-        if (local_s_num % 4 == 0) 
+        if (local_s_num % particle_padding == 0) 
         {
             local_s_num_padded = local_s_num;
         } 
         else 
         {
-            local_s_num_padded = local_s_num + 4 - (local_s_num % 4);
+            local_s_num_padded = local_s_num + particle_padding - (local_s_num % particle_padding);
         }
 
         s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_padded * 7 * sizeof(double));
@@ -470,13 +467,13 @@ Bunch::set_local_num(int local_num)
 {
     if (local_num > this->local_num) 
     {
-        if (local_num % 4 == 0) 
+        if (local_num % particle_padding == 0) 
         {
             local_num_padded = local_num;
         } 
         else 
         {
-            local_num_padded = local_num + 4 - (local_num % 4);
+            local_num_padded = local_num + particle_padding - (local_num % particle_padding);
         }
 
         double * prev_storage = storage;
@@ -493,9 +490,19 @@ Bunch::set_local_num(int local_num)
             }
         }
 
+        // set the extended particle (till local_num_padded) coordinates to 0
+        // TODO: what should be the id for the extended particles
+        for (int i=this->local_num; i<local_num_padded; ++i)
+        {
+            for (int j=0; j<7; ++j) 
+            {
+                (*local_particles)[i][j] = 0.0;
+            }
+        }
+
         delete [] prev_storage;
         delete prev_local_particles;
-     }
+    }
 
     this->local_num = local_num;
 }
@@ -505,13 +512,13 @@ Bunch::set_local_spectator_num(int local_s_num)
 {
     if (local_s_num > this->local_s_num) 
     {
-        if (local_s_num % 4 == 0) 
+        if (local_s_num % particle_padding == 0) 
         {
             local_s_num_padded = local_s_num;
         } 
         else 
         {
-            local_s_num_padded = local_s_num + 4 - (local_s_num % 4);
+            local_s_num_padded = local_s_num + particle_padding - (local_s_num % particle_padding);
         }
 
         double * prev_s_storage = s_storage;
@@ -528,9 +535,19 @@ Bunch::set_local_spectator_num(int local_s_num)
             }
         }
 
+        // set the extended particle (till local_num_padded) coordinates to 0
+        // TODO: what should be the id for the extended particles
+        for (int i=this->local_s_num; i<local_s_num_padded; ++i)
+        {
+            for (int j=0; j<7; ++j) 
+            {
+                (*local_s_particles)[i][j] = 0.0;
+            }
+        }
+
         delete [] prev_s_storage;
         delete prev_local_s_particles;
-     }
+    }
 
     this->local_s_num = local_s_num;
 }
