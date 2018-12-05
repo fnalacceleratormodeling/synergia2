@@ -73,7 +73,10 @@ del(lattice)
 # read and analyze spectator particle diagnostics
 
 def tdiff(c1, c2):
-    return np.sqrt(np.dot((c1-c2), (c1-c2)))
+    # normalize the vectors
+    n1 = c1/np.sqrt(np.dot(c1, c1))
+    n2 = c2/np.sqrt(np.dot(c2, c2))
+    return np.sqrt(np.dot(n1, n2))
 
 def le(t1, t2):
     # t1, t2 are two tracks nx6
@@ -81,7 +84,7 @@ def le(t1, t2):
     n = t1.shape[0]
     letrk = np.zeros((n), dtype='d')
     for i in range(n):
-        letrk[i] = np.log(tdiff(t1[i,:], t2[i,:])/w0)
+        letrk[i] = -np.log(tdiff(t1[i,:], t2[i,:])/w0)
     return letrk
 
 h5 = tables.open_file("spectracks.h5")
@@ -103,7 +106,7 @@ le23 = le(tracks[2, 0:6, :].transpose(), tracks[3, 0:6, :].transpose())
 le45 = le(tracks[4, 0:6, :].transpose(), tracks[5, 0:6, :].transpose())
 
 plt.figure()
-plt.title(r'$\ln \frac{\| w(t) \|}{\| w(0) \|}$')
+plt.title(r'$-\ln \frac{\| w(t) \|}{\| w(0) \|}$')
 plt.plot(le01, label='LE particle 1')
 plt.plot(le23, label='LE particle 2')
 plt.plot(le45, label='LE particle 3')
