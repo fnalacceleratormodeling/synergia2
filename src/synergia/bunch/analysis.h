@@ -6,11 +6,6 @@
 #include "synergia/utils/multi_array_typedefs.h"
 
 #include "synergia/bunch/bunch.h"
-#include "H5Cpp.h"
-
-#ifndef H5_NO_NAMESPACE
-    using namespace H5;
-#endif
 
 
 /// Read back the files produced by Diagnositics_particles 

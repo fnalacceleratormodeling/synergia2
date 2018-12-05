@@ -60,15 +60,19 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
     }
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     int nt;
     #pragma omp parallel
     { nt = omp_get_num_threads(); }
 
     int part_per_thread = local_num / nt;
+    int s_part_per_thread = local_s_num / nt;
 
-    #pragma omp parallel shared(nt, local_num, particles, initial_reference_energy)
+    #pragma omp parallel shared(nt, local_num, local_s_num, particles, s_particles, initial_reference_energy)
     {
         int it = omp_get_thread_num();
 
@@ -80,9 +84,9 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
         for (int part = s; part < e; ++part) 
         {
             particle.SetReferenceEnergy(initial_reference_energy);
-            particle.set_x(particles[part][Bunch::x]);
+            particle.set_x  (particles[part][Bunch::x]);
             particle.set_npx(particles[part][Bunch::xp]);
-            particle.set_y(particles[part][Bunch::y]);
+            particle.set_y  (particles[part][Bunch::y]);
             particle.set_npy(particles[part][Bunch::yp]);
             particle.set_cdt(particles[part][Bunch::cdt]);
             particle.set_ndp(particles[part][Bunch::dpop]);
@@ -101,6 +105,33 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
             particles[part][Bunch::dpop] = particle.get_ndp();
         }
 
+        // spectator particles
+        s = it * s_part_per_thread;
+        e = (it==nt-1) ? local_s_num : (s + s_part_per_thread);
+
+        for (int part = s; part < e; ++part) 
+        {
+            particle.SetReferenceEnergy(initial_reference_energy);
+            particle.set_x  (s_particles[part][Bunch::x]);
+            particle.set_npx(s_particles[part][Bunch::xp]);
+            particle.set_y  (s_particles[part][Bunch::y]);
+            particle.set_npy(s_particles[part][Bunch::yp]);
+            particle.set_cdt(s_particles[part][Bunch::cdt]);
+            particle.set_ndp(s_particles[part][Bunch::dpop]);
+
+            for (Chef_lattice_section::iterator it =
+                    chef_lattice_section_sptr->begin(); it
+                    != chef_lattice_section_sptr->end(); ++it) {
+                (*it)->propagate(particle);
+            }
+
+            s_particles[part][Bunch::x] = particle.get_x();
+            s_particles[part][Bunch::xp] = particle.get_npx();
+            s_particles[part][Bunch::y] = particle.get_y();
+            s_particles[part][Bunch::yp] = particle.get_npy();
+            s_particles[part][Bunch::cdt] = particle.get_cdt();
+            s_particles[part][Bunch::dpop] = particle.get_ndp();
+        }
     }
 
     // update the reference particle if there was an energy change

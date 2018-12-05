@@ -1160,31 +1160,72 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
     int ps_component = 2 * component + 1;
     Rectangular_grid_domain & domain(*En.get_domain_sptr());
     MArray3d_ref grid_points(En.get_grid_points());
-    if (component==2){
+
+    if (component==2)
+    {
         factor *= -p_ref; 
         double m = bunch.get_mass();
+
         #pragma omp parallel for
-        for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int part = 0; part < bunch.get_local_num(); ++part) 
+        {
             double x = bunch.get_local_particles()[part][Bunch::x];
             double y = bunch.get_local_particles()[part][Bunch::y];
             double z = bunch.get_local_particles()[part][Bunch::z];   
-            double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
-                    grid_points);
-            double p=p_ref +bunch.get_local_particles()[part][Bunch::dpop] * p_ref;        
+
+            double grid_val = interpolate_rectangular_zyx(x, y, z, domain, grid_points);
+
+            double p = p_ref +bunch.get_local_particles()[part][Bunch::dpop] * p_ref;        
             double Eoc_i = std::sqrt(p * p + m * m);
-            double Eoc_f=  Eoc_i + factor * grid_val;
-            double delta_dpop=(std::sqrt(Eoc_f*Eoc_f-m*m)-std::sqrt(Eoc_i*Eoc_i-m*m))/p_ref;
+            double Eoc_f = Eoc_i + factor * grid_val;
+            double delta_dpop = (std::sqrt(Eoc_f*Eoc_f-m*m) - std::sqrt(Eoc_i*Eoc_i-m*m))/p_ref;
+
             bunch.get_local_particles()[part][ps_component] += delta_dpop;
         }      
+
+        // spectator particles
+        #pragma omp parallel for
+        for (int part = 0; part < bunch.get_local_spectator_num(); ++part) 
+        {
+            double x = bunch.get_local_spectator_particles()[part][Bunch::x];
+            double y = bunch.get_local_spectator_particles()[part][Bunch::y];
+            double z = bunch.get_local_spectator_particles()[part][Bunch::z];   
+
+            double grid_val = interpolate_rectangular_zyx(x, y, z, domain, grid_points);
+
+            double p = p_ref + bunch.get_local_spectator_particles()[part][Bunch::dpop] * p_ref;        
+            double Eoc_i = std::sqrt(p * p + m * m);
+            double Eoc_f = Eoc_i + factor * grid_val;
+            double delta_dpop = (std::sqrt(Eoc_f*Eoc_f-m*m) - std::sqrt(Eoc_i*Eoc_i-m*m))/p_ref;
+
+            bunch.get_local_spectator_particles()[part][ps_component] += delta_dpop;
+        }      
     }
-    else{
-        for (int part = 0; part < bunch.get_local_num(); ++part) {
+    else
+    {
+        #pragma omp parallel for
+        for (int part = 0; part < bunch.get_local_num(); ++part) 
+        {
               double x = bunch.get_local_particles()[part][Bunch::x];
               double y = bunch.get_local_particles()[part][Bunch::y];
               double z = bunch.get_local_particles()[part][Bunch::z];   
-              double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
-                    grid_points);      
+
+              double grid_val = interpolate_rectangular_zyx(x, y, z, domain, grid_points);      
+
               bunch.get_local_particles()[part][ps_component] += factor * grid_val;
+        }
+
+        // spectator particles
+        #pragma omp parallel for
+        for (int part = 0; part < bunch.get_local_spectator_num(); ++part) 
+        {
+              double x = bunch.get_local_spectator_particles()[part][Bunch::x];
+              double y = bunch.get_local_spectator_particles()[part][Bunch::y];
+              double z = bunch.get_local_spectator_particles()[part][Bunch::z];   
+
+              double grid_val = interpolate_rectangular_zyx(x, y, z, domain, grid_points);      
+
+              bunch.get_local_spectator_particles()[part][ps_component] += factor * grid_val;
         }
     }
 }

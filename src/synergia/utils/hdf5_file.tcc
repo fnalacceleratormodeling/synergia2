@@ -8,14 +8,14 @@ template<typename T>
     void
     Hdf5_file::write(T const& data, std::string const& name)
     {
-        Hdf5_writer<T > (h5file_ptr, name).write(data);
+        Hdf5_writer<T> (h5file.hid, name).write(data);
     }
 
 template<typename T>
     void
     Hdf5_file::write(T const * data, size_t len, std::string const & name)
     {
-        Hdf5_writer<T > (h5file_ptr, name).write(data, len);
+        Hdf5_writer<T> (h5file.hid, name).write(data, len);
     }
 
 template<typename T>
@@ -23,15 +23,23 @@ template<typename T>
     Hdf5_file::read(std::string const& name)
     {
         T retval;
-        DataSet dataset = h5file_ptr->openDataSet(name.c_str());
-        H5::DataType atomic_type = hdf5_atomic_data_type<T > ();
+
+        Hdf5_handler atomic_type = hdf5_atomic_data_type<T>();
+        Hdf5_handler dataset = H5Dopen2(h5file.hid, name.c_str(), H5P_DEFAULT);
+
         std::vector<hsize_t > dims(1);
         dims.at(0) = 1;
         int data_rank = 0;
-        DataSpace dataspace(data_rank, &dims[0]);
-        DataSpace memspace(data_rank, &dims[0]);
-        T * data_out = &retval;
-        dataset.read(data_out, atomic_type, memspace, dataspace);
+
+        Hdf5_handler dataspace = H5Screate_simple(data_rank, &dims[0], NULL);
+        Hdf5_handler memspace = H5Screate_simple(data_rank, &dims[0], NULL);
+
+        herr_t res = H5Dread(dataset.hid, atomic_type.hid, memspace.hid, 
+                dataspace.hid, H5P_DEFAULT, &retval);
+
+        if (res < 0) 
+            throw Hdf5_exception("Error at reading Dataset " + name + " from HDF5 file");
+
         return retval;
     }
 

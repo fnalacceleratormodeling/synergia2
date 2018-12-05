@@ -39,32 +39,49 @@ public:
     static const int cdt = 4;
     static const int dpop = 5;
     static const int id = 6;
+
 private:
+
+    const static int particle_padding;
+
     double longitudinal_extent;    
     bool z_periodic;
     bool longitudinal_aperture;
+
     Reference_particle reference_particle;
     Reference_particle design_reference_particle;
     int particle_charge;
-    double * storage;
-    MArray2d_ref *local_particles;
+
     int local_num, total_num, local_num_padded;
+    int local_s_num, total_s_num, local_s_num_padded;
+
     double real_num;
+
+    double * storage;
+    double * s_storage;
+
+    MArray2d_ref *local_particles;
+    MArray2d_ref *local_s_particles;
+
     int bucket_index;
     bool bucket_index_assigned;
+
     int sort_period, sort_counter;
+
     State state;
     Commxx_sptr comm_sptr;    
-    Fixed_t_z_converter *converter_ptr;
     Fixed_t_z_zeroth default_converter;
+    Fixed_t_z_converter *converter_ptr;
     // Fixed_t_z_alex default_converter;
     //  Fixed_t_z_synergia20 default_converter;
     void
     assign_ids(int local_offset);
+    void
+    assign_spectator_ids(int local_offset);
     std::string
     get_local_particles_serialization_path() const;
     void
-    construct(int total_num, double real_num);
+    construct(int total_num, double real_num, int total_s_num);
 public:
     //!
     //! Constructor:
@@ -79,10 +96,10 @@ public:
     /// @param comm_sptr the comm_sptrunicator.
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx_sptr comm_sptr);
- 
 
-            
-            
+    Bunch(Reference_particle const& reference_particle, int total_num, int total_spectator_num,
+            double real_num, Commxx_sptr comm_sptr);
+
      ///// Obsolete, please replace the following constructor with the previous one followed by 
      /////set_particle_charge(particle_charge)    
      //    Bunch(Reference_particle const& reference_particle, int total_num,
@@ -133,13 +150,16 @@ public:
     void
     set_local_num(int local_num);
 
+    void
+    set_local_spectator_num(int local_s_num);
+
     ///
     /// Update the total number and real number of particles after the local
     /// number has been changed. Requires comm_sptrunication.
     void
     update_total_num();
     
-     ///
+    ///
     /// Set the total number (and the real number) of particles
     void
     set_total_num(int totalnum);
@@ -201,6 +221,12 @@ public:
     Const_MArray2d_ref
     get_local_particles() const;
 
+    MArray2d_ref
+    get_local_spectator_particles();
+
+    Const_MArray2d_ref
+    get_local_spectator_particles() const;
+
     /// Get the particle charge in units of e.
     int
     get_particle_charge() const;
@@ -252,6 +278,18 @@ public:
     int
     get_total_num() const;
 
+    /// Get the number of spectator particles stored on this processor.
+    int
+    get_local_spectator_num() const;
+
+    /// Get the number of padded spectator particles (first dimension of the particles[][] array)
+    int
+    get_local_spectator_num_padded() const;
+
+    /// Get the total number of spectator particles.
+    int
+    get_total_spectator_num() const;
+
     /// Get the period for periodic_sort
     int
     get_sort_period() const;
@@ -294,12 +332,18 @@ public:
                     double * RESTRICT &ya, double * RESTRICT &ypa,
                     double * RESTRICT &cdta, double * RESTRICT &dpopa);
 
+    void set_spectator_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
+                    double * RESTRICT &ya, double * RESTRICT &ypa,
+                    double * RESTRICT &cdta, double * RESTRICT &dpopa);
+
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const;
+
     template<class Archive>
         void
         load(Archive & ar, const unsigned int version);
+
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     virtual

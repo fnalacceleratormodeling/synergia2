@@ -22,17 +22,24 @@ private:
     std::string local_dir;
     bool serial;
     Commxx_sptr commxx_sptr;
+
     Hdf5_file_sptr file_sptr;
+
     bool have_file;
     int count;
-    std::string filename_base, filename_suffix;
+    std::string filename_base, filename_suffix, filename_appendix;
     std::string
     get_filename(bool include_local_dir);
     void
     open_file();
 public:
-    Diagnostics_write_helper(std::string const& filename, bool serial, Commxx_sptr commxx_sptr,
-            std::string const& local_dir, int writer_rank = default_rank);
+    Diagnostics_write_helper(
+            std::string const & filename, 
+            bool serial, 
+            Commxx_sptr commxx_sptr,
+            std::string const & local_dir, 
+            std::string const & filename_appendix = "",
+            int writer_rank = default_rank);
 
     // Default constructor for serialization use only
     Diagnostics_write_helper();

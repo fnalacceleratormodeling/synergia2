@@ -2,7 +2,10 @@
 #define HDF5_WRITER_H_
 #include <vector>
 #include <string>
-#include "H5Cpp.h"
+
+#include "hdf5.h"
+
+#include "synergia/utils/hdf5_misc.h"
 
 template<typename T>
     class Hdf5_writer
@@ -11,8 +14,11 @@ template<typename T>
         int data_rank;
         std::vector<hsize_t > dims;
         std::string name;
-        H5::H5File * file_ptr;
-        H5::DataType atomic_type;
+
+        // use hid_t type since the writer doesnt own the file object
+        hid_t file_ptr;    
+        Hdf5_handler atomic_type;
+
         void
         write_storage_order(T const& data);
         void
@@ -22,7 +28,7 @@ template<typename T>
     public:
         static const int c_storage_order = 0;
         static const int fortran_storage_order = 1;
-        Hdf5_writer(H5::H5File * file_ptr, std::string const& name);
+        Hdf5_writer(hid_t file_ptr, std::string const& name);
         void
         write(T const & data);
         void

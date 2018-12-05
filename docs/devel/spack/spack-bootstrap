@@ -1,4 +1,4 @@
-#/bin/sh
+#/bin/bash
 
 spackcurrentversion=v0.11.2
 if [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ] ; then

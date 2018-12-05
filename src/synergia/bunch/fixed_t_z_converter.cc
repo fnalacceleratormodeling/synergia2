@@ -42,15 +42,20 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
     double beta = bunch.get_reference_particle().get_beta();
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
+
     double gb = - gamma*beta;
 
     bool exception_flag = false;
 
     #pragma omp parallel for shared(local_num, gb, particles, gamma, beta, m, p_ref, exception_flag)
-    for (int part = 0; part < local_num; ++part) {
+    for (int part = 0; part < local_num; ++part) 
+    {
         // z in beam rest frame
         particles[part][Bunch::z] = gb * particles[part][Bunch::cdt];
 
@@ -74,6 +79,32 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
         //      is a no-op.
     }
 
+    #pragma omp parallel for shared(local_s_num, gb, s_particles, gamma, beta, m, p_ref, exception_flag)
+    for (int part = 0; part < local_s_num; ++part) 
+    {
+        // z in beam rest frame
+        s_particles[part][Bunch::z] = gb * s_particles[part][Bunch::cdt];
+
+        // total momentum in accelerator frame
+        double p = p_ref + s_particles[part][Bunch::dpop] * p_ref;
+        // E/c in accelerator frame
+        double Eoc = std::sqrt(p * p + m * m);
+        // p_{x,y,z} in accelerator frame
+        double px = s_particles[part][Bunch::xp] * p_ref;
+        double py = s_particles[part][Bunch::yp] * p_ref;
+        double pz2 = p * p - px * px - py * py;
+        if (pz2 < 0.0) {
+            exception_flag = true;
+        }
+        double pz = std::sqrt(pz2);
+        // zp = pz/p_{ref}^{total}
+        s_particles[part][Bunch::zp] = gamma * (pz - beta * Eoc) / p_ref;
+
+        // n.b. in the zeroth approximation, the transformation from
+        //      t' = gamma cdt to t' = 0
+        //      is a no-op.
+    }
+
     if (exception_flag) {
         throw std::runtime_error(
                 "Fixed_t_z_zeroth::fixed_z_to_fixed_t: particle has negative pz^2");
@@ -87,13 +118,18 @@ Fixed_t_z_zeroth::from_t_bunch_to_z_lab(Bunch &bunch)
     double beta = bunch.get_reference_particle().get_beta();
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
+
     double gb = - gamma*beta;
 
     #pragma omp parallel for shared(local_num, gb, particles, gamma, beta, m, p_ref)
-    for (int part = 0; part < local_num; ++part) {
+    for (int part = 0; part < local_num; ++part) 
+    {
         // ct in accelerator frame
         particles[part][Bunch::cdt] = particles[part][Bunch::z] / gb;
 
@@ -109,6 +145,25 @@ Fixed_t_z_zeroth::from_t_bunch_to_z_lab(Bunch &bunch)
         double p = std::sqrt(p_perp2 + pz * pz);
         particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
     }
+
+    #pragma omp parallel for shared(local_s_num, gb, s_particles, gamma, beta, m, p_ref)
+    for (int part = 0; part < local_s_num; ++part) 
+    {
+        // ct in accelerator frame
+        s_particles[part][Bunch::cdt] = s_particles[part][Bunch::z] / gb;
+
+        // p'_{x,y,z} in beam frame
+        double pxp = s_particles[part][Bunch::xp] * p_ref;
+        double pyp = s_particles[part][Bunch::yp] * p_ref;
+        double pzp = s_particles[part][Bunch::zp] * p_ref;
+        double p_perp2 = pxp * pxp + pyp * pyp;
+        // E'/c in beam frame
+        double Epoc = std::sqrt(p_perp2 + pzp * pzp + m * m);
+        double pz = gamma * (pzp + beta * Epoc);
+        // dpop = (p - p_ref)/p_ref
+        double p = std::sqrt(p_perp2 + pz * pz);
+        s_particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
+    }
 }
 
 
@@ -117,12 +172,16 @@ Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
 {
     double beta = bunch.get_reference_particle().get_beta();
     double p_ref = bunch.get_reference_particle().get_momentum();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
 
     #pragma omp parallel for shared(local_num, particles, beta, p_ref)
-    for (int part = 0; part < local_num; ++part) {
+    for (int part = 0; part < local_num; ++part) 
+    {
           // total momentum in accelerator frame
         double p = p_ref + particles[part][Bunch::dpop] * p_ref;
          // p_{x,y,z} in accelerator frame
@@ -137,10 +196,28 @@ Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
         particles[part][Bunch::z] = - particles[part][Bunch::cdt]*beta;
 
         // zp = pz/p_{ref}^{total}
-         particles[part][Bunch::zp] =pz/p_ref;
-
+        particles[part][Bunch::zp] = pz/p_ref;
     }
 
+    #pragma omp parallel for shared(local_s_num, s_particles, beta, p_ref)
+    for (int part = 0; part < local_s_num; ++part) 
+    {
+          // total momentum in accelerator frame
+        double p = p_ref + s_particles[part][Bunch::dpop] * p_ref;
+         // p_{x,y,z} in accelerator frame
+        double px = s_particles[part][Bunch::xp] * p_ref;
+        double py = s_particles[part][Bunch::yp] * p_ref;
+        double pz2 = p * p - px * px - py * py;
+        if (pz2 < 0.0) {
+            throw std::runtime_error(
+                    "Fixed_t_z_zeroth::fixed_z_to_fixed_t: particle has negative pz^2");
+        }
+        double pz = std::sqrt(pz2);
+        s_particles[part][Bunch::z] = - s_particles[part][Bunch::cdt]*beta;
+
+        // zp = pz/p_{ref}^{total}
+        s_particles[part][Bunch::zp] = pz/p_ref;
+    }
 }
 
 void
@@ -148,20 +225,35 @@ Fixed_t_z_zeroth::from_t_lab_to_z_lab(Bunch &bunch)
 {
     double beta = bunch.get_reference_particle().get_beta();
     double p_ref = bunch.get_reference_particle().get_momentum();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
 
     #pragma omp parallel for shared(local_num, particles, beta, p_ref)
-    for (int part = 0; part < local_num; ++part) {
-          // p'_{x,y,z} in beam rest frame
+    for (int part = 0; part < local_num; ++part) 
+    {
+        // p'_{x,y,z} in beam rest frame
         double px = particles[part][Bunch::xp]* p_ref;
         double py = particles[part][Bunch::yp]* p_ref;
         double pz = particles[part][Bunch::zp]* p_ref;
         double p = std::sqrt(px * px + py * py + pz * pz);
         particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
         particles[part][Bunch::cdt] = - particles[part][Bunch::z]/beta;
+    }
 
+    #pragma omp parallel for shared(local_s_num, s_particles, beta, p_ref)
+    for (int part = 0; part < local_s_num; ++part) 
+    {
+        // p'_{x,y,z} in beam rest frame
+        double px = s_particles[part][Bunch::xp]* p_ref;
+        double py = s_particles[part][Bunch::yp]* p_ref;
+        double pz = s_particles[part][Bunch::zp]* p_ref;
+        double p = std::sqrt(px * px + py * py + pz * pz);
+        s_particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
+        s_particles[part][Bunch::cdt] = - s_particles[part][Bunch::z]/beta;
     }
 }
 
@@ -172,20 +264,37 @@ Fixed_t_z_zeroth::from_t_lab_to_t_bunch(Bunch &bunch)
      double beta = bunch.get_reference_particle().get_beta();
      double m = bunch.get_mass();
      double p_ref = bunch.get_reference_particle().get_momentum();
+
      MArray2d_ref particles = bunch.get_local_particles();
+     MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
 
     #pragma omp parallel for shared(local_num, particles, gamma, beta, m, p_ref)
-     for (int part = 0; part < local_num; ++part) {
-         double px  = particles[part][Bunch::xp] * p_ref;
-         double py  = particles[part][Bunch::yp] * p_ref;
-         double pz  = particles[part][Bunch::zp]  * p_ref;
-         double p=std::sqrt(px * px + py * py + pz * pz);
-         double Eoc   = std::sqrt(p * p + m * m);
+    for (int part = 0; part < local_num; ++part) 
+    {
+        double px  = particles[part][Bunch::xp] * p_ref;
+        double py  = particles[part][Bunch::yp] * p_ref;
+        double pz  = particles[part][Bunch::zp] * p_ref;
+        double p=std::sqrt(px * px + py * py + pz * pz);
+        double Eoc   = std::sqrt(p * p + m * m);
 
-         particles[part][Bunch::z] =  gamma * particles[part][Bunch::z];
-         particles[part][Bunch::zp] = gamma*(pz - beta * Eoc)/p_ref;
+        particles[part][Bunch::z]  = gamma * particles[part][Bunch::z];
+        particles[part][Bunch::zp] = gamma*(pz - beta * Eoc)/p_ref;
+    }
+
+    #pragma omp parallel for shared(local_s_num, s_particles, gamma, beta, m, p_ref)
+    for (int part = 0; part < local_s_num; ++part) 
+    {
+        double px  = s_particles[part][Bunch::xp] * p_ref;
+        double py  = s_particles[part][Bunch::yp] * p_ref;
+        double pz  = s_particles[part][Bunch::zp] * p_ref;
+        double p=std::sqrt(px * px + py * py + pz * pz);
+        double Eoc   = std::sqrt(p * p + m * m);
+
+        s_particles[part][Bunch::z]  = gamma * s_particles[part][Bunch::z];
+        s_particles[part][Bunch::zp] = gamma*(pz - beta * Eoc)/p_ref;
     }
 }
 
@@ -196,22 +305,43 @@ Fixed_t_z_zeroth::from_t_bunch_to_t_lab(Bunch &bunch)
     double beta = bunch.get_reference_particle().get_beta();
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
 
     #pragma omp parallel for shared(local_num, particles, gamma, beta, m, p_ref)
-    for (int part = 0; part < local_num; ++part) {
+    for (int part = 0; part < local_num; ++part) 
+    {
           // p'_{x,y,z} in beam rest frame
-        double pxp = particles[part][Bunch::xp]* p_ref;
-        double pyp = particles[part][Bunch::yp]* p_ref;
-        double pzp = particles[part][Bunch::zp]* p_ref;
+        double pxp = particles[part][Bunch::xp] * p_ref;
+        double pyp = particles[part][Bunch::yp] * p_ref;
+        double pzp = particles[part][Bunch::zp] * p_ref;
 
         // E'/c in beam rest frame
         double Epoc = std::sqrt(pxp*pxp + pyp*pyp + pzp*pzp + m * m);
         double pz = gamma * (pzp + beta * Epoc);
+
         particles[part][Bunch::z] = particles[part][Bunch::z]/gamma;
         particles[part][Bunch::dpop] = pz / p_ref;
+    }
+
+    #pragma omp parallel for shared(local_s_num, s_particles, gamma, beta, m, p_ref)
+    for (int part = 0; part < local_s_num; ++part) 
+    {
+          // p'_{x,y,z} in beam rest frame
+        double pxp = s_particles[part][Bunch::xp] * p_ref;
+        double pyp = s_particles[part][Bunch::yp] * p_ref;
+        double pzp = s_particles[part][Bunch::zp] * p_ref;
+
+        // E'/c in beam rest frame
+        double Epoc = std::sqrt(pxp*pxp + pyp*pyp + pzp*pzp + m * m);
+        double pz = gamma * (pzp + beta * Epoc);
+
+        s_particles[part][Bunch::z] = s_particles[part][Bunch::z]/gamma;
+        s_particles[part][Bunch::dpop] = pz / p_ref;
     }
 }
 

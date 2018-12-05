@@ -8,6 +8,10 @@ add_test(NAME test_bunch_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNER
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_bunch.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test_executable(test_bunch_spectator test_bunch_spectator.cc)
+target_link_libraries(test_bunch_spectator synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_bunch_spectator COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch_spectator>)
+
 add_test_executable(test_bunch_train test_bunch_train.cc)
 target_link_libraries(test_bunch_train synergia_bunch
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

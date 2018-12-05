@@ -7,6 +7,7 @@
 #include "diagnostics_particles.h"
 #include "diagnostics_track.h"
 #include "diagnostics_bulk_track.h"
+#include "diagnostics_bulk_spectator_track.h"
 #include "diagnostics_reference_particle.h"
 #include "populate.h"
 #include "analysis.h"
@@ -93,6 +94,13 @@ BOOST_PYTHON_MODULE(bunch)
       .def(init<std::string const&, int, int >())
       .def(init<std::string const&, int, int, std::string const& >())
       .def("set_bunch", &Diagnostics_bulk_track::set_bunch_sptr)
+      ;
+
+    class_<Diagnostics_bulk_spectator_track, Diagnostics_bulk_spectator_track_sptr, bases<Diagnostics> >
+      ("Diagnostics_bulk_spectator_track",init<std::string const&, int>())
+      .def(init<std::string const&, int, int >())
+      .def(init<std::string const&, int, int, std::string const& >())
+      .def("set_bunch", &Diagnostics_bulk_spectator_track::set_bunch_sptr)
       ;
 
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
@@ -184,13 +192,16 @@ BOOST_PYTHON_MODULE(bunch)
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();
+
     scope
         Bunch_scope =
             class_<Bunch, Bunch_sptr > ("Bunch", init<Reference_particle const&,
                     int, double, Commxx_sptr > ())                        
+                .def(init<Reference_particle const &, int, int, double, Commxx_sptr>())
                 .def("set_particle_charge", &Bunch::set_particle_charge)
                 .def("set_real_num", &Bunch::set_real_num)
                 .def("set_local_num", &Bunch::set_local_num)
+                .def("set_local_spectator_num", &Bunch::set_local_spectator_num)
                 .def("set_bucket_index", &Bunch::set_bucket_index)
                 .def("set_z_period_length", &Bunch::set_z_period_length)
                 .def("set_longitudinal_aperture_length", &Bunch::set_longitudinal_aperture_length)
@@ -207,11 +218,16 @@ BOOST_PYTHON_MODULE(bunch)
                 .def("get_local_particles",
                         get_local_particles_non_const_type(
                                 &Bunch::get_local_particles))
+                .def("get_local_spectator_particles",
+                        get_local_particles_non_const_type(
+                                &Bunch::get_local_spectator_particles))
                 .def("get_particle_charge", &Bunch::get_particle_charge)
                 .def("get_mass", &Bunch::get_mass)
                 .def("get_real_num", &Bunch::get_real_num)
                 .def("get_local_num", &Bunch::get_local_num)
                 .def("get_total_num", &Bunch::get_total_num)
+                .def("get_local_spectator_num", &Bunch::get_local_spectator_num)
+                .def("get_total_spectator_num", &Bunch::get_total_spectator_num)
                 .def("get_state", &Bunch::get_state)
                 .def("get_z_period_length", &Bunch::get_z_period_length)
                 .def("get_longitudinal_aperture_length", &Bunch::get_longitudinal_aperture_length)
