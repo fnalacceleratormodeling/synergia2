@@ -525,6 +525,10 @@ Bunch::set_real_num(double real_num)
 void
 Bunch::set_local_num(int num)
 {
+    // make sure the new local_num is never less than 0
+    if (num < 0) num = 0;
+
+    // re-allocate depending on the new size
     if (num <= local_num_aligned)
     {
         // pointer to local_num_padded should not be changed
@@ -613,6 +617,10 @@ Bunch::set_local_num(int num)
 void
 Bunch::set_local_spectator_num(int s_num)
 {
+    // make sure the new local_num is never less than 0
+    if (s_num < 0) s_num = 0;
+
+    // re-allocate depending on the new size
     if (s_num <= local_s_num_aligned)
     {
         // pointer to local_s_num_padded should not be changed

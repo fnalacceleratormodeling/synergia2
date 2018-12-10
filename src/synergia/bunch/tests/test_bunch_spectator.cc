@@ -23,7 +23,9 @@ struct Fixture
         four_momentum(mass, total_energy), 
         reference_particle(pconstants::proton_charge, four_momentum),
         comm_sptr(new Commxx()), 
-        bunch(reference_particle, total_num, total_spectator_num, real_num, comm_sptr)
+        bunch(reference_particle, total_num, total_spectator_num, real_num, comm_sptr),
+        total_num(total_num),
+        total_spectator_num(total_spectator_num)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -263,6 +265,15 @@ BOOST_FIXTURE_TEST_CASE(set_local_spectator_num, Fix_p100_s10)
 
     bunch.set_local_spectator_num(new_local_num);
     BOOST_CHECK_EQUAL(bunch.get_local_spectator_num(), new_local_num);
+    BOOST_CHECK_EQUAL(bunch.get_local_num(), 100);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_local_spectator_num_neg, Fix_p100_s10)
+{
+    int new_local_num = total_spectator_num / comm_sptr->get_size() - 12;
+
+    bunch.set_local_spectator_num(new_local_num);
+    BOOST_CHECK_EQUAL(bunch.get_local_spectator_num(), 0);
     BOOST_CHECK_EQUAL(bunch.get_local_num(), 100);
 }
 
