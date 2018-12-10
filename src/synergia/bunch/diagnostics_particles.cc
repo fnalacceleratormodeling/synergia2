@@ -68,7 +68,7 @@ write_selected_particles(
 void
 Diagnostics_particles::receive_other_local_particles(
         std::vector<int> const & local_nums, 
-        std::vector<int> const & local_nums_padded, 
+        std::vector<int> const & local_nums_slots, 
         MArray2d_ref local_particles,
         int min_part_id,
         int max_part_id,
@@ -88,7 +88,7 @@ Diagnostics_particles::receive_other_local_particles(
         for (int rank = 0; rank < size; ++rank) 
         {
             int local_num = local_nums[rank];
-            int local_num_padded = local_nums_padded[rank];
+            int local_num_slots = local_nums_slots[rank];
 
             if (rank == myrank) 
             {
@@ -100,10 +100,10 @@ Diagnostics_particles::receive_other_local_particles(
             {
                 MPI_Status status;
                 Raw_MArray2d received(
-                        boost::extents[local_num_padded][7], 
+                        boost::extents[local_num_slots][7], 
                         boost::fortran_storage_order());
 
-                int message_size = 7 * local_num_padded;
+                int message_size = 7 * local_num_slots;
                 MPI_Comm comm = get_bunch().get_comm().get();
 
                 int error = MPI_Recv((void*) received.m.origin(), message_size,
@@ -125,19 +125,19 @@ Diagnostics_particles::receive_other_local_particles(
 
 void
 Diagnostics_particles::send_local_particles(
-        int local_num_padded,
+        int local_num_slots,
         MArray2d_ref local_particles,
         Diagnostics_write_helper & helper )
 {
     if (get_bunch().get_comm().has_this_rank())
     {
 #if 0
-        int local_num_padded = get_bunch().get_local_num_padded();
+        int local_num_slots = get_bunch().get_local_num_slots();
         void * send_buffer = (void*) get_bunch().get_local_particles().origin();
 #endif
         void * send_buffer = (void*)local_particles.origin();
 
-        int message_size = 7 * local_num_padded;
+        int message_size = 7 * local_num_slots;
         int receiver = helper.get_writer_rank();
         int rank = get_bunch().get_comm().get_rank();
         MPI_Comm comm = get_bunch().get_comm().get();
@@ -165,15 +165,15 @@ Diagnostics_particles::write()
     int status;
 
     {
-        // local num and local padded num
+        // local num and local num array size (slots)
         int local_num = get_bunch().get_local_num();
-        int local_num_padded = get_bunch().get_local_num_padded();
+        int local_num_slots = get_bunch().get_local_num_slots();
 
         std::vector<int > local_nums(num_procs);
-        std::vector<int > local_nums_padded(num_procs);
+        std::vector<int > local_nums_slots(num_procs);
 
         void * local_nums_buf = (void *) &local_nums[0];
-        void * local_nums_padded_buf = (void *) &local_nums_padded[0];
+        void * local_nums_slots_buf = (void *) &local_nums_slots[0];
 
         int root = get_write_helper().get_writer_rank();
 
@@ -188,13 +188,13 @@ Diagnostics_particles::write()
         }
 
         status = MPI_Gather(
-                (void*) &local_num_padded, 1, MPI_INT, local_nums_padded_buf, 
+                (void*) &local_num_slots, 1, MPI_INT, local_nums_slots_buf, 
                 1, MPI_INT, root, comm);
 
         if (status != MPI_SUCCESS) 
         {
             throw std::runtime_error(
-                        "Diagnostics_particles::write: MPI_Gather local_num_padded failed.");
+                        "Diagnostics_particles::write: MPI_Gather local_num_slots failed.");
         }
 
         // bunch particles
@@ -204,7 +204,7 @@ Diagnostics_particles::write()
 
             receive_other_local_particles(
                     local_nums, 
-                    local_nums_padded, 
+                    local_nums_slots, 
                     get_bunch().get_local_particles(),
                     min_particle_id,
                     max_particle_id,
@@ -236,7 +236,7 @@ Diagnostics_particles::write()
         else 
         {
             send_local_particles(
-                    local_num_padded, 
+                    local_num_slots, 
                     get_bunch().get_local_particles(), 
                     get_write_helper() );
         }
@@ -250,15 +250,15 @@ Diagnostics_particles::write()
         // create/get write helper for the spectator particles
         Diagnostics_write_helper & helper = get_extra_write_helper("spectator");
 
-        // local spectator num and local padded spectator num
+        // local spectator num and local spectator array size (slots)
         int local_s_num = get_bunch().get_local_spectator_num();
-        int local_s_num_padded = get_bunch().get_local_spectator_num_padded();
+        int local_s_num_slots = get_bunch().get_local_spectator_num_slots();
 
         std::vector<int> local_s_nums(num_procs);
-        std::vector<int> local_s_nums_padded(num_procs);
+        std::vector<int> local_s_nums_slots(num_procs);
 
         void * local_s_nums_buf = (void *) &local_s_nums[0];
-        void * local_s_nums_padded_buf = (void *) &local_s_nums_padded[0];
+        void * local_s_nums_slots_buf = (void *) &local_s_nums_slots[0];
 
         int s_root = helper.get_writer_rank();
 
@@ -273,13 +273,13 @@ Diagnostics_particles::write()
         }
 
         status = MPI_Gather(
-                (void*) &local_s_num_padded, 1, MPI_INT, local_s_nums_padded_buf, 
+                (void*) &local_s_num_slots, 1, MPI_INT, local_s_nums_slots_buf, 
                 1, MPI_INT, s_root, comm);
 
         if (status != MPI_SUCCESS) 
         {
             throw std::runtime_error(
-                        "Diagnostics_particles::write: MPI_Gather local_s_num_padded failed.");
+                        "Diagnostics_particles::write: MPI_Gather local_s_num_slots failed.");
         }
 
 
@@ -289,7 +289,7 @@ Diagnostics_particles::write()
 
             receive_other_local_particles(
                     local_s_nums, 
-                    local_s_nums_padded, 
+                    local_s_nums_slots, 
                     get_bunch().get_local_spectator_particles(),
                     0,  // always write out the entire block of spectator particles
                     0,
@@ -321,7 +321,7 @@ Diagnostics_particles::write()
         else 
         {
             send_local_particles(
-                    local_s_num_padded,
+                    local_s_num_slots,
                     get_bunch().get_local_spectator_particles(),
                     helper );
         }

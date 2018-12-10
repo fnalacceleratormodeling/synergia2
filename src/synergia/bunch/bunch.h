@@ -52,8 +52,48 @@ private:
     Reference_particle design_reference_particle;
     int particle_charge;
 
-    int local_num, total_num, local_num_padded;
-    int local_s_num, total_s_num, local_s_num_padded;
+    /*
+     * Local Particle Array Memory Layout:
+     *
+     *   P: particle, O: padding, L: lost particle
+     *
+     *   +=====+
+     *   |  P  |
+     *   +-----+
+     *   |  P  |
+     *   +-----+
+     *   | ... |
+     *   +=====+  <- local_num
+     *   |  O  |
+     *   +-----+  <- local_num_aligned
+     *   |  O  |
+     *   +-----+
+     *   | ... |
+     *   +=====+  <- local_num + num_padding
+     *   |  L  |
+     *   +-----+
+     *   |  L  |
+     *   +-----+
+     *   | ... |
+     *   +=====+  <- local_num_slots
+     *
+     *   num_padding = number of padding slots
+     *   num_lost = number of lost particles
+     *
+     *   At bunch construction the size of padding (num_padding) is decided 
+     *   such that the local_num_slots is always aligned (depending on the 
+     *   vector specification, e.g., SSE or AVX or AVX512). 
+     *
+     *   local_num_aligned is initialized in the range [local_num, local_num 
+     *   + num_padding], and gets adjusted everytime the local_num changes
+     *   such tht local_num_aligned is always aligned.
+     *
+     */
+
+    int local_num, local_num_aligned, local_num_padding, local_num_slots;
+    int local_s_num, local_s_num_aligned, local_s_num_padding, local_s_num_slots;
+
+    int total_num, total_s_num;
 
     double real_num;
 
@@ -272,7 +312,7 @@ public:
 
     /// Get the number of padded macroparticles (first dimension of the particles[][] array)
     int
-    get_local_num_padded() const;
+    get_local_num_slots() const;
 
     /// Get the total number of macroparticles.
     int
@@ -284,7 +324,7 @@ public:
 
     /// Get the number of padded spectator particles (first dimension of the particles[][] array)
     int
-    get_local_spectator_num_padded() const;
+    get_local_spectator_num_slots() const;
 
     /// Get the total number of spectator particles.
     int

@@ -241,8 +241,8 @@ BOOST_FIXTURE_TEST_CASE(get_local_spectator_particles, Fix_p100_s10)
     unsigned int u_local_num = bunch.get_local_spectator_num();
     BOOST_CHECK(particles.shape()[0] >= u_local_num);
 
-    unsigned int u_local_num_padded = bunch.get_local_spectator_num_padded();
-    BOOST_CHECK(particles.shape()[0] == u_local_num_padded);
+    unsigned int u_local_num_slots = bunch.get_local_spectator_num_slots();
+    BOOST_CHECK(particles.shape()[0] == u_local_num_slots);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_const_local_spectator_particles, Fix_p100_s10)
@@ -253,8 +253,8 @@ BOOST_FIXTURE_TEST_CASE(get_const_local_spectator_particles, Fix_p100_s10)
     unsigned int u_local_num = bunch.get_local_spectator_num();
     BOOST_CHECK(particles.shape()[0] >= u_local_num);
 
-    unsigned int u_local_num_padded = bunch.get_local_spectator_num_padded();
-    BOOST_CHECK(particles.shape()[0] == u_local_num_padded);
+    unsigned int u_local_num_slots = bunch.get_local_spectator_num_slots();
+    BOOST_CHECK(particles.shape()[0] == u_local_num_slots);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_local_spectator_num, Fix_p100_s10)

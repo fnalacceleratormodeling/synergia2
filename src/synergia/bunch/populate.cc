@@ -49,10 +49,10 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     dummy << C;
 
     int num_particles = bunch.get_local_num();
-    int num_particles_padded = bunch.get_local_num_padded();
+    int num_particles_slots = bunch.get_local_num_slots();
 
     Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor > >
-            rho7(bunch.get_local_particles().origin(), num_particles_padded, 7);
+            rho7(bunch.get_local_particles().origin(), num_particles_slots, 7);
     Matrix<double, 1, 6 > rhobar6(bunch_mean.origin());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         rho7.block<1, 6 > (part, 0) -= rhobar6;

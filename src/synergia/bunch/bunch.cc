@@ -180,18 +180,25 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         // padding the local_num so the memory for each particle component is aligned
         if (local_num % particle_padding == 0) 
         {
-            local_num_padded = local_num;
+            local_num_padding = particle_padding;
+            local_num_aligned = local_num;
         } 
         else 
         {
-            local_num_padded = local_num + particle_padding - (local_num % particle_padding);
+            local_num_padding = particle_padding * 2 - local_num % particle_padding;
+            local_num_aligned = local_num + particle_padding - (local_num % particle_padding);
         }
 
-        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-        local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
+        // total particle memory slots
+        local_num_slots = local_num + local_num_padding;
 
+        // allocate
+        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
+
+        // zero
         #pragma omp parallel for
-        for (int i=0; i<local_num_padded; ++i)
+        for (int i=0; i<local_num_slots; ++i)
         {
             for(int j=0; j<7; ++j)
             {
@@ -214,18 +221,23 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         // padding the local_num so the memory for each particle component is aligned
         if (local_s_num % particle_padding == 0) 
         {
-            local_s_num_padded = local_s_num;
+            local_s_num_padding = particle_padding;
+            local_s_num_aligned = local_num;
         } 
         else 
         {
-            local_s_num_padded = local_s_num + particle_padding - (local_s_num % particle_padding);
+            local_s_num_padding = particle_padding * 2 - local_s_num % particle_padding;
+            local_s_num_aligned = local_s_num + particle_padding - (local_s_num % particle_padding);
         }
 
-        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_padded * 7 * sizeof(double));
-        local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_padded][7], boost::fortran_storage_order());
+        // total particle memory slots
+        local_s_num_slots = local_s_num + local_s_num_padding;
+
+        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
+        local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
 
         #pragma omp parallel for
-        for (int i=0; i<local_s_num_padded; ++i)
+        for (int i=0; i<local_s_num_slots; ++i)
         {
             for(int j=0; j<7; ++j)
             {
@@ -238,13 +250,17 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
     else 
     {
         local_num = 0;
-        local_num_padded = 0;
+        local_num_aligned = 0;
+        local_num_padding = 0;
+        local_num_slots = 0;
 
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), 0);
         local_particles = new MArray2d_ref(storage, boost::extents[0][7], boost::fortran_storage_order());
 
         local_s_num = 0;
-        local_s_num_padded = 0;
+        local_s_num_aligned = 0;
+        local_s_num_padding = 0;
+        local_s_num_slots = 0;
 
         s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), 0);
         local_s_particles = new MArray2d_ref(s_storage, boost::extents[0][7], boost::fortran_storage_order());
@@ -262,17 +278,28 @@ Bunch::Bunch(
     , reference_particle(reference_particle)
     , design_reference_particle(reference_particle)
     , particle_charge(reference_particle.get_charge())
+
     , local_num(0)
-    , total_num(total_num)
-    , local_num_padded(0)
+    , local_num_aligned(0)
+    , local_num_padding(0)
+    , local_num_slots(0)
+
     , local_s_num(0)
+    , local_s_num_aligned(0)
+    , local_s_num_padding(0)
+    , local_s_num_slots(0)
+
+    , total_num(total_num)
     , total_s_num(0)
-    , local_s_num_padded(0)
+
+    , real_num(real_num)
+
     , storage(NULL)
     , s_storage(NULL)
+
     , local_particles(NULL)
     , local_s_particles(NULL)
-    , real_num(real_num)
+
     , bucket_index(0)
     , bucket_index_assigned(false)
     , sort_period(10000)
@@ -297,17 +324,28 @@ Bunch::Bunch(
     , reference_particle(reference_particle)
     , design_reference_particle(reference_particle)
     , particle_charge(reference_particle.get_charge())
+
     , local_num(0)
-    , total_num(total_num)
-    , local_num_padded(0)
+    , local_num_aligned(0)
+    , local_num_padding(0)
+    , local_num_slots(0)
+
     , local_s_num(0)
+    , local_s_num_aligned(0)
+    , local_s_num_padding(0)
+    , local_s_num_slots(0)
+
+    , total_num(total_num)
     , total_s_num(total_spectator_num)
-    , local_s_num_padded(0)
+
     , real_num(real_num)
+
     , storage(NULL)
     , s_storage(NULL)
+
     , local_particles(NULL)
     , local_s_particles(NULL)
+
     , bucket_index(0)
     , bucket_index_assigned(false)
     , sort_period(10000)
@@ -327,17 +365,28 @@ Bunch::Bunch()
     , reference_particle()
     , design_reference_particle()
     , particle_charge(1)
+
     , local_num(0)
-    , total_num(0)
-    , local_num_padded(0)
+    , local_num_aligned(0)
+    , local_num_padding(0)
+    , local_num_slots(0)
+
     , local_s_num(0)
+    , local_s_num_aligned(0)
+    , local_s_num_padding(0)
+    , local_s_num_slots(0)
+
+    , total_num(0)
     , total_s_num(0)
-    , local_s_num_padded(0)
-    , real_num(real_num)
+
+    , real_num(0)
+
     , storage(NULL)
     , s_storage(NULL)
+
     , local_particles(NULL)
     , local_s_particles(NULL)
+
     , bucket_index(0)
     , bucket_index_assigned(false)
     , sort_period(10000)
@@ -359,24 +408,29 @@ Bunch::Bunch(Bunch const& bunch)
     , particle_charge(bunch.particle_charge)
 
     , local_num(bunch.local_num)
-    , total_num(bunch.total_num)
-    , local_num_padded(bunch.local_num_padded)
+    , local_num_aligned(bunch.local_num_aligned)
+    , local_num_padding(bunch.local_num_padding)
+    , local_num_slots(bunch.local_num_slots)
 
     , local_s_num(bunch.local_s_num)
+    , local_s_num_aligned(bunch.local_s_num_aligned)
+    , local_s_num_padding(bunch.local_s_num_padding)
+    , local_s_num_slots(bunch.local_s_num_slots)
+
+    , total_num(bunch.total_num)
     , total_s_num(bunch.total_s_num)
-    , local_s_num_padded(bunch.local_s_num_padded)
 
     , real_num(bunch.real_num)
 
     , storage((double*)boost::alignment::aligned_alloc(
-                8 * sizeof(double), local_num_padded * 7 * sizeof(double)))
+                8 * sizeof(double), local_num_slots * 7 * sizeof(double)))
     , s_storage((double*)boost::alignment::aligned_alloc(
-                8 * sizeof(double), local_s_num_padded * 7 * sizeof(double)))
+                8 * sizeof(double), local_s_num_slots * 7 * sizeof(double)))
 
     , local_particles(new MArray2d_ref(storage, 
-                boost::extents[local_num_padded][7], boost::fortran_storage_order()))
+                boost::extents[local_num_slots][7], boost::fortran_storage_order()))
     , local_s_particles(new MArray2d_ref(s_storage, 
-                boost::extents[local_s_num_padded][7], boost::fortran_storage_order()))
+                boost::extents[local_s_num_slots][7], boost::fortran_storage_order()))
 
     , bucket_index(bunch.bucket_index)
     , bucket_index_assigned(bunch.bucket_index_assigned)
@@ -388,8 +442,8 @@ Bunch::Bunch(Bunch const& bunch)
     , converter_ptr( (bunch.converter_ptr==&(bunch.default_converter)) 
             ? &default_converter : bunch.converter_ptr )
 {
-    memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
-    memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_padded*7);
+    memcpy(storage, bunch.storage, sizeof(double)*local_num_slots*7);
+    memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_slots*7);
 }
 
 Bunch &
@@ -403,15 +457,21 @@ Bunch::operator=(Bunch const& bunch)
         comm_sptr = bunch.comm_sptr;
 
         particle_charge = bunch.particle_charge;
-        real_num = bunch.real_num;
+
+        local_num = bunch.local_num;
+        local_num_aligned = bunch.local_num_aligned;
+        local_num_padding = bunch.local_num_padding;
+        local_num_slots = bunch.local_num_slots;
+
+        local_s_num = bunch.local_s_num;
+        local_s_num_aligned = bunch.local_s_num_aligned;
+        local_s_num_padding = bunch.local_s_num_padding;
+        local_s_num_slots = bunch.local_s_num_slots;
 
         total_num = bunch.total_num;
-        local_num = bunch.local_num;
-        local_num_padded = bunch.local_num_padded;
-
         total_s_num = bunch.total_s_num;
-        local_s_num = bunch.local_s_num;
-        local_s_num_padded = bunch.local_s_num_padded;
+
+        real_num = bunch.real_num;
 
         bucket_index = bunch.bucket_index;
         bucket_index_assigned = bunch.bucket_index_assigned;
@@ -424,13 +484,13 @@ Bunch::operator=(Bunch const& bunch)
         if (local_s_particles) delete local_s_particles;
 
         // and allocate new
-        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-        memcpy(storage, bunch.storage, sizeof(double)*local_num_padded*7);
-        local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
+        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
+        memcpy(storage, bunch.storage, sizeof(double)*local_num_slots*7);
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
 
-        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_padded * 7 * sizeof(double));
-        memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_padded*7);
-        local_s_particles = new MArray2d_ref(storage, boost::extents[local_s_num_padded][7], boost::fortran_storage_order());
+        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
+        memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_slots *7);
+        local_s_particles = new MArray2d_ref(storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
 
         state = bunch.state;
         longitudinal_extent = bunch.longitudinal_extent;
@@ -463,26 +523,60 @@ Bunch::set_real_num(double real_num)
 }
 
 void
-Bunch::set_local_num(int local_num)
+Bunch::set_local_num(int num)
 {
-    if (local_num > this->local_num) 
+    if (num <= local_num_aligned)
     {
-        if (local_num % particle_padding == 0) 
+        // pointer to local_num_padded should not be changed
+        local_num_padding = local_num + local_num_padding - num;
+
+        // no need to resize the array, only move the pointers
+        local_num = num;
+
+        // update local_num_aligned
+        if (local_num % particle_padding == 0)
         {
-            local_num_padded = local_num;
-        } 
-        else 
-        {
-            local_num_padded = local_num + particle_padding - (local_num % particle_padding);
+            local_num_aligned = local_num;
         }
+        else
+        {
+            local_num_aligned = local_num + particle_padding - (local_num % particle_padding);
+        }
+    }
+    else
+    {
+        // keep the previous values
+        int prev_local_num = local_num;
+        int prev_local_num_slots = local_num_slots;
+        int prev_local_num_padding = local_num_padding;
 
         double * prev_storage = storage;
         MArray2d_ref * prev_local_particles = local_particles;
 
-        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_padded * 7 * sizeof(double));
-        local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
+        // update the local_num
+        local_num = num;
 
-        for (int i=0; i<this->local_num; ++i) 
+        // padding and aligned
+        if (local_num % particle_padding == 0) 
+        {
+            local_num_padding = particle_padding;
+            local_num_aligned = local_num;
+        } 
+        else 
+        {
+            local_num_padding = particle_padding * 2 - local_num % particle_padding;
+            local_num_aligned = local_num + particle_padding - (local_num % particle_padding);
+        }
+
+        // num_slots
+        local_num_slots = local_num + local_num_padding;
+
+        // allocate for new storage
+        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
+
+        // copy the particle data over
+        for (int i=0; i<prev_local_num; ++i) 
         {
             for (int j=0; j<7; ++j) 
             {
@@ -490,9 +584,9 @@ Bunch::set_local_num(int local_num)
             }
         }
 
-        // set the extended particle (till local_num_padded) coordinates to 0
+        // set the coordinates of extended and padding particles to 0
         // TODO: what should be the id for the extended particles
-        for (int i=this->local_num; i<local_num_padded; ++i)
+        for (int i=prev_local_num; i<local_num + local_num_padding; ++i)
         {
             for (int j=0; j<7; ++j) 
             {
@@ -500,34 +594,77 @@ Bunch::set_local_num(int local_num)
             }
         }
 
-        delete [] prev_storage;
-        delete prev_local_particles;
-    }
+        // copy over lost particles
+        int num_lost = prev_local_num_slots - prev_local_num - prev_local_num_padding;
+        for (int i=0; i<num_lost; ++i)
+        {
+            for (int j=0; j<7; ++j) 
+            {
+                (*local_particles)[local_num + local_num_padding + i][j] = 
+                    (*prev_local_particles)[prev_local_num + prev_local_num_padding + i][j];
+            }
+        }
 
-    this->local_num = local_num;
+        if (prev_storage) boost::alignment::aligned_free(prev_storage);
+        if (prev_local_particles) delete prev_local_particles;
+    }
 }
 
 void
-Bunch::set_local_spectator_num(int local_s_num)
+Bunch::set_local_spectator_num(int s_num)
 {
-    if (local_s_num > this->local_s_num) 
+    if (s_num <= local_s_num_aligned)
     {
-        if (local_s_num % particle_padding == 0) 
+        // pointer to local_s_num_padded should not be changed
+        local_s_num_padding = local_s_num + local_s_num_padding - s_num;
+
+        // no need to resize the array, only move the pointers
+        local_s_num = s_num;
+
+        // update local_s_num_aligned
+        if (local_s_num % particle_padding == 0)
         {
-            local_s_num_padded = local_s_num;
-        } 
-        else 
-        {
-            local_s_num_padded = local_s_num + particle_padding - (local_s_num % particle_padding);
+            local_s_num_aligned = local_s_num;
         }
+        else
+        {
+            local_s_num_aligned = local_s_num + particle_padding - (local_s_num % particle_padding);
+        }
+    }
+    else
+    {
+        // keep the previous values
+        int prev_local_s_num = local_s_num;
+        int prev_local_s_num_slots = local_s_num_slots;
+        int prev_local_s_num_padding = local_s_num_padding;
 
         double * prev_s_storage = s_storage;
         MArray2d_ref * prev_local_s_particles = local_s_particles;
 
-        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_padded * 7 * sizeof(double));
-        local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_padded][7], boost::fortran_storage_order());
+        // update the local_s_num
+        local_s_num = s_num;
 
-        for (int i=0; i<this->local_s_num; ++i) 
+        // padding and aligned
+        if (local_s_num % particle_padding == 0) 
+        {
+            local_s_num_padding = particle_padding;
+            local_s_num_aligned = local_s_num;
+        } 
+        else 
+        {
+            local_s_num_padding = particle_padding * 2 - local_s_num % particle_padding;
+            local_s_num_aligned = local_s_num + particle_padding - (local_s_num % particle_padding);
+        }
+
+        // s_num_slots
+        local_s_num_slots = local_s_num + local_s_num_padding;
+
+        // allocate for new storage
+        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
+        local_s_particles = new MArray2d_ref(storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
+
+        // copy the particle data over
+        for (int i=0; i<prev_local_s_num; ++i) 
         {
             for (int j=0; j<7; ++j) 
             {
@@ -535,9 +672,9 @@ Bunch::set_local_spectator_num(int local_s_num)
             }
         }
 
-        // set the extended particle (till local_num_padded) coordinates to 0
+        // set the coordinates of extended and padding particles to 0
         // TODO: what should be the id for the extended particles
-        for (int i=this->local_s_num; i<local_s_num_padded; ++i)
+        for (int i=prev_local_s_num; i<local_s_num + local_s_num_padding; ++i)
         {
             for (int j=0; j<7; ++j) 
             {
@@ -545,11 +682,20 @@ Bunch::set_local_spectator_num(int local_s_num)
             }
         }
 
-        delete [] prev_s_storage;
-        delete prev_local_s_particles;
-    }
+        // copy over lost particles
+        int s_num_lost = prev_local_s_num_slots - prev_local_s_num - prev_local_s_num_padding;
+        for (int i=0; i<s_num_lost; ++i)
+        {
+            for (int j=0; j<7; ++j) 
+            {
+                (*local_s_particles)[local_s_num + local_s_num_padding + i][j] = 
+                    (*prev_local_s_particles)[prev_local_s_num + prev_local_s_num_padding + i][j];
+            }
+        }
 
-    this->local_s_num = local_s_num;
+        if (prev_s_storage) boost::alignment::aligned_free(prev_s_storage);
+        if (prev_local_s_particles) delete prev_local_s_particles;
+    }
 }
 
 void
@@ -636,7 +782,7 @@ Bunch::sort(int index)
     if ((index<0) || (index>6)) {
         throw std::runtime_error("Bunch::sort: invalid index");
     }
-    do_sort(local_particles->origin(), 7, local_num, local_num_padded, index);
+    do_sort(local_particles->origin(), 7, local_num, local_num_slots, index);
     sort_counter = sort_period;
 }
 
@@ -852,9 +998,9 @@ Bunch::get_local_num() const
 }
 
 int
-Bunch::get_local_num_padded() const
+Bunch::get_local_num_slots() const
 {
-    return local_num_padded;
+    return local_num_slots;
 }
 
 int
@@ -870,9 +1016,9 @@ Bunch::get_local_spectator_num() const
 }
 
 int
-Bunch::get_local_spectator_num_padded() const
+Bunch::get_local_spectator_num_slots() const
 {
-    return local_s_num_padded;
+    return local_s_num_slots;
 }
 
 int
@@ -1049,6 +1195,9 @@ Bunch::inject(Bunch const& bunch)
                 = injected_spectator_particles[part][Bunch::id];
     }
 
+    // TODO: inject the lost particles
+    // ...
+
     // update total number, for both real and spectator particles
     update_total_num();
 }
@@ -1181,12 +1330,16 @@ Bunch::save(Archive & ar, const unsigned int version) const
                 Hdf5_file file(get_local_particles_serialization_path(), Hdf5_file::truncate);
 
                 file.write(local_num, "local_num");
-                file.write(local_num_padded, "local_num_padded");
-                file.write(storage, local_num_padded*7, "local_storage");
+                file.write(local_num_slots, "local_num_slots");
+                file.write(local_num_aligned, "local_num_aligned");
+                file.write(local_num_padding, "local_num_padding");
+                file.write(storage, local_num_slots*7, "local_storage");
 
                 file.write(local_s_num, "local_s_num");
-                file.write(local_s_num_padded, "local_s_num_padded");
-                file.write(s_storage, local_s_num_padded*7, "local_s_storage");
+                file.write(local_s_num_slots, "local_s_num_slots");
+                file.write(local_s_num_aligned, "local_s_num_aligned");
+                file.write(local_s_num_padding, "local_s_num_padding");
+                file.write(s_storage, local_s_num_slots*7, "local_s_storage");
 
                 file.close();
                 fail=false;
@@ -1236,24 +1389,32 @@ Bunch::load(Archive & ar, const unsigned int version)
         Hdf5_file file(get_local_particles_serialization_path(), Hdf5_file::read_only);
 
         local_num = file.read<int> ("local_num");
-        local_num_padded = file.read<int> ("local_num_padded");
+        local_num_slots = file.read<int> ("local_num_slots");
+        local_num_aligned = file.read<int> ("local_num_aligned");
+        local_num_padding = file.read<int> ("local_num_padding");
 
         local_s_num = file.read<int> ("local_s_num");
-        local_s_num_padded = file.read<int> ("local_s_num_padded");
+        local_s_num_slots = file.read<int> ("local_s_num_slots");
+        local_s_num_aligned = file.read<int> ("local_s_num_aligned");
+        local_s_num_padding = file.read<int> ("local_s_num_padding");
 
         storage = file.read<double *>("local_storage");
-        local_particles = new MArray2d_ref(storage, boost::extents[local_num_padded][7], boost::fortran_storage_order());
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
 
         s_storage = file.read<double *>("local_s_storage");
-        local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_padded][7], boost::fortran_storage_order());
+        local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
     } 
     else 
     {
         local_num = 0;
-        local_num_padded = 0;
+        local_num_slots = 0;
+        local_num_aligned = 0;
+        local_num_padding = 0;
 
         local_s_num = 0;
-        local_s_num_padded = 0;
+        local_s_num_slots = 0;
+        local_s_num_aligned = 0;
+        local_s_num_padding = 0;
 
         storage = NULL;
         local_particles = new MArray2d_ref(storage, boost::extents[0][7], boost::fortran_storage_order());
