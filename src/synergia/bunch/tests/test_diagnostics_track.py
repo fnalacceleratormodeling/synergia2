@@ -28,7 +28,7 @@ reference_particle.set_trajectory(turns, turn_length, partial_s)
 comm = Commxx()
 bunch = Bunch(reference_particle, total_num, real_num, comm)
 particles = bunch.get_local_particles()
-particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])
+particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_local_num_slots(), 6])
 
 def test_construct():
     diagnostics = Diagnostics_track("dummy.h5", 0)
