@@ -69,7 +69,7 @@ private:
      *   |  O  |
      *   +-----+
      *   | ... |
-     *   +=====+  <- local_num + num_padding
+     *   +=====+  <- local_num_padded
      *   |  L  |
      *   +-----+
      *   |  L  |
@@ -77,21 +77,21 @@ private:
      *   | ... |
      *   +=====+  <- local_num_slots
      *
-     *   num_padding = number of padding slots
-     *   num_lost = number of lost particles
+     *   * number of padding slots  = local_num_padded - local_num
+     *   * number of lost particles = local_num_slots - local_num_padded
      *
      *   At bunch construction the size of padding (num_padding) is decided 
      *   such that the local_num_slots is always aligned (depending on the 
      *   vector specification, e.g., SSE or AVX or AVX512). 
      *
-     *   local_num_aligned is initialized in the range [local_num, local_num 
-     *   + num_padding], and gets adjusted everytime the local_num changes
-     *   such tht local_num_aligned is always aligned.
+     *   local_num_aligned is initialized in the range [local_num, 
+     *   local_num_paded], and gets adjusted everytime the local_num 
+     *   changes such tht local_num_aligned is always aligned.
      *
      */
 
-    int local_num, local_num_aligned, local_num_padding, local_num_slots;
-    int local_s_num, local_s_num_aligned, local_s_num_padding, local_s_num_slots;
+    int local_num, local_num_aligned, local_num_padded, local_num_slots;
+    int local_s_num, local_s_num_aligned, local_s_num_padded, local_s_num_slots;
 
     int total_num, total_s_num;
 
@@ -204,6 +204,16 @@ public:
     void
     set_total_num(int totalnum);
     
+    /// For a given number of particles, returns the next alignement position
+    /// @param num number of particles
+    int
+    calculate_aligned_pos(int num);
+
+    /// For a given number of particles, returns the needed size of padding
+    /// for the particle array to be aligned
+    /// @param num number of particles
+    int
+    calculate_padding_size(int num);
 
     ///
     /// Set the period for periodic_sort and reset the counter
@@ -313,6 +323,15 @@ public:
     /// Get the number of padded macroparticles (first dimension of the particles[][] array)
     int
     get_local_num_slots() const;
+
+    int
+    get_local_num_aligned() const;
+
+    int
+    get_local_num_padded() const;
+
+    int
+    get_local_num_lost() const;
 
     /// Get the total number of macroparticles.
     int
