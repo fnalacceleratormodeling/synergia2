@@ -1058,6 +1058,24 @@ Bunch::get_local_num() const
 }
 
 int
+Bunch::get_local_num_aligned() const
+{
+    return local_num_aligned;
+}
+
+int
+Bunch::get_local_num_padded() const
+{
+    return local_num_padded;
+}
+
+int
+Bunch::get_local_num_lost() const
+{
+    return local_num_slots - local_num_padded;
+}
+
+int
 Bunch::get_local_num_slots() const
 {
     return local_num_slots;
@@ -1073,6 +1091,24 @@ int
 Bunch::get_local_spectator_num() const
 {
     return local_s_num;
+}
+
+int
+Bunch::get_local_spectator_num_aligned() const
+{
+    return local_s_num_aligned;
+}
+
+int
+Bunch::get_local_spectator_num_padded() const
+{
+    return local_s_num_padded;
+}
+
+int
+Bunch::get_local_spectator_num_lost() const
+{
+    return local_s_num_slots - local_s_num_padded;
 }
 
 int

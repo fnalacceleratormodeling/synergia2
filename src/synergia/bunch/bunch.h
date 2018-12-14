@@ -347,9 +347,17 @@ public:
     int
     get_local_spectator_num() const;
 
-    /// Get the number of padded spectator particles (first dimension of the particles[][] array)
     int
     get_local_spectator_num_slots() const;
+
+    int
+    get_local_spectator_num_aligned() const;
+
+    int
+    get_local_spectator_num_padded() const;
+
+    int
+    get_local_spectator_num_lost() const;
 
     /// Get the total number of spectator particles.
     int
