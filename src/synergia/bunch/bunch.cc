@@ -1231,7 +1231,12 @@ Bunch::inject(Bunch const& bunch)
 
     // real particles
     int old_local_num = local_num;
-    set_local_num(old_local_num + bunch.get_local_num());
+    int old_local_num_lost = get_local_num_lost();
+
+    // reallocate the particle array
+    expand_local_num(
+            old_local_num + bunch.get_local_num(), 
+            bunch.get_local_num_lost() );
 
     for (int part = 0; part < bunch.get_local_num(); ++part) 
     {
@@ -1260,9 +1265,24 @@ Bunch::inject(Bunch const& bunch)
                 = injected_particles[part][Bunch::id];
     }
 
+    // copy the lost particles from bunch
+    for (int p = 0; p < bunch.get_local_num_lost(); ++p)
+    {
+        for (int i = 0; i < 6; i += 2) 
+        {
+            (*local_particles)[local_num_padded + old_local_num_lost + p][i] =
+                injected_particles[bunch.get_local_num_padded() + p][i];
+        }
+    }
+
     // spectator particles
     int old_local_s_num = local_s_num;
-    set_local_spectator_num(old_local_s_num + bunch.get_local_spectator_num());
+    int old_local_s_num_lost = get_local_spectator_num_lost();
+
+    // reallocate the spectator particle array
+    expand_local_spectator_num(
+            old_local_s_num + bunch.get_local_spectator_num(), 
+            bunch.get_local_spectator_num_lost() );
 
     for (int part = 0; part < bunch.get_local_spectator_num(); ++part) 
     {
@@ -1291,8 +1311,15 @@ Bunch::inject(Bunch const& bunch)
                 = injected_spectator_particles[part][Bunch::id];
     }
 
-    // TODO: inject the lost particles
-    // ...
+    // copy the lost spectator particles from bunch
+    for (int p = 0; p < bunch.get_local_spectator_num_lost(); ++p)
+    {
+        for (int i = 0; i < 6; i += 2) 
+        {
+            (*local_s_particles)[local_s_num_padded + old_local_s_num_lost + p][i] =
+                injected_spectator_particles[bunch.get_local_spectator_num_padded() + p][i];
+        }
+    }
 
     // update total number, for both real and spectator particles
     update_total_num();
