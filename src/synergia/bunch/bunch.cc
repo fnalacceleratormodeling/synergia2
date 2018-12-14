@@ -559,6 +559,136 @@ Bunch::set_real_num(double real_num)
 }
 
 void
+Bunch::expand_local_num(int num, int added_lost)
+{
+    // keep the previous values
+    int prev_local_num = local_num;
+    int prev_local_num_padded = local_num_padded;
+
+    int local_num_lost = local_num_slots - local_num_padded;
+    int total_num_lost = local_num_lost + added_lost;
+
+    double * prev_storage = storage;
+    MArray2d_ref * prev_local_particles = local_particles;
+
+    // update the pointers
+    local_num = num;
+    local_num_aligned = calculate_aligned_pos(local_num);
+    local_num_padded = local_num + calculate_padding_size(local_num + total_num_lost);
+    local_num_slots = local_num_padded + total_num_lost;
+
+    // allocate for new storage
+    storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
+    local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
+
+    // copy the particle data over
+    for (int i = 0; i < prev_local_num; ++i) 
+    {
+        for (int j=0; j<7; ++j) 
+        {
+            (*local_particles)[i][j] = (*prev_local_particles)[i][j];
+        }
+    }
+
+    // set the coordinates of extended and padding particles to 0
+    // TODO: what should be the id for the extended particles
+    for (int i = prev_local_num; i < local_num_padded; ++i)
+    {
+        for (int j=0; j<7; ++j) 
+        {
+            (*local_particles)[i][j] = 0.0;
+        }
+    }
+
+    // copy over lost particles
+    for (int i=0; i<local_num_lost; ++i)
+    {
+        for (int j=0; j<7; ++j) 
+        {
+            (*local_particles)[local_num_padded + i][j] = 
+                (*prev_local_particles)[prev_local_num_padded + i][j];
+        }
+    }
+
+    // set additional lost particle data to 0
+    for (int i = local_num_padded + local_num_lost; i < local_num_slots; ++i)
+    {
+        for (int j=0; j<7; ++j) 
+        {
+            (*local_particles)[i][j] = 0.0;
+        }
+    }
+
+    if (prev_storage) boost::alignment::aligned_free(prev_storage);
+    if (prev_local_particles) delete prev_local_particles;
+}
+
+void
+Bunch::expand_local_spectator_num(int s_num, int added_lost)
+{
+    // keep the previous values
+    int prev_local_s_num = local_s_num;
+    int prev_local_s_num_padded = local_s_num_padded;
+
+    int local_s_num_lost = local_s_num_slots - local_s_num_padded;
+    int total_s_num_lost = local_s_num_lost + added_lost;
+
+    double * prev_s_storage = s_storage;
+    MArray2d_ref * prev_local_s_particles = local_s_particles;
+
+    // update the pointers
+    local_s_num = s_num;
+    local_s_num_aligned = calculate_aligned_pos(local_s_num);
+    local_s_num_padded = local_s_num + calculate_padding_size(local_s_num + total_s_num_lost);
+    local_s_num_slots = local_s_num_padded + total_s_num_lost;
+
+    // allocate for new storage
+    s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
+    local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
+
+    // copy the particle data over
+    for (int i = 0; i < prev_local_s_num; ++i) 
+    {
+        for (int j=0; j<7; ++j) 
+        {
+            (*local_s_particles)[i][j] = (*prev_local_s_particles)[i][j];
+        }
+    }
+
+    // set the coordinates of extended and padding particles to 0
+    // TODO: what should be the id for the extended particles
+    for (int i = prev_local_s_num; i < local_s_num_padded; ++i)
+    {
+        for (int j=0; j<7; ++j) 
+        {
+            (*local_s_particles)[i][j] = 0.0;
+        }
+    }
+
+    // copy over lost particles
+    for (int i=0; i<local_s_num_lost; ++i)
+    {
+        for (int j=0; j<7; ++j) 
+        {
+            (*local_s_particles)[local_s_num_padded + i][j] = 
+                (*prev_local_s_particles)[prev_local_s_num_padded + i][j];
+        }
+    }
+
+    // set additional lost particle data to 0
+    for (int i = local_s_num_padded + local_s_num_lost; i < local_s_num_slots; ++i)
+    {
+        for (int j=0; j<7; ++j) 
+        {
+            (*local_s_particles)[i][j] = 0.0;
+        }
+    }
+
+    if (prev_s_storage) boost::alignment::aligned_free(prev_s_storage);
+    if (prev_local_s_particles) delete prev_local_s_particles;
+}
+
+void
 Bunch::set_local_num(int num)
 {
     // make sure the new local_num is never less than 0
@@ -588,55 +718,8 @@ Bunch::set_local_num(int num)
     }
     else
     {
-        // keep the previous values
-        int prev_local_num = local_num;
-        int prev_local_num_padded = local_num_padded;
-        int local_num_lost = local_num_slots - local_num_padded;
-
-        double * prev_storage = storage;
-        MArray2d_ref * prev_local_particles = local_particles;
-
-        // update the pointers
-        local_num = num;
-        local_num_aligned = calculate_aligned_pos(local_num);
-        local_num_padded = local_num + calculate_padding_size(local_num + local_num_lost);
-        local_num_slots = local_num_padded + local_num_lost;
-
-        // allocate for new storage
-        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
-        local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
-
-        // copy the particle data over
-        for (int i = 0; i < prev_local_num; ++i) 
-        {
-            for (int j=0; j<7; ++j) 
-            {
-                (*local_particles)[i][j] = (*prev_local_particles)[i][j];
-            }
-        }
-
-        // set the coordinates of extended and padding particles to 0
-        // TODO: what should be the id for the extended particles
-        for (int i = prev_local_num; i < local_num_padded; ++i)
-        {
-            for (int j=0; j<7; ++j) 
-            {
-                (*local_particles)[i][j] = 0.0;
-            }
-        }
-
-        // copy over lost particles
-        for (int i=0; i<local_num_lost; ++i)
-        {
-            for (int j=0; j<7; ++j) 
-            {
-                (*local_particles)[local_num_padded + i][j] = 
-                    (*prev_local_particles)[prev_local_num_padded + i][j];
-            }
-        }
-
-        if (prev_storage) boost::alignment::aligned_free(prev_storage);
-        if (prev_local_particles) delete prev_local_particles;
+        // expand the local particle array, no additional lost particle slots
+        expand_local_num(num, 0);
     }
 }
 
@@ -670,55 +753,8 @@ Bunch::set_local_spectator_num(int s_num)
     }
     else
     {
-        // keep the previous values
-        int prev_local_s_num = local_s_num;
-        int prev_local_s_num_padded = local_s_num_padded;
-        int local_s_num_lost = local_s_num_slots - local_s_num_padded;
-
-        double * prev_s_storage = s_storage;
-        MArray2d_ref * prev_local_s_particles = local_s_particles;
-
-        // update the pointers
-        local_s_num = s_num;
-        local_s_num_aligned = calculate_aligned_pos(local_s_num);
-        local_s_num_padded = local_s_num + calculate_padding_size(local_s_num + local_s_num_lost);
-        local_s_num_slots = local_s_num_padded + local_s_num_lost;
-
-        // allocate for new storage
-        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
-        local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
-
-        // copy the particle data over
-        for (int i = 0; i < prev_local_s_num; ++i) 
-        {
-            for (int j=0; j<7; ++j) 
-            {
-                (*local_s_particles)[i][j] = (*prev_local_s_particles)[i][j];
-            }
-        }
-
-        // set the coordinates of extended and padding particles to 0
-        // TODO: what should be the id for the extended particles
-        for (int i = prev_local_s_num; i < local_s_num_padded; ++i)
-        {
-            for (int j=0; j<7; ++j) 
-            {
-                (*local_s_particles)[i][j] = 0.0;
-            }
-        }
-
-        // copy over lost particles
-        for (int i=0; i<local_s_num_lost; ++i)
-        {
-            for (int j=0; j<7; ++j) 
-            {
-                (*local_s_particles)[local_s_num_padded + i][j] = 
-                    (*prev_local_s_particles)[prev_local_s_num_padded + i][j];
-            }
-        }
-
-        if (prev_s_storage) boost::alignment::aligned_free(prev_s_storage);
-        if (prev_local_s_particles) delete prev_local_s_particles;
+        // expand the local spectator particle array, no additional lost particle slots
+        expand_local_spectator_num(s_num, 0);
     }
 }
 

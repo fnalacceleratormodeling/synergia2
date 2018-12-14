@@ -193,6 +193,12 @@ public:
     void
     set_local_spectator_num(int local_s_num);
 
+    void
+    expand_local_num(int num, int added_lost);
+
+    void
+    expand_local_spectator_num(int s_num, int added_lost);
+
     ///
     /// Update the total number and real number of particles after the local
     /// number has been changed. Requires comm_sptrunication.
