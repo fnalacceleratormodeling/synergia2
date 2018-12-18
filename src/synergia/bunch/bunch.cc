@@ -10,15 +10,15 @@
 
 // particle padding based on GSVector settings
 #if defined(GSV_SSE)
-  const int Bunch::particle_padding = 4;
+  const int Bunch::particle_alignment = 4;
 #elif defined(GSV_AVX)
-  const int Bunch::particle_padding = 4;
+  const int Bunch::particle_alignment = 4;
 #elif defined(GSV_AVX512)
-  const int Bunch::particle_padding = 8;
+  const int Bunch::particle_alignment = 8;
 #elif defined(GSV_QPX)
-  const int Bunch::particle_padding = 4;
+  const int Bunch::particle_alignment = 4;
 #else
-  const int Bunch::particle_padding = 4;
+  const int Bunch::particle_alignment = 4;
 #endif
 
 const int Bunch::x;
@@ -155,9 +155,9 @@ Bunch::get_local_particles_serialization_path() const
 int
 Bunch::calculate_aligned_pos(int num)
 {
-    if (particle_padding <= 0)
+    if (particle_alignment <= 0)
     {
-        throw std::runtime_error("Bunch::calculate_aligned_pos() invalid particle_padding value");
+        throw std::runtime_error("Bunch::calculate_aligned_pos() invalid particle_alignment value");
     }
 
     if (num < 0)
@@ -171,13 +171,13 @@ Bunch::calculate_aligned_pos(int num)
     }
     else
     {
-        if (num % particle_padding == 0) 
+        if (num % particle_alignment == 0) 
         {
             return num;
         } 
         else 
         {
-            return num + particle_padding - (num % particle_padding);
+            return num + particle_alignment - (num % particle_alignment);
         }
     }
 }
@@ -185,9 +185,9 @@ Bunch::calculate_aligned_pos(int num)
 int
 Bunch::calculate_padding_size(int num)
 {
-    if (particle_padding <= 0)
+    if (particle_alignment <= 0)
     {
-        throw std::runtime_error("Bunch::calculate_padding_size() invalid particle_padding value");
+        throw std::runtime_error("Bunch::calculate_padding_size() invalid particle_alignment value");
     }
 
     if (num < 0)
@@ -201,13 +201,13 @@ Bunch::calculate_padding_size(int num)
     }
     else
     {
-        if (num % particle_padding == 0) 
+        if (num % particle_alignment == 0) 
         {
-            return particle_padding;
+            return particle_alignment;
         } 
         else 
         {
-            return particle_padding * 2 - num % particle_padding;
+            return particle_alignment * 2 - num % particle_alignment;
         }
     }
 }

@@ -40,7 +40,7 @@ public:
     static const int dpop = 5;
     static const int id = 6;
 
-    const static int particle_padding;
+    const static int particle_alignment;
 
 private:
 
