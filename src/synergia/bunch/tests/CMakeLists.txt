@@ -12,6 +12,10 @@ add_test_executable(test_bunch_spectator test_bunch_spectator.cc)
 target_link_libraries(test_bunch_spectator synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch_spectator COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch_spectator>)
 
+add_test_executable(test_bunch_mem_layout test_bunch_mem_layout.cc)
+target_link_libraries(test_bunch_mem_layout synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_bunch_mem_layout COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch_mem_layout>)
+
 add_test_executable(test_bunch_train test_bunch_train.cc)
 target_link_libraries(test_bunch_train synergia_bunch
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
