@@ -478,3 +478,168 @@ BOOST_AUTO_TEST_CASE(particle_array_p0_s100)
     BOOST_CHECK_EQUAL(part_s.shape()[0], num_s + padding_s);
 }
 
+BOOST_AUTO_TEST_CASE(particle_array_p100_s100)
+{
+    const int num = 100;
+    const int num_s = 100;
+
+    Fixture f(num, num_s);
+
+    const int alignment = Bunch::particle_alignment;
+
+    int aligned = cal_aligned(num, alignment);
+    int padding = cal_padding(num, alignment);
+
+    int aligned_s = cal_aligned(num_s, alignment);
+    int padding_s = cal_padding(num_s, alignment);
+
+    MArray2d_ref part = f.bunch.get_local_particles();
+    MArray2d_ref part_s = f.bunch.get_local_spectator_particles();
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num(), num);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_aligned(), aligned);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padding(), padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padded(), num + padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_slots(), num + padding);
+    BOOST_CHECK_EQUAL(part.shape()[0], num + padding);
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num(), num_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_aligned(), aligned_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padding(), padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padded(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_slots(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(part_s.shape()[0], num_s + padding_s);
+}
+
+BOOST_AUTO_TEST_CASE(particle_array_p100_s7)
+{
+    const int num = 100;
+    const int num_s = 7;
+
+    Fixture f(num, num_s);
+
+    const int alignment = Bunch::particle_alignment;
+
+    int aligned = cal_aligned(num, alignment);
+    int padding = cal_padding(num, alignment);
+
+    int aligned_s = cal_aligned(num_s, alignment);
+    int padding_s = cal_padding(num_s, alignment);
+
+    MArray2d_ref part = f.bunch.get_local_particles();
+    MArray2d_ref part_s = f.bunch.get_local_spectator_particles();
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num(), num);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_aligned(), aligned);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padding(), padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padded(), num + padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_slots(), num + padding);
+    BOOST_CHECK_EQUAL(part.shape()[0], num + padding);
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num(), num_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_aligned(), aligned_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padding(), padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padded(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_slots(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(part_s.shape()[0], num_s + padding_s);
+}
+
+BOOST_AUTO_TEST_CASE(particle_array_p100_s8)
+{
+    const int num = 100;
+    const int num_s = 8;
+
+    Fixture f(num, num_s);
+
+    const int alignment = Bunch::particle_alignment;
+
+    int aligned = cal_aligned(num, alignment);
+    int padding = cal_padding(num, alignment);
+
+    int aligned_s = cal_aligned(num_s, alignment);
+    int padding_s = cal_padding(num_s, alignment);
+
+    MArray2d_ref part = f.bunch.get_local_particles();
+    MArray2d_ref part_s = f.bunch.get_local_spectator_particles();
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num(), num);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_aligned(), aligned);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padding(), padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padded(), num + padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_slots(), num + padding);
+    BOOST_CHECK_EQUAL(part.shape()[0], num + padding);
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num(), num_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_aligned(), aligned_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padding(), padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padded(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_slots(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(part_s.shape()[0], num_s + padding_s);
+}
+
+BOOST_AUTO_TEST_CASE(particle_array_p100_s9)
+{
+    const int num = 100;
+    const int num_s = 9;
+
+    Fixture f(num, num_s);
+
+    const int alignment = Bunch::particle_alignment;
+
+    int aligned = cal_aligned(num, alignment);
+    int padding = cal_padding(num, alignment);
+
+    int aligned_s = cal_aligned(num_s, alignment);
+    int padding_s = cal_padding(num_s, alignment);
+
+    MArray2d_ref part = f.bunch.get_local_particles();
+    MArray2d_ref part_s = f.bunch.get_local_spectator_particles();
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num(), num);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_aligned(), aligned);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padding(), padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padded(), num + padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_slots(), num + padding);
+    BOOST_CHECK_EQUAL(part.shape()[0], num + padding);
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num(), num_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_aligned(), aligned_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padding(), padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padded(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_slots(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(part_s.shape()[0], num_s + padding_s);
+}
+
+BOOST_AUTO_TEST_CASE(particle_array_p100_s1)
+{
+    const int num = 100;
+    const int num_s = 1;
+
+    Fixture f(num, num_s);
+
+    const int alignment = Bunch::particle_alignment;
+
+    int aligned = cal_aligned(num, alignment);
+    int padding = cal_padding(num, alignment);
+
+    int aligned_s = cal_aligned(num_s, alignment);
+    int padding_s = cal_padding(num_s, alignment);
+
+    MArray2d_ref part = f.bunch.get_local_particles();
+    MArray2d_ref part_s = f.bunch.get_local_spectator_particles();
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num(), num);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_aligned(), aligned);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padding(), padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_padded(), num + padding);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_num_slots(), num + padding);
+    BOOST_CHECK_EQUAL(part.shape()[0], num + padding);
+
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num(), num_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_aligned(), aligned_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padding(), padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_padded(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(f.bunch.get_local_spectator_num_slots(), num_s + padding_s);
+    BOOST_CHECK_EQUAL(part_s.shape()[0], num_s + padding_s);
+}
+
