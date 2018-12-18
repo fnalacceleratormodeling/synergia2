@@ -1070,6 +1070,12 @@ Bunch::get_local_num_padded() const
 }
 
 int
+Bunch::get_local_num_padding() const
+{
+    return local_num_padded - local_num;
+}
+
+int
 Bunch::get_local_num_lost() const
 {
     return local_num_slots - local_num_padded;
@@ -1103,6 +1109,12 @@ int
 Bunch::get_local_spectator_num_padded() const
 {
     return local_s_num_padded;
+}
+
+int
+Bunch::get_local_spectator_num_padding() const
+{
+    return local_s_num_padded - local_s_num;
 }
 
 int

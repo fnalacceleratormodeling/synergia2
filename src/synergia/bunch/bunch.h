@@ -337,6 +337,9 @@ public:
     get_local_num_padded() const;
 
     int
+    get_local_num_padding() const;
+
+    int
     get_local_num_lost() const;
 
     /// Get the total number of macroparticles.
@@ -355,6 +358,9 @@ public:
 
     int
     get_local_spectator_num_padded() const;
+
+    int
+    get_local_spectator_num_padding() const;
 
     int
     get_local_spectator_num_lost() const;
