@@ -40,9 +40,9 @@ public:
     static const int dpop = 5;
     static const int id = 6;
 
-private:
-
     const static int particle_padding;
+
+private:
 
     double longitudinal_extent;    
     bool z_periodic;
