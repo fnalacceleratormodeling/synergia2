@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 import tables
 
-h5 = tables.openFile("loss_diagnostics.h5")
+h5 = tables.open_file("loss_diagnostics.h5")
 
 # s is the longitudinal position of the loss
 s = h5.root.s.read()
