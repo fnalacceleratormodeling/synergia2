@@ -117,7 +117,9 @@ BOOST_PYTHON_MODULE(collective)
                                              init<>())
               .def("apply", &Space_charge_2d_bassetti_erskine::apply)
               .def("set_longitudinal",
-                   &Space_charge_2d_bassetti_erskine::set_longitudinal);
+                   &Space_charge_2d_bassetti_erskine::set_longitudinal)
+              .def("get_longitudinal",
+                   &Space_charge_2d_bassetti_erskine::get_longitudinal);
       scope().attr("longitudinal_uniform") =
           Space_charge_2d_bassetti_erskine::longitudinal_uniform;
       scope().attr("longitudinal_gaussian") =
