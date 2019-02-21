@@ -1,13 +1,15 @@
 #ifndef HDF5_FILE_H_
 #define HDF5_FILE_H_
 #include <string>
-#include "H5Cpp.h"
+#include "hdf5.h"
 #include <boost/shared_ptr.hpp>
 
+#include "synergia/utils/hdf5_misc.h"
 #include "synergia/utils/hdf5_writer.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/commxx.h"
+
 
 class Hdf5_file
 {
@@ -23,7 +25,7 @@ public:
 
 private:
     std::string file_name;
-    H5::H5File * h5file_ptr;
+    Hdf5_handler h5file;
     bool is_open;
     Flag current_flag;
     unsigned int
@@ -57,8 +59,9 @@ public:
     get_atomic_type(std::string const& name);
     std::vector<int >
     get_dims(std::string const& name);
-    H5::H5File &
+    hid_t
     get_h5file();
+
     template<typename T>
         void
         write(T const& data, std::string const& name);

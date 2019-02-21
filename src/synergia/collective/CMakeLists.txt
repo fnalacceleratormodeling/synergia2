@@ -31,6 +31,7 @@ install(FILES
     space_charge_rectangular.h
     impedance.h
     wake_field.h
+    diagnostics_space_charge.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/collective)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES

@@ -106,7 +106,8 @@ def run_a_multipole(lattice_file_name):
     propagator.propagate(bunch_simulator, 1)
     mxp = np.load("./lattices/"+lattice_file_name+".npy")
     lp = bunch.get_local_particles()
-    numpart = lp.shape[0]
+    #numpart = lp.shape[0]
+    numpart = bunch.get_local_num()
     assert(numpart == 32)
     for p in range(numpart):
         for j in range(4):

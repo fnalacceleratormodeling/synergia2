@@ -12,6 +12,8 @@ test_multi_diagnostics_writer
 test_bunch_with_diagnostics
 test_bunch_train
 test_bunch_train_mpi
+test_bunch_mem_layout
+test_bunch_spectator
 test_populate
 
 *.h5

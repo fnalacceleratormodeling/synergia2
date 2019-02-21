@@ -112,7 +112,8 @@ def run_a_multipole(lattice_file_name):
     #     print "lp[%d, :]: "%i, lp[i,:]
     #     print "m8p[%d, :]: "%i, m8p[i,:]
     #     print
-    numpart = lp.shape[0]
+    #numpart = lp.shape[0]
+    numpart = bunch.get_local_num()
     assert(numpart == 32)
     for p in range(numpart):
         for j in [1]:

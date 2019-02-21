@@ -59,7 +59,10 @@ void FF_elens::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const double     m_b = ref_b.get_mass();
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     if ( close_to_zero(length) )
     {
@@ -92,6 +95,27 @@ void FF_elens::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 particles[part][Bunch::yp] = yp;
                 particles[part][Bunch::cdt] = cdt;
             }
+
+            // spectators
+            #pragma omp parallel for
+            for (int part = 0; part < local_s_num; ++part)
+            {
+                double x   (s_particles[part][Bunch::x   ]);
+                double xp  (s_particles[part][Bunch::xp  ]);
+                double y   (s_particles[part][Bunch::y   ]);
+                double yp  (s_particles[part][Bunch::yp  ]);
+                double cdt (s_particles[part][Bunch::cdt ]);
+                double dpop(s_particles[part][Bunch::dpop]);
+
+                FF_algorithm::elens_kick_gaussian(x, xp, y, yp, dpop,
+                        beta_b, gamma_b, beta_e, current_over_e, length, radius);
+
+                s_particles[part][Bunch::x]  = x;
+                s_particles[part][Bunch::xp] = xp;
+                s_particles[part][Bunch::y]  = y;
+                s_particles[part][Bunch::yp] = yp;
+                s_particles[part][Bunch::cdt] = cdt;
+            }
         }
         else
         {
@@ -117,6 +141,27 @@ void FF_elens::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 particles[part][Bunch::y]  = y;
                 particles[part][Bunch::yp] = yp;
                 particles[part][Bunch::cdt] = cdt;
+            }
+
+            // spectators
+            #pragma omp parallel for
+            for (int part = 0; part < local_s_num; ++part)
+            {
+                double x   (s_particles[part][Bunch::x   ]);
+                double xp  (s_particles[part][Bunch::xp  ]);
+                double y   (s_particles[part][Bunch::y   ]);
+                double yp  (s_particles[part][Bunch::yp  ]);
+                double cdt (s_particles[part][Bunch::cdt ]);
+                double dpop(s_particles[part][Bunch::dpop]);
+
+                FF_algorithm::elens_kick_uniform(x, xp, y, yp, dpop,
+                        beta_b, gamma_b, beta_e, current_over_e, length, radius);
+
+                s_particles[part][Bunch::x]  = x;
+                s_particles[part][Bunch::xp] = xp;
+                s_particles[part][Bunch::y]  = y;
+                s_particles[part][Bunch::yp] = yp;
+                s_particles[part][Bunch::cdt] = cdt;
             }
         }
     }
@@ -159,6 +204,33 @@ void FF_elens::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 particles[part][Bunch::yp] = yp;
                 particles[part][Bunch::cdt] = cdt;
             }
+
+            // spectators
+            #pragma omp parallel for
+            for (int part = 0; part < local_s_num; ++part)
+            {
+                double x   (s_particles[part][Bunch::x   ]);
+                double xp  (s_particles[part][Bunch::xp  ]);
+                double y   (s_particles[part][Bunch::y   ]);
+                double yp  (s_particles[part][Bunch::yp  ]);
+                double cdt (s_particles[part][Bunch::cdt ]);
+                double dpop(s_particles[part][Bunch::dpop]);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
+                        length * 0.5, pref_b, m_b, ref_cdt * 0.5);
+
+                FF_algorithm::elens_kick_gaussian(x, xp, y, yp, dpop,
+                        beta_b, gamma_b, beta_e, current_over_e, length, radius);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
+                        length * 0.5, pref_b, m_b, ref_cdt * 0.5);
+
+                s_particles[part][Bunch::x]  = x;
+                s_particles[part][Bunch::xp] = xp;
+                s_particles[part][Bunch::y]  = y;
+                s_particles[part][Bunch::yp] = yp;
+                s_particles[part][Bunch::cdt] = cdt;
+            }
         }
         else
         {
@@ -196,6 +268,33 @@ void FF_elens::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 particles[part][Bunch::y]  = y;
                 particles[part][Bunch::yp] = yp;
                 particles[part][Bunch::cdt] = cdt;
+            }
+
+            // spectators
+            #pragma omp parallel for
+            for (int part = 0; part < local_s_num; ++part)
+            {
+                double x   (s_particles[part][Bunch::x   ]);
+                double xp  (s_particles[part][Bunch::xp  ]);
+                double y   (s_particles[part][Bunch::y   ]);
+                double yp  (s_particles[part][Bunch::yp  ]);
+                double cdt (s_particles[part][Bunch::cdt ]);
+                double dpop(s_particles[part][Bunch::dpop]);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
+                        length * 0.5, pref_b, m_b, ref_cdt * 0.5);
+
+                FF_algorithm::elens_kick_uniform(x, xp, y, yp, dpop,
+                        beta_b, gamma_b, beta_e, current_over_e, length, radius);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, 
+                        length * 0.5, pref_b, m_b, ref_cdt * 0.5);
+
+                s_particles[part][Bunch::x]  = x;
+                s_particles[part][Bunch::xp] = xp;
+                s_particles[part][Bunch::y]  = y;
+                s_particles[part][Bunch::yp] = yp;
+                s_particles[part][Bunch::cdt] = cdt;
             }
         }
     }

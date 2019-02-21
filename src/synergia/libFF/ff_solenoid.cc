@@ -71,7 +71,6 @@ void FF_solenoid::apply(Lattice_element_slice const& slice, JetParticle& jet_par
 void FF_solenoid::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     const double  length = slice.get_right() - slice.get_left();
-    const int  local_num = bunch.get_local_num();
     const double    mass = bunch.get_mass();
 
     // in edge, out edge
@@ -89,49 +88,96 @@ void FF_solenoid::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
 
-    bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-    const int gsvsize = GSVector::size();
-    const int num_blocks = local_num / gsvsize;
-    const int block_last = num_blocks * gsvsize;
-
     if (fabs(ks) < 1e-12)
     {
         // reference cdt
         const double ref_cdt = get_reference_cdt_drift(length, ref_l);
 
         // this is a drift
-        #pragma omp parallel for
-        for (int part = 0; part < block_last; part += gsvsize)
+        // bunch particles
         {
-            GSVector x(&xa[part]);
-            GSVector xp(&xpa[part]);
-            GSVector y(&ya[part]);
-            GSVector yp(&ypa[part]);
-            GSVector cdt(&cdta[part]);
-            GSVector dpop(&dpopa[part]);
+            bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+            const int local_num = bunch.get_local_num();
 
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
+            const int gsvsize = GSVector::size();
+            const int num_blocks = local_num / gsvsize;
+            const int block_last = num_blocks * gsvsize;
 
-            x.store(&xa[part]);
-            y.store(&ya[part]);
-            cdt.store(&cdta[part]);
+            #pragma omp parallel for
+            for (int part = 0; part < block_last; part += gsvsize)
+            {
+                GSVector x(&xa[part]);
+                GSVector xp(&xpa[part]);
+                GSVector y(&ya[part]);
+                GSVector yp(&ypa[part]);
+                GSVector cdt(&cdta[part]);
+                GSVector dpop(&dpopa[part]);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
+
+                x.store(&xa[part]);
+                y.store(&ya[part]);
+                cdt.store(&cdta[part]);
+            }
+
+            for (int part = block_last; part < local_num; ++part)
+            {
+                double x(xa[part]);
+                double xp(xpa[part]);
+                double y(ya[part]);
+                double yp(ypa[part]);
+                double cdt(cdta[part]);
+                double dpop(dpopa[part]);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
+
+                xa[part] = x;
+                ya[part] = y;
+                cdta[part] = cdt;
+            }
         }
 
-        for (int part = block_last; part < local_num; ++part)
+        // bunch spectator particles
         {
-            double x(xa[part]);
-            double xp(xpa[part]);
-            double y(ya[part]);
-            double yp(ypa[part]);
-            double cdt(cdta[part]);
-            double dpop(dpopa[part]);
+            bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+            const int local_num = bunch.get_local_spectator_num();
 
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
+            const int gsvsize = GSVector::size();
+            const int num_blocks = local_num / gsvsize;
+            const int block_last = num_blocks * gsvsize;
 
-            xa[part] = x;
-            ya[part] = y;
-            cdta[part] = cdt;
+            #pragma omp parallel for
+            for (int part = 0; part < block_last; part += gsvsize)
+            {
+                GSVector x(&xa[part]);
+                GSVector xp(&xpa[part]);
+                GSVector y(&ya[part]);
+                GSVector yp(&ypa[part]);
+                GSVector cdt(&cdta[part]);
+                GSVector dpop(&dpopa[part]);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
+
+                x.store(&xa[part]);
+                y.store(&ya[part]);
+                cdt.store(&cdta[part]);
+            }
+
+            for (int part = block_last; part < local_num; ++part)
+            {
+                double x(xa[part]);
+                double xp(xpa[part]);
+                double y(ya[part]);
+                double yp(ypa[part]);
+                double cdt(cdta[part]);
+                double dpop(dpopa[part]);
+
+                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
+
+                xa[part] = x;
+                ya[part] = y;
+                cdta[part] = cdt;
+            }
         }
     }
     else
@@ -150,27 +196,67 @@ void FF_solenoid::apply(Lattice_element_slice const& slice, Bunch& bunch)
         const double ref_cdt = get_reference_cdt_solenoid(length, ref_l, 
                 has_in_edge, has_out_edge, ks, kse, ksl);
 
-        #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part)
+        // bunch particles
         {
-            // in edge
-            if (has_in_edge)
-            {
-                FF_algorithm::solenoid_in_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
-            }
+            bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+            const int local_num = bunch.get_local_num();
 
-            // body
-            FF_algorithm::solenoid_unit(
-                    xa[part], xpa[part], ya[part], ypa[part], cdta[part], dpopa[part],
-                    ksl, ks, length, ref_p, mass, ref_cdt );
+            const int gsvsize = GSVector::size();
+            const int num_blocks = local_num / gsvsize;
+            const int block_last = num_blocks * gsvsize;
 
-            // out edge
-            if (has_out_edge)
+            #pragma omp parallel for
+            for (int part = 0; part < local_num; ++part)
             {
-                FF_algorithm::solenoid_out_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
+                // in edge
+                if (has_in_edge)
+                {
+                    FF_algorithm::solenoid_in_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
+                }
+
+                // body
+                FF_algorithm::solenoid_unit(
+                        xa[part], xpa[part], ya[part], ypa[part], cdta[part], dpopa[part],
+                        ksl, ks, length, ref_p, mass, ref_cdt );
+
+                // out edge
+                if (has_out_edge)
+                {
+                    FF_algorithm::solenoid_out_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
+                }
             }
         }
 
+        // bunch spectator particles
+        {
+            bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+            const int local_num = bunch.get_local_spectator_num();
+
+            const int gsvsize = GSVector::size();
+            const int num_blocks = local_num / gsvsize;
+            const int block_last = num_blocks * gsvsize;
+
+            #pragma omp parallel for
+            for (int part = 0; part < local_num; ++part)
+            {
+                // in edge
+                if (has_in_edge)
+                {
+                    FF_algorithm::solenoid_in_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
+                }
+
+                // body
+                FF_algorithm::solenoid_unit(
+                        xa[part], xpa[part], ya[part], ypa[part], cdta[part], dpopa[part],
+                        ksl, ks, length, ref_p, mass, ref_cdt );
+
+                // out edge
+                if (has_out_edge)
+                {
+                    FF_algorithm::solenoid_out_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
+                }
+            }
+        }
     }
 
     bunch.get_reference_particle().increment_trajectory(length);

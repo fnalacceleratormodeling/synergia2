@@ -106,7 +106,8 @@ def run_a_misc_element(elem_name, places=13):
     propagator.propagate(bunch_simulator, 1)
     m8p = np.load("./lattices/"+elem_name+".npy")
     lp = bunch.get_local_particles()
-    numpart = lp.shape[0]
+    #numpart = lp.shape[0]
+    numpart = bunch.get_local_num()
     assert(numpart == 32)
     for p in range(numpart):
         print "    particle ", p

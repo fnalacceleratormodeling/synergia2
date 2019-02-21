@@ -133,7 +133,8 @@ def run_misc(elem_name):
 
     m8lp = m8bunch.get_local_particles()
     mxlp = mxbunch.get_local_particles()
-    numpart = mxlp.shape[0]
+    #numpart = mxlp.shape[0]
+    numpart = mxbunch.get_local_num()
     assert(numpart == 16)
     for p in range(numpart):
         for j in range(4):
@@ -156,7 +157,8 @@ def run_multipole(elem_name):
 
     m8lp = m8bunch.get_local_particles()
     mxlp = mxbunch.get_local_particles()
-    numpart = mxlp.shape[0]
+    #numpart = mxlp.shape[0]
+    numpart = mxbunch.get_local_num()
     assert(numpart == 16)
     for p in range(numpart):
         for j in range(4):

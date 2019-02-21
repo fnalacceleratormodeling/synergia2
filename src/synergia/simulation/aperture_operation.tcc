@@ -37,16 +37,26 @@ template<typename T>
         MArray1d coords(boost::extents[7]);
 
         MArray2d_ref particles(bunch.get_local_particles());
+        MArray2d_ref s_particles(bunch.get_local_spectator_particles());
+
         int npart = bunch.get_local_num();
+        int npart_s = bunch.get_local_spectator_num();
 
         int * discard = new int[npart];
         int * discard_count = new int[nt];
 
+        int * discard_s = new int[npart_s];
+        int * discard_s_count = new int[nt];
+
         int part_per_thread = npart / nt;
-        #pragma omp parallel shared(nt, npart, particles, discard, discard_count)
+        int s_part_per_thread = npart_s / nt;
+
+        #pragma omp parallel shared(nt, npart, npart_s, particles, s_particles, discard, discard_s, discard_count, discard_s_count)
         {
             int it = omp_get_thread_num();
+
             discard_count[it] = 0;
+            discard_s_count[it] = 0;
 
             int s = it * part_per_thread;
             int e = (it==nt-1) ? npart : (s+part_per_thread);
@@ -63,51 +73,206 @@ template<typename T>
                     discard[part] = 0;
                 }
             }
+
+            s = it * s_part_per_thread;
+            e = (it==nt-1) ? npart_s : (s + s_part_per_thread);
+
+            for (int part = s; part < e; ++part)
+            {
+                if (t(s_particles, part)) 
+                {
+                    discard_s[part] = 1;
+                    ++discard_s_count[it];
+                }
+                else
+                {
+                    discard_s[part] = 0;
+                }
+            }
         }
 
+        // number of discarded particles
         int discarded = 0;
-        for (int i=0; i<nt; ++i) discarded += discard_count[i];
+        int discarded_s = 0;
 
-        int head = 0;
-        int tail = npart - 1;
-
-        do
+        for (int i=0; i<nt; ++i) 
         {
-            while (!discard[head] && head<tail) ++head;
-            if (head >= tail) break;
+            discarded += discard_count[i];
+            discarded_s += discard_s_count[i];
+        }
 
-            while ( discard[tail] && tail>head) --tail;
-            if (head >= tail) break;
+        // arrange the particle array
+        {
+            // move all the discarded particles to the tail
+            int head = 0;
+            int tail = npart - 1;
 
-            particles[head][0] = particles[tail][0];
-            particles[head][1] = particles[tail][1];
-            particles[head][2] = particles[tail][2];
-            particles[head][3] = particles[tail][3];
-            particles[head][4] = particles[tail][4];
-            particles[head][5] = particles[tail][5];
-            particles[head][6] = particles[tail][6];
+            do
+            {
+                while (!discard[head] && head<tail) ++head;
+                if (head >= tail) break;
 
-            ++head;
-            --tail;
+                while ( discard[tail] && tail>head) --tail;
+                if (head >= tail) break;
 
-        } while(head < tail);
+                double p0 = particles[head][0];
+                double p1 = particles[head][1];
+                double p2 = particles[head][2];
+                double p3 = particles[head][3];
+                double p4 = particles[head][4];
+                double p5 = particles[head][5];
+                double p6 = particles[head][6];
 
-        double charge = (discarded > 0) ? discarded * bunch.get_real_num() / bunch.get_total_num() : 0.0;
+                particles[head][0] = particles[tail][0];
+                particles[head][1] = particles[tail][1];
+                particles[head][2] = particles[tail][2];
+                particles[head][3] = particles[tail][3];
+                particles[head][4] = particles[tail][4];
+                particles[head][5] = particles[tail][5];
+                particles[head][6] = particles[tail][6];
 
-        deposit_charge(charge);
-        bunch.set_local_num(npart - discarded);
+                particles[tail][0] = p0;
+                particles[tail][1] = p1;
+                particles[tail][2] = p2;
+                particles[tail][3] = p3;
+                particles[tail][4] = p4;
+                particles[tail][5] = p5;
+                particles[tail][6] = p6;
+
+                ++head;
+                --tail;
+
+            } while(head < tail);
+
+            // move some lost particles over to the padding area
+            int padded  = bunch.get_local_num_padded();
+            int padding = padded - npart;
+            int np = discarded < padding ? discarded : padding;
+
+            for (int i=0; i<np; ++i)
+            {
+                // pl: position of next lost particle
+                // pp: position of next padding slot
+                int pl = npart - discarded + i;
+                int pp = padded - 1 - i;
+
+                // copy the lost particle over to the padding slot
+                particles[pp][0] = particles[pl][0];
+                particles[pp][1] = particles[pl][1];
+                particles[pp][2] = particles[pl][2];
+                particles[pp][3] = particles[pl][3];
+                particles[pp][4] = particles[pl][4];
+                particles[pp][5] = particles[pl][5];
+                particles[pp][6] = particles[pl][6];
+
+                // makes pl the new padding slot
+                particles[pl][0] = 0.0;
+                particles[pl][1] = 0.0;
+                particles[pl][2] = 0.0;
+                particles[pl][3] = 0.0;
+                particles[pl][4] = 0.0;
+                particles[pl][5] = 0.0;
+                particles[pl][6] = 0.0;
+            }
+
+            // finalize the bunch for new particle array pointers
+            double charge = (discarded > 0) ? discarded * bunch.get_real_num() / bunch.get_total_num() : 0.0;
+            deposit_charge(charge);
+            bunch.set_local_num(npart - discarded);
+        }
+
+        // arrange the spectator particle array
+        {
+            // move all the discarded spectator particles to the tail
+            int head = 0;
+            int tail = npart_s - 1;
+
+            do
+            {
+                while (!discard_s[head] && head<tail) ++head;
+                if (head >= tail) break;
+
+                while ( discard_s[tail] && tail>head) --tail;
+                if (head >= tail) break;
+
+                double p0 = s_particles[head][0];
+                double p1 = s_particles[head][1];
+                double p2 = s_particles[head][2];
+                double p3 = s_particles[head][3];
+                double p4 = s_particles[head][4];
+                double p5 = s_particles[head][5];
+                double p6 = s_particles[head][6];
+
+                s_particles[head][0] = s_particles[tail][0];
+                s_particles[head][1] = s_particles[tail][1];
+                s_particles[head][2] = s_particles[tail][2];
+                s_particles[head][3] = s_particles[tail][3];
+                s_particles[head][4] = s_particles[tail][4];
+                s_particles[head][5] = s_particles[tail][5];
+                s_particles[head][6] = s_particles[tail][6];
+
+                s_particles[tail][0] = p0;
+                s_particles[tail][1] = p1;
+                s_particles[tail][2] = p2;
+                s_particles[tail][3] = p3;
+                s_particles[tail][4] = p4;
+                s_particles[tail][5] = p5;
+                s_particles[tail][6] = p6;
+
+                ++head;
+                --tail;
+
+            } while(head < tail);
+
+            // move some lost spectator particles over to the padding area
+            int padded  = bunch.get_local_spectator_num_padded();
+            int padding = padded - npart_s;
+            int np = discarded_s < padding ? discarded_s : padding;
+
+            for (int i=0; i<np; ++i)
+            {
+                // pl: position of next lost particle
+                // pp: position of next padding slot
+                int pl = npart - discarded + i;
+                int pp = padded - 1 - i;
+
+                // copy the lost particle over to the padding slot
+                s_particles[pp][0] = s_particles[pl][0];
+                s_particles[pp][1] = s_particles[pl][1];
+                s_particles[pp][2] = s_particles[pl][2];
+                s_particles[pp][3] = s_particles[pl][3];
+                s_particles[pp][4] = s_particles[pl][4];
+                s_particles[pp][5] = s_particles[pl][5];
+                s_particles[pp][6] = s_particles[pl][6];
+
+                // makes pl the new padding slot
+                s_particles[pl][0] = 0.0;
+                s_particles[pl][1] = 0.0;
+                s_particles[pl][2] = 0.0;
+                s_particles[pl][3] = 0.0;
+                s_particles[pl][4] = 0.0;
+                s_particles[pl][5] = 0.0;
+                s_particles[pl][6] = 0.0;
+            }
+
+            bunch.set_local_spectator_num(npart_s - discarded_s);
+        }
 
         double t1 = MPI_Wtime();
         if (verbosity > 5) 
         {
             logger << "Aperture_operation: type = " << get_aperture_type()
                    << ", discarded: " << discarded
+                   << ", discarded spectators: " << discarded_s
                    << ", time = " << std::fixed << std::setprecision(3) << t1
                     - t0 << "s_n" << std::endl;
         }
 
         delete [] discard;
         delete [] discard_count;
+
+        delete [] discard_s;
+        delete [] discard_s_count;
     }
 
 

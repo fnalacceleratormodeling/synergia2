@@ -361,7 +361,10 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double ds_edge_ky = 0.0;
 
     int local_num = bunch.get_local_num();
+    int local_s_num = bunch.get_local_spectator_num();
+
     MArray2d_ref particles = bunch.get_local_particles();
+    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
     if (cf==0)
     {
@@ -413,48 +416,98 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         ref_l.set_state(x_l, xp_l, y_l, yp_l, cdt_l, dpop_l);
         double ref_cdt = cdt_l;
 
-        #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part)
+        // bunch particles
         {
-            double x   (particles[part][Bunch::x   ]);
-            double xp  (particles[part][Bunch::xp  ]);
-            double y   (particles[part][Bunch::y   ]);
-            double yp  (particles[part][Bunch::yp  ]);
-            double cdt (particles[part][Bunch::cdt ]);
-            double dpop(particles[part][Bunch::dpop]);
-
-            if (ledge)
+            #pragma omp parallel for
+            for (int part = 0; part < local_num; ++part)
             {
-                // upstream slot
-                FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref_b, m_b);
+                double x   (particles[part][Bunch::x   ]);
+                double xp  (particles[part][Bunch::xp  ]);
+                double y   (particles[part][Bunch::y   ]);
+                double yp  (particles[part][Bunch::yp  ]);
+                double cdt (particles[part][Bunch::cdt ]);
+                double dpop(particles[part][Bunch::dpop]);
 
-                // upstream edge
-                // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
-                // FF_algorithm::edge_unit(y, xp, yp, dpop, edge_k_p); // edge kick based on particle angle
-                FF_algorithm::edge_unit(y, xp, yp, us_edge_kx, us_edge_ky, 0);
+                if (ledge)
+                {
+                    // upstream slot
+                    FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref_b, m_b);
+
+                    // upstream edge
+                    // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
+                    // FF_algorithm::edge_unit(y, xp, yp, dpop, edge_k_p); // edge kick based on particle angle
+                    FF_algorithm::edge_unit(y, xp, yp, us_edge_kx, us_edge_ky, 0);
+                }
+
+                // bend
+                // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
+                FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
+                        dphi, eB, pref_b, m_b, ref_cdt, phase, term);
+
+                if (redge)
+                {
+                    // downstream edge
+                    // FF_algorithm::edge_unit(y, yp, -edge_k);             // edge kick based on closed orbit
+                    // FF_algorithm::edge_unit(y, xp, yp, dpop, -edge_k_p); // edge kick based on particle angle
+                    FF_algorithm::edge_unit(y, xp, yp, ds_edge_kx, ds_edge_ky, 0);
+
+                    // downstream slot
+                    FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref_b, m_b);
+                }
+
+                particles[part][Bunch::x]   = x;
+                particles[part][Bunch::xp]  = xp;
+                particles[part][Bunch::y]   = y;
+                particles[part][Bunch::yp]  = yp;
+                particles[part][Bunch::cdt] = cdt;
             }
+        }
 
-            // bend
-            // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
-            FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
-                    dphi, eB, pref_b, m_b, ref_cdt, phase, term);
-
-            if (redge)
+        // bunch spectator particles
+        {
+            #pragma omp parallel for
+            for (int part = 0; part < local_s_num; ++part)
             {
-                // downstream edge
-                // FF_algorithm::edge_unit(y, yp, -edge_k);             // edge kick based on closed orbit
-                // FF_algorithm::edge_unit(y, xp, yp, dpop, -edge_k_p); // edge kick based on particle angle
-                FF_algorithm::edge_unit(y, xp, yp, ds_edge_kx, ds_edge_ky, 0);
+                double x   (s_particles[part][Bunch::x   ]);
+                double xp  (s_particles[part][Bunch::xp  ]);
+                double y   (s_particles[part][Bunch::y   ]);
+                double yp  (s_particles[part][Bunch::yp  ]);
+                double cdt (s_particles[part][Bunch::cdt ]);
+                double dpop(s_particles[part][Bunch::dpop]);
 
-                // downstream slot
-                FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref_b, m_b);
+                if (ledge)
+                {
+                    // upstream slot
+                    FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref_b, m_b);
+
+                    // upstream edge
+                    // FF_algorithm::edge_unit(y, yp, edge_k);             // edge kick based on closed orbit
+                    // FF_algorithm::edge_unit(y, xp, yp, dpop, edge_k_p); // edge kick based on particle angle
+                    FF_algorithm::edge_unit(y, xp, yp, us_edge_kx, us_edge_ky, 0);
+                }
+
+                // bend
+                // FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
+                FF_algorithm::bend_unit(x, xp, y, yp, cdt, dpop,
+                        dphi, eB, pref_b, m_b, ref_cdt, phase, term);
+
+                if (redge)
+                {
+                    // downstream edge
+                    // FF_algorithm::edge_unit(y, yp, -edge_k);             // edge kick based on closed orbit
+                    // FF_algorithm::edge_unit(y, xp, yp, dpop, -edge_k_p); // edge kick based on particle angle
+                    FF_algorithm::edge_unit(y, xp, yp, ds_edge_kx, ds_edge_ky, 0);
+
+                    // downstream slot
+                    FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref_b, m_b);
+                }
+
+                s_particles[part][Bunch::x]   = x;
+                s_particles[part][Bunch::xp]  = xp;
+                s_particles[part][Bunch::y]   = y;
+                s_particles[part][Bunch::yp]  = yp;
+                s_particles[part][Bunch::cdt] = cdt;
             }
-
-            particles[part][Bunch::x]   = x;
-            particles[part][Bunch::xp]  = xp;
-            particles[part][Bunch::y]   = y;
-            particles[part][Bunch::yp]  = yp;
-            particles[part][Bunch::cdt] = cdt;
         }
     }
     else
@@ -597,63 +650,125 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double step_ref_cdt = ref_cdt / steps;
 
         // with combined function
-        #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part)
+        // bunch particles
         {
-            double x   (particles[part][Bunch::x   ]);
-            double xp  (particles[part][Bunch::xp  ]);
-            double y   (particles[part][Bunch::y   ]);
-            double yp  (particles[part][Bunch::yp  ]);
-            double cdt (particles[part][Bunch::cdt ]);
-            double dpop(particles[part][Bunch::dpop]);
-
-            if (ledge)
+            #pragma omp parallel for
+            for (int part = 0; part < local_num; ++part)
             {
-                // slot
-                FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref_b, m_b);
+                double x   (particles[part][Bunch::x   ]);
+                double xp  (particles[part][Bunch::xp  ]);
+                double y   (particles[part][Bunch::y   ]);
+                double yp  (particles[part][Bunch::yp  ]);
+                double cdt (particles[part][Bunch::cdt ]);
+                double dpop(particles[part][Bunch::dpop]);
 
-                // edge
-                //FF_algorithm::edge_unit(y, yp, us_edge_k);
-                //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
-                FF_algorithm::edge_unit(y, xp, yp, us_edge_kx, us_edge_ky, 0);
+                if (ledge)
+                {
+                    // slot
+                    FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref_b, m_b);
 
-                // bend edge (thin, but with face angle)
-                FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref_b, m_b);
+                    // edge
+                    //FF_algorithm::edge_unit(y, yp, us_edge_k);
+                    //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+                    FF_algorithm::edge_unit(y, xp, yp, us_edge_kx, us_edge_ky, 0);
+
+                    // bend edge (thin, but with face angle)
+                    FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref_b, m_b);
+                }
+
+                // bend body
+                FF_algorithm::bend_yoshida6< double, 
+                                             FF_algorithm::rbend_thin_cf_kick<double>, 
+                                             FF_algorithm::rbend_unit_phase,
+                                             FF_algorithm::rbend_unit_term,
+                                             FF_algorithm::rbend_dphi,
+                                             2 >
+                    ( x, xp, y, yp, cdt, dpop,
+                      pref_b, m_b, step_ref_cdt,
+                      step_length, step_kl_b,
+                      rho_l, strength, steps );
+
+                if (redge)
+                {
+                    // bend edge (thin, but with face angle)
+                    FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref_b, m_b);
+
+                    // edge
+                    //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+                    //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                    FF_algorithm::edge_unit(y, xp, yp, ds_edge_kx, ds_edge_ky, 0);
+
+                    // slot
+                    FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref_b, m_b);
+                }
+
+                particles[part][Bunch::x]  = x;
+                particles[part][Bunch::xp] = xp;
+                particles[part][Bunch::y]  = y;
+                particles[part][Bunch::yp] = yp;
+                particles[part][Bunch::cdt] = cdt;
             }
-
-            // bend body
-            FF_algorithm::bend_yoshida6< double, 
-                                         FF_algorithm::rbend_thin_cf_kick<double>, 
-                                         FF_algorithm::rbend_unit_phase,
-                                         FF_algorithm::rbend_unit_term,
-                                         FF_algorithm::rbend_dphi,
-                                         2 >
-                ( x, xp, y, yp, cdt, dpop,
-                  pref_b, m_b, step_ref_cdt,
-                  step_length, step_kl_b,
-                  rho_l, strength, steps );
-
-            if (redge)
-            {
-                // bend edge (thin, but with face angle)
-                FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref_b, m_b);
-
-                // edge
-                //FF_algorithm::edge_unit(y, yp, ds_edge_k);
-                //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
-                FF_algorithm::edge_unit(y, xp, yp, ds_edge_kx, ds_edge_ky, 0);
-
-                // slot
-                FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref_b, m_b);
-            }
-
-            particles[part][Bunch::x]  = x;
-            particles[part][Bunch::xp] = xp;
-            particles[part][Bunch::y]  = y;
-            particles[part][Bunch::yp] = yp;
-            particles[part][Bunch::cdt] = cdt;
         }
 
+        // bunch spectator particles
+        {
+            #pragma omp parallel for
+            for (int part = 0; part < local_s_num; ++part)
+            {
+                double x   (s_particles[part][Bunch::x   ]);
+                double xp  (s_particles[part][Bunch::xp  ]);
+                double y   (s_particles[part][Bunch::y   ]);
+                double yp  (s_particles[part][Bunch::yp  ]);
+                double cdt (s_particles[part][Bunch::cdt ]);
+                double dpop(s_particles[part][Bunch::dpop]);
+
+                if (ledge)
+                {
+                    // slot
+                    FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce1, se1, pref_b, m_b);
+
+                    // edge
+                    //FF_algorithm::edge_unit(y, yp, us_edge_k);
+                    //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+                    FF_algorithm::edge_unit(y, xp, yp, us_edge_kx, us_edge_ky, 0);
+
+                    // bend edge (thin, but with face angle)
+                    FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e1, phase_e1, strength, pref_b, m_b);
+                }
+
+                // bend body
+                FF_algorithm::bend_yoshida6< double, 
+                                             FF_algorithm::rbend_thin_cf_kick<double>, 
+                                             FF_algorithm::rbend_unit_phase,
+                                             FF_algorithm::rbend_unit_term,
+                                             FF_algorithm::rbend_dphi,
+                                             2 >
+                    ( x, xp, y, yp, cdt, dpop,
+                      pref_b, m_b, step_ref_cdt,
+                      step_length, step_kl_b,
+                      rho_l, strength, steps );
+
+                if (redge)
+                {
+                    // bend edge (thin, but with face angle)
+                    FF_algorithm::bend_edge(x, xp, y, yp, cdt, dpop, e2, phase_e2, strength, pref_b, m_b);
+
+                    // edge
+                    //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+                    //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                    FF_algorithm::edge_unit(y, xp, yp, ds_edge_kx, ds_edge_ky, 0);
+
+                    // slot
+                    FF_algorithm::slot_unit(x, xp, y, yp, cdt, dpop, ce2, se2, pref_b, m_b);
+                }
+
+                s_particles[part][Bunch::x]  = x;
+                s_particles[part][Bunch::xp] = xp;
+                s_particles[part][Bunch::y]  = y;
+                s_particles[part][Bunch::yp] = yp;
+                s_particles[part][Bunch::cdt] = cdt;
+            }
+        }
     }
 
     bunch.get_reference_particle().increment_trajectory(slice_l);

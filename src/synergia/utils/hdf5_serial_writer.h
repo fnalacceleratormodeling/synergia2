@@ -2,7 +2,8 @@
 #define HDF5_SERIAL_WRITER_H_
 #include <vector>
 #include <string>
-#include "H5Cpp.h"
+
+#include "hdf5.h"
 
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/serialization.h"
@@ -14,9 +15,11 @@ template<typename T>
         std::vector<hsize_t > dims, max_dims, size, offset;
         int data_rank;
         std::string name;
+
         Hdf5_file_sptr file_sptr;
-        H5::DataSet dataset;
-        H5::DataType atomic_type;
+        Hdf5_handler dataset;
+        Hdf5_handler atomic_type;
+
         bool have_setup;
         bool resume;
         size_t data_size;
