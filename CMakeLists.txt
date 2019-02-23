@@ -1,22 +1,27 @@
-project(SYNERGIA2)
-if (CMAKE_VERSION VERSION_GREATER 3.0.0)
-        set(CMAKE_CXX_STANDARD 98)
-    else ()
-            add_compile_options(-std=c++98)
-        endif ()
-set(SYNERGIA_MAJOR_VERSION 2)
-set(SYNERGIA_MINOR_VERSION 0)
-set(SYNERGIA_SUBMINOR_VERSION 90)
-
-cmake_minimum_required(VERSION 2.8)
-enable_testing()
-set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 # needed to avoid warnings about rpath policy on Mac OSX
 # no known difference between "OLD" and "NEW" policies for us
 if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
+
+# get version number generation right
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif()
+
+project(SYNERGIA2 VERSION 2.0.90 LANGUAGES CXX C)
+
+enable_testing()
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register -Wall -Wno-potentially-evaluated-expression -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register -Wno-potentially-evaluated-expression -Werror -fsanitize=undefined")
 
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
@@ -34,7 +39,7 @@ endif ()
 # MPI
 FIND_PACKAGE(MPI REQUIRED CXX)
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
-if(${MPI_VERSION} MATCHES "OpenRTE.* 3")
+if(${MPI_VERSION} MATCHES "OpenRTE.* ")
     set(MPI_OVERSUBSCRIBE_FLAG "--oversubscribe")
 else ()
     set(MPI_OVERSUBSCRIBE_FLAG "")
