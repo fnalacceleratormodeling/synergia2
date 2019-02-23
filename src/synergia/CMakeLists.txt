@@ -13,11 +13,9 @@ add_subdirectory(tools)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/synergia.cc.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/synergia.cc" IMMEDIATE)
+configure_file("synergia.cc.in" "synergia.cc")
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.py.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/version.py" IMMEDIATE)
+configure_file("version.py.in" "version.py")
 
 add_library(synergia ${CMAKE_CURRENT_BINARY_DIR}/synergia.cc)
 target_link_libraries(synergia synergia_parallel_utils synergia_hdf5_utils
