@@ -3,20 +3,20 @@
 int
 synergia_major_version()
 {
-    const int major_version = ${SYNERGIA_MAJOR_VERSION};
+    const int major_version = ${SYNERGIA2_VERSION_MAJOR};
     return major_version;
 }
 
 int
 synergia_minor_version()
 {
-    const int minor_version = ${SYNERGIA_MINOR_VERSION};
+    const int minor_version = ${SYNERGIA2_VERSION_MINOR};
     return minor_version;
 }
 
 int
 synergia_subminor_version()
 {
-    const int subminor_version = ${SYNERGIA_SUBMINOR_VERSION};
+    const int subminor_version = ${SYNERGIA2_VERSION_PATCH};
     return subminor_version;
 }
