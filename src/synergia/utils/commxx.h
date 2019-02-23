@@ -39,7 +39,7 @@ public:
 
     /// Construct a Commxx object, optionally creating separate communicators on each
     /// unique host for communication avoidance
-    Commxx(bool per_host);
+    explicit Commxx(bool per_host);
 
     /// Construct a Commxx object based on the parent communicator, optionally
     /// creating separate communicators on each unique host for communication avoidance
