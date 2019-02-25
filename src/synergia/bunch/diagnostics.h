@@ -64,14 +64,12 @@ public:
     write() = 0;
     /// Update the diagnostics and write them to the file
     virtual void
-    update_and_write()
-    {
-        update();
-        write();
-    }
+    update_and_write();
+
     template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
+     void
+    serialize(Archive & ar, const unsigned int version);
+
     virtual
     ~Diagnostics();
 };

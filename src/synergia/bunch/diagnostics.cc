@@ -51,6 +51,13 @@ Diagnostics::get_bunch()
 }
 
 void
+Diagnostics::update_and_write()
+{
+    update();
+    write();
+}
+
+void
 Diagnostics::delete_write_helper_ptr()
 {
     if (have_write_helper_) {
