@@ -33,13 +33,6 @@ Analysis::Analysis(std::string const& fname, size_t maxTurn):
    compute_betatron_tunes(false);   
 }
 
-Analysis::~Analysis() 
-{ 
-//  std::cerr << " Trying to close the file .. " << file.getFileName() << std::endl;
-//  file.close();
-//  std::cerr << " ...... closed it ....  " << std::endl;
-}
-
 void Analysis::uploadCoords() {
 
   numTurns=0;

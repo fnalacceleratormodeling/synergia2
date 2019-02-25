@@ -34,23 +34,22 @@ private:
                      // [TurnNumber][ParticlesNumber][2], X or Y
 
 public:
-    Analysis(std::string const& filename, size_t maxTurn=0);
-    ~Analysis();
-    
+    explicit Analysis(std::string const& filename, size_t maxTurn=0);
+
     double get_betatron_averaged_tune(bool isHorizontal);
     double get_betatron_tune_spread(bool isHorizontal);
     std::vector<double> get_betatron_tunes(bool isHorizontal);
     std::vector<double> get_XCoords_forTunes(size_t selectedParticle) const ;
     std::vector<double> get_YCoords_forTunes(size_t selectedParticle) const ;
-    inline size_t get_num_betatron_tune_found(bool isHorizontal) const {
+    size_t get_num_betatron_tune_found(bool isHorizontal) const {
        if (isHorizontal) return numXTunesFound; else return numYTunesFound; return 0;
     } 
  
-    inline void set_minimum_required_turn_Num(size_t n) {minimumRequiredTurnNum=n;}
-    inline size_t get_minimum_required_turn_Num() const {return minimumRequiredTurnNum;}
+    void set_minimum_required_turn_Num(size_t n) {minimumRequiredTurnNum=n;}
+    size_t get_minimum_required_turn_Num() const {return minimumRequiredTurnNum;}
     
-    inline int get_num_turns() const {return numTurns;}
-    inline int get_num_part_first_bunch() const {return numParticles1rstBunch;}
+    int get_num_turns() const {return numTurns;}
+    int get_num_part_first_bunch() const {return numParticles1rstBunch;}
     std::vector<double> get_transverse_action_for_particle(bool isH,  size_t selectedParticle,
                                                            double alpha, double beta) const;
     std::vector<double> get_transverse_action_for_bunch(bool isH,  size_t turnNumber, 
