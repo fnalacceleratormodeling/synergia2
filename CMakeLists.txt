@@ -21,7 +21,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register -Wall -Wno-potentially-evaluated-expression -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register -Wno-potentially-evaluated-expression -Werror -fsanitize=undefined")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register -Wno-potentially-evaluated-expression -Wall -Werror")
 
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
