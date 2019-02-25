@@ -54,15 +54,19 @@ private:
     bool have_domains;
     std::string exfile, eyfile;
     bool dumped;
+    boost::shared_ptr<Raw_MArray2d > particle_bin_sptr;
+
     void
     setup_communication(Commxx_sptr const& bunch_comm_sptr);
+
     void
     setup_derived_communication();
+
     void
     setup_default_options();
+
     void
     set_doubled_domain();
-    boost::shared_ptr<Raw_MArray2d > particle_bin_sptr;
 
 public:
     Space_charge_2d_open_hockney(Commxx_divider_sptr commxx_divider_sptr,
@@ -207,7 +211,7 @@ public:
         }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     virtual
-    ~Space_charge_2d_open_hockney();
+    ~Space_charge_2d_open_hockney() = default;
 };
 BOOST_CLASS_EXPORT_KEY(Space_charge_2d_open_hockney)
 

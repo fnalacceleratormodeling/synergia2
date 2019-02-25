@@ -171,7 +171,7 @@ public:
     /// @param map_order order for Chef_map operations
     Lattice_simulator(Lattice_sptr lattice_sptr, int map_order);
     // Default constructor for serialization use only
-    Lattice_simulator();
+    Lattice_simulator() = default;
     Lattice_simulator(Lattice_simulator const& lattice_simulator);
     void
     set_slices(Lattice_element_slices const& slices);
@@ -326,8 +326,6 @@ public:
         load(Archive & ar, const unsigned int version);
 
     BOOST_SERIALIZATION_SPLIT_MEMBER();
-
-    ~Lattice_simulator();
 };
 
 #include "synergia/simulation/dense_mapping.h"
@@ -338,7 +336,6 @@ private:
 public:
     Dense_mapping_calculator(Lattice_simulator& lattice_simulator, bool closed_orbit);
     Dense_mapping get_dense_mappping(Lattice_element& lattice_element);
-    ~Dense_mapping_calculator();
 };
 
 #endif /* LATTICE_SIMULATOR_H_ */

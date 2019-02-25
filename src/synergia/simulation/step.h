@@ -18,14 +18,16 @@ class Step
 private:
     Operators operators;
     std::list<double > time_fractions;
-    double length;
+    double length = 0.0;
     std::vector<double > step_betas;
    
 
 public:
-    Step(double length);
+    explicit Step(double length);
     // Default constructor for serialization use only
-    Step();
+    Step() = default;
+    virtual ~Step() = default;
+
     void
     append(Operator_sptr operator_sptr, double time_fraction);
     void

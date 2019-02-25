@@ -461,12 +461,9 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 have_slices(false),
                 chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
                 extractor_map_sptr(new Operation_extractor_map),
-                aperture_extractor_map_sptr(
-                        new Aperture_operation_extractor_map),              
+                aperture_extractor_map_sptr(new Aperture_operation_extractor_map),
                 map_order(map_order),
                 bucket_length(0.),
-                rf_bucket_length(0.),                
-                closed_orbit_length(0.),
                 have_element_lattice_functions(false),
                 have_slice_lattice_functions(false),
                 have_element_et_lattice_functions(false),
@@ -475,7 +472,6 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 have_slice_lb_lattice_functions(false),
                 have_element_dispersion(false),
                 have_slice_dispersion(false),
-                have_close_orbit_registered(false),
                 horizontal_tune(0.0),
                 vertical_tune(0.0),
                 have_tunes(false),
@@ -487,32 +483,35 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 alt_horizontal_chromaticity(0.0),
                 alt_vertical_chromaticity(0.0),
                 have_alt_chromaticities(false),
+                closed_orbit_length(0.),
+                rf_bucket_length(0.),
+                have_close_orbit_registered(false),
                 momentum_compaction(0.0),
                 slip_factor(0.0),
-                slip_factor_prime(0.0)            
-
+                slip_factor_prime(0.0),
+                lattice_functions_element_map(),
+                lattice_functions_slice_map(),
+                et_lattice_functions_element_map(),
+                lb_lattice_functions_element_map(),
+                lb_lattice_functions_slice_map(),
+                dispersion_element_map(),
+                dispersion_slice_map()
 {
     construct_extractor_map();
     construct_aperture_extractor_map();    
     set_bucket_length();
 }
 
-Lattice_simulator::Lattice_simulator()
-{
-}
-
+// TODO: is a copy of a Lattice_simulator equal to the original from which it was copied?
 Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator) :
                 lattice_sptr(lattice_simulator.lattice_sptr),
                 slices(),
                 have_slices(false),
                 chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
                 extractor_map_sptr(new Operation_extractor_map),
-                aperture_extractor_map_sptr(
-                        new Aperture_operation_extractor_map),             
+                aperture_extractor_map_sptr(new Aperture_operation_extractor_map),
                 map_order(lattice_simulator.map_order),
                 bucket_length(lattice_simulator.bucket_length),
-                rf_bucket_length(lattice_simulator.rf_bucket_length),
-                closed_orbit_length(lattice_simulator.closed_orbit_length),
                 have_element_lattice_functions(false),
                 have_slice_lattice_functions(false),
                 have_element_et_lattice_functions(false),
@@ -521,7 +520,6 @@ Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator)
                 have_slice_lb_lattice_functions(false),
                 have_element_dispersion(false),
                 have_slice_dispersion(false),
-                have_close_orbit_registered(lattice_simulator.have_close_orbit_registered),
                 horizontal_tune(0.0),
                 vertical_tune(0.0),
                 have_tunes(false),
@@ -533,6 +531,9 @@ Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator)
                 alt_horizontal_chromaticity(0.0),
                 alt_vertical_chromaticity(0.0),
                 have_alt_chromaticities(false),
+                closed_orbit_length(lattice_simulator.closed_orbit_length),
+                rf_bucket_length(lattice_simulator.rf_bucket_length),
+                have_close_orbit_registered(lattice_simulator.have_close_orbit_registered),
                 momentum_compaction(0.0),
                 slip_factor(0.0),
                 slip_factor_prime(0.0)
@@ -1404,7 +1405,9 @@ write_quad_correctors(Lattice_elements const& horizontal_correctors,
         for (Chef_elements::iterator ce_it = chef_elements.begin();
                 ce_it != chef_elements.end(); ++ce_it) {
 
-            double k1;
+            // TODO: make sure k1 = 0.0 is the right value to use if all the
+            // dynamic casts fail.
+            double k1 = 0.0;
             std::string elem_type;
             if (boost::dynamic_pointer_cast<quadrupole>(*ce_it)) {
                 k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
@@ -1433,8 +1436,9 @@ write_quad_correctors(Lattice_elements const& horizontal_correctors,
         Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
         for (Chef_elements::iterator ce_it = chef_elements.begin();
                 ce_it != chef_elements.end(); ++ce_it) {
-
-            double k1;
+            // TODO: make sure that k1 = 0.0 is the right value to use
+            // if all the dynamic tests fail.
+            double k1 = 0.0;
             std::string elem_type;
             if (boost::dynamic_pointer_cast<quadrupole>(*ce_it)) {
                 k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
@@ -2688,9 +2692,6 @@ void
 Lattice_simulator::load<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
-Lattice_simulator::~Lattice_simulator()
-{
-}
 
 Dense_mapping_calculator::Dense_mapping_calculator(Lattice_simulator& lattice_simulator, bool closed_orbit)
 {
@@ -2748,6 +2749,3 @@ Dense_mapping Dense_mapping_calculator::get_dense_mappping(Lattice_element& latt
     return element_map[&lattice_element];
 }
 
-Dense_mapping_calculator::~Dense_mapping_calculator()
-{
-}

@@ -4,8 +4,7 @@ Rectangular_grid_domain::Rectangular_grid_domain(
         std::vector<double > const & physical_size,
         std::vector<double > const & physical_offset,
         std::vector<int > const & grid_shape, bool periodic_z) :
-    physical_size(3), physical_offset(3), grid_shape(3), left(3), cell_size(3),
-    periodic_z(periodic_z)
+    physical_size(3), physical_offset(3), grid_shape(3), periodic_z(periodic_z), left(3), cell_size(3)
 {
     this->physical_size = physical_size;
     this->physical_offset = physical_offset;
@@ -21,8 +20,7 @@ Rectangular_grid_domain::Rectangular_grid_domain(
         std::vector<double > const & physical_size,
         std::vector<double > const & physical_offset,
         std::vector<int > const & grid_shape) :
-    physical_size(3), physical_offset(3), grid_shape(3), left(3), cell_size(3),
-    periodic_z(false)
+    physical_size(3), physical_offset(3), grid_shape(3), periodic_z(false), left(3), cell_size(3)
 {
     this->physical_size = physical_size;
     this->physical_offset = physical_offset;
@@ -37,8 +35,7 @@ Rectangular_grid_domain::Rectangular_grid_domain(
 Rectangular_grid_domain::Rectangular_grid_domain(
         std::vector<double > const & physical_size,
         std::vector<int > const & grid_shape, bool periodic_z) :
-    physical_size(3), physical_offset(3), grid_shape(3), left(3), cell_size(3),
-    periodic_z(periodic_z)
+    physical_size(3), physical_offset(3), grid_shape(3), periodic_z(periodic_z), left(3), cell_size(3)
 {
     this->physical_size = physical_size;
     

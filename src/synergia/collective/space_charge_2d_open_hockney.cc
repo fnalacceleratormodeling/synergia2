@@ -95,13 +95,13 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
                 z_period(z_period),
                 grid_entire_period(grid_entire_period),
                 commxx_divider_sptr(commxx_divider_sptr),
-                comm1_sptr(),
                 comm2_sptr(),
+                comm1_sptr(),
                 n_sigma(n_sigma),
+                use_cell_coords(true),
+                need_state_conversion(need_state_conversion),
                 domain_fixed(false),
                 have_domains(false),
-                need_state_conversion(need_state_conversion),
-                use_cell_coords(true),
                 exfile(""),
                 eyfile(""),
                 dumped(true)
@@ -133,13 +133,13 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
                 z_period(z_period),
                 grid_entire_period(grid_entire_period),
                 commxx_divider_sptr(new Commxx_divider),
-                comm1_sptr(),
                 comm2_sptr(),
+                comm1_sptr(),
                 n_sigma(n_sigma),
+                use_cell_coords(true),
+                need_state_conversion(need_state_conversion),
                 domain_fixed(false),
                 have_domains(false),
-                need_state_conversion(need_state_conversion),
-                use_cell_coords(true),
                 exfile(""),
                 eyfile(""),
                 dumped(true)
@@ -896,7 +896,4 @@ Space_charge_2d_open_hockney::set_files(std::string const& xfile, std::string co
     dumped = false;
 }
 
-Space_charge_2d_open_hockney::~Space_charge_2d_open_hockney()
-{
-}
 BOOST_CLASS_EXPORT_IMPLEMENT(Space_charge_2d_open_hockney)

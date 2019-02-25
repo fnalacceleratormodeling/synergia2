@@ -3,11 +3,16 @@
 #include "synergia/foundation/physical_constants.h"
 
 Fast_normal_form::Fast_normal_form(normalFormSage & nf):
-eigenv(boost::extents[6][6]), inv_eigenv(boost::extents[6][6]),closed_orbit(boost::extents[6])
+  order(nf.order_),
+  mappings_f(),
+  mappings_g(),
+  convert_from_cannon_sptr(),
+  convert_to_canon_sptr(),
+  closed_orbit(boost::extents[6]),
+  eigenv(boost::extents[6][6]),
+  inv_eigenv(boost::extents[6][6])
 {
-  
-     order= nf.order_;
-     for( int i = 0; i < order - 1; i++ ) { 
+     for( int i = 0; i < order - 1; i++ ) {
             /// length=1. in Fast mapping constructors shoeld be irrelevant  
         mappings_f.push_back( CFast_mapping_sptr(new  CFast_mapping(nf.f_[i],1.)));    
         mappings_g.push_back( CFast_mapping_sptr(new  CFast_mapping(nf.g_[i],1.)));    
@@ -29,9 +34,6 @@ eigenv(boost::extents[6][6]), inv_eigenv(boost::extents[6][6]),closed_orbit(boos
 
 }
 
-Fast_normal_form::Fast_normal_form()
-{
-}    
 
  CFast_mapping_sptr
  Fast_normal_form::get_map_f_sptr(int index) const
@@ -312,8 +314,4 @@ Fast_normal_form::serialize<boost::archive::xml_iarchive >(
 // Fast_normal_form::serialize<boost::archive::text_iarchive >(
 //         boost::archive::text_iarchive & ar, const unsigned int version);
 
-
-Fast_normal_form::~Fast_normal_form()
-{
-}  
-BOOST_CLASS_EXPORT_IMPLEMENT(Fast_normal_form);    
+BOOST_CLASS_EXPORT_IMPLEMENT(Fast_normal_form);

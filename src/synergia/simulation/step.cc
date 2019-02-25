@@ -13,11 +13,7 @@
 #include "synergia/simulation/stepper.h"
 
 Step::Step(double length) :
-    operators(), time_fractions(), step_betas(), length(length)
-{
-}
-
-Step::Step()
+    operators(), time_fractions(), length(length), step_betas()
 {
 }
 
