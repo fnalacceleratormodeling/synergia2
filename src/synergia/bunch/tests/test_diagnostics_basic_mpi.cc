@@ -7,7 +7,6 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 #include "bunch_sptr_fixture.h"
 
-const double tolerance = 1.0e-11;
 
 BOOST_FIXTURE_TEST_CASE(construct, Bunch_sptr_fixture)
 {

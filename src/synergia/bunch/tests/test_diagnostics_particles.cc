@@ -6,8 +6,6 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
-const double tolerance = 1.0e-12;
-
 const double mass = 100.0;
 const double total_energy = 125.0;
 const int total_num = 9;

@@ -232,7 +232,6 @@ BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
 #include "test_diagnostics_get_corr.icc"
 }
 
-const double tolerance_emit2d = 1.0e-11;
 
 // BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
 // {

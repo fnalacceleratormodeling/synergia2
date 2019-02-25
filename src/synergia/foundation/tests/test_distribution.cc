@@ -5,7 +5,6 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
-const double tolerance = 1.0e-15;
 const unsigned long int test_seed = 12345678;
 const int array_length = 10000;
 const double default_min = -7.1;
