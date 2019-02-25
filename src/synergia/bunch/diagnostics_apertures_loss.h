@@ -33,20 +33,20 @@ private:
     
 public: 
     Diagnostics_loss(std::string const& filename, std::string const& type, std::string const& local_dir = "");
-    Diagnostics_loss();
+    Diagnostics_loss() = default;
     
     bool
-    is_serial() const;
+    is_serial() const override;
     
-    virtual void
-    update( );
+    void
+    update( ) override;
     
     virtual void
     update(int index, int rep, double s, double s_n,  MArray1d_ref coords );
   
     
-    virtual void
-    write();
+    void
+    write() override;
     
     void
     init_writers(Hdf5_file_sptr file_sptr);

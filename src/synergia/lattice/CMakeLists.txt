@@ -13,7 +13,7 @@ add_library(synergia_lattice lattice_element.cc lattice_element_slice.cc
     element_adaptor_map.cc mad8_adaptor_map.cc madx_adaptor_map.cc
     lattice_diagnostics.cc
     madx.cc mx_expr.cc  mx_parse.cc  mx_tree.cc
-    madx_reader.cc diagnostics_apertures_loss.cc)
+    madx_reader.cc)
 
 target_link_libraries(synergia_lattice synergia_foundation synergia_bunch
     ${CHEF_LIBS} ${Boost_REGEX_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})

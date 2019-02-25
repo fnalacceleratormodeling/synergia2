@@ -1,24 +1,25 @@
 #include "diagnostics_apertures_loss.h"
 #include "synergia/foundation/math_constants.h"
 
+#include <type_traits>
+
 const char Diagnostics_loss::name[] = "apertures_loss_diagnostics";
 const char Diagnostics_loss::aperture_type[] = "aperture";
 const char Diagnostics_loss::zcut_type[] = "zcut";
 
-Diagnostics_loss::Diagnostics_loss(std::string const& filename, std::string const& stype, std::string const& local_dir):
-Diagnostics_loss::Diagnostics(Diagnostics_loss::name, filename, local_dir), have_writers(false),
-writer_bucket_index(0), writer_repetition(0), writer_s(0),  writer_s_n(0), writer_coords(0), type(stype)
+Diagnostics_loss::Diagnostics_loss(std::string const& filename, std::string const& stype, std::string const& local_dir)
+  : Diagnostics(Diagnostics_loss::name, filename, local_dir),
+    type(stype),
+    have_writers(false),
+    writer_bucket_index(0),
+    writer_repetition(0),
+    writer_s(0),
+    writer_s_n(0),
+    writer_coords(0)
 {
     if ((type !=zcut_type ) && (type != aperture_type ))    throw std::runtime_error(
           "diagnostics_loss constructor: type choices are zcut or aperture"); 
-   
-      
-}  
-
-Diagnostics_loss::Diagnostics_loss()
-{
 }
-
 
 bool
 Diagnostics_loss::is_serial() const
@@ -247,6 +248,4 @@ Diagnostics_loss::serialize<boost::archive::xml_iarchive >(
 
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_loss)
-
-
 

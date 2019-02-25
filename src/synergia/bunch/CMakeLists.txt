@@ -6,7 +6,7 @@ add_library(synergia_bunch fixed_t_z_converter.cc bunch.cc
     diagnostics.cc core_diagnostics.cc diagnostics_basic.cc
     diagnostics_full2.cc diagnostics_particles.cc diagnostics_track.cc
     diagnostics_reference_particle.cc diagnostics_bulk_track.cc diagnostics_phase_space_density.cc
-    populate.cc analysis.cc period.cc)
+    populate.cc analysis.cc period.cc diagnostics_apertures_loss.cc)
 target_link_libraries(synergia_bunch synergia_parallel_utils synergia_distributed_fft
     synergia_hdf5_utils synergia_foundation synergia_serialization)
 if (BUILD_PYTHON_BINDINGS)
@@ -26,6 +26,7 @@ install(FILES
     diagnostics_bulk_track.h
     diagnostics_phase_space_density.h
     diagnostics_particles.h
+    diagnostics_apertures_loss.h
     fixed_t_z_converter.h
     populate.h
     analysis.h
