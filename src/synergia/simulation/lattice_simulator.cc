@@ -502,7 +502,12 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
     set_bucket_length();
 }
 
-// TODO: is a copy of a Lattice_simulator equal to the original from which it was copied?
+// Copying a Lattice_simulator is complicated.
+//   The underlying Lattice is shared between the original and the copy.
+//   The underlying Chef_lattices are distinct, but they in turn share the
+//      same underlying Lattice.
+//   The many map data members are calculated independently, because the
+//      contained pointers point to things within the object.
 Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator) :
                 lattice_sptr(lattice_simulator.lattice_sptr),
                 slices(),
