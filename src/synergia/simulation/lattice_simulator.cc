@@ -771,7 +771,7 @@ Lattice_simulator::get_number_buckets()
 void
 Lattice_simulator::update()
 {
-    chef_lattice_sptr = Chef_lattice_sptr(new Chef_lattice(lattice_sptr));
+    chef_lattice_sptr = boost::make_shared<Chef_lattice>(lattice_sptr);
     construct_extractor_map();
     construct_aperture_extractor_map();
     if (have_slices) {
