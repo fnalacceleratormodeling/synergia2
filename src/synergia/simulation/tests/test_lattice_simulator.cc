@@ -20,16 +20,10 @@ BOOST_FIXTURE_TEST_CASE(set_slices, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Lattice_element_slices slices;
-    for (Lattice_elements::const_iterator it =
-            lattice_sptr->get_elements().begin();
-            it != lattice_sptr->get_elements().end(); ++it) {
-        double length = (*it)->get_length();
-        Lattice_element_slice_sptr first_half(
-                new Lattice_element_slice(*it, 0.0, 0.5 * length));
-        Lattice_element_slice_sptr second_half(
-                new Lattice_element_slice(*it, 0.5 * length, length));
-        slices.push_back(first_half);
-        slices.push_back(second_half);
+    for (auto const& elem : lattice_sptr->get_elements()) {
+        double const length = elem->get_length();
+        slices.push_back(boost::make_shared<Lattice_element_slice>(elem, 0.0, 0.5 * length));
+        slices.push_back(boost::make_shared<Lattice_element_slice>(elem, 0.5 * length, length));
     }
     lattice_simulator.set_slices(slices);
 }
