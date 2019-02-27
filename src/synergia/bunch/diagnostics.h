@@ -24,6 +24,9 @@ public:
 
     Diagnostics(std::string const& name, std::string const& filename, std::string const& local_dir="");
 
+    Diagnostics(Diagnostics const&) = delete;
+    Diagnostics& operator=(Diagnostics const&) = delete;
+
     // Default constructor for serialization use only
     Diagnostics();
 

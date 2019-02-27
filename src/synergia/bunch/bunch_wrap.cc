@@ -49,7 +49,7 @@ BOOST_PYTHON_MODULE(bunch)
     to_python_converter<std::list<Diagnostics_sptr >,
             container_conversions::to_tuple<std::list<Diagnostics_sptr > > >();
 
-    class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics > >
+    class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics>, boost::noncopyable >
         ("Diagnostics_basic",init<std::string const& >())
         .def(init<std::string const&, std::string const& >())
         .def("set_bunch", &Diagnostics_basic::set_bunch_sptr)
@@ -62,7 +62,7 @@ BOOST_PYTHON_MODULE(bunch)
         .def("get_max", &Diagnostics_basic::get_max)
         ;
 
-    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics > >
+    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics>, boost::noncopyable >
         ("Diagnostics_full2",init<std::string const& >())
         .def(init<std::string const& , std::string const& >())
         .def("set_bunch", &Diagnostics_full2::set_bunch_sptr)
@@ -82,20 +82,20 @@ BOOST_PYTHON_MODULE(bunch)
         .def("get_emitxyz",&Diagnostics_full2::get_emitxyz)
         ;
 
-    class_<Diagnostics_track, Diagnostics_track_sptr, bases<Diagnostics > >
+    class_<Diagnostics_track, Diagnostics_track_sptr, bases<Diagnostics>, boost::noncopyable>
     		("Diagnostics_track",init<std::string const&, int>())
     	.def(init<std::string const&, int, std::string const& >())
         .def("set_bunch", &Diagnostics_track::set_bunch_sptr)
         ;
 
-    class_<Diagnostics_bulk_track, Diagnostics_bulk_track_sptr, bases<Diagnostics> >
+    class_<Diagnostics_bulk_track, Diagnostics_bulk_track_sptr, bases<Diagnostics>, boost::noncopyable>
       ("Diagnostics_bulk_track",init<std::string const&, int>())
       .def(init<std::string const&, int, int >())
       .def(init<std::string const&, int, int, std::string const& >())
       .def("set_bunch", &Diagnostics_bulk_track::set_bunch_sptr)
       ;
 
-    class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
+    class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics>, boost::noncopyable>
             ("Diagnostics_particles",init<std::string const&>())
         .def(init<std::string const&, int >())
         .def(init<std::string const&, int, int >())
@@ -106,7 +106,7 @@ BOOST_PYTHON_MODULE(bunch)
         .def("set_bunch", &Diagnostics_particles::set_bunch_sptr)
         ;
 
-    class_<Diagnostics_reference_particle, Diagnostics_reference_particle_sptr, bases<Diagnostics > >
+    class_<Diagnostics_reference_particle, Diagnostics_reference_particle_sptr, bases<Diagnostics>, boost::noncopyable>
         ("Diagnostics_reference_particle",init<std::string const& , std::string const& >())
         .def("set_bunch", &Diagnostics_reference_particle::set_bunch_sptr)
         ;

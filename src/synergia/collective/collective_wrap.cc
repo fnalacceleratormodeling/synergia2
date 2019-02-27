@@ -41,7 +41,7 @@ BOOST_PYTHON_MODULE(collective)
              return_value_policy<copy_const_reference>())
         .def("is_periodic", &Rectangular_grid_domain::is_periodic);
                 
-    class_<Diagnostics_space_charge_3d_hockney,  Diagnostics_space_charge_3d_hockney_sptr, bases<Diagnostics > >
+    class_<Diagnostics_space_charge_3d_hockney,  Diagnostics_space_charge_3d_hockney_sptr, bases<Diagnostics>, boost::noncopyable>
         ("Diagnostics_space_charge_3d_hockney",init<std::string const& >())    
         .def(init<std::string const& , std::string const& >())
         .def("set_bunch", &Diagnostics_space_charge_3d_hockney::set_bunch_sptr)
@@ -146,7 +146,7 @@ BOOST_PYTHON_MODULE(collective)
           Space_charge_2d_kv::field_not_centered;
     }
 
-   class_<Diagnostics_space_charge_rectangular,  Diagnostics_space_charge_rectangular_sptr, bases<Diagnostics > >
+   class_<Diagnostics_space_charge_rectangular,  Diagnostics_space_charge_rectangular_sptr, bases<Diagnostics>, boost::noncopyable>
         ("Diagnostics_space_charge_rectangular",init<std::string const& >())    
         .def(init<std::string const& , std::string const& >())
         .def("set_bunch", &Diagnostics_space_charge_rectangular::set_bunch_sptr)

@@ -189,7 +189,7 @@ BOOST_PYTHON_MODULE(lattice)
 //            .def("get_adaptor_names", &MadX_adaptor_map::get_adaptor_names)
             ;
 
-         class_<Diagnostics_loss, Diagnostics_loss_sptr, bases<Diagnostics > >
+         class_<Diagnostics_loss, Diagnostics_loss_sptr, bases<Diagnostics>, boost::noncopyable>
         ("Diagnostics_loss",init<std::string const&, std::string const&>())    
         .def(init<std::string const& , std::string const&, std::string const& >())
         .def("set_bunch", &Diagnostics_loss::set_bunch_sptr)
