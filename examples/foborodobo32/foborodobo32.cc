@@ -22,6 +22,9 @@
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 #include "synergia/utils/multi_array_print.h"
+#include "synergia/simulation/propagate_actions.h"
+
+#include "ramp_actions.h"
 
 // We put the actual code in a separate function so that shared_ptr's can
 // be cleanup up properly before we call MPI_Finalize.
@@ -53,7 +56,8 @@ run()
     const double real_particles = 5.0e10;
     const long int seed = 12345791;
 
-    const int turns = 10;
+    const int turns = 20;
+    const int maxturns=10;
     const int steps = 128;
 
     Lattice_sptr lattice_sptr(MadX_reader().get_lattice_sptr("model", "foborodobo32.madx"));
@@ -149,7 +153,9 @@ run()
                                            steps));
 
     Propagator propagator(stepper_sptr);
-    propagator.propagate(bunch_simulator, turns, 0, 1);
+    //propagator.set_checkpoint_with_xml(true);
+    Ramp_actions ramp_actions(0);
+    propagator.propagate(bunch_simulator, ramp_actions, turns, maxturns, 1);
 
 #if 0
     Commxx_sptr commxx_per_host_sptr(new Commxx(true));
@@ -183,7 +189,8 @@ run()
     double t0 = MPI_Wtime();
     const int max_turns = 0;
     const int verbosity = 2;
-    propagator.propagate(bunch_simulator, num_turns, max_turns, verbosity);
+    Ramp_actions ramp_actions(0);
+    propagator.propagate(bunch_simulator, ramp_actions, num_turns, max_turns, verbosity);
     double t1 = MPI_Wtime();
     if (comm_sptr->get_rank() == 0) {
         std::cout << "propagate time = " << (t1 - t0) << std::endl;
@@ -199,3 +206,5 @@ main(int argc, char **argv)
     MPI_Finalize();
     return 0;
 }
+
+
