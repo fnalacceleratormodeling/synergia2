@@ -107,6 +107,8 @@ BOOST_PYTHON_MODULE(collective)
 
                 .def("apply", &Space_charge_2d_open_hockney::apply)
                 .def("set_files", &Space_charge_2d_open_hockney::set_files)
+        .def("get_n_sigma", &Space_charge_2d_open_hockney::get_n_sigma)
+        .def("set_fixed_domain", &Space_charge_2d_open_hockney::set_fixed_domain)
         ;
 
     {
