@@ -21,6 +21,10 @@ void apply_longitudinal_periodicity (Bunch & bunch, double length)
         bunch.convert_to_state(state); 
 }
 
+void apply_longitudinal_bucket_barrier(Bunch & bunch, double length)
+{
+}
+
 void apply_zcut(Bunch & bunch, double length, Diagnostics_loss_sptr diag_loss_sptr)
 {
            bool have_diagnostics=diag_loss_sptr.get();
