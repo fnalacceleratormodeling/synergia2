@@ -145,7 +145,7 @@ Bunch::construct(int total_num, double real_num)
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx_sptr comm_sptr) 
-    : boundary(open)
+    : boundary(lb_open)
     , boundary_param(0.0)
     , reference_particle(reference_particle)
     , bucket_index(0)
@@ -442,34 +442,34 @@ Bunch::get_real_num() const
 double
 Bunch::get_z_period_length() const
 {
-    if (boundary != periodic) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get z period length");
+    if (boundary != lb_periodic) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get z period length");
     return boundary_param;
 }
 
 void
 Bunch::set_z_period_length(double z_period_length)
 {
-    boundary = periodic;
+    boundary = lb_periodic;
     boundary_param = z_period_length;
 }
 
 bool
 Bunch::is_z_periodic() const
 {
-    return boundary == periodic;
+    return boundary == lb_periodic;
 }
 
 void
 Bunch::set_bucket_barrier_length(double bucket_length)
 {
-    boundary = bucket_barrier;
+    boundary = lb_bucket_barrier;
     boundary_param = bucket_length;
 }
 
 double
 Bunch::get_bucket_barrier_length() const
 {
-    if (boundary != bucket_barrier) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get the bucket barrier length");
+    if (boundary != lb_bucket_barrier) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get the bucket barrier length");
     return boundary_param;
 }
 
@@ -477,27 +477,27 @@ Bunch::get_bucket_barrier_length() const
 bool
 Bunch::has_bucket_barrier() const
 {
-    return boundary == bucket_barrier;
+    return boundary == lb_bucket_barrier;
 }
 
 void
 Bunch::set_longitudinal_aperture_length(double longitudinal_extent)
 {
-    boundary = aperture;
+    boundary = lb_aperture;
     boundary_param = longitudinal_extent;
 }
 
 double
 Bunch::get_longitudinal_aperture_length() const
 {
-    if (boundary != periodic) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get longitudinal aperture length");
+    if (boundary != lb_aperture) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get longitudinal aperture length");
     return boundary_param;
 }
 
 bool
 Bunch::has_longitudinal_aperture() const
 {
-  return boundary == aperture;
+  return boundary == lb_aperture;
 }
 
 void
@@ -516,14 +516,14 @@ Bunch::get_longitudinal_boundary() const
 void
 Bunch::set_open_longitudinal_boundary()
 {
-    boundary = open;
+    boundary = lb_open;
     boundary_param = 0.0;
 }
 
 bool
 Bunch::is_open_longitudinal_boundary() const
 {
-    return boundary == open;
+    return boundary == lb_open;
 }
 
 int

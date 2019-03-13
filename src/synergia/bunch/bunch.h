@@ -43,10 +43,10 @@ public:
     // longitudinal boundary conditions
     enum LongitudinalBoundary
     {
-        open = 0,
-        periodic = 1,
-        aperture = 2,
-        bucket_barrier = 3
+        lb_open = 0,
+        lb_periodic = 1,
+        lb_aperture = 2,
+        lb_bucket_barrier = 3
     };
 
 private:
