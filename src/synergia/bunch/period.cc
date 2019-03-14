@@ -23,6 +23,36 @@ void apply_longitudinal_periodicity (Bunch & bunch, double length)
 
 void apply_longitudinal_bucket_barrier(Bunch & bunch, double length)
 {
+       Bunch::State state = bunch.get_state(); 
+       bunch.convert_to_state(Bunch::fixed_z_lab); 
+
+       double beta = bunch.get_reference_particle().get_beta();      
+       double length_cdt = length/beta;
+       double half_length = 0.5 * length_cdt;
+
+        MArray2d_ref particles(bunch.get_local_particles());
+        int local_num = bunch.get_local_num();
+
+        for (int part = 0; part < local_num; ++part) 
+        {
+            double z = particles[part][Bunch::z];
+
+            if (z > half_length || z < -half_length)
+            {
+                double px = particles[part][Bunch::xp];
+                double py = particles[part][Bunch::yp];
+                double dpop = particles[part][Bunch::dpop];
+
+                double px2 = px * px;
+                double py2 = py * py;
+                double dp2 = (dpop + 1.0) * (dpop + 1.0);
+
+                particles[part][Bunch::dpop] 
+                    = sqrt(4.0 + dp2 - 4.0 * sqrt(dp2 - px2 - py2)) - 1.0;
+            }
+        }
+
+        bunch.convert_to_state(state); 
 }
 
 void apply_zcut(Bunch & bunch, double length, Diagnostics_loss_sptr diag_loss_sptr)
