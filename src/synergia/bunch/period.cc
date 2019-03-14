@@ -47,8 +47,21 @@ void apply_longitudinal_bucket_barrier(Bunch & bunch, double length)
                 double py2 = py * py;
                 double dp2 = (dpop + 1.0) * (dpop + 1.0);
 
+                // flip the longitudinal momentum
                 particles[part][Bunch::dpop] 
                     = sqrt(4.0 + dp2 - 4.0 * sqrt(dp2 - px2 - py2)) - 1.0;
+
+                // adjust the z position
+                if (z > half_length)
+                {
+                    double off = fmod(z + half_length, length_cdt);
+                    particles[part][Bunch::z] = half_length - off;
+                }
+                else
+                {
+                    double off = fmod(z - half_length, length_cdt);
+                    particles[part][Bunch::z] = -half_length - off;
+                }
             }
         }
 
