@@ -2,7 +2,8 @@
 
 import sys
 from matplotlib import pyplot
-from synergia.utils import Hdf5_file
+#from synergia.utils import Hdf5_file
+import h5py
 
 def get_layout(num):
     if num == 1:
@@ -131,38 +132,26 @@ def handle_args(args, plotparams):
     return options
 
 def hdf5_read_any(hdf5_file, member):
-    try:
-        the_type = hdf5_file.get_atomic_type(member)
-    except:
+    if member not in hdf5_file.keys():
         sys.stderr.write('syndiagplot: data member "%s" not found in Hdf5 file\n'
                         % member)
         sys.exit(1)
 
-    dims = hdf5_file.get_dims(member)
-    if the_type == Hdf5_file.double_type:
-        if len(dims) == 0:
-            return hdf5_file.read_double(member)
-        elif len(dims) == 1:
-            return hdf5_file.read_array1d(member)
-        elif len(dims) == 2:
-            return hdf5_file.read_array2d(member)
-        elif len(dims) == 3:
-            return hdf5_file.read_array3d(member)
-    elif the_type == Hdf5_file.int_type:
-        if len(dims) == 0:
-            return hdf5_file.read_int(member)
-        elif len(dims) == 1:
-            return hdf5_file.read_array1i(member)
+    #dims = hdf5_file.get_dims(member)
+    datavalue = hdf5_file.get(member)
+    dims = datavalue.shape
+    return datavalue.value
 
 def do_plot(inputfile, options, plotparams, multiple_files):
-    f = Hdf5_file(inputfile, Hdf5_file.read_only)
+    f = h5py.File(inputfile, 'r')
     rows, cols = get_layout(len(options.plots))
     plot_index = 1
     y_label = ""
     for plot in options.plots:
         params = plotparams[plot]
-        x = hdf5_read_any(f, options.ind_var)
-        ymaster = hdf5_read_any(f, params.y_attr)
+        #x = hdf5_read_any(f, options.ind_var)
+        x = f.get(options.ind_var)
+        ymaster = f.get(params.y_attr)
         if (params.y_index1 == None) and (params.y_index2 == None):
             y = ymaster
         elif (params.y_index2 == None):

@@ -6,7 +6,8 @@ import math
 import pylab
 from matplotlib import pyplot
 from mpl_toolkits.axes_grid import make_axes_locatable
-from synergia.utils import Hdf5_file
+import h5py
+#from synergia.utils import Hdf5_file
 
 
 def plot_density(x, y, label, bins):
@@ -157,11 +158,12 @@ def handle_args(args):
 
 def do_plots(options):
     c = 299792458.0
-    f = Hdf5_file(options.inputfile, Hdf5_file.read_only)
-    particles = f.read_array2d('particles')
+    h5 = h5py.File(options.inputfile)
+    #f = Hdf5_file(options.inputfile, 'r')
+    particles = h5.get('particles')
     npart = particles.shape[0]
-    mass = f.read_double('mass')
-    p_ref = f.read_double('pz')
+    mass = h5.get('mass')[()]
+    p_ref = h5.get('pz')[()]
     #print "p_ref: ", p_ref
     #print "mass: ", mass
     pz = (p_ref * (1.0 + particles[:,5])).reshape(npart, 1)
