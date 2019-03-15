@@ -144,9 +144,14 @@ Bunch::construct(int total_num, double real_num)
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr) :
-        longitudinal_extent(0.0), z_periodic(0), longitudinal_aperture(false), reference_particle(
-                reference_particle), bucket_index(0),  bucket_index_assigned(false), comm_sptr(comm_sptr), default_converter()
+        double real_num, Commxx_sptr comm_sptr) 
+    : boundary(lb_open)
+    , boundary_param(0.0)
+    , reference_particle(reference_particle)
+    , bucket_index(0)
+    , bucket_index_assigned(false)
+    , comm_sptr(comm_sptr)
+    , default_converter()
 {
     this->particle_charge =reference_particle.get_charge();
     construct(total_num, real_num);
@@ -178,9 +183,8 @@ Bunch::Bunch(Bunch const& bunch) :
     bucket_index_assigned= bunch.bucket_index_assigned;
     local_particles = new MArray2d(*(bunch.local_particles));
     state = bunch.state;
-    longitudinal_extent=bunch.longitudinal_extent;
-    z_periodic=bunch.z_periodic;
-    longitudinal_aperture=bunch.longitudinal_aperture;
+    boundary = bunch.boundary;
+    boundary_param = bunch.boundary_param;
     if (bunch.converter_ptr == &(bunch.default_converter)) {
         converter_ptr = &default_converter;
     } else {
@@ -202,9 +206,8 @@ Bunch::operator=(Bunch const& bunch)
         bucket_index_assigned= bunch.bucket_index_assigned;
         local_particles = new MArray2d(*(bunch.local_particles));
         state = bunch.state;
-        longitudinal_extent=bunch.longitudinal_extent;
-        z_periodic=bunch.z_periodic;
-        longitudinal_aperture=bunch.longitudinal_aperture;
+        boundary = bunch.boundary;
+        boundary_param = bunch.boundary_param;
         if (bunch.converter_ptr == &(bunch.default_converter)) {
             converter_ptr = &default_converter;
         } else {
@@ -437,43 +440,90 @@ Bunch::get_real_num() const
 
 
 double
- Bunch::get_z_period_length() const
+Bunch::get_z_period_length() const
 {
-    return longitudinal_extent;
+    if (boundary != lb_periodic) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get z period length");
+    return boundary_param;
 }
 
 void
- Bunch::set_z_period_length(double z_period_length)
+Bunch::set_z_period_length(double z_period_length)
 {
-    if (longitudinal_aperture)  throw std::runtime_error("longitudinal_aperture is true, cannot make the bunch z periodic");
-    this->longitudinal_extent=z_period_length;
-    this->z_periodic=true;
+    boundary = lb_periodic;
+    boundary_param = z_period_length;
 }
 
 bool
- Bunch::is_z_periodic() const
+Bunch::is_z_periodic() const
 {
-    return z_periodic;
+    return boundary == lb_periodic;
+}
+
+void
+Bunch::set_bucket_barrier_length(double bucket_length)
+{
+    boundary = lb_bucket_barrier;
+    boundary_param = bucket_length;
 }
 
 double
-Bunch::get_longitudinal_aperture_length() const
+Bunch::get_bucket_barrier_length() const
 {
-    return longitudinal_extent;
+    if (boundary != lb_bucket_barrier) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get the bucket barrier length");
+    return boundary_param;
+}
+
+
+bool
+Bunch::has_bucket_barrier() const
+{
+    return boundary == lb_bucket_barrier;
 }
 
 void
 Bunch::set_longitudinal_aperture_length(double longitudinal_extent)
 {
-    if (z_periodic)  throw std::runtime_error("z_periodic is true, cannot put a longitudinal_aperture");
-    this->longitudinal_extent=longitudinal_extent;
-    this->longitudinal_aperture=true;
+    boundary = lb_aperture;
+    boundary_param = longitudinal_extent;
+}
+
+double
+Bunch::get_longitudinal_aperture_length() const
+{
+    if (boundary != lb_aperture) throw std::runtime_error("Invalid bunch longitudinal boundary condition, cannot get longitudinal aperture length");
+    return boundary_param;
 }
 
 bool
 Bunch::has_longitudinal_aperture() const
 {
-  return longitudinal_aperture;
+  return boundary == lb_aperture;
+}
+
+void
+Bunch::set_longitudinal_boundary(LongitudinalBoundary b, double param)
+{
+    boundary = b;
+    boundary_param = param;
+}
+
+std::pair<Bunch::LongitudinalBoundary, double>
+Bunch::get_longitudinal_boundary() const
+{
+    return std::make_pair(boundary, boundary_param);
+}
+
+void
+Bunch::set_open_longitudinal_boundary()
+{
+    boundary = lb_open;
+    boundary_param = 0.0;
+}
+
+bool
+Bunch::is_open_longitudinal_boundary() const
+{
+    return boundary == lb_open;
 }
 
 int
@@ -666,9 +716,8 @@ template<class Archive>
     void
     Bunch::save(Archive & ar, const unsigned int version) const
     {
-        ar << BOOST_SERIALIZATION_NVP(longitudinal_extent)
-                << BOOST_SERIALIZATION_NVP(z_periodic)
-                << BOOST_SERIALIZATION_NVP(longitudinal_aperture)
+        ar << BOOST_SERIALIZATION_NVP(boundary)
+                << BOOST_SERIALIZATION_NVP(boundary_param)
                 << BOOST_SERIALIZATION_NVP(reference_particle)
                 << BOOST_SERIALIZATION_NVP(particle_charge)
                 << BOOST_SERIALIZATION_NVP(total_num)
@@ -711,9 +760,8 @@ template<class Archive>
     void
     Bunch::load(Archive & ar, const unsigned int version)
     {
-        ar >> BOOST_SERIALIZATION_NVP(longitudinal_extent)
-                >> BOOST_SERIALIZATION_NVP(z_periodic)
-                >> BOOST_SERIALIZATION_NVP(longitudinal_aperture)
+        ar >> BOOST_SERIALIZATION_NVP(boundary)
+                >> BOOST_SERIALIZATION_NVP(boundary_param)
                 >> BOOST_SERIALIZATION_NVP(reference_particle)
                 >> BOOST_SERIALIZATION_NVP(particle_charge)
                 >> BOOST_SERIALIZATION_NVP(total_num)

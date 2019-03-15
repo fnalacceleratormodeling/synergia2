@@ -8,13 +8,23 @@ S2_INSTALL = $(chef-config.sh --prefix)
 HDF5_FLAGS =
 HDF5_LDLIBS =
 
+CC=mpicxx
 CXX=mpicxx
+LD=mpicxx
 
 CXXFLAGS = $(shell chef-config.sh --includes) -I$(S2_INSTALL)/include $(HDF5_FLAGS) -O2
 
 LDLIBS = $(shell chef-config.sh --link)
 LDLIBS += -lsynergia_foundation -lsynergia_lattice -lsynergia_simulation -lsynergia_serialization \
-	-lsynergia_parallel_utils -lsynergia_hdf5_utils -lsynergia_bunch -lsynergia_distributed_fft -lsynergia_collective -lsynergia \
-	-lfftw3 -lfftw3_mpi -lboost_system -Wl,-rpath=$(S2_INSTALL)/lib $(HDF5_LDLIBS)
+	-lsynergia_parallel_utils -lsynergia_hdf5_utils -lsynergia_bunch -lsynergia_distributed_fft -lsynergia_collective -lsynergia_command_line -lsynergia \
+	-lfftw3 -lfftw3_mpi -lboost_system -lboost_serialization -Wl,-rpath=$(S2_INSTALL)/lib $(HDF5_LDLIBS)
 
-foborodobo32 : foborodobo32.cc
+ALL: foborodobo32 synergia-resume
+
+foborodobo32.o: foborodobo32.cc ramp_actions.h
+ramp_actions.o : ramp_actions.cc ramp_actions.h
+synergia-resume.o : synergia-resume.cc ramp_actions.h
+
+foborodobo32 : foborodobo32.o ramp_actions.o
+
+synergia-resume: synergia-resume.o ramp_actions.o

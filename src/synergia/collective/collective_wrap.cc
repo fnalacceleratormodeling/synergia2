@@ -107,6 +107,8 @@ BOOST_PYTHON_MODULE(collective)
 
                 .def("apply", &Space_charge_2d_open_hockney::apply)
                 .def("set_files", &Space_charge_2d_open_hockney::set_files)
+        .def("get_n_sigma", &Space_charge_2d_open_hockney::get_n_sigma)
+        .def("set_fixed_domain", &Space_charge_2d_open_hockney::set_fixed_domain)
         ;
 
     {
@@ -117,7 +119,9 @@ BOOST_PYTHON_MODULE(collective)
                                              init<>())
               .def("apply", &Space_charge_2d_bassetti_erskine::apply)
               .def("set_longitudinal",
-                   &Space_charge_2d_bassetti_erskine::set_longitudinal);
+                   &Space_charge_2d_bassetti_erskine::set_longitudinal)
+              .def("get_longitudinal",
+                   &Space_charge_2d_bassetti_erskine::get_longitudinal);
       scope().attr("longitudinal_uniform") =
           Space_charge_2d_bassetti_erskine::longitudinal_uniform;
       scope().attr("longitudinal_gaussian") =

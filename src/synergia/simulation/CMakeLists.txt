@@ -39,6 +39,7 @@ install(FILES
     propagate_actions.h
     lattice_elements_actions.h
     propagator.h
+    resume.h
     step.h
     stepper.h
     independent_stepper.h

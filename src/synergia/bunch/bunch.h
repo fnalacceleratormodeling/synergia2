@@ -29,6 +29,7 @@ public:
         fixed_t_bunch = 3,       
         fixed_z_bunch = 4
     };
+
     static const int x = 0;
     static const int xp = 1;
     static const int y = 2;
@@ -38,10 +39,21 @@ public:
     static const int cdt = 4;
     static const int dpop = 5;
     static const int id = 6;
+
+    // longitudinal boundary conditions
+    enum LongitudinalBoundary
+    {
+        lb_open = 0,
+        lb_periodic = 1,
+        lb_aperture = 2,
+        lb_bucket_barrier = 3
+    };
+
 private:
-    double longitudinal_extent;    
-    bool z_periodic;
-    bool longitudinal_aperture;
+
+    LongitudinalBoundary boundary;  // open, periodic, z-cut, or bucket barrier
+    double boundary_param;  // NA, z-period, longitudinal_extent, or bucket_length
+
     Reference_particle reference_particle;
     int particle_charge;
     MArray2d *local_particles;
@@ -205,7 +217,7 @@ public:
     double
     get_z_period_length() const;
     
-     /// Set the period length of the bunch and make the bunch z_periodic     
+    /// Set the period length of the bunch and make the bunch z_periodic     
     void
     set_z_period_length(double z_period_length) ;
        
@@ -221,12 +233,33 @@ public:
     void
     set_longitudinal_aperture_length(double longitudinal_length);
     
-    
     /// True when the longitudinal aperture is present and the bunch is cut after every  operation
     /// longitudinally outside the extent [-longitudinal_extent/2,  longitudinal_extent/2]    
     bool
     has_longitudinal_aperture() const; 
 
+    double
+    get_bucket_barrier_length() const;
+
+    void
+    set_bucket_barrier_length(double length);
+
+    bool
+    has_bucket_barrier() const;
+
+    void
+    set_open_longitudinal_boundary();
+
+    bool
+    is_open_longitudinal_boundary() const;
+
+    /// A general interface to set the bunch boundary condition
+    void
+    set_longitudinal_boundary(LongitudinalBoundary boundary, double period = 0.0);
+
+    /// The general interface for querying the bunch boundary condition
+    std::pair<Bunch::LongitudinalBoundary, double>
+    get_longitudinal_boundary() const;
 
     /// Get the number of macroparticles stored on this processor.
     int

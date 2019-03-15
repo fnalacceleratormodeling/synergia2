@@ -36,7 +36,11 @@ install(FILES
     lattice_element.h
     lattice_element_slice.h
     lattice.h
+    mad8_adaptor_map.h
+    mad8_adaptors.h
     madx.h
+    madx_adaptor_map.h
+    madx_adaptors.h
     madx_reader.h
     mx_expr.h
     mx_parse.h
