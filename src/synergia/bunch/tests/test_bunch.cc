@@ -82,10 +82,10 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance,
     if (bunch1.is_bucket_index_assigned()){
         BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
     }
-    BOOST_CHECK_EQUAL(bunch1.get_z_period_length(), bunch2.get_z_period_length());
-    BOOST_CHECK_EQUAL(bunch1.get_longitudinal_aperture_length(), bunch2.get_longitudinal_aperture_length());
-    BOOST_CHECK_EQUAL(bunch1.is_z_periodic(), bunch2.is_z_periodic());
-    BOOST_CHECK_EQUAL(bunch1.has_longitudinal_aperture(),  bunch2.has_longitudinal_aperture());
+
+    BOOST_CHECK_EQUAL(bunch1.get_longitudinal_boundary().first, bunch2.get_longitudinal_boundary().first);
+    BOOST_CHECK_EQUAL(bunch1.get_longitudinal_boundary().second, bunch2.get_longitudinal_boundary().second);
+
     if (check_state) {
         BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
     }
@@ -152,7 +152,7 @@ BOOST_FIXTURE_TEST_CASE(conflict_longitudinal_aperture_z_periodic, Fixture)
   }catch (std::runtime_error) {
         caught_error = true;
   }
-  BOOST_CHECK(caught_error);
+  BOOST_CHECK(!caught_error);
   
 }
 
@@ -166,7 +166,7 @@ BOOST_FIXTURE_TEST_CASE(conflict_z_periodic_longitudinal_aperture, Fixture)
   }catch (std::runtime_error) {
         caught_error = true;
   }
-  BOOST_CHECK(caught_error);
+  BOOST_CHECK(!caught_error);
   
 } 
 
