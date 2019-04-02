@@ -1,7 +1,7 @@
 #ifndef FOUR_MOMENTUM_H_
 #define FOUR_MOMENTUM_H_
 
-#include "synergia/utils/serialization.h"
+#include "synergia/utils/cereal.h"
 #include "synergia/utils/lsexpr.h"
 
 /// Four_momentum provides conversion between various relativistic kinematic
