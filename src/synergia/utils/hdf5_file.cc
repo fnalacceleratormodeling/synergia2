@@ -416,9 +416,9 @@ template<class Archive>
     void
     Hdf5_file::save(Archive & ar, const unsigned int version) const
     {
-        ar << BOOST_SERIALIZATION_NVP(file_name)
-                << BOOST_SERIALIZATION_NVP(is_open)
-                << BOOST_SERIALIZATION_NVP(current_flag);
+        ar << CEREAL_NVP(file_name)
+           << CEREAL_NVP(is_open)
+           << CEREAL_NVP(current_flag);
         if (is_open) {
             flush();
             copy_to_serialization_directory(file_name);
@@ -429,9 +429,9 @@ template<class Archive>
     void
     Hdf5_file::load(Archive & ar, const unsigned int version)
     {
-        ar >> BOOST_SERIALIZATION_NVP(file_name)
-                >> BOOST_SERIALIZATION_NVP(is_open)
-                >> BOOST_SERIALIZATION_NVP(current_flag);
+        ar >> CEREAL_NVP(file_name)
+                >> CEREAL_NVP(is_open)
+                >> CEREAL_NVP(current_flag);
         if (is_open) {
             copy_from_serialization_directory(file_name);
             Flag flag;
@@ -447,18 +447,20 @@ template<class Archive>
 
 template
 void
-Hdf5_file::save<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version) const;
-template
-void
-Hdf5_file::save<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version) const;
+Hdf5_file::save<cereal::BinaryOutputArchive>(
+        cereal::BinaryOutputArchive & ar, const unsigned int version) const;
 
 template
 void
-Hdf5_file::load<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
+Hdf5_file::save<cereal::XMLOutputArchive>(
+        cereal::XMLOutputArchive & ar, const unsigned int version) const;
+
 template
 void
-Hdf5_file::load<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
+Hdf5_file::load<cereal::BinaryInputArchive>(
+        cereal::BinaryInputArchive & ar, const unsigned int version);
+
+template
+void
+Hdf5_file::load<cereal::XMLInputArchive>(
+        cereal::XMLInputArchive & ar, const unsigned int version);

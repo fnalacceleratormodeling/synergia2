@@ -72,6 +72,8 @@ install(FILES
     simple_timer.h
     serialization.h
     serialization_files.h
+    cereal.h
+    cereal_files.h
     digits.h
     logger.h
     lsexpr.h

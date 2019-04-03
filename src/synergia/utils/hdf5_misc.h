@@ -101,7 +101,7 @@ private:
 
     // disable copy and assignment
     // Hdf5_handler(Hdf5_handler const &) { }
-    Hdf5_handler & operator= (Hdf5_handler const &) { }
+    Hdf5_handler & operator= (Hdf5_handler const &) = delete;
 };
 
 

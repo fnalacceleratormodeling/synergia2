@@ -1,8 +1,8 @@
 project(SYNERGIA2)
 if (CMAKE_VERSION VERSION_GREATER 3.0.0)
-    set(CMAKE_CXX_STANDARD 98)
+    set(CMAKE_CXX_STANDARD 14)
 else ()
-    add_compile_options(-std=c++98)
+    add_compile_options(-std=c++14)
 endif ()
 
 set(SYNERGIA2_VERSION_MAJOR 2018) # year
@@ -209,6 +209,7 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
     "${SYNERGIA2_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
 
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/vectorclass)
+include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils)
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 
 # Are we building shared or static (shared is the default)?

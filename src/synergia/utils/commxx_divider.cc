@@ -45,11 +45,12 @@ template<class Archive>
     void
     Commxx_divider::serialize(Archive & ar, const unsigned int version)
 {
-    ar & BOOST_SERIALIZATION_NVP(cache);
-    ar & BOOST_SERIALIZATION_NVP(subsize);
-    ar & BOOST_SERIALIZATION_NVP(per_host);
+    ar & CEREAL_NVP(cache);
+    ar & CEREAL_NVP(subsize);
+    ar & CEREAL_NVP(per_host);
 }
 
+#if 0
 template
 void
 Commxx_divider::serialize<boost::archive::binary_oarchive >(
@@ -69,6 +70,7 @@ template
 void
 Commxx_divider::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
+#endif
 
 
 Commxx_divider::~Commxx_divider()

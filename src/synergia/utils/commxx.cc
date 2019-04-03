@@ -88,27 +88,37 @@ Commxx::construct(MPI_Comm const& parent_mpi_comm)
     }
 }
 
-Commxx::Commxx() :
-        comm(MPI_COMM_WORLD ), per_host(false), ranks(0), parent_sptr(), has_this_rank_(
-                true)
+Commxx::Commxx() 
+    : comm(MPI_COMM_WORLD )
+    , per_host(false)
+    , ranks(0)
+    , parent_sptr()
+    , has_this_rank_(true)
 {
 }
 
-Commxx::Commxx(bool per_host) :
-        per_host(per_host), ranks(0), parent_sptr()
+Commxx::Commxx(bool per_host) 
+    : per_host(per_host)
+    , ranks(0)
+    , parent_sptr()
 {
     construct(MPI_COMM_WORLD );
 }
 
-Commxx::Commxx(Commxx_sptr parent_sptr, bool per_host) :
-        per_host(per_host), ranks(0), parent_sptr()
+Commxx::Commxx(Commxx_sptr parent_sptr, bool per_host) 
+    : per_host(per_host)
+    , ranks(0)
+    , parent_sptr()
 {
     construct(parent_sptr->get());
 }
 
-Commxx::Commxx(Commxx_sptr parent_sptr, std::vector<int > const& ranks,
-        bool per_host) :
-        per_host(per_host), ranks(ranks), parent_sptr(parent_sptr)
+Commxx::Commxx(Commxx_sptr parent_sptr, 
+        std::vector<int > const& ranks,
+        bool per_host ) 
+    : per_host(per_host)
+    , ranks(ranks)
+    , parent_sptr(parent_sptr)
 {
     construct(parent_sptr->get());
 }
@@ -118,6 +128,7 @@ Commxx::get_parent_sptr() const
 {
   return parent_sptr;
 }  
+
 int
 Commxx::get_rank() const
 {
@@ -156,20 +167,20 @@ template<class Archive>
     void
     Commxx::save(Archive & ar, const unsigned int version) const
     {
-        ar & BOOST_SERIALIZATION_NVP(per_host);
-        ar & BOOST_SERIALIZATION_NVP(ranks);
-        ar & BOOST_SERIALIZATION_NVP(parent_sptr);
-        ar & BOOST_SERIALIZATION_NVP(has_this_rank_);
+        ar & CEREAL_NVP(per_host);
+        ar & CEREAL_NVP(ranks);
+        ar & CEREAL_NVP(parent_sptr);
+        ar & CEREAL_NVP(has_this_rank_);
     }
 
 template<class Archive>
     void
     Commxx::load(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(per_host);
-        ar & BOOST_SERIALIZATION_NVP(ranks);
-        ar & BOOST_SERIALIZATION_NVP(parent_sptr);
-        ar & BOOST_SERIALIZATION_NVP(has_this_rank_);
+        ar & CEREAL_NVP(per_host);
+        ar & CEREAL_NVP(ranks);
+        ar & CEREAL_NVP(parent_sptr);
+        ar & CEREAL_NVP(has_this_rank_);
         if (parent_sptr) {
             construct(parent_sptr->get());
         } else {
@@ -177,6 +188,7 @@ template<class Archive>
         }
     }
 
+#if 0
 template
 void
 Commxx::save<boost::archive::binary_oarchive >(
@@ -194,6 +206,7 @@ template
 void
 Commxx::load<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
+#endif
 
 Commxx::~Commxx()
 {

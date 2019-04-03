@@ -3,13 +3,13 @@
 
 #include <vector>
 #include <stdexcept>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "mpi.h"
 
-#include "synergia/utils/serialization.h"
+#include "synergia/utils/cereal.h"
 
 class Commxx;
-typedef boost::shared_ptr<Commxx > Commxx_sptr; // syndoc:include
+typedef std::shared_ptr<Commxx > Commxx_sptr; // syndoc:include
 
 /// Commxx is a wrapper around MPI communicator (MPI_Comm) objects.
 ///
@@ -18,41 +18,45 @@ typedef boost::shared_ptr<Commxx > Commxx_sptr; // syndoc:include
 /// expected.
 class Commxx
 {
+
 private:
+
     MPI_Comm comm;
     bool per_host;
     std::vector<int > ranks;
     Commxx_sptr parent_sptr;
     bool has_this_rank_;
-    void
-    construct(MPI_Comm const& parent_mpi_comm);
-    // This dummy constructor exists only to force compilation errors in
-    // code that uses an older interface to this class.
-    Commxx(MPI_Comm const& comm){}
+
+    void construct(MPI_Comm const& parent_mpi_comm);
+
     // prevent copying
-    Commxx(Commxx const& commxx){}
-    Commxx&
-    operator=(Commxx const& commxx){ return *this;}
+    Commxx(Commxx const& commxx) = delete;
+    Commxx & operator=(Commxx const& commxx) = delete;
+
 public:
     /// Construct a Commxx object using MPI_COMM_WORLD
     Commxx();
+    ~Commxx();
 
     /// Construct a Commxx object, optionally creating separate communicators on each
     /// unique host for communication avoidance
-    Commxx(bool per_host);
+    explicit Commxx(bool per_host);
 
     /// Construct a Commxx object based on the parent communicator, optionally
     /// creating separate communicators on each unique host for communication avoidance
-    Commxx(Commxx_sptr parent_sptr, bool per_host);
+    Commxx( Commxx_sptr parent_sptr, 
+            bool per_host );
 
     /// Construct a Commxx object using only the specified ranks on the parent
     /// communicator
-    Commxx(Commxx_sptr parent_sptr, std::vector<int > const& ranks,
-            bool per_host = false);
+    Commxx( Commxx_sptr parent_sptr, 
+            std::vector<int > const& ranks,
+            bool per_host = false );
 
 	    
     Commxx_sptr
     get_parent_sptr() const;    
+
     /// Get communicator rank
     int
     get_rank() const;
@@ -72,12 +76,11 @@ public:
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const;
+
     template<class Archive>
         void
         load(Archive & ar, const unsigned int version);
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-    ~Commxx();
 };
 
 typedef std::vector<Commxx_sptr > Commxxs;
