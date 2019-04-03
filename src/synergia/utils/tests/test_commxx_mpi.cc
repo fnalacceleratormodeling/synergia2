@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/utils/commxx.h"
-#include "synergia/utils/serialization_files.h"
+#include "synergia/utils/cereal_files.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture);
 

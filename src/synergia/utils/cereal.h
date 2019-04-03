@@ -14,6 +14,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 #include <cereal/types/complex.hpp>
+#include <cereal/types/memory.hpp>
 
 #if 0
 #include <cereal/types/version.hpp>

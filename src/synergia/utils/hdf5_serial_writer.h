@@ -6,7 +6,7 @@
 #include "hdf5.h"
 
 #include "synergia/utils/hdf5_file.h"
-#include "synergia/utils/serialization.h"
+#include "synergia/utils/cereal.h"
 
 template<typename T>
     class Hdf5_serial_writer
@@ -36,25 +36,24 @@ template<typename T>
             void
             save(Archive & ar, const unsigned int version) const
             {
-                ar & BOOST_SERIALIZATION_NVP(name);
-                ar & BOOST_SERIALIZATION_NVP(offset);
-                ar & BOOST_SERIALIZATION_NVP(file_sptr);
-                ar & BOOST_SERIALIZATION_NVP(data_rank);
-                ar & BOOST_SERIALIZATION_NVP(data_size);
+                ar & CEREAL_NVP(name);
+                ar & CEREAL_NVP(offset);
+                ar & CEREAL_NVP(file_sptr);
+                ar & CEREAL_NVP(data_rank);
+                ar & CEREAL_NVP(data_size);
             }
         template<class Archive>
             void
             load(Archive & ar, const unsigned int version)
             {
-                ar & BOOST_SERIALIZATION_NVP(name);
-                ar & BOOST_SERIALIZATION_NVP(offset);
-                ar & BOOST_SERIALIZATION_NVP(file_sptr);
-                ar & BOOST_SERIALIZATION_NVP(data_rank);
-                ar & BOOST_SERIALIZATION_NVP(data_size);
+                ar & CEREAL_NVP(name);
+                ar & CEREAL_NVP(offset);
+                ar & CEREAL_NVP(file_sptr);
+                ar & CEREAL_NVP(data_rank);
+                ar & CEREAL_NVP(data_size);
                 resume = true;
                 have_setup = false;
             }
-        BOOST_SERIALIZATION_SPLIT_MEMBER()
         ~Hdf5_serial_writer();
     };
 
