@@ -90,3 +90,8 @@ if (BUILD_PYTHON_BINDINGS)
 endif ()
 
 add_subdirectory(tests)
+
+add_subdirectory(pybind11)
+
+pybind11_add_module(parallel_utils_py parallel_utils_pywrap.cc)
+target_link_libraries(parallel_utils_py synergia_parallel_utils)
