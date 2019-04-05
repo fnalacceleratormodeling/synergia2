@@ -91,7 +91,16 @@ endif ()
 
 add_subdirectory(tests)
 
+# pybind
 add_subdirectory(pybind11)
 
 pybind11_add_module(parallel_utils_py parallel_utils_pywrap.cc)
 target_link_libraries(parallel_utils_py synergia_parallel_utils)
+
+
+# kokkos
+add_subdirectory(kokkos)
+include_directories(${Kokkos_INCLUDE_DIRS_RET})
+
+
+

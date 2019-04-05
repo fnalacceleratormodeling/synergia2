@@ -159,33 +159,33 @@ template<class Archive>
     void
     Bunch_train::serialize(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(bunches);
-        ar & BOOST_SERIALIZATION_NVP(spacings);
-        ar & BOOST_SERIALIZATION_NVP(has_parent_comm);
-        ar & BOOST_SERIALIZATION_NVP(parent_comm_sptr);
-        ar & BOOST_SERIALIZATION_NVP(proc_counts_imped);
-        ar & BOOST_SERIALIZATION_NVP(proc_offsets_imped);
+        ar & CEREAL_NVP(bunches);
+        ar & CEREAL_NVP(spacings);
+        ar & CEREAL_NVP(has_parent_comm);
+        ar & CEREAL_NVP(parent_comm_sptr);
+        ar & CEREAL_NVP(proc_counts_imped);
+        ar & CEREAL_NVP(proc_offsets_imped);
     }
 
 template
 void
-Bunch_train::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
+Bunch_train::serialize<cereal::BinaryOutputArchive >(
+        cereal::BinaryOutputArchive & ar, const unsigned int version);
 
 template
 void
-Bunch_train::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
+Bunch_train::serialize<cereal::XMLOutputArchive >(
+        cereal::XMLOutputArchive & ar, const unsigned int version);
 
 template
 void
-Bunch_train::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
+Bunch_train::serialize<cereal::BinaryInputArchive >(
+        cereal::BinaryInputArchive & ar, const unsigned int version);
 
 template
 void
-Bunch_train::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
+Bunch_train::serialize<cereal::XMLInputArchive >(
+        cereal::XMLInputArchive & ar, const unsigned int version);
 
 Bunch_train::~Bunch_train()
 {

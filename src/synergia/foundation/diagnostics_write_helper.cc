@@ -159,38 +159,38 @@ template<class Archive>
     Diagnostics_write_helper::serialize(Archive & ar,
             const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(writer_rank)
-                & BOOST_SERIALIZATION_NVP(filename)
-                & BOOST_SERIALIZATION_NVP(local_dir)
-                & BOOST_SERIALIZATION_NVP(serial)
-                & BOOST_SERIALIZATION_NVP(commxx_sptr)
-                & BOOST_SERIALIZATION_NVP(file_sptr)
-                & BOOST_SERIALIZATION_NVP(have_file)
-                & BOOST_SERIALIZATION_NVP(count)
-                & BOOST_SERIALIZATION_NVP(filename_base)
-                & BOOST_SERIALIZATION_NVP(filename_suffix)
-                & BOOST_SERIALIZATION_NVP(filename_appendix);
+        ar & CEREAL_NVP(writer_rank)
+                & CEREAL_NVP(filename)
+                & CEREAL_NVP(local_dir)
+                & CEREAL_NVP(serial)
+                & CEREAL_NVP(commxx_sptr)
+                & CEREAL_NVP(file_sptr)
+                & CEREAL_NVP(have_file)
+                & CEREAL_NVP(count)
+                & CEREAL_NVP(filename_base)
+                & CEREAL_NVP(filename_suffix)
+                & CEREAL_NVP(filename_appendix);
     }
 
 template
 void
-Diagnostics_write_helper::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
+Diagnostics_write_helper::serialize<cereal::BinaryOutputArchive >(
+        cereal::BinaryOutputArchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_write_helper::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
+Diagnostics_write_helper::serialize<cereal::XMLOutputArchive >(
+        cereal::XMLOutputArchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_write_helper::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
+Diagnostics_write_helper::serialize<cereal::BinaryInputArchive >(
+        cereal::BinaryInputArchive & ar, const unsigned int version);
 
 template
 void
-Diagnostics_write_helper::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
+Diagnostics_write_helper::serialize<cereal::XMLInputArchive >(
+        cereal::XMLInputArchive & ar, const unsigned int version);
 
 Diagnostics_write_helper::~Diagnostics_write_helper()
 {

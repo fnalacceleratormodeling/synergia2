@@ -1,6 +1,6 @@
 #ifndef FIXED_T_Z_CONVERTER_H_
 
-#include "synergia/utils/serialization.h"
+//#include "synergia/utils/cereal.h"
 class Bunch;
 
 /// Fixed_t_z_converter is a virtual base class for converters
@@ -57,9 +57,11 @@ public:
     //  virtual void
     //  fixed_z_to_fixed_t(Bunch &bunch) = 0;
 
+#if 0
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
+#endif
 
     virtual
     ~Fixed_t_z_converter()
@@ -67,8 +69,10 @@ public:
     }
     ;
 };
+#if 0
 BOOST_CLASS_EXPORT_KEY(Fixed_t_z_converter)
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Fixed_t_z_converter);
+#endif
 
 /// Fixed_t_z_zeroth implements a fixed-t-fixed-z converter using
 /// the simplest approximation: longitudinal coordinates are transformed,
@@ -97,11 +101,15 @@ public:
     void
     from_t_bunch_to_t_lab(Bunch &bunch);
 
+#if 0
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
+#endif
 };
+#if 0
 BOOST_CLASS_EXPORT_KEY(Fixed_t_z_zeroth)
+#endif
 
 /// Fixed_t_z_zeroth implements a fixed-t-fixed-z converter using
 /// the ballistic approximation: longitudinal coordinates are transformed,

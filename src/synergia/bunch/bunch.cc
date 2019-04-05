@@ -242,6 +242,8 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
 
+        Kokkos::resize(parts, local_num_slots);
+
         // zero
         #pragma omp parallel for
         for (int i=0; i<local_num_slots; ++i)
@@ -269,6 +271,8 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         // allocate
         s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
         local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
+
+        Kokkos::resize(sparts, local_s_num_slots);
 
         // reset
         #pragma omp parallel for
@@ -336,6 +340,12 @@ Bunch::Bunch(
     , local_particles(NULL)
     , local_s_particles(NULL)
 
+    , parts("particles", local_num_slots)
+    , hparts(Kokkos::create_mirror_view(parts))
+
+    , sparts("spectator particles", local_s_num_slots)
+    , hsparts(Kokkos::create_mirror_view(sparts))
+
     , bucket_index(0)
     , bucket_index_assigned(false)
     , sort_period(10000)
@@ -382,6 +392,12 @@ Bunch::Bunch(
     , local_particles(NULL)
     , local_s_particles(NULL)
 
+    , parts("particles", local_num_slots)
+    , hparts(Kokkos::create_mirror_view(parts))
+
+    , sparts("spectator particles", local_s_num_slots)
+    , hsparts(Kokkos::create_mirror_view(sparts))
+
     , bucket_index(0)
     , bucket_index_assigned(false)
     , sort_period(10000)
@@ -422,6 +438,9 @@ Bunch::Bunch()
 
     , local_particles(NULL)
     , local_s_particles(NULL)
+
+    , parts("particles", local_num_slots)
+    , hparts(Kokkos::create_mirror_view(parts))
 
     , bucket_index(0)
     , bucket_index_assigned(false)
@@ -969,6 +988,7 @@ Bunch::set_design_reference_particle(Reference_particle const & ref_part)
     design_reference_particle = ref_part;
 }
 
+#if 0
 MArray2d_ref
 Bunch::get_local_particles()
 {
@@ -991,6 +1011,31 @@ Const_MArray2d_ref
 Bunch::get_local_spectator_particles() const
 {
     return *local_s_particles;
+}
+#endif
+
+Particles
+Bunch::get_local_particles()
+{
+    return parts;
+}
+
+ConstParticles
+Bunch::get_local_particles() const
+{
+    return parts;
+}
+
+Particles
+Bunch::get_local_spectator_particles()
+{
+    return sparts;
+}
+
+ConstParticles
+Bunch::get_local_spectator_particles() const
+{
+    return sparts;
 }
 
 int
@@ -1429,28 +1474,28 @@ template<class Archive>
 void
 Bunch::save(Archive & ar, const unsigned int version) const
 {
-    ar << BOOST_SERIALIZATION_NVP(longitudinal_extent)
-       << BOOST_SERIALIZATION_NVP(z_periodic)
-       << BOOST_SERIALIZATION_NVP(longitudinal_aperture)
+    ar << CEREAL_NVP(longitudinal_extent)
+       << CEREAL_NVP(z_periodic)
+       << CEREAL_NVP(longitudinal_aperture)
 
-       << BOOST_SERIALIZATION_NVP(reference_particle)
-       << BOOST_SERIALIZATION_NVP(design_reference_particle)
-       << BOOST_SERIALIZATION_NVP(particle_charge)
+       << CEREAL_NVP(reference_particle)
+       << CEREAL_NVP(design_reference_particle)
+       << CEREAL_NVP(particle_charge)
 
-       << BOOST_SERIALIZATION_NVP(total_num)
-       << BOOST_SERIALIZATION_NVP(total_s_num)
-       << BOOST_SERIALIZATION_NVP(real_num)
+       << CEREAL_NVP(total_num)
+       << CEREAL_NVP(total_s_num)
+       << CEREAL_NVP(real_num)
 
-       << BOOST_SERIALIZATION_NVP(bucket_index)
-       << BOOST_SERIALIZATION_NVP(bucket_index_assigned)
+       << CEREAL_NVP(bucket_index)
+       << CEREAL_NVP(bucket_index_assigned)
 
-       << BOOST_SERIALIZATION_NVP(sort_period)
-       << BOOST_SERIALIZATION_NVP(sort_counter)
+       << CEREAL_NVP(sort_period)
+       << CEREAL_NVP(sort_counter)
 
-       << BOOST_SERIALIZATION_NVP(state)
-       << BOOST_SERIALIZATION_NVP(comm_sptr)
-       << BOOST_SERIALIZATION_NVP(default_converter)
-       << BOOST_SERIALIZATION_NVP(converter_ptr);
+       << CEREAL_NVP(state)
+       << CEREAL_NVP(comm_sptr)
+       << CEREAL_NVP(default_converter);
+       //<< CEREAL_NVP(converter_ptr);
 
     if (comm_sptr->has_this_rank()) 
     {
@@ -1496,28 +1541,28 @@ template<class Archive>
 void
 Bunch::load(Archive & ar, const unsigned int version)
 {
-    ar >> BOOST_SERIALIZATION_NVP(longitudinal_extent)
-       >> BOOST_SERIALIZATION_NVP(z_periodic)
-       >> BOOST_SERIALIZATION_NVP(longitudinal_aperture)
+    ar >> CEREAL_NVP(longitudinal_extent)
+       >> CEREAL_NVP(z_periodic)
+       >> CEREAL_NVP(longitudinal_aperture)
 
-       >> BOOST_SERIALIZATION_NVP(reference_particle)
-       >> BOOST_SERIALIZATION_NVP(design_reference_particle)
-       >> BOOST_SERIALIZATION_NVP(particle_charge)
+       >> CEREAL_NVP(reference_particle)
+       >> CEREAL_NVP(design_reference_particle)
+       >> CEREAL_NVP(particle_charge)
 
-       >> BOOST_SERIALIZATION_NVP(total_num)
-       >> BOOST_SERIALIZATION_NVP(total_s_num)
-       >> BOOST_SERIALIZATION_NVP(real_num)
+       >> CEREAL_NVP(total_num)
+       >> CEREAL_NVP(total_s_num)
+       >> CEREAL_NVP(real_num)
 
-       >> BOOST_SERIALIZATION_NVP(bucket_index)
-       >> BOOST_SERIALIZATION_NVP(bucket_index_assigned)
+       >> CEREAL_NVP(bucket_index)
+       >> CEREAL_NVP(bucket_index_assigned)
 
-       >> BOOST_SERIALIZATION_NVP(sort_period)
-       >> BOOST_SERIALIZATION_NVP(sort_counter)
+       >> CEREAL_NVP(sort_period)
+       >> CEREAL_NVP(sort_counter)
 
-       >> BOOST_SERIALIZATION_NVP(state)
-       >> BOOST_SERIALIZATION_NVP(comm_sptr)
-       >> BOOST_SERIALIZATION_NVP(default_converter)
-       >> BOOST_SERIALIZATION_NVP(converter_ptr);
+       >> CEREAL_NVP(state)
+       >> CEREAL_NVP(comm_sptr)
+       >> CEREAL_NVP(default_converter);
+       //>> CEREAL_NVP(converter_ptr);
 
     if (comm_sptr->has_this_rank()) 
     {
@@ -1561,23 +1606,23 @@ Bunch::load(Archive & ar, const unsigned int version)
 
 template
 void
-Bunch::save<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version) const;
+Bunch::save<cereal::BinaryOutputArchive >(
+        cereal::BinaryOutputArchive & ar, const unsigned int version) const;
 
 template
 void
-Bunch::save<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version) const;
+Bunch::save<cereal::XMLOutputArchive >(
+        cereal::XMLOutputArchive & ar, const unsigned int version) const;
 
 template
 void
-Bunch::load<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
+Bunch::load<cereal::BinaryInputArchive >(
+        cereal::BinaryInputArchive & ar, const unsigned int version);
 
 template
 void
-Bunch::load<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
+Bunch::load<cereal::XMLInputArchive >(
+        cereal::XMLInputArchive & ar, const unsigned int version);
 
 Bunch::~Bunch()
 {

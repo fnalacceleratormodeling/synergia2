@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cmath>
 
+#if 0
 template<class Archive>
     void
     Fixed_t_z_converter::serialize(Archive & ar, const unsigned int version)
@@ -32,6 +33,7 @@ template
 void
 Fixed_t_z_converter::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
+#endif
 
 //*********************Fixed_t_z_zeroth*****************************************
 
@@ -43,8 +45,8 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
 
-    MArray2d_ref particles = bunch.get_local_particles();
-    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
+    auto particles = bunch.get_local_particles();
+    auto s_particles = bunch.get_local_spectator_particles();
 
     int local_num = bunch.get_local_num();
     int local_s_num = bunch.get_local_spectator_num();
@@ -53,6 +55,60 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
 
     bool exception_flag = false;
 
+    Kokkos::parallel_for(local_num, [particles, gamma, beta, m, p_ref, gb, &exception_flag](const int i) {
+        // z in beam rest frame
+        particles(i, Bunch::z) = gb * particles(i, Bunch::cdt);
+
+        // total momentum in accelerator frame
+        double p = p_ref + particles(i, Bunch::dpop) * p_ref;
+
+        // E/c in accelerator frame
+        double Eoc = std::sqrt(p * p + m * m);
+
+        // p_{x,y,z} in accelerator frame
+        double px = particles(i, Bunch::xp) * p_ref;
+        double py = particles(i, Bunch::yp) * p_ref;
+        double pz2 = p * p - px * px - py * py;
+
+        if (pz2 < 0.0) exception_flag = true;
+        double pz = std::sqrt(pz2);
+
+        // zp = pz/p_{ref}^{total}
+        particles(i, Bunch::zp) = gamma * (pz - beta * Eoc) / p_ref;
+
+        // n.b. in the zeroth approximation, the transformation from
+        //      t' = gamma cdt to t' = 0
+        //      is a no-op.
+    });
+
+    Kokkos::parallel_for(local_s_num, [s_particles, gamma, beta, m, p_ref, gb, &exception_flag](const int i) {
+        // z in beam rest frame
+        s_particles(i, Bunch::z) = gb * s_particles(i, Bunch::cdt);
+
+        // total momentum in accelerator frame
+        double p = p_ref + s_particles(i, Bunch::dpop) * p_ref;
+
+        // E/c in accelerator frame
+        double Eoc = std::sqrt(p * p + m * m);
+
+        // p_{x,y,z} in accelerator frame
+        double px = s_particles(i, Bunch::xp) * p_ref;
+        double py = s_particles(i, Bunch::yp) * p_ref;
+        double pz2 = p * p - px * px - py * py;
+
+        if (pz2 < 0.0) exception_flag = true;
+        double pz = std::sqrt(pz2);
+
+        // zp = pz/p_{ref}^{total}
+        s_particles(i, Bunch::zp) = gamma * (pz - beta * Eoc) / p_ref;
+
+        // n.b. in the zeroth approximation, the transformation from
+        //      t' = gamma cdt to t' = 0
+        //      is a no-op.
+    });
+
+
+#if 0
     #pragma omp parallel for shared(local_num, gb, particles, gamma, beta, m, p_ref, exception_flag)
     for (int part = 0; part < local_num; ++part) 
     {
@@ -104,6 +160,7 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
         //      t' = gamma cdt to t' = 0
         //      is a no-op.
     }
+#endif
 
     if (exception_flag) {
         throw std::runtime_error(
@@ -345,6 +402,7 @@ Fixed_t_z_zeroth::from_t_bunch_to_t_lab(Bunch &bunch)
     }
 }
 
+#if 0
 template<class Archive>
     void
     Fixed_t_z_zeroth::serialize(Archive & ar, const unsigned int version)
@@ -374,6 +432,8 @@ Fixed_t_z_zeroth::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Fixed_t_z_zeroth)
+#endif
+
 //*********************Fixed_t_z_zeroth end*****************************************
 
 // void

@@ -4,14 +4,24 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <memory>
+
 #include <mpi.h>
+
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/utils/commxx.h"
 #include "synergia/bunch/fixed_t_z_converter.h"
-#include "boost/shared_ptr.hpp"
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/restrict_extension.h"
+
+#include <Kokkos_Core.hpp>
+
+typedef Kokkos::View<double*[7], Kokkos::LayoutLeft> Particles;
+typedef Kokkos::View<const double*[7], Kokkos::LayoutLeft> ConstParticles;
+
+typedef Particles::HostMirror HostParticles;
+typedef ConstParticles::HostMirror ConstHostParticles;
 
 /// Represents a macroparticle bunch distributed across the processors
 /// in a comm_sptrunicator.
@@ -103,6 +113,12 @@ private:
     MArray2d_ref *local_particles;
     MArray2d_ref *local_s_particles;
 
+    Particles parts;
+    HostParticles hparts;
+
+    Particles sparts;
+    HostParticles hsparts;
+
     int bucket_index;
     bool bucket_index_assigned;
 
@@ -114,6 +130,8 @@ private:
     Fixed_t_z_converter *converter_ptr;
     // Fixed_t_z_alex default_converter;
     //  Fixed_t_z_synergia20 default_converter;
+
+
     void
     assign_ids(int local_offset);
     void
@@ -122,6 +140,7 @@ private:
     get_local_particles_serialization_path() const;
     void
     construct(int total_num, double real_num, int total_s_num);
+
 public:
     //!
     //! Constructor:
@@ -271,6 +290,7 @@ public:
     /// larger local_num. The macroparticle state vectors are stored in
     /// array[0:local_num,0:6] and the macroparticle IDs are stored in
     /// array[0:local_num,6]. Use get_local_num() to obtain local_num.
+#if 0
     MArray2d_ref
     get_local_particles();
 
@@ -282,6 +302,20 @@ public:
 
     Const_MArray2d_ref
     get_local_spectator_particles() const;
+#endif
+
+    Particles
+    get_local_particles();
+
+    ConstParticles
+    get_local_particles() const;
+
+    Particles
+    get_local_spectator_particles();
+
+    ConstParticles
+    get_local_spectator_particles() const;
+
 
     /// Get the particle charge in units of e.
     int
@@ -423,13 +457,11 @@ public:
         void
         load(Archive & ar, const unsigned int version);
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
-
     virtual
     ~Bunch();
 };
 
-typedef boost::shared_ptr<Bunch > Bunch_sptr; // syndoc:include // syndoc:include
+typedef std::shared_ptr<Bunch > Bunch_sptr; // syndoc:include // syndoc:include
 typedef std::vector<Bunch_sptr > Bunches;
 
 #endif /* BUNCH_H_ */

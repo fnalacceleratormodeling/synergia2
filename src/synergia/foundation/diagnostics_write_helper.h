@@ -3,7 +3,7 @@
 #include <string>
 #include <list>
 #include "H5Cpp.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_file.h"
@@ -75,6 +75,6 @@ public:
     ~Diagnostics_write_helper();
 };
 
-typedef boost::shared_ptr<Diagnostics_write_helper > Diagnostics_write_helper_sptr;  // syndoc:include
+typedef std::shared_ptr<Diagnostics_write_helper > Diagnostics_write_helper_sptr;  // syndoc:include
 
 #endif /* DIAGNOSTICS_WRITE_HELPER_H_ */

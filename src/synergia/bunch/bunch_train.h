@@ -54,6 +54,6 @@ public:
     ~Bunch_train();
 };
 
-typedef boost::shared_ptr<Bunch_train > Bunch_train_sptr;
+typedef std::shared_ptr<Bunch_train > Bunch_train_sptr;
 
 #endif /* BUNCH_TRAIN_H_ */
