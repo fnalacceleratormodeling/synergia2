@@ -12,7 +12,13 @@ fi
 local_dir="${SYNERGIA2_BINARY_DIR}"
 SYNERGIA2DIR="$local_dir"
 export SYNERGIA2DIR
-
+install_dir="${CMAKE_INSTALL_PREFIX}"
+# the next section is a hack
+if [ -f "$install_dir/../setup.sh" ] ; then
+	. "$install_dir/../setup.sh"
+fi
+install_python_dir="`find $install_dir -type d -name site-packages`"
+# end hack
 this_synergia_python_path="$local_dir/src"
 chef_dirs=`echo "${CHEF_LIBRARY_DIRS}" | sed 's/;/ /g'`
 for dir in $chef_dirs $install_python_dir "$this_synergia_python_path"
