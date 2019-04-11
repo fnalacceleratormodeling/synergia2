@@ -1,4 +1,5 @@
 #include "wake_field.h"
+#include <iostream>
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
