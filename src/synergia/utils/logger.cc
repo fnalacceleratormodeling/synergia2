@@ -1,5 +1,6 @@
 #include "logger.h"
 #include <sstream>
+#include <iostream>
 #include "digits.h"
 
 Logger::Logger(int rank, bool log) :
