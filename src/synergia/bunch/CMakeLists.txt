@@ -28,12 +28,13 @@ target_link_libraries(synergia_bunch
     synergia_serialization )
 
 if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(bunch bunch_wrap.cc)
-    target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
+    #add_python_extension(bunch bunch_wrap.cc)
+    #target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
+
+    pybind11_add_module(bunch bunch_pywrap.cc)
+    target_link_libraries(bunch PRIVATE synergia_bunch)
 endif ()
 
-pybind11_add_module(bunch_py bunch_pywrap.cc)
-target_link_libraries(bunch_py PRIVATE synergia_bunch)
 
 install(TARGETS synergia_bunch DESTINATION ${LIB_INSTALL_DIR})
 install(FILES

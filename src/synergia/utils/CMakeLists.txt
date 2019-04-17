@@ -13,12 +13,18 @@ add_library(synergia_hdf5_utils hdf5_writer.cc hdf5_serial_writer.cc
     hdf5_chunked_array2d_writer.cc hdf5_file.cc)
 target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES} synergia_serialization)
 
+# pybind
+add_subdirectory(pybind11)
+
 if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(parallel_utils parallel_utils_wrap.cc)
-    target_link_libraries(parallel_utils synergia_parallel_utils
-        synergia_hdf5_utils ${Boost_LIBRARIES})
+    #add_python_extension(parallel_utils parallel_utils_wrap.cc)
+    #target_link_libraries(parallel_utils synergia_parallel_utils synergia_hdf5_utils ${Boost_LIBRARIES})
+
     add_python_extension(pylsexpr lsexpr_wrap.cc)
     target_link_libraries(pylsexpr lsexpr ${Boost_LIBRARIES})
+
+    pybind11_add_module(parallel_utils parallel_utils_pywrap.cc)
+    target_link_libraries(parallel_utils PRIVATE synergia_parallel_utils)
 endif ()
 
 add_library(synergia_distributed_fft distributed_fft3d.cc
@@ -38,6 +44,7 @@ install(TARGETS
     synergia_command_line
     lsexpr
     DESTINATION ${LIB_INSTALL_DIR})
+
 install(FILES
     boost_test_mpi_fixture.h
     comm_converter.h
@@ -90,13 +97,6 @@ if (BUILD_PYTHON_BINDINGS)
 endif ()
 
 add_subdirectory(tests)
-
-# pybind
-add_subdirectory(pybind11)
-
-pybind11_add_module(parallel_utils_py parallel_utils_pywrap.cc)
-target_link_libraries(parallel_utils_py PRIVATE synergia_parallel_utils)
-
 
 # kokkos
 add_subdirectory(kokkos)
