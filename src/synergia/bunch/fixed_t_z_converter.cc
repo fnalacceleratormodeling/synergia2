@@ -171,13 +171,14 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
 void
 Fixed_t_z_zeroth::from_t_bunch_to_z_lab(Bunch &bunch)
 {
+#if 0
     double gamma = bunch.get_reference_particle().get_gamma();
     double beta = bunch.get_reference_particle().get_beta();
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
 
-    MArray2d_ref particles = bunch.get_local_particles();
-    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
+    auto particles = bunch.get_local_particles();
+    auto s_particles = bunch.get_local_spectator_particles();
 
     int local_num = bunch.get_local_num();
     int local_s_num = bunch.get_local_spectator_num();
@@ -221,12 +222,14 @@ Fixed_t_z_zeroth::from_t_bunch_to_z_lab(Bunch &bunch)
         double p = std::sqrt(p_perp2 + pz * pz);
         s_particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
     }
+#endif
 }
 
 
 void
 Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
 {
+#if 0
     double beta = bunch.get_reference_particle().get_beta();
     double p_ref = bunch.get_reference_particle().get_momentum();
 
@@ -275,11 +278,13 @@ Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
         // zp = pz/p_{ref}^{total}
         s_particles[part][Bunch::zp] = pz/p_ref;
     }
+#endif
 }
 
 void
 Fixed_t_z_zeroth::from_t_lab_to_z_lab(Bunch &bunch)
 {
+#if 0
     double beta = bunch.get_reference_particle().get_beta();
     double p_ref = bunch.get_reference_particle().get_momentum();
 
@@ -312,11 +317,13 @@ Fixed_t_z_zeroth::from_t_lab_to_z_lab(Bunch &bunch)
         s_particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
         s_particles[part][Bunch::cdt] = - s_particles[part][Bunch::z]/beta;
     }
+#endif
 }
 
 void
 Fixed_t_z_zeroth::from_t_lab_to_t_bunch(Bunch &bunch)
 {
+#if 0
      double gamma=bunch.get_reference_particle().get_gamma();
      double beta = bunch.get_reference_particle().get_beta();
      double m = bunch.get_mass();
@@ -353,11 +360,13 @@ Fixed_t_z_zeroth::from_t_lab_to_t_bunch(Bunch &bunch)
         s_particles[part][Bunch::z]  = gamma * s_particles[part][Bunch::z];
         s_particles[part][Bunch::zp] = gamma*(pz - beta * Eoc)/p_ref;
     }
+#endif
 }
 
 void
 Fixed_t_z_zeroth::from_t_bunch_to_t_lab(Bunch &bunch)
 {
+#if 0
     double gamma = bunch.get_reference_particle().get_gamma();
     double beta = bunch.get_reference_particle().get_beta();
     double m = bunch.get_mass();
@@ -400,6 +409,7 @@ Fixed_t_z_zeroth::from_t_bunch_to_t_lab(Bunch &bunch)
         s_particles[part][Bunch::z] = s_particles[part][Bunch::z]/gamma;
         s_particles[part][Bunch::dpop] = pz / p_ref;
     }
+#endif
 }
 
 #if 0

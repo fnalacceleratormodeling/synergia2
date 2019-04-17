@@ -9,92 +9,174 @@
 #include "synergia/utils/simple_timer.h"
 #include "synergia/utils/synergia_omp.h"
 
+#include <functional>
+
 using namespace Eigen;
 
-MArray1d
-Core_diagnostics::calculate_mean(Bunch const& bunch)
+#if 0
+// note: cannot get the template F to work with CUDA
+//
+template<typename F, size_t... I>
+struct particle_reducer
 {
-    MArray1d mean(boost::extents[6]);
-    double sum[6] = { 0, 0, 0, 0, 0, 0 };
-    Const_MArray2d_ref particles(bunch.get_local_particles());
-    int npart = bunch.get_local_num();
+    typedef double value_type[];
+    typedef Particles::size_type size_type;
 
-    #pragma omp parallel shared(npart, particles)
+    constexpr size_type value_count;
+    F f;
+    ConstParticles p;
+
+    particle_reducer(F f, ConstParticles const & parts)
+        : value_count(sizeof...(I)), f(f), p(parts)
+    { }
+
+    KOKKOS_INLINE_FUNCTION void
+    operator() (const size_type i, value_type sum) const
     {
-        int nt = omp_get_num_threads();
-        int it = omp_get_thread_num();
+        //sum[0] += f(p, i, 0);
+        //sum[2] += f(p, i, 2);
+        //sum[4] += f(p, i, 4);
 
-        int l = npart / nt;
-        int s = it * l;
-        int e = (it==nt-1) ? npart : (it+1)*l;
+        // it works, pros? cons?
+        //(void)(std::initializer_list<double>{ (sum[I] += f(p, i, I))... } );
 
-        double lsum[6] = { 0, 0, 0, 0, 0, 0 };
+        // only with c++17
+        //((sum[I] += f(p, i, I)),...);
 
-        for (int part = s; part < e; ++part) 
+        constexpr std::array<size_t, sizeof...(I)> indices{{I...}};
+        for (size_type j=0; j<value_count; ++j) sum[j] += f(p, i, indices[j]);
+    }
+
+    KOKKOS_INLINE_FUNCTION void
+    join(volatile value_type dst, const volatile value_type src) const
+    {
+        for (size_type j=0; j<value_count; ++j) dst[j] += src[j];
+    }
+
+    KOKKOS_INLINE_FUNCTION void
+    init(value_type sum) const
+    {
+        for (size_type j=0; j<value_count; ++j) sum[j] = 0.0;
+    }
+};
+
+using p_fun_t = double(ConstParticles const &, int, int);
+using fun_t = std::function<double(ConstParticles const &, int, int)>;
+#endif
+
+namespace core_diagnostics_impl
+{
+    struct mean_tag   { constexpr static int size = 6; };
+    struct z_mean_tag { constexpr static int size = 1; };
+    struct std_tag    { constexpr static int size = 6; };
+    struct mom2_tag   { constexpr static int size = 36; };
+
+    template<typename F>
+    struct particle_reducer
+    {
+        typedef double value_type[];
+
+        const int value_count = F::size;
+        ConstParticles p;
+        karray1d mean;
+
+        particle_reducer(
+                ConstParticles const & p, 
+                karray1d const & mean = karray1d("mean", 6) )
+            : p(p), mean(mean) 
+        { }
+
+#if 0
+        KOKKOS_INLINE_FUNCTION
+        void join(volatile value_type dst, const volatile value_type src) const
+        { for (int j=0; j<value_count; ++j) dst[j] += src[j]; }
+#endif
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i, value_type sum) const;
+    };
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<mean_tag>::operator()   (const int i, value_type sum) const
+    { 
+        for (int j=0; j<value_count; ++j) sum[j] = p(i, j); 
+    }
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<z_mean_tag>::operator() (const int i, value_type sum) const
+    { 
+        sum[0] = p(i, 4);
+    }
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<std_tag>::operator()    (const int i, value_type sum) const
+    { 
+        for (int j=0; j<value_count; ++j) 
+            sum[j] = (p(i, j) - mean(j)) * (p(i, j) - mean(j)); 
+    }
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<mom2_tag>::operator()   (const int i, value_type sum) const
+    {
+        for (int j=0; j<6; ++j)
         {
-            lsum[0] += particles[part][0];
-            lsum[1] += particles[part][1];
-            lsum[2] += particles[part][2];
-            lsum[3] += particles[part][3];
-            lsum[4] += particles[part][4];
-            lsum[5] += particles[part][5];
+            double diff_j = p(i, j) - mean(j);
+            for (int k=0; k<j; ++k)
+            {
+                double diff_k = p(i, k) - mean(k);
+                sum[j*6+k] += diff_j * diff_k;
+            }
         }
+    }
+}
 
-        #pragma omp critical
-        {
-            sum[0] += lsum[0];
-            sum[1] += lsum[1];
-            sum[2] += lsum[2];
-            sum[3] += lsum[3];
-            sum[4] += lsum[4];
-            sum[5] += lsum[5];
-        } // end of omp critical
+karray1d
+Core_diagnostics::calculate_mean(Bunch const & bunch)
+{
+    using core_diagnostics_impl::particle_reducer;
+    using core_diagnostics_impl::mean_tag;
 
-    } // end of omp parallel
+    karray1d mean("mean", 6);
 
-    double t;
-    t = simple_timer_current();
-    MPI_Allreduce(sum, mean.origin(), 6, MPI_DOUBLE, MPI_SUM,
-            bunch.get_comm().get());
+    auto particles = bunch.get_local_particles();
+    const int npart = bunch.get_local_num();
+
+    particle_reducer<mean_tag> pr(particles);
+    Kokkos::parallel_reduce(npart, pr, mean.data());
+
+    double t = simple_timer_current();
+    MPI_Allreduce(MPI_IN_PLACE, mean.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
     t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
 
-    for (int i = 0; i < 6; ++i) {
-        mean[i] /= bunch.get_total_num();
-    }
+    for (int i=0; i<6; ++i) mean(i) /= bunch.get_total_num();
+
     return mean;
 }
 
 double
 Core_diagnostics::calculate_z_mean(Bunch const& bunch)
 {
-    double sum = 0;
-    double mean;
-    Const_MArray2d_ref particles(bunch.get_local_particles());
-    int npart = bunch.get_local_num();
+    using core_diagnostics_impl::particle_reducer;
+    using core_diagnostics_impl::z_mean_tag;
 
-    #pragma omp parallel shared(npart, particles)
-    {
-        int nt = omp_get_num_threads();
-        int it = omp_get_thread_num();
+    double mean = 0;
 
-        int l = npart / nt;
-        int s = it * l;
-        int e = (it==nt-1) ? npart : (it+1)*l;
+    auto particles = bunch.get_local_particles();
+    const int npart = bunch.get_local_num();
 
-        double lsum = 0;
+    particle_reducer<z_mean_tag> pr(particles);
+    Kokkos::parallel_reduce(npart, pr, &mean);
 
-        for (int part = s; part < e; ++part) 
-        {
-            lsum += particles[part][4];
-        }
+    double t = simple_timer_current();
+    MPI_Allreduce(MPI_IN_PLACE, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+    t = simple_timer_show(t, "allmpireduce_in_diagnostic z mean");
 
-        #pragma omp critical
-        sum += lsum;
+    mean = mean / bunch.get_total_num();
 
-    } // end of omp parallel
-
-    MPI_Allreduce(&sum, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
-    mean /= bunch.get_total_num();
     return mean;
 }
 
@@ -103,6 +185,7 @@ Core_diagnostics::calculate_z_std(Bunch const& bunch, double const& mean)
 {
     double sum = 0;
     double std;
+#if 0
     Const_MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double diff = particles[part][4] - mean;
@@ -110,6 +193,7 @@ Core_diagnostics::calculate_z_std(Bunch const& bunch, double const& mean)
     }
     MPI_Allreduce(&sum, &std, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
     std = std::sqrt(std / bunch.get_total_num());
+#endif
     return std;
 }
 
@@ -117,6 +201,7 @@ MArray1d
 Core_diagnostics::calculate_spatial_mean(Bunch const& bunch)
 {
     MArray1d mean(boost::extents[3]);
+#if 0
     double sum[3] = { 0, 0, 0 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
     int npart = bunch.get_local_num();
@@ -156,64 +241,38 @@ Core_diagnostics::calculate_spatial_mean(Bunch const& bunch)
     for (int i = 0; i < 3; ++i) {
         mean[i] /= bunch.get_total_num();
     }
+#endif
     return mean;
 }
 
-MArray1d
-Core_diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
+karray1d
+Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
 {
-    MArray1d std(boost::extents[6]);
-    double sum[6] = { 0, 0, 0, 0, 0, 0 };
-    Const_MArray2d_ref particles(bunch.get_local_particles());
-    int npart = bunch.get_local_num();
+    using core_diagnostics_impl::particle_reducer;
+    using core_diagnostics_impl::std_tag;
 
-    #pragma omp parallel shared(npart, particles)
-    {
-        int nt = omp_get_num_threads();
-        int it = omp_get_thread_num();
+    karray1d std("std", 6);
 
-        int l = npart / nt;
-        int s = it * l;
-        int e = (it==nt-1) ? npart : (it+1)*l;
+    auto particles = bunch.get_local_particles();
+    const int npart = bunch.get_local_num();
 
-        double lsum[6] = { 0, 0, 0, 0, 0, 0 };
-        double diff;
+    particle_reducer<std_tag> pr(particles, mean);
+    Kokkos::parallel_reduce(npart, pr, std.data());
 
-        for(int part = s; part < e; ++part)
-        {
-            diff = particles[part][0] - mean[0]; lsum[0] += diff * diff;
-            diff = particles[part][1] - mean[1]; lsum[1] += diff * diff;
-            diff = particles[part][2] - mean[2]; lsum[2] += diff * diff;
-            diff = particles[part][3] - mean[3]; lsum[3] += diff * diff;
-            diff = particles[part][4] - mean[4]; lsum[4] += diff * diff;
-            diff = particles[part][5] - mean[5]; lsum[5] += diff * diff;
-        }
- 
-        #pragma omp critical
-        {
-            sum[0] += lsum[0];
-            sum[1] += lsum[1];
-            sum[2] += lsum[2];
-            sum[3] += lsum[3];
-            sum[4] += lsum[4];
-            sum[5] += lsum[5];
-        } // end of omp critical
-    }
+    double t = simple_timer_current();
+    MPI_Allreduce(MPI_IN_PLACE, std.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
 
-    MPI_Allreduce(sum, std.origin(), 6, MPI_DOUBLE, MPI_SUM,
-            bunch.get_comm().get());
+    for (int i=0; i<6; ++i) std(i) = std::sqrt(std(i) / bunch.get_total_num());
 
-    for (int i = 0; i < 6; ++i) {
-        std[i] = std::sqrt(std[i] / bunch.get_total_num());
-    }
-
-    return std;
+    return mean;
 }
 
 MArray1d
 Core_diagnostics::calculate_spatial_std(Bunch const& bunch, MArray1d_ref const& mean)
 {
     MArray1d std(boost::extents[3]);
+#if 0
     double sum[3] = { 0, 0, 0 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
     int npart = bunch.get_local_num();
@@ -250,15 +309,38 @@ Core_diagnostics::calculate_spatial_std(Bunch const& bunch, MArray1d_ref const& 
     for (int i = 0; i < 3; ++i) {
         std[i] = std::sqrt(std[i] / bunch.get_total_num());
     }
+#endif
     return std;
 }
 
-MArray2d
-Core_diagnostics::calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean)
+karray2d
+Core_diagnostics::calculate_mom2(Bunch const & bunch, karray1d const & mean)
 {
-    MArray2d mom2(boost::extents[6][6]);
-    MArray2d sum2(boost::extents[6][6]);
+    using core_diagnostics_impl::particle_reducer;
+    using core_diagnostics_impl::mom2_tag;
 
+    karray2d mom2("mom2", 6, 6);
+    karray1d sum2("sum2", 36);
+
+    auto particles = bunch.get_local_particles();
+    auto npart = bunch.get_local_num();
+
+    particle_reducer<mom2_tag> pr(particles, mean);
+    Kokkos::parallel_reduce(npart, pr, sum2.data());
+
+    for (int i=0; i<5; ++i)
+        for (int j=i+1; j<6; ++j)
+            sum2(i*6+j) = sum2(j*6+i);
+
+    MPI_Allreduce(MPI_IN_PLACE, sum2.data(), 36, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+
+    for (int i=0; i<6; ++i)
+        for (int j=0; j<6; ++j)
+            mom2(i, j) = sum2(i*6+j) / bunch.get_total_num();
+
+    return mom2;
+
+#if 0
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             sum2[i][j] = 0.0;
@@ -286,13 +368,15 @@ Core_diagnostics::calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean)
             mom2[i][j] = mom2[j][i] = mom2[i][j] / bunch.get_total_num();
         }
     }
-    return mom2;
+#endif
+
 }
 
 MArray1d
 Core_diagnostics::calculate_min(Bunch const& bunch)
 {
     MArray1d min(boost::extents[3]);
+#if 0
     double lmin[3] = { 1.0e100, 1.0e100, 1.0e100 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
@@ -310,6 +394,7 @@ Core_diagnostics::calculate_min(Bunch const& bunch)
     MPI_Allreduce(lmin, min.origin(), 3, MPI_DOUBLE, MPI_MIN,
             bunch.get_comm().get());
 
+#endif
     return min;
 }
 
@@ -317,6 +402,7 @@ MArray1d
 Core_diagnostics::calculate_max(Bunch const& bunch)
 {
     MArray1d max(boost::extents[3]);
+#if 0
     double lmax[3] = { -1.0e100, -1.0e100, -1.0e100 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
@@ -334,12 +420,14 @@ Core_diagnostics::calculate_max(Bunch const& bunch)
     MPI_Allreduce(lmax, max.origin(), 3, MPI_DOUBLE, MPI_MAX,
             bunch.get_comm().get());
 
+#endif
     return max;
 }
 
 void
 Core_diagnostics::print_bunch_parameters(MArray2d_ref const& mom2, double beta)
 {
+#if 0
   ///emitx,emity,emitz correspond to sigma^2/beta for a matched beam. Note there is no pi factor in our definition. 
   /// 95% emitts...corespond to Fermilab measured emittances defined as (6 pi sigma^2/beta0.
 
@@ -397,5 +485,6 @@ Core_diagnostics::print_bunch_parameters(MArray2d_ref const& mom2, double beta)
   logger<<"*    pz="<<pz<<"  GeV/c"<<std::endl;
   logger<<"*    total energy="<<energy<<"GeV,  kinetic energy="<<energy-pconstants::mp<<"GeV"<<std::endl;
   logger<<"****************************************************"<<std::endl;
+#endif
 
 } 

@@ -18,6 +18,7 @@
 
 using namespace boost::python;
 
+#if 0
 BOOST_PYTHON_MODULE(bunch)
 {
     import_array();
@@ -166,6 +167,7 @@ BOOST_PYTHON_MODULE(bunch)
     def("no_diagnostics", no_diagnostics);
     def("populate_6d", populate_6d);
     def("populate_6d_truncated", populate_6d_truncated);
+#if 0
     def("populate_transverse_gaussian", populate_transverse_gaussian);
     def("populate_uniform_cylinder", populate_uniform_cylinder);
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
@@ -175,6 +177,7 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_transverseKV_logitudinalGaussian", populate_transverseKV_logitudinalGaussian);
     def("populate_longitudinal_boxcar", populate_longitudinal_boxcar);
     def("populate_longitudinal_uniform",populate_longitudinal_uniform);
+#endif
 
     container_conversions::from_python_sequence<std::vector<Bunch_sptr >,
             container_conversions::variable_capacity_policy >();
@@ -269,3 +272,4 @@ BOOST_PYTHON_MODULE(bunch)
     scope().attr("dpop") = Bunch::dpop;
     scope().attr("id") = Bunch::id;
 }
+#endif

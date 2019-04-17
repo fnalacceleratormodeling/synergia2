@@ -222,8 +222,8 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
     this->real_num = real_num;
     this->total_s_num = total_s_num;
 
-    state = fixed_z_lab;
-    converter_ptr = &default_converter;
+    //state = fixed_z_lab;
+    //converter_ptr = &default_converter;
 
     if (comm_sptr->has_this_rank()) 
     {
@@ -350,10 +350,7 @@ Bunch::Bunch(
     , bucket_index_assigned(false)
     , sort_period(10000)
     , sort_counter(0)
-    , state()
     , comm_sptr(comm_sptr)
-    , default_converter()
-    , converter_ptr(&default_converter)
 {
     construct(total_num, real_num, 0);
 }
@@ -402,10 +399,7 @@ Bunch::Bunch(
     , bucket_index_assigned(false)
     , sort_period(10000)
     , sort_counter(0)
-    , state()
     , comm_sptr(comm_sptr)
-    , default_converter()
-    , converter_ptr(&default_converter)
 {
     construct(total_num, real_num, total_spectator_num);
 }
@@ -446,10 +440,7 @@ Bunch::Bunch()
     , bucket_index_assigned(false)
     , sort_period(10000)
     , sort_counter(0)
-    , state()
     , comm_sptr()
-    , default_converter()
-    , converter_ptr(NULL)
 {
 }
 
@@ -491,11 +482,7 @@ Bunch::Bunch(Bunch const& bunch)
     , bucket_index_assigned(bunch.bucket_index_assigned)
     , sort_period(bunch.sort_period)
     , sort_counter(bunch.sort_counter)
-    , state(bunch.state)
     , comm_sptr(bunch.comm_sptr)
-    , default_converter()
-    , converter_ptr( (bunch.converter_ptr==&(bunch.default_converter)) 
-            ? &default_converter : bunch.converter_ptr )
 {
     memcpy(storage, bunch.storage, sizeof(double)*local_num_slots*7);
     memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_slots*7);
@@ -547,19 +534,9 @@ Bunch::operator=(Bunch const& bunch)
         memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_slots *7);
         local_s_particles = new MArray2d_ref(storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
 
-        state = bunch.state;
         longitudinal_extent = bunch.longitudinal_extent;
         z_periodic = bunch.z_periodic;
         longitudinal_aperture = bunch.longitudinal_aperture;
-
-        if (bunch.converter_ptr == &(bunch.default_converter)) 
-        {
-            converter_ptr = &default_converter;
-        } 
-        else 
-        {
-            converter_ptr = bunch.converter_ptr;
-        }
     }
 
     return *this;
@@ -875,15 +852,18 @@ Bunch::periodic_sort(int index)
     }
 }
 
+#if 0
 void
 Bunch::set_converter(Fixed_t_z_converter &converter)
 {
-    this->converter_ptr = &converter;
+    //this->converter_ptr = &converter;
 }
+#endif
 
 void
 Bunch::convert_to_state(State state)
 {
+#if 0
     if (this->state != state) 
     {
         if (this->state == fixed_z_lab) 
@@ -953,7 +933,7 @@ Bunch::convert_to_state(State state)
 
         this->state = state;
     }
-
+#endif
 }
 
 
@@ -1013,30 +993,6 @@ Bunch::get_local_spectator_particles() const
     return *local_s_particles;
 }
 #endif
-
-Particles
-Bunch::get_local_particles()
-{
-    return parts;
-}
-
-ConstParticles
-Bunch::get_local_particles() const
-{
-    return parts;
-}
-
-Particles
-Bunch::get_local_spectator_particles()
-{
-    return sparts;
-}
-
-ConstParticles
-Bunch::get_local_spectator_particles() const
-{
-    return sparts;
-}
 
 int
 Bunch::get_particle_charge() const
@@ -1210,7 +1166,7 @@ Bunch::is_bucket_index_assigned() const
 Bunch::State
 Bunch::get_state() const
 {
-    return state;
+    return fixed_z_lab;
 }
 
 Commxx const&
@@ -1228,6 +1184,9 @@ Bunch::get_comm_sptr() const
 void
 Bunch::inject(Bunch const& bunch)
 {
+    throw std::runtime_error("Bunch::inject not implemented");
+
+#if 0
     const double weight_tolerance = 1.0e-14;
     const double particle_tolerance = 1.0e-14;
 
@@ -1264,8 +1223,8 @@ Bunch::inject(Bunch const& bunch)
         }
     }
 
-    Const_MArray2d_ref injected_particles(bunch.get_local_particles());
-    Const_MArray2d_ref injected_spectator_particles(bunch.get_local_spectator_particles());
+    ConstParticles injected_particles(bunch.get_local_particles());
+    ConstParticles injected_spectator_particles(bunch.get_local_spectator_particles());
 
     double target_momentum = reference_particle.get_momentum();
     double injected_momentum = bunch.get_reference_particle().get_momentum();
@@ -1380,11 +1339,15 @@ Bunch::inject(Bunch const& bunch)
 
     // update total number, for both real and spectator particles
     update_total_num();
+#endif
 }
 
 void
 Bunch::read_file(std::string const & filename)
 {
+    throw std::runtime_error("Bunch::read_file() no implemented");
+
+#if 0
    if (comm_sptr->has_this_rank()) 
    {
         Hdf5_file file(filename, Hdf5_file::read_only);
@@ -1419,10 +1382,14 @@ Bunch::read_file(std::string const & filename)
             }
         }
    }
+#endif
 }
 
 void Bunch::check_pz2_positive()
 {
+    throw std::runtime_error("Bunch::check_pz2_positive() not implemented");
+
+#if 0
     if (this->state == fixed_z_lab) 
     {
         int local_num = get_local_num();
@@ -1440,6 +1407,7 @@ void Bunch::check_pz2_positive()
             }
         }
     }
+#endif
 }
 
 void Bunch::set_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
@@ -1492,10 +1460,12 @@ Bunch::save(Archive & ar, const unsigned int version) const
        << CEREAL_NVP(sort_period)
        << CEREAL_NVP(sort_counter)
 
-       << CEREAL_NVP(state)
        << CEREAL_NVP(comm_sptr)
-       << CEREAL_NVP(default_converter);
-       //<< CEREAL_NVP(converter_ptr);
+
+       //<< CEREAL_NVP(state)
+       //<< CEREAL_NVP(default_converter)
+       //<< CEREAL_NVP(converter_ptr)
+       ;
 
     if (comm_sptr->has_this_rank()) 
     {
@@ -1559,10 +1529,12 @@ Bunch::load(Archive & ar, const unsigned int version)
        >> CEREAL_NVP(sort_period)
        >> CEREAL_NVP(sort_counter)
 
-       >> CEREAL_NVP(state)
        >> CEREAL_NVP(comm_sptr)
-       >> CEREAL_NVP(default_converter);
-       //>> CEREAL_NVP(converter_ptr);
+
+       //>> CEREAL_NVP(state)
+       //>> CEREAL_NVP(default_converter)
+       //>> CEREAL_NVP(converter_ptr)
+       ;
 
     if (comm_sptr->has_this_rank()) 
     {

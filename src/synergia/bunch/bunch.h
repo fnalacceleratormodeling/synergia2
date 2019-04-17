@@ -11,7 +11,6 @@
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/utils/commxx.h"
-#include "synergia/bunch/fixed_t_z_converter.h"
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/restrict_extension.h"
 
@@ -124,12 +123,14 @@ private:
 
     int sort_period, sort_counter;
 
-    State state;
     Commxx_sptr comm_sptr;    
+
+    // no longer doing the state conversion
+#if 0
+    State state;
     Fixed_t_z_zeroth default_converter;
     Fixed_t_z_converter *converter_ptr;
-    // Fixed_t_z_alex default_converter;
-    //  Fixed_t_z_synergia20 default_converter;
+#endif
 
 
     void
@@ -257,11 +258,13 @@ public:
     void
     periodic_sort(int index);
 
+#if 0
     /// Set the Fixed_t_z_converter class to be used when converting between
     /// fixed-t and fixed-z representations.
     /// @param converter the converter class
     void
     set_converter(Fixed_t_z_converter &converter);
+#endif
 
     /// Convert to (fixed-t or fixed-z) state if necessary. Does nothing if
     /// the bunch is already in the requested state.
@@ -304,17 +307,37 @@ public:
     get_local_spectator_particles() const;
 #endif
 
-    Particles
-    get_local_particles();
+    Particles get_local_particles()
+    { return parts; }
 
-    ConstParticles
-    get_local_particles() const;
+    ConstParticles get_local_particles() const
+    { return parts; }
 
-    Particles
-    get_local_spectator_particles();
+    HostParticles get_host_particles()
+    { return hparts; }
 
-    ConstParticles
-    get_local_spectator_particles() const;
+    ConstHostParticles get_host_particles() const
+    { return hparts; }
+
+
+    Particles get_local_spectator_particles()
+    { return sparts; }
+
+    ConstParticles get_local_spectator_particles() const
+    { return sparts; }
+
+    HostParticles get_host_spectator_particles()
+    { return hsparts; }
+
+    ConstHostParticles get_host_spectator_particles() const
+    { return hsparts; }
+
+
+    void checkout_particles()
+    { Kokkos::deep_copy(hparts, parts); }
+
+    void checkin_particles()
+    { Kokkos::deep_copy(parts, hparts); }
 
 
     /// Get the particle charge in units of e.

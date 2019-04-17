@@ -11,8 +11,10 @@
 ///  in each phase space variable
 /// @param covariances the six-by-six covariance matrix
 void
-populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
-        Const_MArray2d_ref covariances);
+populate_6d( Distribution & dist, 
+             Bunch &bunch, 
+             const_karray1d means,
+             const_karray2d covariances );
 
 /// Populate a bunch with a truncated Gaussian distribution in all six dimensions.
 /// @param dist the distribution generator
@@ -22,9 +24,11 @@ populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
 /// @param covariances the six-by-six covariance matrix
 /// @param limits an array of length six giving the cutoffs in units of the individual sigmas. A zero value means "do not truncate."
 void
-populate_6d_truncated(Distribution &dist, Bunch &bunch,
-        Const_MArray1d_ref means, Const_MArray2d_ref covariances,
-        Const_MArray1d_ref limits);
+populate_6d_truncated( Distribution & dist, 
+                       Bunch & bunch, 
+                       const_karray1d means, 
+                       const_karray2d covariances, 
+                       const_karray1d limits );
 
 /// Populate a bunch with a Gaussian distribution in all four
 /// transverse dimensions. The time distribution is uniform, but the
@@ -102,7 +106,8 @@ get_correlation_matrix(Const_MArray2d_ref map, double xrms, double yrms, double 
 
                        
 void
-adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
-        Const_MArray2d_ref covariances);                      
+adjust_moments( Bunch & bunch, 
+                const_karray1d means,
+                const_karray2d covariances);                      
 
 #endif /* POPULATE_H_ */

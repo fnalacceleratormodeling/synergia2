@@ -1,6 +1,28 @@
 #ifndef MULTI_ARRAY_TYPEDEFS_H_
 #define MULTI_ARRAY_TYPEDEFS_H_
 
+#include <Kokkos_Core.hpp>
+
+typedef Kokkos::View<double*,  Kokkos::LayoutLeft> karray1d_dev;
+typedef Kokkos::View<double**, Kokkos::LayoutLeft> karray2d_dev;
+
+typedef karray1d_dev::HostMirror karray1d_hst;
+typedef karray2d_dev::HostMirror karray2d_hst;
+
+typedef karray1d_hst karray1d;
+typedef karray2d_hst karray2d;
+
+typedef Kokkos::View<const double*,  Kokkos::LayoutLeft> const_karray1d_dev;
+typedef Kokkos::View<const double**, Kokkos::LayoutLeft> const_karray2d_dev;
+
+typedef const_karray1d_dev::HostMirror const_karray1d_hst;
+typedef const_karray2d_dev::HostMirror const_karray2d_hst;
+
+typedef const_karray1d_hst const_karray1d;
+typedef const_karray2d_hst const_karray2d;
+
+
+
 #include <complex>
 #include "boost/multi_array.hpp"
 #include "boost/shared_array.hpp"

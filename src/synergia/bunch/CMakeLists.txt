@@ -6,7 +6,7 @@ add_library(synergia_bunch
     bunch.cc
     bunch_train.cc
     #diagnostics.cc 
-    #core_diagnostics.cc 
+    core_diagnostics.cc 
     #diagnostics_basic.cc
     #diagnostics_full2.cc 
     #diagnostics_particles.cc 
@@ -17,7 +17,8 @@ add_library(synergia_bunch
     #diagnostics_phase_space_density.cc
     populate.cc 
     analysis.cc 
-    period.cc )
+    #period.cc 
+    )
 
 target_link_libraries(synergia_bunch 
     synergia_parallel_utils 
@@ -30,6 +31,9 @@ if (BUILD_PYTHON_BINDINGS)
     add_python_extension(bunch bunch_wrap.cc)
     target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
 endif ()
+
+pybind11_add_module(bunch_py bunch_pywrap.cc)
+target_link_libraries(bunch_py PRIVATE synergia_bunch)
 
 install(TARGETS synergia_bunch DESTINATION ${LIB_INSTALL_DIR})
 install(FILES

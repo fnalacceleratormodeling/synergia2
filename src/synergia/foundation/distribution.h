@@ -10,6 +10,8 @@
 class Distribution
 {
 public:
+    virtual ~Distribution() = default;
+
     /// Get the next number in the sequence (between 0 and 1).
     virtual double
     get() = 0;
@@ -31,6 +33,9 @@ public:
     void
     fill_unit_gaussian(MArray1d_ref array);
 
+    virtual void
+    fill_unit_gaussian(karray1d array) = 0;
+
     /// Fill two one-dimensional arrays such that (x,y) are distributed
     /// uniformly in the unit disk.
     virtual void
@@ -39,12 +44,6 @@ public:
     /// Alternate form for type compatibility.
     void
     fill_unit_disk(MArray1d_ref x_array, MArray1d_ref y_array);
-
-    virtual
-    ~Distribution()
-    {
-    }
-    ;
 };
 
 /// Random_distribution provides a Distribution of random numbers. The random seed
@@ -52,12 +51,16 @@ public:
 /// from the GNU Scientific Library.
 class Random_distribution : public Distribution
 {
+
 private:
+
     gsl_rng *rng;
     const gsl_rng_type * rng_type;
     int rank;
     unsigned long int original_seed;
+
 public:
+
     enum Generator
     {
         ranlxd2, mt19937
@@ -71,6 +74,9 @@ public:
     /// @param generator The underlying random number generator to be used.
     Random_distribution(unsigned long int seed, Commxx const & comm,
             Generator generator = ranlxd2);
+
+    virtual
+    ~Random_distribution();
 
     /// Generate a random seed. Attempt to read from device if present.
     /// Otherwise, use the system clock.
@@ -104,6 +110,7 @@ public:
 
     using Distribution::fill_unit_gaussian;
 
+
     /// Fill two one-dimensional arrays such that (x,y) are distributed
     /// uniformly in the unit disk.
     virtual void
@@ -111,8 +118,9 @@ public:
 
     using Distribution::fill_unit_disk;
 
-    virtual
-    ~Random_distribution();
+    // KArray overrides
+    virtual void
+    fill_unit_gaussian(karray1d array) override;
 };
 
 #endif /* DISTRIBUTION_H_ */

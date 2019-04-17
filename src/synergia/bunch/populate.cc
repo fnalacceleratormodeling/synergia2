@@ -14,35 +14,50 @@ using namespace Eigen;
 #include "synergia/foundation/math_constants.h"
 using mconstants::pi;
 
-namespace {
-bool is_symmetric66(Const_MArray2d_ref &m) {
-  bool symmetric = true;
-  const double tolerance = 1.0e-14;
-  for (int i = 0; i < 6; ++i) {
-    for (int j = i + 1; j < 6; ++j) {
-      if (!floating_point_equal(m[i][j], m[j][i], tolerance)) {
-        symmetric = false;
-      }
+namespace 
+{
+    bool is_symmetric66(const_karray2d m) 
+    {
+        bool symmetric = true;
+        const double tolerance = 1.0e-14;
+
+        for (int i = 0; i < 6; ++i) 
+        {
+            for (int j = i + 1; j < 6; ++j) 
+            { 
+                if (!floating_point_equal(m(i, j), m(j, i), tolerance)) 
+                { 
+                    symmetric = false; 
+                } 
+            } 
+        } 
+
+        return symmetric;
     }
-  }
-  return symmetric;
-}
 }
 
 void
-adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
-        Const_MArray2d_ref covariances)
+adjust_moments( Bunch & bunch, 
+        const_karray1d means,
+        const_karray2d covariances )
 {
-    if (!is_symmetric66(covariances)) {
+    if (!is_symmetric66(covariances))
         throw std::runtime_error("adjust_moments: covariance matrix must be symmetric");
-    }
-    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
-    MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
-    Matrix<double, 6, 6, Eigen::ColMajor > C(covariances.origin());
-    Matrix<double, 6, 6, Eigen::ColMajor > G(C.llt().matrixL());
-    Matrix<double, 6, 6, Eigen::ColMajor > X(bunch_mom2.origin());
-    Matrix<double, 6, 6, Eigen::ColMajor > H(X.llt().matrixL());
-    Matrix<double, 6, 6, Eigen::ColMajor > A(G * H.inverse());
+
+    // calculate_mean and mom2 are performed on device memory, so we need to
+    // copy the particle data from host to device first. checkout is not
+    // necessary since the core diagnostics do not change the particle data
+    bunch.checkin_particles();
+
+    karray1d bunch_mean = Core_diagnostics::calculate_mean(bunch);
+    karray2d bunch_mom2 = Core_diagnostics::calculate_mom2(bunch, bunch_mean);
+
+    Matrix<double, 6, 6, Eigen::ColMajor> C(covariances.data());
+    Matrix<double, 6, 6, Eigen::ColMajor> G(C.llt().matrixL());
+    Matrix<double, 6, 6, Eigen::ColMajor> X(bunch_mom2.data());
+    Matrix<double, 6, 6, Eigen::ColMajor> H(X.llt().matrixL());
+    Matrix<double, 6, 6, Eigen::ColMajor> A(G * H.inverse());
+
     // jfa: dummy exists only to work around a bad interaction betwen
     //      Eigen3 and g++ 4.1.2
     std::stringstream dummy;
@@ -51,139 +66,189 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     int num_particles = bunch.get_local_num();
     int num_particles_slots = bunch.get_local_num_slots();
 
-    Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor > >
-            rho7(bunch.get_local_particles().origin(), num_particles_slots, 7);
-    Matrix<double, 1, 6 > rhobar6(bunch_mean.origin());
+    Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>
+            rho7(bunch.get_host_particles().data(), num_particles_slots, 7);
+
+    Matrix<double, 1, 6 > rhobar6(bunch_mean.data());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-        rho7.block<1, 6 > (part, 0) -= rhobar6;
+        rho7.block<1, 6>(part, 0) -= rhobar6;
     }
 
     rho7.block(0, 0, num_particles, 6) *= A.transpose();
 
-    Matrix<double, 1, 6 > means6(means.origin());
+    Matrix<double, 1, 6> means6(means.data());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-        rho7.block<1, 6 > (part, 0) += means6;
+        rho7.block<1, 6>(part, 0) += means6;
     }
 }
 
 namespace
 {
     void
-    fill_unit_6d(Distribution & dist, MArray2d_ref & particles,
-            Const_MArray2d_ref covariances, int start, int end)
+    fill_unit_6d( Distribution & dist, 
+                  HostParticles particles,
+                  const_karray2d covariances, 
+                  int start, int end )
     {
-        for (int j = 0; j < 6; ++j) {
+        for (int j = 0; j < 6; ++j) 
+        {
             dist.fill_unit_gaussian(
-                    particles[boost::indices[range(start, end)][j]]);
-            double scale = sqrt(covariances[j][j]);
-            for (int i = start; i < end; ++i) {
-                particles[i][j] *= scale;
-            }
+                    Kokkos::subview(particles, std::make_pair(start, end), j) );
+
+            const double scale = sqrt( covariances(j, j) );
+
+            for (int i = start; i < end; ++i)
+                particles(i, j) *= scale;
         }
     }
 
-    inline
-    bool
-    good(MArray2d_ref particles, Const_MArray1d_ref limits, int index)
+    inline bool
+    good( ConstHostParticles particles, 
+          const_karray1d limits, 
+          int index )
     {
         bool retval = true;
-        for (int i = 0; i < 6; ++i) {
-            double val = particles[index][i];
+
+        for (int i = 0; i < 6; ++i) 
+        {
+            double val = particles(index, i);
             double limit = limits[i];
-            if ((limit > 0) && ((val > limit) or (val < -limit))) {
+
+            if ((limit > 0) && ((val > limit) or (val < -limit))) 
                 retval = false;
-            }
         }
+
         return retval;
     }
 
     void
-    strip_unit_6d(Bunch & bunch, Const_MArray1d_ref limits, int & total_num,
-            int & local_num)
+    strip_unit_6d( Bunch & bunch, 
+                   const_karray1d limits, 
+                   int & total_num,
+                   int & local_num )
     {
-        MArray2d_ref particles(bunch.get_local_particles());
+        auto particles = bunch.get_host_particles();
         local_num = bunch.get_local_num();
+
         int index = 0;
-        while (index < local_num) {
-            if (good(particles, limits, index)) {
+        while (index < local_num) 
+        {
+            if (good(particles, limits, index)) 
+            {
                 ++index;
-            } else {
+            } 
+            else 
+            {
                 int last = local_num - 1;
-                if (good(particles, limits, last)) {
-                    particles[index][0] = particles[last][0];
-                    particles[index][1] = particles[last][1];
-                    particles[index][2] = particles[last][2];
-                    particles[index][3] = particles[last][3];
-                    particles[index][4] = particles[last][4];
-                    particles[index][5] = particles[last][5];
+                if (good(particles, limits, last)) 
+                {
+                    particles(index, 0) = particles(last, 0);
+                    particles(index, 1) = particles(last, 1);
+                    particles(index, 2) = particles(last, 2);
+                    particles(index, 3) = particles(last, 3);
+                    particles(index, 4) = particles(last, 4);
+                    particles(index, 5) = particles(last, 5);
                 }
+
                 --local_num;
             }
         }
+
         MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM,
                 bunch.get_comm().get());
     }
 }
 
 void
-populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
-        Const_MArray2d_ref covariances)
+populate_6d( Distribution & dist, 
+        Bunch & bunch, 
+        const_karray1d means,
+        const_karray2d covariances )
 {
-    MArray1d limits(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        limits[i] = 0.0;
-    }
+    karray1d limits("limits", 6);
+    for(int i=0; i<6; ++i) limits[i] = 0.0;
+
     populate_6d_truncated(dist, bunch, means, covariances, limits);
 }
 
 void
-populate_6d_truncated(Distribution &dist, Bunch &bunch,
-        Const_MArray1d_ref means, Const_MArray2d_ref covariances,
-        Const_MArray1d_ref limits)
+populate_6d_truncated( Distribution & dist, 
+        Bunch & bunch,
+        const_karray1d means, 
+        const_karray2d covariances,
+        const_karray1d limits )
 {
+#if 0
     multi_array_assert_size(means, 6, "populate_6d: means");
     multi_array_assert_size(covariances, 6, 6, "populate_6d: covariances");
     multi_array_assert_size(limits, 6, "populate_6d: limits");
-    MArray2d_ref particles(bunch.get_local_particles());
-    MArray2d unit_covariances(boost::extents[6][6]);
-    MArray1d zero_means(boost::extents[6]);
+#endif
+
+    // deep copy from device to host
+    bunch.checkout_particles();
+
+    auto particles = bunch.get_host_particles();
+
+    karray2d unit_covariances("unit_covariances", 6, 6);
+    karray1d zero_means("zero_means", 6);
+
     bool truncated(false);
-    for (int i = 0; i < 6; ++i) {
+
+    for (int i = 0; i < 6; ++i) 
+    {
         double n = limits[i];
-        if (n > 0) {
+
+        if (n > 0) 
+        {
             truncated = true;
-            double cutoff_integral = exp(-n * n / 2.0)
-                    * (sqrt(pi) * exp(n * n / 2.0) * erf(n / sqrt(2.0))
-                            - sqrt(2.0) * n) / (sqrt(pi));
-            unit_covariances[i][i] = 1 / (cutoff_integral * cutoff_integral);
-        } else {
-            unit_covariances[i][i] = 1.0;
+
+            double cutoff_integral = 
+                ( exp(-n*n/2.0) ) * 
+                ( sqrt(pi) * exp(n*n/2.0) * erf(n/sqrt(2.0)) - sqrt(2.0)*n ) / 
+                ( sqrt(pi) );
+
+            unit_covariances(i, i) = 1.0 / (cutoff_integral * cutoff_integral);
+        } 
+        else 
+        {
+            unit_covariances(i, i) = 1.0;
         }
     }
+
     int start = 0;
     int end = bunch.get_local_num();
+
     fill_unit_6d(dist, particles, unit_covariances, start, end);
-    if (truncated) {
+
+    if (truncated) 
+    {
         adjust_moments(bunch, zero_means, unit_covariances);
+
         int iteration = 0;
         int total_num, local_num;
+
         strip_unit_6d(bunch, limits, total_num, local_num);
-        while (total_num < bunch.get_total_num()) {
+
+        while (total_num < bunch.get_total_num()) 
+        {
             ++iteration;
             const int max_iterations = 50;
             if (iteration > max_iterations) {
                 throw std::runtime_error(
                         "populate_6d_truncated: maximum number of truncation iterations exceeded. Algorithm known to fail ~< 2.5 sigma.");
             }
+
             fill_unit_6d(dist, particles, unit_covariances, local_num, end);
             adjust_moments(bunch, zero_means, unit_covariances);
             strip_unit_6d(bunch, limits, total_num, local_num);
         }
     }
+
     adjust_moments(bunch, means, covariances);
     bunch.check_pz2_positive();
 }
 
+#if 0
 void
 populate_transverse_gaussian(Distribution &dist, Bunch &bunch,
         Const_MArray1d_ref means, Const_MArray2d_ref covariances, double cdt)
@@ -486,4 +551,5 @@ get_correlation_matrix(Const_MArray2d_ref one_turn_map, double arms, double brms
    
     return correlation_matrix;
 }
+#endif
 

@@ -92,7 +92,6 @@ Random_distribution::fill_unit_gaussian(MArray1d_view array)
     for (MArray1d::iterator it = array.begin(); it != array.end(); ++it) {
         *it = gsl_ran_ugaussian_ratio_method(rng);
     }
-
 }
 
 void
@@ -118,3 +117,12 @@ Random_distribution::~Random_distribution()
 {
     gsl_rng_free(rng);
 }
+
+
+void
+Random_distribution::fill_unit_gaussian(karray1d array)
+{
+    const auto N = array.extent(0);
+    for (auto i=0; i<N; ++i) array(i) = gsl_ran_ugaussian_ratio_method(rng);
+}
+
