@@ -247,6 +247,11 @@ populate_6d_truncated( Distribution & dist,
     }
 
     adjust_moments(bunch, means, covariances);
+
+    // copy to device
+    bunch.checkin_particles();
+
+    // check
     bunch.check_pz2_positive();
 }
 
