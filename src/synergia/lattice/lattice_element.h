@@ -6,14 +6,30 @@
 #include <list>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-#include "synergia/utils/serialization.h"
+#include "synergia/utils/cereal.h"
 #include "synergia/utils/lsexpr.h"
 
-class Lattice_element;
-typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr; // syndoc:include
 
-class Lattice;
+enum class element_type
+{
+    generic,
+
+    drift,
+    rbend,
+    sbend,
+    quadrupole,
+};
+
+namespace element_type_name
+{
+    constexpr char const * generic = "generic";
+    constexpr char const * drift   = "drift";
+}
+
+class Lattice_element;
+typedef std::shared_ptr<Lattice_element> Lattice_element_sptr;
+
+class Lattice_data;
 
 /// The Lattice_element class contains the description of a single
 /// lattice element. Each element has a name, a (string) type and
@@ -22,51 +38,55 @@ class Lattice;
 /// an element.
 class Lattice_element
 {
+
 private:
-    std::string type;
-    std::string name;
-    Lattice_element_sptr default_element_sptr;
+
+    std::string  name;
+
+    std::string  stype;
+    element_type type;
+
     std::list<std::string > ancestors;
-    std::map<std::string, double > double_attributes;
-    std::map<std::string, std::string > string_attributes;
-    std::map<std::string, std::vector<double > > vector_attributes;
+
+    std::map<std::string, double> double_attributes;
+    std::map<std::string, std::string> string_attributes;
+    std::map<std::string, std::vector<double>> vector_attributes;
+
     std::string length_attribute_name;
     std::string bend_angle_attribute_name;
+
     long int revision;
-    bool needs_internal_derive, needs_external_derive;
-    Lattice *lattice_ptr;
+
+    Lattice_data * lattice_ptr;
 
 public:
+
     /// Construct a Lattice_element with an empty name and type.
     Lattice_element();
 
     /// Construct a Lattice_element.
     /// @param name name
     /// @param type type
-    Lattice_element(std::string const& type, std::string const& name);
+    Lattice_element(std::string const & type, std::string const & name);
 
     /// Construct a Lattice_element from the Lsexpr representation
     /// @param lsexpr representation
-    Lattice_element(Lsexpr const& lsexpr);
+    explicit Lattice_element(Lsexpr const& lsexpr);
 
     /// Extract an Lsexpr representation of the Lattice_element
     Lsexpr
     as_lsexpr() const;
 
-    /// Copy constructor.
-    Lattice_element(Lattice_element const& lattice_element);
-
     /// Get the type
     std::string const &
+    get_type_name() const;
+
+    element_type
     get_type() const;
 
     /// Get the name
     std::string const &
     get_name() const;
-
-    /// Set the defaults for this element
-    void
-    set_default_element(Lattice_element_sptr default_element_sptr);
 
     /// Add an ancestor to the list of ancestors
     /// @param ancestor ancestor name
@@ -82,119 +102,102 @@ public:
     /// @param value attribute value
     /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
-    set_double_attribute(std::string const& name, double value,
+    set_double_attribute(
+            std::string const & name, 
+            double value,
+            bool increment_revision = true);
+
+    void
+    set_default_double_attribute(
+            std::string const & name, 
+            double value,
             bool increment_revision = true);
 
     /// Check for the existence of the named double attribute
     /// @param name attribute name
     bool
-    has_double_attribute(std::string const& name,
-            bool include_default = true) const;
+    has_double_attribute(std::string const & name) const;
 
     /// Get the value of the named double attribute
     /// @param name attribute name
     double
-    get_double_attribute(std::string const& name) const;
+    get_double_attribute(std::string const & name) const;
 
     /// Get the value of the named double attribute
     /// @param name attribute name
     /// @param val default value if the specified attribute doesnt exist
     double
-    get_double_attribute(std::string const& name, double val) const;
-
-    /// Get the entire dictionary of double attributes
-    std::map<std::string, double > const &
-    get_double_attributes() const;
+    get_double_attribute(std::string const & name, double val) const;
 
     /// Set the value of the named string attribute
     /// @param name attribute name
     /// @param value attribute value
     /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
-    set_string_attribute(std::string const& name, std::string const& value,
+    set_string_attribute(
+            std::string const & name, 
+            std::string const & value,
             bool increment_revision = true);
+
+    void
+    set_default_string_attribute(
+            std::string const & name, 
+            std::string const & value,
+            bool incremnt_revision = true);
 
     /// Check for the existence of the named string attribute
     /// @param name attribute name
     bool
-    has_string_attribute(std::string const& name,
-            bool include_default = true) const;
+    has_string_attribute(std::string const & name) const;
 
     /// Get the value of the named string attribute
     /// @param name attribute name
     std::string const&
-    get_string_attribute(std::string const& name) const;
+    get_string_attribute(std::string const & name) const;
 
     /// Get the value of the named string attribute
     /// @param name attribute name
     /// @param val default value if the specified attribute doesnt exist
     std::string const&
-    get_string_attribute(std::string const& name, std::string const & val) const;
-
-    /// Get the entire dictionary of string attributes
-    std::map<std::string, std::string > const &
-    get_string_attributes() const;
+    get_string_attribute(std::string const & name, std::string const & val) const;
 
     /// Set the value of the named vector attribute
     /// @param name attribute name
     /// @param value attribute value
     /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
-    set_vector_attribute(std::string const& name,
-            std::vector<double > const& value, bool increment_revision = true);
+    set_vector_attribute(
+            std::string const & name,
+            std::vector<double> const & value, 
+            bool increment_revision = true);
 
     /// Check for the existence of the named vector attribute
     /// @param name attribute name
     bool
-    has_vector_attribute(std::string const& name,
-            bool include_default = true) const;
+    has_vector_attribute(std::string const & name) const;
 
     /// Get the value of the named vector attribute
     /// @param name attribute name
-    std::vector<double > const&
-    get_vector_attribute(std::string const& name) const;
+    std::vector<double> const &
+    get_vector_attribute(std::string const & name) const;
 
     /// Get the value of the named vector attribute
     /// @param name attribute name
     /// @param val default value if the specified attribute doesnt exist
-    std::vector<double > const&
-    get_vector_attribute(std::string const& name, std::vector<double> const & val) const;
-
-    /// Get the entire dictionary of vector attributes
-    std::map<std::string, std::vector<double > > const &
-    get_vector_attributes() const;
+    std::vector<double> const &
+    get_vector_attribute(std::string const & name, std::vector<double> const & val) const;
 
     /// Set the attribute name to be used to determine the length
     /// of the Lattice_element
     /// @param attribute_name attribute name
     void
-    set_length_attribute_name(std::string const& attribute_name);
+    set_length_attribute_name(std::string const & attribute_name);
 
     /// Set the attribute name to be used to determine the bend_angle
     /// of the Lattice_element
     /// @param attribute_name attribute name
     void
-    set_bend_angle_attribute_name(std::string const& attribute_name);
-
-    /// Set whether the element needs to determine some of its parameters
-    /// from its other parameters
-    void
-    set_needs_internal_derive(bool value);
-
-    /// Get whether the element needs to determine some of its parameters
-    /// from its other parameters
-    bool
-    get_needs_internal_derive() const;
-
-    /// Set whether the element needs to determine some of its parameters
-    /// from the lattice length and/or reference particle
-    void
-    set_needs_external_derive(bool value);
-
-    /// Get whether the element needs to determine some of its parameters
-    /// from the lattice length and/or reference particle
-    bool
-    get_needs_external_derive() const;
+    set_bend_angle_attribute_name(std::string const & attribute_name);
 
     /// Get the Lattice_element's length
     double
@@ -214,14 +217,14 @@ public:
 
     /// Set the reference to the parent lattice
     void
-    set_lattice(Lattice &lattice);
+    set_lattice(Lattice_data & lattice);
 
     /// Get a reference to the parent lattice
-    Lattice &
+    Lattice_data &
     get_lattice();
 
     /// Get a reference to the parent lattice
-    Lattice const&
+    Lattice_data const &
     get_lattice() const;
 
     /// Return a human-readable description of the Lattice_element
@@ -234,10 +237,11 @@ public:
     print() const;
     
     template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
+    void
+    serialize(Archive & ar, const unsigned int version);
 };
 
-typedef std::list<Lattice_element_sptr > Lattice_elements; // syndoc:include
+//typedef std::list<Lattice_element_sptr > Lattice_elements; // syndoc:include
+typedef std::list<Lattice_element> Lattice_elements; // syndoc:include
 
 #endif /* LATTICE_ELEMENT_H_ */

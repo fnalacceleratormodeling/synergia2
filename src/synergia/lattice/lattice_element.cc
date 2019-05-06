@@ -1,63 +1,75 @@
 #include "lattice_element.h"
-#include "lattice.h"
+#include "lattice_data.h"
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
 
-Lattice_element::Lattice_element() :
-        type(""), name(""), default_element_sptr(), ancestors(), double_attributes(), string_attributes(), length_attribute_name(
-                "l"), bend_angle_attribute_name("angle"), revision(0), needs_internal_derive(
-                false), needs_external_derive(false), lattice_ptr(0)
-{
 
+namespace
+{
+    using type_map_t = std::map<std::string, element_type>;
+
+    const type_map_t type_map = { 
+        { element_type_name::generic,  element_type::generic},
+        { element_type_name::drift,    element_type::drift},
+    };
+
+    element_type find_type(std::string const & stype)
+    {
+        auto r = type_map.find(stype);
+        if (r == type_map.end()) throw std::runtime_error("invalid element type");
+        return r->second;
+    }
 }
 
-Lattice_element::Lattice_element(std::string const& type,
-        std::string const& name) :
-        type(type), name(name), default_element_sptr(), ancestors(), double_attributes(), string_attributes(), length_attribute_name(
-                "l"), bend_angle_attribute_name("angle"), revision(0), needs_internal_derive(
-                false), needs_external_derive(false), lattice_ptr(0)
-{
 
-}
-
-Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
-        type(lattice_element.type), name(lattice_element.name), default_element_sptr(
-                lattice_element.default_element_sptr), ancestors(), double_attributes(), string_attributes(), length_attribute_name(
-                lattice_element.length_attribute_name), bend_angle_attribute_name(
-                lattice_element.bend_angle_attribute_name), revision(0), needs_internal_derive(
-                lattice_element.needs_internal_derive), needs_external_derive(
-                lattice_element.needs_external_derive), lattice_ptr(0)
-{
-    std::copy(lattice_element.ancestors.begin(),
-            lattice_element.ancestors.end(),
-            std::inserter(ancestors, ancestors.begin()));
-    std::copy(lattice_element.double_attributes.begin(),
-            lattice_element.double_attributes.end(),
-            std::inserter(double_attributes, double_attributes.begin()));
-    std::copy(lattice_element.string_attributes.begin(),
-            lattice_element.string_attributes.end(),
-            std::inserter(string_attributes, string_attributes.begin()));
-    std::copy(lattice_element.vector_attributes.begin(),
-            lattice_element.vector_attributes.end(),
-            std::inserter(vector_attributes, vector_attributes.begin()));
-}
-
-Lattice_element::Lattice_element(Lsexpr const& lsexpr)
-    : type("")
-    , name("")
-    , default_element_sptr()
+Lattice_element::Lattice_element() 
+    : name("")
+    , stype("generic")
+    , type(find_type(stype))
     , ancestors()
     , double_attributes()
     , string_attributes()
+    , vector_attributes()
     , length_attribute_name("l")
     , bend_angle_attribute_name("angle")
     , revision(0)
-    , needs_internal_derive(false)
-    , needs_external_derive(false)
-    , lattice_ptr(0)
+    , lattice_ptr(nullptr)
 {
+}
+
+Lattice_element::Lattice_element(
+        std::string const & type,
+        std::string const & name) 
+    : name(name)
+    , stype(type)
+    , type(find_type(stype))
+    , ancestors()
+    , double_attributes()
+    , string_attributes()
+    , vector_attributes()
+    , length_attribute_name("l")
+    , bend_angle_attribute_name("angle")
+    , revision(0)
+    , lattice_ptr(nullptr)
+{
+}
+
+Lattice_element::Lattice_element(Lsexpr const & lsexpr)
+    : name("")
+    , stype("generic")
+    , type(find_type(stype))
+    , ancestors()
+    , double_attributes()
+    , string_attributes()
+    , vector_attributes()
+    , length_attribute_name("l")
+    , bend_angle_attribute_name("angle")
+    , revision(0)
+    , lattice_ptr(nullptr)
+{
+#if 0
     for (Lsexpr::const_iterator_t it = lsexpr.begin(); it != lsexpr.end();
          ++it) {
         if (it->is_labeled()) {
@@ -96,12 +108,14 @@ Lattice_element::Lattice_element(Lsexpr const& lsexpr)
             }
         }
     }
+#endif
 }
 
 Lsexpr
 Lattice_element::as_lsexpr() const
 {
     Lsexpr retval;
+#if 0
     retval.push_back(Lsexpr(type, "type"));
     retval.push_back(Lsexpr(name, "name"));
     if (double_attributes.size() > 0) {
@@ -163,10 +177,17 @@ Lattice_element::as_lsexpr() const
                   std::back_inserter(ancestors_vector));
         retval.push_back(Lsexpr(ancestors_vector, "ancestors"));
     }
+#endif
     return retval;
 }
 
 std::string const &
+Lattice_element::get_type_name() const
+{
+    return stype;
+}
+
+element_type
 Lattice_element::get_type() const
 {
     return type;
@@ -176,12 +197,6 @@ std::string const &
 Lattice_element::get_name() const
 {
     return name;
-}
-
-void
-Lattice_element::set_default_element(Lattice_element_sptr default_element_sptr)
-{
-    this->default_element_sptr = default_element_sptr;
 }
 
 void
@@ -197,256 +212,187 @@ Lattice_element::get_ancestors() const
 }
 
 void
-Lattice_element::set_double_attribute(std::string const& name, double value,
+Lattice_element::set_double_attribute(
+        std::string const & name, 
+        double value,
         bool increment_revision)
 {
     double_attributes[name] = value;
-    if (increment_revision) {
-        ++revision;
+    if (increment_revision) ++revision;
+}
+
+void
+Lattice_element::set_default_double_attribute(
+        std::string const & name, 
+        double value,
+        bool increment_revision )
+{
+    if (!has_double_attribute(name))
+    {
+        double_attributes[name] = value;
+        if (increment_revision) ++revision;
     }
 }
 
 bool
-Lattice_element::has_double_attribute(std::string const& name,
-        bool include_default) const
+Lattice_element::has_double_attribute(std::string const & name) const
 {
     bool retval = (double_attributes.count(name) > 0);
-    if ((!retval) && include_default && default_element_sptr) {
-        retval = default_element_sptr->has_double_attribute(name, false);
-    }
     return retval;
 }
 
 double
 Lattice_element::get_double_attribute(std::string const& name) const
 {
-    std::map<std::string, double >::const_iterator result =
-            double_attributes.find(name);
-    if (result == double_attributes.end()) {
-        if (default_element_sptr
-                && default_element_sptr->has_double_attribute(name, false)) {
-            return default_element_sptr->get_double_attribute(name);
-        } else {
-            throw std::runtime_error(
-                    "Lattice_element::get_double_attribute: element "
-                            + this->name + " of type " + type
-                            + " has no double attribute '" + name + "'");
-        }
-    } else {
-        return result->second;
+    auto r = double_attributes.find(name);
+    if (r == double_attributes.end()) 
+    { 
+        throw std::runtime_error( 
+                "Lattice_element::get_double_attribute: element "
+                + this->name + " of type " + stype
+                + " has no double attribute '" + name + "'");
+    } 
+    else 
+    {
+        return r->second;
     }
 }
 
 double
 Lattice_element::get_double_attribute(std::string const& name, double val) const
 {
-    std::map<std::string, double >::const_iterator result =
-            double_attributes.find(name);
-    if (result == double_attributes.end()) {
-        if (default_element_sptr
-                && default_element_sptr->has_double_attribute(name, false)) {
-            return default_element_sptr->get_double_attribute(name);
-        } else {
-            return val;
-        }
-    } else {
-        return result->second;
+    auto r = double_attributes.find(name);
+    if (r == double_attributes.end()) 
+    {
+        return val;
+    } 
+    else 
+    {
+        return r->second;
     }
 }
 
-std::map<std::string, double > const &
-Lattice_element::get_double_attributes() const
-{
-    return double_attributes;
-}
-
 void
-Lattice_element::set_string_attribute(std::string const& name,
-        std::string const& value, bool increment_revision)
+Lattice_element::set_string_attribute(
+        std::string const & name,
+        std::string const & value, 
+        bool increment_revision)
 {
     string_attributes[name] = value;
-    if (increment_revision) {
-        ++revision;
+    if (increment_revision) ++revision;
+}
+
+void
+Lattice_element::set_default_string_attribute(
+        std::string const & name,
+        std::string const & value, 
+        bool increment_revision)
+{
+    if (!has_string_attribute(name))
+    {
+        string_attributes[name] = value;
+        if (increment_revision) ++revision;
     }
 }
 
 bool
-Lattice_element::has_string_attribute(std::string const& name,
-        bool include_default) const
+Lattice_element::has_string_attribute(std::string const & name) const
 {
     bool retval = (string_attributes.count(name) > 0);
-    if ((!retval) && include_default && default_element_sptr) {
-        retval = default_element_sptr->has_string_attribute(name, false);
-    }
     return retval;
 }
 
 std::string const&
-Lattice_element::get_string_attribute(std::string const& name) const
+Lattice_element::get_string_attribute(std::string const & name) const
 {
-    std::map<std::string, std::string >::const_iterator result =
-            string_attributes.find(name);
-    if (result == string_attributes.end()) {
-        if (default_element_sptr
-                && default_element_sptr->has_string_attribute(name, false)) {
-            return default_element_sptr->get_string_attribute(name);
-        } else {
-            throw std::runtime_error(
-                    "Lattice_element::get_string_attribute: element "
-                            + this->name + " of type " + type
-                            + " has no string attribute '" + name + "'");
-        }
-    } else {
-        return result->second;
+    auto r = string_attributes.find(name);
+    if (r == string_attributes.end()) 
+    { 
+        throw std::runtime_error( 
+                "Lattice_element::get_string_attribute: element "
+                + this->name + " of type " + stype
+                + " has no string attribute '" + name + "'");
+    } 
+    else 
+    {
+        return r->second;
     }
 }
 
 std::string const&
-Lattice_element::get_string_attribute(std::string const& name, std::string const & val) const
+Lattice_element::get_string_attribute(std::string const & name, std::string const & val) const
 {
-    std::map<std::string, std::string >::const_iterator result =
-            string_attributes.find(name);
-    if (result == string_attributes.end()) {
-        if (default_element_sptr
-                && default_element_sptr->has_string_attribute(name, false)) {
-            return default_element_sptr->get_string_attribute(name);
-        } else {
-            return val;
-        }
-    } else {
-        return result->second;
-    }
-}
-
-std::map<std::string, std::string > const &
-Lattice_element::get_string_attributes() const
-{
-    return string_attributes;
+    auto r = string_attributes.find(name);
+    if (r == string_attributes.end()) return val;
+    else return r->second;
 }
 
 void
-Lattice_element::set_vector_attribute(std::string const& name,
-        std::vector<double > const& value, bool increment_revision)
+Lattice_element::set_vector_attribute(
+        std::string const & name,
+        std::vector<double> const & value, 
+        bool increment_revision)
 {
     vector_attributes[name] = value;
-    if (increment_revision) {
-        ++revision;
-    }
+    if (increment_revision) ++revision;
 }
 
 bool
-Lattice_element::has_vector_attribute(std::string const& name,
-        bool include_default) const
+Lattice_element::has_vector_attribute(std::string const & name) const
 {
     bool retval = (vector_attributes.count(name) > 0);
-    if ((!retval) && include_default && default_element_sptr) {
-        retval = default_element_sptr->has_vector_attribute(name, false);
-    }
     return retval;
 }
 
-std::vector<double > const&
-Lattice_element::get_vector_attribute(std::string const& name) const
+std::vector<double> const &
+Lattice_element::get_vector_attribute(std::string const & name) const
 {
-    std::map<std::string, std::vector<double > >::const_iterator result =
-            vector_attributes.find(name);
-    if (result == vector_attributes.end()) {
-        if (default_element_sptr
-                && default_element_sptr->has_vector_attribute(name, false)) {
-            return default_element_sptr->get_vector_attribute(name);
-        } else {
-            throw std::runtime_error(
-                    "Lattice_element::get_vector_attribute: element "
-                            + this->name + " of type " + type
-                            + " has no vector attribute '" + name + "'");
-        }
-    } else {
-        return result->second;
+    auto r = vector_attributes.find(name);
+    if (r == vector_attributes.end()) 
+    { 
+        throw std::runtime_error( 
+                "Lattice_element::get_vector_attribute: element "
+                + this->name + " of type " + stype
+                + " has no vector attribute '" + name + "'");
+    } 
+    else 
+    {
+        return r->second;
     }
 }
 
-std::vector<double > const&
-Lattice_element::get_vector_attribute(std::string const& name, std::vector<double> const & val) const
+std::vector<double> const&
+Lattice_element::get_vector_attribute(
+        std::string const & name, 
+        std::vector<double> const & val) const
 {
-    std::map<std::string, std::vector<double > >::const_iterator result =
-            vector_attributes.find(name);
-    if (result == vector_attributes.end()) {
-        if (default_element_sptr
-                && default_element_sptr->has_vector_attribute(name, false)) {
-            return default_element_sptr->get_vector_attribute(name);
-        } else {
-            return val;
-        }
-    } else {
-        return result->second;
-    }
-}
-
-std::map<std::string, std::vector<double > > const &
-Lattice_element::get_vector_attributes() const
-{
-    return vector_attributes;
+    auto r = vector_attributes.find(name);
+    if (r == vector_attributes.end()) return val;
+    else return r->second;
 }
 
 void
-Lattice_element::set_length_attribute_name(std::string const& attribute_name)
+Lattice_element::set_length_attribute_name(std::string const & attribute_name)
 {
     length_attribute_name = attribute_name;
 }
 
 void
-Lattice_element::set_bend_angle_attribute_name(
-        std::string const& attribute_name)
+Lattice_element::set_bend_angle_attribute_name(std::string const & attribute_name)
 {
     bend_angle_attribute_name = attribute_name;
-}
-
-void
-Lattice_element::set_needs_internal_derive(bool value)
-{
-    needs_internal_derive = value;
-}
-
-bool
-Lattice_element::get_needs_internal_derive() const
-{
-    return needs_internal_derive;
-}
-
-void
-Lattice_element::set_needs_external_derive(bool value)
-{
-    needs_external_derive = value;
-}
-
-bool
-Lattice_element::get_needs_external_derive() const
-{
-    return needs_external_derive;
 }
 
 double
 Lattice_element::get_length() const
 {
-    std::map<std::string, double >::const_iterator iter =
-            double_attributes.find(length_attribute_name);
-    double retval = 0.0;
-    if (iter != double_attributes.end()) {
-        retval = iter->second;
-    }
-    return retval;
+    return get_double_attribute(length_attribute_name, 0.0);
 }
 
 double
 Lattice_element::get_bend_angle() const
 {
-    std::map<std::string, double >::const_iterator iter =
-            double_attributes.find(bend_angle_attribute_name);
-    double retval = 0.0;
-    if (iter != double_attributes.end()) {
-        retval = iter->second;
-    }
-    return retval;
+    return get_double_attribute(bend_angle_attribute_name, 0.0);
 }
 
 long int
@@ -462,22 +408,12 @@ Lattice_element::has_lattice() const
 }
 
 void
-Lattice_element::set_lattice(Lattice &lattice)
+Lattice_element::set_lattice(Lattice_data & lattice)
 {
     lattice_ptr = &lattice;
 }
 
-Lattice &
-Lattice_element::get_lattice()
-{
-    if(! has_lattice()) {
-        throw std::runtime_error(
-                    "Lattice_element::get_lattice: element not part of any lattice");
-    }
-    return *lattice_ptr;
-}
-
-Lattice const&
+Lattice_data const&
 Lattice_element::get_lattice() const
 {
     if(! has_lattice()) {
@@ -497,7 +433,7 @@ Lattice_element::as_string() const
             it != ancestors.end(); ++it) {
         sstream << (*it) << ":";
     }
-    sstream << " " << type << " ";
+    sstream << " " << stype << " ";
     sstream << name << ": ";
     bool first_attr = true;
     for (std::map<std::string, double >::const_iterator it =
@@ -549,21 +485,19 @@ template<class Archive>
     void
     Lattice_element::serialize(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(type)
-        & BOOST_SERIALIZATION_NVP(name)
-        & BOOST_SERIALIZATION_NVP(default_element_sptr)
-        & BOOST_SERIALIZATION_NVP(ancestors)
-        & BOOST_SERIALIZATION_NVP(double_attributes)
-        & BOOST_SERIALIZATION_NVP(string_attributes)
-        & BOOST_SERIALIZATION_NVP(vector_attributes)
-        & BOOST_SERIALIZATION_NVP(length_attribute_name)
-        & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
-        & BOOST_SERIALIZATION_NVP(revision)
-        & BOOST_SERIALIZATION_NVP(needs_internal_derive)
-        & BOOST_SERIALIZATION_NVP(needs_external_derive)
-        & BOOST_SERIALIZATION_NVP(lattice_ptr);
+        ar & CEREAL_NVP(stype)
+        & CEREAL_NVP(name)
+        & CEREAL_NVP(ancestors)
+        & CEREAL_NVP(double_attributes)
+        & CEREAL_NVP(string_attributes)
+        & CEREAL_NVP(vector_attributes)
+        & CEREAL_NVP(length_attribute_name)
+        & CEREAL_NVP(bend_angle_attribute_name)
+        & CEREAL_NVP(revision)
+        & CEREAL_NVP(lattice_ptr);
     }
 
+#if 0
 template
 void
 Lattice_element::serialize<boost::archive::binary_oarchive >(
@@ -583,3 +517,4 @@ template
 void
 Lattice_element::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
+#endif
