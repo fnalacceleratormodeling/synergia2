@@ -97,7 +97,3 @@ Resume::propagate(bool new_num_turns, int num_turns, bool new_max_turns, int max
             verbosity);
 }
 
-Resume::~Resume()
-{
-
-}

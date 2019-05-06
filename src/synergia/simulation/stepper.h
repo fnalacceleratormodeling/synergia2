@@ -42,12 +42,16 @@ public:
     get_steps();
     void
     force_update_operations_no_collective();
+
     virtual void
     print() const;
+
     virtual void
     cs_step_lattice_functions();
+
     virtual void 
     print_cs_step_betas();
+
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);

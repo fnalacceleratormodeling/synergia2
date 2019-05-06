@@ -34,6 +34,7 @@ public:
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Diagnosticss const& per_operation_diagnosticss, Logger & logger) = 0;
+
     virtual void
     apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
             Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger);
@@ -46,9 +47,11 @@ public:
                     
     virtual void
     print() const;
+
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
+
     virtual
     ~Operator();
 };
@@ -61,15 +64,18 @@ public:
     Collective_operator(std::string const& name);
     /// Default constructor for serialization use only
     Collective_operator();
+
     virtual Collective_operator *
     clone() = 0;
-    using Operator::apply;
-    virtual void
+
+    void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
-            Diagnosticss const& per_operation_diagnosticss, Logger & logger);
+            Diagnosticss const& per_operation_diagnosticss, Logger & logger) override;
+
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger) = 0;
+
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -87,8 +93,10 @@ public:
     Dummy_collective_operator(std::string const& name);
     /// Default constructor for serialization use only
     Dummy_collective_operator();
-    virtual Dummy_collective_operator *
-    clone();
+
+    Dummy_collective_operator *
+    clone() override;
+
     using Collective_operator::apply;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,

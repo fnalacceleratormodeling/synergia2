@@ -61,7 +61,6 @@ public:
     propagate(bool new_num_turns, int num_turns, bool new_max_turns, int max_turns, bool new_verbosity,
             int verbosity);
 
-    ~Resume();
 };
 
 #endif /* RESUME_H_ */

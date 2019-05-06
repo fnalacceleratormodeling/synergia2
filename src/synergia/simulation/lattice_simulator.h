@@ -111,11 +111,15 @@ class Lattice_simulator
 {
 private:
     Lattice_sptr lattice_sptr;
+
     Lattice_element_slices slices;
     bool have_slices;
+
     Chef_lattice_sptr chef_lattice_sptr;
+
     Operation_extractor_map_sptr extractor_map_sptr;
     Aperture_operation_extractor_map_sptr aperture_extractor_map_sptr;
+
     int map_order;
     double bucket_length; /// bucket length  lattice_length/harmon
     bool have_element_lattice_functions;
@@ -165,9 +169,12 @@ private:
     get_chromaticities(double dpp);
     void
     get_alt_chromaticities(double dpp);
+
     MArray1d
     tune_rfcavities();
+
 public:
+
     /// @param lattice_sptr the Lattice
     /// @param map_order order for Chef_map operations
     Lattice_simulator(Lattice_sptr lattice_sptr, int map_order);
