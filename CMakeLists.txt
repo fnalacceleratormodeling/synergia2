@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+project(SYNERGIA2 VERSION 2.0.90 LANGUAGES CXX C)
 
 # needed to avoid warnings about rpath policy on Mac OSX
 # no known difference between "OLD" and "NEW" policies for us
@@ -11,8 +12,6 @@ if(POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif()
 
-project(SYNERGIA2 VERSION 2.0.90 LANGUAGES CXX C)
-
 enable_testing()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,8 +19,23 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register -Wall -Wno-potentially-evaluated-expression -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register -Wno-potentially-evaluated-expression -Wall -Werror")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  # using Clang
+  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evalauted-expression")
+  message("Using clang++")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    # using Apples's clang
+    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evaluated-expression")
+    message("Using Apple clang++")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  # using GCC
+  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
+  message("Using g++")
+else()
+  message("I can not tell what compiler is being used.")
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-register ${COMPILER_SPECIFIC_CXX_FLAGS} -Werror")
 
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
@@ -37,7 +51,7 @@ if (NOT BUILD_PYTHON_BINDINGS)
 endif ()
 
 # MPI
-FIND_PACKAGE(MPI REQUIRED CXX)
+find_package(MPI REQUIRED CXX)
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
 if(${MPI_VERSION} MATCHES "OpenRTE.* ")
     set(MPI_OVERSUBSCRIBE_FLAG "--oversubscribe")
@@ -62,23 +76,30 @@ if (BUILD_PYTHON_BINDINGS)
 endif()
 
 # boost
-SET(Boost_USE_STATIC_LIBS OFF)
-SET(Boost_USE_MULTITHREAD ON)
-SET(Boost_NO_BOOST_CMAKE ON)
-FIND_PACKAGE(Boost COMPONENTS python27 regex unit_test_framework serialization
-    filesystem system REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREAD ON)
+find_package(Boost
+             COMPONENTS regex unit_test_framework serialization
+                        filesystem system REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+# Now we have Boost_VERSION set, and we can use it to figure out if we need
+# to look for the component python (for old versions, before 1.67) or python27
+# (for boost 1.67 and newer).
+if(NOT ${Boost_VERSION} LESS 106700)
+  set(PYTHON_QUAL 27)
+endif()
+find_package(Boost COMPONENTS python${PYTHON_QUAL} REQUIRED)
+link_directories(${Boost_LIBRARY_DIRS})
 
 # hdf5
 find_package(HDF5)
-INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})
+include_directories(${HDF5_INCLUDE_DIRS})
 message(${HDF5_LIBRARIES})
 
 # chef
 find_package(CHEF REQUIRED)
-INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIR})
-LINK_DIRECTORIES(${CHEF_LIB_DIR})
+include_directories(${CHEF_INCLUDE_DIR})
+link_directories(${CHEF_LIB_DIR})
 
 # numpy
 find_package(NUMPY REQUIRED)
