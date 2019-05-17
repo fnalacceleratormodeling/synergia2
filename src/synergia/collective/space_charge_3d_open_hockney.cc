@@ -1110,12 +1110,10 @@ void
 Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_t, int component)
 {
-  
-  
   //AM: kicks  in the z_lab frame 
- //Delta p_x&=& F_x \Delta t&=& - q \frac{1}{\gamma^2} \frac{\partial \Phi'}{\partial x} \Delta t=q \frac{1}{\beta \gamma^2} E_{grid~x} \Delta t\\
- //Delta E &= & q E_z \Delta s&=& q \frac{1}{\gamma^2 \beta} \frac{\partial \Phi'}{\partial ct} \beta c\Delta t=-q \frac{c}{\beta \gamma^2 }E_{grid~z} \Delta t\\
- // 1/beta factor in E_grid from charge deposition on (x,y,cdt) coordinates grid,  \Phi'=\frac{1}{\beta}\Phi_{grid}
+  //Delta p_x&=& F_x \Delta t&=& - q \frac{1}{\gamma^2} \frac{\partial \Phi'}{\partial x} \Delta t=q \frac{1}{\beta \gamma^2} E_{grid~x} \Delta t
+  //Delta E &= & q E_z \Delta s&=& q \frac{1}{\gamma^2 \beta} \frac{\partial \Phi'}{\partial ct} \beta c\Delta t=-q \frac{c}{\beta \gamma^2 }E_{grid~z} \Delta t
+  // 1/beta factor in E_grid from charge deposition on (x,y,cdt) coordinates grid,  \Phi'=\frac{1}{\beta}\Phi_{grid}
 
  
  
