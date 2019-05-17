@@ -437,7 +437,7 @@ get_correlation_matrix(Const_MArray2d_ref one_turn_map, double arms, double brms
        remaining.pop_back();
         double best = 1.0e30;
        int conj = -1;
-       for (int item=0;item<remaining.size();item++){           
+       for (std::size_t item=0;item<remaining.size();item++){           
            VectorXcd sum=evect_matrix.col(first)+evect_matrix.col(remaining[item]);    
            if (sum.imag().cwiseAbs().maxCoeff()<best){
               best=sum.imag().cwiseAbs().maxCoeff();

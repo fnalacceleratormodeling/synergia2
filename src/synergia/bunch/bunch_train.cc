@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "bunch_train.h"
 #include "synergia/utils/parallel_utils.h"
 
@@ -139,8 +140,7 @@ Bunch_train::update_bunch_total_num()
     if (nb == 0) return;
 
     std::vector<int> nums(nb);
-
-    for (int i=0; i<nb; ++i)
+    for (std::size_t i=0; i<nb; ++i)
     {
         nums[i] = bunches[i]->get_local_num();
     }
@@ -148,7 +148,7 @@ Bunch_train::update_bunch_total_num()
     MPI_Allreduce(MPI_IN_PLACE, &nums[0], nb, MPI_INT, MPI_SUM, 
             get_parent_comm_sptr()->get());
 
-    for (int i=0; i<nb; ++i)
+    for (std::size_t i=0; i<nb; ++i)
     {
         bunches[i]->set_total_num(nums[i]);
     }
