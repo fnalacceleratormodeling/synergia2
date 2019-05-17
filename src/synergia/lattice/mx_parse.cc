@@ -611,11 +611,12 @@ struct synergia::madx_tree_parser
               >> value )                          [phx::bind(&set_attr, _val, _1, _2, _3)]
         ;
 
+    std::string dflt = "default";
     flag_attr =   // flag attributes, attributes with values only, etc.
           ( -char_("-") >> name )                 [phx::bind(&set_flag_attr, _val, _1, _2)]
-        | ( dblq_str )   [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
-        | ( snglq_str )  [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
-        | ( expr )       [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
+        | ( dblq_str )   [phx::bind(&set_attr, _val, dflt, boost::optional<char>(), _1)]
+        | ( snglq_str )  [phx::bind(&set_attr, _val, dflt, boost::optional<char>(), _1)]
+        | ( expr )       [phx::bind(&set_attr, _val, dflt, boost::optional<char>(), _1)]
         ;
 
     cmd_attr =
