@@ -248,10 +248,12 @@ double Analysis::get_betatron_averaged_tune(bool isH) {
     double tune=0;
     if (isH) {
       size_t nT = numXTunesFound;
-      for (size_t i=0; i != nT; i++)  tune += XTunes[i]; tune /= nT;
+      for (size_t i=0; i != nT; i++) tune += XTunes[i];
+      tune /= nT;
     } else {
       size_t nT = numYTunesFound;
-      for (size_t i=0; i != nT; i++)  tune += YTunes[i]; tune /= nT;
+      for (size_t i=0; i != nT; i++)  tune += YTunes[i];
+      tune /= nT;
     }
     return tune;
 }
