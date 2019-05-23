@@ -1,112 +1,66 @@
-#include "bunch_simulator.h"
+#include "synergia/simulation/bunch_simulator.h"
 
-Bunch_simulator::Bunch_simulator(Bunch_sptr bunch_sptr) :
-    bunch_sptr(bunch_sptr),
-            diagnostics_actions_sptr(new Diagnostics_actions)
-{
-    diagnostics_actions_sptr->set_bunch_sptr(bunch_sptr);
-}
 
-Bunch_simulator::Bunch_simulator(Bunch_sptr bunch_sptr,
-        Diagnostics_actions_sptr diagnostics_actions_sptr) :
-    bunch_sptr(bunch_sptr), diagnostics_actions_sptr(diagnostics_actions_sptr)
+Bunch_simulator::Bunch_simulator(Bunch const & bunch)
+    : num_turns(0)
+    , first_turn(0)
+    , max_turns(0)
+    , trains()
+    , diags_step()
+    , diags_loss()
+    , diags_ele()
+    , diags_opr()
+    , diags_opn()
 {
-    diagnostics_actions_sptr->set_bunch_sptr(bunch_sptr);
-}
-
-Bunch_simulator::Bunch_simulator()
-{
-}
-
-Bunch &
-Bunch_simulator::get_bunch()
-{
-    return *bunch_sptr;
-}
-
-Bunch_sptr
-Bunch_simulator::get_bunch_sptr()
-{
-    return bunch_sptr;
-}
-
-Diagnostics_actions &
-Bunch_simulator::get_diagnostics_actions()
-{
-    return *diagnostics_actions_sptr;
-}
-
-Diagnostics_actions_sptr
-Bunch_simulator::get_diagnostics_actions_sptr()
-{
-    return diagnostics_actions_sptr;
 }
 
 void
-Bunch_simulator::add_per_turn(Diagnostics_sptr diagnostics_sptr,
-        int turn_period)
+Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
 {
-    diagnostics_actions_sptr->add_per_turn(diagnostics_sptr, turn_period);
 }
 
 void
-Bunch_simulator::add_per_turn(Diagnostics_sptr diagnostics_sptr,
-        std::list<int > const& turn_numbers)
+Bunch_simulator::diag_action_particle_loss_update()
 {
-    diagnostics_actions_sptr->add_per_turn(diagnostics_sptr, turn_numbers);
 }
 
 void
-Bunch_simulator::add_per_step(Diagnostics_sptr diagnostics_sptr,
-        int step_period)
+Bunch_simulator::diag_action_particle_loss_write()
 {
-    diagnostics_actions_sptr->add_per_step(diagnostics_sptr, step_period);
 }
 
 void
-Bunch_simulator::add_per_step(Diagnostics_sptr diagnostics_sptr,
-        std::list<int > const& step_numbers, int turn_period)
+Bunch_simulator::diag_action_element(Lattice_element const & element)
 {
-    diagnostics_actions_sptr->add_per_step(diagnostics_sptr, step_numbers,
-            turn_period);
+}
+
+
+void
+Bunch_simulator::diag_action_operator(Operator const & opr)
+{
 }
 
 void
-Bunch_simulator::add_per_forced_diagnostics_step(
-        Diagnostics_sptr diagnostics_sptr, int turn_period)
+Bunch_simulator::diag_action_operation(Operation const & opn)
 {
-    diagnostics_actions_sptr->add_per_forced_diagnostics_step(diagnostics_sptr,
-            turn_period);
 }
 
-template<class Archive>
-    void
-    Bunch_simulator::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
-        ar & BOOST_SERIALIZATION_NVP(diagnostics_actions_sptr);
-    }
-
-template
 void
-Bunch_simulator::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
+Bunch_simulator::prop_action_first(Lattice & lattice)
+{
+}
 
-template
 void
-Bunch_simulator::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
+Bunch_simulator::prop_action_step_end(Lattice & lattice, int turn, int step)
+{
+}
 
-template
 void
-Bunch_simulator::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
+Bunch_simulator::prop_action_turn_end(Lattice & lattice, int turn)
+{
+}
 
-template
-void
-Bunch_simulator::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-Bunch_simulator::~Bunch_simulator()
+void 
+Bunch_simulator::set_lattice_reference_particle(Reference_particle const & ref)
 {
 }

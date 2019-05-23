@@ -1,4 +1,4 @@
-#include "synergia/lattice/lattice_data.h"
+#include "synergia/lattice/lattice.h"
 #include "synergia/lattice/lattice_element_processor.h"
 
 //#include "mad8_adaptor_map.h"
@@ -8,7 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 
-Lattice_data::Lattice_data() 
+Lattice::Lattice() 
     : name("")
     , reference_particle()
     , elements()
@@ -16,7 +16,7 @@ Lattice_data::Lattice_data()
 {
 }
 
-Lattice_data::Lattice_data(std::string const & name) 
+Lattice::Lattice(std::string const & name) 
     : name(name)
     , reference_particle()
     , elements()
@@ -24,7 +24,7 @@ Lattice_data::Lattice_data(std::string const & name)
 {
 }
 
-Lattice_data::Lattice_data(Lattice_data const & lattice) 
+Lattice::Lattice(Lattice const & lattice) 
     : name(lattice.name)
     , reference_particle(lattice.reference_particle)
     , elements(lattice.elements)
@@ -33,7 +33,7 @@ Lattice_data::Lattice_data(Lattice_data const & lattice)
     for (auto & e : elements) e.set_lattice(*this);
 }
 
-Lattice_data::Lattice_data(Lsexpr const & lsexpr) 
+Lattice::Lattice(Lsexpr const & lsexpr) 
     : name("")
     , reference_particle()
     , elements()
@@ -54,7 +54,7 @@ Lattice_data::Lattice_data(Lsexpr const & lsexpr)
                 } else if (lctype == "madx") {
                     element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new MadX_adaptor_map);
                 } else {
-                    throw std::runtime_error("Lattice_data: adaptor map type " +
+                    throw std::runtime_error("Lattice: adaptor map type " +
                                              it->get_string() + " not handled");
                 }
             } else if (it->get_label() == "reference_particle") {
@@ -72,7 +72,7 @@ Lattice_data::Lattice_data(Lsexpr const & lsexpr)
 }
 
 Lsexpr
-Lattice_data::as_lsexpr() const
+Lattice::as_lsexpr() const
 {
     Lsexpr retval;
 #if 0
@@ -97,26 +97,26 @@ Lattice_data::as_lsexpr() const
 }
 
 std::string const &
-Lattice_data::get_name() const
+Lattice::get_name() const
 {
     return name;
 }
 
 void
-Lattice_data::set_reference_particle(Reference_particle const & ref)
+Lattice::set_reference_particle(Reference_particle const & ref)
 {
     reference_particle = ref;
     dirty = true;
 }
 
 Reference_particle const &
-Lattice_data::get_reference_particle() const
+Lattice::get_reference_particle() const
 {
     return reference_particle;
 }
 
 void
-Lattice_data::append(Lattice_element const & element)
+Lattice::append(Lattice_element const & element)
 {
     elements.push_back(Lattice_element_processor::process(element));
     elements.back().set_lattice(*this);
@@ -124,7 +124,7 @@ Lattice_data::append(Lattice_element const & element)
 }
 
 void
-Lattice_data::derive_external_attributes()
+Lattice::derive_external_attributes()
 {
 #if 0
     bool needed = false;
@@ -137,7 +137,7 @@ Lattice_data::derive_external_attributes()
     if (needed) {
         if (!reference_particle_allocated) {
             throw std::runtime_error(
-                    "Lattice_data::derive_external_attributes requires a reference_particle");
+                    "Lattice::derive_external_attributes requires a reference_particle");
         }
         double beta = reference_particle->get_beta();
         double lattice_length = get_length();
@@ -153,7 +153,7 @@ Lattice_data::derive_external_attributes()
 }
 
 void
-Lattice_data::set_all_double_attribute(
+Lattice::set_all_double_attribute(
         std::string const & name, 
         double value,
         bool increment_revision)
@@ -163,7 +163,7 @@ Lattice_data::set_all_double_attribute(
 }
 
 void
-Lattice_data::set_all_string_attribute(
+Lattice::set_all_string_attribute(
         std::string const & name,
         std::string const & value, 
         bool increment_revision )
@@ -172,14 +172,14 @@ Lattice_data::set_all_string_attribute(
         e.set_string_attribute(name, value, increment_revision);
 }
 
-Lattice_elements const &
-Lattice_data::get_elements() const
+std::list<Lattice_element> const &
+Lattice::get_elements() const
 {
     return elements;
 }
 
 double
-Lattice_data::get_length() const
+Lattice::get_length() const
 {
     double length = 0.0;
     for (auto const & e : elements) length += e.get_length();
@@ -187,7 +187,7 @@ Lattice_data::get_length() const
 }
 
 double
-Lattice_data::get_total_angle() const
+Lattice::get_total_angle() const
 {
     double angle = 0.0;
     for (auto const & e : elements) angle += e.get_bend_angle();
@@ -195,7 +195,7 @@ Lattice_data::get_total_angle() const
 }
 
 std::string
-Lattice_data::as_string() const
+Lattice::as_string() const
 {
     std::stringstream sstream;
     sstream << name << ":\n";
@@ -204,39 +204,41 @@ Lattice_data::as_string() const
 }
 
 void
-Lattice_data::print() const
+Lattice::print() const
 {
     std::cout << as_string() << std::endl;
 }
 
+#if 0
 template<class Archive>
     void
-    Lattice_data::serialize(Archive & ar, const unsigned int version)
+    Lattice::serialize(Archive & ar, const unsigned int version)
     {
         ar  & CEREAL_NVP(name)
             & CEREAL_NVP(reference_particle)
             & CEREAL_NVP(elements)
             & CEREAL_NVP(dirty);
     }
+#endif
 
 #if 0
 template
 void
-Lattice_data::serialize<boost::archive::binary_oarchive >(
+Lattice::serialize<boost::archive::binary_oarchive >(
         boost::archive::binary_oarchive & ar, const unsigned int version);
 
 template
 void
-Lattice_data::serialize<boost::archive::xml_oarchive >(
+Lattice::serialize<boost::archive::xml_oarchive >(
         boost::archive::xml_oarchive & ar, const unsigned int version);
 
 template
 void
-Lattice_data::serialize<boost::archive::binary_iarchive >(
+Lattice::serialize<boost::archive::binary_iarchive >(
         boost::archive::binary_iarchive & ar, const unsigned int version);
 
 template
 void
-Lattice_data::serialize<boost::archive::xml_iarchive >(
+Lattice::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 #endif

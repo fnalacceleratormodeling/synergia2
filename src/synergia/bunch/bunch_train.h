@@ -5,11 +5,15 @@
 
 class Bunch_train
 {
+
 private:
-    Bunches bunches;
-    std::vector<double > spacings;      
+
+    std::vector<Bunch> bunches;
+    std::vector<double> spacings;      
+
     bool has_parent_comm;
     Commxx_sptr parent_comm_sptr;
+
     /// counts and offsets are needed for impedance, counts.size()=offsets.size()=num_procs
     /// they are meaningfull only on the local rank=0 of every bunch communicator 
     /// for example:  3 bunches on 5 processors: proc 2 and 4 has local rank different form zero
@@ -18,42 +22,53 @@ private:
     ///                (count[0]=1, offset[0]=0), (count[1]=2, offset[3]=1), (count[2]=2, offset[2]=3)
     std::vector< int> proc_counts_imped; 
     std::vector< int> proc_offsets_imped; 
-    void
-    set_bucket_indices();
+
+    void set_bucket_indices();
     void find_parent_comm_sptr();
     void calculates_counts_and_offsets_for_impedance();
+
 public:
-    Bunch_train(Bunches const& bunches, double spacing);
-    Bunch_train(Bunches const& bunches, std::vector<double > const& spacings);
+
+    //Bunch_train(Bunches const& bunches, double spacing);
+    //Bunch_train(Bunches const& bunches, std::vector<double > const& spacings);
+
     // Default constructor for serialization use only
     Bunch_train();
-    Commxx_sptr 
-    get_parent_comm_sptr();
-    size_t
-    get_size() const;
-    Bunches &
-    get_bunches();
-    std::vector<double > &
-    get_spacings();
+
+    Bunch & operator[](size_t idx)
+    { return bunches[idx]; }
+
+    Bunch const & operator[](size_t idx) const
+    { return bunches[idx]; }
+
+    size_t get_size() const
+    { return bunches.size(); }
+
+    std::vector<Bunch> & get_bunches()
+    { return bunches; }
+
+    std::vector<Bunch> const & get_bunches() const
+    { return bunches; }
+
+    std::vector<double > & get_spacings();
+
+    Commxx_sptr get_parent_comm_sptr();
     
     // update the total particle number for all bunches in the bunch train
     // note that calling each bunch's update_total_num() wont do the actual
     // work if the caller's rank is not part of the bunch's communicator.
     // on the other hand, calling bunch_train's update_bunch_total_num() 
     // gurantees that all bunches are updated for all ranks
-    void 
-    update_bunch_total_num();
+    void update_bunch_total_num();
     
-    std::vector< int> &
-    get_proc_counts_for_impedance();
-    std::vector< int> &
-    get_proc_offsets_for_impedance();
+    std::vector< int> & get_proc_counts_for_impedance();
+    std::vector< int> & get_proc_offsets_for_impedance();
+
+#if 0
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
-    ~Bunch_train();
+#endif
 };
-
-typedef std::shared_ptr<Bunch_train > Bunch_train_sptr;
 
 #endif /* BUNCH_TRAIN_H_ */

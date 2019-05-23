@@ -1,16 +1,17 @@
 #ifndef PROPAGATOR_H_
 #define PROPAGATOR_H_
 
-#include "synergia/simulation/stepper.h"
-#include "synergia/simulation/propagate_actions.h"
+#include "synergia/lattice/lattice.h"
+//#include "synergia/simulation/stepper.h"
 #include "synergia/simulation/bunch_simulator.h"
-#include "synergia/simulation/bunch_train_simulator.h"
-#include "synergia/foundation/multi_diagnostics.h"
-#include "synergia/utils/serialization.h"
+#include "synergia/simulation/step.h"
+#include "synergia/utils/cereal.h"
 #include "synergia/utils/logger.h"
 
 class Propagator
 {
+
+#if 0
 public:
     static const std::string default_checkpoint_dir;
     static const std::string description_file_name;
@@ -27,28 +28,28 @@ public:
     struct State
     {
         Bunch_simulator * bunch_simulator_ptr;
-        Bunch_train_simulator * bunch_train_simulator_ptr;
         Propagate_actions * propagate_actions_ptr;
+
         int num_turns;
         int first_turn;
         int max_turns;
         int verbosity;
+
         State(Bunch_simulator * bunch_simulator_ptr,
                 Propagate_actions * propagate_actions_ptr, int num_turns,
                 int first_turn, int max_turns, int verbosity);
-        State(Bunch_train_simulator * bunch_train_simulator_ptr,
-                Propagate_actions * propagate_actions_ptr, int num_turns,
-                int first_turn, int max_turns, int verbosity);
-        State()
-        {
-        }
+
+        State() 
+        { }
+
         template<class Archive>
-            void
-            serialize(Archive & ar, const unsigned int version);
+        void serialize(Archive & ar, const unsigned int version);
     };
 
 private:
+
     Stepper_sptr stepper_sptr;
+
     int checkpoint_period;
     std::string checkpoint_dir;
     bool checkpoint_with_xml;
@@ -56,28 +57,57 @@ private:
     bool final_checkpoint;
 
     int omp_threads;
+#endif
 
-	void
-	construct();
-	void
-	do_before_start(State & state, double & t, Logger & logger);
-	void
-	do_step(Step & step, int step_count, int num_steps, int turn, State & state,
-			double & t, Logger & logger);
-	void
-	do_start_repetition(State & state);
-	bool
-	check_out_of_particles(State & state, Logger & logger);
+public:
+
+    static const int FINAL_STEP = -1;
+
+private:
+
+    Lattice lattice;
+    std::vector<Step> steps;
+
+private:
+
+	void construct();
+
+	void do_before_start(
+            Bunch_simulator & simulator, 
+            Logger & logger);
+
+	void do_start_repetition(
+            Bunch_simulator & simulator);
+
+	void do_turn_end(
+            Bunch_simulator & simulator, 
+            int turn_count, 
+            Logger & logger);
+
+	void do_step(
+            Bunch_simulator & simulator,
+            Step & step, 
+            int step_count, 
+            int turn_count, 
+            Logger & logger);
+
+	bool check_out_of_particles(
+            Bunch_simulator const & simulator, 
+            Logger & logger);
+
+#if 0
 	void
 	checkpoint(State & state, Logger & logger, double & t);
-	void
-	do_turn_end(int turn, State & state, double & t, double t_turn0, Logger & logger);
+#endif
+
 public:
-    Propagator(Stepper_sptr stepper_sptr);
 
-    // Default constructor for serialization use only
-    Propagator();
+    Propagator(Lattice const & lattice/*, Stepper const & stepper*/);
 
+    void
+    propagate(Bunch_simulator & simulator);
+
+#if 0
     Stepper_sptr
     get_stepper_sptr();
 
@@ -126,32 +156,32 @@ public:
     get_resume_state(std::string const& checkpoint_dir);
 
     void
-    resume(std::string const& checkpoint_dir, bool new_num_turns, int num_turns, bool new_max_turns,
-            int max_turns, bool new_verbosity, int verbosity);
+    resume( std::string const& checkpoint_dir, 
+            bool new_num_turns, int num_turns, 
+            bool new_max_turns, int max_turns, 
+            bool new_verbosity, int verbosity );
 
     void
-    propagate(Bunch_simulator & bunch_simulator, int num_turns,
-            int max_turns = 0, int verbosity = 1);
+    propagate(
+            Bunch_simulator & bunch_simulator, 
+            int num_turns,
+            int max_turns = 0, 
+            int verbosity = 1 );
 
     void
-    propagate(Bunch_simulator & bunch_simulator,
-            Propagate_actions & general_actions, int num_turns,
-            int max_turns = 0, int verbosity = 1);
+    propagate(
+            Bunch_simulator & bunch_simulator,
+            Propagate_actions & general_actions, 
+            int num_turns,
+            int max_turns = 0, 
+            int verbosity = 1 );
+#endif
 
-    void
-    propagate(Bunch_train_simulator & bunch_train_simulator, int num_turns,
-            int max_turns = 0, int verbosity = 1);
-
-    void
-    propagate(Bunch_train_simulator & bunch_train_simulator,
-            Propagate_actions & general_actions, int num_turns,
-            int max_turns = 0, int verbosity = 1);
-
+#if 0
     template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
-
-    ~Propagator();
+    void
+    serialize(Archive & ar, const unsigned int version);
+#endif
 };
 
 #endif /* PROPAGATOR_H_ */

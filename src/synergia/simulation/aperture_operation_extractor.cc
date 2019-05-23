@@ -1,5 +1,7 @@
 #include "aperture_operation_extractor.h"
 
+
+#if 0
 BOOST_CLASS_EXPORT_IMPLEMENT(Circular_extractor)
 BOOST_CLASS_EXPORT_IMPLEMENT(Elliptical_extractor)
 BOOST_CLASS_EXPORT_IMPLEMENT(Rectangular_extractor)
@@ -96,3 +98,4 @@ Aperture_operation_extractor_map::serialize<boost::archive::xml_iarchive >(
 Aperture_operation_extractor_map::~Aperture_operation_extractor_map()
 {
 }
+#endif

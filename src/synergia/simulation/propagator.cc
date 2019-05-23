@@ -1,14 +1,16 @@
+
 #include "propagator.h"
-#include "synergia/utils/simple_timer.h"
-#include "synergia/simulation/diagnostics_actions.h"
-#include "synergia/utils/serialization_files.h"
-#include "synergia/utils/logger.h"
+
+//#include "synergia/utils/simple_timer.h"
 #include "synergia/utils/digits.h"
 
+#if 0
 // avoid bad interaction between Boost Filesystem and clang
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
+#endif
 
+#if 0
 const std::string Propagator::default_checkpoint_dir = "checkpoint";
 const std::string Propagator::description_file_name = "checkpoint_description.txt";
 const std::string Propagator::propagator_archive_name = "propagator.bina";
@@ -20,7 +22,9 @@ const std::string Propagator::stop_file_name = "stop";
 const std::string Propagator::alt_stop_file_name = "STOPTHISTIMEIMEANIT";
 const int Propagator::default_checkpoint_period = 10;
 const int Propagator::default_concurrent_io = 1;
+#endif
 
+#if 0
 Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
         Propagate_actions * propagate_actions_ptr, int num_turns,
         int first_turn, int max_turns, int verbosity) :
@@ -71,7 +75,10 @@ template
 void
 Propagator::State::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
+#endif
 
+
+#if 0
 // omp_threads >= 0 uses the number of threads set by default or by the OMP_NUM_THREADS
 // environmental variable
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
@@ -92,7 +99,21 @@ Propagator::get_stepper_sptr()
 {
     return stepper_sptr;
 }
+#endif
 
+Propagator::Propagator(Lattice const & lattice/*, Stepper const & stepper*/)
+: lattice(lattice)
+, steps()
+{
+    construct();
+}
+
+void
+Propagator::construct()
+{
+}
+
+#if 0
 void
 Propagator::set_checkpoint_period(int period)
 {
@@ -168,16 +189,19 @@ Propagator::get_num_threads() const
 {
     return omp_threads;
 }
+#endif
 
 void
-Propagator::do_before_start(State & state, double & t, Logger & logger)
+Propagator::do_before_start(Bunch_simulator & simulator, Logger & logger)
 {
-    if (state.first_turn == 0) {
-
+#if 0
+    if (state.first_turn == 0) 
+    {
         Reference_particle const & lattice_reference_particle = 
                 stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle();
 
-        if (state.bunch_simulator_ptr) {
+        if (state.bunch_simulator_ptr) 
+        {
             state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
                     *stepper_sptr, state.bunch_simulator_ptr->get_bunch());
 
@@ -185,10 +209,12 @@ Propagator::do_before_start(State & state, double & t, Logger & logger)
             state.bunch_simulator_ptr->get_bunch().set_design_reference_particle(
                     lattice_reference_particle);
 
-        } else {
-            size_t num_bunches =
-                    state.bunch_train_simulator_ptr->get_bunch_train().get_size();
-            for (int i = 0; i < num_bunches; ++i) {
+        } 
+        else 
+        {
+            size_t num_bunches = state.bunch_train_simulator_ptr->get_bunch_train().get_size();
+            for (int i = 0; i < num_bunches; ++i) 
+            {
                 state.bunch_train_simulator_ptr->get_diagnostics_actionss().at(
                         i)->first_action(*stepper_sptr,
                         *(state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(
@@ -199,21 +225,37 @@ Propagator::do_before_start(State & state, double & t, Logger & logger)
                     ->set_design_reference_particle(lattice_reference_particle);
             }
         }
+
+
         t = simple_timer_show(t, "propagate-diagnostics_actions_first");
-        if (state.bunch_simulator_ptr) {
+
+        if (state.bunch_simulator_ptr) 
+        {
             state.propagate_actions_ptr->first_action(*stepper_sptr,
                     state.bunch_simulator_ptr->get_bunch());
-        } else {
+        } 
+        else 
+        {
             state.propagate_actions_ptr->first_action(*stepper_sptr,
                     state.bunch_train_simulator_ptr->get_bunch_train());
         }
+
         t = simple_timer_show(t, "propagate-general_actions_first");
+    }
+#endif
+
+    if (simulator.first_turn == 0) 
+    {
+        simulator.diag_action_step_and_turn(0, 0);
+        simulator.prop_action_first(lattice);
+        simulator.set_lattice_reference_particle(lattice.get_reference_particle());
     }
 }
 
 void
-Propagator::do_start_repetition(State & state)
+Propagator::do_start_repetition(Bunch_simulator & simulator)
 {
+#if 0
     if (state.bunch_simulator_ptr) {
         state.bunch_simulator_ptr->get_bunch().get_reference_particle().start_repetition();
     } else {
@@ -224,27 +266,90 @@ Propagator::do_start_repetition(State & state)
             (*it)->get_reference_particle().start_repetition();
         }
     }
+#endif
+
+    for(auto & bunch : simulator[0].get_bunches()) 
+        bunch.get_reference_particle().start_repetition();
+
+    for(auto & bunch : simulator[1].get_bunches()) 
+        bunch.get_reference_particle().start_repetition();
 }
 
 void
-Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
-        Propagator::State & state, double & t, Logger & logger)
+Propagator::do_step(
+        Bunch_simulator & simulator, 
+        Step & step, 
+        int step_count, 
+        int turn_count,
+        Logger & logger)
 {
     double t_step0 = MPI_Wtime();
-    if (state.bunch_simulator_ptr) {
+
+    step.apply(simulator, logger);
+    // t = simple_timer_show(t, "propagate-step_apply");
+
+    // operations associated with bunches
+    // e.g., bunch longitudinal operations (periodic, zcut, etc)
+    // these operations are not from lattices so are not included 
+    // in the steps
+    // now I believe this can be included as part of the 
+    // prop_action_step_end() method
+    // simulator.bunch_operation_step_end();
+    // t = simple_timer_show(t, "propagate-bunch_operations_step");
+
+    // general diagnostics
+    simulator.diag_action_step_and_turn(turn_count, step_count);
+    // t = simple_timer_show(t, "propagate-diagnostics_actions_step");
+
+    // propagate action
+    simulator.prop_action_step_end(lattice, turn_count, step_count);
+    // t = simple_timer_show(t, "propagate-general_actions-step");
+
+    double t_step1 = MPI_Wtime();
+
+    //if (logger.verbosity > 1) 
+    {
+        int p = std::cout.precision();
+        int num_steps = steps.size();
+
+        logger << "Propagator:     step " << std::setw(digits(num_steps)) 
+               << step_count << "/" << num_steps;
+
+        logger << ", s_n=" << std::fixed << std::setprecision(4)
+               << simulator[0][0].get_reference_particle().get_s_n();
+
+        logger << ", time = " << std::fixed << std::setprecision(3) 
+               << t_step1 - t_step0 << "s" << std::endl;
+
+        std::cout.precision(p);
+    }
+
+#if 0
+    double t_step0 = MPI_Wtime();
+
+    if (state.bunch_simulator_ptr) 
+    {
         Bunch & bunch(state.bunch_simulator_ptr->get_bunch());
+
         Diagnostics_actions & diagnostics_actions(
                 state.bunch_simulator_ptr->get_diagnostics_actions());
+
         step.apply(bunch, state.verbosity,
                 diagnostics_actions.get_per_operator_diagnosticss(),
                 diagnostics_actions.get_per_operation_diagnosticss(), *stepper_sptr, logger);       
+
         t = simple_timer_show(t, "propagate-step_apply");
-        diagnostics_actions.step_end_action(*stepper_sptr, step, bunch, turn,
-                step_count);
+
+        diagnostics_actions.step_end_action(
+                *stepper_sptr, step, bunch, turn, step_count);
+
         t = simple_timer_show(t, "propagate-diagnostics_actions_step");
-        state.propagate_actions_ptr->step_end_action(*stepper_sptr, step, bunch,
-                turn, step_count);
-    } else {
+
+        state.propagate_actions_ptr->step_end_action(
+                *stepper_sptr, step, bunch, turn, step_count);
+    } 
+    else 
+    {
         Bunch_train & bunch_train(
                 state.bunch_train_simulator_ptr->get_bunch_train());
         Diagnostics_actionss & diagnostics_actionss(
@@ -277,6 +382,7 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
         state.propagate_actions_ptr->step_end_action(*stepper_sptr, step,
                 bunch_train, turn, step_count);
     }
+
     t = simple_timer_show(t, "propagate-general_actions-step");
     double t_step1 = MPI_Wtime();
     if (state.verbosity > 1) {
@@ -300,10 +406,14 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
         logger << std::endl;
         cout.precision(p);
     }
+#endif
 }
 
 bool
-Propagator::check_out_of_particles(State & state, Logger & logger) {
+Propagator::check_out_of_particles(Bunch_simulator const & simulator, Logger & logger) 
+{
+    return false;
+#if 0
     // n.b.: We only check out_of_particles for single-bunch propagation.
     // Checking all bunches in a multi-bunch simulation would require a
     // global communication. The costs exceed the potential benefits.
@@ -316,16 +426,71 @@ Propagator::check_out_of_particles(State & state, Logger & logger) {
         }
     }
 	return retval;
+#endif
 }
 
 void
-Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
-		Logger & logger) {
+Propagator::do_turn_end(
+        Bunch_simulator & simulator, 
+        int turn_count, 
+		Logger & logger) 
+{
+    //t = simple_timer_current();
+
+    simulator.diag_action_step_and_turn(turn_count, Propagator::FINAL_STEP);
+    simulator.diag_action_particle_loss_write();
+
+    simulator.prop_action_turn_end(lattice, turn_count);
+
+    simulator.first_turn = turn_count + 1;
+
+    //double t_turn1 = MPI_Wtime();
+
+#if 0
+    if (state.verbosity > 0) 
+    {
+        int p = cout.precision();
+        logger << "Propagator:";
+        logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
+                << "/" << state.num_turns;
+        if (state.bunch_simulator_ptr) 
+        {
+            logger << ", macroparticles = "
+                    << state.bunch_simulator_ptr->get_bunch().get_total_num();
+        } 
+        else 
+        {
+            Bunch_train & bunch_train(
+                    state.bunch_train_simulator_ptr->get_bunch_train());
+            size_t num_bunches = bunch_train.get_size();
+            bunch_train.update_bunch_total_num();
+            Bunches & bunches(bunch_train.get_bunches());
+            logger << ", macroparticles = (";
+            for (std::vector<Bunch_sptr >::const_iterator bit = bunches.begin(); bit!=bunches.end(); ++bit) {
+                if (bit != bunches.begin()) {
+                    logger << ", " ;
+                }
+                logger << (*bit)->get_total_num();
+            }
+             logger << ")  " ;
+        }
+        logger << ", time = " << std::fixed << std::setprecision(4)
+                << t_turn1 - t_turn0 << "s";
+        logger << std::endl;
+        cout.precision(p);
+    }
+#endif
+
+#if 0
     t = simple_timer_current();
-    if (state.bunch_simulator_ptr) {
+
+    if (state.bunch_simulator_ptr) 
+    {
         state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
                 *stepper_sptr, state.bunch_simulator_ptr->get_bunch(), turn);
-    } else {
+    } 
+    else 
+    {
         size_t num_bunches =
                 state.bunch_train_simulator_ptr->get_bunch_train().get_size();
         for (int i = 0; i < num_bunches; ++i) {
@@ -335,23 +500,33 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
                             i)), turn);
         }
     }
+
     t = simple_timer_show(t, "propagate-diagnostics_turn");
-    if (state.bunch_simulator_ptr) {
+
+    if (state.bunch_simulator_ptr) 
+    {
         state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
                 state.bunch_simulator_ptr->get_bunch(), turn);
-    } else {
+    } 
+    else 
+    {
         state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
                 state.bunch_train_simulator_ptr->get_bunch_train(), turn);
     }
+
     t = simple_timer_show(t, "propagate-general_actions_turn");
-    if (stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_have_loss_diagnostics()){
-             Diagnostics_losses diagnostics_list=
-                 stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_loss_diagnostics_list();
-             for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
-                 d_it != diagnostics_list.end(); ++d_it){
-                        (*d_it)->write();              
-                 }
-     }
+
+    if (stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_have_loss_diagnostics())
+    {
+         Diagnostics_losses diagnostics_list =
+             stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_loss_diagnostics_list();
+
+         for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
+             d_it != diagnostics_list.end(); ++d_it)
+         { 
+             (*d_it)->write();              
+         }
+    }
         
     
     
@@ -372,6 +547,9 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
             bunch_train.update_bunch_total_num();
             Bunches & bunches(bunch_train.get_bunches());
             logger << ", macroparticles = (";
+            for (auto const & bunch : bunches)
+            {
+            }
             for (std::vector<Bunch_sptr >::const_iterator bit = bunches.begin(); bit!=bunches.end(); ++bit) {
                 if (bit != bunches.begin()) {
                     logger << ", " ;
@@ -385,90 +563,114 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
         logger << std::endl;
         cout.precision(p);
     }
+#endif
 }
 
 void
-Propagator::propagate(State & state)
+Propagator::propagate(Bunch_simulator & sim)
 {
-    // set number of openmp threads
-    if (omp_threads > 0) {
-    omp_set_num_threads(omp_threads);
-    }
+    try 
+    {
+        Logger logger(0, "log");
 
-    try {
-        Logger logger(0, log_file_name);
-        double t_total = simple_timer_current();
-        double t = simple_timer_current();
+        //double t_total = simple_timer_current();
+        //double t = simple_timer_current();
 
-        do_before_start(state, t, logger);
+        do_before_start(sim, logger);
 
         int turns_since_checkpoint = 0;
-        int orig_first_turn = state.first_turn;
+        int orig_first_turn = sim.first_turn;
         bool out_of_particles = false;
-        if (state.verbosity > 0) {
-            logger << "Propagator: starting turn " << state.first_turn + 1
-                    << std::endl;
+
+        //if (sim.verbosity > 0)
+        {
+            logger << "Propagator: starting turn " 
+                   << sim.first_turn + 1 << std::endl;
         }
-        for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
+
+        for (int turn_count = sim.first_turn; turn_count < sim.num_turns; ++turn_count) 
+        {
             double t_turn0 = MPI_Wtime();
-            do_start_repetition(state);
+
+            do_start_repetition(sim);
+
             int step_count = 0;
-            int num_steps = stepper_sptr->get_steps().size();
-            for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
-                    != stepper_sptr->get_steps().end(); ++it) {
+            int num_steps = steps.size();
+
+            for (auto & step : steps)
+            {
                 ++step_count;
-            	do_step(*(*it), step_count, num_steps, turn, state, t, logger);
-                out_of_particles = check_out_of_particles(state, logger);
-                if (out_of_particles) {
-                    break;
-                }
+            	do_step(sim, step, step_count, turn_count, logger);
+
+                out_of_particles = check_out_of_particles(sim, logger);
+                if (out_of_particles) break;
             }
-            if (out_of_particles) {
-                break;
-            }
+
+            if (out_of_particles) break;
+
             ++turns_since_checkpoint;
-            do_turn_end(turn, state, t, t_turn0, logger);	   
-            if ((turns_since_checkpoint == checkpoint_period) || ((turn
-								   == (state.num_turns - 1)) && final_checkpoint)) {
+            do_turn_end(sim, turn_count, logger);
+
+#if 0
+            if ((turns_since_checkpoint == checkpoint_period) 
+                    || ((turn_count == (sim.num_turns - 1)) && final_checkpoint)) 
+            {
                 t = simple_timer_current();
-                checkpoint(state, logger, t);
+                checkpoint(sim, logger, t);
                 t = simple_timer_show(t, "propagate-checkpoint_period");
                 turns_since_checkpoint = 0;
             }
-            if (((turn - orig_first_turn + 1) == state.max_turns) && (turn
-                    != (state.num_turns - 1))) {
+#endif
+
+            if (((turn_count - orig_first_turn + 1) == sim.max_turns) 
+                    && (turn_count != (sim.num_turns - 1))) 
+            {
                 logger << "Propagator: maximum number of turns reached\n";
-                if (turns_since_checkpoint > 0) {
+
+#if 0
+                if (turns_since_checkpoint > 0) 
+                {
                     t = simple_timer_current();
-                    checkpoint(state, logger, t);
+                    checkpoint(sim, logger, t);
                     t = simple_timer_show(t, "propagate-checkpoint_max");
                 }
+#endif
+
                 break;
             }
+
+#if 0
             if (boost::filesystem::exists(stop_file_name)
-                    || boost::filesystem::exists(alt_stop_file_name)) {
+                    || boost::filesystem::exists(alt_stop_file_name)) 
+            {
                 logger << "Propagator: stop file detected\n";
-                if (turns_since_checkpoint > 0) {
+
+                if (turns_since_checkpoint > 0) 
+                {
                     t = simple_timer_current();
-                    checkpoint(state, logger, t);
+                    checkpoint(sim, logger, t);
                     t = simple_timer_show(t, "propagate-checkpoint_stop");
                 }
+
                 break;
             }
+#endif
+
         }
-        if (out_of_particles) {
-            logger << "Propagator: no particles left\n";
-        }
-        simple_timer_show(t_total, "propagate-total");
+
+        if (out_of_particles) logger << "Propagator: no particles left\n";
+        // simple_timer_show(t_total, "propagate-total");
     }
-    catch (std::exception const& e) {
+    catch (std::exception const& e) 
+    {
         std::cerr << e.what() << std::endl;
         MPI_Abort(MPI_COMM_WORLD, 888);
     }
 }
 
+#if 0
 void
-Propagator::checkpoint(State & state, Logger & logger, double & t)
+Propagator::checkpoint(Bunch_simulator & sim, Logger & logger, double & t)
 {
     if (state.verbosity > 0) {
         logger << "Propagator: checkpoint";
@@ -531,7 +733,9 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     }
     t = simple_timer_show(t, "checkpoint");
 }
+#endif
 
+#if 0
 Propagator::State
 Propagator::get_resume_state(std::string const& checkpoint_directory)
 {
@@ -544,11 +748,14 @@ Propagator::get_resume_state(std::string const& checkpoint_directory)
     unlink_serialization_directory();
     return state;
 }
+#endif
 
+#if 0
 void
 Propagator::resume(std::string const& checkpoint_directory, bool new_num_turns, int num_turns, bool new_max_turns,
         int max_turns, bool new_verbosity, int verbosity)
 {
+#if 0
     State state(get_resume_state(checkpoint_directory));
     if (new_max_turns) {
         state.max_turns = max_turns;
@@ -569,46 +776,33 @@ Propagator::resume(std::string const& checkpoint_directory, bool new_num_turns, 
     propagate(state);
     state.bunch_simulator_ptr ?  delete state.bunch_simulator_ptr: delete state.bunch_train_simulator_ptr;
     delete state.propagate_actions_ptr;
+#endif
 }
 
 void
-Propagator::propagate(Bunch_simulator & bunch_simulator, int num_turns,
-        int max_turns, int verbosity)
+Propagator::propagate(
+        Bunch_simulator & bunch_simulator, 
+        int num_turns, int max_turns, int verbosity )
 {
     Propagate_actions empty_propagate_actions;
-    propagate(bunch_simulator, empty_propagate_actions, num_turns, max_turns,
-            verbosity);
+    propagate( bunch_simulator, 
+            empty_propagate_actions, 
+            num_turns, max_turns, verbosity );
 }
 
 void
-Propagator::propagate(Bunch_simulator & bunch_simulator,
-        Propagate_actions & general_actions, int num_turns, int max_turns,
-        int verbosity)
+Propagator::propagate(
+        Bunch_simulator & bunch_simulator,
+        Propagate_actions & general_actions, 
+        int num_turns, int max_turns, int verbosity )
 {
     State state(&bunch_simulator, &general_actions, num_turns, 0, max_turns,
             verbosity);
     propagate(state);
 }
+#endif
 
-void
-Propagator::propagate(Bunch_train_simulator & bunch_train_simulator, int num_turns,
-        int max_turns, int verbosity)
-{
-    Propagate_actions empty_propagate_actions;
-    propagate(bunch_train_simulator, empty_propagate_actions, num_turns, max_turns,
-            verbosity);
-}
-
-void
-Propagator::propagate(Bunch_train_simulator & bunch_train_simulator,
-        Propagate_actions & general_actions, int num_turns, int max_turns,
-        int verbosity)
-{
-    State state(&bunch_train_simulator, &general_actions, num_turns, 0, max_turns,
-            verbosity);
-    propagate(state);
-}
-
+#if 0
 template<class Archive>
     void
     Propagator::serialize(Archive & ar, const unsigned int version)
@@ -641,8 +835,5 @@ template
 void
 Propagator::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
+#endif
 
-Propagator::~Propagator()
-{
-
-}

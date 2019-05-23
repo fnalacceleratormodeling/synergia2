@@ -1,26 +1,56 @@
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(synergia_simulation operator.cc step.cc stepper.cc
-    independent_stepper.cc independent_stepper_elements.cc
-    split_operator_stepper.cc split_operator_stepper_elements.cc
-    split_operator_stepper_choice.cc
-    propagate_actions.cc lattice_elements_actions.cc diagnostics_actions.cc propagator.cc
-    fast_mapping.cc  fast_normal_form.cc chef_propagator.cc independent_operation.cc
-    lattice_simulator.cc operation_extractor.cc aperture.cc
-    aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
-    bunch_train_simulator.cc resume.cc dense_mapping.cc calculate_closed_orbit.cc diagnostics_normal_form.cc)
-target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
-    synergia_lattice synergia_libFF ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
+add_library(synergia_simulation 
+    operator.cc 
+    step.cc 
+    #stepper.cc
+    #independent_stepper.cc 
+    #independent_stepper_elements.cc
+    #split_operator_stepper.cc 
+    #split_operator_stepper_elements.cc
+    #split_operator_stepper_choice.cc
+    #propagate_actions.cc 
+    #lattice_elements_actions.cc 
+    #diagnostics_actions.cc 
+    propagator.cc
+    #fast_mapping.cc  
+    #fast_normal_form.cc 
+    #chef_propagator.cc 
+    #independent_operation.cc
+    #lattice_simulator.cc 
+    #operation_extractor.cc 
+    #aperture.cc
+    #aperture_operation.cc 
+    #aperture_operation_extractor.cc 
+    #populate_stationary.cc 
+    bunch_simulator.cc
+    #bunch_train_simulator.cc 
+    #resume.cc 
+    #dense_mapping.cc 
+    #calculate_closed_orbit.cc 
+    #diagnostics_normal_form.cc
+    )
 
-if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(simulation simulation_wrap.cc)
-    target_link_libraries(simulation synergia_foundation synergia_bunch
-        synergia_lattice synergia_simulation
-        ${CHEF_LIBS} ${Boost_LIBRARIES})
-endif ()
+target_link_libraries(synergia_simulation 
+    synergia_foundation 
+    synergia_bunch
+    synergia_lattice 
+    #synergia_libFF 
+    ${CHEF_LIBS} 
+    ${Boost_REGEX_LIBRARY}
+    )
 
-install(TARGETS synergia_simulation DESTINATION ${LIB_INSTALL_DIR})
+#if (BUILD_PYTHON_BINDINGS)
+#    add_python_extension(simulation simulation_wrap.cc)
+#    target_link_libraries(simulation synergia_foundation synergia_bunch
+#        synergia_lattice synergia_simulation
+#        ${CHEF_LIBS} ${Boost_LIBRARIES})
+#endif ()
+
+install(TARGETS synergia_simulation 
+    DESTINATION ${LIB_INSTALL_DIR})
+
 install(FILES
     bunch_simulator.h
     bunch_train_simulator.h
@@ -51,14 +81,16 @@ install(FILES
     dense_mapping.h
     calculate_closed_orbit.h
     diagnostics_normal_form.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/simulation)
-if (BUILD_PYTHON_BINDINGS)
-    install(FILES
-        __init__.py
-        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
-    install(TARGETS
-        simulation
-        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
-endif ()
+    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/simulation
+    )
 
-add_subdirectory(tests)
+#if (BUILD_PYTHON_BINDINGS)
+#    install(FILES
+#        __init__.py
+#        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
+#    install(TARGETS
+#        simulation
+#        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
+#endif ()
+
+#add_subdirectory(tests)

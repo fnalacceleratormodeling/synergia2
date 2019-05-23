@@ -113,6 +113,38 @@ run(Benchmark_options const& opts)
     if (comm_sptr->get_rank() == 0) {
         std::cout << "propagate time = " << (t1 - t0) << std::endl;
     }
+
+    // ------------------------------------------------------------
+
+    // construct the lattice object
+    MadX_reader reader;
+    auto lattice = reader.read_lattice("fodo", "fodo.madx");
+
+    // now the steppper is a pure algorithm and doesnt own the lattice
+    Space_charge_3d_open_hockney sc_solver(Commxx(), grid_shape);
+    Split_operator_stepper stepper(sc_solver);
+
+    // propagtor is constructed with the lattice object
+    Propagator propagator(lattice, stepper);
+
+    // construct and populate the bunch
+    Bunch bunch;
+    populate6d(bunch, distribution, means, covariances);
+
+    // propagate actions and diagnostics actions
+    // conceptually, should they be part of the propagator? or be included in
+    // a bunch simulator object? e.g.:
+    //   Bunch_simulator simulator(bunch, actions)
+    // or,
+    //   propagator.add_actions(actions);
+
+    // other propagator properties
+    propagator.set_checkpoint_period(100);
+    propagator.set_final_checkpoint(false);
+    propagator.set_propagate_engine("chef");
+
+    // finally, kick off the simulation
+    propgator.propagate(bunch, num_turns, max_turns, verbosity);
 }
 
 int

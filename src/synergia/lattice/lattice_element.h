@@ -29,7 +29,7 @@ namespace element_type_name
 class Lattice_element;
 typedef std::shared_ptr<Lattice_element> Lattice_element_sptr;
 
-class Lattice_data;
+class Lattice;
 
 /// The Lattice_element class contains the description of a single
 /// lattice element. Each element has a name, a (string) type and
@@ -57,7 +57,7 @@ private:
 
     long int revision;
 
-    Lattice_data * lattice_ptr;
+    Lattice * lattice_ptr;
 
 public:
 
@@ -217,14 +217,14 @@ public:
 
     /// Set the reference to the parent lattice
     void
-    set_lattice(Lattice_data & lattice);
+    set_lattice(Lattice & lattice);
 
     /// Get a reference to the parent lattice
-    Lattice_data &
+    Lattice &
     get_lattice();
 
     /// Get a reference to the parent lattice
-    Lattice_data const &
+    Lattice const &
     get_lattice() const;
 
     /// Return a human-readable description of the Lattice_element
@@ -241,7 +241,5 @@ public:
     serialize(Archive & ar, const unsigned int version);
 };
 
-//typedef std::list<Lattice_element_sptr > Lattice_elements; // syndoc:include
-typedef std::list<Lattice_element> Lattice_elements; // syndoc:include
 
 #endif /* LATTICE_ELEMENT_H_ */

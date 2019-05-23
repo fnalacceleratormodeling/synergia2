@@ -41,25 +41,35 @@ run()
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
+
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
     Commxx_sptr commxx_per_host_sptr(new Commxx(true));
+
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
     space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
     Split_operator_stepper_sptr stepper_sptr(
             new Split_operator_stepper(lattice_simulator, space_charge_sptr,
                     num_steps));
+
     Propagator propagator(stepper_sptr);
+    propagator.set_checkpoint_period(100);
 
     Commxx_sptr comm_sptr(new Commxx);
+
     Bunch_sptr bunch_sptr(
             new Bunch(lattice_sptr->get_reference_particle(),
                     num_macro_particles, num_real_particles, comm_sptr));
+
     Random_distribution distribution(seed, *comm_sptr);
+
     MArray1d means;
     xml_load(means, "cxx_means.xml");
     MArray2d covariances;
     xml_load(covariances, "cxx_covariance_matrix.xml");
+
     populate_6d(distribution, *bunch_sptr, means, covariances);
 
     Bunch_simulator bunch_simulator(bunch_sptr);
@@ -69,11 +79,13 @@ run()
     bunch_simulator.get_diagnostics_actions().add_per_turn(
             Diagnostics_sptr(
                     new Diagnostics_full2("cxx_example_per_turn.h5")));
+
     double t0 = MPI_Wtime();
     const int max_turns = 0;
     const int verbosity = 2;
     propagator.propagate(bunch_simulator, num_turns, max_turns, verbosity);
     double t1 = MPI_Wtime();
+
     if (comm_sptr->get_rank() == 0) {
         std::cout << "propagate time = " << (t1 - t0) << std::endl;
     }

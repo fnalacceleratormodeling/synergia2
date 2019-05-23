@@ -3,6 +3,23 @@
 
 #include "synergia/simulation/aperture_operation.h"
 
+std::unique_ptr<Independent_operation>
+extract_aperture_operation(
+        std::string const & aperture_type,
+        Lattice_element_slice const & slice)
+{
+    if (aperture_type == "finite_aperture")
+    {
+        return std::make_unique<Finite_aperture_operation>(slice);
+    }
+    else
+    {
+        throw std::runtime_error("unknown aperture_type");
+    }
+}
+
+
+#if 0
 class Aperture_operation_extractor {
 public:
     Aperture_operation_extractor();
@@ -76,6 +93,8 @@ public:
 };
 
 typedef boost::shared_ptr<Aperture_operation_extractor_map> Aperture_operation_extractor_map_sptr; // syndoc:include
+
+#endif
 
 #endif /* APERTURE_OPERATION_EXTRACTOR_H_ */
 

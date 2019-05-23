@@ -2,8 +2,16 @@
 #define OPERATION_EXTRACTOR_H_
 
 #include "synergia/simulation/independent_operation.h"
-#include "synergia/utils/serialization.h"
 
+Independent_operations
+extract_independent_operation(
+        Chef_lattice const & chef_lattice,
+        Reference_particle const & ref_part,
+        Lattice_element_slices const & slices,
+        int map_order = 2);
+
+
+#if 0
 class Operation_extractor {
 private:
 	Chef_lattice_sptr chef_lattice_sptr;
@@ -112,5 +120,6 @@ const char chef_map_operation_extractor_name[] = "chef_map";
 const char chef_propagate_operation_extractor_name[] = "chef_propagate";
 const char chef_mixed_operation_extractor_name[] = "chef_mixed";
 const char libff_operation_extractor_name[] = "libff";
+#endif
 
 #endif /* OPERATION_EXTRACTOR_H_ */

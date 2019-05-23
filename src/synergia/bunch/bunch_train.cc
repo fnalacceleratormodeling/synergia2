@@ -4,6 +4,7 @@
 void 
 Bunch_train::find_parent_comm_sptr()
 {
+#if 0
   try{
     if (bunches.size()>0) {
         // check if all bunches has the same parent communicator
@@ -27,11 +28,13 @@ Bunch_train::find_parent_comm_sptr()
          std::cout<<e.what()<<std::endl;
          MPI_Abort(MPI_COMM_WORLD, 333);
   }  
+#endif
 }  
 
 void 
 Bunch_train::calculates_counts_and_offsets_for_impedance()
 {
+#if 0
    
   try{
      if (!has_parent_comm) find_parent_comm_sptr(); 
@@ -44,6 +47,7 @@ Bunch_train::calculates_counts_and_offsets_for_impedance()
         std::cout<<e.what()<<std::endl;
         MPI_Abort(MPI_COMM_WORLD, 333);
   }  
+#endif
 }  
 
 
@@ -57,6 +61,7 @@ Bunch_train::get_parent_comm_sptr()
 void
 Bunch_train::set_bucket_indices()
 {
+#if 0
     std::list<int > found_indices;
     for (size_t i = 0; i < bunches.size(); ++i) {
         if (!bunches[i]->is_bucket_index_assigned()) {
@@ -71,12 +76,14 @@ Bunch_train::set_bucket_indices()
         }
         found_indices.push_back(bunches[i]->get_bucket_index());
     }
+#endif
 }
 
-Bunch_train::Bunch_train(Bunches const& bunches, double spacing) :
-                bunches(bunches),
-                spacings(std::vector<double >(bunches.size() - 1, spacing)),
-                 has_parent_comm(false)
+#if 0
+Bunch_train::Bunch_train(Bunches const& bunches, double spacing) 
+    : bunches(bunches)
+    , spacings(std::vector<double >(bunches.size() - 1, spacing))
+    , has_parent_comm(false)
 {
     set_bucket_indices();
     calculates_counts_and_offsets_for_impedance();
@@ -95,37 +102,26 @@ Bunch_train::Bunch_train(Bunches const& bunches,
     set_bucket_indices();
     calculates_counts_and_offsets_for_impedance();
 }
+#endif
 
 Bunch_train::Bunch_train()
 {
 }
 
-size_t
-Bunch_train::get_size() const
-{
-    return bunches.size();
-}
-
-Bunches &
-Bunch_train::get_bunches()
-{
-    return bunches;
-}
-
-std::vector<double > &
+std::vector<double> &
 Bunch_train::get_spacings()
 {
     return spacings;
 }
 
 
-std::vector< int> &
+std::vector<int> &
 Bunch_train::get_proc_counts_for_impedance() 
 {
   return proc_counts_imped;
 }
 
-std::vector< int> &
+std::vector<int> &
 Bunch_train::get_proc_offsets_for_impedance() 
 {
   return proc_offsets_imped;
@@ -142,7 +138,7 @@ Bunch_train::update_bunch_total_num()
 
     for (int i=0; i<nb; ++i)
     {
-        nums[i] = bunches[i]->get_local_num();
+        nums[i] = bunches[i].get_local_num();
     }
 
     MPI_Allreduce(MPI_IN_PLACE, &nums[0], nb, MPI_INT, MPI_SUM, 
@@ -150,11 +146,12 @@ Bunch_train::update_bunch_total_num()
 
     for (int i=0; i<nb; ++i)
     {
-        bunches[i]->set_total_num(nums[i]);
+        bunches[i].set_total_num(nums[i]);
     }
 }
 
 
+#if 0
 template<class Archive>
     void
     Bunch_train::serialize(Archive & ar, const unsigned int version)
@@ -186,7 +183,5 @@ template
 void
 Bunch_train::serialize<cereal::XMLInputArchive >(
         cereal::XMLInputArchive & ar, const unsigned int version);
+#endif
 
-Bunch_train::~Bunch_train()
-{
-}

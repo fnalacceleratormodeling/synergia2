@@ -13,6 +13,36 @@
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/logger.h"
 
+
+class Independent_operation
+{
+private:
+
+    std::string type;
+
+public:
+
+    Independent_operation(std::string const & type);
+    std::string const & get_type() const;
+
+    virtual void apply(Bunch & bunch, Logger & logger) = 0;
+};
+
+class LibFF_operation : public Independent_operation
+{
+private:
+
+    std::vector<std::pair<FF_element, Lattice_element_slice>>
+        libff_element_slices;
+
+public:
+
+    LibFF_operation(Lattice_element_slices const & slices);
+    virtual void apply(Bunch & bunch, Logger & logger);
+};
+
+
+#if 0
 class Independent_operation
 {
 private:
@@ -100,5 +130,6 @@ public:
 BOOST_CLASS_EXPORT_KEY(LibFF_operation);
 typedef boost::shared_ptr<LibFF_operation >
         LibFF_operation_sptr; // syndoc:include
+#endif
 
 #endif /* INDEPENDENT_OPERATION_H_ */

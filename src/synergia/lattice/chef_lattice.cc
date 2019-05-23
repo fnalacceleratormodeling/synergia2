@@ -140,26 +140,35 @@ void
 Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
 {
     Lattice_element_slices::const_iterator slice_it = slices.begin();
+
     Begin_end begin_end;
     begin_end.begin = 0;
+
     int size = sliced_beamline_sptr->countHowMany();
     sliced_beamline_iterators.resize(size + 1);
     sliced_beamline_const_iterators.resize(size + 1);
+
     int index = 0;
+
     beamline::const_iterator cit = sliced_beamline_sptr->begin();
     for (beamline::iterator it = sliced_beamline_sptr->begin(); it
-            != sliced_beamline_sptr->end(); ++it) {
+            != sliced_beamline_sptr->end(); ++it) 
+    {
         sliced_beamline_iterators.at(index) = it;
         sliced_beamline_const_iterators.at(index) = cit;
-        if ((*it)->Name() == lattice_element_marker->Name()) {
+
+        if ((*it)->Name() == lattice_element_marker->Name()) 
+        {
             begin_end.end = index;
             element_slice_map[slice_it->get()] = begin_end;
             begin_end.begin = index + 1;
             ++slice_it;
         }
+
         ++index;
         ++cit;
     }
+
     sliced_beamline_iterators.at(index) = sliced_beamline_sptr->end();
     sliced_beamline_const_iterators.at(index) = sliced_beamline_sptr->end();
 }

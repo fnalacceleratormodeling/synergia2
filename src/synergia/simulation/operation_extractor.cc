@@ -4,62 +4,13 @@
 #include "fast_mapping.h"
 #include <cstring>
 
-Operation_extractor::Operation_extractor(Chef_lattice_sptr chef_lattice_sptr,
-        int map_order) :
-    chef_lattice_sptr(chef_lattice_sptr), map_order(map_order)
+
+
+
+namespace
 {
 
-}
-
-Operation_extractor::Operation_extractor()
-{
-
-}
-
-Chef_lattice_sptr &
-Operation_extractor::get_chef_lattice_sptr()
-{
-    return chef_lattice_sptr;
-}
-
-int
-Operation_extractor::get_map_order() const
-{
-    return map_order;
-}
-
-template<class Archive>
-    void
-    Operation_extractor::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
-        ar & BOOST_SERIALIZATION_NVP(map_order);
-    }
-
-template
-void
-Operation_extractor::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-Operation_extractor::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-Operation_extractor::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Operation_extractor::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-Operation_extractor::~Operation_extractor()
-{
-}
-
+#if 0
 // extract_fast_mapping is a local function
 Fast_mapping_operation_sptr
 extract_fast_mapping(Reference_particle const& reference_particle,
@@ -80,16 +31,6 @@ extract_fast_mapping(Reference_particle const& reference_particle,
     Fast_mapping_operation_sptr fast_mapping_operation_sptr(
             new Fast_mapping_operation(fast_mapping));
     return fast_mapping_operation_sptr;
-}
-
-Chef_map_operation_extractor::Chef_map_operation_extractor(
-        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
-    Operation_extractor(chef_lattice_sptr, map_order)
-{
-}
-
-Chef_map_operation_extractor::Chef_map_operation_extractor()
-{
 }
 
 Independent_operations
@@ -113,45 +54,7 @@ Chef_map_operation_extractor::extract(
     return retval;
 }
 
-template<class Archive>
-    void
-    Chef_map_operation_extractor::serialize(Archive & ar,
-            const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
-    }
 
-template
-void
-Chef_map_operation_extractor::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-Chef_map_operation_extractor::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-Chef_map_operation_extractor::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Chef_map_operation_extractor::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Chef_map_operation_extractor)
-
-Chef_propagate_operation_extractor::Chef_propagate_operation_extractor(
-        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
-    Operation_extractor(chef_lattice_sptr, map_order)
-{
-}
-
-Chef_propagate_operation_extractor::Chef_propagate_operation_extractor()
-{
-}
 
 Independent_operations
 Chef_propagate_operation_extractor::extract(
@@ -173,45 +76,6 @@ Chef_propagate_operation_extractor::extract(
     return retval;
 }
 
-template<class Archive>
-    void
-    Chef_propagate_operation_extractor::serialize(Archive & ar,
-            const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
-    }
-
-template
-void
-Chef_propagate_operation_extractor::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-Chef_propagate_operation_extractor::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-Chef_propagate_operation_extractor::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Chef_propagate_operation_extractor::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Chef_propagate_operation_extractor)
-
-Chef_mixed_operation_extractor::Chef_mixed_operation_extractor(
-        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
-    Operation_extractor(chef_lattice_sptr, map_order)
-{
-}
-
-Chef_mixed_operation_extractor::Chef_mixed_operation_extractor()
-{
-}
 
 // handle_subsection is a local function
 void
@@ -268,151 +132,54 @@ Chef_mixed_operation_extractor::extract(
     return retval;
 }
 
-template<class Archive>
-    void
-    Chef_mixed_operation_extractor::serialize(Archive & ar, const unsigned int version)
+#endif
+
+
+    Independent_operations libFF_operation_extract(
+            Reference_particle const & reference_particle,
+            Lattice_element_slices const & slices)
     {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
+        Independent_operations retval;
+        retval.push_back(libFF_operation(slices));
+
+        return retval;
     }
 
-template
-void
-Chef_mixed_operation_extractor::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
+} // namespace
 
-template
-void
-Chef_mixed_operation_extractor::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
 
-template
-void
-Chef_mixed_operation_extractor::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
 
-template
-void
-Chef_mixed_operation_extractor::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Chef_mixed_operation_extractor)
 
-LibFF_operation_extractor::LibFF_operation_extractor(
-        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
-    Operation_extractor(chef_lattice_sptr, map_order)
+Independent_operations extract_independent_operation(
+        std::string const & extractor_type,
+        Chef_lattice const & chef_lattice,
+        Reference_particle const & ref_part,
+        Lattice_element_slices const & slices,
+        int map_order = 2)
 {
-}
-
-LibFF_operation_extractor::LibFF_operation_extractor()
-{
-}
-
-Independent_operations
-LibFF_operation_extractor::extract(
-        Reference_particle const& reference_particle,
-        Lattice_element_slices const& slices)
-{
-    Independent_operations retval;
-    LibFF_operation_sptr operation_sptr(new LibFF_operation(slices));
-    retval.push_back(operation_sptr);
-
-    return retval;
-}
-
-template<class Archive>
-    void
-    LibFF_operation_extractor::serialize(Archive & ar, const unsigned int version)
+    if (extractor_type == "chef_map")
     {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
+        return chef_map_operation_extract(chef_lattice, ref_part, slices);
     }
-
-template
-void
-LibFF_operation_extractor::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-LibFF_operation_extractor::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-LibFF_operation_extractor::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-LibFF_operation_extractor::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-BOOST_CLASS_EXPORT_IMPLEMENT(LibFF_operation_extractor)
-
-Operation_extractor_map::Operation_extractor_map()
-{
-}
-
-void
-Operation_extractor_map::set_extractor(std::string const& name,
-        Operation_extractor_sptr operation_extractor)
-{
-    extractor_map[name] = operation_extractor;
-}
-
-Operation_extractor_sptr &
-Operation_extractor_map::get_extractor(std::string const& name)
-{
-    if (extractor_map.find(name) == extractor_map.end()) {
-        std::string message("Operation_extractor_map: unknown extractor \"");
-        message += name;
-        message += "\"";
-        message += "\nknown extractors:\n";
-        std::list<std::string > extractor_names(get_extractor_names());
-        for(std::list<std::string >::const_iterator it = extractor_names.begin();
-                it!=extractor_names.end(); ++it) {
-            message += "    " + *it + "\n";
-        }
-        throw std::runtime_error(message);
+    else if (extractor_type == "chef_propagator")
+    {
+        return chef_propagator_operation_extract(chef_lattice, ref_part, slices);
     }
-    return extractor_map[name];
-}
-
-std::list<std::string >
-Operation_extractor_map::get_extractor_names() const
-{
-    std::list<std::string > retval;
-    for (std::map<std::string, Operation_extractor_sptr >::const_iterator it =
-            extractor_map.begin(); it != extractor_map.end(); ++it) {
-        retval.push_back(it->first);
+    else if (extractor_type == "chef_mixed")
+    {
+        return chef_mixed_operation_extract(chef_lattice, ref_part, slices);
     }
-    return retval;
+    else if (extractor_type == "libff" || extractor_type == "default")
+    {
+        return libff_operation_extract(ref_part, slices);
+    }
+    else
+    {
+        throw std::runtime_error("unknown extractor_type");
+    }
 }
 
-template<class Archive>
-void Operation_extractor_map::serialize(Archive & ar, const unsigned int version) {
-    ar & BOOST_SERIALIZATION_NVP(extractor_map);
-}
 
-template
-void
-Operation_extractor_map::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
 
-template
-void
-Operation_extractor_map::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
 
-template
-void
-Operation_extractor_map::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Operation_extractor_map::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-Operation_extractor_map::~Operation_extractor_map()
-{
-}

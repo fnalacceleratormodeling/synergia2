@@ -10,7 +10,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/simplify.py
 add_library(synergia_lattice 
     lattice_element.cc 
     lattice_element_processor.cc 
-    lattice_data.cc 
+    lattice.cc
     #lattice_element_slice.cc
     #lattice.cc 
     #chef_lattice.cc 

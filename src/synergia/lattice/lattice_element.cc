@@ -1,5 +1,5 @@
 #include "lattice_element.h"
-#include "lattice_data.h"
+#include "lattice.h"
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
@@ -408,12 +408,12 @@ Lattice_element::has_lattice() const
 }
 
 void
-Lattice_element::set_lattice(Lattice_data & lattice)
+Lattice_element::set_lattice(Lattice & lattice)
 {
     lattice_ptr = &lattice;
 }
 
-Lattice_data const&
+Lattice const&
 Lattice_element::get_lattice() const
 {
     if(! has_lattice()) {

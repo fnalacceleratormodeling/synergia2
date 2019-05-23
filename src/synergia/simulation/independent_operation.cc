@@ -2,6 +2,27 @@
 #include "synergia/libFF/ff_element_map.h"
 #include "synergia/utils/simple_timer.h"
 
+
+LibFF_operation::LibFF_operation(Lattice_element_slices const& slices) 
+    : Independent_operation("LibFF")
+    , element_slices(slices.size())
+{
+    populate_element_slices(slices);
+}
+
+void
+LibFF_operation::apply(Bunch & bunch, Logger & logger)
+{
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+
+    for (auto const & es : element_slices)
+        es.first.apply(es.second, bunch);
+}
+
+
+
+
+#if 0
 Independent_operation::Independent_operation(std::string const& type) :
     type(type)
 {
@@ -223,3 +244,4 @@ LibFF_operation::~LibFF_operation()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(LibFF_operation);
+#endif

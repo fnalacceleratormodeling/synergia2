@@ -1,5 +1,5 @@
-#ifndef LATTICE_DATA_H_
-#define LATTICE_DATA_H_
+#ifndef LATTICE_H_
+#define LATTICE_H_
 
 #include <string>
 #include <list>
@@ -13,10 +13,10 @@
 
 #include "synergia/utils/cereal.h"
 
-/// The Lattice_data class contains an abstract representation of an ordered
+/// The Lattice class contains an abstract representation of an ordered
 /// set of objects of type Lattice_element.
-/// Each element of the Lattice_data is unique.
-class Lattice_data
+/// Each element of the Lattice is unique.
+class Lattice
 {
 
 private:
@@ -24,7 +24,7 @@ private:
     std::string name;
 
     Reference_particle reference_particle;
-    Lattice_elements elements;
+    std::list<Lattice_element> elements;
 
     bool dirty;
 
@@ -35,36 +35,36 @@ private:
 
 public:
 
-    /// Construct a Lattice_data object without a name.
+    /// Construct a Lattice object without a name.
     /// Defaults to interpreting elements as Mad8 elements
-    Lattice_data();
+    Lattice();
 
-    /// Copies of Lattice_datas contain copies of elements
-    Lattice_data(Lattice_data const & lattice);
+    /// Copies of Lattices contain copies of elements
+    Lattice(Lattice const & lattice);
 
-    /// Construct a Lattice_data object with a name
+    /// Construct a Lattice object with a name
     /// Defaults to interpreting elements as Mad8 elements
     /// @param name an arbitrary name
-    explicit Lattice_data(std::string const & name);
+    explicit Lattice(std::string const & name);
 
-    /// Construct a Lattice_data from the Lsexpr representation
+    /// Construct a Lattice from the Lsexpr representation
     /// @param lsexpr representation
-    explicit Lattice_data(Lsexpr const & lsexpr);
+    explicit Lattice(Lsexpr const & lsexpr);
 
-    /// Extract an Lsexpr representation of the Lattice_data
+    /// Extract an Lsexpr representation of the Lattice
     Lsexpr
     as_lsexpr() const;
 
-    /// Get the Lattice_data name
+    /// Get the Lattice name
     std::string const &
     get_name() const;
 
-    /// Set the Lattice_data reference particle
+    /// Set the Lattice reference particle
     /// @param reference_particle a Reference_particle
     void
     set_reference_particle(Reference_particle const & reference_particle);
 
-    /// Get the Lattice_data reference particle (const)
+    /// Get the Lattice reference particle (const)
     Reference_particle const &
     get_reference_particle() const;
 
@@ -103,33 +103,33 @@ public:
             std::string const & name, std::string const & value,
             bool increment_revision = true);
 
-    /// Get the list of elements in the Lattice_data
-    Lattice_elements const &
+    /// Get the list of elements in the Lattice
+    std::list<Lattice_element> const &
     get_elements() const;
 
-    /// Get the combined length of all the elements in the Lattice_data
+    /// Get the combined length of all the elements in the Lattice
     double
     get_length() const;
 
     /// Get the total angle in radians subtended by all the elements in the
-    /// Lattice_data
+    /// Lattice
     double
     get_total_angle() const;
 
-    /// Return a human-readable summary of the elements in the Lattice_data.
+    /// Return a human-readable summary of the elements in the Lattice.
     std::string
     as_string() const;
 
-    /// Print a human-readable summary of the elements in the Lattice_data.
+    /// Print a human-readable summary of the elements in the Lattice.
     /// The Python version of this function is named "print_".
     void
     print() const;
 
+#if 0
     template<class Archive>
     void
     serialize(Archive & ar, const unsigned int version);
+#endif
 };
-
-typedef std::shared_ptr<Lattice_data> Lattice_data_sptr; // syndoc:include
 
 #endif /* LATTICE_H_ */

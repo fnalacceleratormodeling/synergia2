@@ -84,43 +84,60 @@ private:
 
 public:
     Diagnostics_actions();
+
     virtual void
     set_bunch_sptr(Bunch_sptr bunch_sptr);
+
     virtual bool
     have_bunch_sptr() const;
+
     virtual Bunch_sptr
     get_bunch_sptr();
+
     virtual void
     add_per_turn(Diagnostics_sptr diagnostics_sptr, int turn_period = 1);
+
     virtual void
     add_per_turn(Diagnostics_sptr diagnostics_sptr,
             std::list<int > const& turn_numbers);
+
     virtual void
     add_per_step(Diagnostics_sptr diagnostics_sptr, int step_period = 1);
+
     virtual void
     add_per_step(Diagnostics_sptr diagnostics_sptr,
             std::list<int > const& step_numbers, int turn_period = 1);
+
     virtual void
     add_per_forced_diagnostics_step(Diagnostics_sptr diagnostics_sptr,
             int turn_period = 1);
+
     virtual void
     add_per_operator(Diagnostics_sptr diagnostics_sptr);
+
     virtual void
     add_per_operation(Diagnostics_sptr diagnostics_sptr);
+
     virtual void
     first_action(Stepper & stepper, Bunch & bunch);
+
     virtual void
     turn_end_action(Stepper & stepper, Bunch & bunch, int turn_num);
+
     virtual void
     step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
             int turn_num, int step_num);
+
     virtual Diagnosticss &
     get_per_operator_diagnosticss();
+
     virtual Diagnosticss &
     get_per_operation_diagnosticss();
+
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
+
     virtual
     ~Diagnostics_actions();
 };
