@@ -2,9 +2,12 @@
 #define PROPAGATOR_H_
 
 #include "synergia/lattice/lattice.h"
-//#include "synergia/simulation/stepper.h"
+
 #include "synergia/simulation/bunch_simulator.h"
 #include "synergia/simulation/step.h"
+#include "synergia/simulation/stepper.h"
+#include "synergia/simulation/split_operator_stepper_elements.h"
+
 #include "synergia/utils/cereal.h"
 #include "synergia/utils/logger.h"
 
@@ -102,7 +105,9 @@ private:
 
 public:
 
-    Propagator(Lattice const & lattice/*, Stepper const & stepper*/);
+    explicit Propagator(
+            Lattice const & lattice, 
+            Stepper const & stepper = Split_operator_stepper_elements(1) );
 
     void
     propagate(Bunch_simulator & simulator);

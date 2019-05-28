@@ -1,11 +1,9 @@
 #include "stepper.h"
-#include "synergia/utils/string_utils.h"
-#include "synergia/bunch/bunch.h"
-#include <cmath>
+//#include "synergia/utils/string_utils.h"
 
-const std::string Stepper::force_diagnostics_attribute("force_diagnostics");
 const double Stepper::fixed_step_tolerance = 1.0e-8;
 
+#if 0
 Stepper::Stepper(Lattice_sptr lattice_sptr, int map_order) :
     lattice_simulator(lattice_sptr, map_order), have_step_betas(false)
 {
@@ -17,23 +15,114 @@ Stepper::Stepper(Lattice_simulator const& lattice_simulator) :
 {
 
 }
+#endif
 
 Stepper::Stepper()
 {
 
 }
 
-Lattice_simulator &
-Stepper::get_lattice_simulator()
+#if 0
+// Return an Independent_operator for a half step, starting at the
+// lattice_element given by lattice_it at position left. Both lattice_it
+// and left are updated by the function.
+Independent_operator_sptr
+Stepper::get_fixed_step(std::string const& name,
+        Lattice_elements::iterator & lattice_it, double & left,
+        Lattice_elements::iterator const & lattice_end,
+        const double step_length, double & offset_fudge,
+        bool end_on_force_diagnostics)
 {
-    return lattice_simulator;
+    Independent_operator_sptr retval(
+            new Independent_operator(name,
+                    get_lattice_simulator().get_operation_extractor_map_sptr(),
+                    get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
+    double length = offset_fudge;
+    bool complete = false;
+    while (!complete) {
+        double right = (*lattice_it)->get_length();
+        if (length + (right - left) - fixed_step_tolerance <= step_length) {
+            // The rest of the element fits in the half step
+            Lattice_element_slice_sptr slice(
+                    new Lattice_element_slice(*lattice_it, left, right));
+            retval->append_slice(slice);
+            length += (right - left);
+            if (end_on_force_diagnostics && slice->has_right_edge()
+                    && (*lattice_it)->has_string_attribute(
+                            force_diagnostics_attribute)) {
+                if (!false_string(
+                        (*lattice_it)->get_string_attribute(
+                                force_diagnostics_attribute))) {
+                    complete = true;
+                }
+            }
+            ++lattice_it;
+            left = 0.0;
+            if (std::abs(length - step_length) < fixed_step_tolerance) {
+                if ((lattice_it == lattice_end)
+                        || ((*lattice_it)->get_length() != 0.0)) {
+                    complete = true;
+                }
+            } else {
+                if (lattice_it == lattice_end) {
+                    throw(std::runtime_error(
+                            "get_step stepped beyond end of lattice"));
+                }
+            }
+        } else {
+            // Need to take a portion of the element...
+            bool end_within_error = false;
+            double old_right = right;
+            right = step_length - length + left;
+            if (std::abs(old_right - right) < fixed_step_tolerance) {
+                // ... unless we are within an accumulated tolerance of the end
+                right = old_right;
+                end_within_error = true;
+            }
+
+            Lattice_element_slice_sptr slice(
+                    new Lattice_element_slice(*lattice_it, left, right));
+            retval->append_slice(slice);
+            length += (right - left);
+            if (end_within_error) {
+                ++lattice_it;
+                left = 0.0;
+            } else {
+                left = right;
+            }
+            complete = true;
+        }
+    }
+    offset_fudge = length - step_length;
+    return retval;
 }
 
-Steps &
-Stepper::get_steps()
+
+
+Lattice_element_slices
+Stepper::extract_slices(Steps const& steps)
 {
-    return steps;
+    Lattice_element_slices all_slices;
+    for (Steps::const_iterator s_it = steps.begin(); s_it != steps.end(); ++s_it) {
+        for (Operators::const_iterator o_it = (*s_it)->get_operators().begin(); o_it
+                != (*s_it)->get_operators().end(); ++o_it) {
+            if ((*o_it)->get_type() == "independent") {
+                Lattice_element_slices
+                        element_slices(
+                                boost::static_pointer_cast<Independent_operator >(
+                                        *o_it)->get_slices());
+                all_slices.splice(all_slices.end(), element_slices);
+            }
+        }
+    }
+    return all_slices;
 }
+#endif
+
+
+
+
+#if 0
 
 void
 Stepper::force_update_operations_no_collective()
@@ -61,6 +150,7 @@ Stepper::force_update_operations_no_collective()
     }
 }
 
+
 void
 Stepper::print() const
 {
@@ -86,10 +176,7 @@ Stepper::print_cs_step_betas()
             s_length += (*s_it)->get_length();
             flogger << std::setw(19) << index<<"   "<<s_length << "    "<<std::setprecision(16)
             <<(*s_it)->get_betas()[0]<<"   "<<(*s_it)->get_betas()[1]<<std::endl;
-           
      }
-     
-     
   }
   catch (std::exception const& e) {
         std::cout << e.what() << std::endl;
@@ -201,107 +288,6 @@ template
 void
 Stepper::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
-
-Stepper::~Stepper()
-{
-
-}
-
-// Return an Independent_operator for a half step, starting at the
-// lattice_element given by lattice_it at position left. Both lattice_it
-// and left are updated by the function.
-Independent_operator_sptr
-Stepper::get_fixed_step(std::string const& name,
-        Lattice_elements::iterator & lattice_it, double & left,
-        Lattice_elements::iterator const & lattice_end,
-        const double step_length, double & offset_fudge,
-        bool end_on_force_diagnostics)
-{
-    Independent_operator_sptr retval(
-            new Independent_operator(name,
-                    get_lattice_simulator().get_operation_extractor_map_sptr(),
-                    get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
-    double length = offset_fudge;
-    bool complete = false;
-    while (!complete) {
-        double right = (*lattice_it)->get_length();
-        if (length + (right - left) - fixed_step_tolerance <= step_length) {
-            // The rest of the element fits in the half step
-            Lattice_element_slice_sptr slice(
-                    new Lattice_element_slice(*lattice_it, left, right));
-            retval->append_slice(slice);
-            length += (right - left);
-            if (end_on_force_diagnostics && slice->has_right_edge()
-                    && (*lattice_it)->has_string_attribute(
-                            force_diagnostics_attribute)) {
-                if (!false_string(
-                        (*lattice_it)->get_string_attribute(
-                                force_diagnostics_attribute))) {
-                    complete = true;
-                }
-            }
-            ++lattice_it;
-            left = 0.0;
-            if (std::abs(length - step_length) < fixed_step_tolerance) {
-                if ((lattice_it == lattice_end)
-                        || ((*lattice_it)->get_length() != 0.0)) {
-                    complete = true;
-                }
-            } else {
-                if (lattice_it == lattice_end) {
-                    throw(std::runtime_error(
-                            "get_step stepped beyond end of lattice"));
-                }
-            }
-        } else {
-            // Need to take a portion of the element...
-            bool end_within_error = false;
-            double old_right = right;
-            right = step_length - length + left;
-            if (std::abs(old_right - right) < fixed_step_tolerance) {
-                // ... unless we are within an accumulated tolerance of the end
-                right = old_right;
-                end_within_error = true;
-            }
-
-            Lattice_element_slice_sptr slice(
-                    new Lattice_element_slice(*lattice_it, left, right));
-            retval->append_slice(slice);
-            length += (right - left);
-            if (end_within_error) {
-                ++lattice_it;
-                left = 0.0;
-            } else {
-                left = right;
-            }
-            complete = true;
-        }
-    }
-    offset_fudge = length - step_length;
-    return retval;
-}
-
-
-
-Lattice_element_slices
-Stepper::extract_slices(Steps const& steps)
-{
-    Lattice_element_slices all_slices;
-    for (Steps::const_iterator s_it = steps.begin(); s_it != steps.end(); ++s_it) {
-        for (Operators::const_iterator o_it = (*s_it)->get_operators().begin(); o_it
-                != (*s_it)->get_operators().end(); ++o_it) {
-            if ((*o_it)->get_type() == "independent") {
-                Lattice_element_slices
-                        element_slices(
-                                boost::static_pointer_cast<Independent_operator >(
-                                        *o_it)->get_slices());
-                all_slices.splice(all_slices.end(), element_slices);
-            }
-        }
-    }
-    return all_slices;
-}
-
-
+#endif
 
 

@@ -1,17 +1,82 @@
 #include "split_operator_stepper_elements.h"
 
+std::vector<Step>
+Split_operator_stepper_elements::apply(Lattice const & lattice) const
+{
+    if (steps_per_element < 1) 
+    {
+        throw std::runtime_error(
+                "Split_operator_stepper_elements: steps_per_element must be >= 1");
+    }
+
+    std::vector<Step> steps;
+
+    for (auto const & ele : lattice.get_elements())
+    {
+        double length = ele.get_length();
+
+        //zero-length element
+        if (length == 0.0) 
+        {
+            Independent_operator ind_op("step");
+
+            Lattice_element_slice slice(ele);
+            ind_op.append_slice(slice);
+
+            steps.emplace_back(0.0);
+            steps.back().append(ind_op, 1.0);
+        } 
+        else 
+        {
+            double step_length = length / steps_per_element;
+            double half_step_length = 0.5 * step_length;
+
+            for (int i = 0; i < steps_per_element; ++i) 
+            {
+                double left = i * step_length;
+                double middle = left + half_step_length;
+                double right = (i + 1) * step_length;
+
+                steps.emplace_back(step_length);
+
+                //1st Half
+                Independent_operator ind_op_first_half("first_half");
+                Lattice_element_slice slice_1st_half(ele, left, middle);
+                ind_op_first_half.append_slice(slice_1st_half);
+                steps.back().append(ind_op_first_half, 0.5);
+
+                //Collective Effects
+                // step.append(coll_opr, 1.0);
+
+                //2nd Half
+                Independent_operator ind_op_second_half("second_half");
+                Lattice_element_slice slice_2nd_half(ele, middle, right);
+                ind_op_second_half.append_slice(slice_2nd_half);
+                steps.back().append(ind_op_second_half, 0.5);
+            }
+        }
+    }
+
+    return steps;
+}
+
+
+#if 0
 void
 Split_operator_stepper_elements::construct(
-        Collective_operators const& collective_operators, int steps_per_element)
+        Collective_operators const& collective_operators, 
+        int steps_per_element )
 {
-    if (steps_per_element < 1) {
+    if (steps_per_element < 1) 
+    {
         throw std::runtime_error(
                 "Split_operator_stepper_elements: steps_per_element must be >= 1");
     }
 
     for (Lattice_elements::iterator it =
             get_lattice_simulator().get_lattice_sptr()->get_elements().begin(); it
-            != get_lattice_simulator().get_lattice_sptr()->get_elements().end(); ++it) {
+            != get_lattice_simulator().get_lattice_sptr()->get_elements().end(); ++it) 
+    {
         double length = (*it)->get_length();
 
         //zero-length element
@@ -83,14 +148,16 @@ Split_operator_stepper_elements::construct(
 
 Split_operator_stepper_elements::Split_operator_stepper_elements(
         Lattice_sptr lattice_sptr, int map_order,
-        Collective_operator_sptr collective_operator, int steps_per_element) :
-    Stepper(lattice_sptr, map_order)
+        Collective_operator_sptr collective_operator, int steps_per_element) 
+    : Stepper(lattice_sptr, map_order)
 {
     Collective_operators collective_operators;
     collective_operators.push_back(collective_operator);
     construct(collective_operators, steps_per_element);
 }
+#endif
 
+#if 0
 Split_operator_stepper_elements::Split_operator_stepper_elements(
         Lattice_sptr lattice_sptr, int map_order,
         Collective_operators const& collective_operators, int steps_per_element) :
@@ -99,61 +166,5 @@ Split_operator_stepper_elements::Split_operator_stepper_elements(
     construct(collective_operators, steps_per_element);
 }
 
-Split_operator_stepper_elements::Split_operator_stepper_elements(
-        Lattice_simulator const& lattice_simulator,
-        Collective_operator_sptr collective_operator, int steps_per_element) :
-    Stepper(lattice_simulator)
-{
-    Collective_operators collective_operators;
-    collective_operators.push_back(collective_operator);
-    construct(collective_operators, steps_per_element);
-}
 
-Split_operator_stepper_elements::Split_operator_stepper_elements(
-        Lattice_simulator const& lattice_simulator,
-        Collective_operators const& collective_operators, int steps_per_element) :
-    Stepper(lattice_simulator)
-{
-    construct(collective_operators, steps_per_element);
-}
-
-Split_operator_stepper_elements::Split_operator_stepper_elements()
-{
-
-}
-
-
-template<class Archive>
-    void
-    Split_operator_stepper_elements::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-    }
-
-template
-void
-Split_operator_stepper_elements::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-Split_operator_stepper_elements::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-Split_operator_stepper_elements::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Split_operator_stepper_elements::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-Split_operator_stepper_elements::~Split_operator_stepper_elements()
-{
-
-}
-BOOST_CLASS_EXPORT_IMPLEMENT(Split_operator_stepper_elements);
-
-
+#endif

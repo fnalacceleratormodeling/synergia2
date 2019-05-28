@@ -1,5 +1,5 @@
 
-#include "propagator.h"
+#include "synergia/simulation/propagator.h"
 
 //#include "synergia/utils/simple_timer.h"
 #include "synergia/utils/digits.h"
@@ -101,11 +101,10 @@ Propagator::get_stepper_sptr()
 }
 #endif
 
-Propagator::Propagator(Lattice const & lattice/*, Stepper const & stepper*/)
+Propagator::Propagator(Lattice const & lattice, Stepper const & stepper)
 : lattice(lattice)
-, steps()
+, steps(stepper.apply(lattice))
 {
-    construct();
 }
 
 void
