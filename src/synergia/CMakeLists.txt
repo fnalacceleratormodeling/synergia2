@@ -2,13 +2,14 @@ add_subdirectory(utils)
 if (BUILD_PYTHON_BINDINGS)
     add_subdirectory(convertors)
 endif ()
+
 add_subdirectory(foundation)
 add_subdirectory(bunch)
 add_subdirectory(lattice)
 add_subdirectory(libFF)
 add_subdirectory(simulation)
-add_subdirectory(optics)
-add_subdirectory(collective)
+#add_subdirectory(optics)
+#add_subdirectory(collective)
 add_subdirectory(tools)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
