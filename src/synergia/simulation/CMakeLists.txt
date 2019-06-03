@@ -17,9 +17,9 @@ add_library(synergia_simulation
     #fast_mapping.cc  
     #fast_normal_form.cc 
     #chef_propagator.cc 
-    #independent_operation.cc
+    independent_operation.cc
     #lattice_simulator.cc 
-    #operation_extractor.cc 
+    operation_extractor.cc 
     #aperture.cc
     #aperture_operation.cc 
     #aperture_operation_extractor.cc 

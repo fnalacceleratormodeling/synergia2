@@ -1,10 +1,4 @@
 #include "operation_extractor.h"
-#include "synergia/lattice/chef_utils.h"
-#include "synergia/lattice/chef_lattice_section.h"
-#include "fast_mapping.h"
-#include <cstring>
-
-
 
 
 namespace
@@ -134,15 +128,30 @@ Chef_mixed_operation_extractor::extract(
 
 #endif
 
-
-    Independent_operations libFF_operation_extract(
-            Reference_particle const & reference_particle,
-            Lattice_element_slices const & slices)
+    void
+    chef_map_operation_extract(
+            Lattice const & lattice,
+            std::vector<Lattice_element_slice> const & slices,
+            std::vector<std::unique_ptr<Independent_operation>> & operations )
     {
-        Independent_operations retval;
-        retval.push_back(libFF_operation(slices));
+    }
 
-        return retval;
+    void
+    chef_propagator_operation_extract(
+            Lattice const & lattice,
+            std::vector<Lattice_element_slice> const & slices,
+            std::vector<std::unique_ptr<Independent_operation>> & operations )
+    {
+    }
+
+
+    void
+    libff_operation_extract(
+            Lattice const & lattice,
+            std::vector<Lattice_element_slice> const & slices,
+            std::vector<std::unique_ptr<Independent_operation>> & operations )
+    {
+        operations.emplace_back(std::make_unique<LibFF_operation>(slices));
     }
 
 } // namespace
@@ -151,28 +160,30 @@ Chef_mixed_operation_extractor::extract(
 
 
 
-Independent_operations extract_independent_operation(
+void
+extract_independent_operations(
         std::string const & extractor_type,
-        Chef_lattice const & chef_lattice,
-        Reference_particle const & ref_part,
-        Lattice_element_slices const & slices,
-        int map_order = 2)
+        Lattice const & lattice,
+        std::vector<Lattice_element_slice> const & slices,
+        std::vector<std::unique_ptr<Independent_operation>> & operations )
 {
     if (extractor_type == "chef_map")
     {
-        return chef_map_operation_extract(chef_lattice, ref_part, slices);
+        chef_map_operation_extract(lattice, slices, operations);
     }
     else if (extractor_type == "chef_propagator")
     {
-        return chef_propagator_operation_extract(chef_lattice, ref_part, slices);
+        chef_propagator_operation_extract(lattice, slices, operations);
     }
+#if 0
     else if (extractor_type == "chef_mixed")
     {
-        return chef_mixed_operation_extract(chef_lattice, ref_part, slices);
+        return chef_mixed_operation_extract(lattice, slices);
     }
+#endif
     else if (extractor_type == "libff" || extractor_type == "default")
     {
-        return libff_operation_extract(ref_part, slices);
+        libff_operation_extract(lattice, slices, operations);
     }
     else
     {

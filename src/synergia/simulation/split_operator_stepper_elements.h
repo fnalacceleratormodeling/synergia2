@@ -14,6 +14,9 @@ private:
     //std::unique_ptr<Collective_operator> coll_opr;
     int steps_per_element;
 
+    std::vector<Step> 
+        apply_impl(Lattice const & lattice) const override;
+
 public:
 
     explicit Split_operator_stepper_elements(
@@ -22,7 +25,6 @@ public:
     //, coll_opr(std::make_unique<COL_OP>(opr))
     { }
 
-    std::vector<Step> apply(Lattice const & lattice) const override;
 };
 
 #endif /* SPLIT_OPERATOR_STEPPER_ELEMENTS_H_ */

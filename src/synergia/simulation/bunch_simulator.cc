@@ -1,4 +1,6 @@
 #include "synergia/simulation/bunch_simulator.h"
+#include "synergia/simulation/operator.h"
+#include "synergia/simulation/independent_operation.h"
 
 
 Bunch_simulator::Bunch_simulator(Bunch const & bunch)
@@ -41,7 +43,7 @@ Bunch_simulator::diag_action_operator(Operator const & opr)
 }
 
 void
-Bunch_simulator::diag_action_operation(Operation const & opn)
+Bunch_simulator::diag_action_operation(Independent_operation const & opn)
 {
 }
 

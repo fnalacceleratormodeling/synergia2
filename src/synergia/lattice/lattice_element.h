@@ -26,9 +26,6 @@ namespace element_type_name
     constexpr char const * drift   = "drift";
 }
 
-class Lattice_element;
-typedef std::shared_ptr<Lattice_element> Lattice_element_sptr;
-
 class Lattice;
 
 /// The Lattice_element class contains the description of a single

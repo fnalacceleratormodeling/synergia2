@@ -5,7 +5,8 @@
 #include "synergia/lattice/lattice.h"
 
 class Operator;
-class Operation;
+class Independent_operation;
+
 class Diagnostics { };
 
 class Bunch_simulator
@@ -34,7 +35,7 @@ private:
     using trigger_opr_t  = std::function<bool(Operator const &)>;
 
     // bool trigger(Operation const & opn)
-    using trigger_opn_t  = std::function<bool(Operation const &)>;
+    using trigger_opn_t  = std::function<bool(Independent_operation const &)>;
 
 
     template<typename TriggerT>
@@ -94,13 +95,19 @@ public:
     void diag_action_particle_loss_write( );
     void diag_action_element(Lattice_element const & element);
     void diag_action_operator(Operator const & opr);
-    void diag_action_operation(Operation const & opn);
+    void diag_action_operation(Independent_operation const & opn);
 
     void prop_action_first(Lattice & lattice);
     void prop_action_step_end(Lattice & lattice, int turn, int step);
     void prop_action_turn_end(Lattice & lattice, int turn);
 
     void set_lattice_reference_particle(Reference_particle const & ref);
+
+    std::array<Bunch_train, 2> & get_trains()
+    { return trains; }
+
+    std::array<Bunch_train, 2> const & get_trains() const
+    { return trains; }
 
     Bunch_train & operator[](size_t idx)
     { return trains[idx]; }

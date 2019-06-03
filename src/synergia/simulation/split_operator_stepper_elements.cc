@@ -1,7 +1,7 @@
 #include "split_operator_stepper_elements.h"
 
 std::vector<Step>
-Split_operator_stepper_elements::apply(Lattice const & lattice) const
+Split_operator_stepper_elements::apply_impl(Lattice const & lattice) const
 {
     if (steps_per_element < 1) 
     {
@@ -18,13 +18,10 @@ Split_operator_stepper_elements::apply(Lattice const & lattice) const
         //zero-length element
         if (length == 0.0) 
         {
-            Independent_operator ind_op("step");
-
-            Lattice_element_slice slice(ele);
-            ind_op.append_slice(slice);
-
             steps.emplace_back(0.0);
-            steps.back().append(ind_op, 1.0);
+            steps.back()
+                .append_independent("step", 1.0)
+                .append_slice(ele);
         } 
         else 
         {
@@ -39,20 +36,18 @@ Split_operator_stepper_elements::apply(Lattice const & lattice) const
 
                 steps.emplace_back(step_length);
 
-                //1st Half
-                Independent_operator ind_op_first_half("first_half");
-                Lattice_element_slice slice_1st_half(ele, left, middle);
-                ind_op_first_half.append_slice(slice_1st_half);
-                steps.back().append(ind_op_first_half, 0.5);
+                // 1st Half
+                steps.back()
+                    .append_independent("first_half", 0.5)
+                    .append_slice(ele, left, middle);
 
-                //Collective Effects
-                // step.append(coll_opr, 1.0);
+                // Collective Effects
+                // steps.append_collective();
 
-                //2nd Half
-                Independent_operator ind_op_second_half("second_half");
-                Lattice_element_slice slice_2nd_half(ele, middle, right);
-                ind_op_second_half.append_slice(slice_2nd_half);
-                steps.back().append(ind_op_second_half, 0.5);
+                // 2nd Half
+                steps.back()
+                    .append_independent("second_half", 0.5)
+                    .append_slice(ele, middle, right);
             }
         }
     }

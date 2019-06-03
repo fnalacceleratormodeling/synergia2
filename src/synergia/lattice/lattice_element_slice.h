@@ -38,6 +38,9 @@ public:
     Lattice_element const & get_lattice_element() const
     { return *element; }
 
+    std::string as_string() const
+    { return element->get_name(); }
+
 #if 0
     Lattice_element       & get_lattice_element()
     { return *element; }

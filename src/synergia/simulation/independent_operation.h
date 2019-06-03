@@ -1,17 +1,28 @@
 #ifndef INDEPENDENT_OPERATION_H_
 #define INDEPENDENT_OPERATION_H_
 
-#include <list>
-#include <string>
-#include <map>
+//#include "synergia/simulation/fast_mapping.h"
+//#include "synergia/simulation/chef_propagator.h"
 
-#include <boost/shared_ptr.hpp>
+#include "synergia/bunch/bunch.h"
+#include "synergia/lattice/lattice_element_slice.h"
 
-#include "synergia/simulation/fast_mapping.h"
-#include "synergia/simulation/chef_propagator.h"
-#include "synergia/lattice/chef_lattice.h"
-#include "synergia/utils/serialization.h"
 #include "synergia/utils/logger.h"
+
+
+
+class FF_element
+{
+public:
+    virtual ~FF_element() = default;
+    void apply(Lattice_element_slice const & slice, Bunch & bunch) { }
+};
+
+class FF_drift : public FF_element
+{
+};
+
+
 
 
 class Independent_operation
@@ -25,19 +36,22 @@ public:
     Independent_operation(std::string const & type);
     std::string const & get_type() const;
 
-    virtual void apply(Bunch & bunch, Logger & logger) = 0;
+    virtual void apply(Bunch & bunch, Logger & logger) 
+    { }
 };
+
 
 class LibFF_operation : public Independent_operation
 {
 private:
 
-    std::vector<std::pair<FF_element, Lattice_element_slice>>
+    std::vector<std::pair<std::unique_ptr<FF_element>, Lattice_element_slice>>
         libff_element_slices;
 
 public:
 
-    LibFF_operation(Lattice_element_slices const & slices);
+    LibFF_operation(std::vector<Lattice_element_slice> const & slices);
+
     virtual void apply(Bunch & bunch, Logger & logger);
 };
 

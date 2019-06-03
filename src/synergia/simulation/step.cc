@@ -20,6 +20,14 @@ Step::Step()
 }
 #endif
 
+void Step::create_operations(Lattice const & lattice)
+{
+    for (auto & op : operators)
+    {
+        op->create_operations(lattice);
+    }
+}
+
 void Step::apply(Bunch_simulator & simulator, Logger & logger) const
 {
     // time [s] in accelerator frame
@@ -28,28 +36,23 @@ void Step::apply(Bunch_simulator & simulator, Logger & logger) const
 
     for (auto const & op : operators)
     {
-        auto const & opr = op.first;
-        double fraction = op.second;
-
         double t0 = MPI_Wtime();
 
         // operator apply
-        opr->apply(simulator, fraction * time, logger);
+        op->apply(simulator, time, logger);
 
         double t1 = MPI_Wtime();
 
-        //if (verbosity > 2) 
-        {
-            logger << "Step: operator: name = " << opr->get_name()
-                    << ", type = " << opr->get_type() << ", time = "
-                    << std::fixed << std::setprecision(3) << t1 - t0 << "s"
-                    << std::endl;
-        }
+        logger(LoggerV::DINFO) 
+            << "Step: operator: name = " << op->get_name()
+            << ", type = " << op->get_type() << ", time = "
+            << std::fixed << std::setprecision(3) << t1 - t0 << "s"
+            << std::endl;
 
         //double t = simple_timer_current();
 
         // per operator diagnostics action
-        simulator.diag_action_operator(*opr);
+        simulator.diag_action_operator(*op);
 
         //t = simple_timer_show(t, "diagnostics-operator");      
     }

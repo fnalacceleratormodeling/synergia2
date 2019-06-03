@@ -13,6 +13,16 @@ public:
 
 private:
 
+    void create_operations(
+            Lattice const & lattice,
+            std::vector<Step> & steps) const
+    { 
+        for(auto & step : steps) 
+            step.create_operations(lattice); 
+    }
+
+    virtual std::vector<Step> 
+        apply_impl(Lattice const & lattice) const = 0;
 
 protected:
 
@@ -34,7 +44,13 @@ public:
     Stepper();
     virtual ~Stepper() = default;
 
-    virtual std::vector<Step> apply(Lattice const & lattice) const = 0;
+    std::vector<Step> 
+        apply(Lattice const & lattice) const
+    { 
+        auto steps = apply_impl(lattice); 
+        create_operations(lattice, steps);
+        return steps;
+    }
 
 #if 0
     /// Deprecated

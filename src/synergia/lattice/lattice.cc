@@ -12,7 +12,7 @@ Lattice::Lattice()
     : name("")
     , reference_particle()
     , elements()
-    , dirty(false)
+    , updated { true, true, true }
 {
 }
 
@@ -20,7 +20,7 @@ Lattice::Lattice(std::string const & name)
     : name(name)
     , reference_particle()
     , elements()
-    , dirty(false)
+    , updated { true, true, true }
 {
 }
 
@@ -28,11 +28,12 @@ Lattice::Lattice(Lattice const & lattice)
     : name(lattice.name)
     , reference_particle(lattice.reference_particle)
     , elements(lattice.elements)
-    , dirty(lattice.dirty)
+    , updated(lattice.updated)
 {
     for (auto & e : elements) e.set_lattice(*this);
 }
 
+#if 0
 Lattice::Lattice(Lsexpr const & lsexpr) 
     : name("")
     , reference_particle()
@@ -95,24 +96,22 @@ Lattice::as_lsexpr() const
 #endif
     return retval;
 }
+#endif
 
-std::string const &
-Lattice::get_name() const
+Lattice::update_flags_t
+Lattice::update()
 {
-    return name;
-}
+    update_flags_t res = updated;
 
-void
-Lattice::set_reference_particle(Reference_particle const & ref)
-{
-    reference_particle = ref;
-    dirty = true;
-}
+    if ( updated.ref || updated.structure || updated.element)
+    {
+        // TODO: reconstruct the chef lattice
+        // ...
 
-Reference_particle const &
-Lattice::get_reference_particle() const
-{
-    return reference_particle;
+        updated = { false, false, false };
+    }
+
+    return res;
 }
 
 void
@@ -120,9 +119,10 @@ Lattice::append(Lattice_element const & element)
 {
     elements.push_back(Lattice_element_processor::process(element));
     elements.back().set_lattice(*this);
-    dirty = true;
+    updated.structure = true;
 }
 
+#if 0
 void
 Lattice::derive_external_attributes()
 {
@@ -151,6 +151,7 @@ Lattice::derive_external_attributes()
     }
 #endif
 }
+#endif
 
 void
 Lattice::set_all_double_attribute(
@@ -160,6 +161,8 @@ Lattice::set_all_double_attribute(
 {
     for (auto & e : elements)
         e.set_double_attribute(name, value, increment_revision);
+
+    updated.element = true;
 }
 
 void
@@ -170,6 +173,8 @@ Lattice::set_all_string_attribute(
 {
     for (auto & e : elements)
         e.set_string_attribute(name, value, increment_revision);
+
+    updated.element = true;
 }
 
 std::list<Lattice_element> const &

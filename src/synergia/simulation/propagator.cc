@@ -103,8 +103,10 @@ Propagator::get_stepper_sptr()
 
 Propagator::Propagator(Lattice const & lattice, Stepper const & stepper)
 : lattice(lattice)
-, steps(stepper.apply(lattice))
+, steps()
 {
+    this->lattice.update();
+    steps = stepper.apply(this->lattice);
 }
 
 void
@@ -249,6 +251,9 @@ Propagator::do_before_start(Bunch_simulator & simulator, Logger & logger)
         simulator.prop_action_first(lattice);
         simulator.set_lattice_reference_particle(lattice.get_reference_particle());
     }
+
+    auto updates = lattice.update();
+    //if (updates.structure) steps = stepper.apply(lattice);
 }
 
 void
@@ -284,7 +289,14 @@ Propagator::do_step(
 {
     double t_step0 = MPI_Wtime();
 
+    // make sure the lattice is up-to-date
+    // e.g., update the chef_lattice after any of the 
+    // lattice elements has been updated
+    lattice.update();
+
+    // propagate through the step
     step.apply(simulator, logger);
+
     // t = simple_timer_show(t, "propagate-step_apply");
 
     // operations associated with bunches
@@ -436,11 +448,18 @@ Propagator::do_turn_end(
 {
     //t = simple_timer_current();
 
+    // diagnostic actions
     simulator.diag_action_step_and_turn(turn_count, Propagator::FINAL_STEP);
     simulator.diag_action_particle_loss_write();
 
+    // propagate actions
     simulator.prop_action_turn_end(lattice, turn_count);
 
+    // update lattice in case it has been chaged in the propagate action
+    auto updates = lattice.update();
+    //if (updates.structure()) steps = stepper.apply(lattice);
+
+    // increment the turn number
     simulator.first_turn = turn_count + 1;
 
     //double t_turn1 = MPI_Wtime();

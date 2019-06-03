@@ -159,43 +159,251 @@ bool Independent_operator::need_update(
 }
 #endif
 
-Independent_operator::Independent_operator(std::string const & name)
-    : Operator(name, "independent")
+Independent_operator::Independent_operator(std::string const & name, double time)
+    : Operator(name, "independent", time)
     , slices()
-    //, operations()
+    , operations()
 {
 }
 
-Independent_operator::Independent_operator()
+bool Independent_operator::need_update(
+        Reference_particle const & ref,
+        Logger & logger)
 {
+    const double reference_particle_tolerance = 1.0e-8;
+    bool retval = false;
+
+#if 0
+    if (have_operations) 
+    {
+        retval = false;
+
+        if (reference_particle.equal(operations_reference_particle,
+                reference_particle_tolerance)) 
+        {
+            std::list<long int >::const_iterator rev_it =
+                    operations_revisions.begin();
+
+            for (Lattice_element_slices::const_iterator it = slices.begin();
+                    it != slices.end(); ++it) 
+            {
+                long int cached_revision = (*rev_it);
+                long int revision = (*it)->get_lattice_element().get_revision();
+
+                if (revision != cached_revision) 
+                {
+                    if (verbosity > 4) {
+                        logger << "Independent_operator: needs update because lattice element "
+                               << (*it)->get_lattice_element().get_name()
+                               << " has changed" << std::endl;
+                    }
+                    retval = true;
+                    break;
+                }
+
+                ++rev_it;
+            }
+
+        } 
+        else 
+        {
+            if (verbosity > 4) {
+                logger << "Independent_operator: needs update because reference particle has changed"
+                       << std::endl;
+            }
+
+            retval = true;
+        }
+
+    } 
+    else 
+    {
+        if (verbosity > 4) {
+            logger << "Independent_operator: needs update because does not have operations"
+                   << std::endl;
+        }
+        retval = true;
+    }
+#endif
+
+    return retval;
 }
 
 void
-Independent_operator::append_slice(Lattice_element_slice const & slice)
+Independent_operator::update_operations(
+        Reference_particle const & reference_particle)
 {
-    slices.push_back(slice);
-    //have_operations = false;
+#if 0
+    operations.clear();
+    operations_revisions.clear();
+
+    std::string aperture_type("");
+    bool need_left_aperture, need_right_aperture;
+
+    std::string extractor_type(""), last_extractor_type("");
+
+    // Group slices of equal extractor_type and pass to operation_extractor
+    // to get operations.
+    Lattice_element_slices group;
+    for (auto const & slice : slices)
+    {
+        auto const & element = slice.get_lattice_element();
+
+        if (element.has_string_attribute("aperture_type")) 
+        {
+            aperture_type = element.get_string_attribute("aperture_type");
+            need_left_aperture = slice.has_left_edge();
+            need_right_aperture = slice.has_right_edge();
+        } 
+        else 
+        {
+            need_left_aperture = false;
+            need_right_aperture = false;
+        }
+
+        extractor_type = element.get_string_attribute("extractor_type", "default");
+
+        if (((extractor_type != last_extractor_type) || need_left_aperture) 
+                && (!group.empty())) 
+        {
+            auto group_operations = extract_independent_operations(
+                    extractor_type,
+                    chef_lattice,
+                    reference_particle,
+                    group,
+                    map_order);
+
+            operations.push_back(group_operations);
+            group.clear();
+        }
+
+        if (need_left_aperture) 
+        {
+            auto aperture_opn = extract_aperture_operation(aperture_type, slice);
+            operations.push_back(aperture_opn);
+        }
+
+        group.push_back(slice);
+        last_extractor_type = extractor_type;
+
+        if (need_right_aperture) 
+        {
+            auto group_operations = extract_independent_operations(
+                    extractor_type, chef_lattice,
+                    reference_particle, group, map_order);
+
+            operations.push_back(group_operations);
+            group.clear();
+
+            auto aperture_opn = extract_aperture_operation(aperture_type, slice);
+            operations.push_back(aperture_opn);
+        }
+
+        operations_revisions.push_back(element.get_revision());
+    }
+
+    if (!group.empty()) 
+    {
+        auto group_operations = extract_independent_operations(
+                extractor_type, chef_lattice,
+                reference_particle, group, map_order);
+
+        operations.push_back(group_operations);
+    }
+
+    auto aperture_opn = extract_aperture_operation("default", slices.back());
+    operations.push_back(aperture_opn);
+
+    auto finite_aperture = std::make_unique<Finite_aperture_operation>(slices.back());
+    operations.push_back(finite_aperture);
+
+    have_operations = true;
+    operations_reference_particle = reference_particle;
+#endif
 }
 
-std::vector<Lattice_element_slice> const&
-Independent_operator::get_slices() const
+void
+Independent_operator::create_operations_impl(
+        Lattice const & lattice)
 {
-    return slices;
-}
+    operations.clear();
+    //operations_revisions.clear();
+
+    std::string aperture_type("");
+    bool need_left_aperture, need_right_aperture;
+
+    std::string extractor_type(""), last_extractor_type("");
+
+    // Group slices of equal extractor_type and pass to operation_extractor
+    // to get operations.
+    std::vector<Lattice_element_slice> group;
+    for (auto const & slice : slices)
+    {
+        auto const & element = slice.get_lattice_element();
+
+        if (element.has_string_attribute("aperture_type")) 
+        {
+            aperture_type = element.get_string_attribute("aperture_type");
+            need_left_aperture = slice.has_left_edge();
+            need_right_aperture = slice.has_right_edge();
+        } 
+        else 
+        {
+            need_left_aperture = false;
+            need_right_aperture = false;
+        }
+
+        extractor_type = element.get_string_attribute("extractor_type", "default");
+
+        if (((extractor_type != last_extractor_type) || need_left_aperture) 
+                && (!group.empty())) 
+        {
+            extract_independent_operations(extractor_type, lattice, group, operations);
+            group.clear();
+        }
+
+        if (need_left_aperture) 
+        {
+#if 0
+            auto aperture_opn = extract_aperture_operation(aperture_type, slice);
+            operations.push_back(aperture_opn);
+#endif
+        }
+
+        group.push_back(slice);
+        last_extractor_type = extractor_type;
+
+        if (need_right_aperture) 
+        {
+            extract_independent_operations(extractor_type, lattice, group, operations);
+            group.clear();
 
 #if 0
-Independent_operations const&
-Independent_operator::get_operations() const
-{
-    return operations;
+            auto aperture_opn = extract_aperture_operation(aperture_type, slice);
+            operations.push_back(aperture_opn);
+#endif
+        }
+
+        //operations_revisions.push_back(element.get_revision());
+    }
+
+    if (!group.empty()) 
+    {
+        extract_independent_operations(extractor_type, lattice, group, operations);
+    }
+
+#if 0
+    auto aperture_opn = extract_aperture_operation("default", slices.back());
+    operations.push_back(aperture_opn);
+
+    auto finite_aperture = std::make_unique<Finite_aperture_operation>(slices.back());
+    operations.push_back(finite_aperture);
+
+    have_operations = true;
+    operations_reference_particle = reference_particle;
+#endif
 }
 
-Independent_operations &
-Independent_operator::get_operations()
-{
-    return operations;
-}
-#endif
 
 void
 Independent_operator::apply_impl(
@@ -203,24 +411,37 @@ Independent_operator::apply_impl(
         double time_step,
         Logger & logger)
 {
-#if 0
-    double t_total = simple_timer_current();
+    using LV = LoggerV;
 
-    if (verbosity > 4) 
+    //double t_total = simple_timer_current();
+
+    logger(LV::DINFO) << "Independent_operator: slice(s) = " << std::endl;
+
+    for (auto const & slice : slices)
+        logger(LV::DINFO) << "    " << slice.as_string() << std::endl;
+
+    for (auto & train : simulator.get_trains())
     {
-        logger << "Independent_operator: slice(s) = " << std::endl;
-
-        for (Lattice_element_slices::const_iterator it = slices.begin();
-                it != slices.end(); ++it) 
+        for (auto & bunch : train.get_bunches())
         {
-            logger << "    " << (*it)->as_string() << std::endl;
+            auto const & ref = bunch.get_reference_particle();
+
+            for (auto const & opn : operations)
+            {
+                logger(LV::INFO) << "Independent_operator: operation type = " 
+                    << opn->get_type() << std::endl;
+
+                opn->apply(bunch, logger);
+
+                simulator.diag_action_operation(*opn);
+            }
+
+            bunch.update_total_num();
         }
     }
 
-    double t = simple_timer_current();
-    bool do_update = need_update(bunch.get_reference_particle(), verbosity, logger);
-    t = simple_timer_show(t, "independent_operator_apply-test_update");
 
+#if 0
     if (do_update) 
     {
         if (verbosity > 3)

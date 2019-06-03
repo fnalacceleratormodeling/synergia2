@@ -3,13 +3,12 @@
 
 #include "synergia/simulation/independent_operation.h"
 
-Independent_operations
-extract_independent_operation(
-        Chef_lattice const & chef_lattice,
-        Reference_particle const & ref_part,
-        Lattice_element_slices const & slices,
-        int map_order = 2);
-
+void
+extract_independent_operations(
+        std::string const & extractor_type,
+        Lattice const & lattice,
+        std::vector<Lattice_element_slice> const & slices,
+        std::vector<std::unique_ptr<Independent_operation>> & operations );
 
 #if 0
 class Operation_extractor {

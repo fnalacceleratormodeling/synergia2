@@ -4,7 +4,6 @@
 #include "synergia/utils/logger.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/bunch_simulator.h"
-#include "synergia/utils/cereal.h"
 
 
 class Step
@@ -12,7 +11,7 @@ class Step
 
 private:
 
-    std::vector<std::pair<std::unique_ptr<Operator>, double>> operators;
+    std::vector<std::unique_ptr<Operator>> operators;
 
     double length;
     std::vector<double> step_betas;
@@ -21,21 +20,16 @@ public:
 
     explicit Step(double length);
 
-    template<typename OP>
-    void append(OP const & opr, double time_fraction)
+    template<class... Args>
+    Independent_operator & append_independent(Args &&... args)
     { 
-        operators.push_back(
-                std::make_pair(std::make_unique<OP>(opr), time_fraction)); 
-    }
-
-    template<typename OP>
-    void append(std::vector<OP> const & oprs, double time_fraction)
-    { 
-        for (auto const & opr : oprs) operators.push_back( 
-            std::make_pair(std::make_unique<OP>(opr), time_fraction) ); 
+        operators.emplace_back(
+                std::make_unique<Independent_operator>(std::forward<Args>(args)...) );
+        return *(dynamic_cast<Independent_operator*>(operators.back().get()));
     }
 
     void apply(Bunch_simulator & simulator, Logger & logger) const;
+    void create_operations(Lattice const & lattice);
    
     double get_length() const;
 
