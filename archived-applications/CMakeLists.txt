@@ -7,3 +7,5 @@ add_subdirectory(fodo_cxx)
 #add_subdirectory(booster)
 #add_subdirectory(modes_study)
 #add_subdirectory(iota)
+
+add_subdirectory(s3_test)
