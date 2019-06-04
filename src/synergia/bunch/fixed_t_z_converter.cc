@@ -2,7 +2,7 @@
 #include "synergia/foundation/reference_particle.h"
 #include "fixed_t_z_converter.h"
 #include "bunch.h"
-#include "period.h"
+//#include "period.h"
 
 #include <iostream>
 #include <cmath>

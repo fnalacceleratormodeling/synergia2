@@ -1,7 +1,8 @@
 #include <sstream>
 #include <stdexcept>
 #include "populate.h"
-#include "diagnostics.h"
+#include "core_diagnostics.h"
+//#include "diagnostics.h"
 
 #include "Eigen/Eigen"
 #include "Eigen/Cholesky"

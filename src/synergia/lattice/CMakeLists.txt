@@ -11,7 +11,7 @@ add_library(synergia_lattice
     lattice_element.cc 
     lattice_element_processor.cc 
     lattice.cc
-    #lattice_element_slice.cc
+    lattice_element_slice.cc
     #lattice.cc 
     #chef_lattice.cc 
     #chef_lattice_section.cc 

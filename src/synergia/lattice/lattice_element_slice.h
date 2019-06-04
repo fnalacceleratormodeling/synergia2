@@ -7,7 +7,7 @@ class Lattice_element_slice
 {
 private:
 
-    Lattice_element * element;
+    Lattice_element const * element;
 
     bool whole;
     bool left_edge;

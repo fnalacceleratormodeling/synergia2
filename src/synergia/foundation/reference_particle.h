@@ -2,7 +2,7 @@
 #define REFERENCE_PARTICLE_H_
 
 #include "synergia/utils/multi_array_typedefs.h"
-#include "synergia/utils/multi_array_serialization.h"
+//#include "synergia/utils/multi_array_serialization.h"
 #include "synergia/foundation/four_momentum.h"
 
 /// Reference_particle stores the four momentum of the reference frame
@@ -168,8 +168,9 @@ public:
 
     /// Serialization support
     template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
+    void
+    serialize(Archive & ar, const unsigned int version)
+    { }
 };
 
 #endif /* REFERENCE_PARTICLE_H_ */

@@ -161,6 +161,7 @@ Four_momentum::equal(Four_momentum const& four_momentum, double tolerance) const
     return true;
 }
 
+#if 0
 template<class Archive>
     void
     Four_momentum::serialize(Archive & ar, const unsigned int version)
@@ -171,6 +172,7 @@ template<class Archive>
            & CEREAL_NVP(gamma)
            & CEREAL_NVP(beta);
     }
+#endif
 
 #if 0
 template

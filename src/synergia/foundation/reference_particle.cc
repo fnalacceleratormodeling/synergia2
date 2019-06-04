@@ -293,6 +293,7 @@ Reference_particle::equal(Reference_particle const& reference_particle,
     return true;
 }
 
+#if 0
 template<class Archive>
     void
     Reference_particle::serialize(Archive & ar, const unsigned int version)
@@ -324,3 +325,4 @@ template
 void
 Reference_particle::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
+#endif

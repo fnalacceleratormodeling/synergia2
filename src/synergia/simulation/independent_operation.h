@@ -20,8 +20,12 @@ private:
 
 public:
 
-    Independent_operation(std::string const & type);
-    std::string const & get_type() const;
+    Independent_operation(std::string const & type)
+    : type(type)
+    { }
+
+    std::string const & get_type() const
+    { return type; }
 
     virtual void apply(Bunch & bunch, Logger & logger) 
     { }

@@ -90,8 +90,9 @@ public:
 
     /// Serialization support
     template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
+    void
+    serialize(Archive & ar, const unsigned int version)
+    { }
 };
 
 #endif /* FOUR_MOMENTUM_H_ */
