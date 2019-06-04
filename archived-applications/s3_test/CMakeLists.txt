@@ -4,5 +4,5 @@ target_link_libraries(s3_test
     synergia_lattice
     synergia_bunch 
     synergia_libFF
-    kokkos)
+    )
 

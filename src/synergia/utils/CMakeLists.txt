@@ -1,20 +1,36 @@
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(synergia_parallel_utils parallel_utils.cc commxx.cc 
-    commxx_divider.cc logger.cc)
-target_link_libraries(synergia_parallel_utils ${Boost_SERIALIZATION_LIBRARIES})
+add_library(synergia_parallel_utils 
+    parallel_utils.cc 
+    commxx.cc 
+    commxx_divider.cc 
+    logger.cc
+    )
+target_link_libraries(synergia_parallel_utils 
+    ${Boost_SERIALIZATION_LIBRARIES}
+    )
 
-add_library(synergia_serialization serialization_files.cc)
-target_link_libraries(synergia_serialization ${Boost_FILESYSTEM_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARY} synergia_parallel_utils)
+add_library(synergia_serialization 
+    serialization_files.cc
+    )
+target_link_libraries(synergia_serialization 
+    ${Boost_FILESYSTEM_LIBRARIES}
+    ${Boost_SYSTEM_LIBRARIES} 
+    ${Boost_SERIALIZATION_LIBRARY} 
+    synergia_parallel_utils
+    )
 
-add_library(synergia_hdf5_utils hdf5_writer.cc hdf5_serial_writer.cc
-    hdf5_chunked_array2d_writer.cc hdf5_file.cc)
-target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES} synergia_serialization)
-
-# pybind
-add_subdirectory(pybind11)
+add_library(synergia_hdf5_utils 
+    hdf5_writer.cc 
+    hdf5_serial_writer.cc
+    hdf5_chunked_array2d_writer.cc 
+    hdf5_file.cc
+    )
+target_link_libraries(synergia_hdf5_utils 
+    ${HDF5_LIBRARIES} 
+    synergia_serialization
+    )
 
 if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(parallel_utils parallel_utils_wrap.cc)
@@ -27,10 +43,16 @@ if (BUILD_PYTHON_BINDINGS)
     target_link_libraries(parallel_utils PRIVATE synergia_parallel_utils)
 endif ()
 
-add_library(synergia_distributed_fft distributed_fft3d.cc
-    distributed_fft2d.cc)
-target_link_libraries(synergia_distributed_fft ${PARALLEL_FFTW_LIBRARIES}
-    synergia_serialization synergia_parallel_utils)
+add_library(synergia_distributed_fft 
+    distributed_fft3d.cc
+    distributed_fft2d.cc
+    )
+
+target_link_libraries(synergia_distributed_fft 
+    ${PARALLEL_FFTW_LIBRARIES}
+    synergia_serialization 
+    synergia_parallel_utils
+    )
 
 add_library(synergia_command_line command_line_arg.cc)
 
@@ -97,10 +119,4 @@ if (BUILD_PYTHON_BINDINGS)
 endif ()
 
 add_subdirectory(tests)
-
-# kokkos
-add_subdirectory(kokkos)
-include_directories(${Kokkos_INCLUDE_DIRS_RET})
-
-
 
