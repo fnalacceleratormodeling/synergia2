@@ -1,7 +1,7 @@
 #ifndef FF_ELEMENT_H
 #define FF_ELEMENT_H
 
-#include <beamline/JetParticle.h>
+//#include <beamline/JetParticle.h>
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/lattice_element.h"
@@ -13,14 +13,16 @@ public:
     FF_element()
     : steps(default_steps), order(default_order) { };
 
-    virtual ~FF_element();
+    virtual ~FF_element() = default;
 
-    virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle) = 0;
+    //virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle) = 0;
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch) = 0;
 
+#if 0
     Reference_particle &
         get_ref_particle_from_slice(Lattice_element_slice & slice) const
     { return slice.get_lattice_element().get_lattice().get_reference_particle(); }
+#endif
 
     Reference_particle const &
         get_ref_particle_from_slice(Lattice_element_slice const & slice) const
@@ -56,6 +58,7 @@ public:
         void serialize(Archive & ar, const unsigned int version);
 
 protected:
+
     static int default_steps;
     static int default_order;
 
@@ -65,7 +68,5 @@ protected:
     bool close_to_zero(double v)
     { return fabs(v) < 1e-13; }
 };
-
-typedef boost::shared_ptr<FF_element > FF_element_sptr; // syndoc:include
 
 #endif // FF_ELEMENT_H

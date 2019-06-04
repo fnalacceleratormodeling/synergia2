@@ -1,26 +1,27 @@
 add_library(synergia_libFF
     ff_element.cc
     ff_drift.cc
-    ff_sbend.cc
-    ff_rbend.cc
-    ff_multipole.cc
-    ff_quadrupole.cc
-    ff_sextupole.cc
-    ff_octupole.cc
-    ff_rfcavity.cc
-    ff_kicker.cc
-    ff_hkicker.cc
-    ff_vkicker.cc
-    ff_marker.cc
-    ff_constfoc.cc
-    ff_element_map.cc
-    ff_nllens.cc
-    ff_dipedge.cc
-    ff_solenoid.cc
-    ff_elens.cc
+    #ff_sbend.cc
+    #ff_rbend.cc
+    #ff_multipole.cc
+    #ff_quadrupole.cc
+    #ff_sextupole.cc
+    #ff_octupole.cc
+    #ff_rfcavity.cc
+    #ff_kicker.cc
+    #ff_hkicker.cc
+    #ff_vkicker.cc
+    #ff_marker.cc
+    #ff_constfoc.cc
+    #ff_element_map.cc
+    #ff_nllens.cc
+    #ff_dipedge.cc
+    #ff_solenoid.cc
+    #ff_elens.cc
     )
+
 target_link_libraries(synergia_libFF
-   synergia_bunch synergia_lattice synergia_serialization synergia_parallel_utils)
+   synergia_bunch synergia_lattice synergia_parallel_utils)
 
 #if (BUILD_PYTHON_BINDINGS)
 #    add_python_extension(foundation foundation_wrap.cc)
@@ -32,4 +33,4 @@ install(FILES
     ff_element.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/libFF)
 
-add_subdirectory(tests)
+#add_subdirectory(tests)

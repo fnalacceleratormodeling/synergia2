@@ -1,6 +1,8 @@
 
 #include "independent_operation.h"
 
+#include "synergia/libFF/ff_drift.h"
+
 
 LibFF_operation::LibFF_operation(
         std::vector<Lattice_element_slice> const& slices) 

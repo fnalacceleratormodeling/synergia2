@@ -1,5 +1,5 @@
 #include "ff_drift.h"
-#include "synergia/lattice/chef_utils.h"
+//#include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
 
@@ -26,6 +26,7 @@ double FF_drift::get_reference_cdt(double length, Reference_particle & reference
     return cdt;
 }
 
+#if 0
 void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
     throw std::runtime_error("Propagate JetParticle through a drift element is yet to be implemented");
@@ -57,6 +58,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
                reference_cdt);
 #endif
 }
+#endif
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
@@ -76,6 +78,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double * RESTRICT ya, * RESTRICT ypa;
     double * RESTRICT cdta, * RESTRICT dpopa;
 
+#if 0
     // real particles
     {
         bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
@@ -161,36 +164,6 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
             cdta[part] = cdt;
         }
     }
+#endif
 }
 
-template<class Archive>
-    void
-    FF_drift::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(FF_element);
-    }
-
-template
-void
-FF_drift::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_drift::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_drift::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-FF_drift::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-FF_drift::~FF_drift()
-{
-
-}

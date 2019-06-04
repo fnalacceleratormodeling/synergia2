@@ -6,22 +6,9 @@
 
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/lattice_element_slice.h"
+#include "synergia/libFF/ff_element.h"
 
 #include "synergia/utils/logger.h"
-
-
-
-class FF_element
-{
-public:
-    virtual ~FF_element() = default;
-    void apply(Lattice_element_slice const & slice, Bunch & bunch) { }
-};
-
-class FF_drift : public FF_element
-{
-};
-
 
 
 

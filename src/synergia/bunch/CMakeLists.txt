@@ -25,7 +25,9 @@ target_link_libraries(synergia_bunch
     synergia_distributed_fft
     synergia_hdf5_utils 
     synergia_foundation 
-    synergia_serialization )
+    synergia_serialization 
+    kokkos
+    )
 
 if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(bunch bunch_wrap.cc)
