@@ -480,6 +480,18 @@ Independent_operator::apply_impl(
 #endif
 }
 
+void Independent_operator::print_impl(Logger & logger) const
+{
+    logger(LoggerV::DEBUG)
+        << "\tslices: " << "\n"
+        << "\toperations: ";
+
+    for(auto const & opn : operations) opn->print(logger);
+
+    logger(LoggerV::DEBUG)
+        << "\n";
+}
+
 #if 0
 void
 Independent_operator::apply(Bunch & bunch, double time_step, Step & step,

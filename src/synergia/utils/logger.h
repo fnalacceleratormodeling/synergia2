@@ -29,7 +29,7 @@ private:
 public:
 
     /// Log to screen on a single rank
-    Logger( int rank, 
+    Logger( int rank = 0, 
             LoggerV verbosity = LoggerV::DINFO, 
             bool log = true );
 

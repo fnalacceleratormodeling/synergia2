@@ -33,6 +33,9 @@ private:
             double time_step, 
             Logger & logger) = 0;
 
+    virtual void print_impl(
+            Logger & logger) const = 0;
+
 public:
 
     Operator() : name(), type(), time_fraction(1.0) { }
@@ -54,16 +57,23 @@ public:
     void apply(Bunch_simulator & simulator, double time_step, Logger & logger)
     { apply_impl(simulator, time_step * time_fraction, logger); }
                     
-    //virtual void print() const;
+    void print(Logger & logger) const
+    { 
+        logger(LoggerV::DEBUG) 
+            << "operator name = " << name
+            << ", type = " << type
+            << ", time_fraction = " << time_fraction << "\n";
+
+        print_impl(logger); 
+    }
 };
 
 class Collective_operator : public Operator
 {
 private:
 
-    void create_operations_impl(
-            Lattice const & lattice) final
-    { }
+    void create_operations_impl(Lattice const & lattice) final { }
+    void print_impl(Logger & logger) const override { }
 
 public:
 
@@ -109,12 +119,16 @@ private:
     void create_operations_impl(
             Lattice const & lattice) override;
 
+    void print_impl(
+            Logger & logger) const override;
+
     bool need_update(
             Reference_particle const & ref, 
             Logger & logger);
 
     void update_operations(
             Reference_particle const & ref);
+
 
 private:
 

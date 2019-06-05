@@ -109,8 +109,10 @@ public:
             Lattice const & lattice, 
             Stepper const & stepper = Split_operator_stepper_elements(1) );
 
-    void
-    propagate(Bunch_simulator & simulator);
+    void propagate(Bunch_simulator & simulator);
+
+    void print_steps(Logger & logger) const
+    { for(auto const & s : steps) s.print(logger); }
 
 #if 0
     Stepper_sptr

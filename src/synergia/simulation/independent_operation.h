@@ -18,6 +18,10 @@ private:
 
     std::string type;
 
+private:
+
+    virtual void print_impl(Logger & logger) const = 0;
+
 public:
 
     Independent_operation(std::string const & type)
@@ -29,6 +33,12 @@ public:
 
     virtual void apply(Bunch & bunch, Logger & logger) 
     { }
+
+    void print(Logger & logger) const
+    { 
+        logger(LoggerV::DEBUG) << "\ttype = " << type << ", ";
+        print_impl(logger); 
+    }
 };
 
 
@@ -38,6 +48,11 @@ private:
 
     std::vector<std::pair<std::unique_ptr<FF_element>, Lattice_element_slice>>
         libff_element_slices;
+
+private:
+
+    void print_impl(Logger & logger) const override
+    { }
 
 public:
 

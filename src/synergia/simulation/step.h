@@ -31,7 +31,15 @@ public:
     void apply(Bunch_simulator & simulator, Logger & logger) const;
     void create_operations(Lattice const & lattice);
    
-    double get_length() const;
+    double get_length() const
+    { return length; }
+
+    void print(Logger & logger) const
+    { 
+        logger(LoggerV::DEBUG) << "step length = " << length << "\n";
+        for(auto const & opr : operators) opr->print(logger); 
+        logger(LoggerV::DEBUG) << "\n";
+    }
 
 #if 0
     void set_betas(double betax, double betay);

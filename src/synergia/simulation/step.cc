@@ -58,12 +58,6 @@ void Step::apply(Bunch_simulator & simulator, Logger & logger) const
     }
 }
 
-double
-Step::get_length() const
-{
-    return length;
-}
-
 #if 0
 void
 Step::set_betas(double betax, double betay)
