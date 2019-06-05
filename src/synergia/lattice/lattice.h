@@ -11,6 +11,7 @@
 //#include "synergia/lattice/element_adaptor.h"
 //#include "synergia/lattice/element_adaptor_map.h"
 
+#include "synergia/utils/logger.h"
 #include "synergia/utils/cereal.h"
 
 /// The Lattice class contains an abstract representation of an ordered
@@ -134,7 +135,7 @@ public:
     /// Print a human-readable summary of the elements in the Lattice.
     /// The Python version of this function is named "print_".
     void
-    print() const;
+    print(Logger & logger) const;
 
 #if 0
     template<class Archive>

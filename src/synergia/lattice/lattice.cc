@@ -209,9 +209,9 @@ Lattice::as_string() const
 }
 
 void
-Lattice::print() const
+Lattice::print(Logger & logger) const
 {
-    std::cout << as_string() << std::endl;
+    logger(LoggerV::DEBUG) << as_string() << std::endl;
 }
 
 #if 0

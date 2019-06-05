@@ -17,7 +17,7 @@ int run()
     e2.set_double_attribute("l", 0.8);
     lattice.append(e2);
 
-    lattice.print();
+    lattice.print(screen);
 
     Propagator propagator(lattice);
     propagator.print_steps(screen);
