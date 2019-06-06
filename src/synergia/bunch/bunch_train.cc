@@ -104,8 +104,26 @@ Bunch_train::Bunch_train(Bunches const& bunches,
 }
 #endif
 
-Bunch_train::Bunch_train()
+Bunch_train::Bunch_train(
+        Reference_particle const & ref,
+        size_t num_bunches,
+        size_t num_particles_per_bunch,
+        double num_real_particles_per_bunch,
+        double spacing ) 
+: bunches()
+, spacings()
+, has_parent_comm(false)
+, parent_comm_sptr()
 {
+    for(auto i=0; i<num_bunches; ++i)
+    {
+        bunches.emplace_back( ref, 
+                num_particles_per_bunch,
+                num_real_particles_per_bunch,
+                Commxx_sptr(new Commxx) );
+
+        spacings.emplace_back( spacing );
+    }
 }
 
 std::vector<double> &

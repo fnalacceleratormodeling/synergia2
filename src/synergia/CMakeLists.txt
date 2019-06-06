@@ -1,8 +1,4 @@
 
-# kokkos
-add_subdirectory(utils/kokkos)
-include_directories(${Kokkos_INCLUDE_DIRS_RET})
-
 # pybind
 add_subdirectory(utils/pybind11)
 

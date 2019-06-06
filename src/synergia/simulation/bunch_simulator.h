@@ -47,11 +47,19 @@ private:
         int bunch;
     };
 
+private:
+
+
 public:
 
-    Bunch_simulator(Bunch const & bunch);
-    Bunch_simulator(Bunch_train const & train);
-    Bunch_simulator(Bunch_train const & primary_train, Bunch_train const & secondary_train);
+    // factory methods
+    static Bunch_simulator create_single_bunch_simulator(
+            Reference_particle const & ref,
+            size_t num_particles,
+            double num_real_particles );
+
+    // constructor
+    Bunch_simulator(Bunch_train && pt, Bunch_train && st);
 
     template<typename DiagT, typename TriggerT>
     void reg_diag(
@@ -120,6 +128,9 @@ public:
 
     Bunch const & get_bunch(size_t train = 0, size_t bunch = 0) const
     { return trains[train][bunch]; }
+
+    void set_turns(int first, int turns)
+    { first_turn = first; num_turns = turns; }
 
 public:
 

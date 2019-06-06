@@ -3,11 +3,25 @@
 #include "synergia/simulation/independent_operation.h"
 
 
-Bunch_simulator::Bunch_simulator(Bunch const & bunch)
+Bunch_simulator
+Bunch_simulator::create_single_bunch_simulator(
+        Reference_particle const & ref,
+        size_t num_particles,
+        double num_real_particles )
+{
+    return Bunch_simulator(
+            Bunch_train( ref, 1, num_particles, num_real_particles, 0.0 ),
+            Bunch_train( ref, 0, 0, 0.0, 0.0 )
+    );
+}
+
+
+
+Bunch_simulator::Bunch_simulator(Bunch_train && pt, Bunch_train && st)
     : num_turns(0)
     , first_turn(0)
     , max_turns(0)
-    , trains()
+    , trains({pt, st})
     , diags_step()
     , diags_loss()
     , diags_ele()

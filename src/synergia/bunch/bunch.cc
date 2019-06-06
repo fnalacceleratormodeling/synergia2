@@ -62,6 +62,7 @@ static Particle_id_offset particle_id_offset;
 void
 Bunch::assign_ids(int local_offset)
 {
+#if 0
     int global_offset, request_num;
     if (comm_sptr->get_rank() == 0) {
         request_num = total_num;
@@ -72,11 +73,14 @@ Bunch::assign_ids(int local_offset)
     for (int i = 0; i < local_num; ++i) {
         (*local_particles)[i][id] = i + local_offset + global_offset;
     }
+#endif
 }
 
 void
 Bunch::assign_spectator_ids(int local_offset)
 {
+#if 0
+
 #if 0
     int global_offset, request_num;
     if (comm_sptr->get_rank() == 0) {
@@ -86,14 +90,17 @@ Bunch::assign_spectator_ids(int local_offset)
     }
     global_offset = particle_id_offset.get(request_num, *comm_sptr);
 #endif
+
     int global_offset = 0;
     for (int i = 0; i < local_s_num; ++i) {
         (*local_s_particles)[i][id] = i + local_offset + global_offset;
     }
+#endif
 }
 
 
 
+#if 0
 template<class T, size_t C, int I>
     struct Sortable2d
     {
@@ -141,6 +148,7 @@ template<class T, size_t C, int I>
         double* ptr_;
         size_t rows_;
     };
+#endif
 
 std::string
 Bunch::get_local_particles_serialization_path() const
@@ -239,11 +247,10 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_num_slots   = local_num_padded;
 
         // allocate
-        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
-        local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
-
         Kokkos::resize(parts, local_num_slots);
+        hparts = Kokkos::create_mirror_view(parts);
 
+#if 0
         // zero
         #pragma omp parallel for
         for (int i=0; i<local_num_slots; ++i)
@@ -253,6 +260,7 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
                 (*local_particles)[i][j] = 0.0;
             }
         }
+#endif
 
         // id
         assign_ids(offsets[comm_sptr->get_rank()]);
@@ -269,11 +277,10 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_s_num_slots   = local_s_num_padded;
 
         // allocate
-        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
-        local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
-
         Kokkos::resize(sparts, local_s_num_slots);
+        hsparts = Kokkos::create_mirror_view(sparts);
 
+#if 0
         // reset
         #pragma omp parallel for
         for (int i=0; i<local_s_num_slots; ++i)
@@ -283,6 +290,7 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
                 (*local_s_particles)[i][j] = 0.0;
             }
         }
+#endif
 
         // id
         assign_spectator_ids(s_offsets[comm_sptr->get_rank()]);
@@ -294,16 +302,10 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_num_padded = 0;
         local_num_slots = 0;
 
-        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), 0);
-        local_particles = new MArray2d_ref(storage, boost::extents[0][7], boost::fortran_storage_order());
-
         local_s_num = 0;
         local_s_num_aligned = 0;
         local_s_num_padded = 0;
         local_s_num_slots = 0;
-
-        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), 0);
-        local_s_particles = new MArray2d_ref(s_storage, boost::extents[0][7], boost::fortran_storage_order());
     }
 }
 
@@ -333,12 +335,6 @@ Bunch::Bunch(
     , total_s_num(0)
 
     , real_num(real_num)
-
-    , storage(NULL)
-    , s_storage(NULL)
-
-    , local_particles(NULL)
-    , local_s_particles(NULL)
 
     , parts("particles", local_num_slots)
     , hparts(Kokkos::create_mirror_view(parts))
@@ -383,12 +379,6 @@ Bunch::Bunch(
 
     , real_num(real_num)
 
-    , storage(NULL)
-    , s_storage(NULL)
-
-    , local_particles(NULL)
-    , local_s_particles(NULL)
-
     , parts("particles", local_num_slots)
     , hparts(Kokkos::create_mirror_view(parts))
 
@@ -427,14 +417,11 @@ Bunch::Bunch()
 
     , real_num(0)
 
-    , storage(NULL)
-    , s_storage(NULL)
-
-    , local_particles(NULL)
-    , local_s_particles(NULL)
-
     , parts("particles", local_num_slots)
     , hparts(Kokkos::create_mirror_view(parts))
+
+    , sparts("spectator particles", local_s_num_slots)
+    , hsparts(Kokkos::create_mirror_view(sparts))
 
     , bucket_index(0)
     , bucket_index_assigned(false)
@@ -444,50 +431,7 @@ Bunch::Bunch()
 {
 }
 
-
-Bunch::Bunch(Bunch const& bunch) 
-    : longitudinal_extent(bunch.longitudinal_extent)
-    , z_periodic(bunch.z_periodic)
-    , longitudinal_aperture(bunch.longitudinal_aperture)
-    , reference_particle(bunch.reference_particle)
-    , design_reference_particle(bunch.design_reference_particle)
-    , particle_charge(bunch.particle_charge)
-
-    , local_num(bunch.local_num)
-    , local_num_aligned(bunch.local_num_aligned)
-    , local_num_padded(bunch.local_num_padded)
-    , local_num_slots(bunch.local_num_slots)
-
-    , local_s_num(bunch.local_s_num)
-    , local_s_num_aligned(bunch.local_s_num_aligned)
-    , local_s_num_padded(bunch.local_s_num_padded)
-    , local_s_num_slots(bunch.local_s_num_slots)
-
-    , total_num(bunch.total_num)
-    , total_s_num(bunch.total_s_num)
-
-    , real_num(bunch.real_num)
-
-    , storage((double*)boost::alignment::aligned_alloc(
-                8 * sizeof(double), local_num_slots * 7 * sizeof(double)))
-    , s_storage((double*)boost::alignment::aligned_alloc(
-                8 * sizeof(double), local_s_num_slots * 7 * sizeof(double)))
-
-    , local_particles(new MArray2d_ref(storage, 
-                boost::extents[local_num_slots][7], boost::fortran_storage_order()))
-    , local_s_particles(new MArray2d_ref(s_storage, 
-                boost::extents[local_s_num_slots][7], boost::fortran_storage_order()))
-
-    , bucket_index(bunch.bucket_index)
-    , bucket_index_assigned(bunch.bucket_index_assigned)
-    , sort_period(bunch.sort_period)
-    , sort_counter(bunch.sort_counter)
-    , comm_sptr(bunch.comm_sptr)
-{
-    memcpy(storage, bunch.storage, sizeof(double)*local_num_slots*7);
-    memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_slots*7);
-}
-
+#if 0
 Bunch &
 Bunch::operator=(Bunch const& bunch)
 {
@@ -541,6 +485,7 @@ Bunch::operator=(Bunch const& bunch)
 
     return *this;
 }
+#endif
 
 void
 Bunch::set_particle_charge(int particle_charge)
@@ -557,6 +502,7 @@ Bunch::set_real_num(double real_num)
 void
 Bunch::expand_local_num(int num, int added_lost)
 {
+#if 0
     // keep the previous values
     int prev_local_num = local_num;
     int prev_local_num_padded = local_num_padded;
@@ -617,11 +563,13 @@ Bunch::expand_local_num(int num, int added_lost)
 
     if (prev_storage) boost::alignment::aligned_free(prev_storage);
     if (prev_local_particles) delete prev_local_particles;
+#endif
 }
 
 void
 Bunch::expand_local_spectator_num(int s_num, int added_lost)
 {
+#if 0
     // keep the previous values
     int prev_local_s_num = local_s_num;
     int prev_local_s_num_padded = local_s_num_padded;
@@ -682,11 +630,13 @@ Bunch::expand_local_spectator_num(int s_num, int added_lost)
 
     if (prev_s_storage) boost::alignment::aligned_free(prev_s_storage);
     if (prev_local_s_particles) delete prev_local_s_particles;
+#endif
 }
 
 void
 Bunch::set_local_num(int num)
 {
+#if 0
     // make sure the new local_num is never less than 0
     if (num < 0) num = 0;
 
@@ -717,11 +667,13 @@ Bunch::set_local_num(int num)
         // expand the local particle array, no additional lost particle slots
         expand_local_num(num, 0);
     }
+#endif
 }
 
 void
 Bunch::set_local_spectator_num(int s_num)
 {
+#if 0
     // make sure the new local_s_num is never less than 0
     if (s_num < 0) s_num = 0;
 
@@ -752,11 +704,13 @@ Bunch::set_local_spectator_num(int s_num)
         // expand the local spectator particle array, no additional lost particle slots
         expand_local_spectator_num(s_num, 0);
     }
+#endif
 }
 
 void
 Bunch::update_total_num()
 {
+#if 0
     // total real particle number
     int old_total_num = total_num;
     MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM, comm_sptr->get());
@@ -772,11 +726,13 @@ Bunch::update_total_num()
     {
         real_num = 0.0;
     }
+#endif
 }
 
 void
 Bunch::set_total_num(int totalnum)
 {
+#if 0
     int old_total_num = total_num;
     total_num = totalnum;
 
@@ -788,8 +744,10 @@ Bunch::set_total_num(int totalnum)
     {
         real_num = 0.0;
     }
+#endif
 }
 
+#if 0
 namespace {
 double * semi_global_t;
 size_t semi_global_start_pos;
@@ -851,6 +809,7 @@ Bunch::periodic_sort(int index)
         --sort_counter;
     }
 }
+#endif
 
 #if 0
 void
@@ -860,10 +819,10 @@ Bunch::set_converter(Fixed_t_z_converter &converter)
 }
 #endif
 
+#if 0
 void
 Bunch::convert_to_state(State state)
 {
-#if 0
     if (this->state != state) 
     {
         if (this->state == fixed_z_lab) 
@@ -933,8 +892,8 @@ Bunch::convert_to_state(State state)
 
         this->state = state;
     }
-#endif
 }
+#endif
 
 
 
@@ -967,32 +926,6 @@ Bunch::set_design_reference_particle(Reference_particle const & ref_part)
 {
     design_reference_particle = ref_part;
 }
-
-#if 0
-MArray2d_ref
-Bunch::get_local_particles()
-{
-    return *local_particles;
-}
-
-Const_MArray2d_ref
-Bunch::get_local_particles() const
-{
-    return *local_particles;
-}
-
-MArray2d_ref
-Bunch::get_local_spectator_particles()
-{
-    return *local_s_particles;
-}
-
-Const_MArray2d_ref
-Bunch::get_local_spectator_particles() const
-{
-    return *local_s_particles;
-}
-#endif
 
 int
 Bunch::get_particle_charge() const
@@ -1153,7 +1086,7 @@ int
 Bunch::get_bucket_index() const
 {
   if (!bucket_index_assigned)  throw std::runtime_error("bucket index has not been assigned yet");
-return bucket_index;
+  return bucket_index;
 }
 
 bool
@@ -1410,34 +1343,7 @@ void Bunch::check_pz2_positive()
 #endif
 }
 
-void Bunch::set_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
-                       double * RESTRICT &ya, double * RESTRICT &ypa,
-                       double * RESTRICT &cdta, double * RESTRICT &dpopa)
-{
-    double *origin = local_particles->origin();
-    int stride = local_particles->shape()[0];
-    xa    = origin + stride*Bunch::x;
-    xpa   = origin + stride*Bunch::xp;
-    ya    = origin + stride*Bunch::y;
-    ypa   = origin + stride*Bunch::yp;
-    cdta  = origin + stride*Bunch::cdt;
-    dpopa = origin + stride*Bunch::dpop;
-}
-
-void Bunch::set_spectator_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
-                       double * RESTRICT &ya, double * RESTRICT &ypa,
-                       double * RESTRICT &cdta, double * RESTRICT &dpopa)
-{
-    double *origin = local_s_particles->origin();
-    int stride = local_s_particles->shape()[0];
-    xa    = origin + stride*Bunch::x;
-    xpa   = origin + stride*Bunch::xp;
-    ya    = origin + stride*Bunch::y;
-    ypa   = origin + stride*Bunch::yp;
-    cdta  = origin + stride*Bunch::cdt;
-    dpopa = origin + stride*Bunch::dpop;
-}
-
+#if 0
 template<class Archive>
 void
 Bunch::save(Archive & ar, const unsigned int version) const
@@ -1596,13 +1502,4 @@ void
 Bunch::load<cereal::XMLInputArchive >(
         cereal::XMLInputArchive & ar, const unsigned int version);
 
-Bunch::~Bunch()
-{
-    if (storage) boost::alignment::aligned_free(storage);
-    if (local_particles) delete local_particles;
-
-    if (s_storage) boost::alignment::aligned_free(s_storage);
-    if (local_s_particles) delete local_s_particles;
-}
-
-
+#endif

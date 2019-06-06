@@ -1,13 +1,19 @@
 
 
 #include "synergia/simulation/propagator.h"
+#include "synergia/foundation/physical_constants.h"
+
 
 
 int run()
 {
     Logger screen(0, LoggerV::DEBUG);
 
+    // Lattice
     Lattice lattice("test");
+
+    Reference_particle ref(1, pconstants::mp, 3.0);
+    lattice.set_reference_particle(ref);
 
     Lattice_element e1("drift", "d1");
     e1.set_double_attribute("l", 1.0);
@@ -19,8 +25,34 @@ int run()
 
     lattice.print(screen);
 
+    // Propagator
     Propagator propagator(lattice);
     propagator.print_steps(screen);
+
+    // bunch simulator
+    auto sim = Bunch_simulator::create_single_bunch_simulator(
+            lattice.get_reference_particle(), 4, 1e13 );
+
+    // init particle data
+    auto & bunch = sim.get_bunch();
+    auto local_num = bunch.get_local_num();
+    auto hparts = bunch.get_host_particles();
+
+    bunch.checkout_particles();
+
+    for (int p=0; p<local_num; ++p)
+    {
+        for (int i=0; i<6; ++i)
+        {
+            hparts(p, i) = p*0.1 + i*0.01;
+        }
+    }
+
+    bunch.checkin_particles();
+
+    // propagate
+    sim.set_turns(0, 1);
+    propagator.propagate(sim, screen);
 
     return 0;
 }
@@ -29,9 +61,11 @@ int run()
 int main(int argc, char ** argv)
 {
     MPI_Init(&argc, &argv);
+    Kokkos::initialize(argc, argv);
 
     run();
 
+    Kokkos::finalize();
     MPI_Finalize();
     return 0;
 }

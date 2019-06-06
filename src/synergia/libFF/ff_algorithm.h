@@ -10,13 +10,16 @@
 #include "synergia/utils/invsqrt.h"
 #include "synergia/foundation/physical_constants.h"
 
+#include <Kokkos_Core.hpp>
+
 class FF_algorithm
 {
 public:
 
     // exact solution for drift spaces
     template <typename T>
-    inline static void drift_unit
+    KOKKOS_INLINE_FUNCTION
+    static void drift_unit
       (T & x, T const& xp, T & y, T const& yp, T & cdt, T const& dpop,
        double length, double reference_momentum, double m, double reference_cdt)
     {

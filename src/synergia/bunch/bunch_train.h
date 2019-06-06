@@ -32,8 +32,12 @@ public:
     //Bunch_train(Bunches const& bunches, double spacing);
     //Bunch_train(Bunches const& bunches, std::vector<double > const& spacings);
 
-    // Default constructor for serialization use only
-    Bunch_train();
+    Bunch_train(
+            Reference_particle const & ref,
+            size_t num_bunches,
+            size_t num_particles_per_bunch,
+            double num_real_particles_per_bunch,
+            double spacing );
 
     Bunch & operator[](size_t idx)
     { return bunches[idx]; }

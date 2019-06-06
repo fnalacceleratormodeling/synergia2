@@ -267,6 +267,11 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 smart_include_directories("${extra_includes}")
+
+# kokkos
+add_subdirectory(src/synergia/utils/kokkos)
+include_directories(${Kokkos_INCLUDE_DIRS_RET})
+
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(archived-applications)

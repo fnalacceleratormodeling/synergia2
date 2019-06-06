@@ -25,8 +25,6 @@ LibFF_operation::LibFF_operation(
 void
 LibFF_operation::apply(Bunch & bunch, Logger & logger)
 {
-    bunch.convert_to_state(Bunch::fixed_z_lab);
-
     for (auto const & es : libff_element_slices)
         es.first->apply(es.second, bunch);
 }

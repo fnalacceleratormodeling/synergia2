@@ -585,12 +585,10 @@ Propagator::do_turn_end(
 }
 
 void
-Propagator::propagate(Bunch_simulator & sim)
+Propagator::propagate(Bunch_simulator & sim, Logger & logger)
 {
     try 
     {
-        Logger logger(0, "log");
-
         //double t_total = simple_timer_current();
         //double t = simple_timer_current();
 

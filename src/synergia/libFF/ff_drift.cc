@@ -60,6 +60,24 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 }
 #endif
 
+struct PropDrift
+{
+    Particles p;
+    double l, ref_p, m, ref_t;
+
+    PropDrift(Particles p_, double l, double ref_p, double m, double ref_t)
+        : p(p_), l(l), ref_p(ref_p), m(m), ref_t(ref_t) { }
+
+    KOKKOS_INLINE_FUNCTION
+    void operator()(const int i) const
+    {
+        FF_algorithm::drift_unit(
+                p(i, 0), p(i, 1), p(i, 2),
+                p(i, 3), p(i, 4), p(i, 5),
+                l, ref_p, m, 0.0);
+    }
+};
+
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     const double  length = slice.get_right() - slice.get_left();
@@ -70,13 +88,42 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
-    const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
+    const double ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
     const double ref_cdt = get_reference_cdt(length, ref_l);
 
-    double * RESTRICT xa, * RESTRICT xpa;
-    double * RESTRICT ya, * RESTRICT ypa;
-    double * RESTRICT cdta, * RESTRICT dpopa;
+    auto parts = bunch.get_local_particles();
+    auto hparts = bunch.get_host_particles();
+
+    std::cout << "apply, nparts = " << local_num << "\n";
+
+    Kokkos::parallel_for(
+            local_num, PropDrift(parts, length, ref_p, mass, ref_cdt) );
+
+    bunch.checkout_particles();
+
+    for (int p=0; p<local_num; ++p)
+    {
+        std::cout 
+            << hparts(p, 0) << ", "
+            << hparts(p, 1) << ", "
+            << hparts(p, 2) << ", "
+            << hparts(p, 3) << ", "
+            << hparts(p, 4) << ", "
+            << hparts(p, 5) << "\n";
+    }
+
+
+#if 0
+    bunch.checkout_particles();
+    for (int p=0; p<local_num; ++p)
+    {
+        for (int i=0; i<6; ++i)
+        {
+            hparts(p, i) = p*0.1 + i*0.01;
+        }
+    }
+#endif
 
 #if 0
     // real particles
