@@ -1,32 +1,50 @@
 #include "ff_drift.h"
+
+#include "synergia/libFF/ff_algorithm.h"
 //#include "synergia/lattice/chef_utils.h"
-#include "synergia/utils/gsvector.h"
+//#include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
 
-FF_drift::FF_drift()
+namespace
 {
+    struct PropDrift
+    {
+        Particles p;
+        double l, ref_p, m, ref_t;
+
+        PropDrift(Particles p_, double l, double ref_p, double m, double ref_t)
+            : p(p_), l(l), ref_p(ref_p), m(m), ref_t(ref_t) { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int i) const
+        {
+            FF_algorithm::drift_unit(
+                    p(i, 0), p(i, 1), p(i, 2),
+                    p(i, 3), p(i, 4), p(i, 5),
+                    l, ref_p, m, 0.0);
+        }
+    };
+
+    double get_reference_cdt(double length, Reference_particle & ref)
+    {
+        double x(ref.get_state()[Bunch::x]);
+        double xp(ref.get_state()[Bunch::xp]);
+        double y(ref.get_state()[Bunch::y]);
+        double yp(ref.get_state()[Bunch::yp]);
+        double cdt(0.0);
+        double dpop(ref.get_state()[Bunch::dpop]);
+        double ref_p = ref.get_momentum();
+        double m = ref.get_mass();
+
+        FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, m, 0.0);
+
+        // propagate and update the bunch design reference particle state
+        ref.set_state(x, xp, y, yp, cdt, dpop);
+
+        return cdt;
+    }
 }
 
-double FF_drift::get_reference_cdt(double length, Reference_particle & reference_particle)
-{
-    double x(reference_particle.get_state()[Bunch::x]);
-    double xp(reference_particle.get_state()[Bunch::xp]);
-    double y(reference_particle.get_state()[Bunch::y]);
-    double yp(reference_particle.get_state()[Bunch::yp]);
-    double cdt(0.0);
-    double dpop(reference_particle.get_state()[Bunch::dpop]);
-    double reference_momentum = reference_particle.get_momentum();
-    double m = reference_particle.get_mass();
-
-    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
-
-    // propagate and update the bunch design reference particle state
-    reference_particle.set_state(x, xp, y, yp, cdt, dpop);
-
-    return cdt;
-}
-
-#if 0
 void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
     throw std::runtime_error("Propagate JetParticle through a drift element is yet to be implemented");
@@ -58,25 +76,6 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
                reference_cdt);
 #endif
 }
-#endif
-
-struct PropDrift
-{
-    Particles p;
-    double l, ref_p, m, ref_t;
-
-    PropDrift(Particles p_, double l, double ref_p, double m, double ref_t)
-        : p(p_), l(l), ref_p(ref_p), m(m), ref_t(ref_t) { }
-
-    KOKKOS_INLINE_FUNCTION
-    void operator()(const int i) const
-    {
-        FF_algorithm::drift_unit(
-                p(i, 0), p(i, 1), p(i, 2),
-                p(i, 3), p(i, 4), p(i, 5),
-                l, ref_p, m, 0.0);
-    }
-};
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
@@ -95,8 +94,6 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     auto parts = bunch.get_local_particles();
     auto hparts = bunch.get_host_particles();
 
-    std::cout << "apply, nparts = " << local_num << "\n";
-
     Kokkos::parallel_for(
             local_num, PropDrift(parts, length, ref_p, mass, ref_cdt) );
 
@@ -113,17 +110,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
             << hparts(p, 5) << "\n";
     }
 
-
-#if 0
-    bunch.checkout_particles();
-    for (int p=0; p<local_num; ++p)
-    {
-        for (int i=0; i<6; ++i)
-        {
-            hparts(p, i) = p*0.1 + i*0.01;
-        }
-    }
-#endif
+    bunch.get_reference_particle().increment_trajectory(length);
 
 #if 0
     // real particles

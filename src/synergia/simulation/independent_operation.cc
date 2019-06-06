@@ -2,6 +2,20 @@
 #include "independent_operation.h"
 
 #include "synergia/libFF/ff_drift.h"
+#include "synergia/libFF/ff_quadrupole.h"
+
+namespace
+{
+    std::unique_ptr<FF_element> make_ff_element(element_type t)
+    {
+        switch(t)
+        {
+        case element_type::drift:      return std::make_unique<FF_drift>();
+        case element_type::quadrupole: return std::make_unique<FF_quadrupole>();
+        default: throw std::runtime_error("unhandled element type");
+        }
+    }
+}
 
 
 LibFF_operation::LibFF_operation(
@@ -11,14 +25,9 @@ LibFF_operation::LibFF_operation(
 {
     for (auto const & slice : slices)
     {
-        if (slice.get_lattice_element().get_type() == element_type::drift)
-        {
-            libff_element_slices.emplace_back(
-                    std::make_pair(std::make_unique<FF_drift>(), slice) );
-        }
-        else
-        {
-        }
+        auto type = slice.get_lattice_element().get_type();
+        libff_element_slices.emplace_back(
+                std::make_pair(make_ff_element(type), slice) );
     }
 }
 

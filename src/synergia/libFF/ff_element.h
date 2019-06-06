@@ -7,6 +7,8 @@
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/lattice.h"
 
+class JetParticle;
+
 class FF_element
 {
 public:

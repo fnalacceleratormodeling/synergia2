@@ -22,8 +22,9 @@ enum class element_type
 
 namespace element_type_name
 {
-    constexpr char const * generic = "generic";
-    constexpr char const * drift   = "drift";
+    constexpr char const * generic    = "generic";
+    constexpr char const * drift      = "drift";
+    constexpr char const * quadrupole = "quadrupole";
 }
 
 class Lattice;

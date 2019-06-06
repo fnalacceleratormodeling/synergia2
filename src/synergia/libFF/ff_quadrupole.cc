@@ -1,41 +1,109 @@
 #include "ff_quadrupole.h"
-#include "ff_algorithm.h"
-#include "synergia/lattice/chef_utils.h"
-#include "synergia/utils/gsvector.h"
+
+#include "synergia/libFF/ff_algorithm.h"
+//#include "synergia/lattice/chef_utils.h"
+//#include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
 
-double FF_quadrupole::get_reference_cdt(double length, double * k, Reference_particle &reference_particle)
+namespace
 {
-    if (length == 0)
+    struct PropQuadThin
     {
-        reference_particle.set_state_cdt(0.0);
-        return 0.0;
-    }
-    else
+        Particles p;
+        double k[2];
+        double xoff, yoff;
+
+        PropQuadThin(Particles p_, double k0, double k1, double xoff, double yoff)
+            : p(p_), k{k0, k1}, xoff(xoff), yoff(yoff) { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int i) const
+        {
+            double x = p(i, 0) - xoff;
+            double y = p(i, 2) - yoff;
+
+            FF_algorithm::thin_quadrupole_unit(
+                    x, p(i, 1), y, p(i, 3), k);
+        }
+    };
+
+    struct PropQuad
     {
-        double reference_momentum = reference_particle.get_momentum();
-        double m = reference_particle.get_mass();
-        // steps comes from base class, set in apply
-        double step_length = length/steps;
-        double step_strength[2] = { k[0]*step_length, k[1]*step_length };
+        Particles p;
+        int steps;
+        double xoff, yoff;
+        double ref_p, ref_m, step_ref_t, step_l, step_k[2];
 
-        double x(reference_particle.get_state()[Bunch::x]);
-        double xp(reference_particle.get_state()[Bunch::xp]);
-        double y(reference_particle.get_state()[Bunch::y]);
-        double yp(reference_particle.get_state()[Bunch::yp]);
-        double cdt(0.0);
-        double dpop(reference_particle.get_state()[Bunch::dpop]);
+        PropQuad( Particles p_, 
+                  int steps,
+                  double xoff,
+                  double yoff,
+                  double ref_p, 
+                  double ref_m, 
+                  double ref_t, 
+                  double length,
+                  double k0,
+                  double k1 )
+            : p(p_)
+            , steps(steps)
+            , xoff(xoff)
+            , yoff(yoff)
+            , ref_p(ref_p)
+            , ref_m(ref_m)
+            , step_ref_t(ref_t/steps)
+            , step_l(length/steps) 
+            , step_k{k0*step_l, k1*step_l}
+        { }
 
-        FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
-                ( x, xp, y, yp, cdt, dpop,
-                  reference_momentum, m,
-                  0.0,
-                  step_length, step_strength, steps );
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int i) const
+        {
+            p(i, 0) -= xoff;
+            p(i, 2) -= yoff;
 
-        // propagate and update the lattice reference particle state
-        reference_particle.set_state(x, xp, y, yp, cdt, dpop);
+            FF_algorithm::yoshida6<double, FF_algorithm::thin_quadrupole_unit<double>, 1>
+                (p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+                 ref_p, ref_m, step_ref_t, step_l, step_k, steps);
 
-        return cdt;
+            p(i, 0) += xoff;
+            p(i, 2) += yoff;
+        }
+    };
+
+
+    double get_reference_cdt(double length, int steps, double * k, Reference_particle &ref)
+    {
+        if (length == 0)
+        {
+            ref.set_state_cdt(0.0);
+            return 0.0;
+        }
+        else
+        {
+            double ref_p = ref.get_momentum();
+            double ref_m = ref.get_mass();
+
+            // steps comes from base class, set in apply
+            double step_length = length/steps;
+            double step_strength[2] = { k[0]*step_length, k[1]*step_length };
+
+            double x(ref.get_state()[Bunch::x]);
+            double xp(ref.get_state()[Bunch::xp]);
+            double y(ref.get_state()[Bunch::y]);
+            double yp(ref.get_state()[Bunch::yp]);
+            double cdt(0.0);
+            double dpop(ref.get_state()[Bunch::dpop]);
+
+            FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+                    ( x, xp, y, yp, cdt, dpop,
+                      ref_p, ref_m, 0.0,
+                      step_length, step_strength, steps );
+
+            // propagate and update the lattice reference particle state
+            ref.set_state(x, xp, y, yp, cdt, dpop);
+
+            return cdt;
+        }
     }
 }
 
@@ -102,9 +170,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const double xoff = slice.get_lattice_element().get_double_attribute("hoffset", 0.0);
     const double yoff = slice.get_lattice_element().get_double_attribute("voffset", 0.0);
 
-    const GSVector vxoff(xoff);
-    const GSVector vyoff(yoff);
-
     // tilting
     double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
     if (tilt != 0.0)
@@ -130,6 +195,51 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     int local_num = bunch.get_local_num();
     int local_s_num = bunch.get_local_spectator_num();
 
+    auto parts = bunch.get_local_particles();
+
+    if (close_to_zero(length))
+    {
+        // propagate the bunch design reference particle
+        double x  = ref_l.get_state()[Bunch::x];
+        double xp = ref_l.get_state()[Bunch::xp];
+        double y  = ref_l.get_state()[Bunch::y];
+        double yp = ref_l.get_state()[Bunch::yp];
+        double dpop = ref_l.get_state()[Bunch::dpop];
+
+        x -= xoff;
+        y -= yoff;
+
+        FF_algorithm::thin_quadrupole_unit(x, xp,  y, yp, k);
+
+        x += xoff;
+        y += yoff;
+
+        ref_l.set_state(x, xp, y, yp, 0.0, dpop);
+
+        // propagate the bunch particles
+        Kokkos::parallel_for(
+                local_num, PropQuadThin(parts, k[0], k[1], xoff, yoff) );
+    }
+    else
+    {
+        // yoshida steps
+        steps = (int)slice.get_lattice_element().get_double_attribute("yoshida_steps", 4.0);
+
+        // params
+        double ref_p = ref_b.get_momentum();
+        double ref_m = ref_b.get_mass();
+        double ref_t = get_reference_cdt(length, steps, k, ref_l);
+
+        // bunch particles
+        PropQuad pq( parts, steps, xoff, yoff, ref_p, ref_m, ref_t, length, k[0], k[1] );
+        Kokkos::parallel_for(local_num, pq);
+
+        // advance the ref_part
+        bunch.get_reference_particle().increment_trajectory(length);
+    }
+
+
+#if 0
     MArray2d_ref particles = bunch.get_local_particles();
     MArray2d_ref s_particles = bunch.get_local_spectator_particles();
 
@@ -260,7 +370,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // params
         double reference_momentum = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
-        double reference_cdt = get_reference_cdt(length, k, ref_l);
+        double reference_cdt = get_reference_cdt(length, steps, k, ref_l);
         double step_reference_cdt = reference_cdt/steps;
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
@@ -451,37 +561,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         bunch.get_reference_particle().increment_trajectory(length);
     }
-}
-
-template<class Archive>
-    void
-    FF_quadrupole::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(FF_element);
-    }
-
-template
-void
-FF_quadrupole::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_quadrupole::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_quadrupole::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-FF_quadrupole::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-FF_quadrupole::~FF_quadrupole()
-{
-
+#endif
 }
 

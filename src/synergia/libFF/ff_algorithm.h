@@ -1009,7 +1009,7 @@ public:
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
                                 double m, double step_reference_cdt,
-                                double step_length, double * step_strength,
+                                double step_length, double const * step_strength,
                                 int steps)
     {
         // see yoshida4.py for formulas

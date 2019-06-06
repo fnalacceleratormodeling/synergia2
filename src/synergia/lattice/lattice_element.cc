@@ -11,8 +11,9 @@ namespace
     using type_map_t = std::map<std::string, element_type>;
 
     const type_map_t type_map = { 
-        { element_type_name::generic,  element_type::generic},
-        { element_type_name::drift,    element_type::drift},
+        { element_type_name::generic,    element_type::generic},
+        { element_type_name::drift,      element_type::drift},
+        { element_type_name::quadrupole, element_type::quadrupole},
     };
 
     element_type find_type(std::string const & stype)

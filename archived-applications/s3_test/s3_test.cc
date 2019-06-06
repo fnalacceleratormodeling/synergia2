@@ -19,9 +19,15 @@ int run()
     e1.set_double_attribute("l", 1.0);
     lattice.append(e1);
 
-    Lattice_element e2("drift", "d2");
-    e2.set_double_attribute("l", 0.8);
+    Lattice_element e2("quadrupole", "q1");
+    e2.set_double_attribute("l", 1.0);
+    e2.set_double_attribute("k1", 0.02);
+    e2.set_double_attribute("k1s", 0.03);
     lattice.append(e2);
+
+    Lattice_element e3("drift", "d2");
+    e3.set_double_attribute("l", 0.8);
+    lattice.append(e3);
 
     lattice.print(screen);
 
