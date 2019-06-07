@@ -94,13 +94,13 @@ list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
 #LINK_DIRECTORIES(${CHEF_LIB_DIR})
 
 # numpy
-find_package(NUMPY REQUIRED)
-include_directories(${NUMPY_INCLUDE_DIR})
+#find_package(NUMPY REQUIRED)
+#include_directories(${NUMPY_INCLUDE_DIR})
 
 if (BUILD_PYTHON_BINDINGS)
     # mpi4py
-    find_package(MPI4PY REQUIRED)
-    list(APPEND extra_includes ${MPI4PY_INCLUDE_DIR})
+    #find_package(MPI4PY REQUIRED)
+    #list(APPEND extra_includes ${MPI4PY_INCLUDE_DIR})
 endif()
 
 # misc
