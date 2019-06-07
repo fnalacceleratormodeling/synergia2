@@ -125,7 +125,7 @@ namespace core_diagnostics_impl
         for (int j=0; j<6; ++j)
         {
             double diff_j = p(i, j) - mean(j);
-            for (int k=0; k<j; ++k)
+            for (int k=0; k<=j; ++k)
             {
                 double diff_k = p(i, k) - mean(k);
                 sum[j*6+k] += diff_j * diff_k;
