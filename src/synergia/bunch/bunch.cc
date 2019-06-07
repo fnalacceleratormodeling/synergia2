@@ -1320,27 +1320,25 @@ Bunch::read_file(std::string const & filename)
 
 void Bunch::check_pz2_positive()
 {
-    throw std::runtime_error("Bunch::check_pz2_positive() not implemented");
+    checkout_particles();
 
-#if 0
-    if (this->state == fixed_z_lab) 
+    int local_num = get_local_num();
+    auto parts = get_host_particles();
+
+    for (int p = 0; p < local_num; ++p) 
     {
-        int local_num = get_local_num();
-        MArray2d_ref particles = get_local_particles();
+        double pzop2 = (1. + parts(p, 5)) * (1. + parts(p, 5))
+            - parts(p, 1) * parts(p, 1)
+            - parts(p, 3) * parts(p, 3);
 
-        for (int part = 0; part < local_num; ++part) 
+        if ( pzop2 < 0.0 )  
         {
-            double  pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
-                particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
-
-            if (pzop2<0.)  
-            {
-                std::cout<<"pzop^2="<<pzop2<<std::endl;
-                throw std::runtime_error( " check pz2:  pz square cannot be negative!");
-            }
+            std::cout << "pzop^2 = " << pzop2 << std::endl;
+            throw std::runtime_error( " check pz2:  pz square cannot be negative!");
         }
     }
-#endif
+
+    checkin_particles();
 }
 
 #if 0
