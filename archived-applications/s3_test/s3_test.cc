@@ -2,6 +2,7 @@
 
 #include "synergia/simulation/propagator.h"
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/populate.h"
 
 
 
@@ -39,11 +40,14 @@ int run()
     auto sim = Bunch_simulator::create_single_bunch_simulator(
             lattice.get_reference_particle(), 4, 1e13 );
 
+    screen << ref.get_momentum() << "\n";
+
     // init particle data
     auto & bunch = sim.get_bunch();
     auto local_num = bunch.get_local_num();
     auto hparts = bunch.get_host_particles();
 
+#if 0
     bunch.checkout_particles();
 
     for (int p=0; p<local_num; ++p)
@@ -55,6 +59,40 @@ int run()
     }
 
     bunch.checkin_particles();
+#endif
+
+    karray1d means("means", 6);
+    for (int i=0; i<6; ++i) means(i) = 0.0;
+
+    karray2d covariances("covariances", 6, 6);
+    for (int i=0; i<6; ++i)
+        for (int j=0; j<6; ++j)
+            covariances(i, j) = 0.0;
+
+    covariances(0,0) = 1e-6;
+    covariances(1,1) = 1e-6;
+    covariances(2,2) = 1e-6;
+    covariances(3,3) = 1e-6;
+    covariances(4,4) = 1e-6;
+    covariances(5,5) = 1e-6;
+
+    Random_distribution dist(5, Commxx());
+    populate_6d(dist, bunch, means, covariances);
+
+    bunch.checkout_particles();
+
+    screen(LoggerV::DEBUG) << "\n\npopulated\n";
+
+    for (int p=0; p<local_num; ++p)
+    {
+        screen(LoggerV::DEBUG)
+            << hparts(p, 0) << ", "
+            << hparts(p, 1) << ", "
+            << hparts(p, 2) << ", "
+            << hparts(p, 3) << ", "
+            << hparts(p, 4) << ", "
+            << hparts(p, 5) << "\n";
+    }
 
     // propagate
     sim.set_turns(0, 1);
