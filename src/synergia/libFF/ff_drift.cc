@@ -21,7 +21,7 @@ namespace
             FF_algorithm::drift_unit(
                     p(i, 0), p(i, 1), p(i, 2),
                     p(i, 3), p(i, 4), p(i, 5),
-                    l, ref_p, m, 0.0);
+                    l, ref_p, m, ref_t);
         }
     };
 
@@ -96,19 +96,6 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     Kokkos::parallel_for(
             local_num, PropDrift(parts, length, ref_p, mass, ref_cdt) );
-
-    bunch.checkout_particles();
-
-    for (int p=0; p<local_num; ++p)
-    {
-        std::cout 
-            << hparts(p, 0) << ", "
-            << hparts(p, 1) << ", "
-            << hparts(p, 2) << ", "
-            << hparts(p, 3) << ", "
-            << hparts(p, 4) << ", "
-            << hparts(p, 5) << "\n";
-    }
 
     bunch.get_reference_particle().increment_trajectory(length);
 
