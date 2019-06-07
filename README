@@ -1,0 +1,1 @@
+CC=/home/qlu/local/bin/gcc CXX=/home/qlu/local/bin/g++ cmake -DCMAKE_INSTALL_PREFIX=/home/qlu/s2-devel/install -DBoost_INCLUDE_DIR=/home/qlu/s2-devel/install/include -DFFTW3_LIBRARY_DIRS:PATH=/home/qlu/s2-devel/install/lib -DEIGEN3_INCLUDE_DIR:PATH=/home/qlu/s2-devel/install/include/eigen3 -DCMAKE_BUILD_TYPE=Release -DKOKKOS_ENABLE_OPENMP=on /home/qlu/s2-devel/build/synergia2/
