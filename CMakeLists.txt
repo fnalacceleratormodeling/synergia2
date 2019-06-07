@@ -89,9 +89,9 @@ find_package(HDF5)
 list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
 
 # chef
-find_package(CHEF REQUIRED)
-list(APPEND extra_includes ${CHEF_INCLUDE_DIR})
-LINK_DIRECTORIES(${CHEF_LIB_DIR})
+#find_package(CHEF REQUIRED)
+#list(APPEND extra_includes ${CHEF_INCLUDE_DIR})
+#LINK_DIRECTORIES(${CHEF_LIB_DIR})
 
 # numpy
 find_package(NUMPY REQUIRED)
