@@ -1,7 +1,7 @@
 #include "hdf5_file.h"
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/hdf5_misc.h"
-#include <boost/align/aligned_alloc.hpp>
+//#include <boost/align/aligned_alloc.hpp>
 
 Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag) 
     : file_name(file_name)
@@ -268,7 +268,8 @@ template<>
     Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
 
     // allocate (memory aligned)
-    double * retval = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), dims[0] * sizeof(double));
+    //double * retval = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), dims[0] * sizeof(double));
+    double * retval = new double[dims[0] * sizeof(double)];
 
     // read
     res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval);

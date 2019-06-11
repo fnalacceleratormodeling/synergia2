@@ -27,7 +27,7 @@ typedef const_karray2d_hst const_karray2d;
 #include "boost/multi_array.hpp"
 #include "boost/shared_array.hpp"
 
-#include "boost/align/aligned_allocator.hpp"
+//#include "boost/align/aligned_allocator.hpp"
 
 typedef boost::multi_array_types::index_range range;
 typedef boost::multi_array_types::extent_range extent_range;
@@ -63,7 +63,7 @@ typedef Raw_multi_array<double, 1> Raw_MArray1d; // syndoc:include
 
 
 typedef boost::multi_array<double, 2 > MArray2d; // syndoc:include
-typedef boost::multi_array<double, 2, boost::alignment::aligned_allocator<double, 64> > MArray2da; // syndoc:include
+//typedef boost::multi_array<double, 2, boost::alignment::aligned_allocator<double, 64> > MArray2da; // syndoc:include
 typedef boost::multi_array_ref<double, 2 > MArray2d_ref; // syndoc:include
 typedef boost::const_multi_array_ref<double, 2 > Const_MArray2d_ref; // syndoc:include
 typedef boost::detail::multi_array::multi_array_view<double, 2 > MArray2d_view; // syndoc:include
