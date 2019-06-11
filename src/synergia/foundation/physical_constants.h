@@ -1,6 +1,6 @@
 #ifndef PHYSICAL_CONSTANTS_H_
 #define PHYSICAL_CONSTANTS_H_
-#include <basic_toolkit/PhysicsConstants.h>
+//#include <basic_toolkit/PhysicsConstants.h>
 #include "synergia/foundation/math_constants.h"
 #include <string>
 

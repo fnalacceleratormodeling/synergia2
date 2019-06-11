@@ -98,6 +98,22 @@ int run()
     sim.set_turns(0, 1);
     propagator.propagate(sim, screen);
 
+    bunch.checkout_particles();
+
+    screen(LoggerV::DEBUG) << "\n\npropagated\n";
+    std::cout.precision(10);
+
+    for (int p=0; p<local_num; ++p)
+    {
+        screen(LoggerV::DEBUG)
+            << hparts(p, 0) << ", "
+            << hparts(p, 1) << ", "
+            << hparts(p, 2) << ", "
+            << hparts(p, 3) << ", "
+            << hparts(p, 4) << ", "
+            << hparts(p, 5) << "\n";
+    }
+
     return 0;
 }
 

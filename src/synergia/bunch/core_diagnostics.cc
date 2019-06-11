@@ -1,7 +1,7 @@
 #include "core_diagnostics.h"
 #include <cmath>
-#include "Eigen/Core"
-#include "Eigen/LU"
+//#include "Eigen/Core"
+//#include "Eigen/LU"
 #include <stdexcept>
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
@@ -11,7 +11,7 @@
 
 #include <functional>
 
-using namespace Eigen;
+//using namespace Eigen;
 
 #if 0
 // note: cannot get the template F to work with CUDA
@@ -78,13 +78,13 @@ namespace core_diagnostics_impl
 
         const int value_count = F::size;
         ConstParticles p;
-        karray1d mean;
+        karray1d_dev dev_mean;
 
         particle_reducer(
                 ConstParticles const & p, 
                 karray1d const & mean = karray1d("mean", 6) )
-            : p(p), mean(mean) 
-        { }
+            : p(p), dev_mean("dev_mean", 6) 
+        { Kokkos::deep_copy(dev_mean, mean); }
 
 #if 0
         KOKKOS_INLINE_FUNCTION
@@ -115,7 +115,7 @@ namespace core_diagnostics_impl
     void particle_reducer<std_tag>::operator()    (const int i, value_type sum) const
     { 
         for (int j=0; j<value_count; ++j) 
-            sum[j] = (p(i, j) - mean(j)) * (p(i, j) - mean(j)); 
+            sum[j] = (p(i, j) - dev_mean(j)) * (p(i, j) - dev_mean(j)); 
     }
 
     template<>
@@ -124,10 +124,10 @@ namespace core_diagnostics_impl
     {
         for (int j=0; j<6; ++j)
         {
-            double diff_j = p(i, j) - mean(j);
+            double diff_j = p(i, j) - dev_mean(j);
             for (int k=0; k<=j; ++k)
             {
-                double diff_k = p(i, k) - mean(k);
+                double diff_k = p(i, k) - dev_mean(k);
                 sum[j*6+k] += diff_j * diff_k;
             }
         }
@@ -184,7 +184,7 @@ double
 Core_diagnostics::calculate_z_std(Bunch const& bunch, double const& mean)
 {
     double sum = 0;
-    double std;
+    double std = 0;
 #if 0
     Const_MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {

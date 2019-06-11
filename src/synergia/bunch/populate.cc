@@ -4,10 +4,10 @@
 #include "core_diagnostics.h"
 //#include "diagnostics.h"
 
-#include "Eigen/Eigen"
-#include "Eigen/Cholesky"
+//#include "Eigen/Eigen"
+//#include "Eigen/Cholesky"
 
-using namespace Eigen;
+//using namespace Eigen;
 
 #include "synergia/utils/floating_point.h"
 #include "synergia/utils/multi_array_print.h"
@@ -37,6 +37,7 @@ namespace
     }
 }
 
+#if 0
 void
 adjust_moments( Bunch & bunch, 
         const_karray1d means,
@@ -81,6 +82,46 @@ adjust_moments( Bunch & bunch,
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         rho7.block<1, 6>(part, 0) += means6;
     }
+}
+#endif
+
+void
+adjust_moments_eigen( 
+        double const * means,
+        double const * covariances,
+        double const * bunch_mean,
+        double const * bunch_mom2,
+        int num_particles,
+        int num_particles_slots,
+        double * particles );
+
+void
+adjust_moments( Bunch & bunch, 
+        const_karray1d means,
+        const_karray2d covariances )
+{
+    if (!is_symmetric66(covariances))
+        throw std::runtime_error("adjust_moments: covariance matrix must be symmetric");
+
+    // calculate_mean and mom2 are performed on device memory, so we need to
+    // copy the particle data from host to device first. checkout is not
+    // necessary since the core diagnostics do not change the particle data
+    bunch.checkin_particles();
+
+    karray1d bunch_mean = Core_diagnostics::calculate_mean(bunch);
+    karray2d bunch_mom2 = Core_diagnostics::calculate_mom2(bunch, bunch_mean);
+
+    int num_particles = bunch.get_local_num();
+    int num_particles_slots = bunch.get_local_num_slots();
+
+    adjust_moments_eigen(
+            means.data(),
+            covariances.data(),
+            bunch_mean.data(),
+            bunch_mom2.data(),
+            num_particles,
+            num_particles_slots,
+            bunch.get_host_particles().data() );
 }
 
 namespace

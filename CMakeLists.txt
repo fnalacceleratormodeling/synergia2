@@ -43,7 +43,7 @@ if (NOT BUILD_PYTHON_BINDINGS)
 endif ()
 
 # MPI
-FIND_PACKAGE(MPI REQUIRED CXX)
+FIND_PACKAGE(MPI REQUIRED C)
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
 if(${MPI_VERSION} MATCHES "OpenRTE.* 3")
     set(MPI_OVERSUBSCRIBE_FLAG "--oversubscribe")
@@ -79,7 +79,7 @@ endif()
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
 SET(Boost_NO_BOOST_CMAKE ON)
-FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework serialization
+FIND_PACKAGE(Boost COMPONENTS regex unit_test_framework serialization
     filesystem system iostreams REQUIRED)
 list(APPEND extra_includes ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})

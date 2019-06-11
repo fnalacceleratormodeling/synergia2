@@ -6,7 +6,7 @@
 #include <complex>
 #include <stdexcept>
 
-#include "basic_toolkit/PhysicsConstants.h"
+//#include "basic_toolkit/PhysicsConstants.h"
 #include "synergia/utils/invsqrt.h"
 #include "synergia/foundation/physical_constants.h"
 
@@ -47,7 +47,8 @@ public:
     }
 
     template <typename T>
-    inline static void slot_unit
+    KOKKOS_INLINE_FUNCTION
+    static void slot_unit
       (T & x, T & xp, T & y, T & yp, T & cdt, T & dpop, double ct, double st, double pref, double m)
     {
         T r0 = x;
@@ -141,7 +142,7 @@ public:
         T igamma = m / E0;
         T ibeta  = invsqrt(1.0 - igamma * igamma);
 
-        T csq = PH_MKS_c * PH_MKS_c * 1e-9;
+        T csq = pconstants::c * pconstants::c * 1e-9;
         T psq = (dpop + 1.0) * (dpop + 1.0);
 
         T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
@@ -151,14 +152,14 @@ public:
         T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
 
         CT ui  = CT(0.0, x);
-        CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+        CT vui = CT(pconstants::c * beta3, pconstants::c * beta1);
 
         T iomega = E / (csq * strength);
 
         CT bi = CT(0.0, 1.0) * vui * iomega - ui;
         CT bf = bi * phase + term;
 
-        T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+        T rho = pconstants::c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
 
         T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
 
@@ -167,12 +168,12 @@ public:
         CT uf   = (ui + bi) * expf - bf;
 
         T dtheta = dthmphi + dphi;
-        T ncdt = - PH_MKS_c * dtheta * iomega;
+        T ncdt = - pconstants::c * dtheta * iomega;
 
         x    = uf.imag();
         y   += beta2 * ncdt;
         cdt += ncdt - cdt_ref;
-        xp   = vuf.imag() / (Ef * PH_MKS_c);
+        xp   = vuf.imag() / (Ef * pconstants::c);
     }
 
     template <typename T>
@@ -191,7 +192,7 @@ public:
         T igamma = m / E0;
         T ibeta  = invsqrt(1.0 - igamma * igamma);
 
-        T csq = PH_MKS_c * PH_MKS_c * 1e-9;
+        T csq = pconstants::c * pconstants::c * 1e-9;
         T psq = (dpop + 1.0) * (dpop + 1.0);
 
         T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
@@ -201,14 +202,14 @@ public:
         T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
 
         CT ui  = CT(0.0, x);
-        CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+        CT vui = CT(pconstants::c * beta3, pconstants::c * beta1);
 
         T iomega = E / (csq * strength);
 
         CT bi = CT(0.0, 1.0) * vui * iomega - ui;
         CT bf = bi * phase + term;
 
-        T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+        T rho = pconstants::c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
 
         T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
 
@@ -217,12 +218,12 @@ public:
         CT uf   = (ui + bi) * expf - bf;
 
         T dtheta = dthmphi + theta;
-        T ncdt = - PH_MKS_c * dtheta * iomega;
+        T ncdt = - pconstants::c * dtheta * iomega;
 
         x    = uf.imag();
         y   += beta2 * ncdt;
         cdt += ncdt - cdt_ref;
-        xp   = vuf.imag() / (Ef * PH_MKS_c);
+        xp   = vuf.imag() / (Ef * pconstants::c);
     }
 
     inline static std::complex<double> bend_unit_phase(double theta)
@@ -249,7 +250,7 @@ public:
         T igamma = m / E0;
         T ibeta  = invsqrt(1.0 - igamma * igamma);
 
-        T csq = PH_MKS_c * PH_MKS_c * 1e-9;
+        T csq = pconstants::c * pconstants::c * 1e-9;
         T psq = (dpop + 1.0) * (dpop + 1.0);
 
         T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
@@ -259,14 +260,14 @@ public:
         T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
 
         CT ui  = CT(0.0, x);
-        CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+        CT vui = CT(pconstants::c * beta3, pconstants::c * beta1);
 
         T iomega = E / (csq * strength);
 
         CT bi = CT(0.0, 1.0) * vui * iomega - ui;
         CT bf = bi * phase;
 
-        T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+        T rho = pconstants::c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
 
         T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
 
@@ -275,12 +276,12 @@ public:
         CT uf   = (ui + bi) * expf - bf;
 
         T dtheta = dthmphi + e;
-        T ncdt = - PH_MKS_c * dtheta * iomega;
+        T ncdt = - pconstants::c * dtheta * iomega;
 
         x    = uf.imag();
         y   += beta2 * ncdt;
         cdt += ncdt;
-        xp   = vuf.imag() / (Ef * PH_MKS_c);
+        xp   = vuf.imag() / (Ef * pconstants::c);
     }
 
 // thin_cf_quadrupole_unit is not used.  It follows expressions in
@@ -445,7 +446,8 @@ public:
 
     // thin kick dipole
     template <typename T>
-    inline static void thin_dipole_unit
+    KOKKOS_INLINE_FUNCTION
+    static void thin_dipole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp = xp - kL[0];
@@ -453,7 +455,8 @@ public:
     }
 
     template <typename T>
-    inline static void thin_quadrupole_unit
+    KOKKOS_INLINE_FUNCTION
+    static void thin_quadrupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         T vk0(kL[0]);
@@ -464,7 +467,8 @@ public:
     }
 
     template <typename T>
-    inline static void thin_sextupole_unit
+    KOKKOS_INLINE_FUNCTION
+    static void thin_sextupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         T vk0(kL[0]);
@@ -475,7 +479,8 @@ public:
     }
 
     template <typename T>
-    inline static void thin_octupole_unit
+    KOKKOS_INLINE_FUNCTION
+    static void thin_octupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp += - 0.5 * kL[0] * (x * x * x / 3.0 - x * y * y)
@@ -485,7 +490,8 @@ public:
     }
 
     template <typename T>
-    inline static void thin_rbend_unit
+    KOKKOS_INLINE_FUNCTION
+    static void thin_rbend_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         thin_dipole_unit(x, xp, y, yp, kL);
@@ -494,7 +500,8 @@ public:
     }
 
     template <typename T>
-    inline static void rbend_thin_cf_kick
+    KOKKOS_INLINE_FUNCTION
+    static void rbend_thin_cf_kick
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
         thin_quadrupole_unit(x, xp, y, yp, kL + 0);
@@ -502,14 +509,16 @@ public:
     }
 
     template <typename T>
-    inline static void thin_kicker_unit
+    KOKKOS_INLINE_FUNCTION
+    static void thin_kicker_unit
       (T & p, double kL)
     {
         p = p + T(kL);
     }
 
     template <typename T>
-    inline static void thin_kicker_unit
+    KOKKOS_INLINE_FUNCTION
+    static void thin_kicker_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp = xp + T(kL[0]);
@@ -517,7 +526,8 @@ public:
     }
 
     template <typename T>
-    inline static void constfoc_unit
+    KOKKOS_INLINE_FUNCTION
+    static void constfoc_unit
       (T & x, T & xp, double cs, double sn, double beta, double ibeta)
     {
         T vcs(cs), vsn(sn), vbeta(beta), vibeta(ibeta);
@@ -529,7 +539,8 @@ public:
         xp = xp1;
     }
 
-    inline static double thin_rfcavity_pnew
+    KOKKOS_INLINE_FUNCTION
+    static double thin_rfcavity_pnew
       (double pref, double m, double volt, double phi_s)
     {
         double E0 = sqrt(pref * pref + m * m);
@@ -538,7 +549,8 @@ public:
     }
 
     template <typename T>
-    inline static void thin_rfcavity_unit
+    KOKKOS_INLINE_FUNCTION
+    static void thin_rfcavity_unit
       (T & px, T & py, T const & cdt, T & dpop,
        double w_rf, double volt, double phi_s, double m, double old_ref_p, double & new_ref_p, double * mhp, int nh)
     {
@@ -551,7 +563,7 @@ public:
         double       mhp_relative_strength = 1.0;
         double       mhp_phase_shift       = 0.0;
 
-        double phase_slip_argument = ( cdt * w_rf / PH_MKS_c ) + anh_phase;
+        double phase_slip_argument = ( cdt * w_rf / pconstants::c ) + anh_phase;
 
         double strength_factor = 0.0;
 
@@ -892,7 +904,8 @@ public:
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int order,
         int components >
-    inline static void yoshida( T & x, T & xp,
+    KOKKOS_INLINE_FUNCTION
+    static void yoshida( T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const & dpop,
                                 double pref, double m, double step_ref_cdt,
@@ -915,7 +928,8 @@ public:
         typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
-    inline static void yoshida2(T & x, T & xp,
+    KOKKOS_INLINE_FUNCTION
+    static void yoshida2(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
@@ -940,7 +954,8 @@ public:
         typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
-    inline static void yoshida4(T & x, T & xp,
+    KOKKOS_INLINE_FUNCTION
+    static void yoshida4(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
@@ -1004,7 +1019,8 @@ public:
         typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
-    inline static void yoshida6(T & x, T & xp,
+    KOKKOS_INLINE_FUNCTION
+    static void yoshida6(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,

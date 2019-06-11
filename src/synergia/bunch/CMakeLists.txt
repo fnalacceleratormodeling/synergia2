@@ -1,8 +1,11 @@
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+#set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS -fpermissive)
+set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS --host-only)
+
 add_library(synergia_bunch 
-    fixed_t_z_converter.cc 
+    #fixed_t_z_converter.cc 
     bunch.cc
     bunch_train.cc
     #diagnostics.cc 
@@ -16,6 +19,7 @@ add_library(synergia_bunch
     #diagnostics_bulk_spectator_track.cc 
     #diagnostics_phase_space_density.cc
     populate.cc 
+    populate_host.cc 
     analysis.cc 
     #period.cc 
     )
