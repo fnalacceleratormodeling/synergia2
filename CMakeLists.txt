@@ -1,16 +1,5 @@
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(SYNERGIA2 VERSION 2.0.90 LANGUAGES CXX C)
-
-# needed to avoid warnings about rpath policy on Mac OSX
-# no known difference between "OLD" and "NEW" policies for us
-if(POLICY CMP0042)
-    cmake_policy(SET CMP0042 NEW)
-endif()
-
-# get version number generation right
-if(POLICY CMP0048)
-    cmake_policy(SET CMP0048 NEW)
-endif()
 
 enable_testing()
 set(CMAKE_CXX_STANDARD 14)
@@ -32,10 +21,21 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
   message("Using g++")
 else()
-  message("I can not tell what compiler is being used.")
+  message(FATAL_ERROR "I can not tell what compiler is being used.")
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-register ${COMPILER_SPECIFIC_CXX_FLAGS} -Werror")
+
+# needed to avoid warnings about rpath policy on Mac OSX
+# no known difference between "OLD" and "NEW" policies for us
+if(POLICY CMP0042)
+    cmake_policy(SET CMP0042 NEW)
+endif()
+
+# get version number generation right
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif()
 
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
@@ -46,9 +46,31 @@ if (NOT DEFINED BUILD_PYTHON_BINDINGS)
   endif ()
 endif ()
 
-if (NOT BUILD_PYTHON_BINDINGS)
+##
+# Find necessary packages
+##
+
+# python
+if (BUILD_PYTHON_BINDINGS)
+  if (USE_PYTHON_3)
+    message(STATUS "Trying to find python 3")
+    # If we could use cmake v3.12 or newer, this is simple:
+    #find_package(Python3 COMPONENTS Interpreter Development)
+    set(Python_ADDITIONAL_VERSIONS "3")
+  else()
+    message(STATUS "Trying to find python 2")
+    # If we could use cmake v3.12 or newer, this is simple:
+    #find_package(Python3 COMPONENTS Interpreter Development)
+    set(Python_ADDTIONAL_VERSIONS "2")
+  endif()
+  include_directories(${PYTHON_INCLUDE_DIR})
+else ()
   message (STATUS "Not building python bindings")
 endif ()
+
+# If we could use cmake v3.12 or newer, this would not be needed.
+find_package(PythonInterp)
+find_package(PythonLibs)
 
 # MPI
 find_package(MPI REQUIRED CXX)
@@ -69,11 +91,6 @@ else()
     link_libraries(${MPI_CXX_LIBRARIES})
 endif ()
 
-# python
-if (BUILD_PYTHON_BINDINGS)
-    find_package(ConsistentPython)
-    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIR})
-endif()
 
 # boost
 set(Boost_USE_STATIC_LIBS OFF)

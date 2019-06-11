@@ -10,7 +10,7 @@ if(NOT MPI4PY_INCLUDE_DIR)
         set(ENV{PYTHONPATH} "${EXTRA_PYTHONPATH}:$ENV{PYTHONPATH}")
     endif(EXTRA_PYTHONPATH)
     execute_process(COMMAND
-      "${PYTHON_EXECUTABLE}" "-c" "import mpi4py; print mpi4py.get_include()"
+      "${PYTHON_EXECUTABLE}" "-c" "from __future__ import print_function; import mpi4py; print(mpi4py.get_include())"
       OUTPUT_VARIABLE MPI4PY_INCLUDE_DIR
       RESULT_VARIABLE MPI4PY_COMMAND_RESULT
       OUTPUT_STRIP_TRAILING_WHITESPACE)

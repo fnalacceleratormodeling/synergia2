@@ -1,6 +1,6 @@
 if(NOT PYTHON_INCLUDE_DIR)
     execute_process(COMMAND "${PYTHON_EXECUTABLE}"
-        "-c" "import distutils.sysconfig; print distutils.sysconfig.get_python_inc()"
+        "-c" "from __future__ import print_function; import distutils.sysconfig; print( distutils.sysconfig.get_python_inc())"
         OUTPUT_VARIABLE PYTHON_INCLUDE_DIR
         RESULT_VARIABLE PYTHON_INCLUDE_NOT_FOUND
         OUTPUT_STRIP_TRAILING_WHITESPACE)

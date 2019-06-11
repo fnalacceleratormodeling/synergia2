@@ -9,8 +9,9 @@ if(NOT NUMPY_INCLUDE_DIR)
         set(OLD_PYTHONPATH $ENV{PYTHONPATH})
         set(ENV{PYTHONPATH} "${EXTRA_PYTHONPATH}:$ENV{PYTHONPATH}")
     endif(EXTRA_PYTHONPATH)
+    message("Python executable is: ${PYTHON_EXECUTABLE}")
     execute_process(COMMAND "${PYTHON_EXECUTABLE}"
-        "-c" "import numpy; print numpy.get_include()"
+        "-c" "from __future__ import print_function; import numpy; print(numpy.get_include())"
         OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
         RESULT_VARIABLE NUMPY_NOT_FOUND
         OUTPUT_STRIP_TRAILING_WHITESPACE)
