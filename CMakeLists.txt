@@ -275,6 +275,6 @@ include_directories(${Kokkos_INCLUDE_DIRS_RET})
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(archived-applications)
-add_subdirectory(docs)
+#add_subdirectory(docs)
 add_subdirectory(synergia-script-templates)
 

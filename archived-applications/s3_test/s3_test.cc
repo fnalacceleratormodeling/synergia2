@@ -83,7 +83,7 @@ int run()
 
     screen(LoggerV::DEBUG) << "\n\npopulated\n";
 
-    for (int p=0; p<local_num; ++p)
+    for (int p=0; p<4; ++p)
     {
         screen(LoggerV::DEBUG)
             << hparts(p, 0) << ", "
@@ -93,6 +93,7 @@ int run()
             << hparts(p, 4) << ", "
             << hparts(p, 5) << "\n";
     }
+    screen << "\n";
 
     // propagate
     sim.set_turns(0, 1);
@@ -103,7 +104,7 @@ int run()
     screen(LoggerV::DEBUG) << "\n\npropagated\n";
     std::cout.precision(10);
 
-    for (int p=0; p<local_num; ++p)
+    for (int p=0; p<4; ++p)
     {
         screen(LoggerV::DEBUG)
             << hparts(p, 0) << ", "
@@ -113,6 +114,7 @@ int run()
             << hparts(p, 4) << ", "
             << hparts(p, 5) << "\n";
     }
+    screen << "\n";
 
     return 0;
 }

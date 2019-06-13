@@ -39,7 +39,7 @@ target_link_libraries(synergia
     synergia_lattice 
     synergia_simulation
     synergia_distributed_fft 
-    synergia_collective
+    #synergia_collective
     )
 
 install(TARGETS synergia DESTINATION ${LIB_INSTALL_DIR})

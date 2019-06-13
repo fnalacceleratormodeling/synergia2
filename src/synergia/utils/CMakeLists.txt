@@ -118,5 +118,5 @@ if (BUILD_PYTHON_BINDINGS)
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 endif ()
 
-add_subdirectory(tests)
+#add_subdirectory(tests)
 
