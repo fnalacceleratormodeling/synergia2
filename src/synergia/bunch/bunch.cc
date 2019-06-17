@@ -1341,6 +1341,25 @@ void Bunch::check_pz2_positive()
     checkin_particles();
 }
 
+void Bunch::print_particle(size_t idx, Logger & logger) const
+{
+    auto flags = std::cout.flags();
+
+    logger(LoggerV::DEBUG)
+        << std::resetiosflags(std::ios::fixed)
+        << std::setiosflags(std::ios::showpos | std::ios::scientific)
+        << std::setprecision(8)
+        << std::setw(12) << hparts(idx, 0) << ", "
+        << std::setw(12) << hparts(idx, 1) << ", "
+        << std::setw(12) << hparts(idx, 2) << ", "
+        << std::setw(12) << hparts(idx, 3) << ", "
+        << std::setw(12) << hparts(idx, 4) << ", "
+        << std::setw(12) << hparts(idx, 5) << "\n"
+        ;
+
+    std::cout.flags(flags);
+}
+
 #if 0
 template<class Archive>
 void

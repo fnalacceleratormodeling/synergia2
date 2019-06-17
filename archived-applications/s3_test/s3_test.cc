@@ -82,17 +82,7 @@ int run()
     bunch.checkout_particles();
 
     screen(LoggerV::DEBUG) << "\n\npopulated\n";
-
-    for (int p=0; p<4; ++p)
-    {
-        screen(LoggerV::DEBUG)
-            << hparts(p, 0) << ", "
-            << hparts(p, 1) << ", "
-            << hparts(p, 2) << ", "
-            << hparts(p, 3) << ", "
-            << hparts(p, 4) << ", "
-            << hparts(p, 5) << "\n";
-    }
+    for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
 
     // propagate
@@ -102,18 +92,7 @@ int run()
     bunch.checkout_particles();
 
     screen(LoggerV::DEBUG) << "\n\npropagated\n";
-    std::cout.precision(10);
-
-    for (int p=0; p<4; ++p)
-    {
-        screen(LoggerV::DEBUG)
-            << hparts(p, 0) << ", "
-            << hparts(p, 1) << ", "
-            << hparts(p, 2) << ", "
-            << hparts(p, 3) << ", "
-            << hparts(p, 4) << ", "
-            << hparts(p, 5) << "\n";
-    }
+    for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
 
     return 0;

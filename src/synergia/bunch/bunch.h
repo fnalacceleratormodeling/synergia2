@@ -13,6 +13,7 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/restrict_extension.h"
+#include "synergia/utils/logger.h"
 
 #include <Kokkos_Core.hpp>
 
@@ -299,6 +300,8 @@ public:
 
     void checkin_particles()
     { Kokkos::deep_copy(parts, hparts); }
+
+    void print_particle(size_t idx, Logger & logger) const;
 
 
     /// Get the particle charge in units of e.
