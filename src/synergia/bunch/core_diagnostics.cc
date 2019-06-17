@@ -100,14 +100,14 @@ namespace core_diagnostics_impl
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<mean_tag>::operator()   (const int i, value_type sum) const
     { 
-        for (int j=0; j<value_count; ++j) sum[j] = p(i, j); 
+        for (int j=0; j<value_count; ++j) sum[j] += p(i, j); 
     }
 
     template<>
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<z_mean_tag>::operator() (const int i, value_type sum) const
     { 
-        sum[0] = p(i, 4);
+        sum[0] += p(i, 4);
     }
 
     template<>
@@ -115,7 +115,7 @@ namespace core_diagnostics_impl
     void particle_reducer<std_tag>::operator()    (const int i, value_type sum) const
     { 
         for (int j=0; j<value_count; ++j) 
-            sum[j] = (p(i, j) - dev_mean(j)) * (p(i, j) - dev_mean(j)); 
+            sum[j] += (p(i, j) - dev_mean(j)) * (p(i, j) - dev_mean(j)); 
     }
 
     template<>
