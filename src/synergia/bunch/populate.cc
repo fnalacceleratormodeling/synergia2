@@ -112,7 +112,10 @@ adjust_moments( Bunch & bunch,
     karray2d bunch_mom2 = Core_diagnostics::calculate_mom2(bunch, bunch_mean);
 
     int num_particles = bunch.get_local_num();
-    int num_particles_slots = bunch.get_local_num_slots();
+    //int num_particles_slots = bunch.get_local_num_slots();
+
+    auto strides = bunch.get_particle_strides();
+    int num_particles_slots = strides[1];
 
     adjust_moments_eigen(
             means.data(),
