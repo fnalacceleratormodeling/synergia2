@@ -303,6 +303,13 @@ public:
 
     void print_particle(size_t idx, Logger & logger) const;
 
+    std::array<size_t, 2> get_particle_strides() const
+    { 
+        std::array<size_t, 2> strides;
+        parts.stride(strides.data());
+        return strides;
+    }
+
 
     /// Get the particle charge in units of e.
     int get_particle_charge() const;
