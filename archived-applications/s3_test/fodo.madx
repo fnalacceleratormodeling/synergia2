@@ -1,0 +1,24 @@
+
+beam, particle=proton,pc=3.0;
+
+o: drift, l=8.0;
+f: quadrupole, l=2.0, k1=0.071428571428571425;
+d: quadrupole, l=2.0, k1=-0.071428571428571425;
+
+fodo: sequence, l=20.0, refer=entry;
+fodo_1: f, at=0.0;
+fodo_2: o, at=2.0;
+fodo_3: d, at=10.0;
+fodo_4: o, at=12.0;
+endsequence;
+
+o1: drift, l=1.0;
+o2: drift, l=0.8;
+q1: quadrupole, l=1.0, k1=0.02, k1s=0.03;
+
+oqo: sequence, l=2.8, refer=entry;
+oqo_1: o1, at=0.0;
+oqo_2: q1, at=1.0;
+oqo_3: o2, at=2.0;
+endsequence;
+
