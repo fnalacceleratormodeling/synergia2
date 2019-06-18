@@ -3,6 +3,7 @@
 #include "synergia/simulation/propagator.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/populate.h"
+#include "synergia/lattice/madx_reader.h"
 
 
 
@@ -10,6 +11,7 @@ int run()
 {
     Logger screen(0, LoggerV::DEBUG);
 
+#if 0
     // Lattice
     Lattice lattice("test");
 
@@ -29,6 +31,11 @@ int run()
     Lattice_element e3("drift", "d2");
     e3.set_double_attribute("l", 0.8);
     lattice.append(e3);
+#endif
+
+    MadX_reader reader;
+    auto lattice = reader.get_lattice("oqo", "fodo.madx");
+    auto const & ref = lattice.get_reference_particle();
 
     lattice.print(screen);
 

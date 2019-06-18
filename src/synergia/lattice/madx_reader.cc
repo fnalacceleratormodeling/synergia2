@@ -4,10 +4,10 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/four_momentum.h"
 #include "synergia/foundation/reference_particle.h"
-#include "synergia/lattice/madx_adaptor_map.h"
 
 #include <stdexcept>
 #include <algorithm>
+#include <iomanip>
 
 using namespace synergia;
 
@@ -15,7 +15,7 @@ using namespace synergia;
 namespace
 {
 
-  void insert_line( Lattice_sptr lattice_sptr,
+  void insert_line( Lattice & lattice,
                     MadX const & mx,
                     std::string const & line_name )
   {
@@ -32,25 +32,37 @@ namespace
 
       for (std::vector<std::string>::const_iterator it = attr_names.begin();
            it != attr_names.end(); ++it) 
+      for (auto const & name : attr_names)
       {
-        MadX_value_type vt = cmd.attribute_type(*it);
+        MadX_value_type vt = cmd.attribute_type(name);
 
         switch( vt ) 
         {
           case NONE:
-          case STRING: element.set_string_attribute(*it, cmd.attribute_as_string(*it, "")); break;
-          case NUMBER: element.set_double_attribute(*it, cmd.attribute_as_number(*it, 0.0)); break;
-          case ARRAY:  element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it, 0.0)); break;
+
+          case STRING: 
+            element.set_string_attribute(name, cmd.attribute_as_string(name, "")); 
+            break;
+
+          case NUMBER: 
+            element.set_double_attribute(name, cmd.attribute_as_number(name, 0.0)); 
+            break;
+
+          case ARRAY:  
+            element.set_vector_attribute(name, cmd.attribute_as_number_seq(name, 0.0)); 
+            break;
+
           default:
-            throw std::runtime_error( "unable to process attribute " + *it + " of element " + name);
+            throw std::runtime_error( 
+                    "unable to process attribute " + name + " of element " + name);
         }
       }
 
-      lattice_sptr->append(element);
+      lattice.append(element);
     }
   }
 
-  double insert_sequence( Lattice_sptr lattice_sptr, 
+  double insert_sequence( Lattice & lattice, 
                           MadX const & mx, 
                           std::string const & line_name )
   {
@@ -68,7 +80,8 @@ namespace
     else if( ref==SEQ_REF_CENTRE) r = 0.5;
     else                          r = 0.0;
 
-    for (int i = 0; i < sequence.element_count(); ++i) {
+    for (int i = 0; i < sequence.element_count(); ++i) 
+    {
 
       double at = sequence.element_at(i);
       double from = sequence.element_from(i);
@@ -76,7 +89,7 @@ namespace
 
       if( sequence.element_type(i)==ENTRY_SEQUENCE )
       {
-        double l = insert_sequence( lattice_sptr, mx, label );
+        double l = insert_sequence( lattice, mx, label );
         current_pos = at + from + l;  // sub-sequence always refer to the entry point
 
         continue;
@@ -105,8 +118,8 @@ namespace
           element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it, 0.0));
           break;
         default:
-          throw std::runtime_error( "unable to process attribute " + *it
-                                    + " of element " + name);
+          throw std::runtime_error( 
+                  "unable to process attribute " + *it + " of element " + name);
         }
       }
 
@@ -122,10 +135,10 @@ namespace
         name_stream << drift_count;
         Lattice_element drift("drift", name_stream.str());
         drift.set_double_attribute("l", drift_length, false);
-        lattice_sptr->append(drift);
+        lattice.append(drift);
         ++drift_count;
       }
-      lattice_sptr->append(element);
+      lattice.append(element);
       current_pos = at + from + element.get_length() * r;
     }
 
@@ -141,7 +154,7 @@ namespace
       name_stream << drift_count;
       Lattice_element drift("drift", name_stream.str());
       drift.set_double_attribute("l", final_drift_length, false);
-      lattice_sptr->append(drift);
+      lattice.append(drift);
       ++drift_count;
     }
 
@@ -149,121 +162,100 @@ namespace
   }
 
 
-}
-
-
-void
-MadX_reader::extract_reference_particle(Lattice & lattice)
-{
-    try {
-        synergia::MadX_command command(madx_sptr->command("beam"));
-        std::vector < std::string > attributes(command.attribute_names());
-        double mass = 0, charge = 0, energy = 0, pc = 0, gamma = 0;
-        for (std::vector<std::string >::const_iterator it = attributes.begin();
-                it != attributes.end(); ++it) {
-            if (*it == "particle") {
-                std::string particle(command.attribute_as_string(*it));
-                if (particle == "proton") {
-                    mass = pconstants::mp;
-                    charge = pconstants::proton_charge;
-                } else if (particle == "antiproton") {
-                    mass = pconstants::mp;
-                    charge = pconstants::antiproton_charge;
-                } else if (particle == "electron") {
-                    mass = pconstants::me;
-                    charge = pconstants::electron_charge;
-                } else if (particle == "positron") {
-                    mass = pconstants::me;
-                    charge = pconstants::positron_charge;
-                } else if (particle == "negmuon") {
-                    mass = pconstants::mmu;
-                    charge = pconstants::muon_charge;
-                } else if (particle == "posmuon") {
-                    mass = pconstants::mmu;
-                    charge = pconstants::antimuon_charge;
+    void extract_reference_particle( Lattice & lattice,
+                                     MadX const & mx )
+    {
+        try {
+            synergia::MadX_command command(mx.command("beam"));
+            std::vector < std::string > attributes(command.attribute_names());
+            double mass = 0, charge = 0, energy = 0, pc = 0, gamma = 0;
+            for (std::vector<std::string >::const_iterator it = attributes.begin();
+                    it != attributes.end(); ++it) {
+                if (*it == "particle") {
+                    std::string particle(command.attribute_as_string(*it));
+                    if (particle == "proton") {
+                        mass = pconstants::mp;
+                        charge = pconstants::proton_charge;
+                    } else if (particle == "antiproton") {
+                        mass = pconstants::mp;
+                        charge = pconstants::antiproton_charge;
+                    } else if (particle == "electron") {
+                        mass = pconstants::me;
+                        charge = pconstants::electron_charge;
+                    } else if (particle == "positron") {
+                        mass = pconstants::me;
+                        charge = pconstants::positron_charge;
+                    } else if (particle == "negmuon") {
+                        mass = pconstants::mmu;
+                        charge = pconstants::muon_charge;
+                    } else if (particle == "posmuon") {
+                        mass = pconstants::mmu;
+                        charge = pconstants::antimuon_charge;
+                    }
+                } else if (*it == "mass") {
+                    mass = command.attribute_as_number(*it);
+                } else if (*it == "charge") {
+                    charge = command.attribute_as_number(*it);
+                } else if (*it == "energy") {
+                    energy = command.attribute_as_number(*it);
+                } else if (*it == "pc") {
+                    pc = command.attribute_as_number(*it);
+                } else if (*it == "gamma") {
+                    gamma = command.attribute_as_number(*it);
                 }
-            } else if (*it == "mass") {
-                mass = command.attribute_as_number(*it);
-            } else if (*it == "charge") {
-                charge = command.attribute_as_number(*it);
-            } else if (*it == "energy") {
-                energy = command.attribute_as_number(*it);
-            } else if (*it == "pc") {
-                pc = command.attribute_as_number(*it);
-            } else if (*it == "gamma") {
-                gamma = command.attribute_as_number(*it);
             }
+            Four_momentum four_momentum(mass);
+            if (energy > 0) {
+                four_momentum.set_total_energy(energy);
+            }
+            if (pc > 0) {
+                four_momentum.set_momentum(pc);
+            }
+            if (gamma > 0) {
+                four_momentum.set_gamma(gamma);
+            }
+            Reference_particle reference_particle((int)charge, four_momentum);
+            lattice.set_reference_particle(reference_particle);
         }
-        Four_momentum four_momentum(mass);
-        if (energy > 0) {
-            four_momentum.set_total_energy(energy);
+        catch( ... ) {
         }
-        if (pc > 0) {
-            four_momentum.set_momentum(pc);
-        }
-        if (gamma > 0) {
-            four_momentum.set_gamma(gamma);
-        }
-        Reference_particle reference_particle((int)charge, four_momentum);
-        lattice.set_reference_particle(reference_particle);
-    }
-    catch( ... ) {
     }
 }
 
-MadX_reader::MadX_reader() :
-        element_adaptor_map_sptr(new MadX_adaptor_map)
-{
-}
-
-MadX_reader::MadX_reader(Element_adaptor_map_sptr element_adaptor_map_sptr) :
-        element_adaptor_map_sptr(element_adaptor_map_sptr)
+MadX_reader::MadX_reader()
+    : madx()
 {
 }
 
 void
 MadX_reader::parse(std::string const& string)
 {
-    madx_sptr = boost::shared_ptr<MadX >(new MadX());
-    synergia::parse_madx(string, *madx_sptr);
+    synergia::parse_madx(string, madx);
 }
 
 void
 MadX_reader::parse_file(std::string const& filename)
 {
-    madx_sptr = boost::shared_ptr<MadX >(new MadX());
-    synergia::parse_madx_file(filename, *madx_sptr);
+    synergia::parse_madx_file(filename, madx);
 }
 
 std::vector<std::string >
 MadX_reader::get_line_names() const
 {
-    if (!madx_sptr) {
-        throw std::runtime_error(
-                "MadX_reader::get_line_names: nothing has been parsed");
-    }
-    return madx_sptr->line_labels();
+    return madx.line_labels();
 }
 
 std::vector<std::string >
 MadX_reader::get_sequence_names() const
 {
-    if (!madx_sptr) {
-        throw std::runtime_error(
-                "MadX_reader::get_sequence_names: nothing has been parsed");
-    }
-    return madx_sptr->sequence_labels();
+    return madx.sequence_labels();
 }
 
 std::vector<std::string >
 MadX_reader::get_all_names() const
 {
-    if (!madx_sptr) {
-        throw std::runtime_error(
-                "MadX_reader::get_all_names: nothing has been parsed");
-    }
-    std::vector < std::string > retval(madx_sptr->line_labels());
-    std::vector < std::string > sequence_labels(madx_sptr->sequence_labels());
+    std::vector < std::string > retval(madx.line_labels());
+    std::vector < std::string > sequence_labels(madx.sequence_labels());
     for (std::vector<std::string >::const_iterator it = sequence_labels.begin();
             it != sequence_labels.end(); ++it) {
         retval.push_back(*it);
@@ -274,72 +266,49 @@ MadX_reader::get_all_names() const
 double
 MadX_reader::get_double_variable(std::string const& name) const
 {
-    if (!madx_sptr) {
-        throw std::runtime_error(
-                "MadX_reader::get_line_names: nothing has been parsed");
-    }
-    return madx_sptr->variable_as_number(name);
+    return madx.variable_as_number(name);
 }
 
 std::string
 MadX_reader::get_string_variable(std::string const& name) const
 {
-    if (!madx_sptr) {
-        throw std::runtime_error(
-                "MadX_reader::get_line_names: nothing has been parsed");
-    }
-    return madx_sptr->variable_as_string(name);
+    return madx.variable_as_string(name);
 }
 
-Lattice_sptr
-MadX_reader::get_lattice_sptr(std::string const& line_name)
+Lattice
+MadX_reader::get_lattice(std::string const& line_name)
 {
-    if (!madx_sptr) {
-        throw std::runtime_error(
-                "MadX_reader::get_lattice_sptr: nothing has been parsed");
-    }
+    Lattice lattice(line_name);
 
-    Lattice_sptr lattice_sptr(new Lattice(line_name, element_adaptor_map_sptr));
-
-    bool found_line(false), found_sequence(false);
-
-    std::vector < std::string > lines(madx_sptr->line_labels());
-    std::vector<std::string >::const_iterator it = std::find(lines.begin(),
-            lines.end(), line_name);
-    if (it != lines.end()) {
-        found_line = true;
-    } else {
-        std::vector < std::string > sequences(madx_sptr->sequence_labels());
-        std::vector<std::string >::const_iterator it = std::find(
-                sequences.begin(), sequences.end(), line_name);
-        if (it != lines.end()) {
-            found_sequence = true;
-        } else {
+    std::vector<std::string> lines(madx.line_labels());
+    if (std::find(lines.begin(), lines.end(), line_name) != lines.end())
+    {
+        insert_line( lattice, madx, line_name );
+    } 
+    else 
+    {
+        std::vector<std::string> seq(madx.sequence_labels());
+        if (std::find(seq.begin(), seq.end(), line_name) != seq.end())
+        {
+            insert_sequence( lattice, madx, line_name );
+        } 
+        else 
+        {
             throw std::runtime_error(
-                    "MadX_reader::get_lattice_sptr: cannot find line or sequence with label " + line_name);
+                    "MadX_reader::get_lattice: "
+                    "cannot find line or sequence with label " + line_name );
         }
     }
-    if (found_line) {
 
-        insert_line( lattice_sptr, *madx_sptr, line_name );
-    }
-    if (found_sequence) {
-
-        insert_sequence( lattice_sptr, *madx_sptr, line_name );
-    }
-    extract_reference_particle(*lattice_sptr);
-    return lattice_sptr;
+    extract_reference_particle(lattice, madx);
+    return lattice;
 }
 
-Lattice_sptr
-MadX_reader::get_lattice_sptr(std::string const& line_name,
+Lattice
+MadX_reader::get_lattice(std::string const& line_name,
         std::string const& filename)
 {
     parse_file(filename);
-    return get_lattice_sptr(line_name);
+    return get_lattice(line_name);
 }
 
-MadX_reader::~MadX_reader()
-{
-
-}

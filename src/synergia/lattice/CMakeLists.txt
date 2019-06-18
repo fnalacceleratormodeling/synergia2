@@ -23,11 +23,11 @@ add_library(synergia_lattice
     #mad8_adaptor_map.cc 
     #madx_adaptor_map.cc
     #lattice_diagnostics.cc
-    #madx.cc 
-    #mx_expr.cc  
-    #mx_parse.cc  
-    #mx_tree.cc
-    #madx_reader.cc 
+    madx.cc 
+    mx_expr.cc  
+    mx_parse.cc  
+    mx_tree.cc
+    madx_reader.cc 
     #diagnostics_apertures_loss.cc
     )
 
