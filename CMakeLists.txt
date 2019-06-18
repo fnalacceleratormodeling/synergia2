@@ -237,12 +237,13 @@ if ( (NOT BUILD_SHARED_LIBS) AND BUILD_PYTHON_BINDINGS )
   message(WARNING "Static library build selected, ignored for python bindings")
 endif ()
 
+if(NOT TARGET test-exes)
+  add_custom_target(test-exes)
+endif()
+
 function(add_test_executable name)
 #  add_executable(${name} EXCLUDE_FROM_ALL ${ARGN})
   add_executable(${name} ${ARGN})
-  if(NOT TARGET test-exes)
-    add_custom_target(test-exes)
-  endif()
   add_dependencies(test-exes ${name})
 endfunction()
 
