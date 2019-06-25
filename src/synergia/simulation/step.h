@@ -28,6 +28,13 @@ public:
         return *(dynamic_cast<Independent_operator*>(operators.back().get()));
     }
 
+    template<class COO>
+    void append_collective(COO ops)
+    { 
+        operators.emplace_back(
+                std::make_unique<typename COO::Operator>(ops)); 
+    }
+
     void apply(Bunch_simulator & simulator, Logger & logger) const;
     void create_operations(Lattice const & lattice);
    

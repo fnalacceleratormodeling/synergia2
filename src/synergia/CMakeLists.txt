@@ -11,7 +11,7 @@ add_subdirectory(lattice)
 add_subdirectory(libFF)
 add_subdirectory(simulation)
 #add_subdirectory(optics)
-#add_subdirectory(collective)
+add_subdirectory(collective)
 add_subdirectory(tools)
 
 if (BUILD_PYTHON_BINDINGS)

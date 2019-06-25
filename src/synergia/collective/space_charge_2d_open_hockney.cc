@@ -1,15 +1,215 @@
+
 #include "space_charge_2d_open_hockney.h"
+
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/math_constants.h"
-using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"
-using pconstants::epsilon0;
-#include "deposit.h"
-#include "interpolate_rectangular_zyx.h"
-#include "synergia/utils/multi_array_offsets.h"
-#include "synergia/utils/simple_timer.h"
-#include "synergia/utils/hdf5_writer.h"
 
+#include "deposit.h"
+
+//#include "interpolate_rectangular_zyx.h"
+//#include "synergia/utils/multi_array_offsets.h"
+//#include "synergia/utils/simple_timer.h"
+//#include "synergia/utils/hdf5_writer.h"
+
+using mconstants::pi;
+using pconstants::epsilon0;
+
+namespace
+{
+    double
+    get_smallest_non_tiny( double val, 
+                           double other1, 
+                           double other2, 
+                           double tiny )
+    {
+        double retval;
+        if (val > tiny) 
+        {
+            retval = val;
+        } 
+        else 
+        {
+            if ((other1 > tiny) && (other2 > tiny)) 
+            {
+                retval = std::min(other1, other2);
+            } 
+            else 
+            {
+                retval = std::max(other1, other2);
+            }
+        }
+
+        return retval;
+    }
+}
+
+
+Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
+        Space_charge_2d_open_hockney_options ops)
+    : Collective_operator("sc_2d_open_hockney", 1.0)
+    , options(ops)
+    , domain(ops.shape, {1.0, 1.0, 1.0})
+    , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
+{
+}
+
+void 
+Space_charge_2d_open_hockney::apply_impl(
+            Bunch_simulator & simulator, 
+            double time_step, 
+            Logger & logger)
+{
+    logger << "    Space charge 2d open hockney\n";
+    apply_bunch(simulator[0][0], time_step, logger);
+
+#if 0
+    if (bunch.get_total_num() <= 1) return;
+
+    //setup_communication(bunch.get_comm_sptr());
+
+    double t, t_total;
+    t_total = simple_timer_current();
+    t = t_total;
+
+    //update_domain(bunch);
+    t = simple_timer_show(t, "get_local_rho-update_domain");
+
+    auto local_rho = get_local_charge_density(bunch); // [C/m^3]
+    t = simple_timer_show(t, "sc2doh-get_local_rho");
+
+    auto rho2 = get_global_charge_density2(local_rho, bunch.get_comm());
+    t = simple_timer_show(t, "sc2doh-get_global_rho");
+
+    auto G2 = get_green_fn2_pointlike();
+    t = simple_timer_show(t, "sc2doh-get_green_fn");
+
+    auto local_force2 = get_local_force2(rho2, G2); // [N]
+    t = simple_timer_show(t, "sc2doh-get_local_force");
+
+    auto Fn = get_global_electric_force2(local_force2); // [N]
+    t = simple_timer_show(t, "sc2doh-get_global_force");
+
+    apply_kick(bunch, rho2, Fn, time_step);
+    t = simple_timer_show(t, "sc2doh-apply_kick");
+
+    t_total = simple_timer_show(t_total, "collective_operator_apply-sc2doh");
+#endif
+}
+
+void
+Space_charge_2d_open_hockney::apply_bunch(
+            Bunch & bunch, 
+            double time_step, 
+            Logger & logger)
+{
+
+    //if (!bunch.get_comm().has_this_rank()) return;
+
+    //setup_communication(bunch.get_comm());
+
+    update_domain(bunch);
+
+    auto local_rho = get_local_charge_density(bunch); // [C/m^3]
+}
+
+void
+Space_charge_2d_open_hockney::update_domain(Bunch const & bunch)
+{
+    auto mean = Core_diagnostics::calculate_mean(bunch);
+    auto std  = Core_diagnostics::calculate_std(bunch, mean);
+
+    const double tiny = 1.0e-10;
+
+    if ((std[Bunch::x] < tiny) 
+            && (std[Bunch::y] < tiny) 
+            && (std[Bunch::z] < tiny)) 
+    {
+        throw std::runtime_error(
+                "Space_charge_3d_open_hockney_eigen::update_domain: "
+                "all three spatial dimensions have neglible extent");
+    }
+
+    std::array<double, 3> offset { 
+        mean[Bunch::x], mean[Bunch::y], mean[Bunch::z] };
+
+    std::array<double, 3> size { 
+        options.n_sigma * get_smallest_non_tiny(
+                std[Bunch::x], std[Bunch::y], std[Bunch::z], tiny),
+        options.n_sigma * get_smallest_non_tiny(
+                std[Bunch::y], std[Bunch::x], std[Bunch::z], tiny),
+        options.n_sigma * get_smallest_non_tiny(
+                std[Bunch::z], std[Bunch::x], std[Bunch::y], tiny) };
+
+    std::array<double, 3> doubled_size { 
+        size[0]*2.0, size[1]*2.0, size[2]*2.0 };
+
+    domain = Rectangular_grid_domain(
+            options.shape, size, offset, false);
+
+    doubled_domain = Rectangular_grid_domain(
+            options.doubled_shape, doubled_size, offset, false);
+}
+
+
+karray1d
+Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
+{
+    particle_bin = karray2d_dev("bin", bunch.get_local_num(), 6);
+    return deposit_charge_rectangular_2d_kokkos(domain, particle_bin, bunch);
+}
+
+#if 0
+Rectangular_grid
+Space_charge_2d_open_hockney::get_global_charge_density2(
+        Rectangular_grid_2d const & rho_xy, 
+        Rectangular_grid_1d const & rho_z, 
+        Commxx_sptr comm_sptr)
+{
+    //setup_communication(comm_sptr);
+
+    int error_2d = MPI_Allreduce(MPI_IN_PLACE,
+            (void*) rho_xy.data(), rho_xy.span() * 2,
+            MPI_DOUBLE, MPI_SUM, comm_sptr->get());
+
+    int error_1d = MPI_Allreduce(MPI_IN_PLACE,
+            (void*)rho_z.data(), rho_z.span(),
+            MPI_DOUBLE, MPI_SUM, comm_sptr->get());
+
+    if ((error_2d != MPI_SUCCESS) || (error_1d != MPI_SUCCESS)) 
+    {
+        throw std::runtime_error(
+                "MPI error in Space_charge_2d_open_hockney::"
+                "get_global_charge_density2_allreduce");
+    }
+
+    Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
+            new Distributed_rectangular_grid(doubled_domain_sptr,
+                    doubled_lower, doubled_upper, doubled_grid_shape,
+                    comm_sptr));
+
+    #pragma omp parallel for
+    for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
+        for (int j = 0; j < doubled_grid_shape[1]; ++j) {
+            rho2->get_grid_points_2dc()[i][j]
+                    = local_charge_density.get_grid_points_2dc()[i][j];
+        }
+    }
+
+    #pragma omp parallel for
+    for (int k = 0; k < doubled_grid_shape[2]; ++k) {
+        rho2->get_grid_points_1d()[k]
+                = local_charge_density.get_grid_points_1d()[k];
+    }
+
+    rho2->set_normalization(1.0);
+
+    return rho2;
+}
+#endif
+
+
+#if 0
 void
 Space_charge_2d_open_hockney::setup_communication(
         Commxx_sptr const& bunch_comm_sptr)
@@ -80,15 +280,13 @@ void
 Space_charge_2d_open_hockney::setup_default_options()
 {
     set_green_fn_type(pointlike);
-    set_charge_density_comm(charge_allreduce);
-    set_e_force_comm(e_force_allreduce);
 }
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Commxx_divider_sptr commxx_divider_sptr, std::vector<int > const & grid_shape,
         bool need_state_conversion, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-                Collective_operator("space charge 2D open hockney"),
+                Collective_operator("space charge 2D open hockney", 1.0),
                 grid_shape(3),
                 doubled_grid_shape(3),
                 periodic_z(periodic_z),
@@ -110,12 +308,15 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         throw std::runtime_error(
                 "Space_charge_2d_open_hockney: periodic_z must be FALSE");
     }
+
     // no xyz->zyx transformation in 2D version
     for (int i = 0; i < 3; ++i) {
         this->grid_shape[i] = grid_shape[i];
         doubled_grid_shape[i] = 2 * this->grid_shape[i];
     }
+
     doubled_grid_shape[2] = this->grid_shape[2];
+
     //distributed_fft2d_sptr = Distributed_fft2d_sptr(
     //        new Distributed_fft2d(doubled_grid_shape, comm_sptr));
     //setup_nondoubled_communication();
@@ -161,120 +362,6 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
 }
 
 
-//Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
-//        Distributed_fft2d_sptr distributed_fft2d_sptr,
-//        bool need_state_conversion, bool periodic_z, double z_period,
-//        bool grid_entire_period, double n_sigma) :
-//        Collective_operator("space charge"), grid_shape(3),
-//                doubled_grid_shape(3), periodic_z(periodic_z),
-//                z_period(z_period), grid_entire_period(grid_entire_period),
-//                distributed_fft2d_sptr(distributed_fft2d_sptr),
-//                comm2_sptr(distributed_fft2d_sptr->get_comm_sptr()),
-//                n_sigma(n_sigma), domain_fixed(false), have_domains(false),
-//                need_state_conversion(need_state_conversion),
-//                use_cell_coords(true), exfile(""), eyfile(""), dumped(true)
-//{
-//    if (this->periodic_z) {
-//        throw std::runtime_error(
-//                "Space_charge_2d_open_hockney: periodic_z must be FALSE");
-//    }
-//    doubled_grid_shape = distributed_fft2d_sptr->get_shape();
-//    for (int i = 0; i < 2; ++i) {
-//        grid_shape[i] = doubled_grid_shape[i] / 2;
-//    }
-//    grid_shape[2] = doubled_grid_shape[2];
-//    setup_nondoubled_communication();
-//    setup_default_options();
-//}
-
-Space_charge_2d_open_hockney::Space_charge_2d_open_hockney()
-{
-}
-
-Space_charge_2d_open_hockney *
-Space_charge_2d_open_hockney::clone()
-{
-    return new Space_charge_2d_open_hockney(*this);
-}
-
-bool
-Space_charge_2d_open_hockney::get_need_state_conversion()
-{
-    return need_state_conversion;
-}
-
-double
-Space_charge_2d_open_hockney::get_n_sigma() const
-{
-    return n_sigma;
-}
-
-void
-Space_charge_2d_open_hockney::set_green_fn_type(Green_fn_type green_fn_type)
-{
-    switch (green_fn_type) {
-    case pointlike:
-        break;
-    case bruteforce:
-        break;
-    default:
-        throw runtime_error(
-                "Space_charge_2d_open_hockney::set_green_fn_type: invalid green_fn_type");
-    }
-    this->green_fn_type = green_fn_type;
-}
-
-Space_charge_2d_open_hockney::Green_fn_type
-Space_charge_2d_open_hockney::get_green_fn_type() const
-{
-    return green_fn_type;
-}
-
-void
-Space_charge_2d_open_hockney::set_charge_density_comm(
-        Charge_density_comm charge_density_comm)
-{
-    switch (charge_density_comm) {
-    case reduce_scatter:
-        break;
-    case charge_allreduce:
-        break;
-    default:
-        throw runtime_error(
-                "Space_charge_2d_open_hockney::set_charge_density_comm: invalid charge_density_comm");
-    }
-    this->charge_density_comm = charge_density_comm;
-}
-
-Space_charge_2d_open_hockney::Charge_density_comm
-Space_charge_2d_open_hockney::get_charge_density_comm() const
-{
-    return charge_density_comm;
-}
-
-void
-Space_charge_2d_open_hockney::set_e_force_comm(E_force_comm e_force_comm)
-{
-    switch (e_force_comm) {
-    case gatherv_bcast:
-        break;
-    case allgatherv:
-        break;
-    case e_force_allreduce:
-        break;
-    default:
-        throw runtime_error(
-                "Space_charge_2d_open_hockney::set_e_force_comm: invalid e_force_comm");
-    }
-
-    this->e_force_comm = e_force_comm;
-}
-
-Space_charge_2d_open_hockney::E_force_comm
-Space_charge_2d_open_hockney::get_e_force_comm() const
-{
-    return e_force_comm;
-}
 
 void
 Space_charge_2d_open_hockney::set_doubled_domain()
@@ -358,33 +445,15 @@ Space_charge_2d_open_hockney::update_domain(Bunch const& bunch)
     }
 }
 
-Rectangular_grid_domain_sptr
-Space_charge_2d_open_hockney::get_domain_sptr() const
-{
-    if (!have_domains) {
-        throw runtime_error(
-                "Space_charge_2d_open_hockney::get_domain_sptr: domain not set");
-    }
-    return domain_sptr;
-}
-
-Rectangular_grid_domain_sptr
-Space_charge_2d_open_hockney::get_doubled_domain_sptr() const
-{
-    if (!have_domains) {
-        throw runtime_error(
-                "Space_charge_2d_open_hockney::get_doubled_domain_sptr: domain not set");
-    }
-    return doubled_domain_sptr;
-}
 
 Rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
-    double t;
-    t = simple_timer_current();
+    double t = simple_timer_current();
+
     update_domain(bunch);
     t = simple_timer_show(t, "get_local_rho-update_domain");
+
     bunch_particle_charge = bunch.get_particle_charge();
     bunch_total_num = bunch.get_total_num();
     beta = bunch.get_reference_particle().get_beta();
@@ -392,80 +461,29 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(doubled_domain_sptr));
     t = simple_timer_show(t, "get_local_rho-setup");
-    if (!use_cell_coords) {
+
+    if (!use_cell_coords) 
+    {
         deposit_charge_rectangular_2d(*local_rho_sptr, bunch);
-    } else {
+    } 
+    else 
+    {
         particle_bin_sptr
                 = boost::shared_ptr<Raw_MArray2d >(
                         new Raw_MArray2d(boost::extents[bunch.get_local_num()][6]));
         deposit_charge_rectangular_2d_omp_reduce(*local_rho_sptr, *particle_bin_sptr,
                 bunch);
     }
+
     t = simple_timer_show(t, "get_local_rho-deposit");
 
     return local_rho_sptr;
 }
 
 Distributed_rectangular_grid_sptr
-Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
-        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
-{
-    setup_communication(comm_sptr);
-    // jfa: here is where we do something complicated, but (potentially) efficient
-    // in calculating a version of the charge density that is just global enough
-    // to fill in the doubled global charge density
-    // dest_array stores the portion of global charge density needed on each
-    // processor. It has to have the same shape in the non-distributed
-    // dimensions as the charge density in order to work with MPI_Reduce_scatter.
-    const std::complex<double > * source_2dc
-            = local_charge_density.get_grid_points_2dc().origin();
-    Raw_MArray2dc dest_array_2dc(boost::extents[extent_range(doubled_lower,
-            doubled_upper)][doubled_grid_shape[1]]);
-    std::complex<double > * dest_2dc = multi_array_offset(dest_array_2dc.m, doubled_lower, 0);
-    int error_2dc = MPI_Reduce_scatter((void *) source_2dc, (void *) dest_2dc,
-            &real_lengths[0], MPI_DOUBLE_COMPLEX, MPI_SUM, comm_sptr->get());
-
-    int error_1d = MPI_Allreduce(MPI_IN_PLACE,
-            (void*) local_charge_density.get_grid_points_1d().origin(),
-            local_charge_density.get_grid_points_1d().num_elements(),
-            MPI_DOUBLE, MPI_SUM, comm_sptr->get());
-#if 0
-    const double * source_1d
-            = local_charge_density.get_grid_points_1d().origin();
-    double * dest_1d;
-    MArray1d dest_array_1d(boost::extents[1]);
-    dest_array_1d.resize(boost::extents[doubled_grid_shape[2]]);
-    dest_1d = multi_array_offset(dest_array_1d, 0);
-
-    int error_1d = MPI_Reduce_scatter((void *) source_1d, (void *) dest_1d,
-            &real_lengths_1d[0], MPI_DOUBLE, MPI_SUM, comm2_sptr->get());
-#endif
-
-    if ((error_2dc != MPI_SUCCESS) || (error_1d != MPI_SUCCESS)) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter");
-    }
-    Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
-            new Distributed_rectangular_grid(doubled_domain_sptr,
-                    doubled_lower, doubled_upper, doubled_grid_shape,
-                    comm_sptr));
-    for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
-        for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-            rho2->get_grid_points_2dc()[i][j] = dest_array_2dc.m[i][j];
-        }
-    }
-    for (int k = 0; k < doubled_grid_shape[2]; ++k) {
-        //rho2->get_grid_points_1d()[k] = dest_array_1d[k];
-        rho2->get_grid_points_1d()[k]
-                = local_charge_density.get_grid_points_1d()[k];
-    }
-    rho2->set_normalization(1.0);
-    return rho2;
-}
-
-Distributed_rectangular_grid_sptr
-Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
-        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
+Space_charge_2d_open_hockney::get_global_charge_density2(
+        Rectangular_grid const& local_charge_density, 
+        Commxx_sptr comm_sptr)
 {
     setup_communication(comm_sptr);
     int error_2d = MPI_Allreduce(MPI_IN_PLACE,
@@ -477,14 +495,18 @@ Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
             local_charge_density.get_grid_points_1d().num_elements(),
             MPI_DOUBLE, MPI_SUM, comm_sptr->get());
 
-    if ((error_2d != MPI_SUCCESS) || (error_1d != MPI_SUCCESS)) {
+    if ((error_2d != MPI_SUCCESS) || (error_1d != MPI_SUCCESS)) 
+    {
         throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney::get_global_charge_density2_allreduce");
+                "MPI error in Space_charge_2d_open_hockney::"
+                "get_global_charge_density2_allreduce");
     }
+
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
                     doubled_lower, doubled_upper, doubled_grid_shape,
                     comm_sptr));
+
     #pragma omp parallel for
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
@@ -492,31 +514,16 @@ Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
                     = local_charge_density.get_grid_points_2dc()[i][j];
         }
     }
+
     #pragma omp parallel for
     for (int k = 0; k < doubled_grid_shape[2]; ++k) {
         rho2->get_grid_points_1d()[k]
                 = local_charge_density.get_grid_points_1d()[k];
     }
+
     rho2->set_normalization(1.0);
 
     return rho2;
-}
-
-Distributed_rectangular_grid_sptr
-Space_charge_2d_open_hockney::get_global_charge_density2(
-        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
-{
-    switch (charge_density_comm) {
-    case reduce_scatter:
-        return get_global_charge_density2_reduce_scatter(local_charge_density,
-                comm_sptr);
-    case charge_allreduce:
-        return get_global_charge_density2_allreduce(local_charge_density,
-                comm_sptr);
-    default:
-        throw runtime_error(
-                "Space_charge_2d_open_hockney: invalid charge_density_comm");
-    }
 }
 
 Distributed_rectangular_grid_sptr
@@ -633,70 +640,6 @@ Space_charge_2d_open_hockney::get_local_force2(
     return local_force2;
 }
 
-Rectangular_grid_sptr
-Space_charge_2d_open_hockney::get_global_electric_force2_gatherv_bcast(
-        Distributed_rectangular_grid const& dist_force)
-{
-    Rectangular_grid_sptr global_force2(new Rectangular_grid(
-            doubled_domain_sptr));
-    const int root = 0;
-    int error;
-    if (comm1_sptr->has_this_rank()) {
-        int rank = comm2_sptr->get_rank();
-        error = MPI_Gatherv((void *) (dist_force.get_grid_points_2dc().origin()
-                + lowers1[rank]), lengths1[rank], MPI_DOUBLE_COMPLEX,
-                (void*) global_force2->get_grid_points_2dc().origin(),
-                &lengths1[0], &lowers1[0], MPI_DOUBLE_COMPLEX, root,
-                comm1_sptr->get());
-        if (error != MPI_SUCCESS) {
-            throw std::runtime_error(
-                    "MPI error in Space_charge_2d_open_hockney(MPI_Gatherv)");
-        }
-    }
-    int total_length = doubled_grid_shape[0] * doubled_grid_shape[1];
-    error = MPI_Bcast(global_force2->get_grid_points_2dc().origin(),
-            total_length, MPI_DOUBLE_COMPLEX, root, comm2_sptr->get());
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney(MPI_Bcast)");
-    }
-    global_force2->set_normalization(dist_force.get_normalization());
-
-    return global_force2;
-}
-
-Rectangular_grid_sptr
-Space_charge_2d_open_hockney::get_global_electric_force2_allgatherv(
-        Distributed_rectangular_grid const& dist_force)
-{
-    Rectangular_grid_sptr global_force2(new Rectangular_grid(
-            doubled_domain_sptr));
-    std::vector<int > lowers12(comm2_sptr->get_size());  // lowers1 on comm2
-    std::vector<int > lengths12(comm2_sptr->get_size()); // lengths1 on comm2
-    int size1 = lowers1.size();
-    for (int rank = 0; rank < comm2_sptr->get_size(); ++rank) {
-        if (rank < size1) {
-            lowers12[rank] = lowers1[rank];
-            lengths12[rank] = lengths1[rank];
-        } else {
-            lowers12[rank] = 0;
-            lengths12[rank] = 0;
-        }
-    }
-    int rank = comm2_sptr->get_rank();
-    int error = MPI_Allgatherv((void *) (
-            dist_force.get_grid_points_2dc().origin() + lowers12[rank]),
-            lengths12[rank], MPI_DOUBLE_COMPLEX,
-            (void*) global_force2->get_grid_points_2dc().origin(),
-            &lengths12[0], &lowers12[0], MPI_DOUBLE_COMPLEX, comm2_sptr->get());
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney(MPI_Allgatherv)");
-    }
-    global_force2->set_normalization(dist_force.get_normalization());
-
-    return global_force2;
-}
 
 Rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_global_electric_force2_allreduce(
@@ -851,87 +794,58 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
 }
 
 void
-Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
-        Step & step, int verbosity, Logger & logger)
+Space_charge_2d_open_hockney::apply_impl(
+        Bunch_simulator & simulator,
+        double time_step,
+        Logger & logger )
 {
-    if (bunch.get_total_num() > 1) {
+    if (bunch.get_total_num() > 1) 
+    {
         setup_communication(bunch.get_comm_sptr());
+
         int comm_compare;
         MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare);
+
         if ((comm_compare == MPI_UNEQUAL)
                 && (charge_density_comm != charge_allreduce)) {
             throw std::runtime_error(
                     "Space_charge_2d_open_hockney: set_charge_density_comm(charge_allreduce) required when comm != bunch comm");
         }
+
         double t, t_total;
         t_total = simple_timer_current();
         t = t_total;
-        bunch.convert_to_state(Bunch::fixed_z_lab);
-        t = simple_timer_show(t, "sc2doh-convert_to_state");
-        bunch.periodic_sort(Bunch::z);
-        t = simple_timer_show(t, "sc2doh-sort");
+
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
         t = simple_timer_show(t, "sc2doh-get_local_rho");
+
         Distributed_rectangular_grid_sptr rho2(
                 get_global_charge_density2(*local_rho, bunch.get_comm_sptr())); // [C/m^3]
+
         local_rho.reset();
         t = simple_timer_show(t, "sc2doh-get_global_rho");
+
         Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike());
         t = simple_timer_show(t, "sc2doh-get_green_fn");
-        Distributed_rectangular_grid_sptr local_force2(get_local_force2(*rho2,
-                *G2));        // [N]
+
+        Distributed_rectangular_grid_sptr local_force2(get_local_force2(*rho2, *G2));        // [N]
         G2.reset();
         t = simple_timer_show(t, "sc2doh-get_local_force");
+
         Rectangular_grid_sptr Fn(get_global_electric_force2(*local_force2)); // [N]
         local_force2.reset();
         t = simple_timer_show(t, "sc2doh-get_global_force");
+
         apply_kick(bunch, *rho2, *Fn, time_step);
-        t = simple_timer_show(t, "sc2doh-apply_kick");
         rho2.reset();
-        if (!dumped && exfile != "") {
-            if (comm2_sptr->get_rank() == 0) {
-                Raw_MArray2d Fx(boost::extents[grid_shape[0]][grid_shape[1]]);
-                Raw_MArray2d Fy(boost::extents[grid_shape[0]][grid_shape[1]]);
-                for (int i=0; i<grid_shape[0]; ++i) {
-                    for(int j=0; j<grid_shape[1]; ++j) {
-                        Fx.m[i][j] = Fn->get_grid_points_2dc()[i][j].real();
-                        Fy.m[i][j] = Fn->get_grid_points_2dc()[i][j].imag();
-                    }
-                }
-                std::cout << "jfa: dumping Fx to " << exfile
-                        << std::endl;
-                Hdf5_file fx(exfile, Hdf5_file::truncate);
-                fx.write(Fx.m, "F");
-#if 0
-                Hdf5_writer<MArray2d> wx(fx.get_h5file(), "F");
-                wx.write(Fx.m);
-#endif
-                std::cout << "jfa: dumping Fy to " << exfile
-                        << std::endl;
-                Hdf5_file fy(eyfile, Hdf5_file::truncate);
-                fy.write(Fy.m, "F");
-#if 0
-                Hdf5_writer<MArray2d> wy(fy.get_h5file(), "F");
-                wy.write(Fy.m);
-#endif
-            }
-            dumped = true;
-        }
+        t = simple_timer_show(t, "sc2doh-apply_kick");
+
         Fn.reset();
         t = simple_timer_show(t, "sc2doh-finalize");
+
         t_total = simple_timer_show(t_total, "collective_operator_apply-sc2doh");
     }
 }
+#endif
 
-void
-Space_charge_2d_open_hockney::set_files(std::string const& xfile, std::string const& yfile)
-{
-    this->exfile = xfile;
-    this->eyfile = yfile;
-    dumped = false;
-}
 
-Space_charge_2d_open_hockney::~Space_charge_2d_open_hockney()
-{
-}
-BOOST_CLASS_EXPORT_IMPLEMENT(Space_charge_2d_open_hockney)

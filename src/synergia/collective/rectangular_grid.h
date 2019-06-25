@@ -1,132 +1,144 @@
 #ifndef RECTANGULAR_GRID_H_
 #define RECTANGULAR_GRID_H_
-#include "synergia/collective/rectangular_grid_domain.h"
+
 #include "synergia/utils/multi_array_typedefs.h"
 
-class Rectangular_grid
+
+class Rectangular_grid_1d
 {
+
 private:
-    Rectangular_grid_domain_sptr domain_sptr;
-    boost::shared_ptr<Raw_MArray3d > grid_points_sptr;
-    boost::shared_ptr<Raw_MArray2dc > grid_points_2dc_sptr;
-    boost::shared_ptr<Raw_MArray1d > grid_points_1d_sptr;
+
+    using kokkos_noinit = Kokkos::ViewAllocateWithoutInitializing;
+
+    karray1d_row_dev grid_;
+    karray1d_row_hst hgrid_;
+
     double normalization;
-    storage3d storage;
+
 public:
-    Rectangular_grid(std::vector<double > const & physical_size, std::vector<
-            double > const & physical_offset,
-            std::vector<int > const & grid_shape, bool periodic_z, storage3d storage=boost::c_storage_order());
-    Rectangular_grid(
-            Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, storage3d storage=boost::c_storage_order());
-    Rectangular_grid_domain const&
-    get_domain() const
-    {
-        return *domain_sptr;
-    }
-    Rectangular_grid_domain &
-    get_domain()
-    {
-        return *domain_sptr;
-    }
-    Rectangular_grid_domain_sptr
-    get_domain_sptr() const;
-    Rectangular_grid_domain_sptr
-    get_domain_sptr();
-    MArray3d_ref const&
-    get_grid_points() const;
-    MArray3d_ref &
-    get_grid_points();
-    MArray2dc_ref const&
-    get_grid_points_2dc() const;
-    MArray2dc_ref &
-    get_grid_points_2dc();
-    MArray1d_ref const&
-    get_grid_points_1d() const;
-    MArray1d_ref &
-    get_grid_points_1d();
-    void
-    set_normalization(double val);
-    double
-    get_normalization() const;
-    storage3d
-    get_storage() const;
-    //
-    // P.L. addition, Aug 3 2011
-    //
-    inline double get_interpolated(std::vector<double> location) const {
-      return get_interpolated_coord(location[0], location[1], location[2]);
-    }
-    //
-    // Tested for the 2D case only, where coordinate X is X and Y is Y. iz = 0, for this case.
-    // Other cases needs work most likely. But I am always confused on the convention in
-    // index name, Z vs X.  Depends on usage...
-    //
-    inline double get_interpolated_coord(double x, double y, double z) const {
-       // tri-linear interpolation
-       int ix, iy, iz;
-       double offx, offy, offz;
-       this->get_domain_sptr()->get_leftmost_indices_offsets(x, y, z, ix, iy, iz,
-            offx, offy, offz);
-       MArray3d_ref a(this->get_grid_points());
-       double val = 0.0;
-       if ((get_domain_sptr()->get_grid_shape()[0] > 1) && (get_domain_sptr()->get_grid_shape()[1] > 1) &&
-	      (get_domain_sptr()->get_grid_shape()[2] > 1)) {
-       if ((ix < 0) || (ix >= get_domain_sptr()->get_grid_shape()[0] - 1) || (iy
-              < 0) || (iy >= get_domain_sptr()->get_grid_shape()[1] - 1) || (iz
-              < 0) || (iz >= get_domain_sptr()->get_grid_shape()[2] - 1)) {
-          val = 0.0;
-       } else {
-          val = ( (1.0 - offx) * (1.0 - offy) * (1.0 - offz) * a[ix][iy][iz]
-                + (1.0 - offx) * (1.0 - offy) * offz * a[ix][iy][iz + 1] 
-		+ (1.0 - offx) * offy * (1.0 - offz) * a[ix][iy + 1][iz]
-		+ (1.0 - offx) * offy * offz * a[ix][iy + 1][iz + 1] 
-                + offx * (1.0 - offy) * (1.0 - offz) * a[ix + 1][iy][iz] 
-		+ offx * (1.0 - offy) * offz * a[ix + 1][iy][iz + 1] 
-		+ offx * offy * (1.0 - offz) * a[ix + 1][iy + 1][iz] 
-		+ offx * offy * offz * a[ix + 1][iy + 1][iz + 1]);
-         }
-       } else if (get_domain_sptr()->get_grid_shape()[0] == 1) {
-	    // 2D,  Y-Z plane
-            if ((iy < 0) || (iy >= get_domain_sptr()->get_grid_shape()[1] - 1) || (iz
-                    < 0) || (iz >= get_domain_sptr()->get_grid_shape()[2] - 1)) {
-              val = 0.0;
-            } else {
-               val = ((1.0 - offz) * (1.0 - offy) * a[ix][iy][iz]
-		 + offy * (1.0 - offz) * a[ix][iy + 1][iz]
-                 + (1.0 - offy) * offz * a[ix][iy][iz + 1]
-		 + offy * offz * a[ix][iy + 1][iz + 1]);
-            }
-      } else if (get_domain_sptr()->get_grid_shape()[1] == 1) {
-	    // 2D,  X-Z plane
-            if ((ix < 0) || (ix >= get_domain_sptr()->get_grid_shape()[0] - 1) || (iz
-                    < 0) || (iz >= get_domain_sptr()->get_grid_shape()[2] - 1)) {
-              val = 0.0;
-            } else {
-               val = ((1.0 - offz) * (1.0 - offx) * a[ix][iy][iz]
-		 + offx * (1.0 - offz) * a[ix+1][iy][iz]
-                 + (1.0 - offx) * offz * a[ix][iy][iz + 1]
-		 + offx * offz * a[ix + 1][iy][iz + 1]);
-            }
 
-       }  else if (get_domain_sptr()->get_grid_shape()[2] == 1) {
-	    // 2D,  X-Y plane
-            if ((ix < 0) || (ix >= get_domain_sptr()->get_grid_shape()[0] - 1) || (iy
-                    < 0) || (iy >= get_domain_sptr()->get_grid_shape()[1] - 1)) {
-              val = 0.0;
-            } else {
-               val = ((1.0 - offy) * (1.0 - offx) * a[ix][iy][iz]
-		 + offx * (1.0 - offy) * a[ix+1][iy][iz]
-                 + (1.0 - offx) * offy * a[ix][iy+1][iz]
-		 + offx * offy * a[ix + 1][iy+1][iz]);
-            }
-       }
-    return val;
+    Rectangular_grid_1d(size_t shape_x, bool zero = true)
+    : grid_( zero ? karray1d_row_dev("g1d", shape_x) 
+                  : karray1d_row_dev(kokkos_noinit("g1d"), shape_x) )
+    , hgrid_(Kokkos::create_mirror_view(grid_))
+    , normalization(1.0)
+    { }
 
+    size_t shape(size_t dim) const
+    { return grid_.extent(dim); }
 
-    }
+    size_t span() const
+    { return grid_.span(); }
+    
+    double* data(size_t x = 0) const
+    { return &grid_(x); }
 
+    //void set_zero()
+    //{ points_.setZero(); }
+
+    void set_normalization(double val)
+    { normalization = val; }
+
+    double get_normalization() const
+    { return normalization; }
 };
 
-typedef boost::shared_ptr<Rectangular_grid> Rectangular_grid_sptr; // syndoc:include
 
-#endif /* RECTANGULAR_GRID_H_ */
+class Rectangular_grid_2dc
+{
+
+private:
+
+    using kokkos_noinit = Kokkos::ViewAllocateWithoutInitializing;
+
+    karray2dc_row_dev grid_;
+    karray2dc_row_hst hgrid_;
+
+    double normalization;
+
+public:
+
+    Rectangular_grid_2dc(size_t shape_x, size_t shape_y, bool zero = true)
+    : grid_( zero ? karray2dc_row_dev("g2dc", shape_x, shape_y) 
+                  : karray2dc_row_dev(kokkos_noinit("g2dc"), shape_x, shape_y) )
+    , hgrid_(Kokkos::create_mirror_view(grid_))
+    , normalization(1.0)
+    { }
+
+    size_t shape(size_t dim) const
+    { return grid_.extent(dim); }
+
+    size_t span() const
+    { return grid_.span(); }
+    
+    std::complex<double>* data(size_t x = 0, size_t y = 0) const
+    { return &grid_(x, y); }
+
+    //void set_zero()
+    //{ points_.setZero(); }
+
+    void set_normalization(double val)
+    { normalization = val; }
+
+    double get_normalization() const
+    { return normalization; }
+};
+
+
+#if 0
+template<typename T = double>
+class Rectangular_grid_eigen
+{
+public:
+
+    typedef Eigen::Tensor<T, 3, Eigen::RowMajor> EArray3d;
+
+private:
+
+    EArray3d  points_;
+    std::array<int, 3> shape_;
+
+    double normalization;
+
+public:
+
+    Rectangular_grid_eigen(std::array<int, 3> const & grid_shape, bool zero = true)
+        : points_(grid_shape[0], grid_shape[1], grid_shape[2])
+        , shape_(grid_shape)
+        , normalization(1.0)
+    { if (zero) set_zero(); }
+
+    EArray3d const & get_grid_points() const
+    { return points_; }
+
+    EArray3d & get_grid_points()
+    { return points_; }
+
+    std::array<int, 3> const & shape() const
+    { return shape_; }
+
+    typename EArray3d::Scalar const &
+    grid(Eigen::Index x, Eigen::Index y, Eigen::Index z) const
+    { return points_(x, y, z); }
+
+    typename EArray3d::Scalar &
+    grid(Eigen::Index x, Eigen::Index y, Eigen::Index z)
+    { return points_(x, y, z); }
+
+    typename EArray3d::Scalar const *
+    data(Eigen::Index x = 0, Eigen::Index y = 0, Eigen::Index z = 0) const
+    { return points_.data() + x * shape_[1] * shape_[2] + y * shape_[2] + z; }
+
+    void set_zero()
+    { points_.setZero(); }
+
+    void set_normalization(double val)
+    { normalization = val; }
+
+    double get_normalization() const
+    { return normalization; }
+};
+#endif
+
+#endif /* RECTANGULAR_GRID_EIGEN_H_ */

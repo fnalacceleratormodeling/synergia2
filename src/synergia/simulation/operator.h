@@ -38,14 +38,11 @@ private:
 
 public:
 
-    Operator() : name(), type(), time_fraction(1.0) { }
-
     Operator(std::string const & name, std::string const & type, double time)
         : name(name), type(type), time_fraction(time)
     { }
 
     virtual ~Operator() = default;
-    virtual Operator * clone() const = 0;
 
     std::string const & get_name() const { return name; }
     std::string const & get_type() const { return type; }
@@ -68,6 +65,10 @@ public:
     }
 };
 
+struct CO_options
+{
+};
+
 class Collective_operator : public Operator
 {
 private:
@@ -77,11 +78,16 @@ private:
 
 public:
 
-    Collective_operator() : Operator() { }
-
     Collective_operator(std::string const & name, double time)
         : Operator(name, "collective", time)
     { }
+};
+
+class Dummy_collective_operator;
+
+struct Dummy_CO_options : public CO_options
+{
+    using Operator = Dummy_collective_operator;
 };
 
 class Dummy_collective_operator : public Collective_operator
@@ -96,16 +102,10 @@ private:
 
 public:
 
-    Dummy_collective_operator() : Collective_operator() { }
-
-    Dummy_collective_operator(std::string const& name, double time)
-        : Collective_operator("dummy_collective", time)
+    Dummy_collective_operator(Dummy_CO_options ops)
+        : Collective_operator("dummy_collective", 1.0)
     { }
-
-    Dummy_collective_operator * clone() const override
-    { return new Dummy_collective_operator(*this); }
 };
-
 
 class Independent_operator : public Operator
 {
@@ -150,9 +150,6 @@ private:
 public:
 
     Independent_operator(std::string const & name, double time);
-
-    Independent_operator * clone() const override
-    { return nullptr; }
 
     template<class... Args>
     Independent_operator & append_slice(Args && ... args)

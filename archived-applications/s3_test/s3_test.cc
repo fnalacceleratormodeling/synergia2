@@ -47,7 +47,7 @@ int run()
     auto sim = Bunch_simulator::create_single_bunch_simulator(
             lattice.get_reference_particle(), 1024, 1e13 );
 
-    screen << ref.get_momentum() << "\n";
+    screen << "reference momentum = " << ref.get_momentum() << " GeV\n";
 
     // init particle data
     auto & bunch = sim.get_bunch();

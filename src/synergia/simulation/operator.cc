@@ -415,10 +415,12 @@ Independent_operator::apply_impl(
 
     //double t_total = simple_timer_current();
 
-    logger(LV::DINFO) << "Independent_operator: slice(s) = " << std::endl;
+    logger(LV::DINFO) << "    Independent_operator: slice(s) = ";
 
     for (auto const & slice : slices)
-        logger(LV::DINFO) << "    " << slice.as_string() << std::endl;
+        logger(LV::DINFO) << slice.as_string() << ", ";
+
+    logger(LV::DINFO) << "\n";
 
     for (auto & train : simulator.get_trains())
     {
@@ -428,7 +430,7 @@ Independent_operator::apply_impl(
 
             for (auto const & opn : operations)
             {
-                logger(LV::INFO) << "Independent_operator: operation type = " 
+                logger(LV::INFO) << "    Independent_operator: operation type = " 
                     << opn->get_type() << std::endl;
 
                 opn->apply(bunch, logger);

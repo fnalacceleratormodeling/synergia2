@@ -1,4 +1,5 @@
 #include "split_operator_stepper_elements.h"
+#include "synergia/collective/space_charge_2d_open_hockney.h"
 
 std::vector<Step>
 Split_operator_stepper_elements::apply_impl(Lattice const & lattice) const
@@ -42,7 +43,8 @@ Split_operator_stepper_elements::apply_impl(Lattice const & lattice) const
                     .append_slice(ele, left, middle);
 
                 // Collective Effects
-                // steps.append_collective();
+                Space_charge_2d_open_hockney_options ops(32, 32, 128);
+                steps.back().append_collective(ops);
 
                 // 2nd Half
                 steps.back()

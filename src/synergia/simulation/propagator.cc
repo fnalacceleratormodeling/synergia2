@@ -323,10 +323,10 @@ Propagator::do_step(
         int p = std::cout.precision();
         int num_steps = steps.size();
 
-        logger << "Propagator:     step " << std::setw(digits(num_steps)) 
+        logger << "\nPropagator: step " << std::setw(digits(num_steps)) 
                << step_count << "/" << num_steps;
 
-        logger << ", s_n=" << std::fixed << std::setprecision(4)
+        logger << ", s_n = " << std::fixed << std::setprecision(4)
                << simulator[0][0].get_reference_particle().get_s_n();
 
         logger << ", time = " << std::fixed << std::setprecision(3) 

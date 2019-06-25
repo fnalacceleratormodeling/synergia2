@@ -2,8 +2,273 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/core_diagnostics.h"
 
-#include "synergia/utils/synergia_omp.h"
 
+namespace deposit_impl
+{
+    KOKKOS_INLINE_FUNCTION
+    int fast_int_floor_kokkos(const double x)
+    {
+        int ix = static_cast<int>(x);
+        return x > 0.0 ? ix : ((x - ix == 0) ? ix : ix - 1);
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    void get_leftmost_indices_offset(
+            double pos, double left, double cell_size,
+            int & idx, double & off )
+    {
+        double scaled_location = (pos - left) / cell_size - 0.5;
+        idx = fast_int_floor_kokkos(scaled_location);
+        off = scaled_location - idx;
+    }
+
+    struct rho_reducer
+    {
+        typedef double value_type[];
+
+        const int value_count;
+        ConstParticles p;
+        karray2d_dev bin;
+        int gx, gy, gz;
+        double hx, hy, hz;
+        double lx, ly, lz;
+        double w0;
+
+        rho_reducer(
+                ConstParticles const & p,
+                karray2d_dev   const & bin,
+                std::array<int,    3> const & g,
+                std::array<double, 3> const & h,
+                std::array<double, 3> const & l,
+                double w0 )
+            : value_count(g[0]*g[1]+g[2])
+            , p(p), bin(bin)
+            , gx(g[0]), gy(g[1]), gz(g[2])
+            , hx(h[0]), hy(h[1]), hz(h[2])
+            , lx(l[0]), ly(l[1]), lz(l[2])
+            , w0(w0)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i, value_type sum) const
+        {
+            int ix, iy, iz;
+            double offx, offy, offz;
+
+            get_leftmost_indices_offset(p(i, 0), lx, hx, ix, offx);
+            get_leftmost_indices_offset(p(i, 2), ly, hy, iy, offy);
+            get_leftmost_indices_offset(p(i, 4), lz, hz, iz, offz);
+
+            bin(i, 0) = ix;
+            bin(i, 1) = offx;
+            bin(i, 2) = iy;
+            bin(i, 3) = offy;
+            bin(i, 4) = iz;
+            bin(i, 5) = offz;
+
+            int cellz1 = iz;
+            int cellz2 = cellz1 + 1;
+
+            if( cellz1>=0 && cellz1<gz ) sum[gx*gy + cellz1] += (1.0 - offz) / hz;
+            if( cellz2>=0 && cellz2<gz ) sum[gx*gy + cellz2] += offz / hz;
+
+            if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) return;
+
+            int cellx1, cellx2, celly1, celly2;
+            cellx1 = ix;
+            cellx2 = ix + 1;
+            celly1 = iy;
+            celly2 = iy + 1;
+
+            double aoffx, aoffy;
+            aoffx = 1. - offx;
+            aoffy = 1. - offy;
+
+            sum[celly1*gx + cellx1] += w0 * aoffx * aoffy;
+            sum[celly1*gx + cellx2] += w0 *  offx * aoffy;
+            sum[celly2*gx + cellx1] += w0 * aoffx *  offy;
+            sum[celly2*gx + cellx2] += w0 *  offx *  offy;
+        }
+    };
+}
+
+
+karray1d deposit_charge_rectangular_2d_kokkos(
+        Rectangular_grid_domain & domain,
+        karray2d_dev & particle_bin, 
+        Bunch const & bunch )
+{
+    using deposit_impl::rho_reducer;
+
+    auto g = domain.get_grid_shape();
+    auto h = domain.get_cell_size();
+    auto l = domain.get_left();
+
+    auto parts = bunch.get_local_particles();
+    int nparts = bunch.get_local_num();
+
+    double weight0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1]); // * h[2]);
+
+    karray1d rho("rho", g[0]*g[1] + g[2]);
+    rho_reducer rr(parts, particle_bin, g, h, l, weight0);
+
+    Kokkos::parallel_reduce(nparts, rr, rho.data());
+
+    return rho;
+}
+
+#if 0
+void
+deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
+        Raw_MArray2d & particle_bin, Bunch const& bunch, bool zero_first)
+{
+    MArray2dc_ref rho_2dc(rho_grid.get_grid_points_2dc());
+    MArray1d_ref rho_1d(rho_grid.get_grid_points_1d());
+    Const_MArray2d_ref parts(bunch.get_local_particles());
+
+    int g0, g1, g2;
+    g0 = rho_2dc.shape()[0];
+    g1 = rho_2dc.shape()[1];
+    g2 = rho_1d.shape()[0];
+
+#if 0
+    int G0 = g0 + 2;
+    int G1 = g1 + 2;
+    int G2 = g2 + 2;
+#endif
+
+    int npart = bunch.get_local_num();
+
+    int nt = 1;
+
+    #pragma omp parallel shared(nt)
+    { nt = omp_get_num_threads(); }
+
+    double * lrho2d = new double[g0*g1*nt];
+    double * lrho1d = new double[g2*nt];
+
+    if (zero_first) 
+    {
+        for (unsigned int i = 0; i < g0; ++i)         // x
+        {  
+            for (unsigned int j = 0; j < g1; ++j)     // y
+            {
+                rho_2dc[i][j] = 0.0;
+            }
+        }
+
+        for (unsigned int k = 0; k < g2; ++k)         // z
+        {
+            rho_1d[k] = 0.0;
+        }
+    }
+
+    std::vector<double > h(rho_grid.get_domain().get_cell_size());
+    double weight0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1]); // * h[2]);
+
+    if (g2 == 1) 
+    {
+        double mean(Core_diagnostics::calculate_z_mean(bunch));
+        double std(Core_diagnostics::calculate_z_std(bunch, mean));
+        rho_1d[0] = bunch.get_local_num() / (std::sqrt(12.0) * std);
+    }
+
+    #pragma omp parallel \
+        default(none) \
+        shared(nt, npart, parts, lrho2d, lrho1d, h, \
+               g0, g1, g2, particle_bin, \
+               weight0, rho_2dc, rho_1d, rho_grid)
+    {
+        int ix, iy, iz;
+        double offx, offy, offz;
+
+        int it = omp_get_thread_num();
+
+        int l  = npart / nt;                  // length
+        int s  = it * l;                      // start particle
+        int e  = (it==nt-1) ? npart : (s+l);  // end particle
+
+        double * r2d = lrho2d + it * g0 * g1;
+        double * r1d = lrho1d + it * g2;
+
+        // zero buffer
+        std::memset( r2d, 0, sizeof(double)*g0*g1 );
+        std::memset( r1d, 0, sizeof(double)*g2    );
+
+        for (int n = s; n < e; ++n) {
+            // no xyz->zyx transformation
+            rho_grid.get_domain().get_leftmost_indices_offsets(
+                    parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx,
+                    offy, offz);
+
+            particle_bin.m[n][0] = ix;
+            particle_bin.m[n][1] = offx;
+            particle_bin.m[n][2] = iy;
+            particle_bin.m[n][3] = offy;
+            particle_bin.m[n][4] = iz;
+            particle_bin.m[n][5] = offz;
+
+            int cellz1 = iz;
+            int cellz2 = cellz1 + 1;
+
+            if( cellz1>=0 && cellz1<g2 ) r1d[cellz1] += (1.0 - offz) / h[2];
+            if( cellz2>=0 && cellz2<g2 ) r1d[cellz2] += offz / h[2];
+
+            if( ix<0 || ix>g0-1 || iy<0 || iy>g1-1 ) continue;
+
+            int cellx1, cellx2, celly1, celly2;
+            cellx1 = ix;
+            cellx2 = ix + 1;
+            celly1 = iy;
+            celly2 = iy + 1;
+
+            double aoffx, aoffy;
+            aoffx = 1. - offx;
+            aoffy = 1. - offy;
+
+            r2d[celly1*g0 + cellx1] += weight0 * aoffx * aoffy;
+            r2d[celly1*g0 + cellx2] += weight0 *  offx * aoffy;
+            r2d[celly2*g0 + cellx1] += weight0 * aoffx *  offy;
+            r2d[celly2*g0 + cellx2] += weight0 *  offx *  offy;
+        }
+
+        // set boundary to zero
+        for (int x=0; x<g0; ++x) 
+        {
+            r2d[x] = 0.0;
+            r2d[(g1-1)*g0 + x] = 0.0;
+        }
+
+        for (int y=0; y<g1; ++y)
+        {
+            r2d[y*g0] = 0.0;
+            r2d[y*g0 + g0 - 1] = 0.0;
+        }
+    }
+
+    for (int t = 0; t < nt; ++t)
+    {
+        for (int y = 0; y < g1; ++y)
+            for (int x = 0; x < g0; ++x)
+                rho_2dc[x][y] += lrho2d[t*g0*g1 + y*g0 + x];
+
+        if (g2 > 1)
+            for (int z = 0; z < g2; ++z)
+                rho_1d[z] += lrho1d[t*g2 + z];
+    }
+
+    delete [] lrho2d;
+    delete [] lrho1d;
+}
+#endif
+
+
+
+#if 0
 /// Deposit charge using Cloud-in-Cell (CIC) algorithm.
 /// The indices on the rho array are in an unusual order: [z][y][x],
 /// so that the FFTW routines can distribute along the z-axis.
@@ -891,3 +1156,5 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
     delete [] lrho2d;
     delete [] lrho1d;
 }
+
+#endif

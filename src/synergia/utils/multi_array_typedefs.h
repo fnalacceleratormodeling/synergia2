@@ -1,6 +1,7 @@
 #ifndef MULTI_ARRAY_TYPEDEFS_H_
 #define MULTI_ARRAY_TYPEDEFS_H_
 
+#include <complex>
 #include <Kokkos_Core.hpp>
 
 typedef Kokkos::View<double*,  Kokkos::LayoutLeft> karray1d_dev;
@@ -11,6 +12,9 @@ typedef karray2d_dev::HostMirror karray2d_hst;
 
 typedef karray1d_hst karray1d;
 typedef karray2d_hst karray2d;
+
+
+
 
 typedef Kokkos::View<const double*,  Kokkos::LayoutLeft> const_karray1d_dev;
 typedef Kokkos::View<const double**, Kokkos::LayoutLeft> const_karray2d_dev;
@@ -23,7 +27,36 @@ typedef const_karray2d_hst const_karray2d;
 
 
 
-#include <complex>
+
+typedef Kokkos::View<double*,   Kokkos::LayoutRight> karray1d_row_dev;
+typedef Kokkos::View<double**,  Kokkos::LayoutRight> karray2d_row_dev;
+typedef Kokkos::View<double***, Kokkos::LayoutRight> karray3d_row_dev;
+
+typedef karray1d_row_dev::HostMirror karray1d_row_hst;
+typedef karray2d_row_dev::HostMirror karray2d_row_hst;
+typedef karray3d_row_dev::HostMirror karray3d_row_hst;
+
+typedef karray1d_row_hst karray1d_row;
+typedef karray2d_row_hst karray2d_row;
+typedef karray3d_row_hst karray3d_row;
+
+
+
+typedef Kokkos::View<std::complex<double>*,   Kokkos::LayoutRight> karray1dc_row_dev;
+typedef Kokkos::View<std::complex<double>**,  Kokkos::LayoutRight> karray2dc_row_dev;
+typedef Kokkos::View<std::complex<double>***, Kokkos::LayoutRight> karray3dc_row_dev;
+
+typedef karray1dc_row_dev::HostMirror karray1dc_row_hst;
+typedef karray2dc_row_dev::HostMirror karray2dc_row_hst;
+typedef karray3dc_row_dev::HostMirror karray3dc_row_hst;
+
+typedef karray1dc_row_hst karray1dc_row;
+typedef karray2dc_row_hst karray2dc_row;
+typedef karray3dc_row_hst karray3dc_row;
+
+
+
+#if 1
 #include "boost/multi_array.hpp"
 #include "boost/shared_array.hpp"
 
@@ -105,5 +138,6 @@ typedef boost::multi_array<int, 1 > MArray1i; // syndoc:include
 typedef boost::multi_array_ref<int, 1 > MArray1i_ref; // syndoc:include
 typedef boost::const_multi_array_ref<int, 1 > Const_MArray1i_ref; // syndoc:include
 typedef boost::detail::multi_array::multi_array_view<int, 1 > MArray1i_view; // syndoc:include
+#endif
 
 #endif /* MULTI_ARRAY_TYPEDEFS_H_ */
