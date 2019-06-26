@@ -84,10 +84,10 @@ namespace deposit_impl
             aoffx = 1. - offx;
             aoffy = 1. - offy;
 
-            sum[celly1*gx + cellx1] += w0 * aoffx * aoffy;
-            sum[celly1*gx + cellx2] += w0 *  offx * aoffy;
-            sum[celly2*gx + cellx1] += w0 * aoffx *  offy;
-            sum[celly2*gx + cellx2] += w0 *  offx *  offy;
+            sum[cellx1*gy + celly1] += w0 * aoffx * aoffy;
+            sum[cellx1*gx + celly2] += w0 * aoffx *  offy;
+            sum[cellx2*gy + celly1] += w0 *  offx * aoffy;
+            sum[cellx2*gx + celly2] += w0 *  offx *  offy;
         }
     };
 }

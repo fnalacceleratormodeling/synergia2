@@ -616,7 +616,7 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
             for (auto & step : steps)
             {
                 ++step_count;
-            	do_step(sim, step, step_count, turn_count, logger);
+                do_step(sim, step, step_count, turn_count, logger);
 
                 out_of_particles = check_out_of_particles(sim, logger);
                 if (out_of_particles) break;

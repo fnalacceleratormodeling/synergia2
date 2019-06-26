@@ -21,8 +21,8 @@ struct Space_charge_2d_open_hockney_options : public CO_options
     double n_sigma;
 
     Space_charge_2d_open_hockney_options(int gridx, int gridy, int gridz)
-        : shape{gridz, gridy, gridx}
-        , doubled_shape{gridz*2, gridy*2, gridx*2}
+        : shape{gridx, gridy, gridz}
+        , doubled_shape{gridx*2, gridy*2, gridz}
         , periodic_z(false)
         , z_period(0.0)
         , grid_entire_period(false)

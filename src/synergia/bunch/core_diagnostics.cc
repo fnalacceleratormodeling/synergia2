@@ -265,7 +265,7 @@ Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
 
     for (int i=0; i<6; ++i) std(i) = std::sqrt(std(i) / bunch.get_total_num());
 
-    return mean;
+    return std;
 }
 
 MArray1d
