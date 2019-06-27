@@ -55,6 +55,10 @@ typedef karray2dc_row_hst karray2dc_row;
 typedef karray3dc_row_hst karray3dc_row;
 
 
+typedef Kokkos::View< double*, 
+                      Kokkos::LayoutLeft, 
+                      Kokkos::MemoryTraits<Kokkos::Atomic> > karray1d_atomic_dev;
+
 
 #if 1
 #include "boost/multi_array.hpp"
