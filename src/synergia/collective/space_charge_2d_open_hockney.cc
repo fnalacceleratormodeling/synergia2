@@ -115,7 +115,11 @@ Space_charge_2d_open_hockney::apply_bunch(
 #if 0
     for(int i=24; i<32; ++i)
     {
-        logger << local_rho(32*64 + i) << ", ";
+        logger
+        << std::resetiosflags(std::ios::fixed)
+        << std::setiosflags(std::ios::showpos | std::ios::scientific)
+        << std::setprecision(8)
+        << local_rho((32*64 + i)*2) << ", ";
     }
     logger << "\n";
 #endif
@@ -165,7 +169,8 @@ karray1d
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     particle_bin = karray2d_dev("bin", bunch.get_local_num(), 6);
-    return deposit_charge_rectangular_2d_kokkos(doubled_domain, particle_bin, bunch);
+    return deposit_charge_rectangular_2d_kokkos_atomic(
+            doubled_domain, particle_bin, bunch);
 }
 
 #if 0

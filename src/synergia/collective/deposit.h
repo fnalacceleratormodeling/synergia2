@@ -4,13 +4,13 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/collective/rectangular_grid_domain.h"
 
-karray1d
+karray1d_dev
 deposit_charge_rectangular_2d_kokkos(
         Rectangular_grid_domain & domain,
         karray2d_dev & particle_bin, 
         Bunch const & bunch );
 
-karray1d
+karray1d_dev
 deposit_charge_rectangular_2d_kokkos_atomic(
         Rectangular_grid_domain & domain,
         karray2d_dev & particle_bin, 

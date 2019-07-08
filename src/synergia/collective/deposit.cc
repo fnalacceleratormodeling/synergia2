@@ -91,6 +91,37 @@ namespace deposit_impl
         }
     };
 
+    // move the rho data from double array to complex array
+    struct rho_mover
+    {
+        karray1d_dev r0;
+        karray1d_dev r1;
+        int gx, gy;
+
+        rho_mover(
+                karray1d_dev const & rho_double,
+                karray1d_dev const & rho_complex,
+                std::array<int, 3> const & g )
+            : r0(rho_double), r1(rho_complex)
+            , gx(g[0]), gy(g[1])
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            if (i < gx*gy) 
+            {
+                r1(i*2) = r0(i);
+            }
+            else 
+            {
+                int z = i - gx*gy;
+                r1(gx*gy*2 + z) = r0(gx*gy + z);
+            }
+        }
+    };
+
+    // use atomic add
     struct atomic_rho_reducer
     {
         ConstParticles p;
@@ -136,8 +167,8 @@ namespace deposit_impl
             int cellz1 = iz;
             int cellz2 = cellz1 + 1;
 
-            if( cellz1>=0 && cellz1<gz ) rho(gx*gy + cellz1) += (1.0 - offz) / hz;
-            if( cellz2>=0 && cellz2<gz ) rho(gx*gy + cellz2) += offz / hz;
+            if( cellz1>=0 && cellz1<gz ) rho(gx*gy*2 + cellz1) += (1.0 - offz) / hz;
+            if( cellz2>=0 && cellz2<gz ) rho(gx*gy*2 + cellz2) += offz / hz;
 
             if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) return;
 
@@ -151,21 +182,22 @@ namespace deposit_impl
             aoffx = 1. - offx;
             aoffy = 1. - offy;
 
-            rho(cellx1*gy + celly1) += w0 * aoffx * aoffy;
-            rho(cellx1*gx + celly2) += w0 * aoffx *  offy;
-            rho(cellx2*gy + celly1) += w0 *  offx * aoffy;
-            rho(cellx2*gx + celly2) += w0 *  offx *  offy;
+            rho( (cellx1*gy + celly1)*2 ) += w0 * aoffx * aoffy;
+            rho( (cellx1*gx + celly2)*2 ) += w0 * aoffx *  offy;
+            rho( (cellx2*gy + celly1)*2 ) += w0 *  offx * aoffy;
+            rho( (cellx2*gx + celly2)*2 ) += w0 *  offx *  offy;
         }
     };
 }
 
 
-karray1d deposit_charge_rectangular_2d_kokkos(
+karray1d_dev deposit_charge_rectangular_2d_kokkos(
         Rectangular_grid_domain & domain,
         karray2d_dev & particle_bin, 
         Bunch const & bunch )
 {
     using deposit_impl::rho_reducer;
+    using deposit_impl::rho_mover;
 
     auto g = domain.get_grid_shape();
     auto h = domain.get_cell_size();
@@ -178,15 +210,18 @@ karray1d deposit_charge_rectangular_2d_kokkos(
             * bunch.get_particle_charge() * pconstants::e
             / (h[0] * h[1]); // * h[2]);
 
-    karray1d rho("rho", g[0]*g[1] + g[2]);
+    karray1d_dev rho_dbl("rho", g[0]*g[1] + g[2]);
     rho_reducer rr(parts, particle_bin, g, h, l, weight0);
+    Kokkos::parallel_reduce(nparts, rr, rho_dbl);
 
-    Kokkos::parallel_reduce(nparts, rr, rho.data());
+    karray1d_dev rho_cplx("rho_cplx", g[0]*g[1]*2 + g[2]);
+    rho_mover rm(rho_dbl, rho_cplx, g);
+    Kokkos::parallel_for(g[0]*g[1] + g[2], rm);
 
-    return rho;
+    return rho_cplx;
 }
 
-karray1d deposit_charge_rectangular_2d_kokkos_atomic(
+karray1d_dev deposit_charge_rectangular_2d_kokkos_atomic(
         Rectangular_grid_domain & domain,
         karray2d_dev & particle_bin, 
         Bunch const & bunch )
@@ -204,16 +239,14 @@ karray1d deposit_charge_rectangular_2d_kokkos_atomic(
             * bunch.get_particle_charge() * pconstants::e
             / (h[0] * h[1]); // * h[2]);
 
-    karray1d_dev rho_dev("rho", g[0]*g[1] + g[2]);
-    karray1d     rho(Kokkos::create_mirror_view(rho_dev));
-
+    // double[x][y][2] + double[z]
+    karray1d_dev        rho_dev("rho", g[0]*g[1]*2 + g[2]);
     karray1d_atomic_dev rho_atomic = rho_dev;
 
     atomic_rho_reducer rr(parts, rho_atomic, particle_bin, g, h, l, weight0);
     Kokkos::parallel_for(nparts, rr);
 
-    Kokkos::deep_copy(rho, rho_dev);
-    return rho;
+    return rho_dev;
 }
 
 #if 0
