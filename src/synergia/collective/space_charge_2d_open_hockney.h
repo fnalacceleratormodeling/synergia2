@@ -98,7 +98,8 @@ private:
 
     void update_domain(Bunch const & bunch);
 
-    karray1d get_local_charge_density(Bunch const& bunch);
+    karray1d_dev get_local_charge_density(Bunch const& bunch);
+    karray1d_dev get_green_fn2_pointlike();
 
 public:
 

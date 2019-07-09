@@ -42,6 +42,55 @@ namespace
 
         return retval;
     }
+
+
+    struct alg_g2_pointlike
+    {
+        const double epsilon = 0.01;
+
+        karray1d_dev g2;
+        int gx, gy;
+        int dgx, dgy;
+        double hx, hy;
+
+        alg_g2_pointlike(
+                karray1d_dev const & g2,
+                std::array<int, 3> const & g,
+                std::array<int, 3> const & dg,
+                std::array<double, 3> const & h ) 
+            : g2(g2)
+            , gx(g[0]), gy(g[1])
+            , dgx(dg[0]), dgy(dg[1])
+            , hx(h[0]), hy(h[1])
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            int ix = i/dgy;
+            int iy = i - ix*dgy;
+
+            double dx = (ix>gx) ? (ix-dgx)*hx : ix*hx;
+            double dy = (iy>gy) ? (iy-dgy)*hy : iy*hy;
+
+            double Gx, Gy;
+
+            if (ix == gx || iy == gy)
+            {
+                Gx = 0.0;
+                Gy = 0.0;
+            }
+            else
+            {
+                double inv = 1.0 / (dx*dx + dy*dy + hx*hy*epsilon*epsilon);
+                Gx = dx * inv;
+                Gy = dy * inv;
+            }
+
+            g2(i*2)   = Gx;
+            g2(i*2+1) = Gy;
+        }
+    };
 }
 
 
@@ -123,6 +172,21 @@ Space_charge_2d_open_hockney::apply_bunch(
     }
     logger << "\n";
 #endif
+
+    auto g2 = get_green_fn2_pointlike();
+
+#if 0
+    for(int i=32; i<40; ++i)
+    {
+        logger
+        << std::resetiosflags(std::ios::fixed)
+        << std::setiosflags(std::ios::showpos | std::ios::scientific)
+        << std::setprecision(8)
+        << g2((42*64 + i)*2+1) << ", ";
+    }
+    logger << "\n";
+#endif
+
 }
 
 void
@@ -165,13 +229,29 @@ Space_charge_2d_open_hockney::update_domain(Bunch const & bunch)
 }
 
 
-karray1d
+karray1d_dev
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     particle_bin = karray2d_dev("bin", bunch.get_local_num(), 6);
     return deposit_charge_rectangular_2d_kokkos_atomic(
             doubled_domain, particle_bin, bunch);
 }
+
+karray1d_dev
+Space_charge_2d_open_hockney::get_green_fn2_pointlike()
+{
+    auto  g = domain.get_grid_shape();
+    auto  h = doubled_domain.get_cell_size();
+    auto dg = doubled_domain.get_grid_shape();
+
+    karray1d_dev g2("g2", dg[0]*dg[1]*2);
+    alg_g2_pointlike alg(g2, g, dg, h);
+
+    Kokkos::parallel_for(dg[0]*dg[1], alg);
+    return g2;
+}
+
+
 
 #if 0
 Rectangular_grid
