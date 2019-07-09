@@ -47,8 +47,8 @@ coords['zp'] = 5
 
 def generate_plotparams():
     plotparams = {}
-    for label in coords.keys():
-        for label2 in coords.keys():
+    for label in list(coords.keys()):
+        for label2 in list(coords.keys()):
             if coords[label2] > coords[label]:
                 corr = label + '_' + label2 + '_corr'
                 plotparams[corr] = Params(corr, 'corr',
@@ -83,20 +83,20 @@ def do_error(message):
     sys.exit(1)
 
 def do_help(plotparams):
-    print "usage: syndiagplot <filename> [option1] ... [optionn] <plot1> ... <plotn>"
-    print "available options are:"
-    print "    --userep: use repetition instead of s for independent variable"
-    print "    --oneplot : put all plots on the same axis (not on by default)"
-    print "    --nolegend : suppress legends (not on by default)"
-    print "    --output=<file> : save output to file (not on by default)"
-    print "    --show : show plots on screen (on by default unless --output flag is present"
-    print "available plots are:"
-    print "   ",
-    plots = plotparams.keys()
+    print("usage: syndiagplot <filename> [option1] ... [optionn] <plot1> ... <plotn>")
+    print("available options are:")
+    print("    --userep: use repetition instead of s for independent variable")
+    print("    --oneplot : put all plots on the same axis (not on by default)")
+    print("    --nolegend : suppress legends (not on by default)")
+    print("    --output=<file> : save output to file (not on by default)")
+    print("    --show : show plots on screen (on by default unless --output flag is present")
+    print("available plots are:")
+    print("   ", end=' ')
+    plots = list(plotparams.keys())
     plots.sort()
     for plot in plots:
-        print plot,
-    print
+        print(plot, end=' ')
+    print()
     sys.exit(0)
 
 def handle_args(args, plotparams):
@@ -124,7 +124,7 @@ def handle_args(args, plotparams):
             else:
                 do_error('Unknown argument "%s"' % arg)
         else:
-            if arg in plotparams.keys():
+            if arg in list(plotparams.keys()):
                 options.plots.append(arg)
             else:
                 do_error('Unknown plot "%s"' % arg)

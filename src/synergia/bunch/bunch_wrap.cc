@@ -13,13 +13,14 @@
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
 #include "synergia/utils/container_conversions.h"
+#include "synergia/utils/portable_import_array.h"
 #include "synergia/foundation/multi_diagnostics.h"
 
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(bunch)
 {
-    import_array();
+    portable_import_array();
     if (import_mpi4py() < 0) {
         return;
     }

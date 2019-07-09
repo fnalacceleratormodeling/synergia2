@@ -18,7 +18,7 @@ def map2twiss(csmap):
     asinmu = 0.5*(csmap[0,0]-csmap[1,1])
 
     if abs(cosmu) > 1.0:
-        raise RuntimeError, "map is unstable"
+        raise RuntimeError("map is unstable")
 
     mu =np.arccos(cosmu)
 
@@ -47,7 +47,7 @@ try:
     lattice = synergia.lattice.Mad8_reader().get_lattice("ring_p_q605", "mi20-egs-thinrf.lat")
     lattice_length = lattice.get_length()
     if myrank == 0:
-        print "original lattice length: ", lattice_length
+        print("original lattice length: ", lattice_length)
 
 
     reference_particle = lattice.get_reference_particle()
@@ -58,21 +58,21 @@ try:
     brho = lattice.get_reference_particle().get_momentum()*1.0e9/synergia.foundation.pconstants.c
 
     if myrank == 0:
-        print "lattice length: ", lattice_length
-        print "energy: ", energy
-        print "beta: ", beta
-        print "gamma: ", gamma
-        print "brho: ", brho
+        print("lattice length: ", lattice_length)
+        print("energy: ", energy)
+        print("beta: ", beta)
+        print("gamma: ", gamma)
+        print("brho: ", brho)
 
     # set rf cavity frequency (units are MHz)
     # harmno * beta * c/ring_length
     freq = 1.0e-6 * harmno * beta * synergia.foundation.pconstants.c/lattice_length
     if myrank == 0:
-        print "RF frequency: ", freq
+        print("RF frequency: ", freq)
 
 
     if myrank == 0:
-        print "Begin setting RF voltage..."
+        print("Begin setting RF voltage...")
 
     # rf cavity voltage, is 1.0 MV total distributed over 18 cavities.  MAD8
     # expects cavities voltages in  units of MV.
@@ -84,12 +84,12 @@ try:
             elem.set_double_attribute("freq", freq)
 
     if myrank == 0:
-        print "Finish setting RF voltage..."
+        print("Finish setting RF voltage...")
 
     #============================================
 
     if myrank == 0:
-        print "Adding multipole attributes to lattice elements:"
+        print("Adding multipole attributes to lattice elements:")
 
     for elem in lattice.get_elements():
         # use specific average values for elements
@@ -190,22 +190,22 @@ try:
         elem.set_string_attribute("extractor_type", "chef_propagate")
 
     lattice_simulator = synergia.simulation.Lattice_simulator(lattice, 2)
-    print "lattice is a ring: ", lattice_simulator.is_ring()
+    print("lattice is a ring: ", lattice_simulator.is_ring())
     
     synergia.lattice.xml_save_lattice(lattice, "fnal_main_injector.xml")
 
     map = lattice_simulator.get_linear_one_turn_map()
     if myrank==0:
-    	print "one turn map from synergia2.5 infrastructure"
-    	print np.array2string(map, max_line_width=200)
+    	print("one turn map from synergia2.5 infrastructure")
+    	print(np.array2string(map, max_line_width=200))
 
 
     [l, v] = np.linalg.eig(map)
 
     if myrank==0:
-    	print "eigenvalues: "
+    	print("eigenvalues: ")
     	for z in l:
-            print "|z|: ", abs(z), " z: ", z, " tune: ", np.log(z).imag/(2.0*np.pi)
+            print("|z|: ", abs(z), " z: ", z, " tune: ", np.log(z).imag/(2.0*np.pi))
 
     [ax, bx, qx] = map2twiss(map[0:2,0:2])
     [ay, by, qy] = map2twiss(map[2:4, 2:4])
@@ -214,20 +214,20 @@ try:
     dpop = stdz/bz
 
     if myrank == 0:
-    	print "Lattice parameters (assuming uncoupled map)"
-    	print "alpha_x: ", ax, " alpha_y: ", ay
-    	print "beta_x: ", bx, " beta_y: ", by
-    	print "q_x: ", qx, " q_y: ", qy
-    	print "beta_z: ", bz
-    	print "delta p/p: ", dpop
+    	print("Lattice parameters (assuming uncoupled map)")
+    	print("alpha_x: ", ax, " alpha_y: ", ay)
+    	print("beta_x: ", bx, " beta_y: ", by)
+    	print("q_x: ", qx, " q_y: ", qy)
+    	print("beta_z: ", bz)
+    	print("delta p/p: ", dpop)
 
     proton = beamline.Proton(energy)
     beamline = lattice_simulator.get_chef_lattice().get_beamline()
 
-    print "Initial proton: ", proton.State()
+    print("Initial proton: ", proton.State())
     beamline.propagate(proton)
-    print "Final proton: ", proton.State()
+    print("Final proton: ", proton.State())
 
-except Exception, e:
+except Exception as e:
     sys.stderr.write(str(e) + '\n')
     MPI.COMM_WORLD.Abort(777)

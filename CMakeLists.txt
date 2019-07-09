@@ -63,7 +63,6 @@ if (BUILD_PYTHON_BINDINGS)
     #find_package(Python3 COMPONENTS Interpreter Development)
     set(Python_ADDTIONAL_VERSIONS "2")
   endif()
-  include_directories(${PYTHON_INCLUDE_DIR})
 else ()
   message (STATUS "Not building python bindings")
 endif ()
@@ -71,6 +70,7 @@ endif ()
 # If we could use cmake v3.12 or newer, this would not be needed.
 find_package(PythonInterp)
 find_package(PythonLibs)
+include_directories(${PYTHON_INCLUDE_DIR})
 
 # MPI
 find_package(MPI REQUIRED CXX)
@@ -102,11 +102,23 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Now we have Boost_VERSION set, and we can use it to figure out if we need
 # to look for the component python (for old versions, before 1.67) or python27
 # (for boost 1.67 and newer).
-if(NOT ${Boost_VERSION} LESS 106700)
-  set(PYTHON_QUAL 27)
+# We want PYTHON_QUAL set to:
+#    nothing, for old boost and for use of python 2,
+#    27, for new boost and for use of python 2,
+#    3, for use of python 3 (for all supported boost versions)
+if (USE_PYTHON_3)
+  set(PYTHON_QUAL 3)
+else()
+  if(NOT ${Boost_VERSION} LESS 106700)
+    set(PYTHON_QUAL 27)
+  endif()
 endif()
 find_package(Boost COMPONENTS python${PYTHON_QUAL} REQUIRED)
 link_directories(${Boost_LIBRARY_DIRS})
+
+message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
+message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
 
 # hdf5
 find_package(HDF5)

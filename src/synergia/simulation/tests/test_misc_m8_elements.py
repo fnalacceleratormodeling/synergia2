@@ -110,7 +110,7 @@ def run_a_misc_element(elem_name):
     assert(numpart == 32)
     for p in range(numpart):
         for j in range(4):
-            print "    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, lp[p,j], m8p[p,j])
+            print("    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, lp[p,j], m8p[p,j]))
             # mad8 only matches to 10 digits.  madx matches to 13 digits
             assert_almost_equal(lp[p, j], m8p[p, j], 10)
     

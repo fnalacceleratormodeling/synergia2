@@ -10,7 +10,7 @@ def fast_mapping_to_matrix(filename):
     f.readline()
     f.readline()
     order = int(f.readline())
-    print "fast_mapping of order", order
+    print("fast_mapping of order", order)
     f.readline()
     expected_length = int(f.readline())
     length = 0
@@ -32,7 +32,7 @@ def fast_mapping_to_matrix(filename):
         line = f.readline()
         length += 1
     if length == expected_length:
-        print "found correct number of terms"
+        print("found correct number of terms")
     return b,A
 
 
@@ -41,6 +41,6 @@ def fast_mapping_to_matrix(filename):
 if __name__ == '__main__':
     import sys
     b,A = fast_mapping_to_matrix(sys.argv[1])
-    print b
-    print A
+    print(b)
+    print(A)
 

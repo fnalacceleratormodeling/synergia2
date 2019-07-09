@@ -4,6 +4,7 @@
 #include "distribution.h"
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
+#include "synergia/utils/portable_import_array.h"
 #include "math_constants.h"
 #include "physical_constants.h"
 
@@ -29,7 +30,7 @@ class Dummy2
 
 BOOST_PYTHON_MODULE(foundation)
 {
-    import_array();
+    portable_import_array();
     if (import_mpi4py() < 0) {
         return;
     }

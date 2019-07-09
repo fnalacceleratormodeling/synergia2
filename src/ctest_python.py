@@ -4,7 +4,7 @@ import os
 import re
 import string
 import time
-import commands
+import subprocess
 import sys
 
 def find_ctesttestfiles(dir):
@@ -39,12 +39,12 @@ class Test:
         self.dir = dir
 
     def run(self, index, max_index):
-        print "      Start:", self.name
+        print("      Start:", self.name)
 
         here = os.getcwd()
         os.chdir(self.dir)
         t0 = time.time()
-        status, output = commands.getstatusoutput(self.command)
+        status, output = subprocess.getstatusoutput(self.command)
         t1 = time.time()
         os.chdir(here)
         beginning = "%2d/%2d" % (index, max_index) + ' '
@@ -59,7 +59,7 @@ class Test:
         dots = '...................................................................'
         output_width = 78
         num_dots = output_width - len(beginning) - len(end)
-        print "%s %s %s" % (beginning, dots[0:num_dots], end)
+        print("%s %s %s" % (beginning, dots[0:num_dots], end))
         return status, output
 
 def extract_tests_subdirs(dir_name):
@@ -81,7 +81,7 @@ def extract_tests_subdirs(dir_name):
                 subdir_name = split[0]
                 subdirs.append(os.path.join(dir_name, subdir_name))
     except IOError:
-        print "ignored missing", ctesttestfile
+        print("ignored missing", ctesttestfile)
     return tests, subdirs
 
 def extract_all_tests(dir_name):
@@ -117,7 +117,7 @@ def run_tests(tests):
     err_output_base = "ctest_python_logs"
     err_output_dir = None
     t0 = time.time()
-    for index, test in zip(range(1,num_tests+1), tests):
+    for index, test in zip(list(range(1,num_tests+1)), tests):
         status, output = test.run(index, num_tests)
         if status != 0:
             err_indices.append(index)
@@ -129,18 +129,18 @@ def run_tests(tests):
             open(output_path, 'w').write(output)
     t1 = time.time()
     num_errs = len(err_indices)
-    print
+    print()
     pass_percentage = 100.0*(num_tests - num_errs)/(1.0*num_tests)
-    print '%0.1f%% tests passed, %d tests failed out of %d' % \
-        (pass_percentage, num_errs, num_tests)
-    print
-    print 'Total Test time (real) = %0.2f sec' % (t1 - t0)
-    print
+    print('%0.1f%% tests passed, %d tests failed out of %d' % \
+        (pass_percentage, num_errs, num_tests))
+    print()
+    print('Total Test time (real) = %0.2f sec' % (t1 - t0))
+    print()
     if num_errs > 0:
-        print 'The following tests FAILED:'
+        print('The following tests FAILED:')
         for index, test in zip(err_indices, err_tests):
-            print '    % 3d' % index, '-', test.name
-        print 'log files written in directory', err_output_dir
+            print('    % 3d' % index, '-', test.name)
+        print('log files written in directory', err_output_dir)
         
             
            

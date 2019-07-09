@@ -121,15 +121,15 @@ def solenoid_bunch(refpart):
     return bunch
 
 def run_solenoid_channel():
-    print "foo bar"
+    print("foo bar")
     lattice = read_solenoid_lattice()
     bunch = solenoid_bunch(lattice.get_reference_particle())
     bunch_simulator = Bunch_simulator(bunch)
     stepper = Independent_stepper(lattice, 1, 1)
-    print "before propagate: ", bunch.get_local_particles()[0,0:4]
+    print("before propagate: ", bunch.get_local_particles()[0,0:4])
     propagator = Propagator(stepper)
     propagator.propagate(bunch_simulator, 1)
-    print "after propagate: ", bunch.get_local_particles()[0,0:4]
+    print("after propagate: ", bunch.get_local_particles()[0,0:4])
     m8p = np.load("./lattices/track_solenoidone.npy")
     lp = bunch.get_local_particles()
     numpart = lp.shape[0]

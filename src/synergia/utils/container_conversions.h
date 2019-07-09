@@ -2,7 +2,6 @@
 #define CONTAINER_CONVERSIONS_H_
 
 #include <boost/python/extract.hpp>
-//#include <boost/python/list.hpp>
 #include <boost/python/to_python_converter.hpp>
 #include <boost/python/tuple.hpp>
 
@@ -39,39 +38,6 @@ namespace container_conversions {
     static void reserve(CT& a, std::size_t sz) {}
   };
 
-//  struct fixed_size_policy {
-//    static bool check_convertibility_per_element() { return true; }
-//
-//    template <typename CT>
-//    static bool check_size(boost::type<CT>, std::size_t sz) {
-//      return CT::size() == sz;
-//    }
-//
-//    template <typename CT>
-//    static void assert_size(boost::type<CT>, std::size_t sz) {
-//      if (!check_size(boost::type<CT>(), sz)) {
-//        PyErr_SetString(PyExc_RuntimeError,
-//                        "Insufficient elements for fixed-size array.");
-//        bp::throw_error_already_set();
-//      }
-//    }
-//
-//    template <typename CT>
-//    static void reserve(CT& /*a*/, std::size_t sz) {
-//      if (sz > CT::size()) {
-//        PyErr_SetString(PyExc_RuntimeError,
-//                        "Too many elements for fixed-size array.");
-//        bp::throw_error_already_set();
-//      }
-//    }
-//
-//    template <typename CT, typename ValueType>
-//    static void set_value(CT& a, std::size_t i, ValueType const& v) {
-//      reserve(a, i + 1);
-//      a[i] = v;
-//    }
-//  };
-
   struct variable_capacity_policy : default_policy {
     template <typename CT>
     static void reserve(CT& a, std::size_t sz) {
@@ -91,26 +57,23 @@ namespace container_conversions {
     }
   };
 
-//  struct fixed_capacity_policy : variable_capacity_policy {
-//    template <typename CT>
-//    static bool check_size(boost::type<CT>, std::size_t sz) {
-//      return CT::max_size() >= sz;
-//    }
-//  };
+  bool is_python_iterable(PyObject* p) {
+     return (PyList_Check(p) || PyTuple_Check(p) || PyIter_Check(p));
+  }
 
-//  struct linked_list_policy : default_policy {
-//    template <typename CT, typename ValueType>
-//    static void set_value(CT& a, std::size_t /*i*/, ValueType const& v) {
-//      a.push_back(v);
-//    }
-//  };
-//
-//  struct set_policy : default_policy {
-//    template <typename CT, typename ValueType>
-//    static void set_value(CT& a, std::size_t /*i*/, ValueType const& v) {
-//      a.insert(v);
-//    }
-//  };
+  bool metaclass_is_boost_python_class(PyObject* p) {
+    //if (p->ob_type == 0) return false;
+    PyTypeObject* type = Py_TYPE(p);
+    if (type == 0) return false;
+#if PY_MAJOR_VERSION >= 3
+    auto p_base = type->ob_base.ob_base.ob_type;
+#else
+    auto p_base = type->ob_type;
+#endif
+    if (p_base == 0) return false;
+    if (p_base->tp_name == 0) return false;
+    return std::strcmp(p_base->tp_name, "Boost.Python.class") == 0;
+  };
 
   template <typename CT, typename ConversionPolicy>
   struct from_python_sequence {
@@ -122,15 +85,15 @@ namespace container_conversions {
     }
 
     static void* convertible(PyObject* p) {
-      if (!(PyList_Check(p) || PyTuple_Check(p) || PyIter_Check(p) ||
-            PyRange_Check(p) ||
-            (!PyString_Check(p) && !PyUnicode_Check(p) &&
-             (p->ob_type == 0 || p->ob_type->ob_type == 0 ||
-              p->ob_type->ob_type->tp_name == 0 ||
-              std::strcmp(p->ob_type->ob_type->tp_name, "Boost.Python.class") !=
-                  0) &&
-             PyObject_HasAttrString(p, "__len__") &&
-             PyObject_HasAttrString(p, "__getitem__"))))
+        if (!(is_python_iterable(p) ||
+              (!PyBytes_Check(p) &&
+               !PyUnicode_Check(p) &&
+               !metaclass_is_boost_python_class(p) &&
+               PyObject_HasAttrString(p, "__len__") &&
+               PyObject_HasAttrString(p, "__getitem__")
+              )
+             )
+           )
         return 0;
       bp::handle<> obj_iter(bp::allow_null(PyObject_GetIter(p)));
       if (!obj_iter.get()) {  // must be convertible to an iterator
@@ -192,40 +155,6 @@ namespace container_conversions {
       ConversionPolicy::assert_size(boost::type<CT>(), i);
     }
   };
-
-//  template <typename CT>
-//  struct to_tuple_mapping {
-//    to_tuple_mapping() { bp::to_python_converter<CT, to_tuple<CT> >(); }
-//  };
-
-//  template <typename CT, typename ConversionPolicy>
-//  struct tuple_mapping : to_tuple_mapping<CT> {
-//    tuple_mapping() { from_python_sequence<CT, ConversionPolicy>(); }
-//  };
-
-//template <typename CT>
-//struct tuple_mapping_fixed_size {
-//  tuple_mapping_fixed_size() { tuple_mapping<CT, fixed_size_policy>(); }
-//};
-
-//  template <typename CT>
-//  struct tuple_mapping_fixed_capacity {
-//    tuple_mapping_fixed_capacity() {
-//      tuple_mapping<CT, fixed_capacity_policy>();
-//    }
-//  };
-
-//  template <typename CT>
-//  struct tuple_mapping_variable_capacity {
-//    tuple_mapping_variable_capacity() {
-//      tuple_mapping<CT, variable_capacity_policy>();
-//    }
-//  };
-
-//  template <typename CT>
-//  struct tuple_mapping_set {
-//    tuple_mapping_set() { tuple_mapping<CT, set_policy>(); }
-//  };
 
   template <class T1, class T2>
   struct PairToTupleConverter {

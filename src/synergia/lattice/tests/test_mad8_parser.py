@@ -20,7 +20,7 @@ def test_garbage():
     caught = False
     try:
         mp.parse('your momma uses portions->of madx syntax')
-    except ParseException, e:
+    except ParseException as e:
         caught = True
     assert caught
 
@@ -193,7 +193,7 @@ def test_continuation4():
 def test_line_multiplier():
     mp = Mad8_parser()
     mp.parse('fodo8: line=(8*(f,o,d,o))')
-    print mp.lines
+    print(mp.lines)
     assert_equal(1,len(mp.lines))
     assert_equal(2,len(mp.lines['fodo8']))
     assert_equal('8*',mp.lines['fodo8'][0])
@@ -206,7 +206,7 @@ def test_line_multiplier():
 def test_line_unary_minus():
     mp = Mad8_parser()
     mp.parse('odof: line=(-(f,o,d,o))')
-    print mp.lines
+    print(mp.lines)
     assert_equal(1,len(mp.lines))
     assert_equal(2,len(mp.lines['odof']))
     assert_equal('-',mp.lines['odof'][0])

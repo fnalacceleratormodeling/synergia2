@@ -96,25 +96,25 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synbeamplot <filename> [option1] ... [optionn] <h coord> <v coord>"
-    print "available options are:"
-    print "    --nohist : do not show histograms (not on by default)"
-    print "    --bins=<num> : number of bins in each direction"
-    print "    --minh=<num> : minimum limit on horizontal axis data"
-    print "    --maxh=<num> : maximum limit on horizontal axis data"
-    print "    --minv=<num> : minimum limit on vertical axis data"
-    print "    --maxv=<num> : maximum limit on vertical axis data"
-    print "    --contour    : draw contours instead of color density"
-    print "    --contour=<num>: draw <num> levels of contours"
-    print "    --output=<file> : save output to file (not on by default)"
-    print "    --show : show plots on screen (on by default unless --output flag is present"
-    print "available coords are:"
-    print "   ",
-    coord_list = coords.keys()
+    print("usage: synbeamplot <filename> [option1] ... [optionn] <h coord> <v coord>")
+    print("available options are:")
+    print("    --nohist : do not show histograms (not on by default)")
+    print("    --bins=<num> : number of bins in each direction")
+    print("    --minh=<num> : minimum limit on horizontal axis data")
+    print("    --maxh=<num> : maximum limit on horizontal axis data")
+    print("    --minv=<num> : minimum limit on vertical axis data")
+    print("    --maxv=<num> : maximum limit on vertical axis data")
+    print("    --contour    : draw contours instead of color density")
+    print("    --contour=<num>: draw <num> levels of contours")
+    print("    --output=<file> : save output to file (not on by default)")
+    print("    --show : show plots on screen (on by default unless --output flag is present")
+    print("available coords are:")
+    print("   ", end=' ')
+    coord_list = list(coords.keys())
     coord_list.sort()
     for coord in coord_list:
-        print coord,
-    print
+        print(coord, end=' ')
+    print()
     sys.exit(0)
 
 def handle_args(args):

@@ -202,7 +202,7 @@ def test_unassigned_var_exception():
     caught = False
     try:
         value = ep.evaluate_stack(stack)
-    except ParseException, e:
+    except ParseException as e:
         caught = True
     assert caught
 

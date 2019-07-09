@@ -21,15 +21,15 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synergia-pyresume [options] [checkpoint directory]";
-    print "  options:";
-    print "    --help: this message";
-    print "    --new-dir=<dir>: directory name to use for subsequent checkpointing";
-    print "    --period=<period>: period for subsequent checkpointing";
-    print "    --turns=<num>: total number of turns to run";
-    print "    --max=<num>: maximum number of turns for this run";
-    print "    --concurrent-io=<num>: number of processors which simultaneously write checkpoints";
-    print "    --verbosity=<num>: verbosity for this run";
+    print("usage: synergia-pyresume [options] [checkpoint directory]");
+    print("  options:");
+    print("    --help: this message");
+    print("    --new-dir=<dir>: directory name to use for subsequent checkpointing");
+    print("    --period=<period>: period for subsequent checkpointing");
+    print("    --turns=<num>: total number of turns to run");
+    print("    --max=<num>: maximum number of turns for this run");
+    print("    --concurrent-io=<num>: number of processors which simultaneously write checkpoints");
+    print("    --verbosity=<num>: verbosity for this run");
     sys.exit(0)
 
 def handle_args(args):

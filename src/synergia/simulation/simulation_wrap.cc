@@ -18,6 +18,7 @@
 #include "calculate_closed_orbit.h"
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/numpy_multi_ref_converter.h"
+#include "synergia/utils/portable_import_array.h"
 #include "fast_normal_form.h"
 #include <physics_toolkit/EdwardsTengSage.h>
 
@@ -253,7 +254,7 @@ void
 
 BOOST_PYTHON_MODULE(simulation)
 {
-    import_array();
+    portable_import_array();
 
     class_<Operator, Operator_sptr, boost::noncopyable >("Operator", no_init)
         .def("get_name", &Operator::get_name,

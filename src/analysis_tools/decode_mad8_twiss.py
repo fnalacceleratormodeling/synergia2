@@ -16,12 +16,12 @@ def test_close(x, y, tolerance):
         return abs((x-y)/x) < tolerance
 
 def usage():
-    print "usage: decode_madx_twiss [options] TWISS-file"
-    print "    options: --xmlfile=file write xml description of lattice"
-    print "             --lfcsvfile=file write lattice functions in csv format to file"
-    print "             --lfnpfile=file write numpy save file of lattice functions"
+    print("usage: decode_madx_twiss [options] TWISS-file")
+    print("    options: --xmlfile=file write xml description of lattice")
+    print("             --lfcsvfile=file write lattice functions in csv format to file")
+    print("             --lfnpfile=file write numpy save file of lattice functions")
     #print "             --lfcompare compare MAD8 lattice functions with Synergia lattice functions produced by the lattice"
-    print "             --help  this message"
+    print("             --help  this message")
 
 lattice_element_name_map = {
     'DRIF': 'drift', 'RBEN': 'rbend', 'SBEN': 'sbend', 'QUAD': 'quadrupole',
@@ -110,7 +110,7 @@ def make_lattice_element(letype, lename, lelength, p1, p2, p3, p4, p5, p6, p7, p
         new_elem.set_double_attribute('l', 0.0)
 
     if DEBUG:
-        print "new_elem: ", new_elem.as_string()
+        print("new_elem: ", new_elem.as_string())
     return new_elem
     
 
@@ -120,20 +120,20 @@ def read_twiss_file(tfo):
     hdrformat = frr('(5A8,I8,L8,A8)')
     progvrsn,datavrsn,madrundate, madruntime, madjobname,superperiod,symm,npos = hdrformat.read(tfo.readline())
     if DEBUG:
-        print "progvrsn: ", progvrsn
-        print "datavrsn: ", "->"+datavrsn+"<-"
-        print "madrundate: ", "->"+madrundate+"<-"
-        print "madruntime: ", "->"+madruntime+"<-"
-        print "superperiod: ", superperiod
-        print "symm: ", symm
-        print "npos: ", "->"+npos+"<-"
+        print("progvrsn: ", progvrsn)
+        print("datavrsn: ", "->"+datavrsn+"<-")
+        print("madrundate: ", "->"+madrundate+"<-")
+        print("madruntime: ", "->"+madruntime+"<-")
+        print("superperiod: ", superperiod)
+        print("symm: ", symm)
+        print("npos: ", "->"+npos+"<-")
     if datavrsn != "   TWISS":
-        raise RuntimeError, "File is not a TWISS file"
+        raise RuntimeError("File is not a TWISS file")
 
     titleformat = frr('(A80)')
     runtitle = titleformat.read(tfo.readline())[0]
     if DEBUG:
-        print "Run Title: ", runtitle
+        print("Run Title: ", runtitle)
     num_records = int(npos)
     lfinfo = []
     lattice = synergia.lattice.Lattice()
@@ -147,7 +147,7 @@ def read_twiss_file(tfo):
         letype, lename, lelength, p1, p2, p3 = line1format.read(tfo.readline())
         p4, p5, p6, p7, p8 = line2format.read(tfo.readline())
         if DEBUG:
-            print letype, lename, lelength, p1, p2, p3
+            print(letype, lename, lelength, p1, p2, p3)
         
         alpha_x, beta_x, psi_x, D_x, Dprime_x = line3_5format.read(tfo.readline())
         alpha_y, beta_y, psi_y, D_y, Dprime_y = line3_5format.read(tfo.readline())
@@ -177,10 +177,10 @@ def read_twiss_file(tfo):
     
 def write_lfcsvfile(filename, lfinfo):
     lffo = open(filename, "w")
-    print >>lffo, "#name s alpha_x beta_x psi_x alpha_y beta_y psi_y D_x Dprime_x D_y Dprime_y"
+    print("#name s alpha_x beta_x psi_x alpha_y beta_y psi_y D_x Dprime_x D_y Dprime_y", file=lffo)
     for lf in lfinfo:
-        print >>lffo, "%16s %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g"%(lf['name'], lf['s'], lf['alpha_x'], lf['beta_x'], lf['psi_x'], lf['alpha_y'],
-                                                                                    lf['beta_y'], lf['psi_y'], lf['D_x'], lf['Dprime_x'], lf['D_y'], lf['Dprime_y'])
+        print("%16s %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g"%(lf['name'], lf['s'], lf['alpha_x'], lf['beta_x'], lf['psi_x'], lf['alpha_y'],
+                                                                                    lf['beta_y'], lf['psi_y'], lf['D_x'], lf['Dprime_x'], lf['D_y'], lf['Dprime_y']), file=lffo)
 
     lffo.close()
 
@@ -189,8 +189,8 @@ def do_lfcompare(lfinfo, lattice):
     lattice_len = len(lattice.get_elements())
     # first check number entries
     if lfinfo_len != lattice_len:
-        print "# entries does not match."
-        print "twiss file: ", lfinfo_len, " entries != Synergia/CHEF: ", lattice_len
+        print("# entries does not match.")
+        print("twiss file: ", lfinfo_len, " entries != Synergia/CHEF: ", lattice_len)
         return
 
     # make lattice functions.  copied out of lattice_fns.py
@@ -204,38 +204,38 @@ def do_lfcompare(lfinfo, lattice):
         madlf = testfns[0]
         syncheflf = testfns[1]
         if not test_close(madlf['s'], syncheflf.arc_length):
-            print "Element ", i, " arclength MAD8: ", madlf['s'], " Synergia/CHEF: ", syncheflf.arc_length
+            print("Element ", i, " arclength MAD8: ", madlf['s'], " Synergia/CHEF: ", syncheflf.arc_length)
         if not test_close(madlf['alpha_x'], syncheflf.alpha_x):
-            print "Element ", i, " alpha_x MAD8: ", madlf['alpha_x'], " Synergia/CHEF: ", syncheflf.alpha_x
+            print("Element ", i, " alpha_x MAD8: ", madlf['alpha_x'], " Synergia/CHEF: ", syncheflf.alpha_x)
         if not test_close(madlf['alpha_x'], syncheflf.alpha_x):
-            print "Element ", i, " alpha_x MAD8: ", madlf['alpha_x'], " Synergia/CHEF: ", syncheflf.alpha_x
+            print("Element ", i, " alpha_x MAD8: ", madlf['alpha_x'], " Synergia/CHEF: ", syncheflf.alpha_x)
 
         if not test_close(madlf['beta_x'], syncheflf.beta_x):
-            print "Element ", i, " beta_x MAD8: ", madlf['beta_x'], " Synergia/CHEF: ", syncheflf.beta_x
+            print("Element ", i, " beta_x MAD8: ", madlf['beta_x'], " Synergia/CHEF: ", syncheflf.beta_x)
 
         if not test_close(madlf['psi_x'], syncheflf.psi_x):
-            print "Element ", i, " psi_x MAD8: ", madlf['psi_x'], " Synergia/CHEF: ", syncheflf.psi_x
+            print("Element ", i, " psi_x MAD8: ", madlf['psi_x'], " Synergia/CHEF: ", syncheflf.psi_x)
 
         if not test_close(madlf['alpha_y'], syncheflf.alpha_y):
-            print "Element ", i, " alpha_y MAD8: ", madlf['alpha_y'], " Synergia/CHEF: ", syncheflf.alpha_y
+            print("Element ", i, " alpha_y MAD8: ", madlf['alpha_y'], " Synergia/CHEF: ", syncheflf.alpha_y)
 
         if not test_close(madlf['beta_y'], syncheflf.beta_y):
-            print "Element ", i, " beta_y MAD8: ", madlf['beta_y'], " Synergia/CHEF: ", syncheflf.beta_y
+            print("Element ", i, " beta_y MAD8: ", madlf['beta_y'], " Synergia/CHEF: ", syncheflf.beta_y)
 
         if not test_close(madlf['psi_y'], syncheflf.psi_y):
-            print "Element ", i, " psi_y MAD8: ", madlf['psi_y'], " Synergia/CHEF: ", syncheflf.psi_y
+            print("Element ", i, " psi_y MAD8: ", madlf['psi_y'], " Synergia/CHEF: ", syncheflf.psi_y)
 
         if not test_close(madlf['D_x'], syncheflf.D_x):
-            print "Element ", i, " D_x MAD8: ", madlf['D_x'], " Synergia/CHEF: ", syncheflf.D_x
+            print("Element ", i, " D_x MAD8: ", madlf['D_x'], " Synergia/CHEF: ", syncheflf.D_x)
 
         if not test_close(madlf['Dprime_x'], syncheflf.Dprime_x):
-            print "Element ", i, " Dprime_x MAD8: ", madlf['Dprime_x'], " Synergia/CHEF: ", syncheflf.Dprime_x
+            print("Element ", i, " Dprime_x MAD8: ", madlf['Dprime_x'], " Synergia/CHEF: ", syncheflf.Dprime_x)
 
         if not test_close(madlf['D_y'], syncheflf.D_y):
-            print "Element ", i, " D_y MAD8: ", madlf['D_y'], " Synergia/CHEF: ", syncheflf.D_y
+            print("Element ", i, " D_y MAD8: ", madlf['D_y'], " Synergia/CHEF: ", syncheflf.D_y)
 
         if not test_close(madlf['Dprime_y'], syncheflf.Dprime_y):
-            print "Element ", i, " Dprime_y MAD8: ", madlf['Dprime_y'], " Synergia/CHEF: ", syncheflf.Dprime_y
+            print("Element ", i, " Dprime_y MAD8: ", madlf['Dprime_y'], " Synergia/CHEF: ", syncheflf.Dprime_y)
 
 
 if __name__ == "__main__":
@@ -243,7 +243,7 @@ if __name__ == "__main__":
         option_values, leftover = getopt.getopt(sys.argv[1:], '', [
             'xmlfile=', 'lfcsvfile=', 'lfnpfile=', 'help'])
     except getopt.GetoptError as err:
-        print err
+        print(err)
         usage()
         sys.exit(10)
 
@@ -266,7 +266,7 @@ if __name__ == "__main__":
             lfcompare = True
 
     if not leftover or len(leftover)!=1:
-        print "error, need TWISS file"
+        print("error, need TWISS file")
         usage()
         sys.exit(10)
 
@@ -274,18 +274,18 @@ if __name__ == "__main__":
     lfinfo, lattice = read_twiss_file(twissfo)
     twissfo.close()
 
-    print "read lattice, number of elements: ", len(lattice.get_elements())
-    print "lattice length: ", lattice.get_length()
+    print("read lattice, number of elements: ", len(lattice.get_elements()))
+    print("lattice length: ", lattice.get_length())
 
     if xmlfile:
         synergia.lattice.xml_save_lattice(lattice, xmlfile)
 
     if lfnpfile:
-        print "saving lattice functions to ", lfnpfile
+        print("saving lattice functions to ", lfnpfile)
         np.save(lfnpfile, lfinfo)
 
     if lfcsvfile:
-        print "saving csv lattice functions to ", lfcsvfile
+        print("saving csv lattice functions to ", lfcsvfile)
         write_lfcsvfile(lfcsvfile, lfinfo)
 
     if lfcompare:

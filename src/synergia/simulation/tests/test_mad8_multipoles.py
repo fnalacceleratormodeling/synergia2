@@ -103,7 +103,7 @@ def run_a_multipole(lattice_file_name):
     bunch = multipole_bunch(lattice.get_reference_particle())
     bunch_simulator = Bunch_simulator(bunch)
     stepper = Independent_stepper(lattice, 1, 1)
-    print "chef beamline: ", chef_beamline_as_string(stepper.get_lattice_simulator().get_chef_lattice().get_beamline())
+    print("chef beamline: ", chef_beamline_as_string(stepper.get_lattice_simulator().get_chef_lattice().get_beamline()))
     propagator = Propagator(stepper)
     propagator.propagate(bunch_simulator, 1)
     m8p = np.load("./lattices/m8"+lattice_file_name+".npy")
@@ -116,7 +116,7 @@ def run_a_multipole(lattice_file_name):
     assert(numpart == 32)
     for p in range(numpart):
         for j in [1]:
-            print "    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, lp[p,j], m8p[p,j])
+            print("    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, lp[p,j], m8p[p,j]))
             assert_almost_equal(lp[p, j], m8p[p, j], 14)
     
 def test_mpole_k1():

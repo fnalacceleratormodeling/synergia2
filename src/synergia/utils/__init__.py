@@ -1,3 +1,3 @@
-from parallel_utils import *
-from pylsexpr import *
+from .parallel_utils import *
+from .pylsexpr import *
 

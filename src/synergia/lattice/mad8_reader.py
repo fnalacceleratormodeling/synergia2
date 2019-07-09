@@ -8,7 +8,7 @@ from synergia.foundation import pconstants, Four_momentum, Reference_particle
 from mpi4py import MPI
 
 def islist(x):
-    return hasattr(x, "__iter__")
+    return hasattr(x, "__iter__") and type(x) is not str
 
 class Cache_entry:
     def __init__(self, hash_hex, index):
@@ -32,7 +32,8 @@ class Lattice_cache:
             self.max_index = 0
 
     def _get_hash_hex(self):
-        hash = hashlib.sha1(open(self.file_name, 'r').read() + str(self.version))
+        txt = open(self.file_name, 'r').read() + str(self.version)
+        hash = hashlib.sha1(txt.encode())
         return hash.hexdigest()
 
     def _read_cache(self):
@@ -55,7 +56,7 @@ class Lattice_cache:
         if not self.cache:
             self._read_cache()
         readable = False
-        exists = self.cache.has_key(self._versioned_line_name())
+        exists = self._versioned_line_name() in self.cache
         if exists:
             readable = self.cache[self._versioned_line_name()].hash_hex == self._get_hash_hex()
         return readable
@@ -86,7 +87,7 @@ class Lattice_cache:
         hash_hex = self._get_hash_hex()
         index = None
         need_to_write = True
-        if self.cache.has_key(self._versioned_line_name()):
+        if self._versioned_line_name() in self.cache:
             index = self.cache[self._versioned_line_name()].index
             if self.cache[self._versioned_line_name()].hash_hex == hash_hex:
                 need_to_write = False
@@ -98,7 +99,7 @@ class Lattice_cache:
             if not os.path.exists(self.cache_dir):
                 os.mkdir(self.cache_dir)
             cache_file = open(self.cache_file_name, 'w')
-            for line_name in self.cache.keys():
+            for line_name in list(self.cache.keys()):
                 cache_file.write(line_name + '\n')
                 cache_file.write('%s\n' % self.cache[line_name].hash_hex)
                 cache_file.write('%d\n' % self.cache[line_name].index)
@@ -130,7 +131,7 @@ class Mad8_reader:
         """Parse a file containing a lattice description in Mad8 format."""
         try:
             the_file = open(filename, 'r')
-        except IOError, e:
+        except IOError as e:
             os.system("ls")
             msg = "Mad8_reader: unable to open: " + filename + "\n"
             msg += "current working directory: " + os.getcwd() + "\n"
@@ -140,8 +141,8 @@ class Mad8_reader:
     def _parser_check(self, filename, method):
         if not self.parser:
             if not filename:
-                raise RuntimeError, "Mad8_reader." + method + \
-            ": filename must be specified if no file or string has been parsed"
+                raise RuntimeError("Mad8_reader." + method + \
+            ": filename must be specified if no file or string has been parsed")
             self.parse(filename)
 
     def get_lines(self, filename=None):
@@ -149,17 +150,17 @@ class Mad8_reader:
 
                 :param filename: if not *None*, parse *filename* first"""
         self._parser_check(filename, "get_lines")
-        return self.parser.lines.keys()
+        return list(self.parser.lines.keys())
 
     def _expand_type(self, short):
         retval = None
-        for long in self.element_adaptor_map.get_adaptor_names():
-            if long.find(short) == 0:
+        for int in self.element_adaptor_map.get_adaptor_names():
+            if int.find(short) == 0:
                 if retval:
-                    raise RuntimeError, 'Mad8_reader: ambiguous abbreviated type "'\
-                        + short + '": matches "' + retval + '" and "' + long
+                    raise RuntimeError('Mad8_reader: ambiguous abbreviated type "'\
+                        + short + '": matches "' + retval + '" and "' + int)
                 else:
-                    retval = long
+                    retval = int
         return retval
 
     def get_lattice_element(self, label, filename=None):
@@ -352,5 +353,5 @@ if __name__ == "__main__":
         filename = 'fodo.lat'
 
     lattice = Mad8_reader().get_lattice(line, filename, False, False)
-    print "has reference particle:", lattice.has_reference_particle()
+    print("has reference particle:", lattice.has_reference_particle())
     lattice.print_()

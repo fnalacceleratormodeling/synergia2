@@ -8,7 +8,7 @@ def map2twiss(csmap):
     asinmu = 0.5*(csmap[0,0]-csmap[1,1])
 
     if abs(cosmu) > 1.0:
-        raise RuntimeError, "map is unstable"
+        raise RuntimeError("map is unstable")
 
     mu =np.arccos(cosmu)
 

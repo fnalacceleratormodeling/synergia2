@@ -110,7 +110,7 @@ def run_a_multipole(lattice_file_name):
     assert(numpart == 32)
     for p in range(numpart):
         for j in range(4):
-            print "    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, lp[p,j], mxp[p,j])
+            print("    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, lp[p,j], mxp[p,j]))
             assert_almost_equal(lp[p, j], mxp[p, j], 14)
     
 def test_mpole_k1():

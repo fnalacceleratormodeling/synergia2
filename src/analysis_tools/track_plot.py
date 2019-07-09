@@ -56,19 +56,19 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: syntrackplot <filename> [option1] ... [optionn] <h coord1> <v coord1> ... <h coordn> <v coordn>"
-    print "available options are:"
-    print "    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)"
-    print "    --oneplot : put all plots on the same axis (not on by default)"
-    print "    --output=<file> : save output to file (not on by default)"
-    print "    --show : show plots on screen (on by default unless --output flag is present"
-    print "available coords are:"
-    print "   ",
-    coord_keys = coords.keys()
+    print("usage: syntrackplot <filename> [option1] ... [optionn] <h coord1> <v coord1> ... <h coordn> <v coordn>")
+    print("available options are:")
+    print("    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)")
+    print("    --oneplot : put all plots on the same axis (not on by default)")
+    print("    --output=<file> : save output to file (not on by default)")
+    print("    --show : show plots on screen (on by default unless --output flag is present")
+    print("available coords are:")
+    print("   ", end=' ')
+    coord_keys = list(coords.keys())
     coord_keys.sort()
     for coord in coord_keys:
-        print coord,
-    print
+        print(coord, end=' ')
+    print()
     sys.exit(0)
 
 def handle_args(args):
@@ -83,7 +83,7 @@ def handle_args(args):
                 do_help()
             elif arg.find('--index=') == 0:
                 indices = arg.split('=')[1]
-                options.indices = map(int,indices.split(','))
+                options.indices = list(map(int,indices.split(',')))
             elif arg == '--oneplot':
                 options.oneplot = True
             elif arg == '--show':
@@ -95,7 +95,7 @@ def handle_args(args):
             else:
                 do_error('Unknown argument "%s"' % arg)
         else:
-            if arg in coords.keys():
+            if arg in list(coords.keys()):
                 options.coords.append(arg)
             else:
                 do_error('Unknown coord "%s"' % arg)
@@ -113,7 +113,7 @@ def get_particle_coords(f, options):
         if options.indices[0]:
             indices = options.indices
         else:
-            print "using default track index 0"
+            print("using default track index 0")
             indices = [0]
         for index in indices:
             pz = p_ref * (1.0 + all_coords[index, 5, :]).reshape(1,nturns)

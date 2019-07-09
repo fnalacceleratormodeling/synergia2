@@ -14,11 +14,11 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synpart2txt [option] <filename>"
-    print "available options are:"
-    print "    --long-header : add long header describing units and column labels"
-    print "    --short-header : add short header of column labels"
-    print "    --no-header : just include coordinates"
+    print("usage: synpart2txt [option] <filename>")
+    print("available options are:")
+    print("    --long-header : add long header describing units and column labels")
+    print("    --short-header : add short header of column labels")
+    print("    --no-header : just include coordinates")
     sys.exit(0)
 
 def handle_args(args):

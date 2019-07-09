@@ -13,11 +13,11 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: syntrack2txt [option] <filename>"
-    print "available options are:"
-    print "    --long-header : add long header describing units and column labels"
-    print "    --short-header : add short header of column labels"
-    print "    --no-header : just include coordinates"
+    print("usage: syntrack2txt [option] <filename>")
+    print("available options are:")
+    print("    --long-header : add long header describing units and column labels")
+    print("    --short-header : add short header of column labels")
+    print("    --no-header : just include coordinates")
     sys.exit(0)
 
 def handle_args(args):
@@ -74,7 +74,7 @@ def do_conversion(options):
         ofile.write('\n')
 
     if track_coords.shape[2] != nturns:
-        raise RuntimeError, "number of turns doesn't agree between arrays repetition and track_coords"
+        raise RuntimeError("number of turns doesn't agree between arrays repetition and track_coords")
 
     for t in range(len(turns)):
         ofile.write(' ')

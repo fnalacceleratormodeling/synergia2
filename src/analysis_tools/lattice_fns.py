@@ -43,22 +43,22 @@ def do_error(message):
     sys.exit(1)
 
 def do_help(plotparams):
-    print "usage: synlatticefns [options] <lattice_file> <line_name> <fn_1> ... <fn_n>"
-    print "    or"
-    print "       synlatticefns [options] <lattice_file.xml> <fn_1> ... <fn_n>"
-    print "options governing the interpretation of the lattice are:"
-    print "    --reader=[mad8|madx]"
-    print "lattice from xml file is assumed by default to be a mad8 lattice.  Change"
-    print "    with --reader=madx"
-    print "available plots are:"
-    plots = plotparams.keys()
+    print("usage: synlatticefns [options] <lattice_file> <line_name> <fn_1> ... <fn_n>")
+    print("    or")
+    print("       synlatticefns [options] <lattice_file.xml> <fn_1> ... <fn_n>")
+    print("options governing the interpretation of the lattice are:")
+    print("    --reader=[mad8|madx]")
+    print("lattice from xml file is assumed by default to be a mad8 lattice.  Change")
+    print("    with --reader=madx")
+    print("available plots are:")
+    plots = list(plotparams.keys())
     plots.sort()
     for plot in plots:
-        print plot,
-    print
-    print "lattice function file save options are:"
-    print "    --lfcsvfile=<filename>    (save as a csv text file)"
-    print "    --lfnpfile=<filename>     (save as a numpy .npy file)"
+        print(plot, end=' ')
+    print()
+    print("lattice function file save options are:")
+    print("    --lfcsvfile=<filename>    (save as a csv text file)")
+    print("    --lfnpfile=<filename>     (save as a numpy .npy file)")
     sys.exit(0)
 
 def handle_args(args, plotparams):
@@ -99,13 +99,13 @@ def handle_args(args, plotparams):
         if arg[0] == '-':
             do_error('Unknown argument "%s"' % arg)
         else:
-            if arg in plotparams.keys():
+            if arg in list(plotparams.keys()):
                 options.plots.append(arg)
             else:
                 do_error('Unknown plot "%s"' % arg)
     if options.xmlfile and not options.reader:
         options.reader = 'mad8'
-        print "lattice reader defaulting to mad8"
+        print("lattice reader defaulting to mad8")
     if not options.xmlfile and not options.reader:
         if os.path.splitext(options.filename)[1] == '.madx':
             options.reader = 'madx'
@@ -119,10 +119,10 @@ def handle_args(args, plotparams):
 
 def do_csvfile(options, lfinfo):
     lffo = open(options.lfcsvfile, "w")
-    print >>lffo, "#name s alpha_x beta_x psi_x alpha_y beta_y psi_y D_x Dprime_x D_y Dprime_y"
+    print("#name s alpha_x beta_x psi_x alpha_y beta_y psi_y D_x Dprime_x D_y Dprime_y", file=lffo)
     for lf in lfinfo:
-        print >>lffo, "%16s %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g"%(lf['name'], lf['s'], lf['alpha_x'], lf['beta_x'], lf['psi_x'], lf['alpha_y'],
-                                                                                    lf['beta_y'], lf['psi_y'], lf['D_x'], lf['Dprime_x'], lf['D_y'], lf['Dprime_y'])
+        print("%16s %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g %.16g"%(lf['name'], lf['s'], lf['alpha_x'], lf['beta_x'], lf['psi_x'], lf['alpha_y'],
+                                                                                    lf['beta_y'], lf['psi_y'], lf['D_x'], lf['Dprime_x'], lf['D_y'], lf['Dprime_y']), file=lffo)
 
     lffo.close()
     return
@@ -146,7 +146,7 @@ def get_lf_info():
         lattice = synergia.lattice.MadX_reader().get_lattice(options.line, options.filename)
     else:
         lattice = synergia.lattice.Mad8_reader().get_lattice(options.line, options.filename)
-    print "read lattice, ", len(lattice.get_elements()), " elements, length: ", lattice.get_length()
+    print("read lattice, ", len(lattice.get_elements()), " elements, length: ", lattice.get_length())
     lattice_simulator = synergia.simulation.Lattice_simulator(lattice, 1)
     n_elem = len(lattice.get_elements())
 

@@ -48,7 +48,7 @@ class _option:
                 if self.length == 1:
                     return self._apply_val_type(self.value)
                 else:
-                    return map(self._apply_val_type, self.value)
+                    return list(map(self._apply_val_type, self.value))
             else:
                 return self.value
 
@@ -106,7 +106,7 @@ class Options:
         setattr(self, option, self.get(option))
 
     def get(self, option):
-        if self.dict.has_key(option):
+        if option in self.dict:
             return self.dict[option].get()
         else:
             for suboption in self.suboptions:
@@ -114,7 +114,7 @@ class Options:
                     return suboption.get(option)
 
     def set(self, option, value):
-        if self.dict.has_key(option):
+        if option in self.dict:
             self.dict[option].set(value)
             setattr(self, option, self.get(option))
         else:
@@ -131,7 +131,7 @@ class Options:
         '''Returns true if option present.
         
         :param option: Name of option.'''
-        if self.dict.has_key(option):
+        if option in self.dict:
             return 1
         else:
             for suboption in self.suboptions:
@@ -143,7 +143,7 @@ class Options:
         '''Returns a list of options.
         
         :param include_suboptions: whether to include suboptions'''
-        list = self.dict.keys()
+        list = list(self.dict.keys())
         if include_suboptions:
             for suboption in self.suboptions:
                 list = list + suboption.options()
@@ -166,7 +166,7 @@ class Options:
                 if self.has_option(name):
                     self.set(name, getattr(overrides, name))
                 else:
-                    print "warning: override", name, "not found in existing options"
+                    print("warning: override", name, "not found in existing options")
 
     def _underlined_text(self, text):
         return text + '\n' + ''.ljust(len(text),'-')
@@ -237,15 +237,15 @@ class Options:
         desc_str += self._get_opt_default_str(option, ReST)
         if self.dict[option].valid_values:
             desc_str += ", valid values: " + \
-                string.join(map (str, self.dict[option].valid_values), ',')
+                string.join(list(map (str, self.dict[option].valid_values)), ',')
         return desc_str
 
     def usage(self):
         '''Print usage message to stdout'''
         for suboption in self.suboptions:
             suboption.usage()
-        print
-        print self._underlined_text("%s options:" % self.name)
+        print()
+        print(self._underlined_text("%s options:" % self.name))
         all_options = self.options(include_suboptions=0)
         all_options.sort()
         opt_strs = []
@@ -258,7 +258,7 @@ class Options:
             wrapper = textwrap.TextWrapper(subsequent_indent = "".ljust(opt_len))
             for (opt_str, desc_str) in zip(opt_strs,desc_strs):
                 for line in wrapper.wrap(opt_str.ljust(opt_len) +  desc_str):
-                    print line
+                    print(line)
 
     def rst_usage(self):
         '''Print usage message to stdout as a ReST table'''
@@ -286,14 +286,14 @@ class Options:
             words.append('type'.ljust(type_len))
             words.append('default'.ljust(default_len))
             words.append('description'.ljust(description_len))
-            print self._underoverequals_words(words)
+            print(self._underoverequals_words(words))
             for (name, type, default, description) in \
                 zip(names, types, defaults, descriptions):
-                print name.ljust(name_len),
-                print type.ljust(type_len),
-                print default.ljust(default_len),
-                print description.ljust(description_len)
-            print self._justequals_words(words)
+                print(name.ljust(name_len), end=' ')
+                print(type.ljust(type_len), end=' ')
+                print(default.ljust(default_len), end=' ')
+                print(description.ljust(description_len))
+            print(self._justequals_words(words))
 
     def parse_argv(self, argv):
         '''Parse command-line arguments from argv'''
@@ -338,6 +338,6 @@ if __name__ == "__main__":
 
     stupid.parse_argv(sys.argv)
     for option in stupid.options():
-        print option, stupid.get(option)
-    print "stupid.fred =", stupid.fred
-    print "stupid.really_stupid.bugs =", stupid.really_stupid.bugs
+        print(option, stupid.get(option))
+    print("stupid.fred =", stupid.fred)
+    print("stupid.really_stupid.bugs =", stupid.really_stupid.bugs)

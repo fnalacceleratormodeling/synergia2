@@ -36,21 +36,21 @@ def test_set_rf_frequency():
             ce.setStrength(0.0)
 
     pr = beamline.Proton(energy)
-    print "start: ", pr.State()
+    print("start: ", pr.State())
     chef_beamline.propagate(pr)
-    print "end: ", pr.State()
+    print("end: ", pr.State())
     revolution_ctime = pr.get_cdt()
-    print "revolution time from propagated particle: ", revolution_ctime
-    print "lattice_simulator total reference ctime: ", total_reference_time
+    print("revolution time from propagated particle: ", revolution_ctime)
+    print("lattice_simulator total reference ctime: ", total_reference_time)
 
     inverse_t = synergia.foundation.pconstants.c/revolution_ctime
-    print "frequency from propagation: ", inverse_t
+    print("frequency from propagation: ", inverse_t)
 
     h = 1.0
     # naive_frequency is the frequency using just the length of
     # elements.
     naive_frequency = h * beta * synergia.foundation.pconstants.c/lattice_length
-    print "naive frequency: ", naive_frequency
+    print("naive frequency: ", naive_frequency)
 
     assert_almost_equal(naive_frequency*1.0e-5, inverse_t*1.0e-5, precision)
 
@@ -62,7 +62,7 @@ def test_set_rf_frequency():
     total_reference_time = 0.0
     for ce in chef_beamline:
         total_reference_time = total_reference_time + ce.getReferenceTime()
-    print "stepper chef_beamline total reference time: ", total_reference_time
+    print("stepper chef_beamline total reference time: ", total_reference_time)
 
     # look in chef_beamline at the rf cavity
     frequency = None
@@ -71,7 +71,7 @@ def test_set_rf_frequency():
             frequency = chef_element.getRadialFrequency()/(2.0 * np.pi)
             break
     if not frequency:
-        raise RuntimeError, "Couldn't find thinrfcavity in chef_beamline"
+        raise RuntimeError("Couldn't find thinrfcavity in chef_beamline")
 
     assert_almost_equal(frequency*1.0e-5, naive_frequency*1.0e-5, precision)
 

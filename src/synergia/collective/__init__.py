@@ -1,1 +1,1 @@
-from collective import *
+from .collective import *

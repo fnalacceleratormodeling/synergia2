@@ -39,21 +39,21 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synpoincareplot <filename1> ... <filenamen> [option1] ... [optionn] <h coord> <v coord>"
-    print "available options are:"
-    print "    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)"
-    print "    --pointsize=<float>: size of plotted points (default=4.0)"
-    print "    --output=<file> : save output to file (not on by default)"
-    print "    --legend : give legend for each particle number in plot"
+    print("usage: synpoincareplot <filename1> ... <filenamen> [option1] ... [optionn] <h coord> <v coord>")
+    print("available options are:")
+    print("    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)")
+    print("    --pointsize=<float>: size of plotted points (default=4.0)")
+    print("    --output=<file> : save output to file (not on by default)")
+    print("    --legend : give legend for each particle number in plot")
 
-    print "    --show : show plots on screen (on by default unless --output flag is present"
-    print "available coords are:"
-    print "   ",
-    coord_keys = coords.keys()
+    print("    --show : show plots on screen (on by default unless --output flag is present")
+    print("available coords are:")
+    print("   ", end=' ')
+    coord_keys = list(coords.keys())
     coord_keys.sort()
     for coord in coord_keys:
-        print coord,
-    print
+        print(coord, end=' ')
+    print()
     sys.exit(0)
 
 def handle_args(args):
@@ -85,7 +85,7 @@ def handle_args(args):
             options.inputfiles.append(arg)
     options.coords = args[first_coord:]
     for coord in options.coords:
-        if not coord in coords.keys():
+        if not coord in list(coords.keys()):
             do_error('Unknown coord "%s"' % coord)
     if options.indices == []:
         options.indices = [0]

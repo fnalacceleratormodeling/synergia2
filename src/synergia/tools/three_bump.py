@@ -37,7 +37,7 @@ class Three_bump:
         # I keep the elements separately so I can adjust them at the end when I know
         # what the settings are
         self.lattice_elements = lattice.get_elements()
-        self.lattice_elements_idx = range(len(self.lattice_elements))
+        self.lattice_elements_idx = list(range(len(self.lattice_elements)))
         self.start_name = start_name
         self.end_name = end_name
         self.hcorr_names = hcorr_names
@@ -53,17 +53,17 @@ class Three_bump:
         self.bump_lattice = synergia.lattice.Lattice("bump", element_adaptor_map)
         self.bump_lattice.set_reference_particle(self.lattice.get_reference_particle())
 
-        print "length of lattice_elements: ", len(self.lattice_elements)
+        print("length of lattice_elements: ", len(self.lattice_elements))
         elem_names = [e.get_name() for e in self.lattice_elements]
-        print "elem_names[0:9]: ", elem_names[0:9]
+        print("elem_names[0:9]: ", elem_names[0:9])
         try:
             start_idx = elem_names.index(self.start_name)
         except:
-            raise RuntimeError, "Three_bump: start_name: %s not found"%self.start_name
+            raise RuntimeError("Three_bump: start_name: %s not found"%self.start_name)
         try:
             end_idx = elem_names.index(self.end_name)
         except:
-            raise RuntimeError, "Three_bump: end_name: %s not found"%self.end_name
+            raise RuntimeError("Three_bump: end_name: %s not found"%self.end_name)
     
         if start_idx < end_idx:
             for elem in self.lattice_elements[start_idx:end_idx+1]:
@@ -80,9 +80,9 @@ class Three_bump:
             elem.set_string_attribute("extractor_type", "chef_propagate")
 
         if self.verbose > 2:
-            print "bump lattice:"
-            print self.bump_lattice.as_string()
-            print self.bump_idx
+            print("bump lattice:")
+            print(self.bump_lattice.as_string())
+            print(self.bump_idx)
 
         bump_elements = self.bump_lattice.get_elements()
         bump_enames = [e.get_name() for e in bump_elements]
@@ -96,7 +96,7 @@ class Three_bump:
             try:
                 hc_idx = bump_enames.index(self.hcorr_names[i])
             except:
-                raise RuntimeError, "Three_bump: hcorr_name: %s not found"%self.hcorr_names[i]
+                raise RuntimeError("Three_bump: hcorr_name: %s not found"%self.hcorr_names[i])
 
             self.hcorr_elements.append(bump_elements[hc_idx])
             self.hcorr_idx.append(self.bump_idx[hc_idx])
@@ -108,7 +108,7 @@ class Three_bump:
             try:
                 vc_idx = bump_enames.index(self.vcorr_names[i])
             except:
-                raise RuntimeError, "Three_bump: vcorr_name: %s not found"%self.vcorr_names[i]
+                raise RuntimeError("Three_bump: vcorr_name: %s not found"%self.vcorr_names[i])
 
             self.vcorr_elements.append(bump_elements[vc_idx])
             self.vcorr_idx.append(self.bump_idx[vc_idx])
@@ -116,7 +116,7 @@ class Three_bump:
         try:
             target_idx = bump_enames.index(self.target_name)
         except:
-            raise RuntimeError, "Three_bump: target_name: %s not found"%self.target_name
+            raise RuntimeError("Three_bump: target_name: %s not found"%self.target_name)
 
         self.target_elem = bump_elements[target_idx]
         self.target_elem.set_string_attribute("force_diagnostics", "true")
@@ -127,14 +127,14 @@ class Three_bump:
     # print out information about the bump settings
 
     def information(self):
-        print "bump_lattice: ", len(self.bump_lattice.get_elements()), " elements, length: ", self.bump_lattice.get_length()
-        print "horizontal correctors: "
+        print("bump_lattice: ", len(self.bump_lattice.get_elements()), " elements, length: ", self.bump_lattice.get_length())
+        print("horizontal correctors: ")
         for i in range(3):
-            print "\t%s, kick = %.16g"%(self.hcorr_elements[i].get_name(), self.hcorr_elements[i].get_double_attribute("kick"))
-        print "vertical correctors: "
+            print("\t%s, kick = %.16g"%(self.hcorr_elements[i].get_name(), self.hcorr_elements[i].get_double_attribute("kick")))
+        print("vertical correctors: ")
         for i in range(3):
-            print "\t%s, kick = %.16g"%(self.vcorr_elements[i].get_name(), self.vcorr_elements[i].get_double_attribute("kick"))
-        print "target element name: ", self.target_name
+            print("\t%s, kick = %.16g"%(self.vcorr_elements[i].get_name(), self.vcorr_elements[i].get_double_attribute("kick")))
+        print("target element name: ", self.target_name)
 
 
     ##################################################
@@ -145,10 +145,10 @@ class Three_bump:
 
     def set_corrector_elements(self, hcorr_values, vcorr_values):
         if len(self.hcorr_elements) != len(hcorr_values):
-            raise RuntimeError, "set_corrector_elements: len(hcorr_elements) != len(hcorr_values)"
+            raise RuntimeError("set_corrector_elements: len(hcorr_elements) != len(hcorr_values)")
 
         if len(self.vcorr_elements) != len(vcorr_values):
-            raise RuntimeError, "set_corrector_elements: len(vcorr_elements) != len(vcorr_values)"
+            raise RuntimeError("set_corrector_elements: len(vcorr_elements) != len(vcorr_values)")
 
         for i in range(len(hcorr_values)):
             self.hcorr_elements[i].set_double_attribute("kick", hcorr_values[i])
@@ -172,8 +172,8 @@ class Three_bump:
         #stepper = synergia.simulation.Independent_stepper(self.bump_lattice, 1, 1)
         stepper = synergia.simulation.Independent_stepper_elements(self.bump_lattice, 1, 1)
         if self.verbose > 5:
-            print "bump chef beamline"
-            print synergia.lattice.chef_beamline_as_string(stepper.get_lattice_simulator().get_chef_lattice().get_sliced_beamline())
+            print("bump chef beamline")
+            print(synergia.lattice.chef_beamline_as_string(stepper.get_lattice_simulator().get_chef_lattice().get_sliced_beamline()))
         # 3 particles is the minimum so that the diagnostics don't crash
         bunch = synergia.bunch.Bunch(refpart, 3, 1.0e10, comm)
         bunch.get_local_particles()[:,0:6] = 0.0
@@ -226,7 +226,7 @@ class Three_bump:
         solver.set(tmp)
 
         if self.verbose:
-            print "  bump solver residuals:"
+            print("  bump solver residuals:")
             #print "  %5s %9s %9s %9s %9s  %9s  %9s" %("iter", "hc1", "hc2", "hc3", "vc1", "vc2", "vc3")
 
         for iter in range(100):
@@ -235,14 +235,14 @@ class Three_bump:
             x = solver.getx()
             f = solver.getf()
             if self.verbose:
-                print "  %5d % .7g % .7g % .7g % .7g  % .7g  % .7g" %(iter, f[0], f[1], f[2], f[3], f[4], f[5])
+                print("  %5d % .7g % .7g % .7g % .7g  % .7g  % .7g" %(iter, f[0], f[1], f[2], f[3], f[4], f[5]))
  
             status = multiroots.test_residual(f, 1.0e-13)
             if status == pygslerrno.GSL_SUCCESS:
-                if self.verbose: print "Converged!!"
+                if self.verbose: print("Converged!!")
                 break
         else:
-            raise ValueError, "too many iterations"
+            raise ValueError("too many iterations")
 
         # set the correctors in the original lattice
         for i in range(3):
@@ -257,14 +257,14 @@ class Three_bump:
 #  just a little tester for the class
 if __name__ == "__main__":
     lattice = synergia.lattice.MadX_reader().get_lattice("model", "tests/lattices/foborodobo128.madx")
-    print "read lattice: ", len(lattice.get_elements()), " elements, length = ", lattice.get_length()
+    print("read lattice: ", len(lattice.get_elements()), " elements, length = ", lattice.get_length())
     hcorr_names = ('hc1', 'hc2', 'hc3')
     vcorr_names = ('vc1', 'vc2', 'vc3')
     three_bump = Three_bump(lattice, 'm1', 'm2', hcorr_names, vcorr_names, 'm3', (0,2), True)
     three_bump.information()
 
     bump_settings = three_bump.set_bump((0.001, -0.0005))
-    print "bump_settings: ", bump_settings[0], bump_settings[1], bump_settings[2], bump_settings[3], bump_settings[4], bump_settings[5]
+    print("bump_settings: ", bump_settings[0], bump_settings[1], bump_settings[2], bump_settings[3], bump_settings[4], bump_settings[5])
 
     # propagate the whole lattice now
     comm = synergia.utils.Commxx()
@@ -277,4 +277,4 @@ if __name__ == "__main__":
     bunch_simulator.add_per_step(synergia.bunch.Diagnostics_basic("step_basic.h5"))
     propagator = synergia.simulation.Propagator(stepper)
     propagator.propagate(bunch_simulator, 1, 1, 1)
-    print "final coordinates: ", np.array2string(bunch.get_local_particles()[0, 0:6])
+    print("final coordinates: ", np.array2string(bunch.get_local_particles()[0, 0:6]))
