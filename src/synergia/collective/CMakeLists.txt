@@ -16,8 +16,8 @@ add_library(synergia_collective
 
 target_link_libraries(synergia_collective 
     synergia_bunch
-    synergia_simulation 
     synergia_distributed_fft
+    #synergia_simulation 
     )
 
 if (BUILD_PYTHON_BINDINGS)
