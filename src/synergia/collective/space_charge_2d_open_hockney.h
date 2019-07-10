@@ -4,6 +4,7 @@
 #include "synergia/simulation/operator.h"
 #include "synergia/collective/rectangular_grid.h"
 #include "synergia/collective/rectangular_grid_domain.h"
+#include "synergia/utils/distributed_fft2d.h"
 
 
 class  Space_charge_2d_open_hockney;
@@ -51,6 +52,8 @@ private:
     Rectangular_grid_domain doubled_domain;
 
     karray2d_dev particle_bin;
+
+    Distributed_fft2d fft;
 
 #if 0
     std::vector<int > grid_shape, doubled_grid_shape;
@@ -100,6 +103,7 @@ private:
 
     karray1d_dev get_local_charge_density(Bunch const& bunch);
     karray1d_dev get_green_fn2_pointlike();
+    karray1d_dev get_local_force2(karray1d_dev & rho2, karray1d_dev & g2);
 
 public:
 

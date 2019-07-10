@@ -17,6 +17,40 @@ using pconstants::epsilon0;
 
 namespace
 {
+    void
+    print_grid( Logger & logger, 
+                karray1d_dev const & grid, 
+                int x0, int x1, 
+                int y0, int y1,
+                int gy = 64 )
+    {
+        karray1d hgrid = Kokkos::create_mirror_view(grid);
+        Kokkos::deep_copy(hgrid, grid);
+
+        double sum = 0;
+        int dim = grid.extent(0);
+        for(int i=0; i<dim; ++i) sum += hgrid(i);
+        
+        logger << std::resetiosflags(std::ios::fixed)
+               << std::setiosflags(std::ios::showpos | std::ios::scientific)
+               << std::setprecision(8);
+
+        logger << "      " << grid.label() << " = " << sum << "\n";
+
+        for(int x=x0; x<x1; ++x)
+        {
+            logger << "        " << x << " | ";
+
+            for (int y=y0; y<y1; ++y)
+            {
+                logger << hgrid((x*gy + y)*2) << ", ";
+            }
+
+            logger << "\n";
+        }
+    }
+
+
     double
     get_smallest_non_tiny( double val, 
                            double other1, 
@@ -100,6 +134,8 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
     , options(ops)
     , domain(ops.shape, {1.0, 1.0, 1.0})
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
+    , particle_bin()
+    , fft(ops.doubled_shape)
 {
 }
 
@@ -159,34 +195,14 @@ Space_charge_2d_open_hockney::apply_bunch(
 
     update_domain(bunch);
 
-    auto local_rho = get_local_charge_density(bunch); // [C/m^3]
-
-#if 0
-    for(int i=24; i<32; ++i)
-    {
-        logger
-        << std::resetiosflags(std::ios::fixed)
-        << std::setiosflags(std::ios::showpos | std::ios::scientific)
-        << std::setprecision(8)
-        << local_rho((32*64 + i)*2) << ", ";
-    }
-    logger << "\n";
-#endif
+    auto rho2 = get_local_charge_density(bunch); // [C/m^3]
+    //print_grid(logger, rho2, 32, 36, 32, 40, 64);
 
     auto g2 = get_green_fn2_pointlike();
+    //print_grid(logger, g2, 42, 46, 32, 40, 64);
 
-#if 0
-    for(int i=32; i<40; ++i)
-    {
-        logger
-        << std::resetiosflags(std::ios::fixed)
-        << std::setiosflags(std::ios::showpos | std::ios::scientific)
-        << std::setprecision(8)
-        << g2((42*64 + i)*2+1) << ", ";
-    }
-    logger << "\n";
-#endif
-
+    auto phi2 = get_local_force2(rho2, g2);
+    //print_grid(logger, phi2, 42, 43, 32, 40, 64);
 }
 
 void
@@ -249,6 +265,34 @@ Space_charge_2d_open_hockney::get_green_fn2_pointlike()
 
     Kokkos::parallel_for(dg[0]*dg[1], alg);
     return g2;
+}
+
+karray1d_dev
+Space_charge_2d_open_hockney::get_local_force2(
+        karray1d_dev & rho2,
+        karray1d_dev & g2 )
+{
+    auto dg = doubled_domain.get_grid_shape();
+    karray1d_dev phi2("phi2", dg[0]*dg[1]*2);
+
+    int lower = fft.get_lower();
+    int upper = fft.get_upper();
+    int nx = upper - lower;
+
+    karray1d_dev rho2hat("rho2hat", nx * dg[1] * 2);
+    karray1d_dev   g2hat(  "g2hat", nx * dg[1] * 2);
+    karray1d_dev phi2hat("phi2hat", nx * dg[1] * 2);
+
+    fft.transform(rho2, rho2hat);
+    fft.transform(  g2,   g2hat);
+    
+#if 0
+    Logger logger;
+    print_grid(logger, rho2hat, 32, 36, 32, 40, 64);
+    print_grid(logger,   g2hat, 32, 36, 32, 40, 64);
+#endif
+
+    return phi2;
 }
 
 

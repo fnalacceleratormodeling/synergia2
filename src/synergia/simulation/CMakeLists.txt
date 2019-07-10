@@ -38,8 +38,8 @@ target_link_libraries(synergia_simulation
     synergia_lattice 
     synergia_libFF 
     synergia_collective
-    ${CHEF_LIBS} 
-    ${Boost_REGEX_LIBRARY}
+    #${CHEF_LIBS} 
+    #${Boost_REGEX_LIBRARY}
     )
 
 #if (BUILD_PYTHON_BINDINGS)
