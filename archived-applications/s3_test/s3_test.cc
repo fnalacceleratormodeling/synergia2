@@ -41,11 +41,11 @@ int run()
 
     // Propagator
     Propagator propagator(lattice);
-    propagator.print_steps(screen);
+    //propagator.print_steps(screen);
 
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
-            lattice.get_reference_particle(), 1024, 1e13 );
+            lattice.get_reference_particle(), 1024 * 1024 * 1, 1e13 );
 
     screen << "reference momentum = " << ref.get_momentum() << " GeV\n";
 
