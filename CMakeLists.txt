@@ -57,8 +57,8 @@ if (CMAKE_VERSION VERSION_LESS 3.0.0)
 else()
     # jfa: this is really ugly, but provides compatibility 
     # with both CMake 2 and 3
-    include_directories(${MPI_CXX_INCLUDE_PATH})
-    link_libraries(${MPI_CXX_LIBRARIES})
+    include_directories(${MPI_C_INCLUDE_PATH})
+    link_libraries(${MPI_C_LIBRARIES})
 endif ()
 
 # OpenMP
