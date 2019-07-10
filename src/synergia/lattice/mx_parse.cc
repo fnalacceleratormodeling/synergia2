@@ -613,9 +613,9 @@ struct synergia::madx_tree_parser
 
     flag_attr =   // flag attributes, attributes with values only, etc.
           ( -char_("-") >> name )                 [phx::bind(&set_flag_attr, _val, _1, _2)]
-        | ( dblq_str )   [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
-        | ( snglq_str )  [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
-        | ( expr )       [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
+        | ( dblq_str )   [phx::bind(&set_attr, _val, string("default"), optional<char>(), _1)]
+        | ( snglq_str )  [phx::bind(&set_attr, _val, string("default"), optional<char>(), _1)]
+        | ( expr )       [phx::bind(&set_attr, _val, string("default"), optional<char>(), _1)]
         ;
 
     cmd_attr =
