@@ -193,6 +193,7 @@ Space_charge_2d_open_hockney::apply_bunch(
 
     //setup_communication(bunch.get_comm());
 
+#if 0
     update_domain(bunch);
 
     auto rho2 = get_local_charge_density(bunch); // [C/m^3]
@@ -203,6 +204,7 @@ Space_charge_2d_open_hockney::apply_bunch(
 
     auto phi2 = get_local_force2(rho2, g2);
     //print_grid(logger, phi2, 42, 43, 32, 40, 64);
+#endif
 }
 
 void
