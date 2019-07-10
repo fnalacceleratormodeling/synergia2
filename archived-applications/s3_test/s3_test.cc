@@ -88,7 +88,12 @@ int run()
 
     bunch.checkout_particles();
 
-    screen(LoggerV::DEBUG) << "\n\npopulated\n";
+    double sum = 0;
+    for(int p=0; p<bunch.get_local_num(); ++p)
+        for(int i=0; i<6; ++i) sum += hparts(p, i);
+
+
+    screen(LoggerV::DEBUG) << "\n\npopulated sum = " << sum << "\n";
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
 
@@ -98,7 +103,11 @@ int run()
 
     bunch.checkout_particles();
 
-    screen(LoggerV::DEBUG) << "\n\npropagated\n";
+    sum = 0;
+    for(int p=0; p<bunch.get_local_num(); ++p)
+        for(int i=0; i<6; ++i) sum += hparts(p, i);
+
+    screen(LoggerV::DEBUG) << "\n\npropagated sum = " << sum << "\n";
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
 
