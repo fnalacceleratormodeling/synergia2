@@ -105,6 +105,8 @@ private:
     karray1d_dev get_green_fn2_pointlike();
     karray1d_dev get_local_force2(karray1d_dev & rho2, karray1d_dev & g2);
 
+    double get_normalization_force(Bunch const & bunch);
+
 public:
 
     Space_charge_2d_open_hockney(Space_charge_2d_open_hockney_options ops);

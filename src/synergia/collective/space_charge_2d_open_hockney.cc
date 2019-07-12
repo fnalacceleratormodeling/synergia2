@@ -22,7 +22,8 @@ namespace
                 karray1d_dev const & grid, 
                 int x0, int x1, 
                 int y0, int y1,
-                int gy = 64 )
+                int gy,
+                int off = 0 )
     {
         karray1d hgrid = Kokkos::create_mirror_view(grid);
         Kokkos::deep_copy(hgrid, grid);
@@ -43,7 +44,7 @@ namespace
 
             for (int y=y0; y<y1; ++y)
             {
-                logger << hgrid((x*gy + y)*2) << ", ";
+                logger << hgrid((x*gy + y)*2 + off) << ", ";
             }
 
             logger << "\n";
@@ -125,6 +126,29 @@ namespace
             g2(i*2+1) = Gy;
         }
     };
+
+    struct alg_cplx_multiplier
+    {
+        karray1d_dev prod;
+        karray1d_dev m1, m2;
+
+        alg_cplx_multiplier(
+                karray1d_dev const & prod,
+                karray1d_dev const & m1,
+                karray1d_dev const & m2 )
+            : prod(prod), m1(m1), m2(m2)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            const int real = i*2;
+            const int imag = i*2 + 1;
+
+            prod[real] = m1[real]*m2[real] - m1[imag]*m2[imag];
+            prod[imag] = m1[real]*m2[imag] + m1[imag]*m2[real];
+        }
+    };
 }
 
 
@@ -193,7 +217,7 @@ Space_charge_2d_open_hockney::apply_bunch(
 
     //setup_communication(bunch.get_comm());
 
-#if 0
+#if 1
     update_domain(bunch);
 
     auto rho2 = get_local_charge_density(bunch); // [C/m^3]
@@ -204,6 +228,8 @@ Space_charge_2d_open_hockney::apply_bunch(
 
     auto phi2 = get_local_force2(rho2, g2);
     //print_grid(logger, phi2, 42, 43, 32, 40, 64);
+
+    auto norm = get_normalization_force(bunch);
 #endif
 }
 
@@ -288,13 +314,45 @@ Space_charge_2d_open_hockney::get_local_force2(
     fft.transform(rho2, rho2hat);
     fft.transform(  g2,   g2hat);
     
-#if 0
-    Logger logger;
-    print_grid(logger, rho2hat, 32, 36, 32, 40, 64);
-    print_grid(logger,   g2hat, 32, 36, 32, 40, 64);
-#endif
+    alg_cplx_multiplier alg(phi2hat, rho2hat, g2hat);
+    Kokkos::parallel_for(dg[0]*dg[1], alg);
+
+    fft.inv_transform(phi2hat, phi2);
 
     return phi2;
+}
+
+double
+Space_charge_2d_open_hockney::get_normalization_force(Bunch const & bunch)
+{
+    auto h = domain.get_cell_size();
+
+    double hx = h[0];
+    double hy = h[1];
+    double hz = h[2];
+
+    // volume element in integral
+    double normalization = hx * hy;
+
+    // dummy factor from weight0 of deposit.cc
+    normalization *= 1.0 / (4.0 * pi * pconstants::epsilon0);
+    normalization *= hz;
+
+    // average line density for real particles
+    normalization *= 1.0 / doubled_domain.get_physical_size()[2];
+
+    // average line density for macro particles
+    normalization *= 2.0 * doubled_domain.get_physical_size()[2] 
+        / (hz * bunch.get_total_num());
+
+    normalization *= bunch.get_particle_charge() * pconstants::e;
+
+    normalization *= 1.0; //charge_density2.get_normalization();
+    normalization *= 1.0; //green_fn2.get_normalization();
+
+    normalization *= fft.get_roundtrip_normalization();
+
+    return normalization;
 }
 
 
