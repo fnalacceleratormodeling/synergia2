@@ -115,10 +115,18 @@ else()
 endif()
 find_package(Boost COMPONENTS python${PYTHON_QUAL} REQUIRED)
 link_directories(${Boost_LIBRARY_DIRS})
+if ("${PYTHON_QUAL}" STREQUAL 3)
+  set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON3_LIBRARY})
+elseif("${PYTHON_QUAL}" STREQUAL 27)
+  set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON27_LIBRARY})
+else()
+  set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON_LIBRARY})
+endif()
 
 message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
+message(STATUS "Boost_PYTHON_LIBRARY = ${Boost_PYTHON_LIBRARY}")
 
 # hdf5
 find_package(HDF5)
