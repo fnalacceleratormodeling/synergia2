@@ -54,20 +54,6 @@ int run()
     auto local_num = bunch.get_local_num();
     auto hparts = bunch.get_host_particles();
 
-#if 0
-    bunch.checkout_particles();
-
-    for (int p=0; p<local_num; ++p)
-    {
-        for (int i=0; i<6; ++i)
-        {
-            hparts(p, i) = p*0.1 + i*0.01;
-        }
-    }
-
-    bunch.checkin_particles();
-#endif
-
     karray1d means("means", 6);
     for (int i=0; i<6; ++i) means(i) = 0.0;
 
@@ -93,13 +79,19 @@ int run()
         for(int i=0; i<6; ++i) sum += hparts(p, i);
 
 
-    screen(LoggerV::DEBUG) << "\n\npopulated sum = " << sum << "\n";
+    screen(LoggerV::DEBUG) << std::setprecision(8)
+               << "\n\npopulated sum = " << sum << "\n";
+
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
 
     // propagate
     sim.set_turns(0, 1);
+
+    double t0 = MPI_Wtime();
     propagator.propagate(sim, screen);
+    double t1 = MPI_Wtime();
+    screen <<"propagate time = " << t1-t0 << "\n";
 
     bunch.checkout_particles();
 
@@ -107,7 +99,9 @@ int run()
     for(int p=0; p<bunch.get_local_num(); ++p)
         for(int i=0; i<6; ++i) sum += hparts(p, i);
 
-    screen(LoggerV::DEBUG) << "\n\npropagated sum = " << sum << "\n";
+    screen(LoggerV::DEBUG) << std::setprecision(8)
+               << "\n\npropagated sum = " << sum << "\n";
+
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
 
