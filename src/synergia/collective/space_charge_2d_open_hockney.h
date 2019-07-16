@@ -104,6 +104,14 @@ private:
     karray1d_dev get_local_charge_density(Bunch const& bunch);
     karray1d_dev get_green_fn2_pointlike();
     karray1d_dev get_local_force2(karray1d_dev & rho2, karray1d_dev & g2);
+    void get_global_force2(karray1d_dev & phi2);
+
+    void apply_kick(
+            Bunch & bunch,
+            karray1d_dev const & rho2,
+            karray1d_dev const & fn2,
+            double fn_norm,
+            double time_step );
 
     double get_normalization_force(Bunch const & bunch);
 

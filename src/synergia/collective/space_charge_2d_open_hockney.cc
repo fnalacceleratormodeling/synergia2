@@ -78,6 +78,69 @@ namespace
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
+    int fast_int_floor_kokkos(const double x)
+    {
+        int ix = static_cast<int>(x);
+        return x > 0.0 ? ix : ((x - ix == 0) ? ix : ix - 1);
+    }
+
+
+#if 0
+    inline std::complex<double >
+    interpolate_rectangular_2d(double * bin, bool periodic_z,
+            MArray2dc_ref const& a, MArray1d_ref const& b)
+    {
+        // bi-linear interpolation
+        int ix, iy, iz;
+        double offx, offy, offz;
+        ix = fast_int_floor(bin[0]);
+        iy = fast_int_floor(bin[2]);
+        iz = fast_int_floor(bin[4]);
+
+        offx = bin[1];
+        offy = bin[3];
+        offz = bin[5];
+
+        std::vector<int > grid_shape(3);
+        grid_shape[0] = a.shape()[0];
+        grid_shape[1] = a.shape()[1];
+        grid_shape[2] = b.shape()[0];
+
+        std::complex<double > val;
+        if ( (grid_shape[2] == 1) 
+                && ( (ix >= 0) 
+                    && (ix < grid_shape[0] - 1) 
+                    && (iy >= 0) 
+                    && (iy < grid_shape[1] - 1) ) 
+                && ( periodic_z 
+                    || ( (iz >= 0) && (iz <= grid_shape[2]) ) ) ) 
+        {
+            double line_density = b[0];
+            val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
+                    + offx * (1.0 - offy) * a[ix + 1][iy]
+                    + (1.0 - offx) * offy * a[ix][iy + 1]
+                    + offx * offy * a[ix + 1][iy + 1]);
+        } 
+        else if ( (grid_shape[2] > 1) 
+                && ( (ix >= 0) 
+                    && (ix < grid_shape[0] - 1) 
+                    && (iy >= 0) 
+                    && (iy < grid_shape[1] - 1) ) 
+                && ( periodic_z 
+                    || ( (iz >= 0) && (iz < grid_shape[2] - 1) ) ) ) 
+        {
+            double line_density = (1.0 - offz) * b[iz] + offz * b[iz + 1];
+            val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
+                    + offx * (1.0 - offy) * a[ix + 1][iy]
+                    + (1.0 - offx) * offy * a[ix][iy + 1]
+                    + offx * offy * a[ix + 1][iy + 1]);
+        }
+
+        return val;
+    }
+#endif
+
 
     struct alg_g2_pointlike
     {
@@ -149,6 +212,70 @@ namespace
             prod[imag] = m1[real]*m2[imag] + m1[imag]*m2[real];
         }
     };
+
+    struct alg_kicker
+    {
+        Particles p;
+
+        karray1d_dev fn;
+        karray1d_dev rho;
+        karray2d_dev bin;
+
+        int gx, gy, gz;
+        double factor;
+
+        alg_kicker(
+                Particles p,
+                karray1d_dev const & fn,
+                karray1d_dev const & rho,
+                karray2d_dev const & bin,
+                std::array<int, 3> const & g,
+                double factor )
+            : p(p), fn(fn), rho(rho), bin(bin)
+            , gx(g[0]), gy(g[1]), gz(g[2])
+            , factor(factor)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            int ix = fast_int_floor_kokkos(bin(i, 0));
+            int iy = fast_int_floor_kokkos(bin(i, 2));
+            int iz = fast_int_floor_kokkos(bin(i, 4));
+
+            double ox = bin(i, 1);
+            double oy = bin(i, 3);
+            double oz = bin(i, 5);
+
+            double aox = 1.0 - ox;
+            double aoy = 1.0 - oy;
+            double aoz = 1.0 - oz;
+
+            int zbase = gx*gy*2;
+
+            if ( ( ix>=0 && ix<gx-1 ) && 
+                 ( iy>=0 && iy<gy-1 ) && 
+                 ( /*periodic_z ||*/ (iz>=0 && iz<gz-1) ) ) 
+            {
+                double line_density = aoz * rho(zbase+iz) + oz * rho(zbase+iz+1);
+
+                double vx = line_density * (
+                          aox * aoy * fn( ((ix  )*gy + (iy  ))*2 )
+                        +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 )
+                        + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 )
+                        +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 ) );
+
+                double vy = line_density * (
+                          aox * aoy * fn( ((ix  )*gy + (iy  ))*2 + 1 )
+                        +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 + 1 )
+                        + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 + 1 )
+                        +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 + 1 ) );
+
+                p(i, 1) += factor * vx;
+                p(i, 3) += factor * vy;
+            }
+        }
+    };
 }
 
 
@@ -217,20 +344,16 @@ Space_charge_2d_open_hockney::apply_bunch(
 
     //setup_communication(bunch.get_comm());
 
-#if 1
     update_domain(bunch);
 
-    auto rho2 = get_local_charge_density(bunch); // [C/m^3]
-    //print_grid(logger, rho2, 32, 36, 32, 40, 64);
+    auto    rho2 = get_local_charge_density(bunch); // [C/m^3]
+    auto      g2 = get_green_fn2_pointlike();
+    auto     fn2 = get_local_force2(rho2, g2);
+    auto fn_norm = get_normalization_force(bunch);
 
-    auto g2 = get_green_fn2_pointlike();
-    //print_grid(logger, g2, 42, 46, 32, 40, 64);
+    //get_global_force2(fn2);
 
-    auto phi2 = get_local_force2(rho2, g2);
-    //print_grid(logger, phi2, 42, 43, 32, 40, 64);
-
-    auto norm = get_normalization_force(bunch);
-#endif
+    apply_kick(bunch, rho2, fn2, fn_norm, time_step);
 }
 
 void
@@ -322,6 +445,32 @@ Space_charge_2d_open_hockney::get_local_force2(
     return phi2;
 }
 
+void
+Space_charge_2d_open_hockney::get_global_force2(
+        karray1d_dev & phi2 )
+{
+    auto dg = doubled_domain.get_grid_shape();
+
+    karray1d_hst h_phi2 = Kokkos::create_mirror_view(phi2);
+    Kokkos::deep_copy(h_phi2, phi2);
+
+    int err = MPI_Allreduce( MPI_IN_PLACE,
+                             (void*)h_phi2.data(), 
+                             dg[0]*dg[1]*2, 
+                             MPI_DOUBLE, 
+                             MPI_SUM, 
+                             MPI_COMM_WORLD );
+
+    if (err != MPI_SUCCESS)
+    {
+        throw std::runtime_error( 
+                "MPI error in Space_charge_2d_open_hockney"
+                "(MPI_Allreduce in get_global_electric_force2_allreduce)" );
+    }
+
+    Kokkos::deep_copy(phi2, h_phi2);
+}
+
 double
 Space_charge_2d_open_hockney::get_normalization_force(Bunch const & bunch)
 {
@@ -353,6 +502,63 @@ Space_charge_2d_open_hockney::get_normalization_force(Bunch const & bunch)
     normalization *= fft.get_roundtrip_normalization();
 
     return normalization;
+}
+
+void
+Space_charge_2d_open_hockney::apply_kick(
+        Bunch & bunch,
+        karray1d_dev const & rho2,
+        karray1d_dev const & fn2,
+        double fn_norm,
+        double time_step )
+{
+    // EGS ported AM changes for kicks in lab frame from 3D solver
+    // AM: kicks are done in the z_lab frame
+    // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
+    // delta_t_beam: [s] in beam frame
+    //  See chapter 11, jackson electrodynamics, for field transformation 
+    //  from bunch frame (BF) to the lab frame (LF). Keep in mind that 
+    //  \vec{B}_BF=0.
+    //  Ex_LF=gamma*Ex_BF, Ey_LF=gamma*Ey_BF, Ez_LF=Ez_BF
+    //  Bx_LF=gamma*beta*Ey_BF, By_LF=-gamma*beta*Ex_BF, Bz_LF=Bz_BF=0
+    //  Transverse Lorentz force in the lab frame: 
+    //        Fx_LF = q*(Ex_L-beta_z*By_LF)
+    //              = q*gamma*(1-beta*beta_z)*Ex_BF
+    //  Longitudinal Lorentz force in the lab frame:
+    //        Fz = q*(Ez_LF+beta_x*By_LF-beta_y*Bx_LF)
+    //           = q*(Ez_BF-gamma*beta*(beta_x*Ex_BF+beta_y*Ey_BF ))
+    // In order to get a conservative approximation!:
+    // The following approximations are done: beta_z=beta, beta_x=beta_y=0, 
+    // thus suppresing the particles' movement relative to the reference 
+    // particle. The same approximation was employed when the field in 
+    // the bunch frame was calculated.
+    // Thus: Fx_LF=q*Ex_BF/gamma, Fz=q*Ez_BF
+
+    double delta_t_beam = time_step / bunch.get_reference_particle().get_gamma();
+
+    // unit_conversion: [N] = [kg m/s^2] to [Gev/c]
+    double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
+
+    // scaled p = p/p_ref
+    double gamma = bunch.get_reference_particle().get_gamma();
+    double beta = bunch.get_reference_particle().get_beta();
+    double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
+
+    // gamma*beta factor introduced here when we are no longer going to 
+    // the t_bunch frame. That factor was introduced in the fixed_z_lab 
+    // to fixed_t_bunch conversion.  Physically, gamma factor comes from 
+    // the lorentz expansion longitudinally in the bunch frame and beta 
+    // comes because the stored coordinate is c*dt whereas the actual
+    // domain is beta*c*dt.
+    double factor = unit_conversion * delta_t_beam * fn_norm * p_scale 
+                    / (gamma * beta);
+
+    auto parts = bunch.get_local_particles();
+
+    alg_kicker kicker(parts, fn2, rho2, particle_bin,
+            doubled_domain.get_grid_shape(), factor);
+
+    Kokkos::parallel_for(bunch.get_local_num(), kicker);
 }
 
 
