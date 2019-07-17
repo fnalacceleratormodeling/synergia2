@@ -10,16 +10,21 @@
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/commxx.h"
 
-class Distributed_fft2d
+template<typename FFT>
+class Distributed_fft2d_base
 {
 
 private:
 
     std::array<int, 3> shape;
 
+    FFT fft;
+
+#if 0
     fftw_plan plan, inv_plan;
     fftw_complex *data;
     fftw_complex *workspace;
+#endif
 
     int lower, upper;
     std::vector<int> uppers, lengths, lengths_1d;
@@ -46,5 +51,21 @@ public:
     void inv_transform(karray1d_dev & in, karray1d_dev & out);
     double get_roundtrip_normalization() const;
 };
+
+#ifdef KOKKOS_HAVE_CUDA
+
+  // cuda implementation of FFT
+  #include "fft2d_impl_cuda.h"
+  typedef Distributed_fft2d_base<fft2d_impl_cuda> Distributed_fft2d;
+
+#else
+
+  // FFTW
+  #include "fft2d_impl_fftw.h"
+  typedef Distributed_fft2d_base<fft2d_impl_fftw> Distributed_fft2d;
+
+#endif
+
+
 
 #endif /* DISTRIBUTED_FFT2D_H_ */

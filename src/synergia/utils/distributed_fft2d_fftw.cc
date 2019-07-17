@@ -4,6 +4,8 @@
 
 Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
     : shape(shape)
+    , fft(shape)
+
     , plan()
     , inv_plan()
     , data(nullptr)
