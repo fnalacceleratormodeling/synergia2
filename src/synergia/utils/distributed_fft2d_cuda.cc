@@ -1,9 +1,11 @@
 #include <cstring>
 #include <stdexcept>
-#include "distributed_fft2d_fftw.h"
+#include "distributed_fft2d.h"
 
 Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
     : shape(shape)
+    , fft(shape)
+
     , plan()
     , inv_plan()
     , data(nullptr)
@@ -124,6 +126,9 @@ Distributed_fft2d::get_shape() const
 void
 Distributed_fft2d::transform(karray1d_dev & in, karray1d_dev & out)
 {
+    fft.transform(in, out);
+
+#if 0
     if (have_local_data) 
     {
         memcpy( (void*)data, 
@@ -139,11 +144,15 @@ Distributed_fft2d::transform(karray1d_dev & in, karray1d_dev & out)
                 (void*)(workspace), 
                 local_size_real * sizeof(double) * 2);
     }
+#endif
 }
 
 void
 Distributed_fft2d::inv_transform(karray1d_dev & in, karray1d_dev & out)
 {
+    fft.inv_transform(in, out);
+
+#if 0
     if (have_local_data) 
     {
         memcpy( (void*)workspace, 
@@ -159,6 +168,7 @@ Distributed_fft2d::inv_transform(karray1d_dev & in, karray1d_dev & out)
                 (void*)data,
                 local_size_real * sizeof(double) * 2);
     }
+#endif
 }
 
 double
@@ -169,9 +179,11 @@ Distributed_fft2d::get_roundtrip_normalization() const
 
 Distributed_fft2d::~Distributed_fft2d()
 {
+#if 0
     fftw_destroy_plan(plan);
     fftw_destroy_plan(inv_plan);
     fftw_free(data);
     fftw_free(workspace);
+#endif
 }
 

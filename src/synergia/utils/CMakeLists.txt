@@ -43,9 +43,14 @@ if (BUILD_PYTHON_BINDINGS)
     target_link_libraries(parallel_utils PRIVATE synergia_parallel_utils)
 endif ()
 
+if(${KOKKOS_ENABLE_CUDA})
+    set(FFT_SRC distributed_fft2d_cuda.cc)
+else()
+    set(FFT_SRC distributed_fft2d_fftw.cc)
+endif()
+
 add_library(synergia_distributed_fft 
-    distributed_fft3d.cc
-    distributed_fft2d.cc
+    ${FFT_SRC}
     )
 
 target_link_libraries(synergia_distributed_fft 
