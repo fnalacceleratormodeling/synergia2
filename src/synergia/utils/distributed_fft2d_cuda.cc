@@ -4,8 +4,6 @@
 
 Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
     : shape(shape)
-    , fft(shape)
-
     , plan()
     , inv_plan()
     , data(nullptr)
@@ -25,6 +23,7 @@ Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
     }
 #endif
 
+#if 0
     //n.b. : we aren't using the wisdom_filename yet
     fftw_mpi_init();
 
@@ -54,6 +53,7 @@ Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
 
     lower = local_x_start;
     upper = lower + local_nx;
+#endif
 }
 
 int
@@ -126,8 +126,6 @@ Distributed_fft2d::get_shape() const
 void
 Distributed_fft2d::transform(karray1d_dev & in, karray1d_dev & out)
 {
-    fft.transform(in, out);
-
 #if 0
     if (have_local_data) 
     {
@@ -150,8 +148,6 @@ Distributed_fft2d::transform(karray1d_dev & in, karray1d_dev & out)
 void
 Distributed_fft2d::inv_transform(karray1d_dev & in, karray1d_dev & out)
 {
-    fft.inv_transform(in, out);
-
 #if 0
     if (have_local_data) 
     {
