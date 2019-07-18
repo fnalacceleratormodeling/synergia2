@@ -21,13 +21,12 @@ add_library(synergia_bunch
     #diagnostics_phase_space_density.cc
     populate.cc 
     populate_host.cc 
-    analysis.cc 
+    #analysis.cc 
     #period.cc 
     )
 
 target_link_libraries(synergia_bunch 
     synergia_parallel_utils 
-    synergia_distributed_fft
     synergia_hdf5_utils 
     synergia_foundation 
     synergia_serialization 

@@ -286,7 +286,7 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
     , domain(ops.shape, {1.0, 1.0, 1.0})
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
     , particle_bin()
-    , fft(ops.doubled_shape)
+    , fft(ops.doubled_shape, MPI_COMM_WORLD)
 {
 }
 

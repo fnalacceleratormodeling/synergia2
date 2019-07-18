@@ -2,8 +2,9 @@
 #include <stdexcept>
 #include "distributed_fft2d_fftw.h"
 
-Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
+Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape, MPI_Comm comm)
     : shape(shape)
+    , comm(comm)
     , plan()
     , inv_plan()
     , data(nullptr)
@@ -28,7 +29,7 @@ Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
 
     ptrdiff_t local_nx, local_x_start;
     ptrdiff_t fftw_local_size = fftw_mpi_local_size_2d(
-            shape[0], shape[1], MPI_COMM_WORLD,
+            shape[0], shape[1], comm,
             &local_nx, &local_x_start);
 
     local_size_real = local_nx * shape[1];
@@ -44,11 +45,11 @@ Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
 
     plan = fftw_mpi_plan_dft_2d( 
             shape[0], shape[1], data, workspace,
-            MPI_COMM_WORLD, FFTW_FORWARD, FFTW_ESTIMATE );
+            comm, FFTW_FORWARD, FFTW_ESTIMATE );
 
     inv_plan = fftw_mpi_plan_dft_2d(
             shape[0], shape[1], workspace, data,
-            MPI_COMM_WORLD, FFTW_BACKWARD, FFTW_ESTIMATE );
+            comm, FFTW_BACKWARD, FFTW_ESTIMATE );
 
     lower = local_x_start;
     upper = lower + local_nx;

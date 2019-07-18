@@ -45,8 +45,10 @@ endif ()
 
 if(${KOKKOS_ENABLE_CUDA})
     set(FFT_SRC distributed_fft2d_cuda.cc)
+    set(FFT_LIB cufft)
 else()
     set(FFT_SRC distributed_fft2d_fftw.cc)
+    set(FFT_LIB ${PARALLEL_FFTW_LIBRARIES})
 endif()
 
 add_library(synergia_distributed_fft 
@@ -54,7 +56,7 @@ add_library(synergia_distributed_fft
     )
 
 target_link_libraries(synergia_distributed_fft 
-    ${PARALLEL_FFTW_LIBRARIES}
+    ${FFT_LIB}
     synergia_serialization 
     synergia_parallel_utils
     )

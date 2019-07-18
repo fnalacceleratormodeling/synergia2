@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include <cufft.h>
+
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/commxx.h"
 
@@ -13,18 +15,16 @@ class Distributed_fft2d
 private:
 
     std::array<int, 3> shape;
+    MPI_Comm comm;
+
+    cufftHandle plan;
 
     int lower, upper;
     std::vector<int> uppers, lengths, lengths_1d;
 
-    int  local_size_real;
-    bool have_local_data;
-
-    void calculate_uppers_lengths();
-
 public:
 
-    Distributed_fft2d(std::array<int, 3> const& shape);
+    Distributed_fft2d(std::array<int, 3> const& shape, MPI_Comm comm);
     ~Distributed_fft2d();
 
     int get_lower() const;

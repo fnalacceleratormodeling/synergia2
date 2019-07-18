@@ -17,6 +17,8 @@ private:
 
     std::array<int, 3> shape;
 
+    MPI_Comm comm;
+
     fftw_plan plan, inv_plan;
     fftw_complex *data;
     fftw_complex *workspace;
