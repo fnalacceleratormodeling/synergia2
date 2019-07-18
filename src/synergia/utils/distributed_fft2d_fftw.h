@@ -33,7 +33,7 @@ private:
 
 public:
 
-    Distributed_fft2d(std::array<int, 3> const& shape);
+    Distributed_fft2d(std::array<int, 3> const& shape, MPI_Comm comm);
     ~Distributed_fft2d();
 
     int get_lower() const;
