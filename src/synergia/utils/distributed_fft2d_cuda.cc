@@ -4,10 +4,6 @@
 
 Distributed_fft2d::Distributed_fft2d(std::array<int, 3> const & shape)
     : shape(shape)
-    , plan()
-    , inv_plan()
-    , data(nullptr)
-    , workspace(nullptr)
     , lower(0)
     , upper(0)
     , uppers(0)
@@ -175,11 +171,5 @@ Distributed_fft2d::get_roundtrip_normalization() const
 
 Distributed_fft2d::~Distributed_fft2d()
 {
-#if 0
-    fftw_destroy_plan(plan);
-    fftw_destroy_plan(inv_plan);
-    fftw_free(data);
-    fftw_free(workspace);
-#endif
 }
 

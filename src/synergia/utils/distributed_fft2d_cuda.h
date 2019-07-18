@@ -14,12 +14,6 @@ private:
 
     std::array<int, 3> shape;
 
-#if 0
-    fftw_plan plan, inv_plan;
-    fftw_complex *data;
-    fftw_complex *workspace;
-#endif
-
     int lower, upper;
     std::vector<int> uppers, lengths, lengths_1d;
 
