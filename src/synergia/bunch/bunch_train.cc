@@ -2,7 +2,7 @@
 #include "synergia/utils/parallel_utils.h"
 
 void 
-Bunch_train::find_parent_comm_sptr()
+Bunch_train::find_parent_comm()
 {
 #if 0
   try{
@@ -51,11 +51,11 @@ Bunch_train::calculates_counts_and_offsets_for_impedance()
 }  
 
 
-Commxx_sptr 
-Bunch_train::get_parent_comm_sptr()
+Commxx
+Bunch_train::get_parent_comm()
 {
-  if (!has_parent_comm) find_parent_comm_sptr(); 
-  return parent_comm_sptr;
+  if (!has_parent_comm) find_parent_comm(); 
+  return parent_comm;
 }  
 
 void
@@ -113,14 +113,14 @@ Bunch_train::Bunch_train(
 : bunches()
 , spacings()
 , has_parent_comm(false)
-, parent_comm_sptr()
+, parent_comm()
 {
     for(auto i=0; i<num_bunches; ++i)
     {
         bunches.emplace_back( ref, 
                 num_particles_per_bunch,
                 num_real_particles_per_bunch,
-                Commxx_sptr(new Commxx) );
+                Commxx() );
 
         spacings.emplace_back( spacing );
     }
@@ -160,7 +160,7 @@ Bunch_train::update_bunch_total_num()
     }
 
     MPI_Allreduce(MPI_IN_PLACE, &nums[0], nb, MPI_INT, MPI_SUM, 
-            get_parent_comm_sptr()->get());
+            get_parent_comm());
 
     for (int i=0; i<nb; ++i)
     {

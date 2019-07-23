@@ -4,7 +4,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
 add_library(synergia_parallel_utils 
     parallel_utils.cc 
     commxx.cc 
-    commxx_divider.cc 
+    #commxx_divider.cc 
     logger.cc
     )
 target_link_libraries(synergia_parallel_utils 

@@ -119,7 +119,7 @@ private:
 
     int sort_period, sort_counter;
 
-    Commxx_sptr comm_sptr;    
+    Commxx comm;    
 
     // no longer doing the state conversion
 #if 0
@@ -150,13 +150,13 @@ public:
     Bunch(  Reference_particle const& reference_particle, 
             int total_num,
             double real_num, 
-            Commxx_sptr comm_sptr );
+            Commxx comm );
 
     Bunch(  Reference_particle const& reference_particle, 
             int total_num, 
             int total_spectator_num,
             double real_num, 
-            Commxx_sptr comm_sptr );
+            Commxx comm );
     
     /// Default constructor for serialization use only
     Bunch();
@@ -377,9 +377,6 @@ public:
 
     /// Get the communicator
     Commxx const& get_comm() const;
-
-    /// Get the communicator
-    Commxx_sptr get_comm_sptr() const;
 
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,

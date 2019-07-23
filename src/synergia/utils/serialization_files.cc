@@ -23,7 +23,7 @@ public:
     barrier()
     {
         if (parallel) {
-            MPI_Barrier(Commxx().get());
+            MPI_Barrier(Commxx());
         }
     }
     bool

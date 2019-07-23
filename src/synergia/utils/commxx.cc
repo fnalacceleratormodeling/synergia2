@@ -3,16 +3,33 @@
 #include <stdexcept>
 #include <climits>
 
-// hash is a local function
-static size_t
-hash(const char * s)
+
+namespace
 {
-    size_t h = 37062913;
-    while (*s)
-        h = h * 101 + (unsigned char) *s++;
-    return h;
+    struct comm_free
+    {
+        void operator() (MPI_Comm * comm)
+        {
+            if ( comm == nullptr) return;
+            if (*comm == MPI_COMM_NULL) return;
+
+            MPI_Comm_free(comm);
+            delete comm;
+        }
+    };
+
+    size_t hash(const char * s)
+    {
+        size_t h = 37062913;
+        while (*s) h = h * 101 + (unsigned char) *s++;
+        return h;
+    }
+
 }
 
+
+
+#if 0
 void
 Commxx::construct(MPI_Comm const& parent_mpi_comm)
 {
@@ -87,53 +104,40 @@ Commxx::construct(MPI_Comm const& parent_mpi_comm)
         comm = temp_comm;
     }
 }
+#endif
 
 Commxx::Commxx() 
-    : comm(MPI_COMM_WORLD )
-    , per_host(false)
-    , ranks(0)
-    , parent_sptr()
-    , has_this_rank_(true)
+    : comm(new MPI_Comm(MPI_COMM_WORLD))
 {
 }
 
-Commxx::Commxx(bool per_host) 
-    : per_host(per_host)
-    , ranks(0)
-    , parent_sptr()
+Commxx::Commxx(MPI_Comm const & mpi_comm, comm_create_kind kind)
 {
-    construct(MPI_COMM_WORLD );
-}
+    if (mpi_comm == MPI_COMM_NULL) return;
 
-Commxx::Commxx(Commxx_sptr parent_sptr, bool per_host) 
-    : per_host(per_host)
-    , ranks(0)
-    , parent_sptr()
-{
-    construct(parent_sptr->get());
-}
+    switch(kind)
+    {
+        case comm_create_kind::attach:
+            comm.reset(new MPI_Comm(mpi_comm));
+            break;
 
-Commxx::Commxx(Commxx_sptr parent_sptr, 
-        std::vector<int > const& ranks,
-        bool per_host ) 
-    : per_host(per_host)
-    , ranks(ranks)
-    , parent_sptr(parent_sptr)
-{
-    construct(parent_sptr->get());
-}
+        case comm_create_kind::duplicate:
+            MPI_Comm newcomm;
+            MPI_Comm_dup(mpi_comm, &newcomm);
+            comm.reset(new MPI_Comm(newcomm), comm_free());
+            break;
 
-Commxx_sptr
-Commxx::get_parent_sptr() const
-{
-  return parent_sptr;
-}  
+        case comm_create_kind::take_ownership:
+            comm.reset(new MPI_Comm(mpi_comm), comm_free());
+            break;
+    }
+}
 
 int
 Commxx::get_rank() const
 {
     int error, rank;
-    error = MPI_Comm_rank(comm, &rank);
+    error = MPI_Comm_rank(*comm, &rank);
     if (error != MPI_SUCCESS) {
         throw std::runtime_error("MPI error in MPI_Comm_rank");
     }
@@ -144,80 +148,24 @@ int
 Commxx::get_size() const
 {
     int error, size;
-    error = MPI_Comm_size(comm, &size);
+    error = MPI_Comm_size(*comm, &size);
     if (error != MPI_SUCCESS) {
         throw std::runtime_error("MPI error in MPI_Comm_size");
     }
     return size;
 }
 
-bool
-Commxx::has_this_rank() const
-{
-    return has_this_rank_;
-}
 
+#if 0
 MPI_Comm
 Commxx::get() const
 {
-    return comm;
+    return *comm;
 }
-
-template<class Archive>
-    void
-    Commxx::save(Archive & ar, const unsigned int version) const
-    {
-        ar & CEREAL_NVP(per_host);
-        ar & CEREAL_NVP(ranks);
-        ar & CEREAL_NVP(parent_sptr);
-        ar & CEREAL_NVP(has_this_rank_);
-    }
-
-template<class Archive>
-    void
-    Commxx::load(Archive & ar, const unsigned int version)
-    {
-        ar & CEREAL_NVP(per_host);
-        ar & CEREAL_NVP(ranks);
-        ar & CEREAL_NVP(parent_sptr);
-        ar & CEREAL_NVP(has_this_rank_);
-        if (parent_sptr) {
-            construct(parent_sptr->get());
-        } else {
-            construct(MPI_COMM_WORLD);
-        }
-    }
-
-template
-void
-Commxx::save<cereal::BinaryOutputArchive>(
-        cereal::BinaryOutputArchive & ar, const unsigned int version) const;
-
-template
-void
-Commxx::save<cereal::XMLOutputArchive>(
-        cereal::XMLOutputArchive & ar, const unsigned int version) const;
-
-template
-void
-Commxx::load<cereal::BinaryInputArchive>(
-        cereal::BinaryInputArchive & ar, const unsigned int version);
-template
-void
-Commxx::load<cereal::XMLInputArchive >(
-        cereal::XMLInputArchive & ar, const unsigned int version);
+#endif
 
 
-Commxx::~Commxx()
-{
-    if (((ranks.size() > 0) || per_host) && has_this_rank_) {
-        int error = MPI_Comm_free(&comm);
-        if (error != MPI_SUCCESS) {
-            throw std::runtime_error("MPI error in Commxx(MPI_Comm_free)");
-        }
-    }
-}
-
+#if 0
 Commxxs
 generate_subcomms(Commxx_sptr parent_sptr, int count)
 {
@@ -257,3 +205,4 @@ make_optimal_spc_comm(Commxx_sptr comm_sptr, int optimal_number, bool equally_sp
     Commxx_sptr ret_comm_sptr(new Commxx(comm_sptr,on_ranks)); 
     return ret_comm_sptr; 
 } 
+#endif

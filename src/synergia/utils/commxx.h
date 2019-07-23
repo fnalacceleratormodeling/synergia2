@@ -6,90 +6,53 @@
 #include <memory>
 #include "mpi.h"
 
-#include "synergia/utils/cereal.h"
+//#include "synergia/utils/cereal.h"
 
-class Commxx;
-typedef std::shared_ptr<Commxx > Commxx_sptr; // syndoc:include
+enum class comm_create_kind { duplicate, take_ownership, attach };
 
 /// Commxx is a wrapper around MPI communicator (MPI_Comm) objects.
 ///
 /// Python:  (jfa: needs update) The equivalent functionality is provided by mpi4py Comm objects.
 /// mpi4py Comm objects may be passed from python anywhere a Commxx object is
 /// expected.
+
 class Commxx
 {
+public:
+
+    static Commxx Commxx_world;
 
 private:
 
-    MPI_Comm comm;
-    bool per_host;
-    std::vector<int > ranks;
-    Commxx_sptr parent_sptr;
-    bool has_this_rank_;
+    std::shared_ptr<MPI_Comm> comm;
+    std::weak_ptr<MPI_Comm> parent_comm;
+    //Commxx const & parent;
 
-    void construct(MPI_Comm const& parent_mpi_comm);
-
-    // prevent copying
-    Commxx(Commxx const& commxx) = delete;
-    Commxx & operator=(Commxx const& commxx) = delete;
+    //bool has_this_rank_;
 
 public:
+
     /// Construct a Commxx object using MPI_COMM_WORLD
     Commxx();
-    ~Commxx();
+    Commxx(MPI_Comm const & comm, comm_create_kind kind);
 
-    /// Construct a Commxx object, optionally creating separate communicators on each
-    /// unique host for communication avoidance
-    explicit Commxx(bool per_host);
+    operator MPI_Comm() const
+    { if (comm) return *comm; else return MPI_COMM_NULL; }
 
-    /// Construct a Commxx object based on the parent communicator, optionally
-    /// creating separate communicators on each unique host for communication avoidance
-    Commxx( Commxx_sptr parent_sptr, 
-            bool per_host );
-
-    /// Construct a Commxx object using only the specified ranks on the parent
-    /// communicator
-    Commxx( Commxx_sptr parent_sptr, 
-            std::vector<int > const& ranks,
-            bool per_host = false );
-
-	    
-    Commxx_sptr
-    get_parent_sptr() const;    
+    //Commxx const & get_parent() const
+    //{ return parent; }
 
     /// Get communicator rank
-    int
-    get_rank() const;
+    int get_rank() const;
 
     /// Get communicator size
-    int
-    get_size() const;
+    int get_size() const;
 
     /// Test to see if the communicator contains this rank
-    bool
-    has_this_rank() const;
+    bool has_this_rank() const { return (bool)comm; }
 
     /// Extract the MPI_comm object wrapped by the Commxx instance.
-    MPI_Comm
-    get() const;
-
-    template<class Archive>
-        void
-        save(Archive & ar, const unsigned int version) const;
-
-    template<class Archive>
-        void
-        load(Archive & ar, const unsigned int version);
-
+    //MPI_Comm get() const;
 };
-
-typedef std::vector<Commxx_sptr > Commxxs;
-
-Commxxs
-generate_subcomms(Commxx_sptr parent_sptr, int count);
-
-Commxx_sptr
-make_optimal_spc_comm(Commxx_sptr parent_sptr, int optimal_number, bool equally_spread=false);
-
 
 #endif /* COMMXX_H_ */

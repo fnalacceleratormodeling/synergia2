@@ -200,7 +200,7 @@ namespace
         }
 
         MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM,
-                bunch.get_comm().get());
+                bunch.get_comm());
     }
 }
 

@@ -45,11 +45,11 @@ public:
     int
     get(int request_num, Commxx const & comm)
     {
-        MPI_Bcast((void *) &offset, 1, MPI_INT, 0, comm.get());
+        MPI_Bcast((void *) &offset, 1, MPI_INT, 0, comm);
         int old_offset = offset;
         int total_num;
         MPI_Reduce((void*) &request_num, (void*) &total_num, 1, MPI_INT,
-                MPI_SUM, 0, comm.get());
+                MPI_SUM, 0, comm);
         offset += total_num;
         return old_offset;
     }
@@ -233,15 +233,15 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
     //state = fixed_z_lab;
     //converter_ptr = &default_converter;
 
-    if (comm_sptr->has_this_rank()) 
+    if (comm.has_this_rank()) 
     {
         // real particles
         // ----------------------------------------------------------------------
-        std::vector<int> offsets(comm_sptr->get_size());
-        std::vector<int> counts(comm_sptr->get_size());
-        decompose_1d(*comm_sptr, total_num, offsets, counts);
+        std::vector<int> offsets(comm.get_size());
+        std::vector<int> counts(comm.get_size());
+        decompose_1d(comm, total_num, offsets, counts);
 
-        local_num         = counts[comm_sptr->get_rank()];
+        local_num         = counts[comm.get_rank()];
         local_num_aligned = calculate_aligned_pos(local_num);
         local_num_padded  = local_num + calculate_padding_size(local_num);
         local_num_slots   = local_num_padded;
@@ -263,15 +263,15 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
 #endif
 
         // id
-        assign_ids(offsets[comm_sptr->get_rank()]);
+        assign_ids(offsets[comm.get_rank()]);
 
         // spectator particles
         // ----------------------------------------------------------------------
-        std::vector<int> s_offsets(comm_sptr->get_size());
-        std::vector<int> s_counts(comm_sptr->get_size());
-        decompose_1d(*comm_sptr, total_s_num, s_offsets, s_counts);
+        std::vector<int> s_offsets(comm.get_size());
+        std::vector<int> s_counts(comm.get_size());
+        decompose_1d(comm, total_s_num, s_offsets, s_counts);
 
-        local_s_num         = s_counts[comm_sptr->get_rank()];
+        local_s_num         = s_counts[comm.get_rank()];
         local_s_num_aligned = calculate_aligned_pos(local_s_num);
         local_s_num_padded  = local_s_num + calculate_padding_size(local_s_num);
         local_s_num_slots   = local_s_num_padded;
@@ -293,7 +293,7 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
 #endif
 
         // id
-        assign_spectator_ids(s_offsets[comm_sptr->get_rank()]);
+        assign_spectator_ids(s_offsets[comm.get_rank()]);
     } 
     else 
     {
@@ -313,7 +313,7 @@ Bunch::Bunch(
         Reference_particle const& reference_particle, 
         int total_num, 
         double real_num, 
-        Commxx_sptr comm_sptr) 
+        Commxx comm) 
     : longitudinal_extent(0.0)
     , z_periodic(false)
     , longitudinal_aperture(false)
@@ -346,7 +346,7 @@ Bunch::Bunch(
     , bucket_index_assigned(false)
     , sort_period(10000)
     , sort_counter(0)
-    , comm_sptr(comm_sptr)
+    , comm(comm)
 {
     construct(total_num, real_num, 0);
 }
@@ -356,7 +356,7 @@ Bunch::Bunch(
         int total_num, 
         int total_spectator_num, 
         double real_num, 
-        Commxx_sptr comm_sptr) 
+        Commxx comm) 
     : longitudinal_extent(0.0)
     , z_periodic(false)
     , longitudinal_aperture(false)
@@ -389,7 +389,7 @@ Bunch::Bunch(
     , bucket_index_assigned(false)
     , sort_period(10000)
     , sort_counter(0)
-    , comm_sptr(comm_sptr)
+    , comm(comm)
 {
     construct(total_num, real_num, total_spectator_num);
 }
@@ -427,7 +427,7 @@ Bunch::Bunch()
     , bucket_index_assigned(false)
     , sort_period(10000)
     , sort_counter(0)
-    , comm_sptr()
+    , comm()
 {
 }
 
@@ -1105,13 +1105,7 @@ Bunch::get_state() const
 Commxx const&
 Bunch::get_comm() const
 {
-    return *comm_sptr;
-}
-
-Commxx_sptr
-Bunch::get_comm_sptr() const
-{
-    return comm_sptr;
+    return comm;
 }
 
 void

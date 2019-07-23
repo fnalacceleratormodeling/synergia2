@@ -12,7 +12,7 @@ private:
     std::vector<double> spacings;      
 
     bool has_parent_comm;
-    Commxx_sptr parent_comm_sptr;
+    Commxx parent_comm;
 
     /// counts and offsets are needed for impedance, counts.size()=offsets.size()=num_procs
     /// they are meaningfull only on the local rank=0 of every bunch communicator 
@@ -24,7 +24,7 @@ private:
     std::vector< int> proc_offsets_imped; 
 
     void set_bucket_indices();
-    void find_parent_comm_sptr();
+    void find_parent_comm();
     void calculates_counts_and_offsets_for_impedance();
 
 public:
@@ -56,7 +56,7 @@ public:
 
     std::vector<double > & get_spacings();
 
-    Commxx_sptr get_parent_comm_sptr();
+    Commxx get_parent_comm();
     
     // update the total particle number for all bunches in the bunch train
     // note that calling each bunch's update_total_num() wont do the actual

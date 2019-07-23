@@ -149,7 +149,7 @@ Core_diagnostics::calculate_mean(Bunch const & bunch)
     Kokkos::parallel_reduce(npart, pr, mean.data());
 
     double t = simple_timer_current();
-    MPI_Allreduce(MPI_IN_PLACE, mean.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+    MPI_Allreduce(MPI_IN_PLACE, mean.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
     t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
 
     for (int i=0; i<6; ++i) mean(i) /= bunch.get_total_num();
@@ -172,7 +172,7 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
     Kokkos::parallel_reduce(npart, pr, &mean);
 
     double t = simple_timer_current();
-    MPI_Allreduce(MPI_IN_PLACE, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+    MPI_Allreduce(MPI_IN_PLACE, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
     t = simple_timer_show(t, "allmpireduce_in_diagnostic z mean");
 
     mean = mean / bunch.get_total_num();
@@ -260,7 +260,7 @@ Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
     Kokkos::parallel_reduce(npart, pr, std.data());
 
     double t = simple_timer_current();
-    MPI_Allreduce(MPI_IN_PLACE, std.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+    MPI_Allreduce(MPI_IN_PLACE, std.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
     t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
 
     for (int i=0; i<6; ++i) std(i) = std::sqrt(std(i) / bunch.get_total_num());
@@ -332,7 +332,7 @@ Core_diagnostics::calculate_mom2(Bunch const & bunch, karray1d const & mean)
         for (int j=i+1; j<6; ++j)
             sum2(i*6+j) = sum2(j*6+i);
 
-    MPI_Allreduce(MPI_IN_PLACE, sum2.data(), 36, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+    MPI_Allreduce(MPI_IN_PLACE, sum2.data(), 36, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
 
     for (int i=0; i<6; ++i)
         for (int j=0; j<6; ++j)
