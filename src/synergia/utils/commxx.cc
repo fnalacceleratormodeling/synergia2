@@ -106,6 +106,12 @@ Commxx::construct(MPI_Comm const& parent_mpi_comm)
 }
 #endif
 
+
+Commxx::Commxx(std::shared_ptr<MPI_Comm> c)
+    : comm(c)
+{
+}
+
 Commxx::Commxx() 
     : comm(new MPI_Comm(MPI_COMM_WORLD))
 {
@@ -155,14 +161,11 @@ Commxx::get_size() const
     return size;
 }
 
-
-#if 0
-MPI_Comm
-Commxx::get() const
+Commxx Commxx::parent() const
 {
-    return *comm;
+    auto pc = parent_comm.lock();
+    return Commxx(pc);
 }
-#endif
 
 
 #if 0

@@ -26,9 +26,10 @@ private:
 
     std::shared_ptr<MPI_Comm> comm;
     std::weak_ptr<MPI_Comm> parent_comm;
-    //Commxx const & parent;
 
-    //bool has_this_rank_;
+private:
+
+    Commxx(std::shared_ptr<MPI_Comm> c);
 
 public:
 
@@ -39,9 +40,6 @@ public:
     operator MPI_Comm() const
     { if (comm) return *comm; else return MPI_COMM_NULL; }
 
-    //Commxx const & get_parent() const
-    //{ return parent; }
-
     /// Get communicator rank
     int get_rank() const;
 
@@ -51,8 +49,15 @@ public:
     /// Test to see if the communicator contains this rank
     bool has_this_rank() const { return (bool)comm; }
 
-    /// Extract the MPI_comm object wrapped by the Commxx instance.
-    //MPI_Comm get() const;
+    // get the parent communicator if available
+    Commxx parent() const;
+
+    // the rank in the context of parent communicator
+    // int rank_in_parent_comm() const;
+
+    // the ranks (in the context of parent communicator) of 
+    // all processors in the current communicator
+    // std::vector<int> ranks_in_parent_comm() const;
 };
 
 #endif /* COMMXX_H_ */
