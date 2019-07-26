@@ -20,7 +20,7 @@ class Commxx
 {
 public:
 
-    static Commxx Commxx_world;
+    static const Commxx world;
 
 private:
 
@@ -42,12 +42,15 @@ public:
 
     /// Get communicator rank
     int get_rank() const;
+    int rank() const { return get_rank(); }
 
     /// Get communicator size
     int get_size() const;
+    int size() const { return get_size(); }
 
     /// Test to see if the communicator contains this rank
     bool has_this_rank() const { return (bool)comm; }
+    bool is_null() const { return !(bool)comm; }
 
     // get the parent communicator if available
     Commxx parent() const;
@@ -58,6 +61,11 @@ public:
     // the ranks (in the context of parent communicator) of 
     // all processors in the current communicator
     // std::vector<int> ranks_in_parent_comm() const;
+
+    Commxx dup() const;
+    Commxx split(int color) const;
+    Commxx split(int color, int key) const;
+    Commxx group(std::vector<int> const & ranks) const;
 };
 
 #endif /* COMMXX_H_ */

@@ -4,6 +4,9 @@
 #include <climits>
 
 
+const Commxx Commxx::world;
+
+
 namespace
 {
     struct comm_free
@@ -35,6 +38,7 @@ Commxx::construct(MPI_Comm const& parent_mpi_comm)
 {
     MPI_Comm temp_comm;
     int error;
+
     if (ranks.size() > 0) {
         MPI_Group parent_group, group;
         error = MPI_Comm_group(parent_mpi_comm, &parent_group);
@@ -167,6 +171,39 @@ Commxx Commxx::parent() const
     return Commxx(pc);
 }
 
+Commxx Commxx::dup() const
+{
+    return Commxx(MPI_Comm(*this), comm_create_kind::duplicate);
+}
+
+Commxx Commxx::split(int color) const
+{
+    return split(color, rank());
+}
+
+Commxx Commxx::split(int color, int key) const
+{
+    MPI_Comm newcomm;
+    MPI_Comm_split(MPI_Comm(*this), color, key, &newcomm);
+    return Commxx(newcomm, comm_create_kind::take_ownership);
+}
+
+Commxx Commxx::group(std::vector<int> const & ranks) const
+{
+    MPI_Group grp;
+    MPI_Comm_group(MPI_Comm(*this), &grp);
+
+    MPI_Group subgrp;
+    MPI_Group_incl(grp, ranks.size(), &ranks[0], &subgrp);
+
+    MPI_Comm subcomm;
+    MPI_Comm_create(MPI_Comm(*this), subgrp, &subcomm);
+
+    MPI_Group_free(&grp);
+    MPI_Group_free(&subgrp);
+
+    return Commxx(subcomm, comm_create_kind::take_ownership);
+}
 
 #if 0
 Commxxs
