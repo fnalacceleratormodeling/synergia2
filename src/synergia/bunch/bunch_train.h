@@ -9,10 +9,9 @@ class Bunch_train
 private:
 
     std::vector<Bunch> bunches;
-    std::vector<double> spacings;      
+    std::vector<double> spacings;
 
-    bool has_parent_comm;
-    Commxx parent_comm;
+    Commxx comm;
 
     /// counts and offsets are needed for impedance, counts.size()=offsets.size()=num_procs
     /// they are meaningfull only on the local rank=0 of every bunch communicator 
@@ -37,7 +36,8 @@ public:
             size_t num_bunches,
             size_t num_particles_per_bunch,
             double num_real_particles_per_bunch,
-            double spacing );
+            double spacing,
+            Commxx const & comm = Commxx() );
 
     Bunch & operator[](size_t idx)
     { return bunches[idx]; }
@@ -56,8 +56,6 @@ public:
 
     std::vector<double > & get_spacings();
 
-    Commxx get_parent_comm();
-    
     // update the total particle number for all bunches in the bunch train
     // note that calling each bunch's update_total_num() wont do the actual
     // work if the caller's rank is not part of the bunch's communicator.

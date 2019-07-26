@@ -1,10 +1,10 @@
 #include "bunch_train.h"
 #include "synergia/utils/parallel_utils.h"
 
+#if 0
 void 
 Bunch_train::find_parent_comm()
 {
-#if 0
   try{
     if (bunches.size()>0) {
         // check if all bunches has the same parent communicator
@@ -28,8 +28,8 @@ Bunch_train::find_parent_comm()
          std::cout<<e.what()<<std::endl;
          MPI_Abort(MPI_COMM_WORLD, 333);
   }  
-#endif
 }  
+#endif
 
 void 
 Bunch_train::calculates_counts_and_offsets_for_impedance()
@@ -51,12 +51,14 @@ Bunch_train::calculates_counts_and_offsets_for_impedance()
 }  
 
 
+#if 0
 Commxx
 Bunch_train::get_parent_comm()
 {
   if (!has_parent_comm) find_parent_comm(); 
   return parent_comm;
 }  
+#endif
 
 void
 Bunch_train::set_bucket_indices()
@@ -109,20 +111,41 @@ Bunch_train::Bunch_train(
         size_t num_bunches,
         size_t num_particles_per_bunch,
         double num_real_particles_per_bunch,
-        double spacing ) 
+        double spacing,
+        Commxx const & bt_comm ) 
 : bunches()
 , spacings()
-, has_parent_comm(false)
-, parent_comm()
+, comm(bt_comm.dup())
+
 {
     for(auto i=0; i<num_bunches; ++i)
+        spacings.emplace_back( spacing );
+
+    // empty train
+    if (comm.is_null()) return;
+
+    // construct bunches
+    int rank = comm.rank();
+    int size = comm.size();
+
+    int bunches_per_rank = std::ceil(1.0*num_bunches/size);
+    int ranks_per_bunch  = std::ceil(1.0*size/num_bunches);
+
+    int total_colors = std::ceil(1.0*size/ranks_per_bunch);
+    int ranks_per_color = size / total_colors;
+
+    for(int b=0; b<bunches_per_rank; ++b)
     {
+        int bunch_index = rank * bunches_per_rank + b;
+
+        int color = rank / ranks_per_color;
+        auto bunch_comm = comm.split(color, 0);
+
         bunches.emplace_back( ref, 
                 num_particles_per_bunch,
                 num_real_particles_per_bunch,
-                Commxx() );
-
-        spacings.emplace_back( spacing );
+                //bunch_index,
+                bunch_comm );
     }
 }
 
@@ -131,7 +154,6 @@ Bunch_train::get_spacings()
 {
     return spacings;
 }
-
 
 std::vector<int> &
 Bunch_train::get_proc_counts_for_impedance() 
@@ -149,6 +171,7 @@ Bunch_train::get_proc_offsets_for_impedance()
 void
 Bunch_train::update_bunch_total_num()
 {
+#if 0
     const size_t nb = get_size();
     if (nb == 0) return;
 
@@ -166,6 +189,7 @@ Bunch_train::update_bunch_total_num()
     {
         bunches[i].set_total_num(nums[i]);
     }
+#endif
 }
 
 

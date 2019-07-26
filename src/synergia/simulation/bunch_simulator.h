@@ -49,18 +49,59 @@ private:
 
 private:
 
+    // constructor
+    Bunch_simulator( Bunch_train && pt, 
+                     Bunch_train && st, 
+                     std::vector<std::vector<int>> const & bunch_ranks,
+                     Commxx const & comm );
+
+
+    static Bunch_simulator 
+        construct( Reference_particle const & ref_pri,
+                   Reference_particle const & ref_sec,
+                   size_t num_part,
+                   double num_real_part,
+                   size_t num_bunches_pri,
+                   size_t num_bunches_sec,
+                   double spacing_pri,
+                   double spacing_sec,
+                   Commxx const & comm);
+
 
 public:
 
     // factory methods
-    static Bunch_simulator create_single_bunch_simulator(
+    static Bunch_simulator 
+        create_single_bunch_simulator(
             Reference_particle const & ref,
             size_t num_particles,
-            double num_real_particles );
+            double num_real_particles,
+            Commxx const & comm = Commxx()
+            );
 
-    // constructor
-    Bunch_simulator(Bunch_train && pt, Bunch_train && st);
+    static Bunch_simulator 
+        create_bunch_train_simulator(
+            Reference_particle const & ref,
+            size_t num_particles,
+            double num_real_particles,
+            size_t num_bunches,
+            double spacing,
+            Commxx const & comm = Commxx()
+            );
 
+    static Bunch_simulator 
+        create_two_trains_simulator(
+            Reference_particle const & primary_ref,
+            Reference_particle const & secondary_ref,
+            size_t num_particles,
+            double num_real_particles,
+            size_t num_bunches_primary,
+            size_t num_bunches_secondary,
+            Commxx const & comm = Commxx()
+            );
+
+
+    // diagnostics registration
     template<typename DiagT, typename TriggerT>
     void reg_diag(
             DiagT & diag, 
@@ -111,6 +152,7 @@ public:
 
     void set_lattice_reference_particle(Reference_particle const & ref);
 
+    // accessors
     std::array<Bunch_train, 2> & get_trains()
     { return trains; }
 
@@ -129,18 +171,25 @@ public:
     Bunch const & get_bunch(size_t train = 0, size_t bunch = 0) const
     { return trains[train][bunch]; }
 
+    std::vector<int> const & get_bunch_ranks(size_t train, size_t bunch) const
+    { return bunch_ranks[train==0 ? bunch : pt_bunches + bunch]; }
+
     void set_turns(int first, int turns)
     { first_turn = first; num_turns = turns; }
 
 public:
 
-    int num_turns;
-    int first_turn;
-    int max_turns;
+    int num_turns = 0;
+    int first_turn = 0;
+    int max_turns = 0;
 
 private:
 
     std::array<Bunch_train, 2> trains;
+    std::vector<std::vector<int>> bunch_ranks;
+    int pt_bunches;
+    int st_bunches;
+    Commxx comm;
 
     std::vector<diag_tuple_t<trigger_step_t>> diags_step;
     std::vector<diag_tuple_t<trigger_loss_t>> diags_loss;
