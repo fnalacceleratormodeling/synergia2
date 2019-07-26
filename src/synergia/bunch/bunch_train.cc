@@ -144,8 +144,8 @@ Bunch_train::Bunch_train(
         bunches.emplace_back( ref, 
                 num_particles_per_bunch,
                 num_real_particles_per_bunch,
-                //bunch_index,
-                bunch_comm );
+                bunch_comm,
+                bunch_index );
     }
 }
 

@@ -233,15 +233,15 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
     //state = fixed_z_lab;
     //converter_ptr = &default_converter;
 
-    if (comm.has_this_rank()) 
+    if (!comm.is_null()) 
     {
         // real particles
         // ----------------------------------------------------------------------
-        std::vector<int> offsets(comm.get_size());
-        std::vector<int> counts(comm.get_size());
+        std::vector<int> offsets(comm.size());
+        std::vector<int> counts(comm.size());
         decompose_1d(comm, total_num, offsets, counts);
 
-        local_num         = counts[comm.get_rank()];
+        local_num         = counts[comm.rank()];
         local_num_aligned = calculate_aligned_pos(local_num);
         local_num_padded  = local_num + calculate_padding_size(local_num);
         local_num_slots   = local_num_padded;
@@ -263,15 +263,15 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
 #endif
 
         // id
-        assign_ids(offsets[comm.get_rank()]);
+        assign_ids(offsets[comm.rank()]);
 
         // spectator particles
         // ----------------------------------------------------------------------
-        std::vector<int> s_offsets(comm.get_size());
-        std::vector<int> s_counts(comm.get_size());
+        std::vector<int> s_offsets(comm.size());
+        std::vector<int> s_counts(comm.size());
         decompose_1d(comm, total_s_num, s_offsets, s_counts);
 
-        local_s_num         = s_counts[comm.get_rank()];
+        local_s_num         = s_counts[comm.rank()];
         local_s_num_aligned = calculate_aligned_pos(local_s_num);
         local_s_num_padded  = local_s_num + calculate_padding_size(local_s_num);
         local_s_num_slots   = local_s_num_padded;
@@ -293,7 +293,7 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
 #endif
 
         // id
-        assign_spectator_ids(s_offsets[comm.get_rank()]);
+        assign_spectator_ids(s_offsets[comm.rank()]);
     } 
     else 
     {
@@ -313,7 +313,8 @@ Bunch::Bunch(
         Reference_particle const& reference_particle, 
         int total_num, 
         double real_num, 
-        Commxx comm) 
+        Commxx comm,
+        int bucket_index ) 
     : longitudinal_extent(0.0)
     , z_periodic(false)
     , longitudinal_aperture(false)
@@ -342,10 +343,12 @@ Bunch::Bunch(
     , sparts("spectator particles", local_s_num_slots)
     , hsparts(Kokkos::create_mirror_view(sparts))
 
-    , bucket_index(0)
-    , bucket_index_assigned(false)
+    , bucket_index(bucket_index)
+    , bucket_index_assigned(true)
+
     , sort_period(10000)
     , sort_counter(0)
+
     , comm(comm)
 {
     construct(total_num, real_num, 0);

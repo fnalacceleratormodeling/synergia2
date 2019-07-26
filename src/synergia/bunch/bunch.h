@@ -150,7 +150,8 @@ public:
     Bunch(  Reference_particle const& reference_particle, 
             int total_num,
             double real_num, 
-            Commxx comm );
+            Commxx comm,
+            int bucket_index = 0 );
 
     Bunch(  Reference_particle const& reference_particle, 
             int total_num, 
