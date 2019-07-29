@@ -205,6 +205,13 @@ Commxx Commxx::group(std::vector<int> const & ranks) const
     return Commxx(subcomm, comm_create_kind::take_ownership);
 }
 
+bool operator== (Commxx const & comm1, Commxx const & comm2)
+{
+    int result;
+    MPI_Comm_compare((MPI_Comm)comm1, (MPI_Comm)comm2, &result);
+    return result == MPI_IDENT;
+}
+
 #if 0
 Commxxs
 generate_subcomms(Commxx_sptr parent_sptr, int count)

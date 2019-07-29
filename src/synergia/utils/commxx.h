@@ -68,4 +68,9 @@ public:
     Commxx group(std::vector<int> const & ranks) const;
 };
 
+bool operator== (Commxx const & comm1, Commxx const & comm2);
+
+inline bool operator!= (Commxx const & comm1, Commxx const & comm2)
+{ return !(comm1 == comm2); }
+
 #endif /* COMMXX_H_ */
