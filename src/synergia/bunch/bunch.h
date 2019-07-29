@@ -370,7 +370,7 @@ public:
     int get_sort_period() const;
 
     void set_bucket_index(int index);
-    int get_bucket_index() const;
+    int  get_bucket_index() const;
     bool is_bucket_index_assigned() const;
 
     /// Get the (fixed-t or fixed-z) state.

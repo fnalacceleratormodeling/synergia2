@@ -45,7 +45,8 @@ int run()
 
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
-            lattice.get_reference_particle(), 1024 * 1024 * 1, 1e13 );
+            lattice.get_reference_particle(), 1024 * 1024 * 1, 1e13,
+            Commxx() );
 
     screen << "reference momentum = " << ref.get_momentum() << " GeV\n";
 
@@ -103,6 +104,13 @@ int run()
                << "\n\npropagated sum = " << sum << "\n";
 
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
+
+    double g_sum = 0;
+    MPI_Reduce(&sum, &g_sum, 1, MPI_DOUBLE, MPI_SUM, 0, bunch.get_comm());
+
+    screen(LoggerV::DEBUG) << std::setprecision(8)
+               << "\n\npropagated sum (reduced) = " << g_sum << "\n";
+
     screen << "\n";
 
     return 0;
