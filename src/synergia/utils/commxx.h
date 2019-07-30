@@ -65,6 +65,7 @@ public:
     Commxx dup() const;
     Commxx split(int color) const;
     Commxx split(int color, int key) const;
+    Commxx divide(int subgroup_size) const;
     Commxx group(std::vector<int> const & ranks) const;
 };
 

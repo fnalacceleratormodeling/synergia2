@@ -188,6 +188,20 @@ Commxx Commxx::split(int color, int key) const
     return Commxx(newcomm, comm_create_kind::take_ownership);
 }
 
+Commxx Commxx::divide(int subgroup_size) const
+{
+    if (size() < subgroup_size) return dup();
+
+    if (size() % subgroup_size != 0)
+    {
+        throw std::runtime_error(
+                "Commxx::divide(): size must be divisible by subgroup_size" );
+    }
+
+    int color = rank() / subgroup_size;
+    return split(color);
+}
+
 Commxx Commxx::group(std::vector<int> const & ranks) const
 {
     MPI_Group grp;
