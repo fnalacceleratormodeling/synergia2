@@ -21,6 +21,8 @@ struct Space_charge_2d_open_hockney_options : public CO_options
     bool grid_entire_period;
     double n_sigma;
 
+    int comm_group_size;
+
     Space_charge_2d_open_hockney_options(int gridx, int gridy, int gridz)
         : shape{gridx, gridy, gridz}
         , doubled_shape{gridx*2, gridy*2, gridz}
@@ -28,6 +30,7 @@ struct Space_charge_2d_open_hockney_options : public CO_options
         , z_period(0.0)
         , grid_entire_period(false)
         , n_sigma(8.0)
+        , comm_group_size(4)
     { }
 };
 
@@ -54,6 +57,7 @@ private:
     karray2d_dev particle_bin;
 
     Distributed_fft2d fft;
+    Commxx comm;
 
 #if 0
     std::vector<int > grid_shape, doubled_grid_shape;
@@ -99,6 +103,7 @@ private:
             double time_step, 
             Logger & logger);
 
+    void setup_communication(Commxx const & bunch_comm);
     void update_domain(Bunch const & bunch);
 
     karray1d_dev get_local_charge_density(Bunch const& bunch);

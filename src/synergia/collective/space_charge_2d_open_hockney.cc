@@ -286,7 +286,8 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
     , domain(ops.shape, {1.0, 1.0, 1.0})
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
     , particle_bin()
-    , fft(ops.doubled_shape, MPI_COMM_WORLD)
+    , fft()
+    , comm()
 {
 }
 
@@ -298,39 +299,6 @@ Space_charge_2d_open_hockney::apply_impl(
 {
     logger << "    Space charge 2d open hockney\n";
     apply_bunch(simulator[0][0], time_step, logger);
-
-#if 0
-    if (bunch.get_total_num() <= 1) return;
-
-    //setup_communication(bunch.get_comm_sptr());
-
-    double t, t_total;
-    t_total = simple_timer_current();
-    t = t_total;
-
-    //update_domain(bunch);
-    t = simple_timer_show(t, "get_local_rho-update_domain");
-
-    auto local_rho = get_local_charge_density(bunch); // [C/m^3]
-    t = simple_timer_show(t, "sc2doh-get_local_rho");
-
-    auto rho2 = get_global_charge_density2(local_rho, bunch.get_comm());
-    t = simple_timer_show(t, "sc2doh-get_global_rho");
-
-    auto G2 = get_green_fn2_pointlike();
-    t = simple_timer_show(t, "sc2doh-get_green_fn");
-
-    auto local_force2 = get_local_force2(rho2, G2); // [N]
-    t = simple_timer_show(t, "sc2doh-get_local_force");
-
-    auto Fn = get_global_electric_force2(local_force2); // [N]
-    t = simple_timer_show(t, "sc2doh-get_global_force");
-
-    apply_kick(bunch, rho2, Fn, time_step);
-    t = simple_timer_show(t, "sc2doh-apply_kick");
-
-    t_total = simple_timer_show(t_total, "collective_operator_apply-sc2doh");
-#endif
 }
 
 void
@@ -339,10 +307,7 @@ Space_charge_2d_open_hockney::apply_bunch(
             double time_step, 
             Logger & logger)
 {
-
-    //if (!bunch.get_comm().has_this_rank()) return;
-
-    //setup_communication(bunch.get_comm());
+    setup_communication(bunch.get_comm());
 
     update_domain(bunch);
 
@@ -351,11 +316,18 @@ Space_charge_2d_open_hockney::apply_bunch(
     auto     fn2 = get_local_force2(rho2, g2);
     auto fn_norm = get_normalization_force(bunch);
 
-    //get_global_force2(fn2);
+    get_global_force2(fn2);
 
     apply_kick(bunch, rho2, fn2, fn_norm, time_step);
 }
 
+void
+Space_charge_2d_open_hockney::setup_communication(Commxx const & bunch_comm)
+{
+    comm = bunch_comm.divide(options.comm_group_size);
+    fft.construct(options.doubled_shape, comm);
+}
+ 
 void
 Space_charge_2d_open_hockney::update_domain(Bunch const & bunch)
 {
@@ -436,9 +408,9 @@ Space_charge_2d_open_hockney::get_local_force2(
 
     fft.transform(rho2, rho2hat);
     fft.transform(  g2,   g2hat);
-    
+
     alg_cplx_multiplier alg(phi2hat, rho2hat, g2hat);
-    Kokkos::parallel_for(dg[0]*dg[1], alg);
+    Kokkos::parallel_for(nx*dg[1], alg);
 
     fft.inv_transform(phi2hat, phi2);
 
@@ -459,7 +431,7 @@ Space_charge_2d_open_hockney::get_global_force2(
                              dg[0]*dg[1]*2, 
                              MPI_DOUBLE, 
                              MPI_SUM, 
-                             MPI_COMM_WORLD );
+                             comm );
 
     if (err != MPI_SUCCESS)
     {

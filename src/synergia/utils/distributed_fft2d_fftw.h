@@ -19,30 +19,24 @@ private:
 
     MPI_Comm comm;
 
-    fftw_plan plan, inv_plan;
+    fftw_plan plan;
+    fftw_plan inv_plan;
     fftw_complex *data;
     fftw_complex *workspace;
 
-    int lower, upper;
-    std::vector<int> uppers, lengths, lengths_1d;
-
-    int  local_size_real;
-    bool have_local_data;
-
-    void calculate_uppers_lengths();
+    int lower;
+    int nx;
 
 public:
 
-    Distributed_fft2d(std::array<int, 3> const& shape, MPI_Comm comm);
+    Distributed_fft2d();
     ~Distributed_fft2d();
 
-    int get_lower() const;
-    int get_upper() const;
+    int get_lower() const { return lower; }
+    int get_upper() const { return lower + nx; }
+    std::array<int, 3> const& get_shape() const { return shape; }
 
-    std::vector<int>   const& get_uppers();
-    std::vector<int>   const& get_lengths();
-    std::vector<int>   const& get_lengths_1d();
-    std::array<int, 3> const& get_shape() const;
+    void construct(std::array<int, 3> const& shape, MPI_Comm comm);
 
     void transform(karray1d_dev & in, karray1d_dev & out);
     void inv_transform(karray1d_dev & in, karray1d_dev & out);
