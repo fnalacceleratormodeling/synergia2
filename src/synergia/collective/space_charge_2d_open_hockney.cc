@@ -22,19 +22,26 @@ namespace
                 karray1d_dev const & grid, 
                 int x0, int x1, 
                 int y0, int y1,
-                int gy,
+                int gx, int gy,
                 int off = 0 )
     {
         karray1d hgrid = Kokkos::create_mirror_view(grid);
         Kokkos::deep_copy(hgrid, grid);
 
         double sum = 0;
+
         int dim = grid.extent(0);
         for(int i=0; i<dim; ++i) sum += hgrid(i);
+
+#if 0
+        for(int x=0; x<gx; ++x)
+            for(int y=0; y<gy; ++y)
+                sum += hgrid((x*gy + y)*2 + off);
+#endif
         
         logger << std::resetiosflags(std::ios::fixed)
                << std::setiosflags(std::ios::showpos | std::ios::scientific)
-               << std::setprecision(8);
+               << std::setprecision(12);
 
         logger << "      " << grid.label() << " = " << sum << "\n";
 
@@ -312,11 +319,14 @@ Space_charge_2d_open_hockney::apply_bunch(
     update_domain(bunch);
 
     auto    rho2 = get_local_charge_density(bunch); // [C/m^3]
-    auto      g2 = get_green_fn2_pointlike();
-    auto     fn2 = get_local_force2(rho2, g2);
-    auto fn_norm = get_normalization_force(bunch);
+                   get_global_charge_density(rho2);
 
-    get_global_force2(fn2);
+    auto      g2 = get_green_fn2_pointlike();
+
+    auto     fn2 = get_local_force2(rho2, g2);
+                   get_global_force2(fn2);
+
+    auto fn_norm = get_normalization_force(bunch);
 
     apply_kick(bunch, rho2, fn2, fn_norm, time_step);
 }
@@ -372,9 +382,35 @@ karray1d_dev
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     particle_bin = karray2d_dev("bin", bunch.get_local_num(), 6);
-    return deposit_charge_rectangular_2d_kokkos_atomic(
+    return deposit_charge_rectangular_2d_kokkos(
             doubled_domain, particle_bin, bunch);
 }
+
+void
+Space_charge_2d_open_hockney::get_global_charge_density(karray1d_dev & rho2)
+{
+    auto dg = doubled_domain.get_grid_shape();
+
+    karray1d_hst h_rho2 = Kokkos::create_mirror_view(rho2);
+    Kokkos::deep_copy(h_rho2, rho2);
+
+    int err = MPI_Allreduce( MPI_IN_PLACE,
+                             (void*)h_rho2.data(), 
+                             dg[0]*dg[1]*2 + dg[2], 
+                             MPI_DOUBLE, 
+                             MPI_SUM, 
+                             comm );
+
+    if (err != MPI_SUCCESS)
+    {
+        throw std::runtime_error( 
+                "MPI error in Space_charge_2d_open_hockney"
+                "(MPI_Allreduce in get_global_charge_density)" );
+    }
+
+    Kokkos::deep_copy(rho2, h_rho2);
+}
+
 
 karray1d_dev
 Space_charge_2d_open_hockney::get_green_fn2_pointlike()
