@@ -389,6 +389,9 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 void
 Space_charge_2d_open_hockney::get_global_charge_density(karray1d_dev & rho2)
 {
+    // do nothing if the solver only has a single rank
+    if (comm.size() == 1) return;
+
     auto dg = doubled_domain.get_grid_shape();
 
     karray1d_hst h_rho2 = Kokkos::create_mirror_view(rho2);
@@ -457,6 +460,9 @@ void
 Space_charge_2d_open_hockney::get_global_force2(
         karray1d_dev & phi2 )
 {
+    // do nothing if the solver only has a single rank
+    if (comm.size() == 1) return;
+
     auto dg = doubled_domain.get_grid_shape();
 
     karray1d_hst h_phi2 = Kokkos::create_mirror_view(phi2);
