@@ -319,7 +319,7 @@ Space_charge_2d_open_hockney::apply_bunch(
     update_domain(bunch);
 
     auto    rho2 = get_local_charge_density(bunch); // [C/m^3]
-                   get_global_charge_density(rho2);
+                   get_global_charge_density(rho2, bunch);
 
     auto      g2 = get_green_fn2_pointlike();
 
@@ -387,10 +387,12 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 }
 
 void
-Space_charge_2d_open_hockney::get_global_charge_density(karray1d_dev & rho2)
+Space_charge_2d_open_hockney::get_global_charge_density(
+        karray1d_dev & rho2,
+        Bunch const & bunch )
 {
     // do nothing if the solver only has a single rank
-    if (comm.size() == 1) return;
+    if (bunch.get_comm().size() == 1) return;
 
     auto dg = doubled_domain.get_grid_shape();
 
@@ -402,7 +404,7 @@ Space_charge_2d_open_hockney::get_global_charge_density(karray1d_dev & rho2)
                              dg[0]*dg[1]*2 + dg[2], 
                              MPI_DOUBLE, 
                              MPI_SUM, 
-                             comm );
+                             bunch.get_comm() );
 
     if (err != MPI_SUCCESS)
     {

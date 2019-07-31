@@ -110,7 +110,7 @@ private:
     karray1d_dev get_green_fn2_pointlike();
     karray1d_dev get_local_force2(karray1d_dev & rho2, karray1d_dev & g2);
 
-    void get_global_charge_density(karray1d_dev & rho2);
+    void get_global_charge_density(karray1d_dev & rho2, Bunch const & bunch);
     void get_global_force2(karray1d_dev & phi2);
 
     void apply_kick(
