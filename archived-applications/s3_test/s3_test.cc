@@ -5,6 +5,7 @@
 #include "synergia/bunch/populate.h"
 #include "synergia/lattice/madx_reader.h"
 
+#include "synergia/collective/space_charge_2d_open_hockney.h"
 
 
 int run()
@@ -39,8 +40,15 @@ int run()
 
     lattice.print(screen);
 
+    // space charge
+    Space_charge_2d_open_hockney_options sc_ops(32, 32, 128);
+    sc_ops.comm_group_size = 1;
+
+    // stepper
+    Split_operator_stepper_elements stepper(1, sc_ops);
+
     // Propagator
-    Propagator propagator(lattice);
+    Propagator propagator(lattice, stepper);
     //propagator.print_steps(screen);
 
     // bunch simulator

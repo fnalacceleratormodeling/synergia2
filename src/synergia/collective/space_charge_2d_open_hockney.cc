@@ -287,7 +287,7 @@ namespace
 
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
-        Space_charge_2d_open_hockney_options ops)
+        Space_charge_2d_open_hockney_options const & ops)
     : Collective_operator("sc_2d_open_hockney", 1.0)
     , options(ops)
     , domain(ops.shape, {1.0, 1.0, 1.0})

@@ -107,7 +107,7 @@ public:
 
     explicit Propagator(
             Lattice const & lattice, 
-            Stepper const & stepper = Split_operator_stepper_elements(1) );
+            Stepper const & stepper = Split_operator_stepper_elements(1, Dummy_CO_options()) );
 
     void propagate(Bunch_simulator & simulator, Logger & logger);
 

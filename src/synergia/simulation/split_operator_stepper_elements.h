@@ -11,20 +11,21 @@ class Split_operator_stepper_elements : public Stepper
 {
 private:
 
-    //std::unique_ptr<Collective_operator> coll_opr;
     int steps_per_element;
+    std::unique_ptr<CO_options> co_ops;
 
     std::vector<Step> 
         apply_impl(Lattice const & lattice) const override;
 
 public:
 
-    explicit Split_operator_stepper_elements(
-               int steps_per_element = 1 )
+    template<class COO>
+    Split_operator_stepper_elements(
+               int steps_per_element,
+               COO const & coo )
     : steps_per_element(steps_per_element)
-    //, coll_opr(std::make_unique<COL_OP>(opr))
+    , co_ops(std::make_unique<COO>(coo))
     { }
-
 };
 
 #endif /* SPLIT_OPERATOR_STEPPER_ELEMENTS_H_ */

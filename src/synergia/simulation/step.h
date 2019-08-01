@@ -28,11 +28,9 @@ public:
         return *(dynamic_cast<Independent_operator*>(operators.back().get()));
     }
 
-    template<class COO>
-    void append_collective(COO ops)
-    { 
-        operators.emplace_back(
-                std::make_unique<typename COO::Operator>(ops)); 
+    void append_collective(std::unique_ptr<CO_options> const & co_ops)
+    {
+        operators.emplace_back(co_ops->create_operator());
     }
 
     void apply(Bunch_simulator & simulator, Logger & logger) const;

@@ -7,12 +7,8 @@
 #include "synergia/utils/distributed_fft2d.h"
 
 
-class  Space_charge_2d_open_hockney;
-
 struct Space_charge_2d_open_hockney_options : public CO_options
 {
-    using Operator = Space_charge_2d_open_hockney;
-
     std::array<int, 3> shape;
     std::array<int, 3> doubled_shape;
 
@@ -32,6 +28,8 @@ struct Space_charge_2d_open_hockney_options : public CO_options
         , n_sigma(8.0)
         , comm_group_size(4)
     { }
+
+    Collective_operator * create_operator() const override;
 };
 
 
@@ -124,7 +122,7 @@ private:
 
 public:
 
-    Space_charge_2d_open_hockney(Space_charge_2d_open_hockney_options ops);
+    Space_charge_2d_open_hockney(Space_charge_2d_open_hockney_options const & ops);
 
 #if 0
     bool get_need_state_conversion();
@@ -169,5 +167,9 @@ public:
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
 #endif
 };
+
+inline Collective_operator * 
+Space_charge_2d_open_hockney_options::create_operator() const
+{ return new Space_charge_2d_open_hockney(*this); }
 
 #endif /* SPACE_CHARGE_2D_OPEN_HOCKNEY_H_ */

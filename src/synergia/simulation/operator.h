@@ -65,10 +65,6 @@ public:
     }
 };
 
-struct CO_options
-{
-};
-
 class Collective_operator : public Operator
 {
 private:
@@ -83,11 +79,17 @@ public:
     { }
 };
 
-class Dummy_collective_operator;
+struct CO_options
+{
+    virtual Collective_operator * create_operator() const = 0;
+};
 
+
+// Dummy collective
 struct Dummy_CO_options : public CO_options
 {
-    using Operator = Dummy_collective_operator;
+    std::string name = "dummy collective";
+    Collective_operator * create_operator() const override;
 };
 
 class Dummy_collective_operator : public Collective_operator
@@ -102,11 +104,17 @@ private:
 
 public:
 
-    Dummy_collective_operator(Dummy_CO_options ops)
-        : Collective_operator("dummy_collective", 1.0)
+    Dummy_collective_operator(Dummy_CO_options const & ops)
+        : Collective_operator(ops.name, 1.0)
     { }
 };
 
+inline Collective_operator *
+Dummy_CO_options::create_operator() const
+{ return new Dummy_collective_operator(*this); }
+
+
+// Independent
 class Independent_operator : public Operator
 {
 private:
