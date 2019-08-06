@@ -146,7 +146,9 @@ Core_diagnostics::calculate_mean(Bunch const & bunch)
     const int npart = bunch.get_local_num();
 
     particle_reducer<mean_tag> pr(particles);
-    Kokkos::parallel_reduce(npart, pr, mean.data());
+    Kokkos::parallel_reduce("cal_mean", npart, pr, mean.data());
+
+    Kokkos::fence();
 
     double t = simple_timer_current();
     MPI_Allreduce(MPI_IN_PLACE, mean.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
@@ -170,6 +172,8 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
 
     particle_reducer<z_mean_tag> pr(particles);
     Kokkos::parallel_reduce(npart, pr, &mean);
+
+    Kokkos::fence();
 
     double t = simple_timer_current();
     MPI_Allreduce(MPI_IN_PLACE, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
