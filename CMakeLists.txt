@@ -60,7 +60,7 @@ if (BUILD_PYTHON_BINDINGS)
   else()
     message(STATUS "Trying to find python 2")
     # If we could use cmake v3.12 or newer, this is simple:
-    #find_package(Python3 COMPONENTS Interpreter Development)
+    #find_package(Python2 COMPONENTS Interpreter Development)
     set(Python_ADDTIONAL_VERSIONS "2")
   endif()
 else ()
@@ -93,6 +93,7 @@ endif ()
 
 
 # boost
+message(STATUS "Looking for Boost (not yet boost_python)")
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREAD ON)
 find_package(Boost
@@ -105,18 +106,26 @@ include_directories(${Boost_INCLUDE_DIRS})
 # We want PYTHON_QUAL set to:
 #    nothing, for old boost and for use of python 2,
 #    27, for new boost and for use of python 2,
-#    3, for use of python 3 (for all supported boost versions)
+#    3, for use of python 3 and boost < 1.70.00
+#    37, for use of python 3 and boost >= 1.70.00
 if (USE_PYTHON_3)
-  set(PYTHON_QUAL 3)
+  if (${Boost_VERSION} LESS 107000)
+    set(PYTHON_QUAL 3)
+  else()
+    set(PYTHON_QUAL 37)
+  endif()
 else()
   if(NOT ${Boost_VERSION} LESS 106700)
     set(PYTHON_QUAL 27)
   endif()
 endif()
+message(STATUS "Looking for boost_python, as component python${PYTHON_QUAL}")
 find_package(Boost COMPONENTS python${PYTHON_QUAL} REQUIRED)
 link_directories(${Boost_LIBRARY_DIRS})
 if ("${PYTHON_QUAL}" STREQUAL 3)
   set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON3_LIBRARY})
+elseif("${PYTHON_QUAL}" STREQUAL 37)
+  set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON37_LIBRARY})
 elseif("${PYTHON_QUAL}" STREQUAL 27)
   set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON27_LIBRARY})
 else()
