@@ -6,7 +6,7 @@ add_library(synergia_foundation
     reference_particle.cc
     distribution.cc 
     #multi_diagnostics.cc
-    #diagnostics_write_helper.cc
+    diagnostics_write_helper.cc
     )
 
 target_link_libraries(synergia_foundation 

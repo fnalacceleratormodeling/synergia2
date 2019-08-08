@@ -9,7 +9,7 @@ add_library(synergia_bunch
     #fixed_t_z_converter.cc 
     bunch.cc
     bunch_train.cc
-    #diagnostics.cc 
+    diagnostics.cc 
     core_diagnostics.cc 
     #diagnostics_basic.cc
     #diagnostics_full2.cc 

@@ -62,7 +62,7 @@ Diagnostics_write_helper::open_file()
 Diagnostics_write_helper::Diagnostics_write_helper(
         std::string const & filename,
         bool serial, 
-        Commxx_sptr commxx_sptr, 
+        Commxx commxx, 
         std::string const & local_dir,
         std::string const & filename_appendix,
         int writer_rank ) 
@@ -70,12 +70,12 @@ Diagnostics_write_helper::Diagnostics_write_helper(
     , filename_appendix(filename_appendix)
     , local_dir(local_dir)
     , serial(serial)
-    , commxx_sptr(commxx_sptr)
+    , commxx(commxx)
     , have_file(false)
     , count(0) 
 {
 	if (writer_rank == default_rank) {
-		this->writer_rank = commxx_sptr->get_size() - 1;
+		this->writer_rank = commxx.size() - 1;
     } else {
         this->writer_rank = writer_rank;
     }
@@ -115,7 +115,7 @@ Diagnostics_write_helper::increment_count()
 bool
 Diagnostics_write_helper::write_locally()
 {
-    return commxx_sptr->get_rank() == writer_rank;
+    return commxx.rank() == writer_rank;
 }
 
 int
@@ -154,6 +154,7 @@ Diagnostics_write_helper::finish_write()
     }
 }
 
+#if 0
 template<class Archive>
     void
     Diagnostics_write_helper::serialize(Archive & ar,
@@ -191,6 +192,7 @@ template
 void
 Diagnostics_write_helper::serialize<cereal::XMLInputArchive >(
         cereal::XMLInputArchive & ar, const unsigned int version);
+#endif
 
 Diagnostics_write_helper::~Diagnostics_write_helper()
 {

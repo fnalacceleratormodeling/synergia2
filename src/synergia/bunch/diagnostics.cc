@@ -1,13 +1,6 @@
 #include "diagnostics.h"
-#include "synergia/utils/hdf5_writer.h"
-#include "synergia/utils/hdf5_chunked_array2d_writer.h"
-#include <cmath>
-#include "Eigen/Core"
-#include "Eigen/LU"
+#include "synergia/bunch/bunch.h"
 #include <stdexcept>
-#include "synergia/utils/simple_timer.h"
-
-using namespace Eigen;
 
 Diagnostics ::Diagnostics(
         std::string const& name, 
@@ -16,117 +9,45 @@ Diagnostics ::Diagnostics(
     : name(name)
     , filename(filename)
     , local_dir(local_dir)
-    , have_bunch_(false)
-    , write_helper_ptr(0)
-    , have_write_helper_(0)
-    , extra_writers()
+    , bunch(nullptr)
+    , writers()
 {
-}
-
-std::string const&
-Diagnostics::get_filename() const
-{
-    return filename;
-}
-
-std::string const&
-Diagnostics::get_local_dir() const
-{
-    return local_dir;
 }
 
 void
-Diagnostics::set_bunch_sptr(Bunch_sptr bunch_sptr)
+Diagnostics::delete_write_helper(std::string const & name)
 {
-    this->bunch_sptr = bunch_sptr;
-    have_bunch_ = true;
+    writers.erase(name);
 }
 
 bool
-Diagnostics::have_bunch() const
+Diagnostics::have_write_helper(std::string const & name) const
 {
-    return have_bunch_;
-}
-
-Bunch &
-Diagnostics::get_bunch()
-{
-    if (!have_bunch_) {
-        throw std::runtime_error(name + ": bunch not set");
-    }
-    return *bunch_sptr;
-}
-
-void
-Diagnostics::delete_write_helper_ptr()
-{
-    if (have_write_helper_) {
-        delete write_helper_ptr;
-        have_write_helper_ = false;
-    }
-}
-
-Diagnostics_write_helper *
-Diagnostics::new_write_helper_ptr()
-{
-    delete_write_helper_ptr();
-    return new Diagnostics_write_helper(get_filename(),
-            is_serial(), get_bunch().get_comm_sptr(), local_dir);
-}
-
-bool
-Diagnostics::have_write_helper() const
-{
-    return have_write_helper_;
+    return (writers.find(name) != writers.end());
 }
 
 Diagnostics_write_helper &
-Diagnostics::get_write_helper()
+Diagnostics::get_write_helper(std::string const & name)
 {
-    if (!have_write_helper_) {
-        write_helper_ptr = new_write_helper_ptr();
-        have_write_helper_ = true;
-    }
-    return *write_helper_ptr;
-}
-
-void
-Diagnostics::delete_extra_write_helper(std::string const & name)
-{
-    extra_writers.erase(name);
-}
-
-bool
-Diagnostics::have_extra_write_helper(std::string const & name) const
-{
-    return (extra_writers.find(name) != extra_writers.end());
-}
-
-Diagnostics_write_helper &
-Diagnostics::get_extra_write_helper(std::string const & name)
-{
-    if (!have_extra_write_helper(name))
+    if (!have_write_helper(name))
     {
-        return extra_writers.insert( std::pair<std::string, Diagnostics_write_helper>(
+        return writers.insert( std::make_pair(
                 name,
                 Diagnostics_write_helper(
                     get_filename(),
                     is_serial(), 
-                    get_bunch().get_comm_sptr(), 
+                    get_bunch().get_comm(), 
                     local_dir,
                     name )
             ) ).first->second;
     }
     else
     {
-        return extra_writers.find(name)->second;
+        return writers.find(name)->second;
     }
 }
 
-Diagnostics::Diagnostics()
-{
-}
-
+#if 0
 template<class Archive>
     void
     Diagnostics::serialize(Archive & ar, const unsigned int version)
@@ -160,14 +81,6 @@ template
 void
 Diagnostics::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
-
-Diagnostics::~Diagnostics()
-{
-    if (have_write_helper_) {
-        delete write_helper_ptr;
-    }
-}
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics)
+#endif
 
 

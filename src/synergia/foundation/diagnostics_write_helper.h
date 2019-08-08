@@ -2,7 +2,6 @@
 #define DIAGNOSTICS_WRITE_HELPER_H_
 #include <string>
 #include <list>
-//#include "H5Cpp.h"
 #include <memory>
 
 #include "synergia/utils/commxx.h"
@@ -74,7 +73,5 @@ public:
 
     ~Diagnostics_write_helper();
 };
-
-typedef std::shared_ptr<Diagnostics_write_helper > Diagnostics_write_helper_sptr;  // syndoc:include
 
 #endif /* DIAGNOSTICS_WRITE_HELPER_H_ */
