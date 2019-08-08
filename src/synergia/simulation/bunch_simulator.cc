@@ -155,7 +155,7 @@ Bunch_simulator::Bunch_simulator(
         Bunch_train && st,
         std::vector<std::vector<int>> const & bunch_ranks,
         Commxx const & comm )
-    : trains({pt, st})
+    : trains{std::move(pt), std::move(st)}
     , bunch_ranks(bunch_ranks)
     , pt_bunches(pt.get_size())
     , st_bunches(st.get_size())
@@ -171,6 +171,15 @@ Bunch_simulator::Bunch_simulator(
 void
 Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
 {
+    for (auto const & dt : diags_step)
+    {
+        if (dt.trigger(turn_num, step_num))
+        {
+            get_bunch(dt.train, dt.bunch)
+                .get_diag(dt.diag_name)
+                .update_and_write();
+        }
+    }
 }
 
 void

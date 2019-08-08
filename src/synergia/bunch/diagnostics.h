@@ -2,21 +2,23 @@
 #define DIAGNOSTICS_H_
 
 #include <string>
-#include <boost/shared_ptr.hpp>
-#include "synergia/bunch/bunch.h"
-#include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
+
+class Bunch;
 
 /// Diagnostics is an abstract base class for bunch diagnostics classes
 class Diagnostics
 {
+
 private:
+
     std::string name;
     std::string filename;
     std::string local_dir;
-    Bunch_sptr bunch_sptr;
-    bool have_bunch_;
+
+    Bunch const * bunch;
+
     Diagnostics_write_helper * write_helper_ptr;
     bool have_write_helper_;
 
@@ -24,22 +26,18 @@ private:
 
 public:
 
-    Diagnostics(std::string const& name, std::string const& filename, std::string const& local_dir="");
+    Diagnostics( std::string const& name, 
+                 std::string const& filename, 
+                 std::string const& local_dir="" );
 
-    // Default constructor for serialization use only
-    Diagnostics();
+    void set_bunch(Bunch const& b)
+    { bunch = &b; }
 
     virtual std::string const&
     get_filename() const;
 
     virtual std::string const&
     get_local_dir() const;
-
-    virtual void
-    set_bunch_sptr(Bunch_sptr bunch_sptr);
-
-    virtual bool
-    have_bunch() const;
 
     // the main write helper
     virtual void
@@ -63,10 +61,6 @@ public:
 
     Diagnostics_write_helper &
     get_extra_write_helper(std::string const & name);
-
-
-    Bunch &
-    get_bunch();
 
     /// Multiple serial diagnostics can be written to a single file.
     virtual bool
@@ -95,10 +89,5 @@ public:
     virtual
     ~Diagnostics();
 };
-BOOST_CLASS_EXPORT_KEY(Diagnostics)
-
-typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr; // syndoc:include
-typedef std::list<Diagnostics_sptr > Diagnosticss;
-typedef std::vector<Diagnosticss > Train_diagnosticss;
 
 #endif /* DIAGNOSTICS_H_ */

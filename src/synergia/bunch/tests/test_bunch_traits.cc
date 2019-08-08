@@ -18,8 +18,10 @@ struct TinyBunch
     int size;
     Kokkos::View<double*> particles;
     std::map<std::string, std::unique_ptr<int>> diags;
+    //std::unique_ptr<int> pi;
 };
 
+static_assert(std::is_move_constructible<TinyBunch>::value);
 
 TEST_CASE("Bunch traits", "[Bunch]")
 {

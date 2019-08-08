@@ -7,10 +7,13 @@
 class Operator;
 class Independent_operation;
 
-class Diagnostics { };
-
 class Bunch_simulator
 {
+
+public:
+
+    static const int FINAL_STEP = -1;
+
 private:
 
     enum class diag_event_t
@@ -41,10 +44,10 @@ private:
     template<typename TriggerT>
     struct diag_tuple_t
     {
-        std::unique_ptr<Diagnostics> diag;
-        TriggerT trigger;
         int train;
         int bunch;
+        std::string diag_name;
+        TriggerT trigger;
     };
 
 private:
@@ -102,16 +105,17 @@ public:
 
 
     // diagnostics registration
-    template<typename DiagT, typename TriggerT>
-    void reg_diag(
-            DiagT & diag, 
-            TriggerT trigger,
-            int train = 0, int bunch = 0 );
-
     template<typename DiagT>
-    void reg_diag_step_and_turn_periodic(
-            DiagT & diag, int period, int train, int bunch)
-    { }
+    void reg_diag(
+            std::string const& name,
+            DiagT const & diag, 
+            trigger_step_t trig, 
+            int train, 
+            int bunch )
+    { 
+        get_bunch(train, bunch).add_diagnostics(name, diag);
+        diags_step.emplace_back(train, bunch, name, trig);
+    }
 
 #if 0
     template<typename DiagT>
@@ -139,7 +143,22 @@ public:
             int train = 0, int bunch = 0 );
 #endif
 
-    void diag_action_step_and_turn(int turn_num, int step_num );
+    template<typename DiagT>
+    void reg_diag_per_turn(
+            std::string const& name,
+            DiagT const & diag, 
+            int train = 0, 
+            int bunch = 0, 
+            int period = 1 )
+    { 
+        auto trig = [period](int turn, int step) { 
+            return step==Bunch_simulator::FINAL_STEP && turn%period==0; 
+        };
+
+        reg_diag( name, diag, trig, train, bunch );
+    }
+
+    void diag_action_step_and_turn(int turn_num, int step_num);
     void diag_action_particle_loss_update( );
     void diag_action_particle_loss_write( );
     void diag_action_element(Lattice_element const & element);

@@ -1357,6 +1357,14 @@ void Bunch::print_particle(size_t idx, Logger & logger) const
     std::cout.flags(flags);
 }
 
+Diagnostics & 
+Bunch::get_diag(std::string const & name)
+{ 
+    auto it = diags.find(name);
+    if (it == diags.end()) throw std::runtime_error("cannot find diagnostics " + name);
+    return *it->second;
+}
+
 #if 0
 template<class Archive>
 void

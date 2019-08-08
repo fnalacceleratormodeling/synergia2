@@ -2,7 +2,7 @@
 #define DIAGNOSTICS_WRITE_HELPER_H_
 #include <string>
 #include <list>
-#include "H5Cpp.h"
+//#include "H5Cpp.h"
 #include <memory>
 
 #include "synergia/utils/commxx.h"
@@ -21,7 +21,7 @@ private:
     std::string filename;
     std::string local_dir;
     bool serial;
-    Commxx_sptr commxx_sptr;
+    Commxx commxx;
 
     Hdf5_file_sptr file_sptr;
 
@@ -36,7 +36,7 @@ public:
     Diagnostics_write_helper(
             std::string const & filename, 
             bool serial, 
-            Commxx_sptr commxx_sptr,
+            Commxx commxx,
             std::string const & local_dir, 
             std::string const & filename_appendix = "",
             int writer_rank = default_rank);

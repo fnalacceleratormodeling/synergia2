@@ -10,6 +10,7 @@
 
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/foundation/reference_particle.h"
+#include "synergia/bunch/diagnostics.h"
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/restrict_extension.h"
@@ -121,13 +122,9 @@ private:
 
     Commxx comm;    
 
-    // no longer doing the state conversion
-#if 0
-    State state;
-    Fixed_t_z_zeroth default_converter;
-    Fixed_t_z_converter *converter_ptr;
-#endif
+    std::map<std::string, std::unique_ptr<Diagnostics>> diags;
 
+private:
 
     void assign_ids(int local_offset);
     void assign_spectator_ids(int local_offset);
@@ -162,14 +159,9 @@ public:
     /// Default constructor for serialization use only
     Bunch();
 
-#if 0
-    //!
-    //! Copy constructor
-    Bunch(Bunch const& bunch);
-    //!
-    //! Assignment constructor
-    Bunch & operator=(Bunch const& bunch);
-#endif
+    // non-copyable but moveable
+    Bunch(Bunch const&) = delete;
+    Bunch(Bunch &&) = default;
 
     ///
     /// Set the particle charge
@@ -256,20 +248,6 @@ public:
     /// larger local_num. The macroparticle state vectors are stored in
     /// array[0:local_num,0:6] and the macroparticle IDs are stored in
     /// array[0:local_num,6]. Use get_local_num() to obtain local_num.
-#if 0
-    MArray2d_ref
-    get_local_particles();
-
-    Const_MArray2d_ref
-    get_local_particles() const;
-
-    MArray2d_ref
-    get_local_spectator_particles();
-
-    Const_MArray2d_ref
-    get_local_spectator_particles() const;
-#endif
-
     Particles get_local_particles()
     { return parts; }
 
@@ -379,6 +357,13 @@ public:
     /// Get the communicator
     Commxx const& get_comm() const;
 
+    // Diagnostics
+    template<typename Diag>
+    void add_diagnostics(std::string const & name, Diag const & diag)
+    { diags.emplace(name, std::make_unique<Diag>(diag)).first->set_bunch(*this); }
+
+    Diagnostics & get_diag(std::string const & name);
+
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,
     /// real_num/total_num. If the state vectors of the reference particles
@@ -389,21 +374,12 @@ public:
 
     void check_pz2_positive();
     
-    void set_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
-                    double * RESTRICT &ya, double * RESTRICT &ypa,
-                    double * RESTRICT &cdta, double * RESTRICT &dpopa);
-
-    void set_spectator_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
-                    double * RESTRICT &ya, double * RESTRICT &ypa,
-                    double * RESTRICT &cdta, double * RESTRICT &dpopa);
+    /// serialization
+    template<class Archive> 
+    void save(Archive & ar, const unsigned int version) const;
 
     template<class Archive>
-        void
-        save(Archive & ar, const unsigned int version) const;
-
-    template<class Archive>
-        void
-        load(Archive & ar, const unsigned int version);
+    void load(Archive & ar, const unsigned int version);
 };
 
 #endif /* BUNCH_H_ */

@@ -134,6 +134,8 @@ Bunch_train::Bunch_train(
     int total_colors = std::ceil(1.0*size/ranks_per_bunch);
     int ranks_per_color = size / total_colors;
 
+    bunches.reserve(bunches_per_rank);
+
     for(int b=0; b<bunches_per_rank; ++b)
     {
         int bunch_index = rank * bunches_per_rank + b;
