@@ -163,6 +163,7 @@ public:
     Bunch(Bunch const&) = delete;
     Bunch(Bunch &&) = default;
 
+
     ///
     /// Set the particle charge
     /// @param particle_charge in units of e.
@@ -274,11 +275,22 @@ public:
     { return hsparts; }
 
 
+    // checkout (deep_copy) the entire particle array from device
+    // memory to the host memory for user to access the latest
+    // particle data
     void checkout_particles()
     { Kokkos::deep_copy(hparts, parts); }
 
     void checkin_particles()
     { Kokkos::deep_copy(parts, hparts); }
+
+
+    // checkout (deep_copy) num particles starting from offset, and
+    // store them in a host array
+    // when compiled for host, it returns a subview to the original
+    // particle data -- overhead for the operation should be minimal
+    HostParticles get_particles_in_range(int offset, int num) const;
+
 
     void print_particle(size_t idx, Logger & logger) const;
 

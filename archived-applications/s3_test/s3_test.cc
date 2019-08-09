@@ -121,6 +121,19 @@ int run()
 
     screen << "\n";
 
+    auto sub = bunch.get_particles_in_range(2, 3);
+    for(int i=0; i<3; ++i)
+    {
+        screen(LoggerV::DEBUG) << std::setprecision(8)
+            << sub(i, 0) << ", "
+            << sub(i, 1) << ", "
+            << sub(i, 2) << ", "
+            << sub(i, 3) << ", "
+            << sub(i, 4) << ", "
+            << sub(i, 5) << "\n";
+    }
+
+
     return 0;
 }
 

@@ -434,6 +434,45 @@ Bunch::Bunch()
 {
 }
 
+struct particle_copier
+{
+    ConstParticles src;
+    Particles dst;
+    int off;
+
+    particle_copier(
+            ConstParticles const & s,
+            Particles const & d,
+            int offset )
+        : src(s), dst(d), off(offset)
+    { }
+
+    KOKKOS_INLINE_FUNCTION
+    void operator() (const int i) const
+    {
+        dst(i, 0) = src(off+i, 0);
+        dst(i, 1) = src(off+i, 1);
+        dst(i, 2) = src(off+i, 2);
+        dst(i, 3) = src(off+i, 3);
+        dst(i, 4) = src(off+i, 4);
+        dst(i, 5) = src(off+i, 5);
+        dst(i, 6) = src(off+i, 6);
+    }
+};
+
+HostParticles
+Bunch::get_particles_in_range(int off, int num) const
+{
+    Particles p("sub_p", num);
+    particle_copier pc(parts, p, off);
+
+    Kokkos::parallel_for(num, pc);
+
+    HostParticles hp = create_mirror_view(p);
+    Kokkos::deep_copy(hp, p);
+    return hp;
+}
+
 #if 0
 Bunch &
 Bunch::operator=(Bunch const& bunch)
