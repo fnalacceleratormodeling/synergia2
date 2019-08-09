@@ -19,21 +19,19 @@ private:
 
     cufftHandle plan;
 
-    int lower, upper;
-    std::vector<int> uppers, lengths, lengths_1d;
+    int lower;
+    int nx;
 
 public:
 
-    Distributed_fft2d(std::array<int, 3> const& shape, MPI_Comm comm);
+    Distributed_fft2d();
     ~Distributed_fft2d();
 
-    int get_lower() const;
-    int get_upper() const;
+    void construct(std::array<int, 3> const& shape, MPI_Comm comm);
 
-    std::vector<int>   const& get_uppers();
-    std::vector<int>   const& get_lengths();
-    std::vector<int>   const& get_lengths_1d();
-    std::array<int, 3> const& get_shape() const;
+    int get_lower() const { return lower; }
+    int get_upper() const { return lower + nx; }
+    std::array<int, 3> const& get_shape() const { return shape; }
 
     void transform(karray1d_dev & in, karray1d_dev & out);
     void inv_transform(karray1d_dev & in, karray1d_dev & out);
