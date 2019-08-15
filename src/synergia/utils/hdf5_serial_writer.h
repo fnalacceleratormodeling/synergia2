@@ -26,6 +26,8 @@ private:
     bool resume;
     size_t data_size;
 
+private:
+
     void do_setup(std::vector<int> const& data_dims);
     void do_append(void* ptr);
 
@@ -59,10 +61,6 @@ public:
         , resume(false)
         , data_size(0)
     { }
-
-    // Default constructor for serialization use only
-    Hdf5_serial_writer();
-    ~Hdf5_serial_writer();
 
     template<typename T>
     void append(T & data)
