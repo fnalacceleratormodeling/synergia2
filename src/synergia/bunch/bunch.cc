@@ -1,7 +1,8 @@
+
 #include "bunch.h"
 #include "synergia/utils/parallel_utils.h"
+
 #include <boost/filesystem.hpp>
-//#include <boost/align/aligned_alloc.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <cmath>
@@ -21,59 +22,43 @@
   const int Bunch::particle_alignment = 4;
 #endif
 
-const int Bunch::x;
-const int Bunch::xp;
-const int Bunch::y;
-const int Bunch::yp;
-const int Bunch::z;
-const int Bunch::zp;
-const int Bunch::cdt;
-const int Bunch::dpop;
-const int Bunch::id;
 
-
-class Particle_id_offset
+struct Particle_id_offset
 {
-private:
-    int offset;
-public:
-    Particle_id_offset() :
-        offset(0)
-    {
-    }
+    static int offset;
 
-    int
-    get(int request_num, Commxx const & comm)
+    static int get(int request_num, Commxx const & comm)
     {
-        MPI_Bcast((void *) &offset, 1, MPI_INT, 0, comm);
+        MPI_Bcast((void *)&offset, 1, MPI_INT, 0, comm);
         int old_offset = offset;
         int total_num;
-        MPI_Reduce((void*) &request_num, (void*) &total_num, 1, MPI_INT,
-                MPI_SUM, 0, comm);
+        MPI_Reduce((void*)&request_num, (void*)&total_num, 1, 
+                MPI_INT, MPI_SUM, 0, comm);
         offset += total_num;
         return old_offset;
     }
-
 };
 
+int Particle_id_offset::offset = 0;
 
-static Particle_id_offset particle_id_offset;
+struct particle_id_assigner
+{
+    Particles parts;
+    int offset;
+
+    KOKKOS_INLINE_FUNCTION
+    void operator() (const int i) const
+    { parts(i, Bunch::id) = i + offset; }
+};
 
 void
 Bunch::assign_ids(int local_offset)
 {
-#if 0
-    int global_offset, request_num;
-    if (comm_sptr->get_rank() == 0) {
-        request_num = total_num;
-    } else {
-        request_num = 0;
-    }
-    global_offset = particle_id_offset.get(request_num, *comm_sptr);
-    for (int i = 0; i < local_num; ++i) {
-        (*local_particles)[i][id] = i + local_offset + global_offset;
-    }
-#endif
+    int request_num = (comm.rank() == 0) ? total_num : 0;
+    int global_offset = Particle_id_offset::get(request_num, comm);
+
+    particle_id_assigner pia{parts, local_offset + global_offset};
+    Kokkos::parallel_for(local_num, pia);
 }
 
 void
@@ -99,57 +84,6 @@ Bunch::assign_spectator_ids(int local_offset)
 }
 
 
-
-#if 0
-template<class T, size_t C, int I>
-    struct Sortable2d
-    {
-        typedef T data_type;
-    };
-
-template<class T, size_t C, int I>
-    struct Sortable2d<T*, C, I >
-    {
-        typedef T data_type;
-        typedef T arr_type[][C];
-        typedef T row_type[C];
-        struct Row
-        {
-            row_type data;
-        };
-        typedef Row cols_type[];
-
-        Sortable2d(double* t, size_t sz) :
-            ptr_(t), rows_(sz)
-        {
-        }
-
-        struct Less
-        {
-            bool
-            operator()(Row const& a, Row const& b)
-            {
-                return a.data[I] < b.data[I];
-            }
-        };
-
-        Row*
-        begin()
-        {
-            return (Row*) ptr_;
-        }
-
-        Row*
-        end()
-        {
-            return (Row*) (ptr_ + (rows_ * C));
-        }
-
-        double* ptr_;
-        size_t rows_;
-    };
-#endif
-
 std::string
 Bunch::get_local_particles_serialization_path() const
 {
@@ -165,12 +99,16 @@ Bunch::calculate_aligned_pos(int num)
 {
     if (particle_alignment <= 0)
     {
-        throw std::runtime_error("Bunch::calculate_aligned_pos() invalid particle_alignment value");
+        throw std::runtime_error(
+                "Bunch::calculate_aligned_pos() "
+                "invalid particle_alignment value");
     }
 
     if (num < 0)
     {
-        throw std::runtime_error("Bunch::calculate_aligned_pos() invalid num value");
+        throw std::runtime_error(
+                "Bunch::calculate_aligned_pos() "
+                "invalid num value");
     }
 
     if (num == 0)
@@ -195,12 +133,16 @@ Bunch::calculate_padding_size(int num)
 {
     if (particle_alignment <= 0)
     {
-        throw std::runtime_error("Bunch::calculate_padding_size() invalid particle_alignment value");
+        throw std::runtime_error(
+                "Bunch::calculate_padding_size() "
+                "invalid particle_alignment value" );
     }
 
     if (num < 0)
     {
-        throw std::runtime_error("Bunch::calculate_padding_size() invalid num value");
+        throw std::runtime_error(
+                "Bunch::calculate_padding_size() "
+                "invalid num value" );
     }
 
     if (num == 0)
@@ -223,15 +165,9 @@ Bunch::calculate_padding_size(int num)
 void
 Bunch::construct(int total_num, double real_num, int total_s_num)
 {
-    sort_counter = 0;
-    sort_period = 10000;
-
     this->total_num = total_num;
     this->real_num = real_num;
     this->total_s_num = total_s_num;
-
-    //state = fixed_z_lab;
-    //converter_ptr = &default_converter;
 
     if (!comm.is_null()) 
     {
@@ -250,18 +186,6 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         Kokkos::resize(parts, local_num_slots);
         hparts = Kokkos::create_mirror_view(parts);
 
-#if 0
-        // zero
-        #pragma omp parallel for
-        for (int i=0; i<local_num_slots; ++i)
-        {
-            for(int j=0; j<7; ++j)
-            {
-                (*local_particles)[i][j] = 0.0;
-            }
-        }
-#endif
-
         // id
         assign_ids(offsets[comm.rank()]);
 
@@ -279,18 +203,6 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         // allocate
         Kokkos::resize(sparts, local_s_num_slots);
         hsparts = Kokkos::create_mirror_view(sparts);
-
-#if 0
-        // reset
-        #pragma omp parallel for
-        for (int i=0; i<local_s_num_slots; ++i)
-        {
-            for(int j=0; j<7; ++j)
-            {
-                (*local_s_particles)[i][j] = 0.0;
-            }
-        }
-#endif
 
         // id
         assign_spectator_ids(s_offsets[comm.rank()]);
@@ -346,9 +258,6 @@ Bunch::Bunch(
     , bucket_index(bucket_index)
     , bucket_index_assigned(true)
 
-    , sort_period(10000)
-    , sort_counter(0)
-
     , comm(comm)
 {
     construct(total_num, real_num, 0);
@@ -390,8 +299,6 @@ Bunch::Bunch(
 
     , bucket_index(0)
     , bucket_index_assigned(false)
-    , sort_period(10000)
-    , sort_counter(0)
     , comm(comm)
 {
     construct(total_num, real_num, total_spectator_num);
@@ -428,8 +335,6 @@ Bunch::Bunch()
 
     , bucket_index(0)
     , bucket_index_assigned(false)
-    , sort_period(10000)
-    , sort_counter(0)
     , comm()
 {
 }
@@ -461,16 +366,67 @@ struct particle_copier
 };
 
 HostParticles
-Bunch::get_particles_in_range(int off, int num) const
+Bunch::get_particles_in_range(int idx, int num) const
 {
     Particles p("sub_p", num);
-    particle_copier pc(parts, p, off);
+    particle_copier pc(parts, p, idx);
 
     Kokkos::parallel_for(num, pc);
 
     HostParticles hp = create_mirror_view(p);
     Kokkos::deep_copy(hp, p);
     return hp;
+}
+
+struct particle_id_checker
+{
+    ConstParticles parts;
+    int pid;
+    int idx;
+    bool & match;
+
+    particle_id_checker(ConstParticles const& p, 
+            int pid, int idx, bool & match)
+        : parts(p), pid(pid), idx(idx), match(match)
+    { }
+
+    KOKKOS_INLINE_FUNCTION
+    void operator() (const int i) const
+    { match = (parts(idx, 6) == pid); }
+};
+
+struct particle_finder
+{
+    ConstParticles parts;
+    int pid;
+    int & idx;
+
+    particle_finder(ConstParticles const& p, int pid, int & idx)
+        : parts(p), pid(pid), idx(idx)
+    { }
+
+    KOKKOS_INLINE_FUNCTION
+    void operator() (const int i) const
+    { if (parts(i, 6) == pid) idx = i; }
+};
+
+int
+Bunch::search_particle(int pid, int last_idx) const
+{
+    if (last_idx != particle_index_null)
+    {
+        bool match = false;
+        particle_id_checker pic(parts, pid, last_idx, match);
+        Kokkos::parallel_for(1, pic);
+
+        if (match) return last_idx;
+    }
+
+    int idx = particle_index_null;
+    particle_finder pf(parts, pid, idx);
+    Kokkos::parallel_for(local_num, pf);
+
+    return idx;
 }
 
 #if 0
@@ -789,155 +745,6 @@ Bunch::set_total_num(int totalnum)
 #endif
 }
 
-#if 0
-namespace {
-double * semi_global_t;
-size_t semi_global_start_pos;
-
-inline bool do_compare(unsigned int const& a, unsigned int const& b)
-{
-    bool retval = semi_global_t[semi_global_start_pos+a] <
-            semi_global_t[semi_global_start_pos+b];
-    return retval;
-}
-
-void do_sort(double * t, size_t rows, size_t cols, size_t cols_padded, size_t ord_col)
-{
-    semi_global_t = t;
-    std::vector<unsigned int> index(cols);
-    // c++ 11
-    // unsigned int ind=0;
-    //generate(index.begin(),index.end(), [&]() { return ind++; });
-    for(int i=0; i<cols; ++i) {
-        index[i] = i;
-    }
-    semi_global_start_pos = ord_col*cols_padded;
-    std::sort(index.begin(),index.end(), &do_compare);
-
-    // swap all values in each row according to index order
-    for(size_t r=0; r<rows; ++r) {
-        double *start = t+(r*cols_padded), *end = t+((r+1)*cols_padded);
-        std::vector<double> temp(start, end);
-        for(size_t i=0; i<index.size(); ++i) {
-            start[i] = temp[index[i]];
-        }
-    }
-}
-}   // ends namespace
-
-void
-Bunch::set_sort_period(int period)
-{
-    sort_period = period;
-    sort_counter = period;
-}
-
-void
-Bunch::sort(int index)
-{
-    if ((index<0) || (index>6)) {
-        throw std::runtime_error("Bunch::sort: invalid index");
-    }
-    do_sort(local_particles->origin(), 7, local_num, local_num_slots, index);
-    sort_counter = sort_period;
-}
-
-void
-Bunch::periodic_sort(int index)
-{
-    if (sort_counter == 0) {
-        sort(index);
-    } else {
-        --sort_counter;
-    }
-}
-#endif
-
-#if 0
-void
-Bunch::set_converter(Fixed_t_z_converter &converter)
-{
-    //this->converter_ptr = &converter;
-}
-#endif
-
-#if 0
-void
-Bunch::convert_to_state(State state)
-{
-    if (this->state != state) 
-    {
-        if (this->state == fixed_z_lab) 
-        {
-            if (state == fixed_t_lab) 
-            {
-                converter_ptr->from_z_lab_to_t_lab(*this);
-            }
-            else if ( state == fixed_t_bunch) 
-            {
-                converter_ptr->from_z_lab_to_t_bunch(*this);
-            }
-            // else if ( state == fixed_z_bunch) {
-            //    converter_ptr->from_z_lab_to_z_bunch(*this);
-            //}
-            else 
-            {
-                std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl;
-                throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 1");
-            }
-        }
-        else if (this->state == fixed_z_bunch) 
-        {
-            throw std::runtime_error("state z_bunch not implemented yet in Bunch::convert_to_state");
-        }
-        else if (this->state == fixed_t_lab) 
-        {
-            if (state == fixed_z_lab ) 
-            {
-                converter_ptr->from_t_lab_to_z_lab(*this);
-            }
-            //else if (state == fixed_z_bunch) {
-            //    converter_ptr->from_t_lab_to_z_bunch(*this);
-            //}
-            else if (state == fixed_t_bunch) 
-            {
-                converter_ptr->from_t_lab_to_t_bunch(*this);
-            }
-            else 
-            {
-                std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl;
-                throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 2");
-            }
-        }
-        else if (this->state == fixed_t_bunch) 
-        {
-            if (state == fixed_z_lab ) 
-            {
-                converter_ptr->from_t_bunch_to_z_lab(*this);
-            }
-            //else if (state == fixed_z_bunch ) {
-            //    converter_ptr->from_t_bunch_to_z_bunch(*this);
-            //}
-            else if (state == fixed_t_lab ) 
-            {
-                converter_ptr->from_t_bunch_to_t_lab(*this);
-            }
-            else 
-            {
-                std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl;
-                throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 3");
-            }
-        }
-
-        this->state = state;
-    }
-}
-#endif
-
-
 
 Reference_particle &
 Bunch::get_reference_particle()
@@ -1109,12 +916,6 @@ int
 Bunch::get_total_spectator_num() const
 {
     return total_s_num;
-}
-
-int
-Bunch::get_sort_period() const
-{
-    return sort_period;
 }
 
 void
@@ -1424,9 +1225,6 @@ Bunch::save(Archive & ar, const unsigned int version) const
        << CEREAL_NVP(bucket_index)
        << CEREAL_NVP(bucket_index_assigned)
 
-       << CEREAL_NVP(sort_period)
-       << CEREAL_NVP(sort_counter)
-
        << CEREAL_NVP(comm_sptr)
 
        //<< CEREAL_NVP(state)
@@ -1492,9 +1290,6 @@ Bunch::load(Archive & ar, const unsigned int version)
 
        >> CEREAL_NVP(bucket_index)
        >> CEREAL_NVP(bucket_index_assigned)
-
-       >> CEREAL_NVP(sort_period)
-       >> CEREAL_NVP(sort_counter)
 
        >> CEREAL_NVP(comm_sptr)
 

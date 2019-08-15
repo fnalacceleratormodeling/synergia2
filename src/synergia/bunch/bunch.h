@@ -42,17 +42,19 @@ public:
         fixed_z_bunch = 4
     };
 
-    static const int x = 0;
-    static const int xp = 1;
-    static const int y = 2;
-    static const int yp = 3;
-    static const int z = 4;
-    static const int zp = 5;
-    static const int cdt = 4;
-    static const int dpop = 5;
-    static const int id = 6;
+    constexpr static const int x = 0;
+    constexpr static const int xp = 1;
+    constexpr static const int y = 2;
+    constexpr static const int yp = 3;
+    constexpr static const int z = 4;
+    constexpr static const int zp = 5;
+    constexpr static const int cdt = 4;
+    constexpr static const int dpop = 5;
+    constexpr static const int id = 6;
 
     const static int particle_alignment;
+
+    constexpr static const int particle_index_null = -1;
 
 private:
 
@@ -117,8 +119,6 @@ private:
 
     int bucket_index;
     bool bucket_index_assigned;
-
-    int sort_period, sort_counter;
 
     Commxx comm;    
 
@@ -208,33 +208,6 @@ public:
     /// @param num number of particles
     int calculate_padding_size(int num);
 
-#if 0
-    ///
-    /// Set the period for periodic_sort and reset the counter
-    /// Periods less than zero will prohibit sorting.
-    /// @param period
-    void set_sort_period(int period);
-
-    /// Sort the particles
-    /// @param index the particle index on which to sort
-    void sort(int index);
-
-    /// Sort the particles every sort period calls
-    /// @param index the particle index on which to sort
-    void periodic_sort(int index);
-
-    /// Set the Fixed_t_z_converter class to be used when converting between
-    /// fixed-t and fixed-z representations.
-    /// @param converter the converter class
-    void
-    set_converter(Fixed_t_z_converter &converter);
-
-    /// Convert to (fixed-t or fixed-z) state if necessary. Does nothing if
-    /// the bunch is already in the requested state.
-    /// @param state convert to this state.
-    void convert_to_state(State state);
-#endif
-
     /// Return the reference particle
     Reference_particle       & get_reference_particle();
     Reference_particle const & get_reference_particle() const;
@@ -285,11 +258,16 @@ public:
     { Kokkos::deep_copy(parts, hparts); }
 
 
-    // checkout (deep_copy) num particles starting from offset, and
+    // checkout (deep_copy) num particles starting from idx, and
     // store them in a host array
-    // when compiled for host, it returns a subview to the original
+    // TODO: when compiled for host, it returns a subview to the original
     // particle data -- overhead for the operation should be minimal
-    HostParticles get_particles_in_range(int offset, int num) const;
+    HostParticles get_particles_in_range(int idx, int num) const;
+
+    // find the index of the given particle_id (pid)
+    // if last_idx is provided, it does the search form the last_idx first
+    // returns particle_index_null if the given particle_id is not found
+    int search_particle(int pid, int last_idx = particle_index_null) const;
 
 
     void print_particle(size_t idx, Logger & logger) const;
@@ -355,9 +333,6 @@ public:
 
     /// Get the total number of spectator particles.
     int get_total_spectator_num() const;
-
-    /// Get the period for periodic_sort
-    int get_sort_period() const;
 
     void set_bucket_index(int index);
     int  get_bucket_index() const;
