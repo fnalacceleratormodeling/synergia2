@@ -22,7 +22,7 @@ target_link_libraries(synergia_serialization
     )
 
 add_library(synergia_hdf5_utils 
-    hdf5_writer.cc 
+    #hdf5_writer.cc 
     hdf5_serial_writer.cc
     hdf5_chunked_array2d_writer.cc 
     hdf5_file.cc

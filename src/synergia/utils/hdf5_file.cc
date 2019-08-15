@@ -15,16 +15,9 @@ Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag)
     current_flag = flag;
 }
 
-Hdf5_file::Hdf5_file() : h5file()
+void Hdf5_file::open(Flag flag)
 {
-}
-
-void
-Hdf5_file::open(Flag flag)
-{
-    if (is_open) {
-        close();
-    }
+    if (is_open) close();
 
     int attempts = 0;
     bool fail = true;
@@ -53,7 +46,7 @@ Hdf5_file::open(Flag flag)
 
             std::cout << e.what() << "\n";
             std::cout << "caught hdf5 open file error, attempts number="
-                << attempts << " on rank=" << Commxx().get_rank() << std::endl;
+                << attempts << " on rank=" << Commxx().rank() << std::endl;
 
             sleep(3);
         }
@@ -62,8 +55,7 @@ Hdf5_file::open(Flag flag)
     is_open = true;
 }
 
-void
-Hdf5_file::close()
+void Hdf5_file::close()
 {
     if (is_open) {
         h5file.close();
@@ -74,7 +66,7 @@ Hdf5_file::close()
 void
 Hdf5_file::flush() const
 {
-    H5Fflush(h5file.hid, H5F_SCOPE_GLOBAL);
+    if (is_open) H5Fflush(h5file.hid, H5F_SCOPE_GLOBAL);
 }
 
 extern "C" herr_t get_member_names_callback(hid_t group, const char *name,
@@ -126,7 +118,7 @@ Hdf5_file::get_atomic_type(std::string const& name)
     return retval;
 }
 
-std::vector<int >
+std::vector<int>
 Hdf5_file::get_dims(std::string const& name)
 {
     Hdf5_handler dataset   = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
@@ -143,47 +135,10 @@ Hdf5_file::get_dims(std::string const& name)
     return retval;
 }
 
-hid_t
-Hdf5_file::get_h5file()
-{
-    return h5file.hid;
-}
-
-Hdf5_file::~Hdf5_file()
-{
-    close();
-}
 
 template<>
-    int *
-    Hdf5_file::read<int *>(std::string const& name)
+int* Hdf5_file::read<int*>(std::string const& name)
 {
-#if 0
-    // dataset & dataspace
-    DataSet dataset = h5file_ptr->openDataSet(name.c_str());
-    DataSpace dataspace = dataset.getSpace();
-
-    // ranks
-    int rank = dataspace.getSimpleExtentNdims();
-    if (rank != 1) throw std::runtime_error("Hdf5_file::read<T *>: data to read has wrong rank");
-
-    // dims
-    std::vector<hsize_t > dims(rank);
-    dataspace.getSimpleExtentDims(&dims[0], NULL);
-
-    // memspace
-    DataSpace memspace(rank, &dims[0]);
-
-    // atomic type
-    H5::DataType atomic_type = hdf5_atomic_data_type<int>();
-    int * retval = new int[dims[0]];
-
-    // read
-    dataset.read(retval, atomic_type, memspace, dataspace);
-    return retval;
-#endif
-
-    // ---------------
     Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
     Hdf5_handler dataspace   = H5Dget_space(dataset);
     Hdf5_handler atomic_type = hdf5_atomic_data_type<int>();
@@ -217,35 +172,8 @@ template<>
 
 
 template<>
-    double *
-    Hdf5_file::read<double *>(std::string const& name)
+double* Hdf5_file::read<double*>(std::string const& name)
 {
-#if 0
-    // dataset & dataspace
-    DataSet dataset = h5file_ptr->openDataSet(name.c_str());
-    DataSpace dataspace = dataset.getSpace();
-
-    // ranks
-    int rank = dataspace.getSimpleExtentNdims();
-    if (rank != 1) throw std::runtime_error("Hdf5_file::read<T *>: data to read has wrong rank");
-
-    // dims
-    std::vector<hsize_t > dims(rank);
-    dataspace.getSimpleExtentDims(&dims[0], NULL);
-
-    // memspace
-    DataSpace memspace(rank, &dims[0]);
-
-    // atomic type
-    H5::DataType atomic_type = hdf5_atomic_data_type<double>();
-    double * retval = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), dims[0] * sizeof(double));
-
-    // read
-    dataset.read(retval, atomic_type, memspace, dataspace);
-    return retval;
-#endif
-
-    // ---------------
     Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
     Hdf5_handler dataspace   = H5Dget_space(dataset);
     Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
@@ -267,8 +195,7 @@ template<>
     // memspace
     Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
 
-    // allocate (memory aligned)
-    //double * retval = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), dims[0] * sizeof(double));
+    // allocate
     double * retval = new double[dims[0] * sizeof(double)];
 
     // read
@@ -278,173 +205,175 @@ template<>
     return retval;
 }
 
+#if 0
 template<>
-    MArray1d
-    Hdf5_file::read<MArray1d >(std::string const& name)
+MArray1d Hdf5_file::read<MArray1d >(std::string const& name)
+{
+    Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace   = H5Dget_space(dataset);
+    Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
+
+    const int rank = 1;
+    int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+    if (file_rank != rank)
     {
-        Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
-        Hdf5_handler dataspace   = H5Dget_space(dataset);
-        Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
-
-        const int rank = 1;
-        int file_rank = H5Sget_simple_extent_ndims(dataspace);
-
-        if (file_rank != rank)
-        {
-            throw std::runtime_error(
-                    "Hdf5_file::read<MArray1d>: data to read has wrong rank");
-        }
-
-        std::vector<hsize_t> dims(rank);
-        herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
-
-        if (res < 0) throw Hdf5_exception("error getting dims from dataspace");
-
-        MArray1d retval(boost::extents[dims[0]]);
-
-        Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
-        res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
-
-        if (res < 0) throw Hdf5_exception("error reading from hdf5 file");
-
-        return retval;
+        throw std::runtime_error(
+                "Hdf5_file::read<MArray1d>: data to read has wrong rank");
     }
 
-template<>
-    MArray2d
-    Hdf5_file::read<MArray2d >(std::string const& name)
-    {
-        Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
-        Hdf5_handler dataspace   = H5Dget_space(dataset);
-        Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
+    std::vector<hsize_t> dims(rank);
+    herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
 
-        const int rank = 2;
-        int file_rank = H5Sget_simple_extent_ndims(dataspace);
+    if (res < 0) throw Hdf5_exception("error getting dims from dataspace");
 
-        if (file_rank != rank)
-        {
-            throw std::runtime_error(
-                    "Hdf5_file::read<MArray2d>: data to read has wrong rank");
-        }
+    MArray1d retval(boost::extents[dims[0]]);
 
-        std::vector<hsize_t> dims(rank);
-        herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
-        if (res < 0) throw Hdf5_exception();
+    Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+    res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
 
-        int storage_order = Hdf5_writer<MArray2d>::c_storage_order;
-        try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception e) { }
+    if (res < 0) throw Hdf5_exception("error reading from hdf5 file");
 
-        MArray2d retval = (storage_order == Hdf5_writer<MArray2d >::c_storage_order) ?  
-            MArray2d(boost::extents[dims[0]][dims[1]], boost::c_storage_order()) :
-            MArray2d(boost::extents[dims[0]][dims[1]], boost::fortran_storage_order());
-
-        Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
-        res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
-
-        if (res < 0) throw Hdf5_exception();
-
-        return retval;
-    }
-
-template<>
-    MArray3d
-    Hdf5_file::read<MArray3d >(std::string const& name)
-    {
-        Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
-        Hdf5_handler dataspace   = H5Dget_space(dataset);
-        Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
-
-        const int rank = 3;
-        int file_rank = H5Sget_simple_extent_ndims(dataspace);
-
-        if (file_rank != rank)
-        {
-            throw std::runtime_error(
-                    "Hdf5_file::read<MArray3d>: data to read has wrong rank");
-        }
-
-        std::vector<hsize_t> dims(rank);
-        herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
-        if (res < 0) throw Hdf5_exception();
-
-        int storage_order = Hdf5_writer<MArray3d>::c_storage_order;
-        try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception e) { } 
-
-        MArray3d retval = (storage_order == Hdf5_writer<MArray3d >::c_storage_order) ?  
-            MArray3d(boost::extents[dims[0]][dims[1]][dims[2]], boost::c_storage_order()) :
-            MArray3d(boost::extents[dims[0]][dims[1]][dims[2]], boost::fortran_storage_order());
-
-        Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
-        res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
-
-        if (res < 0) throw Hdf5_exception();
-
-        return retval;
+    return retval;
 }
 
 template<>
-    MArray1i
-    Hdf5_file::read<MArray1i >(std::string const& name)
+MArray2d
+Hdf5_file::read<MArray2d >(std::string const& name)
+{
+    Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace   = H5Dget_space(dataset);
+    Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
+
+    const int rank = 2;
+    int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+    if (file_rank != rank)
     {
-        Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
-        Hdf5_handler dataspace   = H5Dget_space(dataset);
-        Hdf5_handler atomic_type = hdf5_atomic_data_type<int>();
-
-        const int rank = 1;
-        int file_rank = H5Sget_simple_extent_ndims(dataspace);
-
-        if (file_rank != rank)
-        {
-            throw std::runtime_error(
-                    "Hdf5_file::read<MArray1i>: data to read has wrong rank");
-        }
-
-        std::vector<hsize_t> dims(rank);
-        herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
-        if (res < 0) throw Hdf5_exception();
-
-        MArray1i retval(boost::extents[dims[0]]);
-
-        Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
-        res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
-
-        if (res < 0) throw Hdf5_exception();
-
-        return retval;
+        throw std::runtime_error(
+                "Hdf5_file::read<MArray2d>: data to read has wrong rank");
     }
+
+    std::vector<hsize_t> dims(rank);
+    herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+    if (res < 0) throw Hdf5_exception();
+
+    int storage_order = Hdf5_writer<MArray2d>::c_storage_order;
+    try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception e) { }
+
+    MArray2d retval = (storage_order == Hdf5_writer<MArray2d >::c_storage_order) ?  
+        MArray2d(boost::extents[dims[0]][dims[1]], boost::c_storage_order()) :
+        MArray2d(boost::extents[dims[0]][dims[1]], boost::fortran_storage_order());
+
+    Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+    res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
+
+    if (res < 0) throw Hdf5_exception();
+
+    return retval;
+}
+
+template<>
+MArray3d
+Hdf5_file::read<MArray3d >(std::string const& name)
+{
+    Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace   = H5Dget_space(dataset);
+    Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
+
+    const int rank = 3;
+    int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+    if (file_rank != rank)
+    {
+        throw std::runtime_error(
+                "Hdf5_file::read<MArray3d>: data to read has wrong rank");
+    }
+
+    std::vector<hsize_t> dims(rank);
+    herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+    if (res < 0) throw Hdf5_exception();
+
+    int storage_order = Hdf5_writer<MArray3d>::c_storage_order;
+    try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception e) { } 
+
+    MArray3d retval = (storage_order == Hdf5_writer<MArray3d >::c_storage_order) ?  
+        MArray3d(boost::extents[dims[0]][dims[1]][dims[2]], boost::c_storage_order()) :
+        MArray3d(boost::extents[dims[0]][dims[1]][dims[2]], boost::fortran_storage_order());
+
+    Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+    res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
+
+    if (res < 0) throw Hdf5_exception();
+
+    return retval;
+}
+
+template<>
+MArray1i
+Hdf5_file::read<MArray1i >(std::string const& name)
+{
+    Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace   = H5Dget_space(dataset);
+    Hdf5_handler atomic_type = hdf5_atomic_data_type<int>();
+
+    const int rank = 1;
+    int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+    if (file_rank != rank)
+    {
+        throw std::runtime_error(
+                "Hdf5_file::read<MArray1i>: data to read has wrong rank");
+    }
+
+    std::vector<hsize_t> dims(rank);
+    herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+    if (res < 0) throw Hdf5_exception();
+
+    MArray1i retval(boost::extents[dims[0]]);
+
+    Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+    res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.origin());
+
+    if (res < 0) throw Hdf5_exception();
+
+    return retval;
+}
+#endif
+
+#if 0
+template<class Archive>
+void
+Hdf5_file::save(Archive & ar, const unsigned int version) const
+{
+    ar << CEREAL_NVP(file_name)
+       << CEREAL_NVP(is_open)
+       << CEREAL_NVP(current_flag);
+    if (is_open) {
+        flush();
+        copy_to_serialization_directory(file_name);
+    }
+}
 
 template<class Archive>
-    void
-    Hdf5_file::save(Archive & ar, const unsigned int version) const
-    {
-        ar << CEREAL_NVP(file_name)
-           << CEREAL_NVP(is_open)
-           << CEREAL_NVP(current_flag);
-        if (is_open) {
-            flush();
-            copy_to_serialization_directory(file_name);
+void
+Hdf5_file::load(Archive & ar, const unsigned int version)
+{
+    ar >> CEREAL_NVP(file_name)
+            >> CEREAL_NVP(is_open)
+            >> CEREAL_NVP(current_flag);
+    if (is_open) {
+        copy_from_serialization_directory(file_name);
+        Flag flag;
+        if (current_flag == read_only) {
+            flag = read_only;
+        } else {
+            flag = read_write;
         }
+        is_open = false; // will be changed to true by open
+        open(flag);
     }
-
-template<class Archive>
-    void
-    Hdf5_file::load(Archive & ar, const unsigned int version)
-    {
-        ar >> CEREAL_NVP(file_name)
-                >> CEREAL_NVP(is_open)
-                >> CEREAL_NVP(current_flag);
-        if (is_open) {
-            copy_from_serialization_directory(file_name);
-            Flag flag;
-            if (current_flag == read_only) {
-                flag = read_only;
-            } else {
-                flag = read_write;
-            }
-            is_open = false; // will be changed to true by open
-            open(flag);
-        }
-    }
+}
 
 template
 void
@@ -465,3 +394,5 @@ template
 void
 Hdf5_file::load<cereal::XMLInputArchive>(
         cereal::XMLInputArchive & ar, const unsigned int version);
+#endif
+

@@ -1,6 +1,7 @@
 #include "hdf5_writer.h"
 
-namespace {
+namespace 
+{
     template <typename T>
     void storage_order_writer_helper(hid_t file_ptr, std::string const& name, T const& data)
     {

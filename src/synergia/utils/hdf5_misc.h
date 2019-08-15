@@ -57,14 +57,23 @@ private:
 struct Hdf5_handler
 {
     Hdf5_handler(hid_t handler = 0) : hid(handler)
-    { 
-        if (hid < 0) throw Hdf5_exception("Bad HDF5 Handler");
+    { if (hid < 0) throw Hdf5_exception("Bad HDF5 Handler"); }
+
+    Hdf5_handler(Hdf5_handler&& o) noexcept : hid(o.hid)
+    { o.hid = 0; }
+
+    Hdf5_handler & operator= (hid_t handler)
+    {
+        if (handler < 0) throw Hdf5_exception("Bad HDF5 Handler");
+        hid = handler; return *this;
     }
 
+    // no copy and copy assignment
+    Hdf5_handler(Hdf5_handler const&) = delete;
+    Hdf5_handler& operator= (Hdf5_handler const&) = delete;
+
     ~Hdf5_handler()
-    {
-        close();
-    }
+    { close(); }
 
     void close()
     {
@@ -82,48 +91,25 @@ struct Hdf5_handler
         hid = 0;
     }
 
-    Hdf5_handler & operator= (hid_t handler)
-    {
-        hid = handler; 
-        if (hid < 0) throw Hdf5_exception("Bad HDF5 Handler");
-
-        return *this;
-    }
-
     operator hid_t const()
-    {
-        return hid;
-    }
+    { return hid; }
 
     hid_t hid;
-
-private:
-
-    // disable copy and assignment
-    // Hdf5_handler(Hdf5_handler const &) { }
-    Hdf5_handler & operator= (Hdf5_handler const &) = delete;
 };
 
 
 // The generic (T) version of h5_atomic_data_type is undefined.
 // Only versions with specializations will compile.
 template<typename T>
-    inline hid_t
-    hdf5_atomic_data_type();
+inline hid_t hdf5_atomic_data_type();
 
 template<>
-    inline hid_t
-    hdf5_atomic_data_type<int > ()
-    {
-        return H5Tcopy(H5T_NATIVE_INT);
-    }
+inline hid_t hdf5_atomic_data_type<int>()
+{ return H5Tcopy(H5T_NATIVE_INT); }
 
 template<>
-    inline hid_t
-    hdf5_atomic_data_type<double > ()
-    {
-        return H5Tcopy(H5T_NATIVE_DOUBLE);
-    }
+inline hid_t hdf5_atomic_data_type<double>()
+{ return H5Tcopy(H5T_NATIVE_DOUBLE); }
 
 
 
