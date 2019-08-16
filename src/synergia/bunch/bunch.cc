@@ -48,7 +48,7 @@ struct particle_id_assigner
 
     KOKKOS_INLINE_FUNCTION
     void operator() (const int i) const
-    { parts(i, Bunch::id) = i + offset; }
+    { parts(i, 6) = i + offset; }
 };
 
 void
@@ -345,13 +345,6 @@ struct particle_copier
     Particles dst;
     int off;
 
-    particle_copier(
-            ConstParticles const & s,
-            Particles const & d,
-            int offset )
-        : src(s), dst(d), off(offset)
-    { }
-
     KOKKOS_INLINE_FUNCTION
     void operator() (const int i) const
     {
@@ -369,7 +362,7 @@ HostParticles
 Bunch::get_particles_in_range(int idx, int num) const
 {
     Particles p("sub_p", num);
-    particle_copier pc(parts, p, idx);
+    particle_copier pc{parts, p, idx};
 
     Kokkos::parallel_for(num, pc);
 
@@ -381,33 +374,22 @@ Bunch::get_particles_in_range(int idx, int num) const
 struct particle_id_checker
 {
     ConstParticles parts;
-    int pid;
     int idx;
-    bool & match;
-
-    particle_id_checker(ConstParticles const& p, 
-            int pid, int idx, bool & match)
-        : parts(p), pid(pid), idx(idx), match(match)
-    { }
+    int pid;
 
     KOKKOS_INLINE_FUNCTION
-    void operator() (const int i) const
-    { match = (parts(idx, 6) == pid); }
+    void operator() (const int i, int& match) const
+    { match = (((int)parts(idx, 6)) == pid); }
 };
 
 struct particle_finder
 {
     ConstParticles parts;
     int pid;
-    int & idx;
-
-    particle_finder(ConstParticles const& p, int pid, int & idx)
-        : parts(p), pid(pid), idx(idx)
-    { }
 
     KOKKOS_INLINE_FUNCTION
-    void operator() (const int i) const
-    { if (parts(i, 6) == pid) idx = i; }
+    void operator() (const int i, int& idx) const
+    { if (((int)parts(i, 6)) == pid) idx = i; }
 };
 
 int
@@ -415,16 +397,16 @@ Bunch::search_particle(int pid, int last_idx) const
 {
     if (last_idx != particle_index_null)
     {
-        bool match = false;
-        particle_id_checker pic(parts, pid, last_idx, match);
-        Kokkos::parallel_for(1, pic);
+        int match = 0;
+        particle_id_checker pic{parts, last_idx, pid};
+        Kokkos::parallel_reduce(1, pic, match);
 
         if (match) return last_idx;
     }
 
     int idx = particle_index_null;
-    particle_finder pf(parts, pid, idx);
-    Kokkos::parallel_for(local_num, pf);
+    particle_finder pf{parts, pid};
+    Kokkos::parallel_reduce(local_num, pf, idx);
 
     return idx;
 }
