@@ -52,10 +52,11 @@ Diagnostics_write_helper::get_filename(bool include_local_dir)
 void
 Diagnostics_write_helper::open_file()
 {
-    if (write_locally() && !have_file) {
-        file_sptr = Hdf5_file_sptr(
-                new Hdf5_file(get_filename(true).c_str(), Hdf5_file::truncate));
-        have_file = true;
+    if (write_locally() && !file) 
+    {
+        file = std::make_unique<Hdf5_file>(
+                get_filename(true).c_str(), 
+                Hdf5_file::truncate );
     }
 }
 
@@ -65,92 +66,69 @@ Diagnostics_write_helper::Diagnostics_write_helper(
         Commxx commxx, 
         std::string const & local_dir,
         std::string const & filename_appendix,
-        int writer_rank ) 
-    : filename(filename)
-    , filename_appendix(filename_appendix)
-    , local_dir(local_dir)
+        int wrank ) 
+    : writer_rank(wrank==default_rank ? commxx.size()-1 : wrank)
     , serial(serial)
-    , commxx(commxx)
-    , have_file(false)
     , count(0) 
-{
-	if (writer_rank == default_rank) {
-		this->writer_rank = commxx.size() - 1;
-    } else {
-        this->writer_rank = writer_rank;
-    }
+    , commxx(commxx)
+    , file()
+    , local_dir(local_dir)
+    , filename(filename)
+    , filename_base()
+    , filename_suffix()
+    , filename_appendix(filename_appendix)
 
-    std::string::size_type idx = filename.rfind('.');
-    if (idx == std::string::npos) {
+{
+    auto idx = filename.rfind('.');
+
+    if (idx == std::string::npos) 
+    {
         filename_base = filename;
         filename_suffix = "";
-    } else {
+    } 
+    else 
+    {
         filename_base = filename.substr(0, idx);
         filename_suffix = filename.substr(idx);
     }
 }
 
-Diagnostics_write_helper::Diagnostics_write_helper()
+Hdf5_file &
+Diagnostics_write_helper::get_hdf5_file()
 {
-}
-
-int
-Diagnostics_write_helper::get_count() const
-{
-    return count;
-}
-
-void
-Diagnostics_write_helper::set_count(int count)
-{
-    this->count = count;
-}
-
-void
-Diagnostics_write_helper::increment_count()
-{
-    ++count;
-}
-
-bool
-Diagnostics_write_helper::write_locally()
-{
-    return commxx.rank() == writer_rank;
-}
-
-int
-Diagnostics_write_helper::get_writer_rank()
-{
-    return writer_rank;
-}
-
-Hdf5_file_sptr
-Diagnostics_write_helper::get_hdf5_file_sptr()
-{
-    if (!write_locally()) {
+    if (!write_locally()) 
+    {
         throw std::runtime_error(
-                "Diagnostics_write_helper::get_hdf5_file_sptr() called on a non-writer rank.");
+                "Diagnostics_write_helper::get_hdf5_file_sptr() "
+                "called on a non-writer rank.");
     }
+
     open_file();
-    return file_sptr;
+    return *file;
 }
 
 void
 Diagnostics_write_helper::finish_write()
 {
-    if (write_locally() && !serial) {
-        file_sptr->close();
-        if (local_dir != "") {
-            move_file_overwrite_if_exists(get_filename(true), get_filename(false));
+    if (write_locally() && !serial) 
+    {
+        file->close();
+
+        if (local_dir != "") 
+        {
+            move_file_overwrite_if_exists(
+                    get_filename(true), 
+                    get_filename(false) );
         }
-        file_sptr.reset();
-        have_file = false;
+
+        file.reset();
     }
+
     ++count;
-    if (write_locally() && serial) {
-        if (count % flush_period == 0) {
-            file_sptr->flush();
-        }
+
+    if (write_locally() && serial) 
+    {
+        if (count % flush_period == 0) file->flush();
     }
 }
 
@@ -196,11 +174,15 @@ Diagnostics_write_helper::serialize<cereal::XMLInputArchive >(
 
 Diagnostics_write_helper::~Diagnostics_write_helper()
 {
-    if (write_locally() && serial && have_file) {
-        file_sptr->close();
-        if (local_dir != "") {
-            move_file_overwrite_if_exists(get_filename(true),
-                    get_filename(false));
+    if (write_locally() && serial && file) 
+    {
+        file->close();
+
+        if (local_dir != "") 
+        {
+            move_file_overwrite_if_exists(
+                    get_filename(true),
+                    get_filename(false) );
         }
     }
 }

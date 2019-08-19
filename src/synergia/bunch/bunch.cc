@@ -339,37 +339,68 @@ Bunch::Bunch()
 {
 }
 
-struct particle_copier
+struct particle_copier_many
 {
     ConstParticles src;
-    Particles dst;
-    int off;
+    karray2d_row_dev dst;
+    int idx;
 
     KOKKOS_INLINE_FUNCTION
     void operator() (const int i) const
     {
-        dst(i, 0) = src(off+i, 0);
-        dst(i, 1) = src(off+i, 1);
-        dst(i, 2) = src(off+i, 2);
-        dst(i, 3) = src(off+i, 3);
-        dst(i, 4) = src(off+i, 4);
-        dst(i, 5) = src(off+i, 5);
-        dst(i, 6) = src(off+i, 6);
+        dst(i, 0) = src(idx+i, 0);
+        dst(i, 1) = src(idx+i, 1);
+        dst(i, 2) = src(idx+i, 2);
+        dst(i, 3) = src(idx+i, 3);
+        dst(i, 4) = src(idx+i, 4);
+        dst(i, 5) = src(idx+i, 5);
+        dst(i, 6) = src(idx+i, 6);
     }
 };
 
-HostParticles
+struct particle_copier_one
+{
+    ConstParticles src;
+    karray1d_row_dev dst;
+    int idx;
+
+    KOKKOS_INLINE_FUNCTION
+    void operator() (const int i) const
+    {
+        dst(0) = src(idx+i, 0);
+        dst(1) = src(idx+i, 1);
+        dst(2) = src(idx+i, 2);
+        dst(3) = src(idx+i, 3);
+        dst(4) = src(idx+i, 4);
+        dst(5) = src(idx+i, 5);
+        dst(6) = src(idx+i, 6);
+    }
+};
+
+karray2d_row
 Bunch::get_particles_in_range(int idx, int num) const
 {
-    Particles p("sub_p", num);
-    particle_copier pc{parts, p, idx};
-
+    karray2d_row_dev p("sub_p", num, 7);
+    particle_copier_many pc{parts, p, idx};
     Kokkos::parallel_for(num, pc);
 
-    HostParticles hp = create_mirror_view(p);
+    karray2d_row hp = create_mirror_view(p);
     Kokkos::deep_copy(hp, p);
     return hp;
 }
+
+karray1d_row
+Bunch::get_particle(int idx) const
+{
+    karray1d_row_dev p("sub_p", 7);
+    particle_copier_one pc{parts, p, idx};
+    Kokkos::parallel_for(1, pc);
+
+    karray1d_row hp = create_mirror_view(p);
+    Kokkos::deep_copy(hp, p);
+    return hp;
+}
+
 
 struct particle_id_checker
 {

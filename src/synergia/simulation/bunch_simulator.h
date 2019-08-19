@@ -108,13 +108,13 @@ public:
     template<typename DiagT>
     void reg_diag(
             std::string const& name,
-            DiagT const & diag, 
+            DiagT&& diag, 
             trigger_step_t trig, 
             int train, 
             int bunch )
     { 
-        get_bunch(train, bunch).add_diagnostics(name, diag);
-        diags_step.emplace_back(train, bunch, name, trig);
+        get_bunch(train, bunch).add_diagnostics(name, std::move(diag));
+        diags_step.emplace_back(diag_tuple_t<trigger_step_t>{train, bunch, name, trig});
     }
 
 #if 0
@@ -146,7 +146,7 @@ public:
     template<typename DiagT>
     void reg_diag_per_turn(
             std::string const& name,
-            DiagT const & diag, 
+            DiagT&& diag, 
             int train = 0, 
             int bunch = 0, 
             int period = 1 )
@@ -155,7 +155,7 @@ public:
             return step==Bunch_simulator::FINAL_STEP && turn%period==0; 
         };
 
-        reg_diag( name, diag, trig, train, bunch );
+        reg_diag( name, std::move(diag), trig, train, bunch );
     }
 
     void diag_action_step_and_turn(int turn_num, int step_num);

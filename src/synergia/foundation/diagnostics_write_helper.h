@@ -13,25 +13,30 @@
 class Diagnostics_write_helper
 {
 public:
+
     static const int default_rank = -999;
     static const int flush_period = 100;
+
 private:
+
     int writer_rank;
-    std::string filename;
-    std::string local_dir;
     bool serial;
+    int count;
     Commxx commxx;
 
-    Hdf5_file_sptr file_sptr;
+    std::unique_ptr<Hdf5_file> file;
 
-    bool have_file;
-    int count;
-    std::string filename_base, filename_suffix, filename_appendix;
-    std::string
-    get_filename(bool include_local_dir);
-    void
-    open_file();
+    std::string local_dir;
+    std::string filename;
+    std::string filename_base;
+    std::string filename_suffix;
+    std::string filename_appendix;
+
+    std::string get_filename(bool include_local_dir);
+    void open_file();
+
 public:
+
     Diagnostics_write_helper(
             std::string const & filename, 
             bool serial, 
@@ -40,38 +45,27 @@ public:
             std::string const & filename_appendix = "",
             int writer_rank = default_rank);
 
-    // Default constructor for serialization use only
-    Diagnostics_write_helper();
+    ~Diagnostics_write_helper();
+
+    Diagnostics_write_helper(Diagnostics_write_helper &&) noexcept = default;
 
     /// Get the count for non-serial writers
-    int
-    get_count() const;
+    int get_count() const { return count; }
 
     /// Set the count for non-serial writers
     /// @param count the count
-    void
-    set_count(int count);
+    void set_count(int count) { this->count = count; }
+    void increment_count() { ++count; }
 
-    void
-    increment_count();
+    bool write_locally() { return !commxx.is_null() && (writer_rank==commxx.rank()); }
+    int get_writer_rank() { return writer_rank; }
 
-    bool
-    write_locally();
-
-    int
-    get_writer_rank();
-
-    Hdf5_file_sptr
-    get_hdf5_file_sptr();
-
-    void
-    finish_write();
+    Hdf5_file& get_hdf5_file();
+    void finish_write();
 
     template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
+    void serialize(Archive & ar, const unsigned int version);
 
-    ~Diagnostics_write_helper();
 };
 
 #endif /* DIAGNOSTICS_WRITE_HELPER_H_ */

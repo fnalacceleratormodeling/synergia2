@@ -20,13 +20,20 @@ private:
     std::string filename;
     std::string local_dir;
 
+    bool serial;
+
     Bunch const * bunch;
 
     std::map<std::string, Diagnostics_write_helper> writers;
 
+private:
+
+    virtual void do_update() = 0;
+    virtual void do_write() = 0;
+
 public:
 
-    Diagnostics( std::string const& name, 
+    Diagnostics( std::string const& name, bool serial,
                  std::string const& filename, 
                  std::string const& local_dir="" );
 
@@ -50,17 +57,16 @@ public:
     get_write_helper(std::string const& name = DEFAULT_WRITER_NAME);
 
     /// Multiple serial diagnostics can be written to a single file.
-    virtual bool is_serial() const = 0;
+    bool is_serial() const { return serial; }
 
     /// Update the diagnostics
-    virtual void update() = 0;
+    void update() { do_update(); }
 
     /// Write the diagnostics to the file
-    virtual void write() = 0;
+    void write() { do_write(); }
 
     /// Update the diagnostics and write them to the file
-    virtual void update_and_write()
-    { update(); write(); }
+    void update_and_write() { do_update(); do_write(); }
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);

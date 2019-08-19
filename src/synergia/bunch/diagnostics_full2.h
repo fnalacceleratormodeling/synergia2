@@ -9,6 +9,7 @@ class Diagnostics_full2 : public Diagnostics
 {
 public:
     static const char name[];
+
 private:
     bool have_writers;
     double s_n;
@@ -35,11 +36,14 @@ private:
     Hdf5_serial_writer<MArray2d_ref > * writer_mom2;
     MArray2d corr;
     Hdf5_serial_writer<MArray2d_ref > * writer_corr;
+
     double emitx, emity, emitz, emitxy, emitxyz;
     Hdf5_serial_writer<double > *writer_emitx, *writer_emity, *writer_emitz,
             *writer_emitxy, *writer_emitxyz;
+
     virtual void
     update_full2();
+
     virtual void
     update_emittances();
 
@@ -53,108 +57,83 @@ public:
     // Default constructor for serialization use only
     Diagnostics_full2();
 
-    virtual void
-    init_writers(Hdf5_file_sptr file_sptr);
+    void init_writers(Hdf5_file_sptr file_sptr);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
-    virtual bool
-    is_serial() const;
+    bool is_serial() const override;
 
     /// Update the diagnostics
-    virtual void
-    update();
+    void update() override;
+    void write() override;
 
     /// Get the distance from the origin along the reference trajectory in
     /// meters.
-    virtual double
-    get_s_n() const;
+    double get_s_n() const;
 
     /// Get the number of complete repetitions.
-    virtual int
-    get_repetition() const;
+    int get_repetition() const;
 
     /// Get the total distance along the reference trajectory in meters.
-    virtual double
-    get_s() const;
+    double get_s() const;
 
     /// Get the total number of macroparticles in the bunch
-    virtual int
-    get_num_particles() const;
+    int get_num_particles() const;
 
     /// Get the total number of real particles represented by the bunch
-    virtual double
-    get_real_num_particles() const;
+    double get_real_num_particles() const;
 
     /// Get the current momentum of the bunch
-    virtual double
-    get_pz() const;
+    double get_pz() const;
 
     /// Get a six-dimensional vector of the means of each phase-space
     /// coordinate. The units are in Synergia units.
-    virtual Const_MArray1d_ref
-    get_mean() const;
+    Const_MArray1d_ref get_mean() const;
 
     /// Get a six-dimensional vector of the standard deviations of each
     /// phase-space coordinate. The units are in Synergia units.
-    virtual Const_MArray1d_ref
-    get_std() const;
+    Const_MArray1d_ref get_std() const;
 
-    virtual const MArray1d
-    get_min() const;
-
-    virtual const MArray1d
-    get_max() const;
+    MArray1d get_min() const;
+    MArray1d get_max() const;
 
     /// Get a 6x6 matrix of the second moments of the phase-space coordinates.
     /// The units are Synergia units.
-    virtual Const_MArray2d_ref
-    get_mom2() const;
+    Const_MArray2d_ref get_mom2() const;
 
     /// Get a 6x6 matrix of the correlation coefficients of the phase-space
     /// coordinates.
-    virtual Const_MArray2d_ref
-    get_corr() const;
+    Const_MArray2d_ref get_corr() const;
 
     /// Get the horizontal emittance.
     /// Currently reported in unnatural Synergia units.
-    virtual double
-    get_emitx() const;
+    double get_emitx() const;
 
     /// Get the vertical emittance.
     /// Currently reported in unnatural Synergia units.
-    virtual double
-    get_emity() const;
+    double get_emity() const;
 
     /// Get the longitudinal emittance.
     /// Currently reported in unnatural Synergia units.
-    virtual double
-    get_emitz() const;
+    double get_emitz() const;
 
     /// Get the (4D) transverse emittance.
     /// Currently reported in unnatural Synergia units.
-    virtual double
-    get_emitxy() const;
+    double get_emitxy() const;
 
     /// Get the (6D) full emittance.
     /// Currently reported in unnatural Synergia units.
-    virtual double
-    get_emitxyz() const;
+    double get_emitxyz() const;
 
-    virtual void
-    write();
 
     //begin egs screwing around
     bool get_have_writers();
+
     // end egs screwing around
     template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
+    void serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Diagnostics_full2();
 };
-BOOST_CLASS_EXPORT_KEY(Diagnostics_full2)
-typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr; // syndoc:include
-
 #endif /* DIAGNOSTICS_FULL2_H_ */

@@ -3,12 +3,13 @@
 #include <stdexcept>
 
 Diagnostics ::Diagnostics(
-        std::string const& name, 
+        std::string const& name, bool serial,
         std::string const& filename,
         std::string const& local_dir) 
     : name(name)
     , filename(filename)
     , local_dir(local_dir)
+    , serial(serial)
     , bunch(nullptr)
     , writers()
 {
@@ -29,22 +30,15 @@ Diagnostics::have_write_helper(std::string const & name) const
 Diagnostics_write_helper &
 Diagnostics::get_write_helper(std::string const & name)
 {
-    if (!have_write_helper(name))
-    {
-        return writers.insert( std::make_pair(
-                name,
-                Diagnostics_write_helper(
-                    get_filename(),
-                    is_serial(), 
-                    get_bunch().get_comm(), 
-                    local_dir,
-                    name )
-            ) ).first->second;
-    }
-    else
-    {
-        return writers.find(name)->second;
-    }
+    return writers.emplace( 
+            name,
+            Diagnostics_write_helper(
+                get_filename(),
+                is_serial(), 
+                get_bunch().get_comm(), 
+                local_dir,
+                (name == DEFAULT_WRITER_NAME) ? "" : name )
+            ).first->second;
 }
 
 #if 0

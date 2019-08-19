@@ -58,16 +58,17 @@ public:
     { return h5file.hid; }
 
     template<typename T>
-    void write(T const& data, std::string const& name)
+    void write(std::string const& name, T const& data)
     { Hdf5_writer<T>(h5file.hid, name).write(data); }
 
     template<typename T>
-    void write(T const* data, size_t len, std::string const & name)
+    void write(std::string const & name, T const* data, size_t len)
     { Hdf5_writer<T>(h5file.hid, name).write(data, len); }
 
     template<typename T>
-    void write_serial(T const& data, std::string const& name)
-    { swriters.emplace(name, h5file.hid, name).first->second.append<T>(data); }
+    void write_serial(std::string const& name, T const& data)
+    { swriters.emplace(name, Hdf5_serial_writer(h5file.hid, name))
+        .first->second.append<T>(data); }
 
     template<typename T>
     T read(std::string const& name)

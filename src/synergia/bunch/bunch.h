@@ -257,12 +257,12 @@ public:
     void checkin_particles()
     { Kokkos::deep_copy(parts, hparts); }
 
-
     // checkout (deep_copy) num particles starting from idx, and
     // store them in a host array
     // TODO: when compiled for host, it returns a subview to the original
     // particle data -- overhead for the operation should be minimal
-    HostParticles get_particles_in_range(int idx, int num) const;
+    karray2d_row get_particles_in_range(int idx, int num) const;
+    karray1d_row get_particle(int idx) const;
 
     // find the index of the given particle_id (pid)
     // if last_idx is provided, it does the search form the last_idx first
@@ -346,8 +346,9 @@ public:
 
     // Diagnostics
     template<typename Diag>
-    void add_diagnostics(std::string const & name, Diag const & diag)
-    { diags.emplace(name, std::make_unique<Diag>(diag)).first->set_bunch(*this); }
+    void add_diagnostics(std::string const& name, Diag&& diag)
+    { diags.emplace(name, std::make_unique<Diag>(std::move(diag)))
+        .first->second->set_bunch(*this); }
 
     Diagnostics & get_diag(std::string const & name);
 

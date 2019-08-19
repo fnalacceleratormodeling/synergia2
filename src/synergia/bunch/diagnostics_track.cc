@@ -1,128 +1,85 @@
+
 #include "diagnostics_track.h"
+#include "synergia/bunch/bunch.h"
 
 
-const char Diagnostics_track::name[] = "diagnostics_track";
-
-Diagnostics_track::Diagnostics_track(std::string const& filename,
-        int particle_id, std::string const& local_dir) :
-        Diagnostics(Diagnostics_track::name, filename, local_dir), have_writers(
-                false), found(false), first_search(true), last_index(-1), particle_id(
-                particle_id), coords(boost::extents[6])
+Diagnostics_track::Diagnostics_track(
+        int particle_id, 
+        std::string const& filename,
+        std::string const& local_dir) 
+    : Diagnostics( diag_type,
+                   diag_write_serial,
+                   filename, local_dir)
+    , found(false)
+    , first_search(true)
+    , first_write(true)
+    , index(Bunch::particle_index_null)
+    , particle_id(particle_id)
+    , s(0.0)
+    , s_n(0.0)
+    , repetition(0)
+    , coords()
 {
 }
 
-Diagnostics_track::Diagnostics_track() : have_writers(false)
+void Diagnostics_track::do_update()
 {
-}
+    auto const& bunch = get_bunch();
+    auto const& ref = bunch.get_reference_particle();
 
-bool
-Diagnostics_track::is_serial() const
-{
-    return true;
-}
+    repetition = ref.get_repetition(); 
+    s = ref.get_s();
 
-Diagnostics_write_helper *
-Diagnostics_track::new_write_helper_ptr()
-{
-    delete_write_helper_ptr();
-    return new Diagnostics_write_helper(get_filename(), true,
-            get_bunch().get_comm_sptr(), get_local_dir(), "",
-            get_bunch().get_comm().get_rank());
-}
+    if (first_search)
+    {
+        index = bunch.search_particle(particle_id);
+        found = (index != Bunch::particle_index_null);
+        first_search = false;
+    }
+    else if (found)
+    {
+        index = bunch.search_particle(particle_id, index);
+    }
 
-void
-Diagnostics_track::update()
-{
-    if (get_bunch().get_comm().has_this_rank()){
-	get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-	repetition = get_bunch().get_reference_particle().get_repetition();
-	s
-		= get_bunch().get_reference_particle().get_s();
-	if (found || first_search) {
-	    int index = 0;
-	    found = false;
-	    if ((last_index > -1) && (last_index < get_bunch().get_local_num())) {
-		if (particle_id
-			== static_cast<int > (get_bunch().get_local_particles()[Bunch::id][last_index])) {
-		    index = last_index;
-		    found = true;
-		}
-	    }
-	    if (!found) {
-		index = 0;
-		while ((index < get_bunch().get_local_num())
-			&& (particle_id
-				!= static_cast<int > (get_bunch().get_local_particles()[index][Bunch::id]))) {
-		    index += 1;
-		}
-		if (index < get_bunch().get_local_num()) {
-		    found = true;
-		} else {
-		    found = false;
-		}
-	    }
-	    if (found) {
-		if (first_search) {
-		    get_write_helper();
-		}
-		coords[0] = get_bunch().get_local_particles()[index][0];
-		coords[1] = get_bunch().get_local_particles()[index][1];
-		coords[2] = get_bunch().get_local_particles()[index][2];
-		coords[3] = get_bunch().get_local_particles()[index][3];
-		coords[4] = get_bunch().get_local_particles()[index][4];
-		coords[5] = get_bunch().get_local_particles()[index][5];
-		s_n = get_bunch().get_reference_particle().get_s_n();
-		repetition = get_bunch().get_reference_particle().get_repetition();
-		s
-			= get_bunch().get_reference_particle().get_s();
-	    }
-	    first_search = false;
-	}
+    if (found)
+    {
+        s = ref.get_s();
+        s_n = ref.get_s_n();
+        repetition = ref.get_repetition();
+
+        coords = bunch.get_particle(index);
     }
 }
 
-void
-Diagnostics_track::init_writers(Hdf5_file_sptr file_sptr)
+void Diagnostics_track::do_write()
 {
-    if (!have_writers) {
-        Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
-        int chg = get_bunch().get_reference_particle().get_charge();
-        file_sptr->write(chg, "charge");
-        double pmass = fourp.get_mass();
-        file_sptr->write(pmass, "mass");
-        double pz = fourp.get_momentum();
-        file_sptr->write(pz, "pz");
+    if (found) 
+    {
+        auto & file = get_write_helper().get_hdf5_file();
 
-        writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file_sptr,
-                "coords");
-        writer_s_n = new Hdf5_serial_writer<double > (file_sptr, "s_n");
-        writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
-                "repetition");
-        writer_s = new Hdf5_serial_writer<double > (file_sptr,
-                "s");
-        have_writers = true;
+        if (first_write)
+        {
+            auto const & ref = get_bunch().get_reference_particle();
+
+            file.write("charge", ref.get_charge());
+            file.write("mass", ref.get_four_momentum().get_mass());
+            file.write("pz", ref.get_four_momentum().get_momentum());
+
+            first_write = false;
+        }
+
+        file.write_serial("coords", coords);
+        file.write_serial("s_n", s_n);
+        file.write_serial("repetition", repetition);
+        file.write_serial("s", s);
+
+        get_write_helper().finish_write();
     }
 }
 
-void
-Diagnostics_track::write()
-{
-    if (get_bunch().get_comm().has_this_rank()){
-	get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-	if (found) {
-	    init_writers(get_write_helper().get_hdf5_file_sptr());
-	    writer_coords->append(coords);
-	    writer_s_n->append(s_n);
-	    writer_repetition->append(repetition);
-	    writer_s->append(s);
-	    get_write_helper().finish_write();
-	}
-    }
-}
-
+#if 0
 template<class Archive>
-    void
-    Diagnostics_track::serialize(Archive & ar, const unsigned int version)
+void Diagnostics_track::serialize(Archive & ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
                 & BOOST_SERIALIZATION_NVP(have_writers)
@@ -159,15 +116,6 @@ template
 void
 Diagnostics_track::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
+#endif
 
-Diagnostics_track::~Diagnostics_track()
-{
-    if (have_writers) {
-        delete writer_s;
-        delete writer_repetition;
-        delete writer_s_n;
-        delete writer_coords;
-    }
-}
-BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_track)
 

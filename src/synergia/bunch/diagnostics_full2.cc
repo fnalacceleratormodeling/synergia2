@@ -18,6 +18,7 @@ Diagnostics_full2::update_full2()
             sum2[i][j] = 0.0;
         }
     }
+
     Const_MArray2d_ref particles(get_bunch().get_local_particles());
     for (int part = 0; part < get_bunch().get_local_num(); ++part) {
         for (int i = 0; i < 6; ++i) {
@@ -28,11 +29,13 @@ Diagnostics_full2::update_full2()
             }
         }
     }
+
     for (int i = 0; i < 5; ++i) {
         for (int j = i + 1; j < 6; ++j) {
             sum2[i][j] = sum2[j][i];
         }
     }
+
     MPI_Allreduce(sum2.origin(), mom2.origin(), 36, MPI_DOUBLE, MPI_SUM,
             get_bunch().get_comm().get());
     for (int i = 0; i < 6; ++i) {
@@ -105,18 +108,23 @@ Diagnostics_full2::is_serial() const
 
 void
 Diagnostics_full2::update()
-{   if (get_bunch().get_comm().has_this_rank()){
+{   
+    if (get_bunch().get_comm().has_this_rank())
+    {
       get_bunch().convert_to_state(Bunch::fixed_z_lab);
+
       s_n = get_bunch().get_reference_particle().get_s_n();
       repetition = get_bunch().get_reference_particle().get_repetition();
-      s
-	      = get_bunch().get_reference_particle().get_s();
+      s = get_bunch().get_reference_particle().get_s();
+      pz = get_bunch().get_reference_particle().get_momentum();
+
       num_particles = get_bunch().get_total_num();
       real_num_particles = get_bunch().get_real_num();
-      pz = get_bunch().get_reference_particle().get_momentum();
+
       min = Core_diagnostics::calculate_min(get_bunch());
       max = Core_diagnostics::calculate_max(get_bunch());
       mean = Core_diagnostics::calculate_mean(get_bunch());
+
       update_full2();
       update_emittances();
     }
@@ -234,14 +242,10 @@ Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
         double pmass = fourp.get_mass();
         file_sptr->write(pmass, "mass");
         writer_s_n = new Hdf5_serial_writer<double > (file_sptr, "s_n");
-        writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
-                "repetition");
-        writer_s = new Hdf5_serial_writer<double > (file_sptr,
-                "s");
-        writer_num_particles = new Hdf5_serial_writer<int > (file_sptr,
-                "num_particles");
-        writer_real_num_particles = new Hdf5_serial_writer<double > (file_sptr,
-                "real_num_particles");
+        writer_repetition = new Hdf5_serial_writer<int > (file_sptr, "repetition");
+        writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
+        writer_num_particles = new Hdf5_serial_writer<int > (file_sptr, "num_particles");
+        writer_real_num_particles = new Hdf5_serial_writer<double > (file_sptr, "real_num_particles");
         writer_pz = new Hdf5_serial_writer<double > (file_sptr,"pz");
         writer_mean = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "mean");
         writer_std = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "std");

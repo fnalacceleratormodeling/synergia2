@@ -14,7 +14,7 @@ add_library(synergia_bunch
     #diagnostics_basic.cc
     #diagnostics_full2.cc 
     #diagnostics_particles.cc 
-    #diagnostics_track.cc
+    diagnostics_track.cc
     #diagnostics_reference_particle.cc 
     #diagnostics_bulk_track.cc 
     #diagnostics_bulk_spectator_track.cc 

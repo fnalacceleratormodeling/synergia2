@@ -3,6 +3,7 @@
 #include "synergia/simulation/propagator.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/populate.h"
+#include "synergia/bunch/diagnostics_track.h"
 #include "synergia/lattice/madx_reader.h"
 
 #include "synergia/collective/space_charge_2d_open_hockney.h"
@@ -58,7 +59,7 @@ int run()
 
     screen << "reference momentum = " << ref.get_momentum() << " GeV\n";
 
-    // init particle data
+    // populate particle data
     auto & bunch = sim.get_bunch();
     auto local_num = bunch.get_local_num();
     auto hparts = bunch.get_host_particles();
@@ -87,15 +88,18 @@ int run()
     for(int p=0; p<bunch.get_local_num(); ++p)
         for(int i=0; i<6; ++i) sum += hparts(p, i);
 
-
     screen(LoggerV::DEBUG) << std::setprecision(8)
                << "\n\npopulated sum = " << sum << "\n";
 
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
 
+    // diagnostics
+    Diagnostics_track diag_track(2, "part_2_track.h5");
+    sim.reg_diag_per_turn("track_2", diag_track);
+
     // propagate
-    sim.set_turns(0, 1);
+    sim.set_turns(0, 3);
 
     double t0 = MPI_Wtime();
     propagator.propagate(sim, screen);
@@ -121,6 +125,7 @@ int run()
 
     screen << "\n";
 
+#if 0
     auto sub = bunch.get_particles_in_range(2, 3);
     for(int i=0; i<3; ++i)
     {
@@ -132,6 +137,7 @@ int run()
             << sub(i, 4) << ", "
             << sub(i, 5) << "\n";
     }
+#endif
 
 
     return 0;

@@ -31,21 +31,23 @@ private:
     void do_setup(std::vector<int> const& data_dims);
     void do_append(void* ptr);
 
+    // default for karray types
     template<typename T>
     std::vector<int> pre_setup(T const& data)
     {
-        data_rank = 0;
-        atomic_type = hdf5_atomic_data_type<T>();
-        data_size = sizeof(T);
+        data_rank = T::Rank;
+        atomic_type = hdf5_atomic_data_type<double>();
+        data_size = sizeof(double) * data.size();
 
-        // dummy variable -- length really should
-        // be 0, but that would not compile
-        return std::vector<int>(1);
+        std::vector<int> data_dims(data_rank);
+        for (int i=0; i<data_rank; ++i) data_dims[i] = data.extent(i);
+        return data_dims;
     }
 
+    // default for karray types
     template<typename T>
     void* get_data_ptr(T const& data)
-    { return (void*)&data; }
+    { return (void*)data.data(); }
 
 public:
 
@@ -63,7 +65,7 @@ public:
     { }
 
     template<typename T>
-    void append(T & data)
+    void append(T const& data)
     {
         if (!have_setup) do_setup(pre_setup(data));
         do_append(get_data_ptr(data));
@@ -95,22 +97,35 @@ public:
 
 
 template<>
-inline std::vector<int> Hdf5_serial_writer::pre_setup<karray1d>(karray1d const& data)
+inline std::vector<int> Hdf5_serial_writer::pre_setup<int>(int const& data)
 {
-    data_rank = 1;
-    atomic_type = hdf5_atomic_data_type<double>();
-    data_size = sizeof(double) * data.size();
+    data_rank = 0;
+    atomic_type = hdf5_atomic_data_type<int>();
+    data_size = sizeof(int);
 
-    std::vector<int> data_dims(data_rank);
-    for (int i=0; i<data_rank; ++i) data_dims[i] = data.extent(i);
-    return data_dims;
+    // dummy variable -- length really should
+    // be 0, but that would not compile
+    return std::vector<int>(1);
 }
 
 template<>
-inline void* Hdf5_serial_writer::get_data_ptr<karray1d>(karray1d const& data)
+inline std::vector<int> Hdf5_serial_writer::pre_setup<double>(double const& data)
 {
-    return data.data();
+    data_rank = 0;
+    atomic_type = hdf5_atomic_data_type<double>();
+    data_size = sizeof(double);
+
+    // dummy variable -- length really should
+    // be 0, but that would not compile
+    return std::vector<int>(1);
 }
 
+template<> 
+inline void* Hdf5_serial_writer::get_data_ptr<int>(int const& data)
+{ return (void*)&data; }
+
+template<> 
+inline void* Hdf5_serial_writer::get_data_ptr<double>(double const& data)
+{ return (void*)&data; }
 
 #endif /* HDF5_SERIAL_WRITER_H_ */
