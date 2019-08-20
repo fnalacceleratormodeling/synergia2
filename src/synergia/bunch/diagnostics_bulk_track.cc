@@ -1,189 +1,180 @@
 #include <string>
 #include <iostream>
 #include "diagnostics_bulk_track.h"
+#include "synergia/bunch/bunch.h"
 #include "synergia/utils/parallel_utils.h"
 
-const char Diagnostics_bulk_track::name[] = "diagnostics_bulk_track";
 
 const int no_local_num_tracks = -1;
 
 Diagnostics_bulk_track::Diagnostics_bulk_track(
-        std::string const& filename,
         int num_tracks, 
         int offset, 
+        std::string const& filename,
         std::string const& local_dir) 
-    : Diagnostics(Diagnostics_bulk_track::name, filename, local_dir)
-    , num_tracks(num_tracks)
+    : Diagnostics(diag_type, diag_write_serial, filename, local_dir)
+    , total_num_tracks(num_tracks)
     , local_num_tracks(no_local_num_tracks)
     , offset(offset)
     , local_offset(no_local_num_tracks)
-    , have_writers(false)
     , first_search(true)
+    , first_write(true)
     , diag_track_status()
-    , writer_s_n(0)
-    , writer_repetition(0)
-    , writer_s(0)
-    , writer_pz(0)
-    , track_coords(boost::extents[1][7])
-    , writer_coords(0)
+    , track_coords("local_coords", 0, 0)
+    , all_coords("all_coords", 0, 0)
 {
 }
-
-Diagnostics_bulk_track::Diagnostics_bulk_track() : have_writers(false)
-{
-}
-
-bool
-Diagnostics_bulk_track::is_serial() const
-{
-    return true;
-}
-
-//Diagnostics_write_helper *
-//Diagnostics_bulk_track::new_write_helper_ptr()
-//{
-//    delete_write_helper_ptr();
-//    std::stringstream sstream;
-//    std::string filename(get_filename());
-//    int idx = filename.rfind('.');
-//    std::string filename_base, filename_suffix;
-//    if (idx == std::string::npos) {
-//        filename_base = filename;
-//        filename_suffix = "";
-//    } else {
-//        filename_base = filename.substr(0, idx);
-//        filename_suffix = filename.substr(idx);
-//    }
-//
-//    sstream << filename_base;
-//    sstream << "_";
-//    sstream << std::setw(4);
-//
-//    sstream << std::setfill('0');
-//    sstream << get_bunch().get_comm().get_rank();
-//    sstream << filename_suffix;
-//    return new Diagnostics_write_helper(sstream.str(), true,
-//            get_bunch().get_comm(), get_bunch().get_comm().get_rank());
-//}
 
 void
-Diagnostics_bulk_track::update()
+Diagnostics_bulk_track::do_update()
 {
-    if (get_bunch().get_comm().has_this_rank())
+    auto const& bunch = get_bunch();
+    auto const& ref = bunch.get_reference_particle();
+
+    pz = ref.get_momentum();
+    s = ref.get_s();
+    s_n = ref.get_s_n();
+    repetition = ref.get_repetition();
+
+    if (first_search)
     {
-        if (local_num_tracks == no_local_num_tracks) 
-        {
-            local_num_tracks = decompose_1d_local(get_bunch().get_comm(), num_tracks);
-            local_offset = decompose_1d_local(get_bunch().get_comm(), offset);
-            track_coords.resize(boost::extents[local_num_tracks][7]);
-        }
+        local_num_tracks = decompose_1d_local(bunch.get_comm(), total_num_tracks);
+        local_offset = decompose_1d_local(bunch.get_comm(), offset);
 
-        // first time, set the status of the tracks that are being followed
-        if (diag_track_status.empty()) 
-        {
-            if (local_num_tracks + local_offset > get_bunch().get_local_num()) 
-            {
-                local_num_tracks = get_bunch().get_local_num() - local_offset;
-            }
+        if (local_num_tracks + local_offset > bunch.get_local_num()) 
+            local_num_tracks = bunch.get_local_num() - local_offset;
 
-            // loop over my local tracks
-            for (int idxtrk = 0; idxtrk < local_num_tracks; ++idxtrk) 
-            {
-               // here's one
-                Track_status dts;
-                dts.found = true;
-                dts.last_index = idxtrk+local_offset;
-                dts.particle_id =
-                        static_cast<int >(get_bunch().get_local_particles()[idxtrk+local_offset][Bunch::id]);
-                diag_track_status.push_back(dts);
-            }
-        }
+        // reszie the arrays
+        Kokkos::resize(track_coords, local_num_tracks, 7);
+        diag_track_status.resize(local_num_tracks);
 
-        get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-        repetition = get_bunch().get_reference_particle().get_repetition();
-        s = get_bunch().get_reference_particle().get_s();
+        int group_size = bunch.get_comm().size();
+        num_tracks.resize(group_size);
+        track_displs.resize(group_size+1);
 
-        // for the tracks I'm following, see if I know where they are
+        // loop over my local tracks
         for (int idxtrk = 0; idxtrk < local_num_tracks; ++idxtrk) 
         {
-            // diag_track_status[0..local_num_tracks] has status for tracks originally
-            // at local_particles[local_offset..local_offset+local_num_tracks]
-            Track_status *dtsptr = &diag_track_status[idxtrk];
-            if (dtsptr->found || first_search) 
-            {
-                int index = 0;
-                dtsptr->found = false;
+            // here's one
+            diag_track_status[idxtrk].index = idxtrk + local_offset;
+            diag_track_status[idxtrk].particle_id = -1; 
+        }
 
-                if ((dtsptr->last_index > -1)
-                        && (dtsptr->last_index < get_bunch().get_local_num())) 
-                {
-                    if (dtsptr->particle_id
-                            == static_cast<int >(get_bunch().get_local_particles()[dtsptr->last_index][Bunch::id])) 
-                    {
-                        // this track is still where it was last time I looked
-                        index = dtsptr->last_index;
-                        dtsptr->found = true;
-                    }
-                }
+        // gather the num of local tracks from every rank
+        int res = MPI_Gather( &local_num_tracks, 1, MPI_INT,
+                              &num_tracks[0], 1, MPI_INT,
+                              get_write_helper().get_writer_rank(),
+                              bunch.get_comm() );
 
-                if (!(dtsptr->found)) 
-                {
-                    // it wasn't there, I have to look for it again
-                    index = 0;
-                    while ((index < get_bunch().get_local_num())
-                           && (dtsptr->particle_id
-                               != static_cast<int >(get_bunch().get_local_particles()[index][Bunch::id]))) 
-                    {
-                        index += 1;
-                    }
+        if (res != MPI_SUCCESS)
+            throw std::runtime_error("Diagnostics_bulk_track::update() MPI_Gather failed.");
 
-                    if (index < get_bunch().get_local_num()) 
-                    {
-                        // found it
-                        dtsptr->found = true;
-                        dtsptr->last_index = index;
-                    } 
-                    else 
-                    {
-                        // It's not there'
-                        dtsptr->found = false;
-                    }
-                }
+        // num_tracks -> size of the track array
+        for (int i=0; i<group_size; ++i) num_tracks[i] *= 7;
 
-                if (dtsptr->found) 
-                {
-                    if (first_search) 
-                    {
-                        get_write_helper();
-                    }
+        // displacements (where to put the tracks in the recv buffer)
+        track_displs[0] = 0;
+        for (int i=1; i<group_size+1; ++i)
+            track_displs[i] = track_displs[i-1] + num_tracks[i-1];
 
-                    // track_coords is parallel  to diag_track_status
-                    // diag_track_status[0..local_num_tracks] has status for tracks originally
-                    // at local_particles[local_offset..local_offset+local_num_tracks]
-                    track_coords[ boost::indices[idxtrk][range()] ] =
-                            get_bunch().get_local_particles()[boost::indices[index][range()]];
-               } 
-               else 
-               {
-                    track_coords[idxtrk][0] = 0.0;
-                    track_coords[idxtrk][1] = 0.0;
-                    track_coords[idxtrk][2] = 0.0;
-                    track_coords[idxtrk][3] = 0.0;
-                    track_coords[idxtrk][4] = 0.0;
-                    track_coords[idxtrk][5] = 0.0;
-                    track_coords[idxtrk][6] = -static_cast<double >(dtsptr->particle_id);
-                }
+        // total number of tracks (<= num_tracks)
+        Kokkos::resize(all_coords, track_displs[group_size]/7, 7);
 
-                s_n = get_bunch().get_reference_particle().get_s_n();
-                repetition = get_bunch().get_reference_particle().get_repetition();
-                s = get_bunch().get_reference_particle().get_s();
-                pz = get_bunch().get_reference_particle().get_momentum();
-                first_search = false;
-            }
+        // done with the first search
+        first_search = false;
+    }
+    else
+    {
+        // update all the track index
+        for (auto & dts : diag_track_status)
+        {
+            if (dts.index != Bunch::particle_index_null) 
+                dts.index = bunch.search_particle(dts.particle_id, dts.index);
         }
     }
+
+    // loop over my local tracks
+    for (int idxtrk = 0; idxtrk < local_num_tracks; ++idxtrk) 
+    {
+        auto & dts = diag_track_status[idxtrk];
+
+        if (dts.index != Bunch::particle_index_null)
+        {
+            auto coord = bunch.get_particle(dts.index);
+
+            track_coords(idxtrk, 0) = coord(0);
+            track_coords(idxtrk, 1) = coord(1);
+            track_coords(idxtrk, 2) = coord(2);
+            track_coords(idxtrk, 3) = coord(3);
+            track_coords(idxtrk, 4) = coord(4);
+            track_coords(idxtrk, 5) = coord(5);
+            track_coords(idxtrk, 6) = coord(6);
+
+            // particle id is not set in the first search
+            dts.particle_id = coord(6);
+        }
+        else
+        {
+            track_coords(idxtrk, 0) = 0.0;
+            track_coords(idxtrk, 1) = 0.0;
+            track_coords(idxtrk, 2) = 0.0;
+            track_coords(idxtrk, 3) = 0.0;
+            track_coords(idxtrk, 4) = 0.0;
+            track_coords(idxtrk, 5) = 0.0;
+            track_coords(idxtrk, 6) = -dts.particle_id;
+        }
+    }
+
+    // MPI_Gather to collect the track data
+    int res = MPI_Gatherv( track_coords.data(), 
+                           local_num_tracks * 7,
+                           MPI_DOUBLE,
+                           all_coords.data(),
+                           num_tracks.data(),
+                           track_displs.data(),
+                           MPI_DOUBLE,
+                           get_write_helper().get_writer_rank(),
+                           bunch.get_comm() );
+
+    if (res != MPI_SUCCESS)
+        throw std::runtime_error("Diagnostics_bulk_track::update() MPI_Gatherv failed.");
 }
 
+void
+Diagnostics_bulk_track::do_write()
+{   
+    auto & helper = get_write_helper();
+
+    if (helper.write_locally()) 
+    {
+        auto & file = helper.get_hdf5_file();
+
+        if (first_write)
+        {
+            auto const & ref = get_bunch().get_reference_particle();
+
+            file.write("charge", ref.get_charge());
+            file.write("mass", ref.get_four_momentum().get_mass());
+            file.write("pz", ref.get_four_momentum().get_momentum());
+
+            first_write = false;
+        }
+
+        // write serial
+        //file.write_serial("pz", pz);
+        //file.write_serial("s", s);
+        //file.write_serial("s_n", s_n);
+        //file.write_serial("repetition", repetition);
+
+        file.write_serial("track_coords", all_coords);
+
+        // finish write
+        helper.finish_write();
+    } 
+}
+
+
+#if 0
 void
 Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
 {
@@ -205,25 +196,33 @@ Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
         have_writers = true;
     }
 }
+#endif
 
+#if 0
 void
 Diagnostics_bulk_track::receive_other_local_coords(
         std::vector<int > const& local_nums)
 {
-    if (get_bunch().get_comm().has_this_rank()){
         int myrank = get_bunch().get_comm().get_rank();
         int size = get_bunch().get_comm().get_size();
         MArray2d all_coords(boost::extents[num_tracks][7]);
         int array_offset = 0;
-        for (int rank = 0; rank < size; ++rank) {
+
+        for (int rank = 0; rank < size; ++rank) 
+        {
             int local_num = local_nums[rank];
-            if (rank == myrank) {
-                for (int i = array_offset; i < array_offset + local_num; ++i) {
-                    for (int j = 0; j < 7; ++j) {
+            if (rank == myrank) 
+            {
+                for (int i = array_offset; i < array_offset + local_num; ++i) 
+                {
+                    for (int j = 0; j < 7; ++j) 
+                    {
                         all_coords[i][j] = track_coords[i - array_offset][j];
                     }
                 }
-            } else {
+            } 
+            else 
+            {
                 MPI_Status status;
                 int message_size = 7 * local_num;
                 MPI_Comm comm = get_bunch().get_comm().get();
@@ -236,16 +235,15 @@ Diagnostics_bulk_track::receive_other_local_coords(
                 array_offset += local_num;
             }
         }
+
         writer_coords->append(all_coords);
-    }
 }
 
 void
 Diagnostics_bulk_track::send_local_coords()
 {
     if (get_bunch().get_comm().has_this_rank()){
-        void * send_buffer =
-                (void*) track_coords.origin();
+        void * send_buffer = (void*) track_coords.origin();
         int status;
         int message_size = 7 * local_num_tracks;
         int receiver = get_write_helper().get_writer_rank();
@@ -259,38 +257,9 @@ Diagnostics_bulk_track::send_local_coords()
         }
     }
 }
+#endif
 
-void
-Diagnostics_bulk_track::write()
-{   if (get_bunch().get_comm().has_this_rank()){
-        MPI_Comm comm = get_bunch().get_comm().get();
-        int num_procs = get_bunch().get_comm().get_size();
-
-        std::vector<int > all_local_num_tracks(num_procs);
-        void * local_num_tracks_buf = (void *) &all_local_num_tracks[0];
-        int root = get_write_helper().get_writer_rank();
-        int status;
-        status = MPI_Gather((void*) &local_num_tracks, 1, MPI_INT,
-                            local_num_tracks_buf, 1, MPI_INT, root, comm);
-        if (status != MPI_SUCCESS) {
-            throw std::runtime_error(
-                        "Diagnostics_bulk_track::write: MPI_Gather failed.");
-        }
-
-        if (get_write_helper().write_locally()) {
-            init_writers(get_write_helper().get_hdf5_file_sptr());
-            receive_other_local_coords(all_local_num_tracks);
-            writer_s_n->append(s_n);
-            writer_repetition->append(repetition);
-            writer_s->append(s);
-            writer_pz->append(pz);
-            get_write_helper().finish_write();
-        } else {
-            send_local_coords();
-        }
-    }
-}
-
+#if 0
 template<class Archive>
 void
 Diagnostics_bulk_track::serialize(Archive & ar, const unsigned int version)
@@ -365,16 +334,5 @@ void
 Diagnostics_bulk_track::serialize<boost::archive::xml_iarchive >(
 boost::archive::xml_iarchive & ar, const unsigned int version);
 
-Diagnostics_bulk_track::~Diagnostics_bulk_track()
-{
-    if (have_writers) {
-        delete writer_pz;
-        delete writer_s;
-        delete writer_repetition;
-        delete writer_s_n;
-        delete writer_coords;
-    }
-}
-BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_bulk_track)
-
+#endif
 
