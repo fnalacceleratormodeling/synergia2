@@ -392,7 +392,11 @@ Bunch::get_particles_in_range(int idx, int num) const
 karray1d_row
 Bunch::get_particle(int idx) const
 {
-    karray1d_row_dev p("sub_p", 7);
+    // index out of range
+    if (idx == particle_index_null || idx < 0 || idx > local_num)
+        throw std::runtime_error("Bunch::get_particle() index out of range");
+
+    karray1d_row_dev p("particle", 7);
     particle_copier_one pc{parts, p, idx};
     Kokkos::parallel_for(1, pc);
 
