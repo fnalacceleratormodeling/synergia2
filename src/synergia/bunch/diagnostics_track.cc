@@ -39,6 +39,7 @@ void Diagnostics_track::do_update()
     else if (found)
     {
         index = bunch.search_particle(particle_id, index);
+        found = (index != Bunch::particle_index_null);
     }
 
     if (found)
@@ -53,7 +54,7 @@ void Diagnostics_track::do_update()
 
 void Diagnostics_track::do_write()
 {
-    if (found) 
+    if (found && get_write_helper().write_locally()) 
     {
         auto & file = get_write_helper().get_hdf5_file();
 
