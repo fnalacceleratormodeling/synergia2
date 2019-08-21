@@ -382,7 +382,7 @@ karray1d_dev
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     particle_bin = karray2d_dev("bin", bunch.get_local_num(), 6);
-    return deposit_charge_rectangular_2d_kokkos(
+    return deposit_charge_rectangular_2d_kokkos_atomic(
             doubled_domain, particle_bin, bunch);
 }
 

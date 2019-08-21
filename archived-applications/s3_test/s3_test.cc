@@ -103,7 +103,7 @@ int run()
     sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
 
     // propagate options
-    sim.set_turns(0, 4); // (start, num_turns)
+    sim.set_turns(0, 1); // (start, num_turns)
 
     // propagate
     double t0 = MPI_Wtime();
