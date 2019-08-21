@@ -2,6 +2,8 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/core_diagnostics.h"
 
+#include <Kokkos_ScatterView.hpp>
+
 
 namespace deposit_impl
 {
@@ -188,6 +190,76 @@ namespace deposit_impl
             rho( (cellx2*gx + celly2)*2 ) += w0 *  offx *  offy;
         }
     };
+
+    // use scatter view
+    struct sv_rho_reducer
+    {
+        ConstParticles p;
+        Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> scatter;
+        karray2d_dev bin;
+        int gx, gy, gz;
+        double hx, hy, hz;
+        double lx, ly, lz;
+        double w0;
+
+        sv_rho_reducer(
+                ConstParticles          const & p,
+                Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> const& scatter,
+                karray2d_dev            const & bin,
+                std::array<int,    3>   const & g,
+                std::array<double, 3>   const & h,
+                std::array<double, 3>   const & l,
+                double w0 )
+            : p(p), scatter(scatter), bin(bin)
+            , gx(g[0]), gy(g[1]), gz(g[2])
+            , hx(h[0]), hy(h[1]), hz(h[2])
+            , lx(l[0]), ly(l[1]), lz(l[2])
+            , w0(w0)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            auto access = scatter.access();
+
+            int ix, iy, iz;
+            double offx, offy, offz;
+
+            get_leftmost_indices_offset(p(i, 0), lx, hx, ix, offx);
+            get_leftmost_indices_offset(p(i, 2), ly, hy, iy, offy);
+            get_leftmost_indices_offset(p(i, 4), lz, hz, iz, offz);
+
+            bin(i, 0) = ix;
+            bin(i, 1) = offx;
+            bin(i, 2) = iy;
+            bin(i, 3) = offy;
+            bin(i, 4) = iz;
+            bin(i, 5) = offz;
+
+            int cellz1 = iz;
+            int cellz2 = cellz1 + 1;
+
+            if( cellz1>=0 && cellz1<gz ) access(gx*gy*2 + cellz1) += (1.0 - offz) / hz;
+            if( cellz2>=0 && cellz2<gz ) access(gx*gy*2 + cellz2) += offz / hz;
+
+            if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) return;
+
+            int cellx1, cellx2, celly1, celly2;
+            cellx1 = ix;
+            cellx2 = ix + 1;
+            celly1 = iy;
+            celly2 = iy + 1;
+
+            double aoffx, aoffy;
+            aoffx = 1. - offx;
+            aoffy = 1. - offy;
+
+            access( (cellx1*gy + celly1)*2 ) += w0 * aoffx * aoffy;
+            access( (cellx1*gx + celly2)*2 ) += w0 * aoffx *  offy;
+            access( (cellx2*gy + celly1)*2 ) += w0 *  offx * aoffy;
+            access( (cellx2*gx + celly2)*2 ) += w0 *  offx *  offy;
+        }
+    };
 }
 
 
@@ -248,6 +320,44 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_atomic(
 
     return rho_dev;
 }
+
+karray1d_dev deposit_charge_rectangular_2d_kokkos_scatter_view(
+        Rectangular_grid_domain & domain,
+        karray2d_dev & particle_bin, 
+        Bunch const & bunch )
+{
+    using deposit_impl::sv_rho_reducer;
+
+    auto g = domain.get_grid_shape();
+    auto h = domain.get_cell_size();
+    auto l = domain.get_left();
+
+    auto parts = bunch.get_local_particles();
+    int nparts = bunch.get_local_num();
+
+    double weight0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1]); // * h[2]);
+
+    // double[x][y][2] + double[z]
+    karray1d_dev rho_dev("rho", g[0]*g[1]*2 + g[2]);
+    Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> scatter(rho_dev);
+
+    sv_rho_reducer rr(parts, scatter, particle_bin, g, h, l, weight0);
+    Kokkos::parallel_for(nparts, rr);
+    Kokkos::Experimental::contribute(rho_dev, scatter);
+
+#if 0
+    karray1d_atomic_dev rho_atomic = rho_dev;
+
+    atomic_rho_reducer rr(parts, rho_atomic, particle_bin, g, h, l, weight0);
+    Kokkos::parallel_for(nparts, rr);
+#endif
+
+    return rho_dev;
+}
+
+
 
 #if 0
 void

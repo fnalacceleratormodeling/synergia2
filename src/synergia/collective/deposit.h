@@ -16,6 +16,13 @@ deposit_charge_rectangular_2d_kokkos_atomic(
         karray2d_dev & particle_bin, 
         Bunch const & bunch );
 
+karray1d_dev
+deposit_charge_rectangular_2d_kokkos_scatter_view(
+        Rectangular_grid_domain & domain,
+        karray2d_dev & particle_bin, 
+        Bunch const & bunch );
+
+
 
 
 #if 0
