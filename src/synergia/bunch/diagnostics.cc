@@ -30,15 +30,22 @@ Diagnostics::have_write_helper(std::string const & name) const
 Diagnostics_write_helper &
 Diagnostics::get_write_helper(std::string const & name)
 {
-    return writers.emplace( 
-            name,
-            Diagnostics_write_helper(
-                get_filename(),
-                is_serial(), 
-                get_bunch().get_comm(), 
-                local_dir,
-                (name == DEFAULT_WRITER_NAME) ? "" : name )
-            ).first->second;
+    if (have_write_helper(name))
+    {
+        return writers.find(name)->second;
+    }
+    else
+    {
+        return writers.emplace( 
+                name,
+                Diagnostics_write_helper(
+                    get_filename(),
+                    is_serial(), 
+                    get_bunch().get_comm(), 
+                    local_dir,
+                    (name == DEFAULT_WRITER_NAME) ? "" : name )
+                ).first->second;
+    }
 }
 
 #if 0
