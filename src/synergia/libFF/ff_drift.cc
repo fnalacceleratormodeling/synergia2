@@ -87,12 +87,11 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
-    const double ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
+    const double ref_p   = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
     const double ref_cdt = get_reference_cdt(length, ref_l);
 
     auto parts = bunch.get_local_particles();
-    auto hparts = bunch.get_host_particles();
 
     Kokkos::parallel_for(
             local_num, PropDrift(parts, length, ref_p, mass, ref_cdt) );
