@@ -3,14 +3,17 @@
 llib="${CMAKE_CURRENT_BINARY_DIR}/src/synergia"
 sslp="$llib:$llib/bunch:$llib/collective:$llib/foundation:$llib/lattice:$llib/simulation:$llib/utils"
 
-SYNERGIA_LOCAL_EXECUTABLE=synergia_local
-export SYNERGIA_LOCAL_EXECUTABLE
-SYNERGIA_LOCAL_PREFIX="${CMAKE_INSTALL_PREFIX}"
-export SYNERGIA_LOCAL_PREFIX
-SYNERGIA_LOCAL_SYNERGIA2_DIR="${CMAKE_CURRENT_SOURCE_DIR}/src"
-export SYNERGIA_LOCAL_SYNERGIA2_DIR
-SYNERGIA_LOCAL_LIBRARY_PATHS="$sslp"
-export SYNERGIA_LOCAL_LIBRARY_PATHS
+local_dir="${SYNERGIA2_BINARY_DIR}"
+SYNERGIA2DIR="$local_dir"
+export SYNERGIA2DIR
+
+this_synergia_python_path="$local_dir/src"
+chef_dirs=`echo "${CHEF_LIBRARY_DIRS}" | sed 's/;/ /g'`
+for dir in $chef_dirs $install_python_dir "$this_synergia_python_path"
+do
+    PYTHONPATH="$dir:$PYTHONPATH"
+done
+export PYTHONPATH
 
 exec /bin/sh "${CMAKE_CURRENT_BINARY_DIR}/src/frontend/synergia" "$@"
 

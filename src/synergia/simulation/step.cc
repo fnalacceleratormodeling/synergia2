@@ -72,25 +72,43 @@ Step::apply(Bunch & bunch, int verbosity,
             (*itd)->update_and_write();
         }
         t = simple_timer_show(t, "diagnostics-operator");
-        if (bunch.is_z_periodic()) {
-             double zlength=bunch.get_z_period_length();
-             apply_longitudinal_periodicity(bunch, zlength);           
+
+        // Bunch longitudinal boundary condition
+        std::pair<Bunch::LongitudinalBoundary, double> lb = bunch.get_longitudinal_boundary();
+        switch(lb.first)
+        {
+            case Bunch::lb_periodic:
+                apply_longitudinal_periodicity(bunch, lb.second);
+                break;
+
+            case Bunch::lb_aperture:
+                {
+                    Diagnostics_loss_sptr diagnostics_sptr;                      
+                    Diagnostics_losses diagnostics_list = 
+                        stepper.get_lattice_simulator().get_lattice_sptr()->get_loss_diagnostics_list();                                               
+                    for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
+                            d_it != diagnostics_list.end(); ++d_it) {
+                        if  ((*d_it)->get_type()==Diagnostics_loss::zcut_type) { 
+                            diagnostics_sptr=(*d_it);                   
+                        } 
+                    }                       
+
+                    apply_zcut(bunch, lb.second, diagnostics_sptr);          
+                }
+                break;
+
+            case Bunch::lb_bucket_barrier:
+                apply_longitudinal_bucket_barrier(bunch, lb.second);
+                break;
+
+            case Bunch::lb_open:
+            default:
+                break;
         }
-        else if(bunch.has_longitudinal_aperture()){         
-          double zlength=bunch.get_longitudinal_aperture_length();
-          Diagnostics_loss_sptr diagnostics_sptr;                      
-          Diagnostics_losses diagnostics_list=
-          stepper.get_lattice_simulator().get_lattice_sptr()->get_loss_diagnostics_list();                                               
-          for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
-                    d_it != diagnostics_list.end(); ++d_it){
-                    if  ((*d_it)->get_type()==Diagnostics_loss::zcut_type) { 
-                                diagnostics_sptr=(*d_it);                   
-                  }
-           }                       
-           apply_zcut(bunch, zlength, diagnostics_sptr);          
-        }        
+
         ++fractions_it;
     }
+
     t_total = simple_timer_show(t_total, "step_apply-total");
 }
 

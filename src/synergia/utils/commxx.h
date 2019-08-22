@@ -28,11 +28,11 @@ private:
     construct(MPI_Comm const& parent_mpi_comm);
     // This dummy constructor exists only to force compilation errors in
     // code that uses an older interface to this class.
-    Commxx(MPI_Comm const& comm){}
+    Commxx(MPI_Comm const& comm);
     // prevent copying
-    Commxx(Commxx const& commxx){}
+    Commxx(Commxx const& commxx);
     Commxx&
-    operator=(Commxx const& commxx){ return *this;}
+    operator=(Commxx const& commxx);
 public:
     /// Construct a Commxx object using MPI_COMM_WORLD
     Commxx();

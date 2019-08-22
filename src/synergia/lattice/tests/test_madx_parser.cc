@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(command_omitted_comma)
   string str = "call file = './foo.dbx';";
   MadX   mx;
 
-  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_REQUIRE_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.command_count(), 0 );
 
   BOOST_CHECK_EQUAL( mx.variable_as_number("a"), 3 );

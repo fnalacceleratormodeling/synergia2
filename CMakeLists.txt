@@ -79,9 +79,8 @@ endif()
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
 SET(Boost_NO_BOOST_CMAKE ON)
-FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework serialization
-    filesystem system iostreams REQUIRED)
-list(APPEND extra_includes ${Boost_INCLUDE_DIRS})
+FIND_PACKAGE(Boost COMPONENTS python27 regex unit_test_framework serialization filesystem system REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # hdf5

@@ -411,6 +411,91 @@ struct Rod_bunch_fixture_lowgamma2
     std::vector<int > grid_shape;
 };
 
+// same as Rod_bunch_fixture_lowgamma except bunch is compressed longitudinally
+// for double the line charge density
+struct Rod_bunch_fixture_compressed_lowgamma
+{
+    Rod_bunch_fixture_compressed_lowgamma() :
+        four_momentum(mass, mass*rod_lowgamma), reference_particle(charge,
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                rod_num_particles, rod_real_num,
+                            comm_sptr),
+                grid_shape(3)
+    {
+        BOOST_TEST_MESSAGE("setup Rod bunch fixture lowgamma");
+        bunch.set_z_period_length(rod_length);
+        bunch.set_sort_period(-1);
+        MArray2d_ref local_particles(bunch.get_local_particles());
+        // a ring of 8 particles around each longitudinal location
+        int num_longitudinal = (rod_num_particles-1)/8;
+        double dz = 0.5 * rod_length/(num_longitudinal-1);
+
+        double r2o2 = std::sqrt(2.0)/2.0;
+
+        double z = -rod_length/4.0;
+        for (int i=1; i<rod_num_particles; i+=8, z+=dz) {
+            local_particles[i][Bunch::x] = rod_radius;
+            local_particles[i][Bunch::y] = 0.0;
+
+            local_particles[i+1][Bunch::x] = rod_radius*r2o2;
+            local_particles[i+1][Bunch::y] = rod_radius*r2o2;
+
+            local_particles[i+2][Bunch::x] = 0.0;
+            local_particles[i+2][Bunch::y] = rod_radius;
+
+            local_particles[i+3][Bunch::x] = -rod_radius*r2o2;
+            local_particles[i+3][Bunch::y] =  rod_radius*r2o2;
+
+            local_particles[i+4][Bunch::x] = -rod_radius;
+            local_particles[i+4][Bunch::y] = 0.0;
+
+            local_particles[i+5][Bunch::x] = -rod_radius*r2o2;
+            local_particles[i+5][Bunch::y] = -rod_radius*r2o2;
+
+            local_particles[i+6][Bunch::x] = 0.0;
+            local_particles[i+6][Bunch::y] = -rod_radius;
+
+            local_particles[i+7][Bunch::x] = rod_radius*r2o2;
+            local_particles[i+7][Bunch::y] = -rod_radius*r2o2;
+
+            double rod_beta = reference_particle.get_beta();
+            for (int j=i; j<i+8; ++j) {
+                local_particles[j][Bunch::cdt] = z/rod_beta;
+                local_particles[j][Bunch::xp] = 0.0;
+                local_particles[j][Bunch::yp] = 0.0;
+                local_particles[j][Bunch::dpop] = 0.0;
+                local_particles[j][Bunch::id] = j;
+            }
+        }
+
+        // when the probe is too far, it falls outside the domain and does
+        // not get any sc kicks.
+        local_particles[0][Bunch::x] = 80*rod_radius;
+        local_particles[0][Bunch::y] = 0.0;
+        local_particles[0][Bunch::xp] = 0.0;
+        local_particles[0][Bunch::yp] = 0.0;
+        local_particles[0][Bunch::cdt] = 0.0;
+        local_particles[0][Bunch::dpop] = 0.0;
+        local_particles[0][Bunch::id] = 0.0;
+
+        grid_shape[0] = 256;
+        grid_shape[1] = 256;
+        grid_shape[2] = 64;
+    }
+
+    ~Rod_bunch_fixture_compressed_lowgamma()
+    {
+        BOOST_TEST_MESSAGE("tear down Rod bunch compressed fixture lowgamma");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx_sptr comm_sptr;
+    Bunch bunch;
+    unsigned long int seed;
+    std::vector<int > grid_shape;
+};
+
 struct Rod_bunch_fixture_highgamma
 {
     Rod_bunch_fixture_highgamma() :
@@ -578,6 +663,90 @@ struct Rod_bunch_fixture_highgamma2
     std::vector<int > grid_shape;
 };
 
+// same as Rod_bunch_fixture_highgamma except all the charge is compressed
+// to half the length so double the line charge density
+struct Rod_bunch_fixture_compressed_highgamma
+{
+    Rod_bunch_fixture_compressed_highgamma() :
+        four_momentum(mass, mass*rod_highgamma), reference_particle(charge,
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                rod_num_particles, rod_real_num,
+                            comm_sptr),
+                grid_shape(3)
+    {
+        BOOST_TEST_MESSAGE("setup Rod bunch fixture highgamma");
+        bunch.set_z_period_length(rod_length);
+        bunch.set_sort_period(-1);
+        MArray2d_ref local_particles(bunch.get_local_particles());
+        // a ring of 8 particles around each longitudinal location
+        int num_longitudinal = (rod_num_particles-1)/8;
+        double dz = 0.5*rod_length/(num_longitudinal-1);
+
+        double r2o2 = std::sqrt(2.0)/2.0;
+
+        double z = -rod_length/4.0;
+        for (int i=1; i<rod_num_particles; i+=8, z+=dz) {
+            local_particles[i][Bunch::x] = rod_radius;
+            local_particles[i][Bunch::y] = 0.0;
+
+            local_particles[i+1][Bunch::x] = rod_radius*r2o2;
+            local_particles[i+1][Bunch::y] = rod_radius*r2o2;
+
+            local_particles[i+2][Bunch::x] = 0.0;
+            local_particles[i+2][Bunch::y] = rod_radius;
+
+            local_particles[i+3][Bunch::x] = -rod_radius*r2o2;
+            local_particles[i+3][Bunch::y] =  rod_radius*r2o2;
+
+            local_particles[i+4][Bunch::x] = -rod_radius;
+            local_particles[i+4][Bunch::y] = 0.0;
+
+            local_particles[i+5][Bunch::x] = -rod_radius*r2o2;
+            local_particles[i+5][Bunch::y] = -rod_radius*r2o2;
+
+            local_particles[i+6][Bunch::x] = 0.0;
+            local_particles[i+6][Bunch::y] = -rod_radius;
+
+            local_particles[i+7][Bunch::x] = rod_radius*r2o2;
+            local_particles[i+7][Bunch::y] = -rod_radius*r2o2;
+
+            double rod_beta = reference_particle.get_beta();
+            for (int j=i; j<i+8; ++j) {
+                local_particles[j][Bunch::cdt] = z/rod_beta;
+                local_particles[j][Bunch::xp] = 0.0;
+                local_particles[j][Bunch::yp] = 0.0;
+                local_particles[j][Bunch::dpop] = 0.0;
+                local_particles[j][Bunch::id] = j;
+            }
+        }
+
+        // when the probe is too far, it falls outside the domain and does
+        // not get any sc kicks.
+        local_particles[0][Bunch::x] = 80*rod_radius;
+        local_particles[0][Bunch::y] = 0.0;
+        local_particles[0][Bunch::xp] = 0.0;
+        local_particles[0][Bunch::yp] = 0.0;
+        local_particles[0][Bunch::cdt] = 0.0;
+        local_particles[0][Bunch::dpop] = 0.0;
+        local_particles[0][Bunch::id] = 0.0;
+
+        grid_shape[0] = 256;
+        grid_shape[1] = 256;
+        grid_shape[2] = 64;
+    }
+
+    ~Rod_bunch_fixture_compressed_highgamma()
+    {
+        BOOST_TEST_MESSAGE("tear down Rod bunch fixture compressed highgamma");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx_sptr comm_sptr;
+    Bunch bunch;
+    unsigned long int seed;
+    std::vector<int > grid_shape;
+};
 
 
 

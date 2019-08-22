@@ -16,13 +16,9 @@ public:
     Foo()
     {
     }
-    Foo(int i, double x)
-    {
-        this->i = i;
-        this ->x = x;
-    }
+    Foo(int i, double x) : i(i), x(x) {}
     bool
-    operator==(Foo const& other)
+    operator==(Foo const& other) const
     {
         return ((this->i == other.i) && (this->x == other.x));
     }
