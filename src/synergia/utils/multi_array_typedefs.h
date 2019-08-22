@@ -1,7 +1,6 @@
 #ifndef MULTI_ARRAY_TYPEDEFS_H_
 #define MULTI_ARRAY_TYPEDEFS_H_
 
-#include <complex>
 #include <Kokkos_Core.hpp>
 
 typedef Kokkos::View<double*,  Kokkos::LayoutLeft> karray1d_dev;
