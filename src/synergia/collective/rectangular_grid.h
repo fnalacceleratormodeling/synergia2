@@ -72,7 +72,7 @@ public:
     size_t span() const
     { return grid_.span(); }
     
-    std::complex<double>* data(size_t x = 0, size_t y = 0) const
+    Kokkos::complex<double>* data(size_t x = 0, size_t y = 0) const
     { return &grid_(x, y); }
 
     //void set_zero()

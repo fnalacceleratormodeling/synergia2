@@ -42,9 +42,9 @@ typedef karray3d_row_hst karray3d_row;
 
 
 
-typedef Kokkos::View<std::complex<double>*,   Kokkos::LayoutRight> karray1dc_row_dev;
-typedef Kokkos::View<std::complex<double>**,  Kokkos::LayoutRight> karray2dc_row_dev;
-typedef Kokkos::View<std::complex<double>***, Kokkos::LayoutRight> karray3dc_row_dev;
+typedef Kokkos::View<Kokkos::complex<double>*,   Kokkos::LayoutRight> karray1dc_row_dev;
+typedef Kokkos::View<Kokkos::complex<double>**,  Kokkos::LayoutRight> karray2dc_row_dev;
+typedef Kokkos::View<Kokkos::complex<double>***, Kokkos::LayoutRight> karray3dc_row_dev;
 
 typedef karray1dc_row_dev::HostMirror karray1dc_row_hst;
 typedef karray2dc_row_dev::HostMirror karray2dc_row_hst;
