@@ -106,32 +106,32 @@ include_directories(${Boost_INCLUDE_DIRS})
 # We want PYTHON_QUAL set to:
 #    nothing, for old boost and for use of python 2,
 #    27, for new boost and for use of python 2,
-#    3, for use of python 3 and boost < 1.70.00
-#    37, for use of python 3 and boost >= 1.70.00
+#    3, for use of python 3 (for all supported boost versions)
 if (USE_PYTHON_3)
-  if (${Boost_VERSION} LESS 107000)
-    set(PYTHON_QUAL 3)
-  else()
+  # Guessing when we need PYTHON_QUAL 3 vs. 37.
+  # On Ubuntu 18.04, with its system cmake, and system boost_python, we need 3
+  # On Ubuntu 16.04, with an updated cmake and the system boost_python 1.58, we need 35
+  # On Darwin, with cmake 3.14.6, and boost 1.70.0, and boost_python 1.70.0.1, we need 37
+  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     set(PYTHON_QUAL 37)
+  else()
+    if (${Boost_VERSION} LESS 105900) # not sure of what the exact cutoff should be
+      set(PYTHON_QUAL 35)
+    else()
+      set(PYTHON_QUAL 3)
+    endif()
   endif()
 else()
   if(NOT ${Boost_VERSION} LESS 106700)
     set(PYTHON_QUAL 27)
   endif()
 endif()
+
 message(STATUS "Looking for boost_python, as component python${PYTHON_QUAL}")
 find_package(Boost COMPONENTS python${PYTHON_QUAL} REQUIRED)
+# Now Boost_LIBRARIES is set to only the boost_python library...
+set(REAL_BOOST_PYTHON_LIBRARY ${Boost_LIBRARIES})
 link_directories(${Boost_LIBRARY_DIRS})
-if ("${PYTHON_QUAL}" STREQUAL 3)
-  set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON3_LIBRARY})
-elseif("${PYTHON_QUAL}" STREQUAL 37)
-  set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON37_LIBRARY})
-elseif("${PYTHON_QUAL}" STREQUAL 27)
-  set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON27_LIBRARY})
-else()
-  set(REAL_BOOST_PYTHON_LIBRARY ${Boost_PYTHON_LIBRARY})
-endif()
-
 message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
