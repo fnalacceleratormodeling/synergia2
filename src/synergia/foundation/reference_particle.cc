@@ -1,45 +1,46 @@
 #include "reference_particle.h"
 #include "synergia/utils/floating_point.h"
 
-Reference_particle::Reference_particle() :
-    charge(0), four_momentum(1.0, 1.0), state(boost::extents[6]),
-            repetition(0), s(0), s_n(0)
+Reference_particle::Reference_particle() 
+    : charge(0)
+    , four_momentum(1.0, 1.0)
+    , state{0, 0, 0, 0, 0, 0}
+    , repetition(0), s(0), s_n(0)
 {
 
 }
 
-Reference_particle::Reference_particle(int charge, double mass,
-        double total_energy) :
-    charge(charge), four_momentum(mass, total_energy),
-            state(boost::extents[6]), repetition(0), s(0), s_n(0)
-{
-    for (int i = 0; i < 6; ++i) {
-        state[i] = 0;
-    }
-}
-
-Reference_particle::Reference_particle(int charge,
-        Four_momentum const & four_momentum_in) :
-    charge(charge), four_momentum(four_momentum_in), state(boost::extents[6]),
-            repetition(0), s(0), s_n(0)
-{
-    for (int i = 0; i < 6; ++i) {
-        state[i] = 0;
-    }
-}
-
-Reference_particle::Reference_particle(int charge,
-        Four_momentum const & four_momentum_in, Const_MArray1d_ref state) :
-    charge(charge), four_momentum(four_momentum_in), state(state),
-            repetition(0), s(0), s_n(0)
+Reference_particle::Reference_particle( int charge, 
+        double mass, double total_energy ) 
+    : charge(charge)
+    , four_momentum(mass, total_energy)
+    , state{0, 0, 0, 0, 0, 0}
+    , repetition(0), s(0), s_n(0)
 {
 }
 
-Reference_particle::Reference_particle(Lsexpr const& lsexpr) :
-      state(boost::extents[6])
-    , repetition(0)
-    , s(0)
-    , s_n(0)
+Reference_particle::Reference_particle( int charge,
+        Four_momentum const & four_momentum_in ) 
+    : charge(charge)
+    , four_momentum(four_momentum_in)
+    , state{0, 0, 0, 0, 0, 0}
+    , repetition(0), s(0), s_n(0)
+{
+}
+
+Reference_particle::Reference_particle( int charge,
+        Four_momentum const & four_momentum_in, 
+        std::array<double, 6> const& state ) 
+    : charge(charge)
+    , four_momentum(four_momentum_in)
+    , state(state)
+    , repetition(0), s(0), s_n(0)
+{
+}
+
+Reference_particle::Reference_particle(Lsexpr const& lsexpr) 
+    : state{0, 0, 0, 0, 0, 0}
+    , repetition(0) , s(0) , s_n(0)
 {
     bool found_charge(false), found_four_momentum(false);
     for(Lsexpr::const_iterator_t it = lsexpr.begin();
@@ -117,7 +118,7 @@ Reference_particle::set_four_momentum(Four_momentum const & four_momentum)
 }
 
 void
-Reference_particle::set_state(Const_MArray1d_ref state)
+Reference_particle::set_state(std::array<double, 6> const& state)
 {
     this->state = state;
 }
@@ -220,7 +221,7 @@ Reference_particle::get_four_momentum() const
     return four_momentum;
 }
 
-Const_MArray1d_ref
+std::array<double, 6> const&
 Reference_particle::get_state() const
 {
     return state;

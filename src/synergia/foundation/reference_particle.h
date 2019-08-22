@@ -1,7 +1,7 @@
 #ifndef REFERENCE_PARTICLE_H_
 #define REFERENCE_PARTICLE_H_
 
-#include "synergia/utils/multi_array_typedefs.h"
+//#include "synergia/utils/multi_array_typedefs.h"
 //#include "synergia/utils/multi_array_serialization.h"
 #include "synergia/foundation/four_momentum.h"
 
@@ -16,7 +16,7 @@ class Reference_particle
 private:
     int charge;
     Four_momentum four_momentum;
-    MArray1d state;
+    std::array<double, 6> state;
     int repetition;
     double s;
     double s_n;
@@ -41,7 +41,7 @@ public:
     /// @param four_momentum in the lab frame
     /// @param state is a six-dimensional state vector
     Reference_particle(int charge, Four_momentum const& four_momentum,
-            Const_MArray1d_ref state);
+            std::array<double, 6> const& state);
 
     /// Construct a Reference_particle from the Lsexpr representation
     /// @param lsexpr representation
@@ -59,7 +59,7 @@ public:
     /// Set the state vector in the reference frame.
     /// @param state is a six-dimensional state vector
     void
-    set_state(Const_MArray1d_ref state);
+    set_state(std::array<double, 6> const& state);
 
     /// Set the state vector in the reference frame.
     /// @param x
@@ -123,7 +123,7 @@ public:
     get_four_momentum() const;
 
     /// Get the six-dimensional state vector in the reference frame.
-    Const_MArray1d_ref
+    std::array<double, 6> const&
     get_state() const;
 
     /// Get the relativistic beta in the lab frame.

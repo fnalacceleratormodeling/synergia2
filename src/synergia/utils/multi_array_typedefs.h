@@ -60,7 +60,7 @@ typedef Kokkos::View< double*,
                       Kokkos::MemoryTraits<Kokkos::Atomic> > karray1d_atomic_dev;
 
 
-#if 1
+#if 0
 #include "boost/multi_array.hpp"
 #include "boost/shared_array.hpp"
 

@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <sstream>
 
+#if 0
 inline
 void
 multi_array_assert_size(Const_MArray1d_ref & a, MArray1d::size_type size,
@@ -39,5 +40,6 @@ multi_array_assert_size(Const_MArray2d_ref & a, MArray2d::size_type size0,
         throw std::runtime_error(message.str());
     }
 }
+#endif
 
 #endif /* MULTI_ARRAY_ASSERT_H_ */

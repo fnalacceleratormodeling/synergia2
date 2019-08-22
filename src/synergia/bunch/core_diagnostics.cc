@@ -201,10 +201,10 @@ Core_diagnostics::calculate_z_std(Bunch const& bunch, double const& mean)
     return std;
 }
 
-MArray1d
+karray1d
 Core_diagnostics::calculate_spatial_mean(Bunch const& bunch)
 {
-    MArray1d mean(boost::extents[3]);
+    karray1d mean("mean", 3);
 #if 0
     double sum[3] = { 0, 0, 0 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
@@ -272,10 +272,10 @@ Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
     return std;
 }
 
-MArray1d
-Core_diagnostics::calculate_spatial_std(Bunch const& bunch, MArray1d_ref const& mean)
+karray1d
+Core_diagnostics::calculate_spatial_std(Bunch const& bunch, karray1d const& mean)
 {
-    MArray1d std(boost::extents[3]);
+    karray1d std("std", 3);
 #if 0
     double sum[3] = { 0, 0, 0 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
@@ -376,10 +376,10 @@ Core_diagnostics::calculate_mom2(Bunch const & bunch, karray1d const & mean)
 
 }
 
-MArray1d
+karray1d
 Core_diagnostics::calculate_min(Bunch const& bunch)
 {
-    MArray1d min(boost::extents[3]);
+    karray1d min("min", 3);
 #if 0
     double lmin[3] = { 1.0e100, 1.0e100, 1.0e100 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
@@ -402,10 +402,10 @@ Core_diagnostics::calculate_min(Bunch const& bunch)
     return min;
 }
 
-MArray1d
+karray1d
 Core_diagnostics::calculate_max(Bunch const& bunch)
 {
-    MArray1d max(boost::extents[3]);
+    karray1d max("max", 3);
 #if 0
     double lmax[3] = { -1.0e100, -1.0e100, -1.0e100 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
@@ -429,7 +429,7 @@ Core_diagnostics::calculate_max(Bunch const& bunch)
 }
 
 void
-Core_diagnostics::print_bunch_parameters(MArray2d_ref const& mom2, double beta)
+Core_diagnostics::print_bunch_parameters(karray2d const& mom2, double beta)
 {
 #if 0
   ///emitx,emity,emitz correspond to sigma^2/beta for a matched beam. Note there is no pi factor in our definition. 

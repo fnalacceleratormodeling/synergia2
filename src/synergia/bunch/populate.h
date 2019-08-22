@@ -42,7 +42,7 @@ populate_6d_truncated( Distribution & dist,
 ///  [-cdt/2,cdt/2] [m]
 void
 populate_transverse_gaussian(Distribution &dist, Bunch &bunch,
-        Const_MArray1d_ref means, Const_MArray2d_ref covariances, double cdt);
+        karray1d const& means, karray2d const& covariances, double cdt);
 
 /// Populate a bunch with a uniform cylindrical spatial distribution. The
 /// momentum-like variables are Gaussian distributed and uncorrelated.
@@ -84,7 +84,7 @@ populate_two_particles(Bunch &bunch,
          double p2x, double p2xp, double p2y, double p2yp, double p2cdt, double p2dpop); 
 
 void
-populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref map, double length);  
+populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   karray2d const& map, double length);  
 
 
 void
@@ -92,7 +92,7 @@ populate_longitudinal_uniform(Distribution &dist, Bunch &bunch,   double length)
 
 // alternative populate KV distribution using a linear map to determine coefficients.
 void
-populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Const_MArray2d_ref map,
+populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   karray2d const& map,
                             double radiusx,  double radiusy,   double ctrms); 
 
                             
@@ -100,8 +100,8 @@ populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Co
 ///         rms _index[0], rms _index[1], rms _index[2]
 ///        example: rms_index=[0,2,4]==> arms=xrms, brms=yrms, crms=zrms
 ///        units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,  '''                             
-MArray2d
-get_correlation_matrix(Const_MArray2d_ref map, double xrms, double yrms, double zrms, 
+karray2d
+get_correlation_matrix(karray2d const& map, double xrms, double yrms, double zrms, 
                        double beta, std::vector<int> rms_index=std::vector<int >());    
 
                        
