@@ -1,7 +1,29 @@
 #ifndef APERTURE_OPERATION_EXTRACTOR_H_
 #define APERTURE_OPERATION_EXTRACTOR_H_
 
-#include "synergia/simulation/aperture_operation.h"
+//#include "synergia/simulation/aperture_operation.h"
+
+#include "synergia/simulation/independent_operation.h"
+
+class Aperture_operation : public Independent_operation
+{
+public:
+    Aperture_operation(Lattice_element_slice const& slice)
+        : Independent_operation("aperture")
+    { }
+};
+
+
+class Finite_aperture_operation : public Aperture_operation
+{
+public:
+    Finite_aperture_operation(Lattice_element_slice const& slice) 
+        : Aperture_operation(slice) { }
+
+private:
+    void apply_impl(Bunch & bunch, Logger & logger) const override { }
+
+};
 
 std::unique_ptr<Independent_operation>
 extract_aperture_operation(

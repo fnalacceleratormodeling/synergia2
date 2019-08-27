@@ -20,25 +20,22 @@ private:
 
 private:
 
-    virtual void print_impl(Logger & logger) const = 0;
+    virtual void print_impl(Logger & logger) const { }
+    virtual void apply_impl(Bunch & bunch, Logger & logger) const = 0;
 
 public:
 
-    Independent_operation(std::string const & type)
-    : type(type)
+    Independent_operation(std::string const & type) : type(type) 
     { }
 
-    std::string const & get_type() const
+    void apply(Bunch & bunch, Logger & logger) const
+    { apply_impl(bunch, logger); }
+
+    std::string const & get_type() const 
     { return type; }
 
-    virtual void apply(Bunch & bunch, Logger & logger) 
-    { }
-
     void print(Logger & logger) const
-    { 
-        logger(LoggerV::DEBUG) << "\ttype = " << type << ", ";
-        print_impl(logger); 
-    }
+    { logger(LoggerV::DEBUG) << "\ttype = " << type << ", "; print_impl(logger); }
 };
 
 
@@ -46,19 +43,17 @@ class LibFF_operation : public Independent_operation
 {
 private:
 
-    std::vector<std::pair<std::unique_ptr<FF_element>, Lattice_element_slice>>
-        libff_element_slices;
+    std::vector< std::pair<std::unique_ptr<FF_element>, 
+                 Lattice_element_slice> > libff_element_slices;
 
 private:
 
-    void print_impl(Logger & logger) const override
-    { }
+    void print_impl(Logger & logger) const override { }
+    void apply_impl(Bunch & bunch, Logger & logger) const override;
 
 public:
 
     LibFF_operation(std::vector<Lattice_element_slice> const & slices);
-
-    virtual void apply(Bunch & bunch, Logger & logger);
 };
 
 

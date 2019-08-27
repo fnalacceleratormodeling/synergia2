@@ -7,7 +7,6 @@
 
 #include "synergia/simulation/bunch_simulator.h"
 #include "synergia/simulation/independent_operation.h"
-#include "synergia/simulation/operation_extractor.h"
 
 #include "synergia/utils/logger.h"
 

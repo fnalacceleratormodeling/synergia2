@@ -1,7 +1,11 @@
 #include <iostream>
+
 //#include "synergia/utils/simple_timer.h"
-#include "operator.h"
 //#include "aperture_operation.h"
+
+#include "operator.h"
+#include "synergia/simulation/operation_extractor.h"
+#include "synergia/simulation/aperture_operation_extractor.h"
 
 
 
@@ -355,8 +359,8 @@ Independent_operator::create_operations_impl(
 
         extractor_type = element.get_string_attribute("extractor_type", "default");
 
-        if (((extractor_type != last_extractor_type) || need_left_aperture) 
-                && (!group.empty())) 
+        if ( ((extractor_type != last_extractor_type) || need_left_aperture) 
+                && (!group.empty()) ) 
         {
             extract_independent_operations(extractor_type, lattice, group, operations);
             group.clear();
@@ -364,6 +368,7 @@ Independent_operator::create_operations_impl(
 
         if (need_left_aperture) 
         {
+            operations.emplace_back(extract_aperture_operation(aperture_type, slice));
 #if 0
             auto aperture_opn = extract_aperture_operation(aperture_type, slice);
             operations.push_back(aperture_opn);

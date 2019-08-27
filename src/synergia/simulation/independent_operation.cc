@@ -32,7 +32,7 @@ LibFF_operation::LibFF_operation(
 }
 
 void
-LibFF_operation::apply(Bunch & bunch, Logger & logger)
+LibFF_operation::apply_impl(Bunch & bunch, Logger & logger) const
 {
     for (auto const & es : libff_element_slices)
         es.first->apply(es.second, bunch);
