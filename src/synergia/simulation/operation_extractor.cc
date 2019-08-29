@@ -204,6 +204,10 @@ extract_aperture_operation(
     {
         return std::make_unique<Aperture_operation<Finite_aperture>>(slice);
     }
+    else if (aperture_type == "circular_aperture")
+    {
+        return std::make_unique<Aperture_operation<Circular_aperture>>(slice);
+    }
     else
     {
         throw std::runtime_error("unknown aperture_type");

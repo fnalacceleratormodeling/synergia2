@@ -14,11 +14,12 @@ namespace aperture_impl
         AP ap;
         ConstParticles parts;
         karray1d_dev discard;
+        double xoff, yoff;
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i, int& discarded) const
         {
-            if (ap.discard(parts, i))
+            if (ap.discard(parts, i, xoff, yoff))
             {
                 discard[i] = 1;
                 ++discarded;
@@ -59,7 +60,7 @@ private:
         int discarded = 0;
         karray1d_dev discard("discarded", nparts);
 
-        discard_checker<AP> dc{ap, bunch.get_local_particles(), discard};
+        discard_checker<AP> dc{ap, bunch.get_local_particles(), discard, x_offset, y_offset};
         Kokkos::parallel_reduce(nparts, dc, discarded);
 
         std::cout << "discarded = " << discarded << "\n";
@@ -76,7 +77,7 @@ private:
 public:
 
     Aperture_operation(Lattice_element_slice const& slice)
-        : Independent_operation("aperture"), slice(slice)
+        : Independent_operation("aperture"), ap(slice), slice(slice)
         , x_offset(slice.get_lattice_element().get_double_attribute("hoffset", 0.0))
         , y_offset(slice.get_lattice_element().get_double_attribute("voffset", 0.0))
     { }
@@ -100,9 +101,11 @@ struct Finite_aperture
 {
     constexpr static const char *aperture_type = "finite";
 
+    Finite_aperture(Lattice_element_slice const&) { }
+
     KOKKOS_INLINE_FUNCTION
-    bool discard(ConstParticles const& parts, int p) const
-    { return true; }
+    bool discard(ConstParticles const& parts, int p, double xoff, double yoff) const
+    { return false; }
 
 #if 0
     bool test(ConstParticles const& parts, int p) const override
@@ -128,40 +131,32 @@ struct Finite_aperture
 #endif
 };
 
-#if 0
 /// A circular aperture with radius in meters determined by the
 /// Lattice_element attribute "circular_aperture_radius".
 /// If the radius is not defined, the default value of 1000.0 m will
 /// be used.
-class Circular_aperture_operation : public Aperture_operation
+struct Circular_aperture
 {
-private:
-    double radius, radius2;
-public:
-    static const double default_radius;
-    static const char aperture_type[];
-    static const char attribute_name[];
-    Circular_aperture_operation(Lattice_element_slice_sptr slice_sptr);
-    // Default constructor for serialization use only
-    Circular_aperture_operation();
-    virtual const char *
-    get_aperture_type() const;
-    virtual bool
-    operator==(Aperture_operation const& aperture_operation) const;
-    bool
-            operator==(
-                    Circular_aperture_operation const& circular_aperture_operation) const;
-    bool
-    operator()(MArray2d_ref & particles, int part);
-    virtual void
-    apply(Bunch & bunch, int verbosity, Logger & logger);
-    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
-    virtual
-    ~Circular_aperture_operation();
+    constexpr static const char *aperture_type = "circular";
+    double r, r2;
+
+    Circular_aperture(Lattice_element_slice const& slice)
+        : r(slice.get_lattice_element().get_double_attribute("circular_aperture_radius", 1000.0))
+        , r2(r*r)
+    { }
+
+    KOKKOS_INLINE_FUNCTION
+    bool discard(ConstParticles const& parts, int p, double xoff, double yoff) const
+    {
+        double xrel = parts(p, 0) - xoff;
+        double yrel = parts(p, 2) - yoff;
+
+        double radius2 = xrel * xrel + yrel * yrel;
+        return (radius2 > r2);
+    }
 };
 
+#if 0
 /// An elliptical aperture with horizontal and vertical radii in meters
 /// determined by the Lattice_element_attributes
 /// "elliptical_aperture_horizontal_radius" and

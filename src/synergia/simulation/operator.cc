@@ -385,7 +385,7 @@ Independent_operator::create_operations_impl(
         extract_independent_operations(extractor_type, lattice, group, operations);
     }
 
-    operations.emplace_back(extract_aperture_operation("finite_aperture", slices.back()));
+    operations.emplace_back(extract_aperture_operation("circular_aperture", slices.back()));
     //operations.emplace_back(std::make_unique<Finite_aperture_operation>(slices.back()));
 
 #if 0
