@@ -1,11 +1,7 @@
 #include <iostream>
 
-//#include "synergia/utils/simple_timer.h"
-//#include "aperture_operation.h"
-
 #include "operator.h"
 #include "synergia/simulation/operation_extractor.h"
-#include "synergia/simulation/aperture_operation_extractor.h"
 
 
 
@@ -369,10 +365,6 @@ Independent_operator::create_operations_impl(
         if (need_left_aperture) 
         {
             operations.emplace_back(extract_aperture_operation(aperture_type, slice));
-#if 0
-            auto aperture_opn = extract_aperture_operation(aperture_type, slice);
-            operations.push_back(aperture_opn);
-#endif
         }
 
         group.push_back(slice);
@@ -381,12 +373,8 @@ Independent_operator::create_operations_impl(
         if (need_right_aperture) 
         {
             extract_independent_operations(extractor_type, lattice, group, operations);
+            operations.emplace_back(extract_aperture_operation(aperture_type, slice));
             group.clear();
-
-#if 0
-            auto aperture_opn = extract_aperture_operation(aperture_type, slice);
-            operations.push_back(aperture_opn);
-#endif
         }
 
         //operations_revisions.push_back(element.get_revision());
@@ -396,6 +384,9 @@ Independent_operator::create_operations_impl(
     {
         extract_independent_operations(extractor_type, lattice, group, operations);
     }
+
+    operations.emplace_back(extract_aperture_operation("finite_aperture", slices.back()));
+    //operations.emplace_back(std::make_unique<Finite_aperture_operation>(slices.back()));
 
 #if 0
     auto aperture_opn = extract_aperture_operation("default", slices.back());

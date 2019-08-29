@@ -1,7 +1,13 @@
 #ifndef OPERATION_EXTRACTOR_H_
 #define OPERATION_EXTRACTOR_H_
 
-#include "synergia/simulation/independent_operation.h"
+#include <vector>
+#include <string>
+#include <memory>
+
+class Independent_operation;
+class Lattice;
+class Lattice_element_slice;
 
 void
 extract_independent_operations(
@@ -9,6 +15,13 @@ extract_independent_operations(
         Lattice const & lattice,
         std::vector<Lattice_element_slice> const & slices,
         std::vector<std::unique_ptr<Independent_operation>> & operations );
+
+
+std::unique_ptr<Independent_operation>
+extract_aperture_operation(
+        std::string const & aperture_type,
+        Lattice_element_slice const & slice);
+
 
 #if 0
 class Operation_extractor {

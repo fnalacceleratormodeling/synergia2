@@ -10,7 +10,10 @@
 
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/foundation/reference_particle.h"
+
 #include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/diagnostics_loss.h"
+
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/restrict_extension.h"
@@ -123,6 +126,9 @@ private:
     Commxx comm;    
 
     std::map<std::string, std::unique_ptr<Diagnostics>> diags;
+
+    std::unique_ptr<Diagnostics_loss> diag_aperture;
+    std::unique_ptr<Diagnostics_loss> diag_zcut;
 
 private:
 
@@ -351,6 +357,18 @@ public:
         .first->second->set_bunch(*this); }
 
     Diagnostics & get_diag(std::string const & name);
+
+    void set_diag_loss_aperture(Diagnostics_loss && diag)
+    { diag_aperture = std::make_unique<Diagnostics_loss>(std::move(diag)); }
+
+    void set_diag_loss_zcut(Diagnostics_loss && diag)
+    { diag_zcut = std::make_unique<Diagnostics_loss>(std::move(diag)); }
+
+    Diagnostics_loss * get_diag_loss_aperture()
+    { return diag_aperture.get(); }
+
+    Diagnostics_loss * get_diag_loss_zcut()
+    { return diag_zcut.get(); }
 
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,

@@ -7,6 +7,8 @@
 class Operator;
 class Independent_operation;
 
+class Diagnostics_loss;
+
 class Bunch_simulator
 {
 
@@ -157,6 +159,15 @@ public:
 
         reg_diag( name, std::move(diag), trig, train, bunch );
     }
+
+    void reg_diag_loss_aperture(
+            Diagnostics_loss && diag, int train = 0, int bunch = 0 )
+    { get_bunch(train, bunch).set_diag_loss_aperture(std::move(diag)); }
+
+    void reg_diag_loss_zcut(
+            Diagnostics_loss && diag, int train = 0, int bunch = 0 )
+    { get_bunch(train, bunch).set_diag_loss_zcut(std::move(diag)); }
+
 
     void diag_action_step_and_turn(int turn_num, int step_num);
     void diag_action_particle_loss_update( );

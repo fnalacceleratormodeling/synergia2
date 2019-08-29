@@ -1,153 +1,328 @@
-#include "aperture_operation.h"
-#include "synergia/foundation/math_constants.h"
-#include "synergia/utils/simple_timer.h"
-#include <boost/lexical_cast.hpp>
-#include <stdexcept>
-#include <cmath>
+#include "synergia/simulation/aperture_operation.h"
 
-const char Aperture_operation::charge_attribute[] = "deposited_charge";
 
-Aperture_operation::Aperture_operation(Lattice_element_slice_sptr slice_sptr) :
-    Independent_operation("aperture"), slice_sptr(slice_sptr)
+#if 0
+namespace aperture_impl
 {
-    if (slice_sptr->get_lattice_element().has_double_attribute("hoffset")) {
-        x_offset = slice_sptr->get_lattice_element().get_double_attribute("hoffset");
-    } else {
-        x_offset = 0.0;
-    }
-    if (slice_sptr->get_lattice_element().has_double_attribute("voffset")) {
-        y_offset = slice_sptr->get_lattice_element().get_double_attribute("voffset");
-    } else {
-        y_offset = 0.0;
-    }
-}
-
-Aperture_operation::Aperture_operation() :
-    Independent_operation("aperture")
-{
-}
-
-Lattice_element_slice_sptr 
-Aperture_operation::get_slice_sptr() const
-{
-  return slice_sptr;
-} 
-
-void
-Aperture_operation::deposit_charge(double charge)
-{
-    double deposited_charge(0.0);
-    if (slice_sptr->get_lattice_element().has_double_attribute(charge_attribute)) {
-        deposited_charge
-                = slice_sptr->get_lattice_element().get_double_attribute(
-                        charge_attribute);
-    }
-    deposited_charge += charge;
-    slice_sptr->get_lattice_element().set_double_attribute(charge_attribute,
-            deposited_charge, false);
-}
-
-template<class Archive>
-    void
-    Aperture_operation::serialize(Archive & ar, const unsigned int version)
+    template<class AP>
+    struct discard_checker
     {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
-        ar & BOOST_SERIALIZATION_NVP(slice_sptr);
-        ar & BOOST_SERIALIZATION_NVP(x_offset);
-        ar & BOOST_SERIALIZATION_NVP(y_offset);
-    }
+        typedef int value_type;
 
-template
-void
-Aperture_operation::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
+        AP ap;
+        ConstParticles parts;
 
-template
-void
-Aperture_operation::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i, int& discarded) const
+        {
+            if (ap.discard(parts, i))
+            {
+                //discard[i] = 1;
+                ++discarded;
+            }
+            else
+            {
+                //discard[i] = 0;
+            }
+        }
+    };
 
-template
-void
-Aperture_operation::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Aperture_operation::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-Aperture_operation::~Aperture_operation()
-{
-}
-BOOST_CLASS_EXPORT_IMPLEMENT(Aperture_operation);
-
-const char Finite_aperture_operation::aperture_type[] = "finite";
-
-Finite_aperture_operation::Finite_aperture_operation(
-        Lattice_element_slice_sptr slice_sptr) :
-    Aperture_operation(slice_sptr)
-{
-}
-
-Finite_aperture_operation::Finite_aperture_operation()
-{
-}
-
-const char *
-Finite_aperture_operation::get_aperture_type() const
-{
-    return aperture_type;
-}
-
-bool
-Finite_aperture_operation::operator==(
-        Aperture_operation const& aperture_operation) const
-{
-    return (aperture_type == aperture_operation.get_aperture_type());
-}
-
-void
-Finite_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
-{
-    double t;
-    //t = simple_timer_current();
-    apply_impl(*this, bunch, verbosity, logger);
-    //t = simple_timer_show(t, "finite_aperture-apply");
-}
-
-template<class Archive>
-    void
-    Finite_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    struct particle_mover
     {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+        }
+    };
+}
+
+
+void 
+Aperture_operation::apply_impl(Bunch & bunch, Logger & logger) const
+{
+    using namespace aperture_impl;
+
+    int discarded = 0;
+    discard_checker<AP> dc;
+    Kokkos::parallel_reduce(nparts, aa, discarded);
+
+    particle_mover pm;
+    Kokkos::parallel(1, pm);
+}
+#endif
+
+
+
+
+#if 0
+    double t0 = MPI_Wtime();
+    bool write_loss=false;
+    int b_index=-1; // AM: this value is written in the aperture_loss file when the bunch has no bucket index assigned
+    Diagnostics_losses diagnostics_list=
+         get_slice_sptr()->get_lattice_element().get_lattice().get_loss_diagnostics_list();
+    Diagnostics_loss_sptr diagnostics_sptr;
+    for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
+        d_it != diagnostics_list.end(); ++d_it){
+            if ( ((*d_it)->get_bunch().get_bucket_index()==bunch.get_bucket_index()) &&
+                ((*d_it)->get_type()==Diagnostics_loss::aperture_type) )
+            { 
+              diagnostics_sptr=(*d_it);
+              write_loss=true;
+            }
+    }          
+
+    int nt;
+    #pragma omp parallel
+    { nt = omp_get_num_threads(); }
+
+    if   (bunch.is_bucket_index_assigned())  b_index=bunch.get_bucket_index();
+    int repetition=bunch.get_reference_particle().get_repetition();
+    double s=bunch.get_reference_particle().get_s();
+    double s_n=bunch.get_reference_particle().get_s_n();
+    MArray1d coords(boost::extents[7]);
+
+    MArray2d_ref particles(bunch.get_local_particles());
+    MArray2d_ref s_particles(bunch.get_local_spectator_particles());
+
+    int npart = bunch.get_local_num();
+    int npart_s = bunch.get_local_spectator_num();
+
+    int * discard = new int[npart];
+    int * discard_count = new int[nt];
+
+    int * discard_s = new int[npart_s];
+    int * discard_s_count = new int[nt];
+
+    int part_per_thread = npart / nt;
+    int s_part_per_thread = npart_s / nt;
+
+    #pragma omp parallel shared(nt, npart, npart_s, particles, s_particles, discard, discard_s, discard_count, discard_s_count)
+    {
+        int it = omp_get_thread_num();
+
+        discard_count[it] = 0;
+        discard_s_count[it] = 0;
+
+        int s = it * part_per_thread;
+        int e = (it==nt-1) ? npart : (s+part_per_thread);
+
+        for (int part = s; part < e; ++part)
+        {
+            if (t(particles, part)) 
+            {
+                discard[part] = 1;
+                ++discard_count[it];
+            }
+            else
+            {
+                discard[part] = 0;
+            }
+        }
+
+        s = it * s_part_per_thread;
+        e = (it==nt-1) ? npart_s : (s + s_part_per_thread);
+
+        for (int part = s; part < e; ++part)
+        {
+            if (t(s_particles, part)) 
+            {
+                discard_s[part] = 1;
+                ++discard_s_count[it];
+            }
+            else
+            {
+                discard_s[part] = 0;
+            }
+        }
     }
 
-template
-void
-Finite_aperture_operation::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
+    // number of discarded particles
+    int discarded = 0;
+    int discarded_s = 0;
 
-template
-void
-Finite_aperture_operation::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
+    for (int i=0; i<nt; ++i) 
+    {
+        discarded += discard_count[i];
+        discarded_s += discard_s_count[i];
+    }
 
-template
-void
-Finite_aperture_operation::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
+    // arrange the particle array
+    {
+        // move all the discarded particles to the tail
+        int head = 0;
+        int tail = npart - 1;
 
-template
-void
-Finite_aperture_operation::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
+        do
+        {
+            while (!discard[head] && head<tail) ++head;
+            if (head >= tail) break;
 
-Finite_aperture_operation::~Finite_aperture_operation()
-{
+            while ( discard[tail] && tail>head) --tail;
+            if (head >= tail) break;
+
+            double p0 = particles[head][0];
+            double p1 = particles[head][1];
+            double p2 = particles[head][2];
+            double p3 = particles[head][3];
+            double p4 = particles[head][4];
+            double p5 = particles[head][5];
+            double p6 = particles[head][6];
+
+            particles[head][0] = particles[tail][0];
+            particles[head][1] = particles[tail][1];
+            particles[head][2] = particles[tail][2];
+            particles[head][3] = particles[tail][3];
+            particles[head][4] = particles[tail][4];
+            particles[head][5] = particles[tail][5];
+            particles[head][6] = particles[tail][6];
+
+            particles[tail][0] = p0;
+            particles[tail][1] = p1;
+            particles[tail][2] = p2;
+            particles[tail][3] = p3;
+            particles[tail][4] = p4;
+            particles[tail][5] = p5;
+            particles[tail][6] = p6;
+
+            ++head;
+            --tail;
+
+        } while(head < tail);
+
+        // move some lost particles over to the padding area
+        int padded  = bunch.get_local_num_padded();
+        int padding = padded - npart;
+        int np = discarded < padding ? discarded : padding;
+
+        for (int i=0; i<np; ++i)
+        {
+            // pl: position of next lost particle
+            // pp: position of next padding slot
+            int pl = npart - discarded + i;
+            int pp = padded - 1 - i;
+
+            // copy the lost particle over to the padding slot
+            particles[pp][0] = particles[pl][0];
+            particles[pp][1] = particles[pl][1];
+            particles[pp][2] = particles[pl][2];
+            particles[pp][3] = particles[pl][3];
+            particles[pp][4] = particles[pl][4];
+            particles[pp][5] = particles[pl][5];
+            particles[pp][6] = particles[pl][6];
+
+            // makes pl the new padding slot
+            particles[pl][0] = 0.0;
+            particles[pl][1] = 0.0;
+            particles[pl][2] = 0.0;
+            particles[pl][3] = 0.0;
+            particles[pl][4] = 0.0;
+            particles[pl][5] = 0.0;
+            particles[pl][6] = 0.0;
+        }
+
+        // finalize the bunch for new particle array pointers
+        double charge = (discarded > 0) ? discarded * bunch.get_real_num() / bunch.get_total_num() : 0.0;
+        deposit_charge(charge);
+        bunch.set_local_num(npart - discarded);
+    }
+
+    // arrange the spectator particle array
+    {
+        // move all the discarded spectator particles to the tail
+        int head = 0;
+        int tail = npart_s - 1;
+
+        do
+        {
+            while (!discard_s[head] && head<tail) ++head;
+            if (head >= tail) break;
+
+            while ( discard_s[tail] && tail>head) --tail;
+            if (head >= tail) break;
+
+            double p0 = s_particles[head][0];
+            double p1 = s_particles[head][1];
+            double p2 = s_particles[head][2];
+            double p3 = s_particles[head][3];
+            double p4 = s_particles[head][4];
+            double p5 = s_particles[head][5];
+            double p6 = s_particles[head][6];
+
+            s_particles[head][0] = s_particles[tail][0];
+            s_particles[head][1] = s_particles[tail][1];
+            s_particles[head][2] = s_particles[tail][2];
+            s_particles[head][3] = s_particles[tail][3];
+            s_particles[head][4] = s_particles[tail][4];
+            s_particles[head][5] = s_particles[tail][5];
+            s_particles[head][6] = s_particles[tail][6];
+
+            s_particles[tail][0] = p0;
+            s_particles[tail][1] = p1;
+            s_particles[tail][2] = p2;
+            s_particles[tail][3] = p3;
+            s_particles[tail][4] = p4;
+            s_particles[tail][5] = p5;
+            s_particles[tail][6] = p6;
+
+            ++head;
+            --tail;
+
+        } while(head < tail);
+
+        // move some lost spectator particles over to the padding area
+        int padded  = bunch.get_local_spectator_num_padded();
+        int padding = padded - npart_s;
+        int np = discarded_s < padding ? discarded_s : padding;
+
+        for (int i=0; i<np; ++i)
+        {
+            // pl: position of next lost particle
+            // pp: position of next padding slot
+            int pl = npart - discarded + i;
+            int pp = padded - 1 - i;
+
+            // copy the lost particle over to the padding slot
+            s_particles[pp][0] = s_particles[pl][0];
+            s_particles[pp][1] = s_particles[pl][1];
+            s_particles[pp][2] = s_particles[pl][2];
+            s_particles[pp][3] = s_particles[pl][3];
+            s_particles[pp][4] = s_particles[pl][4];
+            s_particles[pp][5] = s_particles[pl][5];
+            s_particles[pp][6] = s_particles[pl][6];
+
+            // makes pl the new padding slot
+            s_particles[pl][0] = 0.0;
+            s_particles[pl][1] = 0.0;
+            s_particles[pl][2] = 0.0;
+            s_particles[pl][3] = 0.0;
+            s_particles[pl][4] = 0.0;
+            s_particles[pl][5] = 0.0;
+            s_particles[pl][6] = 0.0;
+        }
+
+        bunch.set_local_spectator_num(npart_s - discarded_s);
+    }
+
+    double t1 = MPI_Wtime();
+    if (verbosity > 5) 
+    {
+        logger << "Aperture_operation: type = " << get_aperture_type()
+               << ", discarded: " << discarded
+               << ", discarded spectators: " << discarded_s
+               << ", time = " << std::fixed << std::setprecision(3) << t1
+                - t0 << "s_n" << std::endl;
+    }
+
+    delete [] discard;
+    delete [] discard_count;
+
+    delete [] discard_s;
+    delete [] discard_s_count;
 }
-BOOST_CLASS_EXPORT_IMPLEMENT(Finite_aperture_operation);
+#endif
 
+
+#if 0
 const double Circular_aperture_operation::default_radius(1000.0);
 const char Circular_aperture_operation::aperture_type[] = "circular";
 const char Circular_aperture_operation::attribute_name[] = "circular";
@@ -897,3 +1072,4 @@ Lambertson_aperture_operation::~Lambertson_aperture_operation()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Lambertson_aperture_operation)
+#endif

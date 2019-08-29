@@ -21,7 +21,7 @@ add_library(synergia_simulation
     #lattice_simulator.cc 
     operation_extractor.cc 
     #aperture.cc
-    #aperture_operation.cc 
+    aperture_operation.cc 
     #aperture_operation_extractor.cc 
     #populate_stationary.cc 
     bunch_simulator.cc

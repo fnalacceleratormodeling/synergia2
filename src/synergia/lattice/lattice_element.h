@@ -57,6 +57,15 @@ private:
 
     Lattice * lattice_ptr;
 
+    // marked as mutable because this attribute is not a lattice
+    // intrinsic attribute, but an attribute serves as the result of
+    // bunch propagation through the lattice element (aperture
+    // operation to be specific). 
+    // the constness of a lattice element is that the intrinsic
+    // attributes of the element (e.g., the strength and length)
+    // is unaffected by the bunch propagation
+    mutable double deposited_charge = 0.0;
+
 public:
 
     /// Construct a Lattice_element with an empty name and type.
@@ -204,6 +213,11 @@ public:
     /// Get the Lattice_element's bend angle
     double
     get_bend_angle() const;
+
+    /// deposited charge
+    double get_deposited_charge() const { return deposited_charge; }
+    void   set_deposited_charge(double charge) const { deposited_charge = charge; }
+    void   deposit_charge(double charge) const { deposited_charge += charge; }
 
     /// Get the Lattice_element's revision number
     long int

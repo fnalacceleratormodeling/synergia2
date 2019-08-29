@@ -1,5 +1,8 @@
-#include "operation_extractor.h"
 
+#include "synergia/simulation/operation_extractor.h"
+
+#include "synergia/simulation/independent_operation.h"
+#include "synergia/simulation/aperture_operation.h"
 
 namespace
 {
@@ -188,6 +191,22 @@ extract_independent_operations(
     else
     {
         throw std::runtime_error("unknown extractor_type");
+    }
+}
+
+
+std::unique_ptr<Independent_operation>
+extract_aperture_operation(
+        std::string const & aperture_type,
+        Lattice_element_slice const & slice)
+{
+    if (aperture_type == "finite_aperture")
+    {
+        return std::make_unique<Aperture_operation<Finite_aperture>>(slice);
+    }
+    else
+    {
+        throw std::runtime_error("unknown aperture_type");
     }
 }
 
