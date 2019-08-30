@@ -13,7 +13,7 @@ fodo_4: o, at=12.0;
 endsequence;
 
 o1: drift, l=1.0;
-o2: drift, l=0.8;
+o2: drift, l=0.8, aperture_type="circular", circular_aperture_radius=0.1;
 q1: quadrupole, l=1.0, k1=0.02, k1s=0.03;
 
 oqo: sequence, l=2.8, refer=entry;

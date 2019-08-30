@@ -29,11 +29,62 @@ namespace aperture_impl
 
     struct particle_mover
     {
+        int nparts;
+        int nparts_padded;
         Particles parts;
+
+        karray1d_dev discard;
+        karray2d_dev discarded;
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
+            // move all the discarded particles to the tail
+            int x = 0;
+            int head = 0;
+            int tail = nparts - 1;
+
+            do
+            {
+                while (!discard[head] && head<tail) ++head;
+                if (head >= tail) break;
+
+                while ( discard[tail] && tail>head) --tail;
+                if (head >= tail) break;
+
+                for (int idx=0; idx<7; ++idx)
+                {
+                    discarded(x, idx) = parts(head, idx);
+                    parts(head, idx)  = parts(tail, idx);
+                    parts(tail, idx)  = discarded(x, idx);
+                }
+
+                ++head;
+                --tail;
+                ++x;
+
+            } while (head < tail);
+
+
+            // move some lost particles over to the padding area
+            int padding = nparts_padded - nparts;
+            int np = x < padding ? x : padding;
+
+            for (int p=0; p<np; ++p)
+            {
+                // pl: position of next lost particle
+                // pp: position of next padding slot
+                int pl = nparts - x + p;
+                int pp = nparts_padded - 1 - p;
+
+                for (int idx=0; idx<7; ++idx)
+                {
+                    // copy the lost particle over to the padding slot
+                    // makes pl the new padding slot
+                    parts(pp, idx) = parts(pl, idx);
+                    parts(pl, idx) = 0.0;
+                }
+            }
         }
     };
 }
@@ -54,20 +105,33 @@ private:
     {
         using namespace aperture_impl;
 
+        int ndiscarded = 0;
         int nparts = bunch.get_local_num();
-        int discarded = 0;
         karray1d_dev discard("discarded", nparts);
 
         discard_checker<AP> dc{ap, bunch.get_local_particles(), discard, x_offset, y_offset};
-        Kokkos::parallel_reduce(nparts, dc, discarded);
+        Kokkos::parallel_reduce(nparts, dc, ndiscarded);
 
-        std::cout << "discarded = " << discarded << "\n";
+        std::cout << "aperture " << ap.type << ", num discarded = " << ndiscarded << "\n";
 
-        particle_mover pm{bunch.get_local_particles()};
+        if (ndiscarded == 0) return;
+
+        karray2d_dev discarded("discarded", ndiscarded, 7);
+
+        particle_mover pm{ nparts, 
+                bunch.get_local_num_padded(), 
+                bunch.get_local_particles(), 
+                discard, discarded };
+
         Kokkos::parallel_for(1, pm);
+
+        bunch.set_local_num(nparts - ndiscarded);
+        deposit_charge(ndiscarded * bunch.get_real_num() / bunch.get_total_num());
+
+        // TODO: diagnostics_loss update and write
     }
 
-    void deposit_charge(double charge)
+    void deposit_charge(double charge) const
     { slice.get_lattice_element().deposit_charge(charge); }
 
 public:
@@ -82,7 +146,7 @@ public:
     double get_y_offset() const { return y_offset; }
 
     std::string const& get_aperture_type() const 
-    { return ap.aperture_type; }
+    { return ap.type; }
 };
 
 
@@ -90,7 +154,7 @@ public:
 /// An aperture to remove all particles with infinite and/or NaN coordinates.
 struct Finite_aperture
 {
-    constexpr static const char *aperture_type = "finite";
+    constexpr static const char *type = "finite";
 
     Finite_aperture(Lattice_element_slice const&) { }
 
@@ -118,7 +182,7 @@ struct Finite_aperture
 /// be used.
 struct Circular_aperture
 {
-    constexpr static const char *aperture_type = "circular";
+    constexpr static const char *type = "circular";
     double r2;
 
     Circular_aperture(Lattice_element_slice const& slice) : r2(1000.0)

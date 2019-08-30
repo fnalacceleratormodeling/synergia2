@@ -45,15 +45,15 @@ public:
         fixed_z_bunch = 4
     };
 
-    constexpr static const int x = 0;
-    constexpr static const int xp = 1;
-    constexpr static const int y = 2;
-    constexpr static const int yp = 3;
-    constexpr static const int z = 4;
-    constexpr static const int zp = 5;
-    constexpr static const int cdt = 4;
+    constexpr static const int x    = 0;
+    constexpr static const int xp   = 1;
+    constexpr static const int y    = 2;
+    constexpr static const int yp   = 3;
+    constexpr static const int z    = 4;
+    constexpr static const int zp   = 5;
+    constexpr static const int cdt  = 4;
     constexpr static const int dpop = 5;
-    constexpr static const int id = 6;
+    constexpr static const int id   = 6;
 
     const static int particle_alignment;
 
@@ -162,23 +162,21 @@ public:
             double real_num, 
             Commxx comm );
     
-    /// Default constructor for serialization use only
-    Bunch();
-
     // non-copyable but moveable
     Bunch(Bunch const&) = delete;
     Bunch(Bunch &&) = default;
 
-
     ///
     /// Set the particle charge
     /// @param particle_charge in units of e.
-    void set_particle_charge(int particle_charge);
+    void set_particle_charge(int charge)
+    { particle_charge = charge; }
 
     ///
     /// Set the number of real particles represented by the bunch.
     /// @param real_num the new real number of particles
-    void set_real_num(double real_num);
+    void set_real_num(double num)
+    { real_num = num; }
 
     ///
     /// Reduce (set) the number of particles on this processor. The number

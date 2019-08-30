@@ -304,41 +304,6 @@ Bunch::Bunch(
     construct(total_num, real_num, total_spectator_num);
 }
 
-Bunch::Bunch() 
-    : longitudinal_extent(0.0)
-    , z_periodic(false)
-    , longitudinal_aperture(false)
-    , reference_particle()
-    , design_reference_particle()
-    , particle_charge(1)
-
-    , local_num(0)
-    , local_num_aligned(0)
-    , local_num_padded(0)
-    , local_num_slots(0)
-
-    , local_s_num(0)
-    , local_s_num_aligned(0)
-    , local_s_num_padded(0)
-    , local_s_num_slots(0)
-
-    , total_num(0)
-    , total_s_num(0)
-
-    , real_num(0)
-
-    , parts("particles", local_num_slots)
-    , hparts(Kokkos::create_mirror_view(parts))
-
-    , sparts("spectator particles", local_s_num_slots)
-    , hsparts(Kokkos::create_mirror_view(sparts))
-
-    , bucket_index(0)
-    , bucket_index_assigned(false)
-    , comm()
-{
-}
-
 struct particle_copier_many
 {
     ConstParticles src;
@@ -444,74 +409,6 @@ Bunch::search_particle(int pid, int last_idx) const
     Kokkos::parallel_reduce(local_num, pf, idx);
 
     return idx;
-}
-
-#if 0
-Bunch &
-Bunch::operator=(Bunch const& bunch)
-{
-    if (this != &bunch) 
-    {
-        reference_particle = bunch.reference_particle;
-        design_reference_particle = bunch.design_reference_particle;
-
-        comm_sptr = bunch.comm_sptr;
-
-        particle_charge = bunch.particle_charge;
-
-        local_num = bunch.local_num;
-        local_num_aligned = bunch.local_num_aligned;
-        local_num_padded = bunch.local_num_padded;
-        local_num_slots = bunch.local_num_slots;
-
-        local_s_num = bunch.local_s_num;
-        local_s_num_aligned = bunch.local_s_num_aligned;
-        local_s_num_padded = bunch.local_s_num_padded;
-        local_s_num_slots = bunch.local_s_num_slots;
-
-        total_num = bunch.total_num;
-        total_s_num = bunch.total_s_num;
-
-        real_num = bunch.real_num;
-
-        bucket_index = bunch.bucket_index;
-        bucket_index_assigned = bunch.bucket_index_assigned;
-
-        // delete current storages
-        if (storage) boost::alignment::aligned_free(storage);
-        if (local_particles) delete local_particles;
-
-        if (s_storage) boost::alignment::aligned_free(s_storage);
-        if (local_s_particles) delete local_s_particles;
-
-        // and allocate new
-        storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
-        memcpy(storage, bunch.storage, sizeof(double)*local_num_slots*7);
-        local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
-
-        s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
-        memcpy(s_storage, bunch.s_storage, sizeof(double)*local_s_num_slots *7);
-        local_s_particles = new MArray2d_ref(storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
-
-        longitudinal_extent = bunch.longitudinal_extent;
-        z_periodic = bunch.z_periodic;
-        longitudinal_aperture = bunch.longitudinal_aperture;
-    }
-
-    return *this;
-}
-#endif
-
-void
-Bunch::set_particle_charge(int particle_charge)
-{
-    this->particle_charge = particle_charge;
-}
-
-void
-Bunch::set_real_num(double real_num)
-{
-    this->real_num = real_num;
 }
 
 void
@@ -648,10 +545,19 @@ Bunch::expand_local_spectator_num(int s_num, int added_lost)
 #endif
 }
 
+struct particle_zeroer
+{
+    Particles parts;
+    int offset;
+
+    KOKKOS_INLINE_FUNCTION
+    void operator() (const int i) const
+    { for (int j=0; j<7; ++j) parts(offset+i, j) = 0.0; }
+};
+
 void
 Bunch::set_local_num(int num)
 {
-#if 0
     // make sure the new local_num is never less than 0
     if (num < 0) num = 0;
 
@@ -669,20 +575,14 @@ Bunch::set_local_num(int num)
 
         // clear the particle data (from local_num to prev_local_num)
         // note this only happens when the new local_num is smaller than the old one
-        for (int i = local_num; i < prev_local_num; ++i)
-        {
-            for (int j=0; j<7; ++j)
-            {
-                (*local_particles)[i][j] = 0.0;
-            }
-        }
+        particle_zeroer pz { parts, local_num };
+        Kokkos::parallel_for(prev_local_num - local_num, pz);
     }
     else
     {
         // expand the local particle array, no additional lost particle slots
         expand_local_num(num, 0);
     }
-#endif
 }
 
 void
