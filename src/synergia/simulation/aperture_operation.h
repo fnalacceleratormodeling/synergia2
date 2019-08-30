@@ -52,8 +52,6 @@ private:
 
     void apply_impl(Bunch & bunch, Logger & logger) const override
     {
-        std::cout << "aperture apply: " << ap.aperture_type << "\n";
-
         using namespace aperture_impl;
 
         int nparts = bunch.get_local_num();
@@ -68,8 +66,6 @@ private:
         particle_mover pm{bunch.get_local_particles()};
         Kokkos::parallel_for(1, pm);
     }
-
-    //virtual bool test(ConstParticles const& parts, int p) const = 0;
 
     void deposit_charge(double charge)
     { slice.get_lattice_element().deposit_charge(charge); }
@@ -87,11 +83,6 @@ public:
 
     std::string const& get_aperture_type() const 
     { return ap.aperture_type; }
-
-#if 0
-    bool operator== (Aperture_operation const& aop) const 
-    { return aperture_type == aop.aperture_type; }
-#endif
 };
 
 
@@ -105,30 +96,20 @@ struct Finite_aperture
 
     KOKKOS_INLINE_FUNCTION
     bool discard(ConstParticles const& parts, int p, double xoff, double yoff) const
-    { return false; }
-
-#if 0
-    bool test(ConstParticles const& parts, int p) const override
     {
-        bool keep = true;
-        double sum = particles[part][0] + particles[part][1] + particles[part][2]
-                + particles[part][3] + particles[part][4] + particles[part][5];
-        if (!boost::math::isfinite(sum)) {
-            keep = false;
-        }
+        if (  !std::isfinite(parts(p, 0)) 
+           || !std::isfinite(parts(p, 1))
+           || !std::isfinite(parts(p, 2)) 
+           || !std::isfinite(parts(p, 3))
+           || !std::isfinite(parts(p, 4)) 
+           || !std::isfinite(parts(p, 5)) ) return true;
 
-        // negative pz^2 will give rise to non-finite numbers in fixed-t frames
-        double p_scaled = 1.0 + particles[part][Bunch::dpop];
-        double px_scaled = particles[part][Bunch::xp];
-        double py_scaled = particles[part][Bunch::yp];
-        double pz2_scaled = p_scaled * p_scaled - px_scaled * px_scaled
-                - py_scaled * py_scaled;
-        if (pz2_scaled < 0.0) {
-            keep = false;
-        }
-        return !keep;
+        double pt = 1.0 + parts(p, 5);
+        double px = parts(p, 1);
+        double py = parts(p, 3);
+
+        return pt*pt - px*px - py*py < 0.0;
     }
-#endif
 };
 
 /// A circular aperture with radius in meters determined by the
@@ -138,12 +119,13 @@ struct Finite_aperture
 struct Circular_aperture
 {
     constexpr static const char *aperture_type = "circular";
-    double r, r2;
+    double r2;
 
-    Circular_aperture(Lattice_element_slice const& slice)
-        : r(slice.get_lattice_element().get_double_attribute("circular_aperture_radius", 1000.0))
-        , r2(r*r)
-    { }
+    Circular_aperture(Lattice_element_slice const& slice) : r2(1000.0)
+    { 
+        double r = slice.get_lattice_element().get_double_attribute("circular_aperture_radius", 1000.0);
+        r2 = r * r;
+    }
 
     KOKKOS_INLINE_FUNCTION
     bool discard(ConstParticles const& parts, int p, double xoff, double yoff) const
@@ -155,6 +137,7 @@ struct Circular_aperture
         return (radius2 > r2);
     }
 };
+
 
 #if 0
 /// An elliptical aperture with horizontal and vertical radii in meters
