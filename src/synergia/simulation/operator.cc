@@ -385,16 +385,10 @@ Independent_operator::create_operations_impl(
         extract_independent_operations(extractor_type, lattice, group, operations);
     }
 
-    operations.emplace_back(extract_aperture_operation("circular_aperture", slices.back()));
-    //operations.emplace_back(std::make_unique<Finite_aperture_operation>(slices.back()));
+    // only the finite aperture will be attached to an independent operator by default
+    operations.emplace_back(extract_aperture_operation("finite_aperture", slices.back()));
 
 #if 0
-    auto aperture_opn = extract_aperture_operation("default", slices.back());
-    operations.push_back(aperture_opn);
-
-    auto finite_aperture = std::make_unique<Finite_aperture_operation>(slices.back());
-    operations.push_back(finite_aperture);
-
     have_operations = true;
     operations_reference_particle = reference_particle;
 #endif
