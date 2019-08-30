@@ -200,11 +200,11 @@ extract_aperture_operation(
         std::string const & aperture_type,
         Lattice_element_slice const & slice)
 {
-    if (aperture_type == "finite_aperture")
+    if (aperture_type == Finite_aperture::type)
     {
         return std::make_unique<Aperture_operation<Finite_aperture>>(slice);
     }
-    else if (aperture_type == "circular_aperture")
+    else if (aperture_type == Circular_aperture::type)
     {
         return std::make_unique<Aperture_operation<Circular_aperture>>(slice);
     }

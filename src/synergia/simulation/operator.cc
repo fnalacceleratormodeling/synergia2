@@ -2,6 +2,7 @@
 
 #include "operator.h"
 #include "synergia/simulation/operation_extractor.h"
+#include "synergia/simulation/aperture_operation.h"
 
 
 
@@ -386,7 +387,8 @@ Independent_operator::create_operations_impl(
     }
 
     // only the finite aperture will be attached to an independent operator by default
-    operations.emplace_back(extract_aperture_operation("finite_aperture", slices.back()));
+    operations.emplace_back(
+            extract_aperture_operation(Finite_aperture::type, slices.back()));
 
 #if 0
     have_operations = true;
