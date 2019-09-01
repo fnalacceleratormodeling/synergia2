@@ -56,7 +56,7 @@ class _option:
         if self.length == 1:
             self.value = value
         else:
-            self.value = string.split(value, ",")
+            self.value = value.split(",")
             if len(self.value) != self.length:
                 raise RuntimeError("Options: expected a % d - tuple" % self.length)
         if self.valid_values:
@@ -143,11 +143,11 @@ class Options:
         '''Returns a list of options.
         
         :param include_suboptions: whether to include suboptions'''
-        list = list(self.dict.keys())
+        optslist = list(self.dict.keys())
         if include_suboptions:
             for suboption in self.suboptions:
-                list = list + suboption.options()
-        return list
+                optslist = optslist + suboption.options()
+        return optslist
 
     def add_suboptions(self, suboptions):
         '''Add a set of suboptions.
@@ -301,11 +301,11 @@ class Options:
             if arg == "--help" or arg == "help":
                 self.usage()
                 sys.exit(0)
-            pair = string.split(arg, "=")
+            pair = arg.split("=")
             if len(pair) < 2:
                 self.usage_error(arg)
             if self.has_option(pair[0]):
-		first = pair.pop(0)
+                first = pair.pop(0)
                 self.set(first, string.join(pair, "="))
             else:
                 self.usage_error(arg)

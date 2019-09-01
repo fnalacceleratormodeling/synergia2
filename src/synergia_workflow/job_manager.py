@@ -275,15 +275,15 @@ class Job_manager:
     def _args_to_string(self, args, strip=[None]):
         retval = ""
         for arg in args:
-	    argout = arg
-	    splitarg = string.split(arg, "=")
-	    if len(splitarg) > 1:
+            argout = arg
+            splitarg = string.split(arg, "=")
+            if len(splitarg) > 1:
                 if splitarg[0] in strip:
                     argout = None
-		elif(string.count(splitarg[1], " ")) > 0:
-		    argout = splitarg[0] + '="'
-		    splitarg.pop(0)
-		    argout = argout + string.join(splitarg, "=") + '"'
+                elif(string.count(splitarg[1], " ")) > 0:
+                    argout = splitarg[0] + '="'
+                    splitarg.pop(0)
+                    argout = argout + string.join(splitarg, "=") + '"'
             if argout:
                 if retval != "":
                     retval += " "
