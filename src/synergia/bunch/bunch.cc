@@ -65,9 +65,8 @@ Bunch::Bunch(
         int total_spectator_num )
     : comm(comm)
     , bucket_index(-1)
-    , longitudinal_extent(0.0)
-    , z_periodic(false)
-    , longitudinal_aperture(false)
+    , boundary(LB::open)
+    , boundary_param(0.0)
     , ref_part(reference_particle)
     , design_ref_part(reference_particle)
     , particle_charge(reference_particle.get_charge())
@@ -75,40 +74,6 @@ Bunch::Bunch(
     , parts{ BunchParticles(total_num, comm),
              BunchParticles(total_spectator_num, comm) }
 {
-}
-
-void
- Bunch::set_z_period_length(double z_period_length)
-{
-    if (longitudinal_aperture)  throw std::runtime_error("longitudinal_aperture is true, cannot make the bunch z periodic");
-    this->longitudinal_extent=z_period_length;
-    this->z_periodic=true;
-}
-
-bool
- Bunch::is_z_periodic() const
-{
-    return z_periodic;
-}
-
-double
-Bunch::get_longitudinal_aperture_length() const
-{
-    return longitudinal_extent;
-}
-
-void
-Bunch::set_longitudinal_aperture_length(double longitudinal_extent)
-{
-    if (z_periodic)  throw std::runtime_error("z_periodic is true, cannot put a longitudinal_aperture");
-    this->longitudinal_extent=longitudinal_extent;
-    this->longitudinal_aperture=true;
-}
-
-bool
-Bunch::has_longitudinal_aperture() const
-{
-  return longitudinal_aperture;
 }
 
 void

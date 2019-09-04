@@ -22,10 +22,23 @@ enum class ParticleGroup
     spectator = 1
 };
 
+enum class LongitudinalBoundary
+{
+    open = 0,
+    periodic = 1,
+    aperture = 2,
+    bucket_barrier = 3
+};
+
 /// Represents a macroparticle bunch distributed across the processors
 /// in a comm_sptrunicator.
 class Bunch
 {
+private:
+
+    using PG = ParticleGroup;
+    using LB = LongitudinalBoundary;
+
 public:
     /*! \enum State The state of the bunch is captured at a fixed  s (or z, longitudinal coordinate)
      or at a fixed time.  In the former case, particles are found within a range of different time
@@ -51,10 +64,13 @@ private:
 
     int bucket_index;
 
-    double longitudinal_extent;    
-    bool z_periodic;
-    bool longitudinal_aperture;
+    // meaning of bounary_param for each boundary condition:
+    // open (N/A), periodic (z-period), z-cut (longitudinal_extent),
+    // bucket_barrier (bucket_length)
+    LongitudinalBoundary boundary;
+    double boundary_param;
 
+    // reference particle and design reference particle
     Reference_particle ref_part;
     Reference_particle design_ref_part;
 
@@ -73,7 +89,6 @@ private:
     std::unique_ptr<Diagnostics_loss> diag_aperture;
     std::unique_ptr<Diagnostics_loss> diag_zcut;
 
-    using PG = ParticleGroup;
 
 private:
 
@@ -249,24 +264,12 @@ public:
     /// Get the real number of particles represented by the bunch.
     double get_real_num() const { return real_num; }
 
-    /// Get the period length of the bunch
-    double get_z_period_length() const;
-    
-     /// Set the period length of the bunch and make the bunch z_periodic     
-    void set_z_period_length(double z_period_length) ;
-       
-    /// Is the bunch periodic?
-    bool is_z_periodic() const; 
-    
-    /// Get the the bunch extent if the longitudinal aperture is present
-    double get_longitudinal_aperture_length() const;
+    /// longitudinal boundary conditions
+    void set_longitudinal_bounadry(LB lb, double param = 0.0)
+    { boundary = lb; boundary_param = param; }
 
-    /// Set the longitudinal_extent of the bunch and make the longitudinal aperture true
-    void set_longitudinal_aperture_length(double longitudinal_length);
-    
-    /// True when the longitudinal aperture is present and the bunch is cut after every  operation
-    /// longitudinally outside the extent [-longitudinal_extent/2,  longitudinal_extent/2]    
-    bool has_longitudinal_aperture() const; 
+    std::pair<LB, double> get_longitudinal_bounadry() const
+    { return std::make_pair(boundary, boundary_param); }
 
     // bucket index
     void set_bucket_index(int index)      { bucket_index = index; }
