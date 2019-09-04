@@ -47,6 +47,10 @@ public:
 
 private:
 
+    Commxx comm;    
+
+    int bucket_index;
+
     double longitudinal_extent;    
     bool z_periodic;
     bool longitudinal_aperture;
@@ -62,13 +66,10 @@ private:
     // parts[1]: spectator particles
     std::array<BunchParticles, 2> parts;
 
-    int bucket_index;
-    bool bucket_index_assigned;
-
-    Commxx comm;    
-
+    // diagnostics
     std::map<std::string, std::unique_ptr<Diagnostics>> diags;
 
+    // diagnostics for particle losses
     std::unique_ptr<Diagnostics_loss> diag_aperture;
     std::unique_ptr<Diagnostics_loss> diag_zcut;
 
@@ -76,11 +77,7 @@ private:
 
 private:
 
-    void assign_ids(int local_offset);
-    void assign_spectator_ids(int local_offset);
-
     std::string get_local_particles_serialization_path() const;
-    void construct(int total_num, double real_num, int total_s_num);
 
 public:
     //!
@@ -271,9 +268,10 @@ public:
     /// longitudinally outside the extent [-longitudinal_extent/2,  longitudinal_extent/2]    
     bool has_longitudinal_aperture() const; 
 
-    void set_bucket_index(int index);
-    int  get_bucket_index() const;
-    bool is_bucket_index_assigned() const;
+    // bucket index
+    void set_bucket_index(int index)      { bucket_index = index; }
+    int  get_bucket_index() const         { return bucket_index; }
+    bool is_bucket_index_assigned() const { return bucket_index >= 0; }
 
     /// Get the communicator
     Commxx const& get_comm() const { return comm; }

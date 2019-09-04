@@ -24,10 +24,10 @@
 #endif
 
 
+#if 0
 void
 Bunch::assign_spectator_ids(int local_offset)
 {
-#if 0
 
 #if 0
     int global_offset, request_num;
@@ -43,8 +43,8 @@ Bunch::assign_spectator_ids(int local_offset)
     for (int i = 0; i < local_s_num; ++i) {
         (*local_s_particles)[i][id] = i + local_offset + global_offset;
     }
-#endif
 }
+#endif
 
 
 std::string
@@ -63,22 +63,17 @@ Bunch::Bunch(
         double real_num, 
         Commxx comm,
         int total_spectator_num )
-    : longitudinal_extent(0.0)
+    : comm(comm)
+    , bucket_index(-1)
+    , longitudinal_extent(0.0)
     , z_periodic(false)
     , longitudinal_aperture(false)
     , ref_part(reference_particle)
     , design_ref_part(reference_particle)
     , particle_charge(reference_particle.get_charge())
-
     , real_num(real_num)
-
     , parts{ BunchParticles(total_num, comm),
              BunchParticles(total_spectator_num, comm) }
-
-    , bucket_index(0)
-    , bucket_index_assigned(false)
-
-    , comm(comm)
 {
 }
 
@@ -114,26 +109,6 @@ bool
 Bunch::has_longitudinal_aperture() const
 {
   return longitudinal_aperture;
-}
-
-void
-Bunch::set_bucket_index(int index)
-{
-    this->bucket_index=index;
-    this->bucket_index_assigned=true;
-}
-
-int
-Bunch::get_bucket_index() const
-{
-  if (!bucket_index_assigned)  throw std::runtime_error("bucket index has not been assigned yet");
-  return bucket_index;
-}
-
-bool
-Bunch::is_bucket_index_assigned() const
-{
-  return bucket_index_assigned;
 }
 
 void

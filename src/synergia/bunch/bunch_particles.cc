@@ -152,8 +152,6 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
 {
     if (!comm.is_null() && total_num) 
     {
-        // real particles
-        // ----------------------------------------------------------------------
         std::vector<int> offsets(comm.size());
         std::vector<int> counts(comm.size());
         decompose_1d(comm, total_num, offsets, counts);
