@@ -305,8 +305,8 @@ public:
 
     void check_pz2_positive()
     {
-        parts[0].check_pz2_positive();
-        parts[1].check_pz2_positive();
+        get_bunch_particles(ParticleGroup::regular).check_pz2_positive();
+        get_bunch_particles(ParticleGroup::spectator).check_pz2_positive();
     }
     
     /// serialization
