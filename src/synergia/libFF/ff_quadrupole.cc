@@ -192,8 +192,8 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[0] *= scale;
     k[1] *= scale;
 
-    int local_num = bunch.get_local_num();
-    int local_s_num = bunch.get_local_spectator_num();
+    int local_num = bunch.get_local_num(ParticleGroup::regular);
+    int local_s_num = bunch.get_local_num(ParticleGroup::spectator);
 
     auto parts = bunch.get_local_particles();
 

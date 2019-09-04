@@ -6,7 +6,7 @@ if(${KOKKOS_ENABLE_CUDA})
 endif()
 
 add_library(synergia_bunch 
-    #fixed_t_z_converter.cc 
+    bunch_particles.cc
     bunch.cc
     bunch_train.cc
     diagnostics.cc 

@@ -82,20 +82,25 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const double  length = slice.get_right() - slice.get_left();
     const double    mass = bunch.get_mass();
 
-    const int local_num   = bunch.get_local_num();
-    const int local_s_num = bunch.get_local_spectator_num();
-
     Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     const double ref_p   = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
     const double ref_cdt = get_reference_cdt(length, ref_l);
 
-    auto parts = bunch.get_local_particles();
+    // regular particles
+    int num = bunch.get_local_num(ParticleGroup::regular);
+    auto parts = bunch.get_local_particles(ParticleGroup::regular);
+    Kokkos::parallel_for(num, PropDrift(parts, length, ref_p, mass, ref_cdt));
 
-    Kokkos::parallel_for(
-            local_num, PropDrift(parts, length, ref_p, mass, ref_cdt) );
+    // spectator particles
+    int snum = bunch.get_local_num(ParticleGroup::spectator);
+    if (snum) {
+        auto sparts = bunch.get_local_particles(ParticleGroup::spectator);
+        Kokkos::parallel_for(snum, PropDrift(sparts, length, ref_p, mass, ref_cdt));
+    }
 
+    // trajectory
     bunch.get_reference_particle().increment_trajectory(length);
 
 #if 0
