@@ -117,20 +117,27 @@ public:
     { real_num = num; }
 
     /// Return the reference particle
-    Reference_particle       & get_reference_particle()       
+    Reference_particle &      get_reference_particle()       
     { return ref_part; }
 
-    Reference_particle const & get_reference_particle() const 
+    Reference_particle const& get_reference_particle() const 
     { return ref_part; }
 
-    Reference_particle       & get_design_reference_particle()       
+    Reference_particle &      get_design_reference_particle()       
     { return design_ref_part; }
 
-    Reference_particle const & get_design_reference_particle() const 
+    Reference_particle const& get_design_reference_particle() const 
     { return design_ref_part; }
 
     void set_design_reference_particle(Reference_particle const & ref_part)
     { design_ref_part = ref_part; }
+
+    // BunchParticles
+    BunchParticles &      get_bunch_particles(ParticleGroup pg = PG::regular)
+    { return parts[(int)pg]; }
+
+    BunchParticles const& get_bunch_particles(ParticleGroup pg = PG::regular) const
+    { return parts[(int)pg]; }
 
     /// Get the array containing the macroparticles on this processor.
     /// The array has length (length,7), where length of the array may be
@@ -138,32 +145,32 @@ public:
     /// array[0:local_num,0:6] and the macroparticle IDs are stored in
     /// array[0:local_num,6]. Use get_local_num() to obtain local_num.
     Particles          get_local_particles(ParticleGroup pg = PG::regular)       
-    { return parts[(int)pg].parts; }
+    { return get_bunch_particles(pg).parts; }
 
     ConstParticles     get_local_particles(ParticleGroup pg = PG::regular) const 
-    { return parts[(int)pg].parts; }
+    { return get_bunch_particles(pg).parts; }
 
     HostParticles      get_host_particles(ParticleGroup pg = PG::regular)       
-    { return parts[(int)pg].hparts; }
+    { return get_bunch_particles(pg).hparts; }
 
     ConstHostParticles get_host_particles(ParticleGroup pg = PG::regular) const 
-    { return parts[(int)pg].hparts; }
+    { return get_bunch_particles(pg).hparts; }
 
     /// getters of particle array dimensions
     int get_total_num(ParticleGroup pg = PG::regular) const 
-    { return parts[(int)pg].total_num; }
+    { return get_bunch_particles(pg).total_num; }
 
     int get_local_num(ParticleGroup pg = PG::regular) const 
-    { return parts[(int)pg].local_num; }
+    { return get_bunch_particles(pg).local_num; }
 
     int get_local_num_aligned (ParticleGroup pg = PG::regular) const 
-    { return parts[(int)pg].local_num_aligned; }
+    { return get_bunch_particles(pg).local_num_aligned; }
 
     int get_local_num_padded  (ParticleGroup pg = PG::regular) const 
-    { return parts[(int)pg].local_num_padded; }
+    { return get_bunch_particles(pg).local_num_padded; }
 
     int get_local_num_slots   (ParticleGroup pg = PG::regular) const 
-    { return parts[(int)pg].local_num_slots; }
+    { return get_bunch_particles(pg).local_num_slots; }
 
     int get_local_num_padding (ParticleGroup pg = PG::regular) const 
     { return get_local_num_padded(pg) - get_local_num(pg); }
@@ -182,53 +189,56 @@ public:
     /// local numbers on each processor.
     /// @param local_num the new number of particles on this processor
     void set_local_num(int num, ParticleGroup pg = PG::regular)
-    { parts[(int)pg].set_local_num(num); }
+    { get_bunch_particles(pg).set_local_num(num); }
 
     ///
     /// Update the total number and real number of particles after the local
     /// number has been changed. Requires comm_sptrunication.
     void update_total_num(ParticleGroup pg = PG::regular)
-    { parts[(int)pg].update_total_num(); }
+    { get_bunch_particles(pg).update_total_num(); }
     
     ///
     /// Set the total number (and the real number) of particles
     void set_total_num(int num, ParticleGroup pg = PG::regular)
-    { parts[(int)pg].set_total_num(num); }
+    { get_bunch_particles(pg).set_total_num(num); }
     
-
     // checkout (deep_copy) the entire particle array from device
     // memory to the host memory for user to access the latest
     // particle data
     void checkout_particles(ParticleGroup pg = PG::regular) 
-    { parts[(int)pg].checkout_particles(); }
+    { get_bunch_particles(pg).checkout_particles(); }
 
     void checkin_particles (ParticleGroup pg = PG::regular)
-    { parts[(int)pg].checkin_particles(); }
+    { get_bunch_particles(pg).checkin_particles(); }
 
     // checkout (deep_copy) num particles starting from idx, and
     // store them in a host array
     // TODO: when compiled for host, it returns a subview to the original
     // particle data -- overhead for the operation should be minimal
-    karray2d_row get_particles_in_range(int idx, int num, ParticleGroup pg = PG::regular) const
-    { return parts[(int)pg].get_particles_in_range(idx, num); }
+    karray2d_row 
+    get_particles_in_range(int idx, int num, ParticleGroup pg = PG::regular) const
+    { return get_bunch_particles(pg).get_particles_in_range(idx, num); }
 
-    karray1d_row get_particle(int idx, ParticleGroup pg = PG::regular) const
-    { return parts[(int)pg].get_particle(idx); }
+    karray1d_row 
+    get_particle(int idx, ParticleGroup pg = PG::regular) const
+    { return get_bunch_particles(pg).get_particle(idx); }
 
     // find the index of the given particle_id (pid)
     // if last_idx is provided, it does the search form the last_idx first
     // returns particle_index_null if the given particle_id is not found
-    int search_particle(int pid, int last_idx = particle_index_null, ParticleGroup pg = PG::regular) const
-    { return parts[(int)pg].search_particle(pid, last_idx); }
+    int search_particle(int pid, int last_idx = particle_index_null, 
+            ParticleGroup pg = PG::regular) const
+    { return get_bunch_particles(pg).search_particle(pid, last_idx); }
 
-    void print_particle(size_t idx, Logger & logger, ParticleGroup pg = PG::regular) const
-    { parts[(int)pg].print_particle(idx, logger); }
+    void print_particle(size_t idx, Logger& logger, 
+            ParticleGroup pg = PG::regular) const
+    { get_bunch_particles(pg).print_particle(idx, logger); }
 
 #if 0
     std::array<size_t, 2> get_particle_strides(ParticleGroup pg = PG::regular) const
     { 
         std::array<size_t, 2> strides;
-        parts[(int)pg].parts.stride(strides.data());
+        get_bunch_particles(pg).parts.stride(strides.data());
         return strides;
     }
 #endif
