@@ -12,9 +12,6 @@ namespace
         Particles p;
         double l, ref_p, m, ref_t;
 
-        PropDrift(Particles p_, double l, double ref_p, double m, double ref_t)
-            : p(p_), l(l), ref_p(ref_p), m(m), ref_t(ref_t) { }
-
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
@@ -43,6 +40,18 @@ namespace
 
         return cdt;
     }
+
+    void apply_impl(BunchParticles & bp, 
+            double length, double ref_p, double mass, double ref_cdt)
+    {
+        if (bp.local_num)
+        {
+            PropDrift drift{bp.parts, length, ref_p, mass, ref_cdt};
+            Kokkos::parallel_for(bp.local_num, drift);
+        }
+    }
+
+
 }
 
 void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
@@ -89,106 +98,15 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const double ref_cdt = get_reference_cdt(length, ref_l);
 
     // regular particles
-    int num = bunch.get_local_num(ParticleGroup::regular);
-    auto parts = bunch.get_local_particles(ParticleGroup::regular);
-    Kokkos::parallel_for(num, PropDrift(parts, length, ref_p, mass, ref_cdt));
+    apply_impl(bunch.get_bunch_particles(ParticleGroup::regular),
+            length, ref_p, mass, ref_cdt);
 
     // spectator particles
-    int snum = bunch.get_local_num(ParticleGroup::spectator);
-    if (snum) {
-        auto sparts = bunch.get_local_particles(ParticleGroup::spectator);
-        Kokkos::parallel_for(snum, PropDrift(sparts, length, ref_p, mass, ref_cdt));
-    }
+    apply_impl(bunch.get_bunch_particles(ParticleGroup::spectator),
+            length, ref_p, mass, ref_cdt);
 
     // trajectory
     bunch.get_reference_particle().increment_trajectory(length);
 
-#if 0
-    // real particles
-    {
-        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-        const int gsvsize = GSVector::size();
-        const int num_blocks = local_num / gsvsize;
-        const int block_last = num_blocks * gsvsize;
-
-        #pragma omp parallel for
-        for (int part = 0; part < block_last; part += gsvsize)
-        {
-            GSVector x(&xa[part]);
-            GSVector xp(&xpa[part]);
-            GSVector y(&ya[part]);
-            GSVector yp(&ypa[part]);
-            GSVector cdt(&cdta[part]);
-            GSVector dpop(&dpopa[part]);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
-
-            x.store(&xa[part]);
-            y.store(&ya[part]);
-            cdt.store(&cdta[part]);
-        }
-
-        for (int part = block_last; part < local_num; ++part)
-        {
-            double x(xa[part]);
-            double xp(xpa[part]);
-            double y(ya[part]);
-            double yp(ypa[part]);
-            double cdt(cdta[part]);
-            double dpop(dpopa[part]);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
-
-            xa[part] = x;
-            ya[part] = y;
-            cdta[part] = cdt;
-        }
-
-        bunch.get_reference_particle().increment_trajectory(length);
-    }
-
-    // spectators
-    {
-        bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-        const int gsvsize = GSVector::size();
-        const int num_blocks = local_s_num / gsvsize;
-        const int block_last = num_blocks * gsvsize;
-
-        #pragma omp parallel for
-        for (int part = 0; part < block_last; part += gsvsize)
-        {
-            GSVector x(&xa[part]);
-            GSVector xp(&xpa[part]);
-            GSVector y(&ya[part]);
-            GSVector yp(&ypa[part]);
-            GSVector cdt(&cdta[part]);
-            GSVector dpop(&dpopa[part]);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
-
-            x.store(&xa[part]);
-            y.store(&ya[part]);
-            cdt.store(&cdta[part]);
-        }
-
-        for (int part = block_last; part < local_s_num; ++part)
-        {
-            double x(xa[part]);
-            double xp(xpa[part]);
-            double y(ya[part]);
-            double yp(ypa[part]);
-            double cdt(cdta[part]);
-            double dpop(dpopa[part]);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
-
-            xa[part] = x;
-            ya[part] = y;
-            cdta[part] = cdt;
-        }
-    }
-#endif
 }
 
