@@ -141,28 +141,28 @@ namespace
 
 
 BunchParticles::BunchParticles(int total_num, Commxx const& comm)
-    : local_num(0)
-    , local_num_aligned(0)
-    , local_num_padded(0)
-    , local_num_slots(0)
-    , total_num(total_num)
+    : num(0)
+    , num_aligned(0)
+    , padding(0)
+    , slots(0)
+    , total(total_num)
     , comm(comm)
-    , parts("particles", local_num_slots)
+    , parts("particles", slots)
     , hparts(Kokkos::create_mirror_view(parts))
 {
-    if (!comm.is_null() && total_num) 
+    if (!comm.is_null() && total) 
     {
         std::vector<int> offsets(comm.size());
         std::vector<int> counts(comm.size());
-        decompose_1d(comm, total_num, offsets, counts);
+        decompose_1d(comm, total, offsets, counts);
 
-        local_num         = counts[comm.rank()];
-        local_num_aligned = calculate_aligned_pos(local_num, alignment);
-        local_num_padded  = local_num + calculate_padding_size(local_num, alignment);
-        local_num_slots   = local_num_padded;
+        num         = counts[comm.rank()];
+        num_aligned = calculate_aligned_pos(num, alignment);
+        padding     = calculate_padding_size(num, alignment);
+        slots       = num + padding;
 
         // allocate
-        Kokkos::resize(parts, local_num_slots);
+        Kokkos::resize(parts, slots);
         hparts = Kokkos::create_mirror_view(parts);
 
         // id
@@ -173,19 +173,19 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
 
 void BunchParticles::assign_ids(int local_offset)
 {
-    int request_num = (comm.rank() == 0) ? total_num : 0;
+    int request_num = (comm.rank() == 0) ? total : 0;
     int global_offset = Particle_id_offset::get(request_num, comm);
 
     particle_id_assigner pia{parts, local_offset + global_offset};
-    Kokkos::parallel_for(local_num, pia);
+    Kokkos::parallel_for(num, pia);
 }
 
 karray2d_row
-BunchParticles::get_particles_in_range(int idx, int num) const
+BunchParticles::get_particles_in_range(int idx, int n) const
 {
-    karray2d_row_dev p("sub_p", num, 7);
+    karray2d_row_dev p("sub_p", n, 7);
     particle_copier_many pc{parts, p, idx};
-    Kokkos::parallel_for(num, pc);
+    Kokkos::parallel_for(n, pc);
 
     karray2d_row hp = create_mirror_view(p);
     Kokkos::deep_copy(hp, p);
@@ -196,7 +196,7 @@ karray1d_row
 BunchParticles::get_particle(int idx) const
 {
     // index out of range
-    if (idx == particle_index_null || idx < 0 || idx > local_num)
+    if (idx == particle_index_null || idx < 0 || idx > slots)
         throw std::runtime_error("Bunch::get_particle() index out of range");
 
     karray1d_row_dev p("particle", 7);
@@ -222,33 +222,33 @@ BunchParticles::search_particle(int pid, int last_idx) const
 
     int idx = particle_index_null;
     particle_finder pf{parts, pid};
-    Kokkos::parallel_reduce(local_num, pf, idx);
+    Kokkos::parallel_reduce(num, pf, idx);
 
     return idx;
 }
 
 void
-BunchParticles::set_local_num(int num)
+BunchParticles::set_local_num(int n)
 {
     // make sure the new local_num is never less than 0
-    if (num < 0) num = 0;
+    if (n < 0) n = 0;
 
     // re-allocate depending on the new size
-    if (num <= local_num_aligned)
+    if (n <= num_aligned)
     {
         // previous values
-        int prev_local_num = local_num;
+        int prev_local_num = num;
 
         // no need to resize the array, only move the pointers
-        local_num = num;
+        num = n;
 
-        // update local_num_aligned
-        local_num_aligned = calculate_aligned_pos(local_num, alignment);
+        // update num_aligned
+        num_aligned = calculate_aligned_pos(num, alignment);
 
         // clear the particle data (from local_num to prev_local_num)
         // note this only happens when the new local_num is smaller than the old one
-        particle_zeroer pz { parts, local_num };
-        Kokkos::parallel_for(prev_local_num - local_num, pz);
+        // particle_zeroer pz { parts, num };
+        // Kokkos::parallel_for(prev_num - num, pz);
     }
     else
     {
@@ -327,8 +327,8 @@ BunchParticles::expand_local_num(int num, int added_lost)
 int
 BunchParticles::update_total_num()
 {
-    int old_total_num = total_num;
-    MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM, comm);
+    int old_total_num = total;
+    MPI_Allreduce(&num, &total, 1, MPI_INT, MPI_SUM, comm);
     return old_total_num;
 }
 
@@ -355,7 +355,7 @@ BunchParticles::check_pz2_positive()
 {
     checkout_particles();
 
-    for (int p = 0; p < local_num; ++p) 
+    for (int p = 0; p < num; ++p) 
     {
         double pzop2 = (1. + hparts(p, 5)) * (1. + hparts(p, 5))
             - hparts(p, 1) * hparts(p, 1)

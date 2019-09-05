@@ -56,12 +56,12 @@ struct BunchParticles
     constexpr const static int alignment = 4;
     constexpr static const int particle_index_null = -1;
 
-    int local_num;
-    int local_num_aligned;
-    int local_num_padded;
-    int local_num_slots;
+    int num;
+    int num_aligned;
+    int padding;
+    int slots;
 
-    int total_num;
+    int total;
 
     Commxx comm;
 
@@ -69,6 +69,13 @@ struct BunchParticles
     HostParticles hparts;
 
     BunchParticles(int total_num, Commxx const& comm);
+
+    int local_num()         const { return num; }
+    int local_num_aligned() const { return num_aligned; }
+    int local_num_padding() const { return padding; }
+    int local_num_padded()  const { return num + padding; }
+    int local_num_slots()   const { return slots; }
+    int total_num()         const { return total; }
 
     void checkin_particles()  { Kokkos::deep_copy(parts, hparts); }
     void checkout_particles() { Kokkos::deep_copy(hparts, parts); }

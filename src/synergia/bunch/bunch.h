@@ -170,22 +170,22 @@ public:
 
     /// getters of particle array dimensions
     int get_total_num(ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).total_num; }
+    { return get_bunch_particles(pg).total_num(); }
 
     int get_local_num(ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num; }
+    { return get_bunch_particles(pg).local_num(); }
 
     int get_local_num_aligned (ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num_aligned; }
+    { return get_bunch_particles(pg).local_num_aligned(); }
 
     int get_local_num_padded  (ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num_padded; }
+    { return get_bunch_particles(pg).local_num_padded(); }
 
     int get_local_num_slots   (ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num_slots; }
+    { return get_bunch_particles(pg).local_num_slots(); }
 
     int get_local_num_padding (ParticleGroup pg = PG::regular) const 
-    { return get_local_num_padded(pg) - get_local_num(pg); }
+    { return get_bunch_particles(pg).local_num_padding(); }
 
     int get_local_num_lost    (ParticleGroup pg = PG::regular) const 
     { return get_local_num_slots(pg) - get_local_num_padded(pg); }
@@ -212,7 +212,7 @@ public:
 
         auto & bp = get_bunch_particles(PG::regular);
         int old_total = bp.update_total_num();
-        real_num = old_total ? bp.total_num * real_num / old_total : 0.0;
+        real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;
     }
     
     ///
