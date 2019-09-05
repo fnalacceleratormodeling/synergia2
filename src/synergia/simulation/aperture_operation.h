@@ -73,7 +73,13 @@ namespace aperture_impl
 
             } while (head < tail);
 
-            std::cout << "x = " << x << ", head = " << head << ", tail = " << tail << "\n";
+            if (head == tail && discard[head])
+            {
+                for (int idx=0; idx<7; ++idx) 
+                    discarded(x, idx) = parts(tail, idx);
+
+                ++x;
+            }
 
             // move some lost particles over to the padding area
             int padding = nparts_padded - nparts;
@@ -120,8 +126,6 @@ private:
 
         discard_checker<AP> dc{ap, bunch.get_local_particles(), discard, x_offset, y_offset};
         Kokkos::parallel_reduce(nparts, dc, ndiscarded);
-
-        std::cout << "aperture " << ap.type << ", num discarded = " << ndiscarded << "\n";
 
         if (ndiscarded == 0) return;
 
