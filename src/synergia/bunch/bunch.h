@@ -206,8 +206,14 @@ public:
     ///
     /// Update the total number and real number of particles after the local
     /// number has been changed. Requires comm_sptrunication.
-    void update_total_num(ParticleGroup pg = PG::regular)
-    { get_bunch_particles(pg).update_total_num(); }
+    void update_total_num()
+    { 
+        get_bunch_particles(PG::spectator).update_total_num(); 
+
+        auto & bp = get_bunch_particles(PG::regular);
+        int old_total = bp.update_total_num();
+        real_num = old_total ? bp.total_num * real_num / old_total : 0.0;
+    }
     
     ///
     /// Set the total number (and the real number) of particles

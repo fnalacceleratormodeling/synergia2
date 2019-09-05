@@ -324,26 +324,12 @@ BunchParticles::expand_local_num(int num, int added_lost)
 #endif
 }
 
-void
+int
 BunchParticles::update_total_num()
 {
-#if 0
-    // total real particle number
     int old_total_num = total_num;
-    MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM, comm_sptr->get());
-
-    // total spectator particle number
-    MPI_Allreduce(&local_s_num, &total_s_num, 1, MPI_INT, MPI_SUM, comm_sptr->get());
-
-    if (old_total_num != 0) 
-    {
-        real_num = (total_num * real_num) / old_total_num;
-    } 
-    else 
-    {
-        real_num = 0.0;
-    }
-#endif
+    MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM, comm);
+    return old_total_num;
 }
 
 void

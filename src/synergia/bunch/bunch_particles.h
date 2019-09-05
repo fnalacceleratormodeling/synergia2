@@ -78,14 +78,15 @@ struct BunchParticles
     void set_local_num(int num);
     void set_total_num(int num);
     void expand_local_num(int num, int added_lost);
-    void update_total_num();
+
+    // returns the old total number
+    int update_total_num();
 
     karray2d_row get_particles_in_range(int idx, int num) const;
     karray1d_row get_particle(int idx) const;
     int search_particle(int pid, int last_idx) const;
 
     void check_pz2_positive();
-
     void print_particle(size_t idx, Logger & logger) const;
 };
 
