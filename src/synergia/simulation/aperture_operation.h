@@ -49,7 +49,15 @@ namespace aperture_impl
                 while (!discard[head] && head<tail) ++head;
                 if (head >= tail) break;
 
-                while ( discard[tail] && tail>head) --tail;
+                while (discard[tail] && tail>head) 
+                {
+                    for (int idx=0; idx<7; ++idx) 
+                        discarded(x, idx) = parts(tail, idx);
+
+                    --tail;
+                    ++x;
+                }
+
                 if (head >= tail) break;
 
                 for (int idx=0; idx<7; ++idx)
@@ -65,6 +73,7 @@ namespace aperture_impl
 
             } while (head < tail);
 
+            std::cout << "x = " << x << ", head = " << head << ", tail = " << tail << "\n";
 
             // move some lost particles over to the padding area
             int padding = nparts_padded - nparts;
@@ -74,7 +83,7 @@ namespace aperture_impl
             {
                 // pl: position of next lost particle
                 // pp: position of next padding slot
-                int pl = nparts - x + p;
+                int pl = nparts - 1 - p;
                 int pp = nparts_padded - 1 - p;
 
                 for (int idx=0; idx<7; ++idx)
