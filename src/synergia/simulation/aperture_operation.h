@@ -30,17 +30,16 @@ namespace aperture_impl
     struct particle_mover
     {
         int nparts;
+        int ndiscarded;
         int nparts_padded;
-        Particles parts;
 
+        Particles parts;
         karray1d_dev discard;
-        karray2d_dev discarded;
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
             // move all the discarded particles to the tail
-            int x = 0;
             int head = 0;
             int tail = nparts - 1;
 
@@ -49,47 +48,30 @@ namespace aperture_impl
                 while (!discard[head] && head<tail) ++head;
                 if (head >= tail) break;
 
-                while (discard[tail] && tail>head) 
-                {
-                    for (int idx=0; idx<7; ++idx) 
-                        discarded(x, idx) = parts(tail, idx);
-
-                    --tail;
-                    ++x;
-                }
-
+                while ( discard[tail] && tail>head) --tail;
                 if (head >= tail) break;
 
                 for (int idx=0; idx<7; ++idx)
                 {
-                    discarded(x, idx) = parts(head, idx);
-                    parts(head, idx)  = parts(tail, idx);
-                    parts(tail, idx)  = discarded(x, idx);
+                    double tmp = parts(head, idx);
+                    parts(head, idx) = parts(tail, idx);
+                    parts(tail, idx) = tmp;
                 }
 
                 ++head;
                 --tail;
-                ++x;
 
             } while (head < tail);
 
-            if (head == tail && discard[head])
-            {
-                for (int idx=0; idx<7; ++idx) 
-                    discarded(x, idx) = parts(tail, idx);
-
-                ++x;
-            }
-
             // move some lost particles over to the padding area
             int padding = nparts_padded - nparts;
-            int np = x < padding ? x : padding;
+            int np = ndiscarded < padding ? ndiscarded : padding;
 
             for (int p=0; p<np; ++p)
             {
                 // pl: position of next lost particle
                 // pp: position of next padding slot
-                int pl = nparts - 1 - p;
+                int pl = nparts - ndiscarded + p;
                 int pp = nparts_padded - 1 - p;
 
                 for (int idx=0; idx<7; ++idx)
@@ -129,14 +111,15 @@ private:
 
         if (ndiscarded == 0) return;
 
-        karray2d_dev discarded("discarded", ndiscarded, 7);
-
-        particle_mover pm{ nparts, 
+        particle_mover pm{ nparts, ndiscarded,
                 bunch.get_local_num_padded(), 
                 bunch.get_local_particles(), 
-                discard, discarded };
+                discard };
 
         Kokkos::parallel_for(1, pm);
+
+        int start_idx = bunch.get_local_num_padded() - ndiscarded;
+        auto discarded = bunch.get_particles_in_range(start_idx, ndiscarded);
 
         bunch.set_local_num(nparts - ndiscarded);
         deposit_charge(ndiscarded * bunch.get_real_num() / bunch.get_total_num());
