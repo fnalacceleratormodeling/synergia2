@@ -104,9 +104,12 @@ public:
     template<typename AP>
     int apply_aperture(AP const& ap);
 
-    karray2d_row get_particles_in_range(int idx, int num) const;
-    karray1d_row get_particle(int idx) const;
     int search_particle(int pid, int last_idx) const;
+    karray1d_row get_particle(int idx) const;
+    karray2d_row get_particles_in_range(int idx, int num) const;
+
+    karray2d_row get_particles_last_discarded() const
+    { return get_particles_in_range(local_num_padded(), last_discarded()); }
 
     void check_pz2_positive();
     void print_particle(size_t idx, Logger & logger) const;

@@ -334,8 +334,7 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
 
     if (ndiscarded && diag_aperture)
     {
-        auto const& bp = get_bunch_particles(pg);
-        auto discarded = get_particles_in_range(bp.local_num_padded(), bp.last_discarded(), pg);
+        auto discarded = get_bunch_particles(pg).get_particles_last_discarded();
         //diag_aperture->update(discarded);
         //diag_aperture->write();
     }
