@@ -31,26 +31,18 @@ Diagnostics_loss::init_writers(Hdf5_file_sptr file_sptr)
 
 
 void
-Diagnostics_loss::update(
-        int index, int rep, double s, double s_n,  
-        std::array<double, 7> const& part_coords )
+Diagnostics_loss::update(karray2d_row parts)
 {
-#if 0
-  
-  
-          
-     if (part_coords.size() !=7)  throw std::runtime_error(
-          "diagnostics_apertures_loss, should be 7 particle's coordinates"); 
-   
-                      
-    bucket_index.push_back(index);
-    repetition.push_back(rep);
-    s_ref_particle.push_back(s);
-    sn_ref_particle.push_back(s_n);
-    coords.push_back(part_coords);
-#endif
-}
+    Bunch const& b = get_bunch();
 
+#if 0
+    bucket_index.push_back(b.get_bucket_index());
+    repetition.push_back(b.get_rep());
+    s_ref_particle.push_back(b.get_s());
+    sn_ref_particle.push_back(sn);
+#endif
+    coords = parts;
+}
 
 
 void

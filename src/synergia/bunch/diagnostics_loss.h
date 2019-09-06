@@ -17,7 +17,8 @@ private:
     std::vector<int> repetition;
     std::vector<double> s_ref_particle;
     std::vector<double> sn_ref_particle;
-    std::vector<std::array<double, 7>> coords;
+
+    karray2d_row coords;
     
 private:
 
@@ -30,9 +31,7 @@ public:
             std::string const& filename, 
             std::string const& local_dir = "" );
     
-    void update(
-            int index, int rep, double s, double s_n,  
-            std::array<double, 7> const& coords );
+    void update(karray2d_row coords);
     
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);

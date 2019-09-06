@@ -331,12 +331,11 @@ template<typename AP>
 inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
 { 
     int ndiscarded = get_bunch_particles(pg).apply_aperture(ap); 
-
     if (ndiscarded && diag_aperture)
     {
         auto discarded = get_bunch_particles(pg).get_particles_last_discarded();
-        //diag_aperture->update(discarded);
-        //diag_aperture->write();
+        diag_aperture->update(discarded);
+        diag_aperture->write();
     }
 
     return ndiscarded;
