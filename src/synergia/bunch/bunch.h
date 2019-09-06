@@ -204,6 +204,11 @@ public:
     { get_bunch_particles(pg).set_local_num(num); }
 
     ///
+    /// Set the total number (and the real number) of particles
+    void set_total_num(int num, ParticleGroup pg = PG::regular)
+    { get_bunch_particles(pg).set_total_num(num); }
+ 
+    ///
     /// Update the total number and real number of particles after the local
     /// number has been changed. Requires comm_sptrunication.
     void update_total_num()
@@ -214,12 +219,13 @@ public:
         int old_total = bp.update_total_num();
         real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;
     }
-    
-    ///
-    /// Set the total number (and the real number) of particles
-    void set_total_num(int num, ParticleGroup pg = PG::regular)
-    { get_bunch_particles(pg).set_total_num(num); }
-    
+
+    // aperture operation
+    // discard the particles (by moving them to the tail of the array) filtered out
+    // by the aperture, returns the number of particles discarded
+    template<typename AP>
+    int apply_aperture(AP const& ap, ParticleGroup pg = PG::regular);
+  
     // checkout (deep_copy) the entire particle array from device
     // memory to the host memory for user to access the latest
     // particle data
@@ -299,9 +305,6 @@ public:
     void set_diag_loss_zcut(Diagnostics_loss && diag)
     { diag_zcut = std::make_unique<Diagnostics_loss>(std::move(diag)); }
 
-    Diagnostics_loss * get_diag_loss_aperture() { return diag_aperture.get(); }
-    Diagnostics_loss * get_diag_loss_zcut()     { return diag_zcut.get(); }
-
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,
     /// real_num/total_num. If the state vectors of the reference particles
@@ -323,5 +326,22 @@ public:
     template<class Archive>
     void load(Archive & ar, const unsigned int version);
 };
+
+template<typename AP>
+inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
+{ 
+    int ndiscarded = get_bunch_particles(pg).apply_aperture(ap); 
+
+    if (ndiscarded && diag_aperture)
+    {
+        auto const& bp = get_bunch_particles(pg);
+        auto discarded = get_particles_in_range(bp.local_num_padded(), bp.last_discarded(), pg);
+        //diag_aperture->update(discarded);
+        //diag_aperture->write();
+    }
+
+    return ndiscarded;
+}
+
 
 #endif /* BUNCH_H_ */

@@ -4,144 +4,28 @@
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/foundation/math_constants.h"
 
-namespace aperture_impl
-{
-    template<class AP>
-    struct discard_checker
-    {
-        typedef int value_type;
-
-        AP ap;
-        ConstParticles parts;
-        karray1d_dev discard;
-        double xoff, yoff;
-
-        KOKKOS_INLINE_FUNCTION
-        void operator() (const int i, int& discarded) const
-        {
-            if (ap.discard(parts, i, xoff, yoff))
-            {
-                discard[i] = 1;
-                ++discarded;
-            }
-        }
-    };
-
-    struct particle_mover
-    {
-        int nparts;
-        int ndiscarded;
-        int nparts_padded;
-
-        Particles parts;
-        karray1d_dev discard;
-
-        KOKKOS_INLINE_FUNCTION
-        void operator() (const int i) const
-        {
-            // move all the discarded particles to the tail
-            int head = 0;
-            int tail = nparts - 1;
-
-            do
-            {
-                while (!discard[head] && head<tail) ++head;
-                if (head >= tail) break;
-
-                while ( discard[tail] && tail>head) --tail;
-                if (head >= tail) break;
-
-                for (int idx=0; idx<7; ++idx)
-                {
-                    double tmp = parts(head, idx);
-                    parts(head, idx) = parts(tail, idx);
-                    parts(tail, idx) = tmp;
-                }
-
-                ++head;
-                --tail;
-
-            } while (head < tail);
-
-            // move some lost particles over to the padding area
-            int padding = nparts_padded - nparts;
-            int np = ndiscarded < padding ? ndiscarded : padding;
-
-            for (int p=0; p<np; ++p)
-            {
-                // pl: position of next lost particle
-                // pp: position of next padding slot
-                int pl = nparts - ndiscarded + p;
-                int pp = nparts_padded - 1 - p;
-
-                for (int idx=0; idx<7; ++idx)
-                {
-                    // copy the lost particle over to the padding slot
-                    // makes pl the new padding slot
-                    parts(pp, idx) = parts(pl, idx);
-                    parts(pl, idx) = 0.0;
-                }
-            }
-        }
-    };
-}
-
 template<class AP>
 class Aperture_operation : public Independent_operation
 {
 private:
 
-    AP ap;
-
     Lattice_element_slice slice;
-    double x_offset, y_offset;
+    AP ap;
 
 private:
 
     void apply_impl(Bunch & bunch, Logger & logger) const override
     {
-        using namespace aperture_impl;
-
-        int ndiscarded = 0;
-        int nparts = bunch.get_local_num();
-        karray1d_dev discard("discarded", nparts);
-
-        discard_checker<AP> dc{ap, bunch.get_local_particles(), discard, x_offset, y_offset};
-        Kokkos::parallel_reduce(nparts, dc, ndiscarded);
-
-        if (ndiscarded == 0) return;
-
-        logger << "      discarded = " << ndiscarded << "\n";
-
-        particle_mover pm{ nparts, ndiscarded,
-                bunch.get_local_num_padded(), 
-                bunch.get_local_particles(), 
-                discard };
-
-        Kokkos::parallel_for(1, pm);
-
-        int start_idx = bunch.get_local_num_padded() - ndiscarded;
-        auto discarded = bunch.get_particles_in_range(start_idx, ndiscarded);
-
-        bunch.set_local_num(nparts - ndiscarded);
-        deposit_charge(ndiscarded * bunch.get_real_num() / bunch.get_total_num());
-
-        // TODO: diagnostics_loss update and write
+        int ndiscarded = bunch.apply_aperture(ap);
+        double charge = ndiscarded * bunch.get_real_num() / bunch.get_total_num();
+        slice.get_lattice_element().deposit_charge(charge);
     }
-
-    void deposit_charge(double charge) const
-    { slice.get_lattice_element().deposit_charge(charge); }
 
 public:
 
     Aperture_operation(Lattice_element_slice const& slice)
-        : Independent_operation("aperture"), ap(slice), slice(slice)
-        , x_offset(slice.get_lattice_element().get_double_attribute("hoffset", 0.0))
-        , y_offset(slice.get_lattice_element().get_double_attribute("voffset", 0.0))
+        : Independent_operation("aperture"), slice(slice), ap(slice.get_lattice_element())
     { }
-
-    double get_x_offset() const { return x_offset; }
-    double get_y_offset() const { return y_offset; }
 
     std::string const& get_aperture_type() const 
     { return ap.type; }
@@ -154,10 +38,11 @@ struct Finite_aperture
 {
     constexpr static const char *type = "finite";
 
-    Finite_aperture(Lattice_element_slice const&) { }
+    Finite_aperture(Lattice_element const&)
+    { }
 
     KOKKOS_INLINE_FUNCTION
-    bool discard(ConstParticles const& parts, int p, double xoff, double yoff) const
+    bool discard(ConstParticles const& parts, int p) const
     {
         if (  !std::isfinite(parts(p, 0)) 
            || !std::isfinite(parts(p, 1))
@@ -181,16 +66,19 @@ struct Finite_aperture
 struct Circular_aperture
 {
     constexpr static const char *type = "circular";
-    double r2;
+    double r2, xoff, yoff;
 
-    Circular_aperture(Lattice_element_slice const& slice) : r2(1000.0)
+    Circular_aperture(Lattice_element const& ele)
+        : r2(1000.0)
+        , xoff(ele.get_double_attribute("hoffset", 0.0))
+        , yoff(ele.get_double_attribute("voffset", 0.0))
     { 
-        double r = slice.get_lattice_element().get_double_attribute("circular_aperture_radius", 1000.0);
+        double r = ele.get_double_attribute("circular_aperture_radius", 1000.0);
         r2 = r * r;
     }
 
     KOKKOS_INLINE_FUNCTION
-    bool discard(ConstParticles const& parts, int p, double xoff, double yoff) const
+    bool discard(ConstParticles const& parts, int p) const
     {
         double xrel = parts(p, 0) - xoff;
         double yrel = parts(p, 2) - yoff;
