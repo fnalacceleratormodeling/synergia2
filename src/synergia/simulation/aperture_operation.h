@@ -111,6 +111,8 @@ private:
 
         if (ndiscarded == 0) return;
 
+        logger << "      discarded = " << ndiscarded << "\n";
+
         particle_mover pm{ nparts, ndiscarded,
                 bunch.get_local_num_padded(), 
                 bunch.get_local_particles(), 
