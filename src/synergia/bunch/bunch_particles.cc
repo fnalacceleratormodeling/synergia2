@@ -237,7 +237,7 @@ BunchParticles::set_local_num(int n)
     if (n <= num_aligned)
     {
         // previous values
-        int prev_local_num = num;
+        // int prev_local_num = num;
 
         // no need to resize the array, only move the pointers
         num = n;
