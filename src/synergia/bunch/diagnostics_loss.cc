@@ -31,10 +31,8 @@ Diagnostics_loss::init_writers(Hdf5_file_sptr file_sptr)
 
 
 void
-Diagnostics_loss::update(karray2d_row parts)
+Diagnostics_loss::update(Bunch const& bunch, karray2d_row parts)
 {
-    Bunch const& b = get_bunch();
-
 #if 0
     bucket_index.push_back(b.get_bucket_index());
     repetition.push_back(b.get_rep());
@@ -46,7 +44,7 @@ Diagnostics_loss::update(karray2d_row parts)
 
 
 void
-Diagnostics_loss::do_write()
+Diagnostics_loss::do_write(Bunch const& bunch)
 {
 #if 0
     if (!have_bunch()) { throw std::runtime_error(

@@ -26,9 +26,8 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(
 }
 
 void
-Diagnostics_bulk_track::do_update()
+Diagnostics_bulk_track::do_update(Bunch const& bunch)
 {
-    auto const& bunch = get_bunch();
     auto const& ref = bunch.get_reference_particle();
 
     pz = ref.get_momentum();
@@ -63,7 +62,7 @@ Diagnostics_bulk_track::do_update()
         // gather the num of local tracks from every rank
         int res = MPI_Gather( &local_num_tracks, 1, MPI_INT,
                               &num_tracks[0], 1, MPI_INT,
-                              get_write_helper().get_writer_rank(),
+                              get_write_helper(bunch).get_writer_rank(),
                               bunch.get_comm() );
 
         if (res != MPI_SUCCESS)
@@ -133,7 +132,7 @@ Diagnostics_bulk_track::do_update()
                            num_tracks.data(),
                            track_displs.data(),
                            MPI_DOUBLE,
-                           get_write_helper().get_writer_rank(),
+                           get_write_helper(bunch).get_writer_rank(),
                            bunch.get_comm() );
 
     if (res != MPI_SUCCESS)
@@ -141,9 +140,9 @@ Diagnostics_bulk_track::do_update()
 }
 
 void
-Diagnostics_bulk_track::do_write()
+Diagnostics_bulk_track::do_write(Bunch const& bunch)
 {   
-    auto & helper = get_write_helper();
+    auto & helper = get_write_helper(bunch);
 
     if (helper.write_locally()) 
     {
@@ -151,7 +150,7 @@ Diagnostics_bulk_track::do_write()
 
         if (first_write)
         {
-            auto const & ref = get_bunch().get_reference_particle();
+            auto const & ref = bunch.get_reference_particle();
 
             file.write("charge", ref.get_charge());
             file.write("mass", ref.get_four_momentum().get_mass());

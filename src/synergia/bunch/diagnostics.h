@@ -22,29 +22,18 @@ private:
 
     bool serial;
 
-    Bunch const * bunch;
-
     std::map<std::string, Diagnostics_write_helper> writers;
 
 private:
 
-    virtual void do_update() = 0;
-    virtual void do_write() = 0;
+    virtual void do_update(Bunch const&) = 0;
+    virtual void do_write (Bunch const&) = 0;
 
 public:
 
     Diagnostics( std::string const& name, bool serial,
                  std::string const& filename, 
                  std::string const& local_dir="" );
-
-    bool have_bunch() const        { return bunch; }
-    void set_bunch(Bunch const& b) { bunch = &b; }
-
-    Bunch const& get_bunch() const
-    { 
-        if(!have_bunch()) throw std::runtime_error("bunch not set in diagnostics");
-        return *bunch;
-    }
 
     std::string const& get_filename()  const { return filename; }
     std::string const& get_local_dir() const { return local_dir; }
@@ -54,19 +43,23 @@ public:
     bool have_write_helper(std::string const& name = DEFAULT_WRITER_NAME) const;
 
     Diagnostics_write_helper &
-    get_write_helper(std::string const& name = DEFAULT_WRITER_NAME);
+    get_write_helper(Bunch const& bunch, std::string const& name = DEFAULT_WRITER_NAME);
 
     /// Multiple serial diagnostics can be written to a single file.
-    bool is_serial() const { return serial; }
+    bool is_serial() const
+    { return serial; }
 
     /// Update the diagnostics
-    void update() { do_update(); }
+    void update(Bunch const& bunch)
+    { do_update(bunch); }
 
     /// Write the diagnostics to the file
-    void write() { do_write(); }
+    void write(Bunch const& bunch)
+    { do_write(bunch); }
 
     /// Update the diagnostics and write them to the file
-    void update_and_write() { do_update(); do_write(); }
+    void update_and_write(Bunch const& bunch) 
+    { do_update(bunch); do_write(bunch); }
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);

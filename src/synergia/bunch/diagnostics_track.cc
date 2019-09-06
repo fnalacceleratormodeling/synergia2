@@ -22,9 +22,8 @@ Diagnostics_track::Diagnostics_track(
 {
 }
 
-void Diagnostics_track::do_update()
+void Diagnostics_track::do_update(Bunch const& bunch)
 {
-    auto const& bunch = get_bunch();
     auto const& ref = bunch.get_reference_particle();
 
     repetition = ref.get_repetition(); 
@@ -52,15 +51,15 @@ void Diagnostics_track::do_update()
     }
 }
 
-void Diagnostics_track::do_write()
+void Diagnostics_track::do_write(Bunch const& bunch)
 {
-    if (found && get_write_helper().write_locally()) 
+    if (found && get_write_helper(bunch).write_locally()) 
     {
-        auto & file = get_write_helper().get_hdf5_file();
+        auto & file = get_write_helper(bunch).get_hdf5_file();
 
         if (first_write)
         {
-            auto const & ref = get_bunch().get_reference_particle();
+            auto const & ref = bunch.get_reference_particle();
 
             file.write("charge", ref.get_charge());
             file.write("mass", ref.get_four_momentum().get_mass());
@@ -74,7 +73,7 @@ void Diagnostics_track::do_write()
         file.write_serial("repetition", repetition);
         file.write_serial("s", s);
 
-        get_write_helper().finish_write();
+        get_write_helper(bunch).finish_write();
     }
 }
 

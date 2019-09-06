@@ -49,8 +49,8 @@ private:
     void receive_other_local_coords(std::vector<int > const& local_nums);
     void send_local_coords();
 
-    void do_update() override;
-    void do_write()  override;
+    void do_update(Bunch const& bunch) override;
+    void do_write (Bunch const& bunch) override;
 
 public:
 

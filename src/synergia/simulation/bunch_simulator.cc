@@ -176,8 +176,7 @@ Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
         if (dt.trigger(turn_num, step_num))
         {
             get_bunch(dt.train, dt.bunch)
-                .get_diag(dt.diag_name)
-                .update_and_write();
+                .diag_update_and_write(dt.diag_name);
         }
     }
 }

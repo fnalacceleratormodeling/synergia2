@@ -22,8 +22,8 @@ private:
     
 private:
 
-     void do_update() override {};
-     void do_write()  override;
+     void do_update(Bunch const& bunch) override {};
+     void do_write (Bunch const& bunch) override;
     
 public: 
 
@@ -31,7 +31,7 @@ public:
             std::string const& filename, 
             std::string const& local_dir = "" );
     
-    void update(karray2d_row coords);
+    void update(Bunch const& bunch, karray2d_row coords);
     
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);

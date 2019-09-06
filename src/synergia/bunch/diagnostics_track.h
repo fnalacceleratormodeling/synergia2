@@ -34,8 +34,8 @@ private:
 private:
 
     /// Update the diagnostics
-    void do_update() override;
-    void do_write()  override;
+    void do_update(Bunch const& bunch) override;
+    void do_write (Bunch const& bunch) override;
 
 public:
 

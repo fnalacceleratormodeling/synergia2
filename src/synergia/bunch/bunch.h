@@ -294,10 +294,12 @@ public:
     // Diagnostics
     template<typename Diag>
     void add_diagnostics(std::string const& name, Diag&& diag)
-    { diags.emplace(name, std::make_unique<Diag>(std::move(diag)))
-        .first->second->set_bunch(*this); }
+    { diags.emplace(name, std::make_unique<Diag>(std::move(diag))); }
 
     Diagnostics & get_diag(std::string const & name);
+
+    void diag_update_and_write(std::string const& name)
+    { get_diag(name).update_and_write(*this); }
 
     void set_diag_loss_aperture(Diagnostics_loss && diag)
     { diag_aperture = std::make_unique<Diagnostics_loss>(std::move(diag)); }
@@ -334,8 +336,8 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
     if (ndiscarded && diag_aperture)
     {
         auto discarded = get_bunch_particles(pg).get_particles_last_discarded();
-        diag_aperture->update(discarded);
-        diag_aperture->write();
+        diag_aperture->update(*this, discarded);
+        diag_aperture->write(*this);
     }
 
     return ndiscarded;

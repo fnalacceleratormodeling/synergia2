@@ -10,7 +10,6 @@ Diagnostics ::Diagnostics(
     , filename(filename)
     , local_dir(local_dir)
     , serial(serial)
-    , bunch(nullptr)
     , writers()
 {
 }
@@ -28,7 +27,7 @@ Diagnostics::have_write_helper(std::string const & name) const
 }
 
 Diagnostics_write_helper &
-Diagnostics::get_write_helper(std::string const & name)
+Diagnostics::get_write_helper(Bunch const& bunch, std::string const & name)
 {
     if (have_write_helper(name))
     {
@@ -41,7 +40,7 @@ Diagnostics::get_write_helper(std::string const & name)
                 Diagnostics_write_helper(
                     get_filename(),
                     is_serial(), 
-                    get_bunch().get_comm(), 
+                    bunch.get_comm(), 
                     local_dir,
                     (name == DEFAULT_WRITER_NAME) ? "" : name )
                 ).first->second;
