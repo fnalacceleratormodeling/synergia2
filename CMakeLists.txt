@@ -127,6 +127,7 @@ else()
   endif()
 endif()
 
+set(Boost_NO_BOOST_CMAKE ON) # Do *not* use CMake support from Boost.
 message(STATUS "Looking for boost_python, as component python${PYTHON_QUAL}")
 find_package(Boost COMPONENTS python${PYTHON_QUAL} REQUIRED)
 # Now Boost_LIBRARIES is set to only the boost_python library...
