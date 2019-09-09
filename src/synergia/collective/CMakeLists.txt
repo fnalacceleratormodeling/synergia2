@@ -4,7 +4,7 @@ add_library(synergia_collective rectangular_grid_domain.cc rectangular_grid.cc
     space_charge_2d_kv.cc
     space_charge_rectangular.cc impedance.cc wake_field.cc diagnostics_space_charge.cc)
 target_link_libraries(synergia_collective synergia_bunch
-    synergia_simulation synergia_distributed_fft)
+  synergia_simulation synergia_distributed_fft gsl gslcblas)
 
 if (BUILD_PYTHON_BINDINGS)
     add_python_extension(collective collective_wrap.cc)

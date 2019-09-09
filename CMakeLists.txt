@@ -169,8 +169,7 @@ find_package(MPI4PY REQUIRED)
 include_directories(${MPI4PY_INCLUDE_DIR})
 
 # misc
-INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
-include_directories(${GSL_INCLUDE_DIR})
+INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 
 # Eigen3
 find_package(Eigen3 REQUIRED)
