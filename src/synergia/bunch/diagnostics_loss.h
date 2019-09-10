@@ -13,10 +13,10 @@ public:
 
 private:
 
-    std::vector<int> bucket_index;
-    std::vector<int> repetition;
-    std::vector<double> s_ref_particle;
-    std::vector<double> sn_ref_particle;
+    int bucket_index;
+    int repetition;
+    double s_ref_particle;
+    double sn_ref_particle;
 
     karray2d_row coords;
     
