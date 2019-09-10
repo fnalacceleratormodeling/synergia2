@@ -57,8 +57,8 @@ public:
     void set_count(int count) { this->count = count; }
     void increment_count() { ++count; }
 
-    bool write_locally() { return !commxx.is_null() && (writer_rank==commxx.rank()); }
-    int get_writer_rank() { return writer_rank; }
+    bool write_locally() const { return !commxx.is_null() && (writer_rank==commxx.rank()); }
+    int get_writer_rank() const { return writer_rank; }
 
     Hdf5_file& get_hdf5_file();
     void finish_write();
