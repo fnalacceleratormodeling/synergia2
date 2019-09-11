@@ -160,11 +160,10 @@ Diagnostics_bulk_track::do_write(Bunch const& bunch)
         }
 
         // write serial
-        //file.write_serial("pz", pz);
-        //file.write_serial("s", s);
-        //file.write_serial("s_n", s_n);
-        //file.write_serial("repetition", repetition);
-
+        file.write_serial("track_pz", pz);
+        file.write_serial("track_s", s);
+        file.write_serial("track_s_n", s_n);
+        file.write_serial("track_repetition", repetition);
         file.write_serial("track_coords", all_coords);
 
         // finish write
