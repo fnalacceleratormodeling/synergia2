@@ -16,8 +16,7 @@ struct Hdf5_exception : public std::exception
         std::stringstream buf;
 
         //cerr_redirect cr(buf.rdbuf());
-        //H5Eprint(H5E_DEFAULT, stderr);
-
+        H5Eprint(H5E_DEFAULT, stderr);
         H5Eclear(H5E_DEFAULT);
 
         hdf5_msg = buf.str();
