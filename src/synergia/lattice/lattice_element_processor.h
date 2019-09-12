@@ -26,8 +26,11 @@ public:
 
 private:
 
-    static void process_drift(Lattice_element & element);
-    static void process_quad (Lattice_element & element);
+    static void drift(Lattice_element & element);
+    static void sbend(Lattice_element & element);
+    static void quadrupole(Lattice_element & element);
+    static void multipole(Lattice_element & element);
+    static void rfcavity(Lattice_element & element);
 
 };
 

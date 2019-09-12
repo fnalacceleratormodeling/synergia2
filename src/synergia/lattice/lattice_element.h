@@ -18,13 +18,19 @@ enum class element_type
     rbend,
     sbend,
     quadrupole,
+    multipole,
+    rfcavity,
 };
 
 namespace element_type_name
 {
     constexpr char const * generic    = "generic";
     constexpr char const * drift      = "drift";
+    constexpr char const * rbend      = "rbend";
+    constexpr char const * sbend      = "sbend";
     constexpr char const * quadrupole = "quadrupole";
+    constexpr char const * multipole  = "multipole";
+    constexpr char const * rfcavity   = "rfcavity";
 }
 
 class Lattice;

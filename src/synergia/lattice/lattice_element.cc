@@ -13,13 +13,17 @@ namespace
     const type_map_t type_map = { 
         { element_type_name::generic,    element_type::generic},
         { element_type_name::drift,      element_type::drift},
+        { element_type_name::rbend,      element_type::rbend},
+        { element_type_name::sbend,      element_type::sbend},
         { element_type_name::quadrupole, element_type::quadrupole},
+        { element_type_name::multipole,  element_type::multipole},
+        { element_type_name::rfcavity,   element_type::rfcavity},
     };
 
     element_type find_type(std::string const & stype)
     {
         auto r = type_map.find(stype);
-        if (r == type_map.end()) throw std::runtime_error("invalid element type");
+        if (r == type_map.end()) throw std::runtime_error("invalid element type " + stype);
         return r->second;
     }
 }
