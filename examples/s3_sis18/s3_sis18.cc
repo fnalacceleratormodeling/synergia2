@@ -18,9 +18,7 @@ int run()
     auto lattice = reader.get_lattice("machine", "sis18.madx");
     auto const & ref = lattice.get_reference_particle();
 
-    lattice.print(screen);
-
-    return 0;
+    //lattice.print(screen);
 
     // space charge
     Space_charge_2d_open_hockney_options sc_ops(32, 32, 128);

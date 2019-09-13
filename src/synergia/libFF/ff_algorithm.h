@@ -130,9 +130,9 @@ public:
     inline static void bend_complete
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double dphi, double strength, double p_ref, double m, double cdt_ref,
-       std::complex<double> phase, std::complex<double> term)
+       Kokkos::complex<double> phase, Kokkos::complex<double> term)
     {
-        typedef std::complex<T> CT;
+        typedef Kokkos::complex<T> CT;
 
         T p0 = p_ref;
         T p  = p_ref * (dpop + 1.0);
@@ -163,7 +163,7 @@ public:
 
         T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
 
-        CT expf = std::exp( CT(0.0, dthmphi) );
+        CT expf = Kokkos::exp( CT(0.0, dthmphi) );
         CT vuf  = vui * expf;
         CT uf   = (ui + bi) * expf - bf;
 
@@ -180,9 +180,9 @@ public:
     inline static void bend_unit
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double theta, double strength, double p_ref, double m, double cdt_ref,
-       std::complex<double> phase, std::complex<double> term)
+       Kokkos::complex<double> phase, Kokkos::complex<double> term)
     {
-        typedef std::complex<T> CT;
+        typedef Kokkos::complex<T> CT;
 
         T p0 = p_ref;
         T p  = p_ref * (dpop + 1.0);
@@ -213,7 +213,7 @@ public:
 
         T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
 
-        CT expf = std::exp( CT(0.0, dthmphi) );
+        CT expf = Kokkos::exp( CT(0.0, dthmphi) );
         CT vuf  = vui * expf;
         CT uf   = (ui + bi) * expf - bf;
 
@@ -226,21 +226,21 @@ public:
         xp   = vuf.imag() / (Ef * pconstants::c);
     }
 
-    inline static std::complex<double> bend_unit_phase(double theta)
-    { return std::exp( std::complex<double>(0.0, theta) ); }
+    inline static Kokkos::complex<double> bend_unit_phase(double theta)
+    { return Kokkos::exp( Kokkos::complex<double>(0.0, theta) ); }
 
-    inline static std::complex<double> bend_edge_phase(double theta)
-    { return std::exp( std::complex<double>(0.0, -theta) ); }
+    inline static Kokkos::complex<double> bend_edge_phase(double theta)
+    { return Kokkos::exp( Kokkos::complex<double>(0.0, -theta) ); }
 
-    inline static std::complex<double> bend_unit_term(double r0, double theta)
-    { return std::complex<double>(0.0, r0) * std::complex<double>(1.0 - cos(theta), -sin(theta)); }
+    inline static Kokkos::complex<double> bend_unit_term(double r0, double theta)
+    { return Kokkos::complex<double>(0.0, r0) * Kokkos::complex<double>(1.0 - cos(theta), -sin(theta)); }
 
     template <typename T>
     inline static void bend_edge
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
-       double e, std::complex<double> phase, double strength, double p_ref, double m)
+       double e, Kokkos::complex<double> phase, double strength, double p_ref, double m)
     {
-        typedef std::complex<T> CT;
+        typedef Kokkos::complex<T> CT;
 
         T p0 = p_ref;
         T p  = p_ref * (dpop + 1.0);
@@ -271,7 +271,7 @@ public:
 
         T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
 
-        CT expf = std::exp( CT(0.0, dthmphi) );
+        CT expf = Kokkos::exp( CT(0.0, dthmphi) );
         CT vuf  = vui * expf;
         CT uf   = (ui + bi) * expf - bf;
 
@@ -646,6 +646,7 @@ public:
     inline static void nllens_unit
         (double x, double y, double & xp, double & yp, double icnll, double kick)
     {
+#if 0
         double xbar = x * icnll;
         double ybar = y * icnll;
 
@@ -656,19 +657,20 @@ public:
             return;
         }
 
-        std::complex<double> c_i(0.0, 1.0);
-        std::complex<double> c_1(1.0, 0.0);
+        Kokkos::complex<double> c_i(0.0, 1.0);
+        Kokkos::complex<double> c_1(1.0, 0.0);
 
-        std::complex<double> zeta(xbar, ybar);
-        std::complex<double> croot = sqrt(c_1 - zeta*zeta);
-        std::complex<double> carcsin = -c_i * log(c_i * zeta + croot);
-        std::complex<double> dF = zeta/(croot*croot) + carcsin/(croot*croot*croot);
+        Kokkos::complex<double> zeta(xbar, ybar);
+        Kokkos::complex<double> croot = sqrt(c_1 - zeta*zeta);
+        Kokkos::complex<double> carcsin = -c_i * log(c_i * zeta + croot);
+        Kokkos::complex<double> dF = zeta/(croot*croot) + carcsin/(croot*croot*croot);
 
         double dpx = kick * dF.real();
         double dpy = -kick * dF.imag();
 
         xp += dpx;
         yp += dpy;
+#endif
     }
 
     template <typename T>
@@ -1214,16 +1216,16 @@ public:
         }
     }
 
-    inline static std::complex<double> sbend_unit_phase(double c, double delta)
+    inline static Kokkos::complex<double> sbend_unit_phase(double c, double delta)
     { return bend_unit_phase(c * delta); }
 
-    inline static std::complex<double> rbend_unit_phase(double c, double delta)
+    inline static Kokkos::complex<double> rbend_unit_phase(double c, double delta)
     { return bend_unit_phase(0.0); }
 
-    inline static std::complex<double> sbend_unit_term (double c, double delta, double r0)
+    inline static Kokkos::complex<double> sbend_unit_term (double c, double delta, double r0)
     { return bend_unit_term(r0, c * delta); }
 
-    inline static std::complex<double> rbend_unit_term (double c, double delta, double r0)
+    inline static Kokkos::complex<double> rbend_unit_term (double c, double delta, double r0)
     { return c * delta; }
 
     inline static double sbend_dphi(double c, double delta)
@@ -1237,8 +1239,8 @@ public:
     template <
         typename T,
         void(f_kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),   // kick
-        std::complex<double>(f_bup) (double c, double delta),                                 // bend unit phase
-        std::complex<double>(f_but) (double c, double delta, double r0),                      // bend unit term
+        Kokkos::complex<double>(f_bup) (double c, double delta),                                 // bend unit phase
+        Kokkos::complex<double>(f_but) (double c, double delta, double r0),                      // bend unit term
         double(f_dphi)              (double c, double delta),                                 // c_dphi
         int components >
     inline static void bend_yoshida6(T & x, T & xp,
@@ -1246,7 +1248,7 @@ public:
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
                                 double m, double step_reference_cdt,
-                                double step_delta, double * step_strength,
+                                double step_delta, double const * step_strength,
                                 double r0, double bend_strength,
                                 int steps)
     {
@@ -1284,15 +1286,15 @@ public:
         static double ssd = 0.0;  // stored step_delta
         static double sr0 = 0.0;  // stored r0
 
-        static std::complex<double> c1_step_phase = f_bup(c1, ssd);
-        static std::complex<double> c2_step_phase = f_bup(c2, ssd);
-        static std::complex<double> c3_step_phase = f_bup(c3, ssd);
-        static std::complex<double> c4_step_phase = f_bup(c4, ssd);
+        static Kokkos::complex<double> c1_step_phase = f_bup(c1, ssd);
+        static Kokkos::complex<double> c2_step_phase = f_bup(c2, ssd);
+        static Kokkos::complex<double> c3_step_phase = f_bup(c3, ssd);
+        static Kokkos::complex<double> c4_step_phase = f_bup(c4, ssd);
 
-        static std::complex<double> c1_step_term = f_but(c1, ssd, sr0);
-        static std::complex<double> c2_step_term = f_but(c2, ssd, sr0);
-        static std::complex<double> c3_step_term = f_but(c3, ssd, sr0);
-        static std::complex<double> c4_step_term = f_but(c4, ssd, sr0);
+        static Kokkos::complex<double> c1_step_term = f_but(c1, ssd, sr0);
+        static Kokkos::complex<double> c2_step_term = f_but(c2, ssd, sr0);
+        static Kokkos::complex<double> c3_step_term = f_but(c3, ssd, sr0);
+        static Kokkos::complex<double> c4_step_term = f_but(c4, ssd, sr0);
 
         static double c1_dphi = f_dphi(c1, ssd);
         static double c2_dphi = f_dphi(c2, ssd);

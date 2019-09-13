@@ -1,7 +1,7 @@
 add_library(synergia_libFF
     ff_element.cc
     ff_drift.cc
-    #ff_sbend.cc
+    ff_sbend.cc
     #ff_rbend.cc
     #ff_multipole.cc
     ff_quadrupole.cc

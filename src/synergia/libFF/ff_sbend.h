@@ -10,7 +10,6 @@
 class FF_sbend : public FF_element
 {
 public:
-    FF_sbend();
 
     template <typename T>
     inline static void sbend_unit(T & x, T & xp,
@@ -57,15 +56,9 @@ public:
                              std::complex<double> phase_e2, 
                              double * kl,
                              Reference_particle &reference_particle);
-
-    template<class Archive>
-        void serialize(Archive & ar, const unsigned int version);
-
-    virtual ~FF_sbend();
 };
 
-typedef boost::shared_ptr<FF_sbend > FF_sbend_sptr;
-
+#if 0
 template <typename T>
 inline void FF_sbend::sbend_unit(T & x, T & xp,
                                  T & y, T & yp,
@@ -162,5 +155,6 @@ inline void FF_sbend::sbend_unit2(T & x, T & xp,
     cdt += ncdt - reference_cdt;
     xp   = vuf.imag() / (Ef * PH_MKS_c);
 }
+#endif
 
 #endif // FF_SBEND_H

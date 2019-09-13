@@ -2,6 +2,7 @@
 #include "independent_operation.h"
 
 #include "synergia/libFF/ff_drift.h"
+#include "synergia/libFF/ff_sbend.h"
 #include "synergia/libFF/ff_quadrupole.h"
 
 namespace
@@ -11,6 +12,7 @@ namespace
         switch(t)
         {
         case element_type::drift:      return std::make_unique<FF_drift>();
+        case element_type::sbend:      return std::make_unique<FF_sbend>();
         case element_type::quadrupole: return std::make_unique<FF_quadrupole>();
         default: throw std::runtime_error("unhandled element type");
         }
