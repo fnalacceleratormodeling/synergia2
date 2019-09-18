@@ -12,14 +12,12 @@
 
 #include <Kokkos_Core.hpp>
 
-class FF_algorithm
+namespace FF_algorithm
 {
-public:
-
     // exact solution for drift spaces
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void drift_unit
+    void drift_unit
       (T & x, T const& xp, T & y, T const& yp, T & cdt, T const& dpop,
        double length, double reference_momentum, double m, double reference_cdt)
     {
@@ -48,7 +46,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void slot_unit
+    void slot_unit
       (T & x, T & xp, T & y, T & yp, T & cdt, T & dpop, double ct, double st, double pref, double m)
     {
         T r0 = x;
@@ -82,14 +80,16 @@ public:
     }
 
     template <typename T>
-    inline static void edge_unit
+    KOKKOS_INLINE_FUNCTION
+    void edge_unit
       (T const & y, T & yp, double k)
     {
         yp -= k * y;
     }
 
     template <typename T>
-    inline static void edge_unit
+    KOKKOS_INLINE_FUNCTION
+    void edge_unit
       (T const & y, T & xp, T & yp, double kx, double ky, char)
     {
         yp -= kx * y;
@@ -97,7 +97,8 @@ public:
     }
 
     template <typename T>
-    inline static void edge_unit
+    KOKKOS_INLINE_FUNCTION
+    void edge_unit
       (T const & y, T & xp, T & yp, T const & dpop, double k)
     {
         T zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
@@ -111,7 +112,8 @@ public:
 
     // exact solution for dipole without high order combined functions
     template <typename T>
-    inline static void dipole_unit
+    KOKKOS_INLINE_FUNCTION
+    void dipole_unit
       (T & x, T & xp, T & y, T & yp, T & cdt, T const & dpop, double l, double k0)
     {
         T xp1 = xp - k0 * l / (dpop + 1.0);
@@ -127,7 +129,8 @@ public:
 
     // exact solution for dipoles, comes from CHEF
     template <typename T>
-    inline static void bend_complete
+    KOKKOS_INLINE_FUNCTION
+    void bend_complete
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double dphi, double strength, double p_ref, double m, double cdt_ref,
        Kokkos::complex<double> phase, Kokkos::complex<double> term)
@@ -177,7 +180,8 @@ public:
     }
 
     template <typename T>
-    inline static void bend_unit
+    KOKKOS_INLINE_FUNCTION
+    void bend_unit
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double theta, double strength, double p_ref, double m, double cdt_ref,
        Kokkos::complex<double> phase, Kokkos::complex<double> term)
@@ -226,17 +230,21 @@ public:
         xp   = vuf.imag() / (Ef * pconstants::c);
     }
 
-    inline static Kokkos::complex<double> bend_unit_phase(double theta)
+    KOKKOS_INLINE_FUNCTION
+    Kokkos::complex<double> bend_unit_phase(double theta)
     { return Kokkos::exp( Kokkos::complex<double>(0.0, theta) ); }
 
-    inline static Kokkos::complex<double> bend_edge_phase(double theta)
+    KOKKOS_INLINE_FUNCTION
+    Kokkos::complex<double> bend_edge_phase(double theta)
     { return Kokkos::exp( Kokkos::complex<double>(0.0, -theta) ); }
 
-    inline static Kokkos::complex<double> bend_unit_term(double r0, double theta)
+    KOKKOS_INLINE_FUNCTION
+    Kokkos::complex<double> bend_unit_term(double r0, double theta)
     { return Kokkos::complex<double>(0.0, r0) * Kokkos::complex<double>(1.0 - cos(theta), -sin(theta)); }
 
     template <typename T>
-    inline static void bend_edge
+    KOKKOS_INLINE_FUNCTION
+    void bend_edge
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double e, Kokkos::complex<double> phase, double strength, double p_ref, double m)
     {
@@ -288,7 +296,8 @@ public:
 // CHEF's InducedKickPropagators which are now contained in
 // thin_cf_quadrupole_b{x|y} and retained here for historical reference
     template <typename T>
-    inline static void thin_cf_quadrupole_unit
+    KOKKOS_INLINE_FUNCTION
+    void thin_cf_quadrupole_unit
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
         T vk0(kL[0]);
@@ -330,27 +339,32 @@ public:
     // Zolkin, Sector magnets or transverse electromagnetic fields in cylindrical coordinates,
     // Phys.Rev.Accel.Beams 20 (2017) no.4, 043501 Table XIII
     template <typename T>
-    inline static T thin_cf_quadrupole_bx (T const& x, T const& y, double r0)
+    KOKKOS_INLINE_FUNCTION
+    T thin_cf_quadrupole_bx (T const& x, T const& y, double r0)
     { return r0 * y / (r0 + x); }
 
     template <typename T>
-    inline static T thin_cf_quadrupole_by (T const& x, T const& y, double r0, double alf)
+    KOKKOS_INLINE_FUNCTION
+    T thin_cf_quadrupole_by (T const& x, T const& y, double r0, double alf)
     { return r0 * log(1.0 + alf); }
 
    // the expressions in thin_cf_sectupole_b{x|y} come from
     // Zolkin, Sector magnets or transverse electromagnetic fields in cylindrical coordinates,
     // Phys.Rev.Accel.Beams 20 (2017) no.4, 043501 Table XIII
     template <typename T>
-    inline static T thin_cf_sextupole_bx (T const& x, T const& y, double r0, double alf)
+    KOKKOS_INLINE_FUNCTION
+    T thin_cf_sextupole_bx (T const& x, T const& y, double r0, double alf)
     { return x * (2.0 + alf) * y / (1.0 + alf); }
 
     template <typename T>
-    inline static T thin_cf_sextupole_by (T const& x, T const& y, double r0, double alf)
+    KOKKOS_INLINE_FUNCTION
+    T thin_cf_sextupole_by (T const& x, T const& y, double r0, double alf)
     { return 0.5 * (x*x + 2.0*x*r0) - y*y - r0*r0*log(1.0 + alf); }
 
     // combined function sbends kick up to quadrupole
     template <typename T>
-    inline static void thin_cf_kick_1
+    KOKKOS_INLINE_FUNCTION
+    void thin_cf_kick_1
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
         T vk1n(kL[0]);
@@ -364,7 +378,8 @@ public:
 
     // combined function sbends kick up to sextupole
     template <typename T>
-    inline static void thin_cf_kick_2
+    KOKKOS_INLINE_FUNCTION
+    void thin_cf_kick_2
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
         T vk1n(kL[0]);
@@ -385,7 +400,8 @@ public:
 
     // quadrupole with simple n kicks algorithm. non-Yoshida
     template <typename T>
-    inline static void quadrupole_chef
+    KOKKOS_INLINE_FUNCTION
+    void quadrupole_chef
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
        double pref, double m, double refcdt, double len, double * str, int kicks)
     {
@@ -447,7 +463,7 @@ public:
     // thin kick dipole
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void thin_dipole_unit
+    void thin_dipole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp = xp - kL[0];
@@ -456,7 +472,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void thin_quadrupole_unit
+    void thin_quadrupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         T vk0(kL[0]);
@@ -468,7 +484,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void thin_sextupole_unit
+    void thin_sextupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         T vk0(kL[0]);
@@ -480,7 +496,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void thin_octupole_unit
+    void thin_octupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp += - 0.5 * kL[0] * (x * x * x / 3.0 - x * y * y)
@@ -491,7 +507,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void thin_rbend_unit
+    void thin_rbend_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         thin_dipole_unit(x, xp, y, yp, kL);
@@ -501,7 +517,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void rbend_thin_cf_kick
+    void rbend_thin_cf_kick
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
         thin_quadrupole_unit(x, xp, y, yp, kL + 0);
@@ -510,7 +526,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void thin_kicker_unit
+    void thin_kicker_unit
       (T & p, double kL)
     {
         p = p + T(kL);
@@ -518,7 +534,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void thin_kicker_unit
+    void thin_kicker_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp = xp + T(kL[0]);
@@ -527,7 +543,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void constfoc_unit
+    void constfoc_unit
       (T & x, T & xp, double cs, double sn, double beta, double ibeta)
     {
         T vcs(cs), vsn(sn), vbeta(beta), vibeta(ibeta);
@@ -540,7 +556,7 @@ public:
     }
 
     KOKKOS_INLINE_FUNCTION
-    static double thin_rfcavity_pnew
+    double thin_rfcavity_pnew
       (double pref, double m, double volt, double phi_s)
     {
         double E0 = sqrt(pref * pref + m * m);
@@ -550,7 +566,7 @@ public:
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    static void thin_rfcavity_unit
+    void thin_rfcavity_unit
       (T & px, T & py, T const & cdt, T & dpop,
        double w_rf, double volt, double phi_s, double m, double old_ref_p, double & new_ref_p, double * mhp, int nh)
     {
@@ -588,10 +604,22 @@ public:
         dpop = sqrt((E-m)*(E+m)) / new_ref_p - 1.0;
     }
 
+
+    KOKKOS_INLINE_FUNCTION
+    double factorial(int n)
+    {
+        if (n == 0) return 1.0;
+
+        double r = 1;
+        for(int i = 1; i <= n; ++i) r *= i;
+        return r;
+    }
+
     // general thin magnets of n-th order
     // n = 1, dipole; n = 2, quadrupole; n = 3, sextupole, etc.
     template <typename T>
-    inline static void thin_magnet_unit
+    KOKKOS_INLINE_FUNCTION
+    void thin_magnet_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL, int n)
     {
         for(int k = 0; k < n; k += 4)
@@ -643,7 +671,8 @@ public:
         }
     }
 
-    inline static void nllens_unit
+    KOKKOS_INLINE_FUNCTION
+    void nllens_unit
         (double x, double y, double & xp, double & yp, double icnll, double kick)
     {
 #if 0
@@ -674,7 +703,8 @@ public:
     }
 
     template <typename T>
-    inline static void dipedge_unit
+    KOKKOS_INLINE_FUNCTION
+    void dipedge_unit
         (T & x, T & xp, T & y, T & yp, double re_2_1, double re_4_3, double const * te)
     {
         // linear terms
@@ -689,7 +719,8 @@ public:
     }
 
 
-    inline static void solenoid_unit
+    KOKKOS_INLINE_FUNCTION
+    void solenoid_unit
         (double & x, double & xp, double & y, double & yp, double & cdt, double & dpop,
          double ks, double ksl, double length, double ref_p, double mass, double ref_cdt)
     {
@@ -719,21 +750,24 @@ public:
         cdt += duration - ref_cdt;
     }
 
-    inline static void solenoid_in_edge_kick
+    KOKKOS_INLINE_FUNCTION
+    void solenoid_in_edge_kick
         (double const & x, double & xp, double const & y, double & yp, double kse)
     {
         xp += kse * y;
         yp -= kse * x;
     }
 
-    inline static void solenoid_out_edge_kick
+    KOKKOS_INLINE_FUNCTION
+    void solenoid_out_edge_kick
         (double const & x, double & xp, double const & y, double & yp, double kse)
     {
         xp -= kse * y;
         yp += kse * x;
     }
 
-    inline static void elens_kick_gaussian
+    KOKKOS_INLINE_FUNCTION
+    void elens_kick_gaussian
         (double x, double & xp, double y, double & yp, double dpop,
          double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
     {
@@ -767,7 +801,8 @@ public:
         yp += kick * y / r;
     }
 
-    inline static void elens_kick_uniform
+    KOKKOS_INLINE_FUNCTION
+    void elens_kick_uniform
         (double x, double & xp, double y, double & yp, double dpop,
          double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
     {
@@ -790,22 +825,15 @@ public:
     }
 
 
-    inline static double factorial(int n)
-    {
-        if (n == 0) return 1.0;
-
-        double r = 1;
-        for(int i = 1; i <= n; ++i) r *= i;
-        return r;
-    }
-
 
 
     // utility
-    inline int full_drifts_per_step(int order)
+    KOKKOS_INLINE_FUNCTION
+    int full_drifts_per_step(int order)
     { return std::pow(3.0, (order-2.0)/2.0) * 2; }
 
-    inline int compact_drifts_per_step(int order)
+    KOKKOS_INLINE_FUNCTION
+    int compact_drifts_per_step(int order)
     { return (full_drifts_per_step(order) - 2) / 2 + 2; }
 
     // general n-th order yoshida
@@ -907,7 +935,7 @@ public:
         int order,
         int components >
     KOKKOS_INLINE_FUNCTION
-    static void yoshida( T & x, T & xp,
+    void yoshida( T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const & dpop,
                                 double pref, double m, double step_ref_cdt,
@@ -931,7 +959,7 @@ public:
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
     KOKKOS_INLINE_FUNCTION
-    static void yoshida2(T & x, T & xp,
+    void yoshida2(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
@@ -957,7 +985,7 @@ public:
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
     KOKKOS_INLINE_FUNCTION
-    static void yoshida4(T & x, T & xp,
+    void yoshida4(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
@@ -1022,7 +1050,7 @@ public:
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
     KOKKOS_INLINE_FUNCTION
-    static void yoshida6(T & x, T & xp,
+    void yoshida6(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
@@ -1114,11 +1142,29 @@ public:
     }
 
 
+    namespace yoshida_constants
+    {
+        // see yoshida4.py for formulas
+        namespace bend_yoshida6
+        {
+            const double c1 = 0.79361246386112147294625603763;
+            const double c2 = -0.206276584816439780698721319354;
+            const double c3 = -0.118008867881292655922412133144;
+            const double c4 = 0.236949573653050744373598734219;
+
+            const double d1 = 1.58722492772224294589251207526;
+            const double d2 = -1.99977809735512250728995471397;
+            const double d3 = -1.82324266348482825773733634154;
+            const double d4 = 2.29714181079092974648453380998;
+        }
+    }
+
     template <
         typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),
         int components >
-    inline static void bend_yoshida4(T & x, T & xp,
+    KOKKOS_INLINE_FUNCTION
+    void bend_yoshida4(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
@@ -1127,6 +1173,7 @@ public:
                                 double r0, double bend_strength,
                                 int steps)
     {
+#if 0
         // see yoshida4.py for formulas
         const double c1 = 0.675603595979828817023843904487;
         const double c4 = c1;
@@ -1155,30 +1202,30 @@ public:
         static double ssd = 0.0;
         static double sr0 = 0.0;
 
-        static std::complex<double> c1_step_phase = bend_unit_phase(c1 * ssd);
-        static std::complex<double> c2_step_phase = bend_unit_phase(c2 * ssd);
-        static std::complex<double> c3_step_phase = bend_unit_phase(c3 * ssd);
-        static std::complex<double> c4_step_phase = bend_unit_phase(c4 * ssd);
+        static std::complex<double> step_phase[0] = bend_unit_phase(c1 * ssd);
+        static std::complex<double> step_phase[1] = bend_unit_phase(c2 * ssd);
+        static std::complex<double> step_phase[2] = bend_unit_phase(c3 * ssd);
+        static std::complex<double> step_phase[3] = bend_unit_phase(c4 * ssd);
 
-        static std::complex<double> c1_step_term = bend_unit_term(sr0, c1 * ssd);
-        static std::complex<double> c2_step_term = bend_unit_term(sr0, c2 * ssd);
-        static std::complex<double> c3_step_term = bend_unit_term(sr0, c3 * ssd);
-        static std::complex<double> c4_step_term = bend_unit_term(sr0, c4 * ssd);
+        static std::complex<double> step_term[0] = bend_unit_term(sr0, c1 * ssd);
+        static std::complex<double> step_term[1] = bend_unit_term(sr0, c2 * ssd);
+        static std::complex<double> step_term[2] = bend_unit_term(sr0, c3 * ssd);
+        static std::complex<double> step_term[3] = bend_unit_term(sr0, c4 * ssd);
 
         double theta = step_angle;
 
         if (theta != ssd)
         {
             // updates both phase and term
-            c1_step_phase = bend_unit_phase(c1 * theta);
-            c2_step_phase = bend_unit_phase(c2 * theta);
-            c3_step_phase = bend_unit_phase(c3 * theta);
-            c4_step_phase = bend_unit_phase(c4 * theta);
+            step_phase[0] = bend_unit_phase(c1 * theta);
+            step_phase[1] = bend_unit_phase(c2 * theta);
+            step_phase[2] = bend_unit_phase(c3 * theta);
+            step_phase[3] = bend_unit_phase(c4 * theta);
 
-            c1_step_term = bend_unit_term(r0, c1 * theta);
-            c2_step_term = bend_unit_term(r0, c2 * theta);
-            c3_step_term = bend_unit_term(r0, c3 * theta);
-            c4_step_term = bend_unit_term(r0, c4 * theta);
+            step_term[0] = bend_unit_term(r0, c1 * theta);
+            step_term[1] = bend_unit_term(r0, c2 * theta);
+            step_term[2] = bend_unit_term(r0, c3 * theta);
+            step_term[3] = bend_unit_term(r0, c4 * theta);
 
             ssd = theta;
             sr0 = r0;
@@ -1186,10 +1233,10 @@ public:
         else if (r0 != sr0)
         {
             // update term only
-            c1_step_term = bend_unit_term(r0, c1 * theta);
-            c2_step_term = bend_unit_term(r0, c2 * theta);
-            c3_step_term = bend_unit_term(r0, c3 * theta);
-            c4_step_term = bend_unit_term(r0, c4 * theta);
+            step_term[0] = bend_unit_term(r0, c1 * theta);
+            step_term[1] = bend_unit_term(r0, c2 * theta);
+            step_term[2] = bend_unit_term(r0, c3 * theta);
+            step_term[3] = bend_unit_term(r0, c4 * theta);
 
             sr0 = r0;
         }
@@ -1197,41 +1244,48 @@ public:
         for(int i = 0; i < steps; ++i)
         {
             bend_unit(x, xp, y, yp, cdt, dpop, - c1 * step_angle, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c1_step_phase, c1_step_term);
+                       m, substep_reference_cdt, step_phase[0], step_term[0]);
 
             kf( x, xp, y, yp, r0, k1 );
 
             bend_unit(x, xp, y, yp, cdt, dpop, - c2 * step_angle, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+                       m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             kf( x, xp, y, yp, r0, k2 );
 
             bend_unit(x, xp, y, yp, cdt, dpop, - c3 * step_angle, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c3_step_phase, c3_step_term);
+                       m, substep_reference_cdt, step_phase[2], step_term[2]);
 
             kf( x, xp, y, yp, r0, k3 );
 
             bend_unit(x, xp, y, yp, cdt, dpop, - c4 * step_angle, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c4_step_phase, c4_step_term);
+                       m, substep_reference_cdt, step_phase[3], step_term[3]);
         }
+#endif
     }
 
-    inline static Kokkos::complex<double> sbend_unit_phase(double c, double delta)
+    KOKKOS_INLINE_FUNCTION
+    Kokkos::complex<double> sbend_unit_phase(double c, double delta)
     { return bend_unit_phase(c * delta); }
 
-    inline static Kokkos::complex<double> rbend_unit_phase(double c, double delta)
+    KOKKOS_INLINE_FUNCTION
+    Kokkos::complex<double> rbend_unit_phase(double c, double delta)
     { return bend_unit_phase(0.0); }
 
-    inline static Kokkos::complex<double> sbend_unit_term (double c, double delta, double r0)
+    KOKKOS_INLINE_FUNCTION
+    Kokkos::complex<double> sbend_unit_term (double c, double delta, double r0)
     { return bend_unit_term(r0, c * delta); }
 
-    inline static Kokkos::complex<double> rbend_unit_term (double c, double delta, double r0)
+    KOKKOS_INLINE_FUNCTION
+    Kokkos::complex<double> rbend_unit_term (double c, double delta, double r0)
     { return c * delta; }
 
-    inline static double sbend_dphi(double c, double delta)
+    KOKKOS_INLINE_FUNCTION
+    double sbend_dphi(double c, double delta)
     { return - c * delta; }
 
-    inline static double rbend_dphi(double c, double delta)
+    KOKKOS_INLINE_FUNCTION
+    double rbend_dphi(double c, double delta)
     { return 0.0; }
 
 #if 1
@@ -1239,29 +1293,22 @@ public:
     template <
         typename T,
         void(f_kf)(T const & x, T & xp, T const & y, T & yp, double r0, double const * kL),   // kick
-        Kokkos::complex<double>(f_bup) (double c, double delta),                                 // bend unit phase
-        Kokkos::complex<double>(f_but) (double c, double delta, double r0),                      // bend unit term
-        double(f_dphi)              (double c, double delta),                                 // c_dphi
         int components >
-    inline static void bend_yoshida6(T & x, T & xp,
-                                T & y, T & yp,
-                                T & cdt, T const& dpop,
-                                double reference_momentum,
-                                double m, double step_reference_cdt,
-                                double step_delta, double const * step_strength,
-                                double r0, double bend_strength,
-                                int steps)
+    KOKKOS_INLINE_FUNCTION
+    void bend_yoshida6(T & x, T & xp,
+                       T & y, T & yp,
+                       T & cdt, T const& dpop,
+                       double reference_momentum,
+                       double m, double step_reference_cdt,
+                       double const * step_strength,
+                       double const * dphi,
+                       Kokkos::complex<double> const * step_phase,
+                       Kokkos::complex<double> const * step_term,
+                       double r0, double bend_strength,
+                       int steps)
     {
         // see yoshida4.py for formulas
-        const double c1 = 0.79361246386112147294625603763;
-        const double c2 = -0.206276584816439780698721319354;
-        const double c3 = -0.118008867881292655922412133144;
-        const double c4 = 0.236949573653050744373598734219;
-
-        const double d1 = 1.58722492772224294589251207526;
-        const double d2 = -1.99977809735512250728995471397;
-        const double d3 = -1.82324266348482825773733634154;
-        const double d4 = 2.29714181079092974648453380998;
+        namespace by6 = yoshida_constants::bend_yoshida6;
 
         // 10 drifts per step
         double substep_reference_cdt = step_reference_cdt * 0.1;
@@ -1270,57 +1317,17 @@ public:
 
         for (int i=0; i<components; ++i)
         {
-            k1[i*2+0] = d1 * step_strength[i*2+0];
-            k1[i*2+1] = d1 * step_strength[i*2+1];
+            k1[i*2+0] = by6::d1 * step_strength[i*2+0];
+            k1[i*2+1] = by6::d1 * step_strength[i*2+1];
 
-            k2[i*2+0] = d2 * step_strength[i*2+0];
-            k2[i*2+1] = d2 * step_strength[i*2+1];
+            k2[i*2+0] = by6::d2 * step_strength[i*2+0];
+            k2[i*2+1] = by6::d2 * step_strength[i*2+1];
 
-            k3[i*2+0] = d3 * step_strength[i*2+0];
-            k3[i*2+1] = d3 * step_strength[i*2+1];
+            k3[i*2+0] = by6::d3 * step_strength[i*2+0];
+            k3[i*2+1] = by6::d3 * step_strength[i*2+1];
 
-            k4[i*2+0] = d4 * step_strength[i*2+0];
-            k4[i*2+1] = d4 * step_strength[i*2+1];
-        }
-
-        static double ssd = 0.0;  // stored step_delta
-        static double sr0 = 0.0;  // stored r0
-
-        static Kokkos::complex<double> c1_step_phase = f_bup(c1, ssd);
-        static Kokkos::complex<double> c2_step_phase = f_bup(c2, ssd);
-        static Kokkos::complex<double> c3_step_phase = f_bup(c3, ssd);
-        static Kokkos::complex<double> c4_step_phase = f_bup(c4, ssd);
-
-        static Kokkos::complex<double> c1_step_term = f_but(c1, ssd, sr0);
-        static Kokkos::complex<double> c2_step_term = f_but(c2, ssd, sr0);
-        static Kokkos::complex<double> c3_step_term = f_but(c3, ssd, sr0);
-        static Kokkos::complex<double> c4_step_term = f_but(c4, ssd, sr0);
-
-        static double c1_dphi = f_dphi(c1, ssd);
-        static double c2_dphi = f_dphi(c2, ssd);
-        static double c3_dphi = f_dphi(c3, ssd);
-        static double c4_dphi = f_dphi(c4, ssd);
-
-        if (step_delta != ssd || sr0 != r0)
-        {
-            // updates both phase and term
-            c1_step_phase = f_bup(c1, step_delta);
-            c2_step_phase = f_bup(c2, step_delta);
-            c3_step_phase = f_bup(c3, step_delta);
-            c4_step_phase = f_bup(c4, step_delta);
-
-            c1_step_term = f_but(c1, step_delta, r0);
-            c2_step_term = f_but(c2, step_delta, r0);
-            c3_step_term = f_but(c3, step_delta, r0);
-            c4_step_term = f_but(c4, step_delta, r0);
-
-            c1_dphi = f_dphi(c1, step_delta);
-            c2_dphi = f_dphi(c2, step_delta);
-            c3_dphi = f_dphi(c3, step_delta);
-            c4_dphi = f_dphi(c4, step_delta);
-
-            ssd = step_delta;
-            sr0 = r0;
+            k4[i*2+0] = by6::d4 * step_strength[i*2+0];
+            k4[i*2+1] = by6::d4 * step_strength[i*2+1];
         }
 
         for(int i = 0; i < steps; ++i)
@@ -1328,80 +1335,80 @@ public:
             //drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
             //          m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c1_dphi , bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c1_step_phase, c1_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[0] , bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[0], step_term[0]);
 
             f_kf( x, xp, y, yp, r0, k1 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c2_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             f_kf( x, xp, y, yp, r0, k2 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c2_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             f_kf( x, xp, y, yp, r0, k1 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c3_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c3_step_phase, c3_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[2], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[2], step_term[2]);
 
             f_kf( x, xp, y, yp, r0, k3 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c4_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c4_step_phase, c4_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[3], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[3], step_term[3]);
 
             f_kf( x, xp, y, yp, r0, k4 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c4_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c4_step_phase, c4_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[3], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[3], step_term[3]);
 
             f_kf( x, xp, y, yp, r0, k3 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c3_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c3_step_phase, c3_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[2], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[2], step_term[2]);
 
             f_kf( x, xp, y, yp, r0, k1 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c2_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             f_kf( x, xp, y, yp, r0, k2 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c2_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c2_step_phase, c2_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             f_kf( x, xp, y, yp, r0, k1 );
 
             //drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, c1_dphi, bend_strength, reference_momentum,
-                       m, substep_reference_cdt, c1_step_phase, c1_step_term);
+            bend_unit(x, xp, y, yp, cdt, dpop, dphi[0], bend_strength, reference_momentum,
+                       m, substep_reference_cdt, step_phase[0], step_term[0]);
 
         }
     }

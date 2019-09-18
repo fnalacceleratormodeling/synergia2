@@ -228,6 +228,9 @@ namespace
         }
     };
 
+    namespace fa  = ::FF_algorithm;
+    namespace by6 = ::FF_algorithm::yoshida_constants::bend_yoshida6;
+
     struct PropSbendCF
     {
         Particles p;
@@ -238,6 +241,41 @@ namespace
 
         const Kokkos::complex<double> phase_e1;
         const Kokkos::complex<double> phase_e2;
+
+        const Kokkos::complex<double> step_phase[4];
+        const Kokkos::complex<double> step_term[4];
+        const double dphi[4];
+
+        PropSbendCF( Particles const& p, 
+                SbendParams const& sp,
+                double step_angle, 
+                double step_ref_cdt,
+                Kokkos::complex<double> phase_e1,
+                Kokkos::complex<double> phase_e2 )
+            : p(p), sp(sp)
+            , step_angle(step_angle)
+            , step_ref_cdt(step_ref_cdt)
+            , phase_e1(phase_e1)
+            , phase_e2(phase_e2)
+
+            , step_phase{
+                fa::sbend_unit_phase(by6::c1, step_angle),
+                fa::sbend_unit_phase(by6::c2, step_angle),
+                fa::sbend_unit_phase(by6::c3, step_angle),
+                fa::sbend_unit_phase(by6::c4, step_angle) }
+
+            , step_term{
+                fa::sbend_unit_term(by6::c1, step_angle, sp.r0),
+                fa::sbend_unit_term(by6::c2, step_angle, sp.r0),
+                fa::sbend_unit_term(by6::c3, step_angle, sp.r0),
+                fa::sbend_unit_term(by6::c4, step_angle, sp.r0) }
+
+            , dphi{
+                fa::sbend_dphi(by6::c1, step_angle),
+                fa::sbend_dphi(by6::c2, step_angle),
+                fa::sbend_dphi(by6::c3, step_angle),
+                fa::sbend_dphi(by6::c4, step_angle) }
+        { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
@@ -262,15 +300,10 @@ namespace
             }
 
             // bend body
-            FF_algorithm::bend_yoshida6< double, 
-                                         FF_algorithm::thin_cf_kick_2<double>, 
-                                         FF_algorithm::sbend_unit_phase,
-                                         FF_algorithm::sbend_unit_term,
-                                         FF_algorithm::sbend_dphi,
-                                         2 > ( 
+            FF_algorithm::bend_yoshida6<double, fa::thin_cf_kick_2<double>, 2> ( 
                   p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
                   sp.pref_b, sp.m_b, step_ref_cdt,
-                  step_angle, sp.step_kl,
+                  sp.step_kl, dphi, step_phase, step_term,
                   sp.r0, sp.strength, sp.steps );
 
             if (sp.redge)
@@ -373,6 +406,29 @@ namespace
         double  cdt_l = 0.0;
         double dpop_l = ref_l.get_state()[Bunch::dpop];
 
+        double step_angle = sp.angle/sp.steps;
+
+        Kokkos::complex<double> step_phase[4] = { 
+            fa::sbend_unit_phase(by6::c1, step_angle),
+            fa::sbend_unit_phase(by6::c2, step_angle),
+            fa::sbend_unit_phase(by6::c3, step_angle),
+            fa::sbend_unit_phase(by6::c4, step_angle) 
+        };
+
+        Kokkos::complex<double> step_term[4] = {
+            fa::sbend_unit_term(by6::c1, step_angle, sp.r0),
+            fa::sbend_unit_term(by6::c2, step_angle, sp.r0),
+            fa::sbend_unit_term(by6::c3, step_angle, sp.r0),
+            fa::sbend_unit_term(by6::c4, step_angle, sp.r0)
+        };
+
+        double dphi[4] = {
+            fa::sbend_dphi(by6::c1, step_angle),
+            fa::sbend_dphi(by6::c2, step_angle),
+            fa::sbend_dphi(by6::c3, step_angle),
+            fa::sbend_dphi(by6::c4, step_angle),
+        };
+
         if (sp.ledge)
         {
             // slot
@@ -400,13 +456,10 @@ namespace
 
         FF_algorithm::bend_yoshida6< double, 
                                      FF_algorithm::thin_cf_kick_2<double>, 
-                                     FF_algorithm::sbend_unit_phase,
-                                     FF_algorithm::sbend_unit_term,
-                                     FF_algorithm::sbend_dphi,
                                      2 >
             ( x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
               pref_l, m_l, 0.0 /* step ref_cdt */,
-              sp.angle/sp.steps, step_kl,
+              step_kl, dphi, step_phase, step_term,
               sp.r0, sp.strength, sp.steps);
 
         if (sp.redge)
