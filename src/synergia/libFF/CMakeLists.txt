@@ -33,4 +33,4 @@ install(FILES
     ff_element.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/libFF)
 
-#add_subdirectory(tests)
+add_subdirectory(tests)
