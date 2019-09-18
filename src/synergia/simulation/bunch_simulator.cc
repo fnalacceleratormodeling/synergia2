@@ -225,4 +225,11 @@ Bunch_simulator::prop_action_turn_end(Lattice & lattice, int turn)
 void 
 Bunch_simulator::set_lattice_reference_particle(Reference_particle const & ref)
 {
+    for(auto & train : get_trains())
+    {
+        for(auto & bunch : train.get_bunches())
+        {
+            bunch.set_design_reference_particle(ref);
+        }
+    }
 }
