@@ -62,9 +62,11 @@ Bunch::Bunch(
         int total_num, 
         double real_num, 
         Commxx comm,
-        int total_spectator_num )
+        int total_spectator_num,
+        int bunch_index,
+        int bucket_index,
+        int array_index )
     : comm(comm)
-    , bucket_index(-1)
     , boundary(LB::open)
     , boundary_param(0.0)
     , ref_part(reference_particle)
@@ -73,6 +75,9 @@ Bunch::Bunch(
     , real_num(real_num)
     , parts{ BunchParticles(total_num, comm),
              BunchParticles(total_spectator_num, comm) }
+    , bunch_index(bunch_index)
+    , bucket_index(bucket_index)
+    , array_index(array_index)
 {
 }
 

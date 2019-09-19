@@ -136,13 +136,15 @@ Bunch_simulator::construct(
                                          num_part, 
                                          num_real_part, 
                                          spacing_pri, 
-                                         comm_pri ),
+                                         comm_pri,
+                                         0 ),
                             Bunch_train( ref_sec, 
                                          num_bunches_sec, 
                                          num_part, 
                                          num_real_part, 
                                          spacing_sec, 
-                                         comm_sec ),
+                                         comm_sec,
+                                         1 ),
                             bunch_ranks, 
                             comm );
 }

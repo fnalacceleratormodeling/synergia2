@@ -219,7 +219,7 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     Kokkos::parallel_reduce(num, dc, ndiscarded);
 
     if (ndiscarded == 0) return ndiscarded;
-    std::cout << "      discarded = " << ndiscarded << "\n";
+    // std::cout << "      discarded = " << ndiscarded << "\n";
 
     // move discarded particles to the tail of the array
     particle_mover pm {num, padding, ndiscarded, parts, discard};
@@ -230,18 +230,6 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     set_local_num(num - ndiscarded);
 
     return ndiscarded;
-
-#if 0
-    // diagnostics_loss update and write
-    auto diag_loss = bunch.get_diag_loss_aperture();
-    if (diag_loss)
-    {
-        int start_idx = bunch.get_local_num_padded() - ndiscarded;
-        auto discarded = bunch.get_particles_in_range(start_idx, ndiscarded);
-        //diag_loss->update(discarded);
-        //diag_loss->write();
-    }
-#endif
 }
 
 

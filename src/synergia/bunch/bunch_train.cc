@@ -112,11 +112,14 @@ Bunch_train::Bunch_train(
         size_t num_particles_per_bunch,
         double num_real_particles_per_bunch,
         double spacing,
-        Commxx const & bt_comm ) 
+        Commxx const & bt_comm,
+        int index ) 
 : bunches()
 , spacings()
 , comm(bt_comm.dup())
-
+, index(index)
+, num_bunches(num_bunches)
+, num_buckets(num_bunches)
 {
     for(auto i=0; i<num_bunches; ++i)
         spacings.emplace_back( spacing );
@@ -147,7 +150,11 @@ Bunch_train::Bunch_train(
                 num_particles_per_bunch,
                 num_real_particles_per_bunch,
                 bunch_comm,
-                bunch_index );
+                0,             // num of specatator particles
+                bunch_index,   // bunch index in the train
+                bunch_index,   // bucket index set to the same of bunch index
+                bunches.size() // array index in the bunches array
+                );
     }
 }
 

@@ -12,6 +12,10 @@ private:
     std::vector<double> spacings;
 
     Commxx comm;
+    int index;
+
+    int num_bunches;
+    int num_buckets;
 
     /// counts and offsets are needed for impedance, counts.size()=offsets.size()=num_procs
     /// they are meaningfull only on the local rank=0 of every bunch communicator 
@@ -37,16 +41,34 @@ public:
             size_t num_particles_per_bunch,
             double num_real_particles_per_bunch,
             double spacing,
-            Commxx const & comm = Commxx() );
+            Commxx const & comm = Commxx(),
+            int index = 0 );
+
+    // index of the train (0 or 1)
+    int get_index() const
+    { return index; }
+
+    // number of bunches on this rank (size of the bunch array)
+    size_t get_size() const
+    { return bunches.size(); }
+
+    // total number of bunches in the train. it is not always
+    // the same as the size of the bunch array
+    int get_num_bunches() const
+    { return num_bunches; }
+
+    // number of buckets. it is not necessary for the bunches to
+    // occupy consecutive buckets, so there might be some empty
+    // buckets in-between bunches
+    // for now it is always the same as the number of bunches
+    int get_num_buckets() const
+    { return num_buckets; }
 
     Bunch & operator[](size_t idx)
     { return bunches[idx]; }
 
     Bunch const & operator[](size_t idx) const
     { return bunches[idx]; }
-
-    size_t get_size() const
-    { return bunches.size(); }
 
     std::vector<Bunch> & get_bunches()
     { return bunches; }

@@ -330,7 +330,25 @@ Propagator::do_step(
                << simulator[0][0].get_reference_particle().get_s_n();
 
         logger << ", time = " << std::fixed << std::setprecision(3) 
-               << t_step1 - t_step0 << "s" << std::endl;
+               << t_step1 - t_step0 << "s";
+
+        logger << ", macroparticles = ";
+
+        for(auto const& train : simulator.get_trains())
+        {
+            logger << "(";
+
+            for(auto const& bunch : train.get_bunches())
+            {
+                logger << bunch.get_total_num();
+                if (bunch.get_array_index() != train.get_size()-1) logger << ", ";
+            }
+
+            logger << ")";
+            if (train.get_index() == 0) logger << " / ";
+        }
+
+        logger << std::endl;
 
         std::cout.precision(p);
     }

@@ -62,8 +62,6 @@ private:
 
     Commxx comm;    
 
-    int bucket_index;
-
     // meaning of bounary_param for each boundary condition:
     // open (N/A), periodic (z-period), z-cut (longitudinal_extent),
     // bucket_barrier (bucket_length)
@@ -89,6 +87,10 @@ private:
     std::unique_ptr<Diagnostics_loss> diag_aperture;
     std::unique_ptr<Diagnostics_loss> diag_zcut;
 
+    // bunch indicies
+    int bunch_index;    // index in the train
+    int bucket_index;  // which bucket its occupying
+    int array_index;   // array index in the train's bunch array
 
 private:
 
@@ -110,11 +112,19 @@ public:
             int total_num,
             double real_num, 
             Commxx comm,
-            int total_spectator_num = 0 );
+            int total_spectator_num = 0,
+            int bunch_index = 0,
+            int bucket_index = 0,
+            int array_index = 0 );
     
     // non-copyable but moveable
     Bunch(Bunch const&) = delete;
     Bunch(Bunch &&) = default;
+
+    // indicies
+    int get_array_index()  const { return array_index; }
+    int get_bunch_index()  const { return bunch_index; }
+    int get_bucket_index() const { return bucket_index; }
 
     ///
     /// Set the particle charge
@@ -285,7 +295,6 @@ public:
 
     // bucket index
     void set_bucket_index(int index)      { bucket_index = index; }
-    int  get_bucket_index() const         { return bucket_index; }
     bool is_bucket_index_assigned() const { return bucket_index >= 0; }
 
     /// Get the communicator
@@ -333,6 +342,18 @@ template<typename AP>
 inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
 { 
     int ndiscarded = get_bunch_particles(pg).apply_aperture(ap); 
+
+    // update total number and real number
+    if (ndiscarded)
+    {
+        auto & bp = get_bunch_particles(pg);
+        int old_total = bp.update_total_num();
+
+        if (pg == PG::regular)
+            real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;
+    }
+
+    // diagnostics
     if (ndiscarded && diag_aperture)
     {
         auto discarded = get_bunch_particles(pg).get_particles_last_discarded();
