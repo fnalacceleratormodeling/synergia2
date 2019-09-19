@@ -1,7 +1,6 @@
 #ifndef FF_ELEMENT_H
 #define FF_ELEMENT_H
 
-//#include <beamline/JetParticle.h>
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/lattice_element.h"

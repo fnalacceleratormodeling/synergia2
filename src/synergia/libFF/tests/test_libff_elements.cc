@@ -27,9 +27,6 @@ struct propagator_fixture
         //fm.set_momentum(3.0);
         ref.set_four_momentum(fm);
 
-        std::cout << std::setprecision(16);
-        std::cout << fm.get_mass() << ", " << fm.get_momentum() << "\n";
-
         sim = Bunch_simulator::create_single_bunch_simulator(ref, 1, 1e09, Commxx());
 
         // propagate options (start turn, num turns)
