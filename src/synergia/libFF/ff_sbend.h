@@ -11,6 +11,7 @@ class FF_sbend : public FF_element
 {
 public:
 
+#if 0
     template <typename T>
     inline static void sbend_unit(T & x, T & xp,
                                   T & y, T & yp,
@@ -35,27 +36,9 @@ public:
                                    std::complex<double> phase,
                                    std::complex<double> term
                                    );
+#endif
 
-    virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
-
-    double get_reference_cdt(double length, double strength, double angle, 
-                             bool ledge, bool redge,
-                             double e1, double e2, 
-                             double us_edge_k_p, double ds_edge_k_p,
-                             double dphi,
-                             std::complex<double> const & phase,
-                             std::complex<double> const & term,
-                             Reference_particle &reference_particle);
-
-    double get_reference_cdt(double length, double angle, double strength,
-                             bool ledge, bool redge,
-                             double e1, double e2, 
-                             double us_edge_k_p, double ds_edge_k_p,
-                             std::complex<double> phase_e1, 
-                             std::complex<double> phase_e2, 
-                             double * kl,
-                             Reference_particle &reference_particle);
 };
 
 #if 0
