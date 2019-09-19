@@ -418,19 +418,16 @@ Independent_operator::apply_impl(
     {
         for (auto & bunch : train.get_bunches())
         {
-            auto const & ref = bunch.get_reference_particle();
-
             for (auto const & opn : operations)
             {
-                logger(LV::INFO) << "    Independent_operator: operation type = " 
+                logger(LV::INFO) 
+                    << "    Independent_operator: operation type = " 
                     << opn->get_type() << std::endl;
 
                 opn->apply(bunch, logger);
 
                 simulator.diag_action_operation(*opn);
             }
-
-            bunch.update_total_num();
         }
     }
 
