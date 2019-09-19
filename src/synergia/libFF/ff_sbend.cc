@@ -145,16 +145,17 @@ namespace
         double r0;
 
         int    steps;
-        double step_kl[6];
 
-        double dphi;
+        double k_l[6];
+        double scale;
+
         double strength;
         double pref_b;
         double m_b;
         double ref_cdt;
 
-        double e1;
-        double e2;
+        double e1;  // usFaceAngle,  usAngle
+        double e2;  // dsFaceAngle, -dsAngle
 
         double ce1;
         double se1;
@@ -172,15 +173,25 @@ namespace
 
         double ds_edge_k_x;
         double ds_edge_k_y;
-
-        Kokkos::complex<double> phase;
-        Kokkos::complex<double> term;
     };
 
     struct PropSbend
     {
         Particles p;
         const SbendParams sp;
+
+        const double dphi;
+        const Kokkos::complex<double> phase;
+        const Kokkos::complex<double> term;
+
+        PropSbend(Particles const& p, SbendParams const& sp)
+            : p(p), sp(sp)
+            , dphi( -(sp.angle - (sp.e1 + sp.e2)) )   // -psi
+            , phase(std::exp(std::complex<double>(0.0, -dphi)))
+            , term( std::complex<double>(0.0, sp.length / sp.angle) *
+                    std::complex<double>(1.0 - cos(sp.angle), - sin(sp.angle)) *
+                    std::complex<double>(cos(sp.e2), -sin(sp.e2)) )
+        { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
@@ -209,8 +220,8 @@ namespace
             // bend
             FF_algorithm::bend_unit(
                     p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                    sp.dphi, sp.strength, sp.pref_b, sp.m_b, sp.ref_cdt, 
-                    sp.phase, sp.term );
+                    dphi, sp.strength, sp.pref_b, sp.m_b, sp.ref_cdt, 
+                    phase, term );
 
             if (sp.redge)
             {
@@ -239,24 +250,31 @@ namespace
         const double step_angle;
         const double step_ref_cdt;
 
+        const double step_kl[6];
+
         const Kokkos::complex<double> phase_e1;
         const Kokkos::complex<double> phase_e2;
 
         const Kokkos::complex<double> step_phase[4];
         const Kokkos::complex<double> step_term[4];
-        const double dphi[4];
+        const double step_dphi[4];
 
-        PropSbendCF( Particles const& p, 
-                SbendParams const& sp,
-                double step_angle, 
-                double step_ref_cdt,
-                Kokkos::complex<double> phase_e1,
-                Kokkos::complex<double> phase_e2 )
+        PropSbendCF( Particles const& p, SbendParams const& sp )
             : p(p), sp(sp)
-            , step_angle(step_angle)
-            , step_ref_cdt(step_ref_cdt)
-            , phase_e1(phase_e1)
-            , phase_e2(phase_e2)
+
+            , step_angle(sp.angle/sp.steps)
+            , step_ref_cdt(sp.ref_cdt/sp.steps)
+
+            , step_kl{  // k_b[i] = k_l[i] * scale
+                sp.k_l[0] * sp.scale * sp.length / sp.steps,
+                sp.k_l[1] * sp.scale * sp.length / sp.steps,
+                sp.k_l[2] * sp.scale * sp.length / sp.steps,
+                sp.k_l[3] * sp.scale * sp.length / sp.steps,
+                sp.k_l[4] * sp.scale * sp.length / sp.steps,
+                sp.k_l[5] * sp.scale * sp.length / sp.steps }
+
+            , phase_e1(fa::bend_edge_phase(sp.e1))
+            , phase_e2(fa::bend_edge_phase(sp.e2))
 
             , step_phase{
                 fa::sbend_unit_phase(by6::c1, step_angle),
@@ -270,7 +288,7 @@ namespace
                 fa::sbend_unit_term(by6::c3, step_angle, sp.r0),
                 fa::sbend_unit_term(by6::c4, step_angle, sp.r0) }
 
-            , dphi{
+            , step_dphi{
                 fa::sbend_dphi(by6::c1, step_angle),
                 fa::sbend_dphi(by6::c2, step_angle),
                 fa::sbend_dphi(by6::c3, step_angle),
@@ -303,7 +321,7 @@ namespace
             FF_algorithm::bend_yoshida6<double, fa::thin_cf_kick_2<double>, 2> ( 
                   p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
                   sp.pref_b, sp.m_b, step_ref_cdt,
-                  sp.step_kl, dphi, step_phase, step_term,
+                  step_kl, step_dphi, step_phase, step_term,
                   sp.r0, sp.strength, sp.steps );
 
             if (sp.redge)
@@ -327,7 +345,9 @@ namespace
         }
     };
 
-    void prop_reference(Reference_particle & ref_l, SbendParams & sp, double scale)
+    void prop_reference(
+            Reference_particle & ref_l, 
+            SbendParams & sp )
     {
         double pref_l = ref_l.get_momentum();
         double    m_l = ref_l.get_mass();
@@ -340,6 +360,16 @@ namespace
         double   yp_l = ref_l.get_state()[Bunch::yp];
         double  cdt_l = 0.0;
         double dpop_l = ref_l.get_state()[Bunch::dpop];
+
+        double dphi =  -(sp.angle - (sp.e1 + sp.e2));
+
+        Kokkos::complex<double> phase = 
+            std::exp(std::complex<double>(0.0, -dphi));
+
+        Kokkos::complex<double> term  = 
+            std::complex<double>(0.0, sp.length / sp.angle) *
+            std::complex<double>(1.0 - cos(sp.angle), - sin(sp.angle)) *
+            std::complex<double>(cos(sp.e2), -sin(sp.e2));
 
         if (sp.ledge)
         {
@@ -357,13 +387,13 @@ namespace
             // edge kick strenth are scaled to bunch. so need to div by "scale" to scale
             // it to the lattice reference
             FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
-                    sp.us_edge_k_x/scale, sp.us_edge_k_y/scale, 0);
+                    sp.us_edge_k_x/sp.scale, sp.us_edge_k_y/sp.scale, 0);
         }
 
         FF_algorithm::bend_complete(
                 x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
-                sp.dphi, sp.strength, pref_l, m_l, 0.0/*ref cdt*/, 
-                sp.phase, sp.term);
+                dphi, sp.strength, pref_l, m_l, 0.0/*ref cdt*/, 
+                phase, term);
 
         if (sp.redge)
         {
@@ -376,7 +406,7 @@ namespace
             // edge kick strenth are scaled to bunch. so need to div by "scale" to scale
             // it to the lattice reference
             FF_algorithm::edge_unit(
-                    y_l, xp_l, yp_l, sp.ds_edge_k_x/scale, sp.ds_edge_k_y/scale, 0);
+                    y_l, xp_l, yp_l, sp.ds_edge_k_x/sp.scale, sp.ds_edge_k_y/sp.scale, 0);
 
             // slot
             FF_algorithm::slot_unit(
@@ -389,10 +419,8 @@ namespace
     }
 
     void prop_reference_cf(
-            Reference_particle & ref_l, SbendParams & sp, double scale,
-            Kokkos::complex<double> const& phase_e1,
-            Kokkos::complex<double> const& phase_e2,
-            double const* step_kl )
+            Reference_particle & ref_l, 
+            SbendParams & sp )
     {
         double pref_l = ref_l.get_momentum();
         double    m_l = ref_l.get_mass();
@@ -406,7 +434,15 @@ namespace
         double  cdt_l = 0.0;
         double dpop_l = ref_l.get_state()[Bunch::dpop];
 
+        double step_length = sp.length / sp.steps;
         double step_angle = sp.angle/sp.steps;
+
+        // step strength for reference
+        double step_kl[6];
+        for (int i=0; i<6; ++i) step_kl[i] = sp.k_l[i] * step_length;
+
+        Kokkos::complex<double> phase_e1 = FF_algorithm::bend_edge_phase(sp.e1);
+        Kokkos::complex<double> phase_e2 = FF_algorithm::bend_edge_phase(sp.e2);
 
         Kokkos::complex<double> step_phase[4] = { 
             fa::sbend_unit_phase(by6::c1, step_angle),
@@ -422,7 +458,7 @@ namespace
             fa::sbend_unit_term(by6::c4, step_angle, sp.r0)
         };
 
-        double dphi[4] = {
+        double step_dphi[4] = {
             fa::sbend_dphi(by6::c1, step_angle),
             fa::sbend_dphi(by6::c2, step_angle),
             fa::sbend_dphi(by6::c3, step_angle),
@@ -446,7 +482,7 @@ namespace
             //FF_algorithm::edge_unit(y_l, yp_l, us_edge_k/scale);
             //FF_algorithm::edge_unit(y_l, xp_l, yp_l, dpop_l, us_edge_k_p/scale);
             FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
-                    sp.us_edge_k_x/scale, sp.us_edge_k_y/scale, 0);
+                    sp.us_edge_k_x/sp.scale, sp.us_edge_k_y/sp.scale, 0);
 
             // bend edge (thin)
             FF_algorithm::bend_edge(
@@ -459,7 +495,7 @@ namespace
                                      2 >
             ( x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
               pref_l, m_l, 0.0 /* step ref_cdt */,
-              step_kl, dphi, step_phase, step_term,
+              step_kl, step_dphi, step_phase, step_term,
               sp.r0, sp.strength, sp.steps);
 
         if (sp.redge)
@@ -479,7 +515,7 @@ namespace
             //FF_algorithm::edge_unit(y_l, yp_l, ds_edge_k);
             //FF_algorithm::edge_unit(y_l, xp_l, yp_l, dpop_l, ds_edge_k_p/scale);
             FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
-                    sp.ds_edge_k_x/scale, sp.ds_edge_k_y/scale, 0);
+                    sp.ds_edge_k_x/sp.scale, sp.ds_edge_k_y/sp.scale, 0);
 
             // slot
             FF_algorithm::slot_unit(
@@ -531,8 +567,8 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     SbendParams sp;
 
-    double      a = ele.get_double_attribute("angle");
-    double      l = ele.get_double_attribute("l");
+    double a = ele.get_double_attribute("angle");
+    double l = ele.get_double_attribute("l");
 
     sp.length = slice.get_right() - slice.get_left();
     sp.angle  = ( sp.length / l ) * a;
@@ -548,41 +584,25 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
-    int cf = 0;  // combined function
-    double k_l[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-
     // quad, sextupole, and octupole components
-    k_l[0] = ele.get_double_attribute("k1", 0.0); k_l[1] = 0.0;
-    k_l[2] = ele.get_double_attribute("k2", 0.0); k_l[3] = 0.0;
-    k_l[4] = ele.get_double_attribute("k3", 0.0); k_l[5] = 0.0;
+    sp.k_l[0] = ele.get_double_attribute("k1", 0.0);
+    sp.k_l[2] = ele.get_double_attribute("k2", 0.0);
+    sp.k_l[4] = ele.get_double_attribute("k3", 0.0);
+    sp.k_l[1] = 0.0;
+    sp.k_l[3] = 0.0;
+    sp.k_l[5] = 0.0;
 
-    if (k_l[0] != 0.0) cf = 1;
-    if (k_l[2] != 0.0) cf = 2;
-    if (k_l[4] != 0.0) cf = 3;
+    int cf = 0;  // combined function
 
-    double scale = ref_l.get_momentum() / 
+    if (sp.k_l[0] != 0.0) cf = 1;
+    if (sp.k_l[2] != 0.0) cf = 2;
+    if (sp.k_l[4] != 0.0) cf = 3;
+
+    sp.scale = ref_l.get_momentum() / 
         (ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]));
 
-    double k_b[6] = { k_l[0] * scale, k_l[1] * scale,
-                      k_l[2] * scale, k_l[3] * scale,
-                      k_l[4] * scale, k_l[5] * scale };
-
-    double usAngle = sp.e1;
-    double dsAngle = -sp.e2;
-    double usFaceAngle = sp.e1;
-    double dsFaceAngle = sp.e2;
-
-    if (!sp.redge)
-    {
-        dsAngle = 0;
-        dsFaceAngle = 0;
-    }
-
-    if (!sp.ledge)
-    {
-        usAngle = 0;
-        usFaceAngle = 0;
-    }
+    if (!sp.redge) sp.e2 = 0;
+    if (!sp.ledge) sp.e1 = 0;
 
     // lattice reference
     double pref_l = ref_l.get_momentum();
@@ -596,17 +616,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double    m_b = bunch.get_mass();
 
     // common
-    double psi = sp.angle - (usFaceAngle + dsFaceAngle);
-
     sp.strength = brho_l * a / l;
     sp.pref_b   = pref_b;
     sp.m_b      = m_b;
-
-    sp.dphi  = -psi;
-    sp.phase = std::exp( std::complex<double>(0.0, psi) );
-    sp.term  = std::complex<double>(0.0, sp.length / sp.angle) *
-               std::complex<double>(1.0 - cos(sp.angle), - sin(sp.angle)) *
-               std::complex<double>(cos(dsFaceAngle), -sin(dsFaceAngle));
 
     sp.ce1 = cos(-sp.e1);
     sp.se1 = sin(-sp.e1);
@@ -614,8 +626,8 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     sp.se2 = sin(-sp.e2);
 
     // edge kick strength (scaled to particle)
-    sp.us_edge_k =   ((charge_l > 0) ? 1.0 : -1.0) * sp.strength * tan(usAngle) / brho_b;
-    sp.ds_edge_k = - ((charge_l > 0) ? 1.0 : -1.0) * sp.strength * tan(dsAngle) / brho_b;
+    sp.us_edge_k =   ((charge_l > 0) ? 1.0 : -1.0) * sp.strength * tan( sp.e1) / brho_b;
+    sp.ds_edge_k = - ((charge_l > 0) ? 1.0 : -1.0) * sp.strength * tan(-sp.e2) / brho_b;
 
     // edge kick (per) particle (full strength, angles are calculated at each particle)
     sp.us_edge_k_p =   ((charge_l > 0) ? 1.0 : -1.0) * sp.strength / brho_b;
@@ -631,34 +643,24 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     if (cf == 0)
     {
-        prop_reference(ref_l, sp, scale);
+        prop_reference(ref_l, sp);
 
         int num = bunch.get_local_num(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
 
-        PropSbend sbend{parts, sp};
+        PropSbend sbend(parts, sp);
         Kokkos::parallel_for(num, sbend);
     }
     else
     {
-        Kokkos::complex<double> phase_e1 = FF_algorithm::bend_edge_phase(sp.e1);
-        Kokkos::complex<double> phase_e2 = FF_algorithm::bend_edge_phase(sp.e2);
-        double step_length = sp.length / sp.steps;
-
-        // step strength for reference
-        for (int i=0; i<6; ++i) sp.step_kl[i] = k_l[i] * step_length;
-
         // propagate reference
-        prop_reference_cf(ref_l, sp, scale, phase_e1, phase_e2, sp.step_kl);
-
-        // step strength for bunch
-        for (int i=0; i<6; ++i) sp.step_kl[i] = k_b[i] * step_length;
+        prop_reference_cf(ref_l, sp);
 
         // propagate bunch regular particles
         int num = bunch.get_local_num(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
 
-        PropSbendCF sbend{parts, sp, sp.angle/sp.steps, sp.ref_cdt/sp.steps, phase_e1, phase_e2};
+        PropSbendCF sbend(parts, sp);
         Kokkos::parallel_for(num, sbend);
     }
 
