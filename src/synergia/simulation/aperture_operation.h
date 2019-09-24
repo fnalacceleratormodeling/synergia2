@@ -44,12 +44,21 @@ struct Finite_aperture
     KOKKOS_INLINE_FUNCTION
     bool discard(ConstParticles const& parts, int p) const
     {
+#if 0
         if (  !std::isfinite(parts(p, 0)) 
            || !std::isfinite(parts(p, 1))
            || !std::isfinite(parts(p, 2)) 
            || !std::isfinite(parts(p, 3))
            || !std::isfinite(parts(p, 4)) 
            || !std::isfinite(parts(p, 5)) ) return true;
+#endif
+
+        if (  __isinf(parts(p, 0)) || __isnan(parts(p, 0))
+           || __isinf(parts(p, 1)) || __isnan(parts(p, 1))
+           || __isinf(parts(p, 2)) || __isnan(parts(p, 2))
+           || __isinf(parts(p, 3)) || __isnan(parts(p, 3))
+           || __isinf(parts(p, 4)) || __isnan(parts(p, 4))
+           || __isinf(parts(p, 5)) || __isnan(parts(p, 5)) ) return true;
 
         double pt = 1.0 + parts(p, 5);
         double px = parts(p, 1);
