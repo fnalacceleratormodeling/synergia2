@@ -42,7 +42,8 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double length = slice.get_right() - slice.get_left();
 
     if (length > 0.0)
-        throw std::runtime_error("FF_multipole::apply() cannot deal with thick elements");
+        throw std::runtime_error(
+                "FF_multipole::apply() cannot deal with thick elements");
 
     std::vector<double> knl;
     std::vector<double> ksl;
@@ -236,37 +237,5 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         s_particles[part][Bunch::xp] = xp;
         s_particles[part][Bunch::yp] = yp;
     }
-}
-
-template<class Archive>
-    void
-    FF_multipole::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(FF_element);
-    }
-
-template
-void
-FF_multipole::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_multipole::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_multipole::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-FF_multipole::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-FF_multipole::~FF_multipole()
-{
-
 }
 
