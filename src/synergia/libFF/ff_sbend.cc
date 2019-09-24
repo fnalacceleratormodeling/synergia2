@@ -56,18 +56,23 @@ namespace
         const Kokkos::complex<double> phase;
         const Kokkos::complex<double> term;
 
-        PropSbend(Particles const& p, SbendParams const& sp)
+        const_k1b_dev valid;
+
+        PropSbend(Particles const& p, SbendParams const& sp, const_k1b_dev valid)
             : p(p), sp(sp)
             , dphi( -(sp.angle - (sp.e1 + sp.e2)) )   // -psi
             , phase(std::exp(std::complex<double>(0.0, -dphi)))
             , term( std::complex<double>(0.0, sp.length / sp.angle) *
                     std::complex<double>(1.0 - cos(sp.angle), - sin(sp.angle)) *
                     std::complex<double>(cos(sp.e2), -sin(sp.e2)) )
+            , valid(valid)
         { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
+            if (valid(i))
+            {
             if (sp.ledge)
             {
                 // slot
@@ -108,6 +113,7 @@ namespace
                         p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
                         sp.ce2, sp.se2, sp.pref_b, sp.m_b);
             }
+            }
         }
     };
 
@@ -131,7 +137,9 @@ namespace
         const Kokkos::complex<double> step_term[4];
         const double step_dphi[4];
 
-        PropSbendCF( Particles const& p, SbendParams const& sp )
+        const_k1b_dev valid;
+
+        PropSbendCF( Particles const& p, SbendParams const& sp, const_k1b_dev valid )
             : p(p), sp(sp)
 
             , step_angle(sp.angle/sp.steps)
@@ -165,11 +173,15 @@ namespace
                 fa::sbend_dphi(by6::c2, step_angle),
                 fa::sbend_dphi(by6::c3, step_angle),
                 fa::sbend_dphi(by6::c4, step_angle) }
+
+            , valid(valid)
         { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
+            if (valid(i))
+            {
             if (sp.ledge)
             {
                 // slot
@@ -213,6 +225,7 @@ namespace
                 FF_algorithm::slot_unit(
                         p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
                         sp.ce2, sp.se2, sp.pref_b, sp.m_b);
+            }
             }
         }
     };
@@ -484,10 +497,11 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     {
         prop_reference(ref_l, sp);
 
-        int num = bunch.get_local_num(ParticleGroup::regular);
+        int num = bunch.get_local_num_slots(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
+        auto valid = bunch.get_local_particles_valid(ParticleGroup::regular);
 
-        PropSbend sbend(parts, sp);
+        PropSbend sbend(parts, sp, valid);
         Kokkos::parallel_for(num, sbend);
     }
     else
@@ -496,10 +510,11 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         prop_reference_cf(ref_l, sp);
 
         // propagate bunch regular particles
-        int num = bunch.get_local_num(ParticleGroup::regular);
+        int num = bunch.get_local_num_slots(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
+        auto valid = bunch.get_local_particles_valid(ParticleGroup::regular);
 
-        PropSbendCF sbend(parts, sp);
+        PropSbendCF sbend(parts, sp, valid);
         Kokkos::parallel_for(num, sbend);
     }
 

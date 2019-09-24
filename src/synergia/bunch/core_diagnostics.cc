@@ -78,12 +78,14 @@ namespace core_diagnostics_impl
 
         const int value_count = F::size;
         ConstParticles p;
+        const_k1b_dev valid;
         karray1d_dev dev_mean;
 
         particle_reducer(
                 ConstParticles const & p, 
+                const_k1b_dev valid,
                 karray1d const & mean = karray1d("mean", 6) )
-            : p(p), dev_mean("dev_mean", 6) 
+            : p(p), valid(valid), dev_mean("dev_mean", 6) 
         { Kokkos::deep_copy(dev_mean, mean); }
 
 #if 0
@@ -100,6 +102,7 @@ namespace core_diagnostics_impl
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<mean_tag>::operator()   (const int i, value_type sum) const
     { 
+        if (valid(i))
         for (int j=0; j<value_count; ++j) sum[j] += p(i, j); 
     }
 
@@ -107,6 +110,7 @@ namespace core_diagnostics_impl
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<z_mean_tag>::operator() (const int i, value_type sum) const
     { 
+        if (valid(i))
         sum[0] += p(i, 4);
     }
 
@@ -114,6 +118,7 @@ namespace core_diagnostics_impl
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<std_tag>::operator()    (const int i, value_type sum) const
     { 
+        if (valid(i))
         for (int j=0; j<value_count; ++j) 
             sum[j] += (p(i, j) - dev_mean(j)) * (p(i, j) - dev_mean(j)); 
     }
@@ -122,6 +127,7 @@ namespace core_diagnostics_impl
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<mom2_tag>::operator()   (const int i, value_type sum) const
     {
+        if (valid(i))
         for (int j=0; j<6; ++j)
         {
             double diff_j = p(i, j) - dev_mean(j);
@@ -143,9 +149,10 @@ Core_diagnostics::calculate_mean(Bunch const & bunch)
     karray1d mean("mean", 6);
 
     auto particles = bunch.get_local_particles();
-    const int npart = bunch.get_local_num();
+    auto valid = bunch.get_local_particles_valid();
+    const int npart = bunch.get_local_num_slots();
 
-    particle_reducer<mean_tag> pr(particles);
+    particle_reducer<mean_tag> pr(particles, valid);
     Kokkos::parallel_reduce("cal_mean", npart, pr, mean.data());
 
     Kokkos::fence();
@@ -168,9 +175,10 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
     double mean = 0;
 
     auto particles = bunch.get_local_particles();
-    const int npart = bunch.get_local_num();
+    auto valid = bunch.get_local_particles_valid();
+    const int npart = bunch.get_local_num_slots();
 
-    particle_reducer<z_mean_tag> pr(particles);
+    particle_reducer<z_mean_tag> pr(particles, valid);
     Kokkos::parallel_reduce(npart, pr, &mean);
 
     Kokkos::fence();
@@ -258,9 +266,10 @@ Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
     karray1d std("std", 6);
 
     auto particles = bunch.get_local_particles();
-    const int npart = bunch.get_local_num();
+    auto valid = bunch.get_local_particles_valid();
+    const int npart = bunch.get_local_num_slots();
 
-    particle_reducer<std_tag> pr(particles, mean);
+    particle_reducer<std_tag> pr(particles, valid, mean);
     Kokkos::parallel_reduce(npart, pr, std.data());
 
     double t = simple_timer_current();
@@ -327,9 +336,10 @@ Core_diagnostics::calculate_mom2(Bunch const & bunch, karray1d const & mean)
     karray1d sum2("sum2", 36);
 
     auto particles = bunch.get_local_particles();
-    auto npart = bunch.get_local_num();
+    auto valid = bunch.get_local_particles_valid();
+    auto npart = bunch.get_local_num_slots();
 
-    particle_reducer<mom2_tag> pr(particles, mean);
+    particle_reducer<mom2_tag> pr(particles, valid, mean);
     Kokkos::parallel_reduce(npart, pr, sum2.data());
 
     for (int i=0; i<5; ++i)

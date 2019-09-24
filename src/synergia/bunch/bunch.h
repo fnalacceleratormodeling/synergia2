@@ -178,6 +178,12 @@ public:
     ConstHostParticles get_host_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).hparts; }
 
+    k1b_dev            get_local_particles_valid(ParticleGroup pg = PG::regular)
+    { return get_bunch_particles(pg).valid; }
+
+    const_k1b_dev      get_local_particles_valid(ParticleGroup pg = PG::regular) const
+    { return get_bunch_particles(pg).valid; }
+
     /// getters of particle array dimensions
     int get_total_num(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).total_num(); }
