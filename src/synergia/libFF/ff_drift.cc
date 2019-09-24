@@ -12,9 +12,12 @@ namespace
         Particles p;
         double l, ref_p, m, ref_t;
 
+        const_k1b_dev valid;
+
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
+            if (valid(i))
             FF_algorithm::drift_unit(
                     p(i, 0), p(i, 1), p(i, 2),
                     p(i, 3), p(i, 4), p(i, 5),
@@ -46,8 +49,8 @@ namespace
     {
         if (bp.local_num())
         {
-            PropDrift drift{bp.parts, length, ref_p, mass, ref_cdt};
-            Kokkos::parallel_for(bp.local_num(), drift);
+            PropDrift drift{bp.parts, length, ref_p, mass, ref_cdt, bp.valid};
+            Kokkos::parallel_for(bp.local_num_slots(), drift);
         }
     }
 

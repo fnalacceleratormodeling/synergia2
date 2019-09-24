@@ -13,17 +13,22 @@ namespace
         double k[2];
         double xoff, yoff;
 
-        PropQuadThin(Particles p_, double k0, double k1, double xoff, double yoff)
-            : p(p_), k{k0, k1}, xoff(xoff), yoff(yoff) { }
+        const_k1b_dev valid;
+
+        PropQuadThin(Particles p_, double k0, double k1, double xoff, double yoff, const_k1b_dev valid)
+            : p(p_), k{k0, k1}, xoff(xoff), yoff(yoff), valid(valid) { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
+            if (valid(i))
+            {
             double x = p(i, 0) - xoff;
             double y = p(i, 2) - yoff;
 
             FF_algorithm::thin_quadrupole_unit(
                     x, p(i, 1), y, p(i, 3), k);
+            }
         }
     };
 
@@ -34,6 +39,8 @@ namespace
         double xoff, yoff;
         double ref_p, ref_m, step_ref_t, step_l, step_k[2];
 
+        const_k1b_dev valid;
+
         PropQuad( Particles p_, 
                   int steps,
                   double xoff,
@@ -43,7 +50,9 @@ namespace
                   double ref_t, 
                   double length,
                   double k0,
-                  double k1 )
+                  double k1,
+                  const_k1b_dev valid
+                )
             : p(p_)
             , steps(steps)
             , xoff(xoff)
@@ -53,11 +62,14 @@ namespace
             , step_ref_t(ref_t/steps)
             , step_l(length/steps) 
             , step_k{k0*step_l, k1*step_l}
+            , valid(valid)
         { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
+            if (valid(i))
+            {
             p(i, 0) -= xoff;
             p(i, 2) -= yoff;
 
@@ -67,6 +79,7 @@ namespace
 
             p(i, 0) += xoff;
             p(i, 2) += yoff;
+            }
         }
     };
 
@@ -215,9 +228,10 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         ref_l.set_state(x, xp, y, yp, 0.0, dpop);
 
         // propagate the bunch particles
-        int num = bunch.get_local_num(ParticleGroup::regular);
+        int num = bunch.get_local_num_slots(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
-        Kokkos::parallel_for(num, PropQuadThin(parts, k[0], k[1], xoff, yoff) );
+        auto valid = bunch.get_local_particles_valid(ParticleGroup::regular);
+        Kokkos::parallel_for(num, PropQuadThin(parts, k[0], k[1], xoff, yoff, valid) );
 
         // TODO: spectator particles
         // ...
@@ -233,9 +247,10 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double ref_t = get_reference_cdt(length, steps, k, ref_l);
 
         // bunch particles
-        int num = bunch.get_local_num(ParticleGroup::regular);
+        int num = bunch.get_local_num_slots(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
-        PropQuad pq( parts, steps, xoff, yoff, ref_p, ref_m, ref_t, length, k[0], k[1] );
+        auto valid = bunch.get_local_particles_valid(ParticleGroup::regular);
+        PropQuad pq( parts, steps, xoff, yoff, ref_p, ref_m, ref_t, length, k[0], k[1], valid );
         Kokkos::parallel_for(num, pq);
 
         // TODO: spectator particles

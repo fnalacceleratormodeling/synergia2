@@ -6,6 +6,8 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/logger.h"
 
+typedef Kokkos::View<uint8_t*> k1b_dev;
+typedef Kokkos::View<const uint8_t*> const_k1b_dev;
 
 typedef Kokkos::View<double*[7], Kokkos::LayoutLeft> Particles;
 typedef Kokkos::View<const double*[7], Kokkos::LayoutLeft> ConstParticles;
@@ -78,6 +80,8 @@ public:
     Particles parts;
     HostParticles hparts;
 
+    k1b_dev valid;
+
     BunchParticles(int total_num, Commxx const& comm);
 
     int local_num()         const { return num; }
@@ -119,6 +123,26 @@ public:
 
 namespace bunch_particles_impl
 {
+    template<class AP>
+    struct discard_applier
+    {
+        typedef int value_type;
+
+        AP ap;
+        ConstParticles parts;
+        k1b_dev valid;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i, int& discarded) const
+        {
+            if (valid(i) && ap.discard(parts, i))
+            {
+                valid(i) = 0;
+                ++discarded;
+            }
+        }
+    };
+
     using k1d_byte = Kokkos::View<uint8_t*>;
 
     template<class AP>
@@ -212,6 +236,17 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     using namespace bunch_particles_impl;
 
     int ndiscarded = 0;
+
+    // go through each particle to see which one is been filtered out
+    discard_applier<AP> da{ap, parts, valid};
+    Kokkos::parallel_reduce(slots, da, ndiscarded);
+
+    std::cout << "      discarded = " << ndiscarded << "\n";
+    set_local_num(num - ndiscarded);
+    return ndiscarded;
+
+#if 0
+    int ndiscarded = 0;
     k1d_byte discard(Kokkos::ViewAllocateWithoutInitializing("discard"), num);
 
     // go through each particle to see which one is been filtered out
@@ -230,6 +265,7 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     set_local_num(num - ndiscarded);
 
     return ndiscarded;
+#endif
 }
 
 

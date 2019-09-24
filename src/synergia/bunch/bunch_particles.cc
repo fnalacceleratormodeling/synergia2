@@ -36,6 +36,15 @@ namespace
         { parts(i, 6) = i + offset; }
     };
 
+    struct particle_valid_initializer
+    {
+        k1b_dev valid;
+        const int num;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { valid(i) = i<num ? 1 : 0; }
+    };
 
     /// For a given number of particles, returns the next alignement position
     int calculate_aligned_pos(int num, int alignment)
@@ -150,6 +159,7 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
     , comm(comm)
     , parts("particles", slots)
     , hparts(Kokkos::create_mirror_view(parts))
+    , valid("valid", slots)
 {
     if (!comm.is_null() && total) 
     {
@@ -166,8 +176,14 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
         Kokkos::resize(parts, slots);
         hparts = Kokkos::create_mirror_view(parts);
 
+        Kokkos::resize(valid, slots);
+
         // id
         assign_ids(offsets[comm.rank()]);
+
+        // valid particles
+        particle_valid_initializer pvi{valid, num};
+        Kokkos::parallel_for(slots, pvi);
     } 
 }
 
@@ -231,6 +247,9 @@ BunchParticles::search_particle(int pid, int last_idx) const
 void
 BunchParticles::set_local_num(int n)
 {
+    num = n;
+
+#if 0
     // make sure the new local_num is never less than 0
     if (n < 0) n = 0;
 
@@ -256,6 +275,7 @@ BunchParticles::set_local_num(int n)
         // expand the local particle array, no additional lost particle slots
         expand_local_num(num, 0);
     }
+#endif
 }
 
 void

@@ -304,6 +304,7 @@ Space_charge_2d_open_hockney::apply_impl(
             double time_step, 
             Logger & logger)
 {
+    return;
     logger << "    Space charge 2d open hockney\n";
     apply_bunch(simulator[0][0], time_step, logger);
 }
