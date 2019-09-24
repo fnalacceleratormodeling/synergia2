@@ -329,6 +329,9 @@ Space_charge_2d_open_hockney::apply_bunch(
     auto fn_norm = get_normalization_force(bunch);
 
     apply_kick(bunch, rho2, fn2, fn_norm, time_step);
+
+    // release the particle_bin array so we wont run out of mem
+    particle_bin = karray2d_dev();
 }
 
 void
