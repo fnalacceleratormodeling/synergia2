@@ -195,6 +195,8 @@ namespace deposit_impl
     struct sv_rho_reducer
     {
         ConstParticles p;
+        const_k1b_dev valid;
+
         Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> scatter;
         karray2d_dev bin;
         int gx, gy, gz;
@@ -204,13 +206,14 @@ namespace deposit_impl
 
         sv_rho_reducer(
                 ConstParticles          const & p,
+                const_k1b_dev           const & valid,
                 Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> const& scatter,
                 karray2d_dev            const & bin,
                 std::array<int,    3>   const & g,
                 std::array<double, 3>   const & h,
                 std::array<double, 3>   const & l,
                 double w0 )
-            : p(p), scatter(scatter), bin(bin)
+            : p(p), valid(valid), scatter(scatter), bin(bin)
             , gx(g[0]), gy(g[1]), gz(g[2])
             , hx(h[0]), hy(h[1]), hz(h[2])
             , lx(l[0]), ly(l[1]), lz(l[2])
@@ -220,6 +223,8 @@ namespace deposit_impl
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
+            if (valid(i))
+            {
             auto access = scatter.access();
 
             int ix, iy, iz;
@@ -258,6 +263,7 @@ namespace deposit_impl
             access( (cellx1*gx + celly2)*2 ) += w0 * aoffx *  offy;
             access( (cellx2*gy + celly1)*2 ) += w0 *  offx * aoffy;
             access( (cellx2*gx + celly2)*2 ) += w0 *  offx *  offy;
+            }
         }
     };
 }
@@ -333,7 +339,8 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_scatter_view(
     auto l = domain.get_left();
 
     auto parts = bunch.get_local_particles();
-    int nparts = bunch.get_local_num();
+    auto valid = bunch.get_local_particles_valid();
+    int nparts = bunch.get_local_num_slots();
 
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
             * bunch.get_particle_charge() * pconstants::e
@@ -343,7 +350,7 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_scatter_view(
     karray1d_dev rho_dev("rho", g[0]*g[1]*2 + g[2]);
     Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> scatter(rho_dev);
 
-    sv_rho_reducer rr(parts, scatter, particle_bin, g, h, l, weight0);
+    sv_rho_reducer rr(parts, valid, scatter, particle_bin, g, h, l, weight0);
     Kokkos::parallel_for(nparts, rr);
     Kokkos::Experimental::contribute(rho_dev, scatter);
 

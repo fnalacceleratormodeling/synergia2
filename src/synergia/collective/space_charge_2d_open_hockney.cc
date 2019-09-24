@@ -223,6 +223,7 @@ namespace
     struct alg_kicker
     {
         Particles p;
+        const_k1b_dev valid;
 
         karray1d_dev fn;
         karray1d_dev rho;
@@ -233,12 +234,14 @@ namespace
 
         alg_kicker(
                 Particles p,
+                const_k1b_dev valid,
                 karray1d_dev const & fn,
                 karray1d_dev const & rho,
                 karray2d_dev const & bin,
                 std::array<int, 3> const & g,
                 double factor )
-            : p(p), fn(fn), rho(rho), bin(bin)
+            : p(p), valid(valid)
+            , fn(fn), rho(rho), bin(bin)
             , gx(g[0]), gy(g[1]), gz(g[2])
             , factor(factor)
         { }
@@ -246,6 +249,8 @@ namespace
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
+            if (valid(i))
+            {
             int ix = fast_int_floor_kokkos(bin(i, 0));
             int iy = fast_int_floor_kokkos(bin(i, 2));
             int iz = fast_int_floor_kokkos(bin(i, 4));
@@ -280,6 +285,7 @@ namespace
 
                 p(i, 1) += factor * vx;
                 p(i, 3) += factor * vy;
+            }
             }
         }
     };
@@ -384,7 +390,7 @@ Space_charge_2d_open_hockney::update_domain(Bunch const & bunch)
 karray1d_dev
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
-    particle_bin = karray2d_dev("bin", bunch.get_local_num(), 6);
+    particle_bin = karray2d_dev("bin", bunch.get_local_num_slots(), 6);
     return deposit_charge_rectangular_2d_kokkos_scatter_view(
             doubled_domain, particle_bin, bunch);
 }
@@ -573,11 +579,12 @@ Space_charge_2d_open_hockney::apply_kick(
                     / (gamma * beta);
 
     auto parts = bunch.get_local_particles();
+    auto valid = bunch.get_local_particles_valid();
 
-    alg_kicker kicker(parts, fn2, rho2, particle_bin,
+    alg_kicker kicker(parts, valid, fn2, rho2, particle_bin,
             doubled_domain.get_grid_shape(), factor);
 
-    Kokkos::parallel_for(bunch.get_local_num(), kicker);
+    Kokkos::parallel_for(bunch.get_local_num_slots(), kicker);
 }
 
 
