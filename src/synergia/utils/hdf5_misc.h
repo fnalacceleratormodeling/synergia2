@@ -7,6 +7,20 @@
 #include <sstream>
 #include <exception>
 
+namespace storage_order
+{
+    constexpr int c = 0;
+    constexpr int fortran = 1;
+
+    constexpr int right = c;
+    constexpr int left = fortran;
+
+    constexpr int row = c;
+    constexpr int col = fortran;
+
+    constexpr int hdf5_default = c;
+}
+
 // hdf5 exceptions
 struct Hdf5_exception : public std::exception
 {

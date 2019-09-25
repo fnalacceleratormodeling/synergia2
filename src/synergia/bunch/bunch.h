@@ -322,7 +322,8 @@ public:
     /// of the two bunches differ, the particles will be shifted accordingly.
     void inject(Bunch const& bunch);
     
-    void read_file(std::string const &);
+    void read_file(std::string const& filename, ParticleGroup pg = PG::regular)
+    { get_bunch_particles(pg).read_file(filename); }
 
     void check_pz2_positive()
     {

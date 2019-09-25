@@ -19,6 +19,7 @@ int run()
     auto const & ref = lattice.get_reference_particle();
 
     //lattice.print(screen);
+    screen << "reference momentum = " << ref.get_momentum() << " GeV\n";
 
     // space charge
     Space_charge_2d_open_hockney_options sc_ops(32, 32, 128);
@@ -36,13 +37,10 @@ int run()
             lattice.get_reference_particle(), 1024 * 1024 * 1, 1e13,
             Commxx() );
 
-    screen << "reference momentum = " << ref.get_momentum() << " GeV\n";
-
-    // populate particle data
     auto & bunch = sim.get_bunch();
-    auto local_num = bunch.get_local_num();
-    auto hparts = bunch.get_host_particles();
 
+#if 1
+    // populate particle data
     karray1d means("means", 6);
     for (int i=0; i<6; ++i) means(i) = 0.0;
 
@@ -60,8 +58,17 @@ int run()
 
     Random_distribution dist(5, Commxx());
     populate_6d(dist, bunch, means, covariances);
+#endif
 
+#if 0
+    // or read from file
+    bunch.read_file("turn_particles_0000.h5");
+#endif
+
+    // print
     bunch.checkout_particles();
+    auto local_num = bunch.get_local_num();
+    auto hparts = bunch.get_host_particles();
 
     double sum = 0;
     for(int p=0; p<bunch.get_local_num(); ++p)

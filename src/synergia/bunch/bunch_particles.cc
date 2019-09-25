@@ -3,8 +3,7 @@
 
 #include "synergia/bunch/bunch_particles.h"
 #include "synergia/utils/parallel_utils.h"
-
-
+#include "synergia/utils/hdf5_file.h"
 
 namespace
 {
@@ -349,6 +348,40 @@ BunchParticles::set_total_num(int totalnum)
         real_num = 0.0;
     }
 #endif
+}
+
+void
+BunchParticles::read_file(std::string const & filename)
+{
+    Hdf5_file file(filename, Hdf5_file::read_only);
+    auto read_particles = file.read<karray2d_row>("particles");
+
+    int num_particles = read_particles.extent(0);
+    if (total != num_particles) 
+    {
+        throw std::runtime_error( 
+                " the initial bunch file has a different number of particles");
+    }
+
+    std::vector<int> offsets(comm.size());
+    std::vector<int> counts(comm.size());
+    decompose_1d(comm, total, offsets, counts);
+
+    if (num !=  counts[comm.rank()]) 
+    {
+        throw std::runtime_error( 
+                " local_num incompatibility when initializing the bunch");
+    }
+
+    int offset = offsets[comm.rank()];
+    for (int part = 0; part < num; ++part) 
+    {
+        int rpart = part + offset;
+        for (int i = 0; i < 7; ++i) 
+            hparts(part, i) = read_particles(rpart, i);
+    }
+
+    checkin_particles();
 }
 
 void 

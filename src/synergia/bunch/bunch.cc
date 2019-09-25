@@ -242,49 +242,6 @@ Bunch::inject(Bunch const& bunch)
 #endif
 }
 
-void
-Bunch::read_file(std::string const & filename)
-{
-    throw std::runtime_error("Bunch::read_file() no implemented");
-
-#if 0
-   if (comm_sptr->has_this_rank()) 
-   {
-        Hdf5_file file(filename, Hdf5_file::read_only);
-        MArray2d* read_particles = new MArray2d(file.read<MArray2d>("particles"));
-
-        int num_particles = read_particles->shape()[0];
-        if (total_num != num_particles) 
-        {
-            throw std::runtime_error( 
-                    " the initial bunch file has a different number of particles");
-        }
-
-        std::vector<int> offsets(comm_sptr->get_size());
-        std::vector<int> counts(comm_sptr->get_size());
-        decompose_1d(*comm_sptr, total_num, offsets, counts);
-
-        if (local_num !=  counts[comm_sptr->get_rank()]) 
-        {
-            throw std::runtime_error( 
-                    " local_num incompatibility when initializing the bunch");
-        }
-
-        int offset = offsets[comm_sptr->get_rank()];
-
-        for (int part = 0; part < local_num; ++part) 
-        {
-            int rpart = part + offset;
-
-            for (int i = 0; i < 7; ++i) 
-            {
-                (*local_particles)[part][i]=(*read_particles)[rpart][i];
-            }
-        }
-   }
-#endif
-}
-
 Diagnostics & 
 Bunch::get_diag(std::string const & name)
 { 

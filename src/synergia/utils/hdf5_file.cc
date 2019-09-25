@@ -205,6 +205,86 @@ double* Hdf5_file::read<double*>(std::string const& name)
     return retval;
 }
 
+template<>
+karray2d Hdf5_file::read<karray2d>(std::string const& name)
+{
+    Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace   = H5Dget_space(dataset);
+    Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
+
+    const int rank = 2;
+    int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+    if (file_rank != rank)
+    {
+        throw std::runtime_error(
+                "Hdf5_file::read<karray2d>: data to read has wrong rank");
+    }
+
+    hsize_t dims[rank];
+    herr_t res = H5Sget_simple_extent_dims(dataspace, dims, NULL);
+    if (res < 0) throw Hdf5_exception();
+
+    int storage_order = storage_order::hdf5_default;
+    try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception e) { }
+
+    if (storage_order != storage_order::col)
+    {
+        throw std::runtime_error(
+                "Hdf5_file::read<karray2d>: data to read has wrong storage order");
+    }
+
+    karray2d retval(name, dims[0], dims[1]);
+
+    Hdf5_handler memspace = H5Screate_simple(rank, dims, NULL);
+    res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.data());
+
+    if (res < 0) throw Hdf5_exception();
+
+    return retval;
+}
+
+template<>
+karray2d_row Hdf5_file::read<karray2d_row>(std::string const& name)
+{
+    Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace   = H5Dget_space(dataset);
+    Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
+
+    const int rank = 2;
+    int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+    if (file_rank != rank)
+    {
+        throw std::runtime_error(
+                "Hdf5_file::read<karray2d_row>: data to read has wrong rank");
+    }
+
+    hsize_t dims[rank];
+    herr_t res = H5Sget_simple_extent_dims(dataspace, dims, NULL);
+    if (res < 0) throw Hdf5_exception();
+
+    int storage_order = storage_order::hdf5_default;
+    try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception e) { }
+
+    if (storage_order != storage_order::row)
+    {
+        throw std::runtime_error(
+                "Hdf5_file::read<karray2d_row>: data to read has wrong storage order");
+    }
+
+    karray2d_row retval(name, dims[0], dims[1]);
+
+    Hdf5_handler memspace = H5Screate_simple(rank, dims, NULL);
+    res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, retval.data());
+
+    if (res < 0) throw Hdf5_exception();
+
+    return retval;
+}
+
+
+
 #if 0
 template<>
 MArray1d Hdf5_file::read<MArray1d >(std::string const& name)

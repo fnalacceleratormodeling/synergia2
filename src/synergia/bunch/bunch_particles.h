@@ -97,6 +97,10 @@ public:
     void set_total_num(int num);
     void expand_local_num(int num, int added_lost);
 
+    // read from a hdf5 file. total_num of current bunch must be the same 
+    // as the one stored in the particle file
+    void read_file(std::string const& filename);
+
     // update total num across the ranks and returns the old total number
     int update_total_num();
 

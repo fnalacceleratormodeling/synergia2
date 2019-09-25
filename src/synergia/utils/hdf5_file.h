@@ -112,6 +112,12 @@ int* Hdf5_file::read<int*>(std::string const& name);
 template<>
 double* Hdf5_file::read<double*>(std::string const& name);
 
+template<>
+karray2d Hdf5_file::read<karray2d>(std::string const& name);
+
+template<>
+karray2d_row Hdf5_file::read<karray2d_row>(std::string const& name);
+
 #if 0
 template<>
 MArray1d Hdf5_file::read<MArray1d >(std::string const& name);
