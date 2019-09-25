@@ -245,7 +245,7 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     discard_applier<AP> da{ap, parts, valid};
     Kokkos::parallel_reduce(slots, da, ndiscarded);
 
-    std::cout << "      discarded = " << ndiscarded << "\n";
+    //std::cout << "      discarded = " << ndiscarded << "\n";
     set_local_num(num - ndiscarded);
     return ndiscarded;
 
