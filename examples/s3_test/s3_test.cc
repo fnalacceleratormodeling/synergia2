@@ -149,12 +149,57 @@ int run()
     return 0;
 }
 
+template<typename T>
+void print_layout_props(T const& a)
+{
+    std::cout 
+        << "dim: " << a.extent(0) << ", " << a.extent(1)
+        << ", stride: " << a.stride(0) << ", " << a.stride(1)
+        << ", size = " << a.size()
+        << ", cap = " << a.capacity()
+        << "\n";
+}
+
+void layout_test()
+{
+    std::cout << "\nkarray2d_dev allow padding\n";
+    for (int x = 10; x<20; ++x)
+    {
+        karray2d_dev a(Kokkos::view_alloc("a", Kokkos::AllowPadding), x, 7);
+        print_layout_props(a);
+    }
+
+    std::cout << "\nkarray2d_dev no padding\n";
+    for (int x = 10; x<20; ++x)
+    {
+        karray2d_dev a(Kokkos::view_alloc("b"), x, 7);
+        print_layout_props(a);
+    }
+
+    std::cout << "\nkarray2d_row_dev allow padding\n";
+    for (int x = 10; x<20; ++x)
+    {
+        karray2d_row_dev a(Kokkos::view_alloc("a", Kokkos::AllowPadding), x, 7);
+        print_layout_props(a);
+    }
+
+    std::cout << "\nkarray2d_row_dev no padding\n";
+    for (int x = 10; x<20; ++x)
+    {
+        karray2d_row_dev a(Kokkos::view_alloc("b"), x, 7);
+        print_layout_props(a);
+    }
+
+    std::cout << "\n";
+}
+
 
 int main(int argc, char ** argv)
 {
     MPI_Init(&argc, &argv);
     Kokkos::initialize(argc, argv);
 
+    layout_test();
     run();
 
     Kokkos::finalize();
