@@ -11,7 +11,13 @@ enum class LoggerV
 {
     DEBUG,
     DINFO,
+
     INFO,
+    INFO_OPN,  // operation
+    INFO_OPR,  // operator
+    INFO_STEP, // step
+    INFO_TURN, // turn
+
     WARNING,
     ERROR,
 };

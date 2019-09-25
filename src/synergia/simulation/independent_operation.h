@@ -35,7 +35,7 @@ public:
     { return type; }
 
     void print(Logger & logger) const
-    { logger(LoggerV::DEBUG) << "\ttype = " << type << ", "; print_impl(logger); }
+    { logger(LoggerV::INFO_OPN) << "\ttype = " << type << ", "; print_impl(logger); }
 };
 
 

@@ -12,7 +12,7 @@
 
 int run()
 {
-    Logger screen(0, LoggerV::DEBUG);
+    Logger screen(0, LoggerV::INFO_TURN);
 
 #if 0
     // Lattice
@@ -103,13 +103,10 @@ int run()
     sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
 
     // propagate options
-    sim.set_turns(0, 1); // (start, num_turns)
+    sim.set_turns(0, 4); // (start, num_turns)
 
     // propagate
-    double t0 = MPI_Wtime();
     propagator.propagate(sim, screen);
-    double t1 = MPI_Wtime();
-    screen <<"propagate time = " << t1-t0 << "\n";
 
     // print particles after propagate
     bunch.checkout_particles();

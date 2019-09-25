@@ -12,14 +12,19 @@
 
 int run()
 {
-    Logger screen(0, LoggerV::DEBUG);
+    using LV = LoggerV;
+
+    Logger screen(0, LV::DEBUG);
+    Logger simlog(0, LV::INFO_TURN);
 
     MadX_reader reader;
     auto lattice = reader.get_lattice("machine", "sis18.madx");
     auto const & ref = lattice.get_reference_particle();
 
     //lattice.print(screen);
-    screen << "reference momentum = " << ref.get_momentum() << " GeV\n";
+
+    screen(LV::INFO) 
+        << "reference momentum = " << ref.get_momentum() << " GeV\n";
 
     // space charge
     Space_charge_2d_open_hockney_options sc_ops(32, 32, 128);
@@ -74,7 +79,7 @@ int run()
     for(int p=0; p<bunch.get_local_num(); ++p)
         for(int i=0; i<6; ++i) sum += hparts(p, i);
 
-    screen(LoggerV::DEBUG) 
+    screen(LV::DEBUG) 
         << std::setprecision(8)
         << "\n\npopulated sum = " << sum << "\n";
 
@@ -91,13 +96,10 @@ int run()
 #endif
 
     // propagate options
-    sim.set_turns(0, 1); // (start, num_turns)
+    sim.set_turns(0, 8); // (start, num_turns)
 
     // propagate
-    double t0 = MPI_Wtime();
-    propagator.propagate(sim, screen);
-    double t1 = MPI_Wtime();
-    screen <<"propagate time = " << t1-t0 << "\n";
+    propagator.propagate(sim, simlog);
 
     // print particles after propagate
     bunch.checkout_particles();
@@ -106,7 +108,7 @@ int run()
     for(int p=0; p<bunch.get_local_num(); ++p)
         for(int i=0; i<6; ++i) sum += hparts(p, i);
 
-    screen(LoggerV::DEBUG) 
+    screen(LV::DEBUG) 
         << std::setprecision(8)
         << "\n\npropagated sum = " << sum << "\n";
 
@@ -115,7 +117,7 @@ int run()
     double g_sum = 0;
     MPI_Reduce(&sum, &g_sum, 1, MPI_DOUBLE, MPI_SUM, 0, bunch.get_comm());
 
-    screen(LoggerV::DEBUG) 
+    screen(LV::DEBUG) 
         << std::setprecision(8)
         << "\n\npropagated sum (reduced) = " << g_sum << "\n";
 

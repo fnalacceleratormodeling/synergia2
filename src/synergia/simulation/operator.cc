@@ -420,7 +420,7 @@ Independent_operator::apply_impl(
         {
             for (auto const & opn : operations)
             {
-                logger(LV::INFO) 
+                logger(LV::INFO_OPN) 
                     << "    Independent_operator: operation type = " 
                     << opn->get_type() << "\n";
 

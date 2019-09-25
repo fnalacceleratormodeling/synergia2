@@ -38,7 +38,7 @@ void Step::apply(Bunch_simulator & simulator, Logger & logger) const
     {
         double t0 = MPI_Wtime();
 
-        logger(LoggerV::DINFO)
+        logger(LoggerV::INFO_OPR)
             << "\n  Operator start:\n";
 
         // operator apply
@@ -46,7 +46,7 @@ void Step::apply(Bunch_simulator & simulator, Logger & logger) const
 
         double t1 = MPI_Wtime();
 
-        logger(LoggerV::DINFO) 
+        logger(LoggerV::INFO_OPR) 
             << "  Operator finish: operator: name = " << op->get_name()
             << ", type = " << op->get_type() << ", time = "
             << std::fixed << std::setprecision(3) << t1 - t0 << "s"

@@ -318,42 +318,17 @@ Propagator::do_step(
 
     double t_step1 = MPI_Wtime();
 
-    //if (logger.verbosity > 1) 
-    {
-        int p = std::cout.precision();
-        int num_steps = steps.size();
+    logger(LoggerV::INFO_STEP) 
+        << "Propagator: step " << std::setw(digits(steps.size())) 
+        << step_count << "/" << steps.size()
 
-        logger(LoggerV::INFO);
+        << ", s_n = " << std::fixed << std::setprecision(4) 
+        << simulator[0][0].get_reference_particle().get_s_n() 
 
-        logger << "\nPropagator: step " << std::setw(digits(num_steps)) 
-               << step_count << "/" << num_steps;
-
-        logger << ", s_n = " << std::fixed << std::setprecision(4)
-               << simulator[0][0].get_reference_particle().get_s_n();
-
-        logger << ", time = " << std::fixed << std::setprecision(3) 
-               << t_step1 - t_step0 << "s";
-
-        logger << ", macroparticles = ";
-
-        for(auto const& train : simulator.get_trains())
-        {
-            logger << "(";
-
-            for(auto const& bunch : train.get_bunches())
-            {
-                logger << bunch.get_total_num();
-                if (bunch.get_array_index() != train.get_size()-1) logger << ", ";
-            }
-
-            logger << ")";
-            if (train.get_index() == 0) logger << " / ";
-        }
-
-        logger << "\n";
-
-        std::cout.precision(p);
-    }
+        << ", time = " << std::fixed << std::setprecision(3) 
+        << t_step1 - t_step0 << "s\n";
+       
+    logger(LoggerV::INFO_OPR) << "\n";
 
 #if 0
     double t_step0 = MPI_Wtime();
@@ -618,12 +593,11 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
         int orig_first_turn = sim.first_turn;
         bool out_of_particles = false;
 
-        //if (sim.verbosity > 0)
-        {
-            logger(LoggerV::INFO) 
-                << "Propagator: starting turn " 
-                << sim.first_turn + 1 << "\n";
-        }
+        double t_prop0 = MPI_Wtime();
+
+        logger(LoggerV::INFO_TURN) 
+            << "Propagator: starting turn " 
+            << sim.first_turn + 1 << "\n\n";
 
         for (int turn_count = sim.first_turn; turn_count < sim.num_turns; ++turn_count) 
         {
@@ -632,8 +606,6 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
             do_start_repetition(sim);
 
             int step_count = 0;
-            int num_steps = steps.size();
-
             for (auto & step : steps)
             {
                 ++step_count;
@@ -643,6 +615,36 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
                 if (out_of_particles) break;
             }
 
+            double t_turn1 = MPI_Wtime();
+
+            // turn end log
+            logger(LoggerV::INFO_TURN) 
+                << "Propagator: turn " << std::setw(digits(sim.num_turns)) 
+                << turn_count + 1 << "/" << sim.num_turns 
+
+                << ", time = " << std::fixed << std::setprecision(3) 
+                << t_turn1 - t_turn0 << "s" 
+                
+                << ", macroparticles = ";
+
+            for(auto const& train : sim.get_trains())
+            {
+                logger << "(";
+
+                for(auto const& bunch : train.get_bunches())
+                {
+                    logger << bunch.get_total_num();
+                    if (bunch.get_array_index() != train.get_size()-1) logger << ", ";
+                }
+
+                logger << ")";
+                if (train.get_index() == 0) logger << " / ";
+            }
+
+            logger << "\n";
+            logger(LoggerV::INFO_STEP) << "\n";
+
+            // out of particles
             if (out_of_particles) break;
 
             ++turns_since_checkpoint;
@@ -662,7 +664,7 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
             if (((turn_count - orig_first_turn + 1) == sim.max_turns) 
                     && (turn_count != (sim.num_turns - 1))) 
             {
-                logger(LoggerV::INFO) 
+                logger(LoggerV::INFO_TURN) 
                     << "Propagator: maximum number of turns reached\n";
 
 #if 0
@@ -696,8 +698,15 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
 
         }
 
-        if (out_of_particles) logger(LoggerV::INFO) << "Propagator: no particles left\n";
+        if (out_of_particles) logger(LoggerV::WARNING) << "Propagator: no particles left\n";
         // simple_timer_show(t_total, "propagate-total");
+
+        double t_prop1 = MPI_Wtime();
+
+        logger(LoggerV::INFO_TURN)
+            << "Propagator: total time = " << std::fixed << std::setprecision(3)
+            << t_prop1 - t_prop0 << "s\n";
+
     }
     catch (std::exception const& e) 
     {
