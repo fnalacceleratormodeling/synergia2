@@ -422,7 +422,7 @@ Independent_operator::apply_impl(
             {
                 logger(LV::INFO) 
                     << "    Independent_operator: operation type = " 
-                    << opn->get_type() << std::endl;
+                    << opn->get_type() << "\n";
 
                 opn->apply(bunch, logger);
 

@@ -323,6 +323,8 @@ Propagator::do_step(
         int p = std::cout.precision();
         int num_steps = steps.size();
 
+        logger(LoggerV::INFO);
+
         logger << "\nPropagator: step " << std::setw(digits(num_steps)) 
                << step_count << "/" << num_steps;
 
@@ -348,7 +350,7 @@ Propagator::do_step(
             if (train.get_index() == 0) logger << " / ";
         }
 
-        logger << std::endl;
+        logger << "\n";
 
         std::cout.precision(p);
     }
@@ -618,8 +620,9 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
 
         //if (sim.verbosity > 0)
         {
-            logger << "Propagator: starting turn " 
-                   << sim.first_turn + 1 << std::endl;
+            logger(LoggerV::INFO) 
+                << "Propagator: starting turn " 
+                << sim.first_turn + 1 << "\n";
         }
 
         for (int turn_count = sim.first_turn; turn_count < sim.num_turns; ++turn_count) 
@@ -659,7 +662,8 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
             if (((turn_count - orig_first_turn + 1) == sim.max_turns) 
                     && (turn_count != (sim.num_turns - 1))) 
             {
-                logger << "Propagator: maximum number of turns reached\n";
+                logger(LoggerV::INFO) 
+                    << "Propagator: maximum number of turns reached\n";
 
 #if 0
                 if (turns_since_checkpoint > 0) 
@@ -692,7 +696,7 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
 
         }
 
-        if (out_of_particles) logger << "Propagator: no particles left\n";
+        if (out_of_particles) logger(LoggerV::INFO) << "Propagator: no particles left\n";
         // simple_timer_show(t_total, "propagate-total");
     }
     catch (std::exception const& e) 

@@ -50,7 +50,7 @@ void Step::apply(Bunch_simulator & simulator, Logger & logger) const
             << "  Operator finish: operator: name = " << op->get_name()
             << ", type = " << op->get_type() << ", time = "
             << std::fixed << std::setprecision(3) << t1 - t0 << "s"
-            << std::endl;
+            << "\n";
 
         //double t = simple_timer_current();
 
