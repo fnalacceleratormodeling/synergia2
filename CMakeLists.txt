@@ -19,12 +19,15 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # using GCC
   set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
+  set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
   message("Using g++")
 else()
   message(FATAL_ERROR "I can not tell what compiler is being used.")
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-register ${COMPILER_SPECIFIC_CXX_FLAGS} -Werror")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
 
 # needed to avoid warnings about rpath policy on Mac OSX
 # no known difference between "OLD" and "NEW" policies for us
