@@ -6,7 +6,9 @@ add_library(synergia_parallel_utils parallel_utils.cc commxx.cc
 target_link_libraries(synergia_parallel_utils ${Boost_SERIALIZATION_LIBRARIES})
 
 add_library(synergia_serialization serialization_files.cc)
-target_link_libraries(synergia_serialization ${Boost_FILESYSTEM_LIBRARIES}
+message(STATUS "Boost_FILESYSTEM_LIBRARY ${Boost_FILESYSTEM_LIBRARY}")
+message(STATUS "Boost_LIBRARIES ${Boost_LIBRARIES}")
+target_link_libraries(synergia_serialization ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARY} synergia_parallel_utils)
 
 add_library(synergia_hdf5_utils hdf5_writer.cc hdf5_serial_writer.cc

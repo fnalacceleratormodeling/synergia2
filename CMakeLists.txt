@@ -40,40 +40,62 @@ if(POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif()
 
-# Set defaults for building python bindings (build bindings by default).
-if (NOT DEFINED BUILD_PYTHON_BINDINGS)
-  if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
-    set (BUILD_PYTHON_BINDINGS $ENV{BUILD_PYTHON_BINDINGS})
-  else ()
-    set (BUILD_PYTHON_BINDINGS TRUE)
-  endif ()
-endif ()
-
 ##
 # Find necessary packages
 ##
 
 # python
-if (BUILD_PYTHON_BINDINGS)
-  if (USE_PYTHON_3)
-    message(STATUS "Trying to find python 3")
-    # If we could use cmake v3.12 or newer, this is simple:
-    #find_package(Python3 COMPONENTS Interpreter Development)
-    set(Python_ADDITIONAL_VERSIONS "3")
-  else()
-    message(STATUS "Trying to find python 2")
-    # If we could use cmake v3.12 or newer, this is simple:
-    #find_package(Python2 COMPONENTS Interpreter Development)
-    set(Python_ADDTIONAL_VERSIONS "2")
-  endif()
-else ()
-  message (STATUS "Not building python bindings")
-endif ()
+if (USE_PYTHON_3)
+  message(STATUS "Trying to find python 3")
+  # If we could use cmake v3.12 or newer, this is simple:
+  #find_package(Python3 COMPONENTS Interpreter Development)
+  set(Python_ADDITIONAL_VERSIONS "3")
+else()
+  message(STATUS "Trying to find python 2")
+  # If we could use cmake v3.12 or newer, this is simple:
+  #find_package(Python2 COMPONENTS Interpreter Development)
+  set(Python_ADDTIONAL_VERSIONS "2")
+endif()
 
 # If we could use cmake v3.12 or newer, this would not be needed.
 find_package(PythonInterp)
 find_package(PythonLibs)
 include_directories(${PYTHON_INCLUDE_DIR})
+
+# boost
+set(Boost_NO_BOOST_CMAKE ON) # Do *not* use CMake support from Boost.
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREAD ON)
+find_package(Boost
+             REQUIRED
+             COMPONENTS regex unit_test_framework serialization system filesystem)
+set(first_boost_libraries ${Boost_LIBRARIES})
+set(first_boost_library_dirs ${Boost_LIBRARY_DIRS})
+
+if (USE_PYTHON_3)
+    set(pstem python3 python35 python36 python37)
+else()
+    set(pstem python python27)
+endif()
+
+# Go through all relevant possible choices of boost library name, stopping
+# when we find one that works.
+foreach (plib ${pstem})
+    find_package(Boost QUIET COMPONENTS ${plib})
+    if (Boost_LIBRARIES)
+        break()
+    endif()
+endforeach()
+set(Boost_LIBRARIES ${first_boost_libraries} ${Boost_LIBRARIES})
+set(Boost_LIBRARY_DIRS ${first_boost_library_dirs} ${Boost_LIBRARY_DIRS})
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+
+message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
+message(STATUS "Boost_LIBRARIES    = ${Boost_LIBRARIES}")
+message(STATUS "Boost_SERIALIZATION_LIBRARY = ${Boost_SERIALIZATION_LIBRARY}")
 
 # MPI
 find_package(MPI REQUIRED CXX)
@@ -95,52 +117,6 @@ else()
 endif ()
 
 
-# boost
-message(STATUS "Looking for Boost (not yet boost_python)")
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREAD ON)
-find_package(Boost
-             COMPONENTS regex unit_test_framework serialization
-                        filesystem system REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-# Now we have Boost_VERSION set, and we can use it to figure out if we need
-# to look for the component python (for old versions, before 1.67) or python27
-# (for boost 1.67 and newer).
-# We want PYTHON_QUAL set to:
-#    nothing, for old boost and for use of python 2,
-#    27, for new boost and for use of python 2,
-#    3, for use of python 3 (for all supported boost versions)
-if (USE_PYTHON_3)
-  # Guessing when we need PYTHON_QUAL 3 vs. 37.
-  # On Ubuntu 18.04, with its system cmake, and system boost_python, we need 3
-  # On Ubuntu 16.04, with an updated cmake and the system boost_python 1.58, we need 35
-  # On Darwin, with cmake 3.14.6, and boost 1.70.0, and boost_python 1.70.0.1, we need 37
-  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    set(PYTHON_QUAL 37)
-  else()
-    if (${Boost_VERSION} LESS 105900) # not sure of what the exact cutoff should be
-      set(PYTHON_QUAL 35)
-    else()
-      set(PYTHON_QUAL 3)
-    endif()
-  endif()
-else()
-  if(NOT ${Boost_VERSION} LESS 106700)
-    set(PYTHON_QUAL 27)
-  endif()
-endif()
-
-set(Boost_NO_BOOST_CMAKE ON) # Do *not* use CMake support from Boost.
-message(STATUS "Looking for boost_python, as component python${PYTHON_QUAL}")
-find_package(Boost COMPONENTS python${PYTHON_QUAL} REQUIRED)
-# Now Boost_LIBRARIES is set to only the boost_python library...
-set(REAL_BOOST_PYTHON_LIBRARY ${Boost_LIBRARIES})
-link_directories(${Boost_LIBRARY_DIRS})
-message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
-message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
-message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
-message(STATUS "Boost_PYTHON_LIBRARY = ${Boost_PYTHON_LIBRARY}")
-
 # hdf5
 find_package(HDF5)
 include_directories(${HDF5_INCLUDE_DIRS})
@@ -155,11 +131,9 @@ link_directories(${CHEF_LIB_DIR})
 find_package(NUMPY REQUIRED)
 include_directories(${NUMPY_INCLUDE_DIR})
 
-if (BUILD_PYTHON_BINDINGS)
-    # mpi4py
-    find_package(MPI4PY REQUIRED)
-    include_directories(${MPI4PY_INCLUDE_DIR})
-endif()
+# mpi4py
+find_package(MPI4PY REQUIRED)
+include_directories(${MPI4PY_INCLUDE_DIR})
 
 # misc
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
