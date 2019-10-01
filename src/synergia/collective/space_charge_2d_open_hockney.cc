@@ -9,7 +9,7 @@
 
 //#include "interpolate_rectangular_zyx.h"
 //#include "synergia/utils/multi_array_offsets.h"
-//#include "synergia/utils/simple_timer.h"
+#include "synergia/utils/simple_timer.h"
 //#include "synergia/utils/hdf5_writer.h"
 
 using mconstants::pi;
@@ -311,7 +311,10 @@ Space_charge_2d_open_hockney::apply_impl(
             Logger & logger)
 {
     logger << "    Space charge 2d open hockney\n";
+
+    simple_timer_start("sc-2d total");
     apply_bunch(simulator[0][0], time_step, logger);
+    simple_timer_stop("sc-2d total");
 }
 
 void
@@ -322,19 +325,35 @@ Space_charge_2d_open_hockney::apply_bunch(
 {
     setup_communication(bunch.get_comm());
 
+    simple_timer_start("update_domain");
     update_domain(bunch);
+    simple_timer_stop("update_domain");
 
-    auto    rho2 = get_local_charge_density(bunch); // [C/m^3]
-                   get_global_charge_density(rho2, bunch);
+    simple_timer_start("local rho");
+    auto rho2 = get_local_charge_density(bunch); // [C/m^3]
+    simple_timer_stop("local rho");
 
-    auto      g2 = get_green_fn2_pointlike();
+    simple_timer_start("global rho");
+    get_global_charge_density(rho2, bunch);
+    simple_timer_stop("global rho");
 
-    auto     fn2 = get_local_force2(rho2, g2);
-                   get_global_force2(fn2);
+    simple_timer_start("green fun");
+    auto g2 = get_green_fn2_pointlike();
+    simple_timer_stop("green fun");
+
+    simple_timer_start("local force");
+    auto fn2 = get_local_force2(rho2, g2);
+    simple_timer_stop("local force");
+
+    simple_timer_start("global force");
+    get_global_force2(fn2);
+    simple_timer_stop("global force");
 
     auto fn_norm = get_normalization_force(bunch);
 
+    simple_timer_start("apply kick");
     apply_kick(bunch, rho2, fn2, fn_norm, time_step);
+    simple_timer_stop("apply kick");
 
     // release the particle_bin array so we wont run out of mem
     particle_bin = karray2d_dev();
