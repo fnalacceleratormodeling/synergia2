@@ -16,6 +16,7 @@ target_link_libraries(synergia_foundation
     synergia_serialization
     lsexpr
     ${Boost_SERIALIZATION_LIBRARIES}
+    ${Boost_FILESYSTEM_LIBRARIES}
     )
 
 if (BUILD_PYTHON_BINDINGS)
