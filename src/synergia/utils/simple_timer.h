@@ -58,3 +58,48 @@ simple_timer_show(double t0, const char * label)
     return 0.0;
 #endif // USE_SIMPLE_TIMER
 }
+
+#include <map>
+#include "synergia/utils/logger.h"
+
+struct simple_timer_counter
+{
+    struct timing { double sum; double start; };
+    static std::map<std::string, timing> timings;
+
+    static void start(std::string const& label, double t0)
+    { timings.emplace(label, timing{0.0, t0}).first->second.start = t0; }
+
+    static void stop(std::string const& label, double t1)
+    {
+        auto iter = timings.emplace(label, timing{0.0, t1}).first;
+        iter->second.sum += t1 - iter->second.start;
+    }
+};
+
+inline void
+simple_timer_start(std::string const& label)
+{
+#ifdef SIMPLE_TIMER
+#ifdef SIMPLE_TIMER_BARRIER
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+    simple_timer_counter::start(label, MPI_Wtime());
+#endif
+}
+
+inline void
+simple_timer_stop(std::string const& label)
+{
+#ifdef SIMPLE_TIMER
+#ifdef SIMPLE_TIMER_BARRIER
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+    simple_timer_counter::stop(label, MPI_Wtime());
+#endif
+}
+
+void 
+simple_timer_print(Logger & logger);
+
+

@@ -189,6 +189,18 @@ if(USE_SIMPLE_TIMER)
     endif(USE_SIMPLE_TIMER_MEM)
 endif(USE_SIMPLE_TIMER)
 
+# the new simple timer
+option(SIMPLE_TIMER "use the simple timer 2 profiling" OFF)
+
+if(SIMPLE_TIMER)
+    message("-- Simple timer 2 profiling enabled")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSIMPLE_TIMER")
+    if (SIMPLE_TIMER_BARRIER)
+        message("-- Simple timer 2 MPI_Barrier enabled")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSIMPLE_TIMER_BARRIER")
+    endif()
+endif()
+
 # Additional CXXFLAGS
 if(EXTRA_CXX_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
