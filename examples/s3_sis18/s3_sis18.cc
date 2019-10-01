@@ -9,6 +9,8 @@
 
 #include "synergia/collective/space_charge_2d_open_hockney.h"
 
+#include "synergia/utils/simple_timer.h"
+
 
 int run()
 {
@@ -41,6 +43,9 @@ int run()
     auto sim = Bunch_simulator::create_single_bunch_simulator(
             lattice.get_reference_particle(), 1024 * 1024 * 1, 1e13,
             Commxx() );
+
+    // propagate options
+    sim.set_turns(0, 1); // (start, num_turns)
 
     auto & bunch = sim.get_bunch();
 
@@ -95,9 +100,6 @@ int run()
     sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
 #endif
 
-    // propagate options
-    sim.set_turns(0, 8); // (start, num_turns)
-
     // propagate
     propagator.propagate(sim, simlog);
 
@@ -112,6 +114,7 @@ int run()
         << std::setprecision(8)
         << "\n\npropagated sum = " << sum << "\n";
 
+
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
 
     double g_sum = 0;
@@ -122,6 +125,8 @@ int run()
         << "\n\npropagated sum (reduced) = " << g_sum << "\n";
 
     screen << "\n";
+
+    simple_timer_print(screen);
 
     return 0;
 }
