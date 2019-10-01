@@ -1,7 +1,6 @@
 
 #include "bunch.h"
 
-#include <boost/filesystem.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <cmath>
