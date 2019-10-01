@@ -12,10 +12,16 @@ void simple_timer_print(Logger & logger)
     logger(LoggerV::INFO) 
         //<< std::scientific 
         << std::setprecision(8)
-        << "simple_timer:\n";
+        << "simple_timer:\n"
+        << "(label)    \t(time)    \t(count)\n";
 
     for(auto const& timing : simple_timer_counter::timings)
-        logger << timing.first << ": \t" << timing.second.sum << "\n";
+    {
+        logger 
+            << timing.first << ": \t" 
+            << timing.second.sum << ", \t"
+            << timing.second.count << "\n";
+    }
 
     logger << "\n";
 #endif

@@ -64,16 +64,17 @@ simple_timer_show(double t0, const char * label)
 
 struct simple_timer_counter
 {
-    struct timing { double sum; double start; };
+    struct timing { double sum; double start; int count; };
     static std::map<std::string, timing> timings;
 
     static void start(std::string const& label, double t0)
-    { timings.emplace(label, timing{0.0, t0}).first->second.start = t0; }
+    { timings.emplace(label, timing{0.0, t0, 0}).first->second.start = t0; }
 
     static void stop(std::string const& label, double t1)
     {
-        auto iter = timings.emplace(label, timing{0.0, t1}).first;
+        auto iter = timings.emplace(label, timing{0.0, t1, 0}).first;
         iter->second.sum += t1 - iter->second.start;
+        ++iter->second.count;
     }
 };
 
