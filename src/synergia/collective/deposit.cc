@@ -295,6 +295,7 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos(
     karray1d_dev rho_cplx("rho_cplx", g[0]*g[1]*2 + g[2]);
     rho_mover rm(rho_dbl, rho_cplx, g);
     Kokkos::parallel_for(g[0]*g[1] + g[2], rm);
+    Kokkos::fence();
 
     return rho_cplx;
 }
@@ -323,6 +324,7 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_atomic(
 
     atomic_rho_reducer rr(parts, rho_atomic, particle_bin, g, h, l, weight0);
     Kokkos::parallel_for(nparts, rr);
+    Kokkos::fence();
 
     return rho_dev;
 }
@@ -360,6 +362,8 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_scatter_view(
     atomic_rho_reducer rr(parts, rho_atomic, particle_bin, g, h, l, weight0);
     Kokkos::parallel_for(nparts, rr);
 #endif
+
+    Kokkos::fence();
 
     return rho_dev;
 }

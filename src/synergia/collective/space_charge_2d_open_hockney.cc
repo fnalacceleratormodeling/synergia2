@@ -456,6 +456,8 @@ Space_charge_2d_open_hockney::get_green_fn2_pointlike()
     alg_g2_pointlike alg(g2, g, dg, h);
 
     Kokkos::parallel_for(dg[0]*dg[1], alg);
+    Kokkos::fence();
+
     return g2;
 }
 
@@ -480,6 +482,7 @@ Space_charge_2d_open_hockney::get_local_force2(
 
     alg_cplx_multiplier alg(phi2hat, rho2hat, g2hat);
     Kokkos::parallel_for(nx*dg[1], alg);
+    Kokkos::fence();
 
     fft.inv_transform(phi2hat, phi2);
 
@@ -604,6 +607,7 @@ Space_charge_2d_open_hockney::apply_kick(
             doubled_domain.get_grid_shape(), factor);
 
     Kokkos::parallel_for(bunch.get_local_num_slots(), kicker);
+    Kokkos::fence();
 }
 
 
