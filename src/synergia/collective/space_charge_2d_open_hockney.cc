@@ -312,9 +312,8 @@ Space_charge_2d_open_hockney::apply_impl(
 {
     logger << "    Space charge 2d open hockney\n";
 
-    simple_timer_start("sc-2d total");
+    scoped_simple_timer timer("sc-2d total");
     apply_bunch(simulator[0][0], time_step, logger);
-    simple_timer_stop("sc-2d total");
 }
 
 void
@@ -325,35 +324,19 @@ Space_charge_2d_open_hockney::apply_bunch(
 {
     setup_communication(bunch.get_comm());
 
-    simple_timer_start("update_domain");
     update_domain(bunch);
-    simple_timer_stop("update_domain");
 
-    simple_timer_start("local rho");
     auto rho2 = get_local_charge_density(bunch); // [C/m^3]
-    simple_timer_stop("local rho");
-
-    simple_timer_start("global rho");
     get_global_charge_density(rho2, bunch);
-    simple_timer_stop("global rho");
 
-    simple_timer_start("green fun");
     auto g2 = get_green_fn2_pointlike();
-    simple_timer_stop("green fun");
 
-    simple_timer_start("local force");
     auto fn2 = get_local_force2(rho2, g2);
-    simple_timer_stop("local force");
-
-    simple_timer_start("global force");
     get_global_force2(fn2);
-    simple_timer_stop("global force");
 
     auto fn_norm = get_normalization_force(bunch);
 
-    simple_timer_start("apply kick");
     apply_kick(bunch, rho2, fn2, fn_norm, time_step);
-    simple_timer_stop("apply kick");
 
     // release the particle_bin array so we wont run out of mem
     particle_bin = karray2d_dev();
@@ -369,6 +352,8 @@ Space_charge_2d_open_hockney::setup_communication(Commxx const & bunch_comm)
 void
 Space_charge_2d_open_hockney::update_domain(Bunch const & bunch)
 {
+    scoped_simple_timer timer("update_domain");
+
     auto mean = Core_diagnostics::calculate_mean(bunch);
     auto std  = Core_diagnostics::calculate_std(bunch, mean);
 
@@ -409,6 +394,8 @@ Space_charge_2d_open_hockney::update_domain(Bunch const & bunch)
 karray1d_dev
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
+    scoped_simple_timer timer("local_rho");
+
     particle_bin = karray2d_dev("bin", bunch.get_local_num_slots(), 6);
     return deposit_charge_rectangular_2d_kokkos_scatter_view(
             doubled_domain, particle_bin, bunch);
@@ -421,6 +408,8 @@ Space_charge_2d_open_hockney::get_global_charge_density(
 {
     // do nothing if the solver only has a single rank
     if (bunch.get_comm().size() == 1) return;
+
+    scoped_simple_timer timer("global_rho");
 
     auto dg = doubled_domain.get_grid_shape();
 
@@ -448,6 +437,8 @@ Space_charge_2d_open_hockney::get_global_charge_density(
 karray1d_dev
 Space_charge_2d_open_hockney::get_green_fn2_pointlike()
 {
+    scoped_simple_timer timer("green_fn2");
+
     auto  g = domain.get_grid_shape();
     auto  h = doubled_domain.get_cell_size();
     auto dg = doubled_domain.get_grid_shape();
@@ -466,6 +457,8 @@ Space_charge_2d_open_hockney::get_local_force2(
         karray1d_dev & rho2,
         karray1d_dev & g2 )
 {
+    scoped_simple_timer timer("local_force");
+
     auto dg = doubled_domain.get_grid_shape();
     karray1d_dev phi2("phi2", dg[0]*dg[1]*2);
 
@@ -495,6 +488,8 @@ Space_charge_2d_open_hockney::get_global_force2(
 {
     // do nothing if the solver only has a single rank
     if (comm.size() == 1) return;
+
+    scoped_simple_timer timer("global_force");
 
     auto dg = doubled_domain.get_grid_shape();
 
@@ -559,6 +554,8 @@ Space_charge_2d_open_hockney::apply_kick(
         double fn_norm,
         double time_step )
 {
+    scoped_simple_timer timer("apply_kick");
+
     // EGS ported AM changes for kicks in lab frame from 3D solver
     // AM: kicks are done in the z_lab frame
     // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$

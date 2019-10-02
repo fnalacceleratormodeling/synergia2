@@ -100,7 +100,21 @@ simple_timer_stop(std::string const& label)
 #endif
 }
 
+struct scoped_simple_timer
+{
+#ifdef SIMPLE_TIMER
+    std::string const label;
+
+    scoped_simple_timer(std::string const& label) : label(label)
+    { simple_timer_start(label); }
+
+    ~scoped_simple_timer()
+    { simple_timer_stop(label); }
+#else
+    scoped_simple_timer(std::string const&) { }
+#endif
+};
+
 void 
 simple_timer_print(Logger & logger);
-
 
