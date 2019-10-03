@@ -149,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE(transform_bad_in_offset, Fixture)
     try {
         distributed_fft2d.transform(src_array, dest_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -170,7 +170,7 @@ BOOST_FIXTURE_TEST_CASE(transform_bad_out_offset, Fixture)
     try {
         distributed_fft2d.transform(src_array, dest_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -191,7 +191,7 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_bad_in_offset, Fixture)
     try {
         distributed_fft2d.inv_transform(dest_array, src_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -212,7 +212,7 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_bad_out_offset, Fixture)
     try {
         distributed_fft2d.inv_transform(dest_array, src_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 

@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(get_nonexistent_double_attribute)
     try {
         lattice_element.get_double_attribute(attr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(get_nonexistent_string_attribute)
     try {
         std::string val = lattice_element.get_string_attribute(attr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(get_nonexistent_vector_attribute)
     try {
         std::vector<double > val = lattice_element.get_vector_attribute(attr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);

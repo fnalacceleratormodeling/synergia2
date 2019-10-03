@@ -74,7 +74,7 @@ BOOST_FIXTURE_TEST_CASE(get_nonexistent, Lattice_fixture)
         std::string unknown_name("foobar");
         operation_extractor_map.get_extractor(unknown_name);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);

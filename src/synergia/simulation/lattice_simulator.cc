@@ -1,3 +1,4 @@
+#include <boost/make_shared.hpp>
 #include "lattice_simulator.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/logger.h"

@@ -3,8 +3,11 @@
 #include "populate.h"
 #include "diagnostics.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #include "Eigen/Eigen"
 #include "Eigen/Cholesky"
+#pragma GCC diagnostic pop
 
 using namespace Eigen;
 

@@ -39,7 +39,7 @@ run()
     try {
         xml_load(*lattice_sptr, "mi20-egs-fixed-rf.xml");
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         std::cerr << "normal_form_mi: failed to find mi20-egs-fixed-rf.xml\n";
     }
 #if 0

@@ -38,7 +38,7 @@ run()
     try {
         xml_load(*lattice_sptr, "cxx_lattice.xml");
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         std::cerr << "cxx_checkpoint: failed to find cxx_lattice.xml\n";
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);

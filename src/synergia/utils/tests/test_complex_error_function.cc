@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(check_overflow)
     try {
         wofz(a);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(check_overflow)
     try {
         wofz(a);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(check_overflow)
     try {
         wofz(a);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);

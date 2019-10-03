@@ -149,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE(conflict_longitudinal_aperture_z_periodic, Fixture)
   bool caught_error = false;
   try {
       bunch.set_z_period_length(z_length);
-  }catch (std::runtime_error) {
+  }catch (std::runtime_error&) {
         caught_error = true;
   }
   BOOST_CHECK(caught_error);
@@ -163,7 +163,7 @@ BOOST_FIXTURE_TEST_CASE(conflict_z_periodic_longitudinal_aperture, Fixture)
   bool caught_error = false;
   try {      
      bunch.set_longitudinal_aperture_length(z_length);
-  }catch (std::runtime_error) {
+  }catch (std::runtime_error&) {
         caught_error = true;
   }
   BOOST_CHECK(caught_error);
@@ -293,7 +293,7 @@ BOOST_FIXTURE_TEST_CASE(sort_bad, Fixture)
     try {
         bunch.sort(-1);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
@@ -302,7 +302,7 @@ BOOST_FIXTURE_TEST_CASE(sort_bad, Fixture)
     try {
         bunch.sort(7);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
@@ -451,7 +451,7 @@ BOOST_FIXTURE_TEST_CASE(convert_to_fixed_t_bad_pz, Fixture)
     try {
         bunch.convert_to_state(Bunch::fixed_t_bunch);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
@@ -554,7 +554,7 @@ BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
     try {
         bunch.inject(second_bunch);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
@@ -571,7 +571,7 @@ BOOST_FIXTURE_TEST_CASE(inject_wrong_particle, Fixture)
     try {
         target_bunch.inject(second_bunch);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
@@ -583,7 +583,7 @@ BOOST_FIXTURE_TEST_CASE(inject_wrong_particle, Fixture)
     try {
         target_bunch2.inject(third_bunch);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);

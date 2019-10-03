@@ -1,5 +1,8 @@
 #include "fast_normal_form.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #include "Eigen/Eigen"
+#pragma GCC diagnostic pop
 #include "synergia/foundation/physical_constants.h"
 
 Fast_normal_form::Fast_normal_form(normalFormSage & nf):

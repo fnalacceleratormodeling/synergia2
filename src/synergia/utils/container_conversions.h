@@ -109,7 +109,7 @@ namespace container_conversions {
         if (!ConversionPolicy::check_size(boost::type<CT>(), obj_size))
           return 0;
         bool is_range = PyRange_Check(p);
-        std::size_t i = 0;
+        int i = 0;
         if (!all_elements_convertible(obj_iter, is_range, i)) return 0;
         if (!is_range) assert(i == obj_size);
       }
@@ -119,7 +119,7 @@ namespace container_conversions {
     // This loop factored out by Achim Domma to avoid Visual C++
     // Internal Compiler Error.
     static bool all_elements_convertible(bp::handle<>& obj_iter, bool is_range,
-                                         std::size_t& i) {
+                                         int& i) {
       for (;; i++) {
         bp::handle<> py_elem_hdl(bp::allow_null(PyIter_Next(obj_iter.get())));
         if (PyErr_Occurred()) {

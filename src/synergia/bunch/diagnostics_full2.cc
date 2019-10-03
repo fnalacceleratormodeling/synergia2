@@ -1,7 +1,10 @@
 #include "diagnostics_full2.h"
 #include <cmath>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #include "Eigen/Core"
 #include "Eigen/LU"
+#pragma GCC diagnostic pop
 #include <stdexcept>
 #include "synergia/utils/simple_timer.h"
 
