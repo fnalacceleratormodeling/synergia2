@@ -113,5 +113,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     // trajectory
     bunch.get_reference_particle().increment_trajectory(length);
+
+    Kokkos::fence();
 }
 

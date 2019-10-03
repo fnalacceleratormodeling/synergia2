@@ -1,6 +1,7 @@
 #include "ff_sbend.h"
 
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/utils/simple_timer.h"
 
 // p [Gev/c] = -- * B*rho [ Tesla meters ]
 #define PH_CNV_brho_to_p   (1.0e-9 * pconstants::c)
@@ -415,6 +416,8 @@ namespace
 
 void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
+    scoped_simple_timer timer("libFF_sbend");
+
     auto const& ele = slice.get_lattice_element();
 
     SbendParams sp;
@@ -519,5 +522,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     bunch.get_reference_particle().increment_trajectory(sp.length);
+
+    Kokkos::fence();
 }
 

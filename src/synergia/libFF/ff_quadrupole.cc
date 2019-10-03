@@ -262,5 +262,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // advance the ref_part
         bunch.get_reference_particle().increment_trajectory(length);
     }
+
+    Kokkos::fence();
 }
 
