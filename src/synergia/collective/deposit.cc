@@ -16,10 +16,10 @@ namespace deposit_impl
 
     KOKKOS_INLINE_FUNCTION
     void get_leftmost_indices_offset(
-            double pos, double left, double cell_size,
+            double pos, double left, double inv_cell_size,
             int & idx, double & off )
     {
-        double scaled_location = (pos - left) / cell_size - 0.5;
+        double scaled_location = (pos - left) * inv_cell_size - 0.5;
         idx = fast_int_floor_kokkos(scaled_location);
         off = scaled_location - idx;
     }
@@ -32,7 +32,7 @@ namespace deposit_impl
         ConstParticles p;
         karray2d_dev bin;
         int gx, gy, gz;
-        double hx, hy, hz;
+        double ihx, ihy, ihz;
         double lx, ly, lz;
         double w0;
 
@@ -46,7 +46,7 @@ namespace deposit_impl
             : value_count(g[0]*g[1]+g[2])
             , p(p), bin(bin)
             , gx(g[0]), gy(g[1]), gz(g[2])
-            , hx(h[0]), hy(h[1]), hz(h[2])
+            , ihx(1.0/h[0]), ihy(1.0/h[1]), ihz(1.0/h[2])
             , lx(l[0]), ly(l[1]), lz(l[2])
             , w0(w0)
         { }
@@ -57,9 +57,9 @@ namespace deposit_impl
             int ix, iy, iz;
             double offx, offy, offz;
 
-            get_leftmost_indices_offset(p(i, 0), lx, hx, ix, offx);
-            get_leftmost_indices_offset(p(i, 2), ly, hy, iy, offy);
-            get_leftmost_indices_offset(p(i, 4), lz, hz, iz, offz);
+            get_leftmost_indices_offset(p(i, 0), lx, ihx, ix, offx);
+            get_leftmost_indices_offset(p(i, 2), ly, ihy, iy, offy);
+            get_leftmost_indices_offset(p(i, 4), lz, ihz, iz, offz);
 
             bin(i, 0) = ix;
             bin(i, 1) = offx;
@@ -71,8 +71,8 @@ namespace deposit_impl
             int cellz1 = iz;
             int cellz2 = cellz1 + 1;
 
-            if( cellz1>=0 && cellz1<gz ) sum[gx*gy + cellz1] += (1.0 - offz) / hz;
-            if( cellz2>=0 && cellz2<gz ) sum[gx*gy + cellz2] += offz / hz;
+            if( cellz1>=0 && cellz1<gz ) sum[gx*gy + cellz1] += (1.0 - offz) * ihz;
+            if( cellz2>=0 && cellz2<gz ) sum[gx*gy + cellz2] += offz * ihz;
 
             if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) return;
 
@@ -130,7 +130,7 @@ namespace deposit_impl
         karray1d_atomic_dev rho;
         karray2d_dev bin;
         int gx, gy, gz;
-        double hx, hy, hz;
+        double ihx, ihy, ihz;
         double lx, ly, lz;
         double w0;
 
@@ -144,7 +144,7 @@ namespace deposit_impl
                 double w0 )
             : p(p), rho(rho), bin(bin)
             , gx(g[0]), gy(g[1]), gz(g[2])
-            , hx(h[0]), hy(h[1]), hz(h[2])
+            , ihx(1.0/h[0]), ihy(1.0/h[1]), ihz(1.0/h[2])
             , lx(l[0]), ly(l[1]), lz(l[2])
             , w0(w0)
         { }
@@ -155,9 +155,9 @@ namespace deposit_impl
             int ix, iy, iz;
             double offx, offy, offz;
 
-            get_leftmost_indices_offset(p(i, 0), lx, hx, ix, offx);
-            get_leftmost_indices_offset(p(i, 2), ly, hy, iy, offy);
-            get_leftmost_indices_offset(p(i, 4), lz, hz, iz, offz);
+            get_leftmost_indices_offset(p(i, 0), lx, ihx, ix, offx);
+            get_leftmost_indices_offset(p(i, 2), ly, ihy, iy, offy);
+            get_leftmost_indices_offset(p(i, 4), lz, ihz, iz, offz);
 
             bin(i, 0) = ix;
             bin(i, 1) = offx;
@@ -169,8 +169,8 @@ namespace deposit_impl
             int cellz1 = iz;
             int cellz2 = cellz1 + 1;
 
-            if( cellz1>=0 && cellz1<gz ) rho(gx*gy*2 + cellz1) += (1.0 - offz) / hz;
-            if( cellz2>=0 && cellz2<gz ) rho(gx*gy*2 + cellz2) += offz / hz;
+            if( cellz1>=0 && cellz1<gz ) rho(gx*gy*2 + cellz1) += (1.0 - offz) * ihz;
+            if( cellz2>=0 && cellz2<gz ) rho(gx*gy*2 + cellz2) += offz * ihz;
 
             if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) return;
 
@@ -200,7 +200,7 @@ namespace deposit_impl
         Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> scatter;
         karray2d_dev bin;
         int gx, gy, gz;
-        double hx, hy, hz;
+        double ihx, ihy, ihz;
         double lx, ly, lz;
         double w0;
 
@@ -215,7 +215,7 @@ namespace deposit_impl
                 double w0 )
             : p(p), valid(valid), scatter(scatter), bin(bin)
             , gx(g[0]), gy(g[1]), gz(g[2])
-            , hx(h[0]), hy(h[1]), hz(h[2])
+            , ihx(1.0/h[0]), ihy(1.0/h[1]), ihz(1.0/h[2])
             , lx(l[0]), ly(l[1]), lz(l[2])
             , w0(w0)
         { }
@@ -230,9 +230,9 @@ namespace deposit_impl
             int ix, iy, iz;
             double offx, offy, offz;
 
-            get_leftmost_indices_offset(p(i, 0), lx, hx, ix, offx);
-            get_leftmost_indices_offset(p(i, 2), ly, hy, iy, offy);
-            get_leftmost_indices_offset(p(i, 4), lz, hz, iz, offz);
+            get_leftmost_indices_offset(p(i, 0), lx, ihx, ix, offx);
+            get_leftmost_indices_offset(p(i, 2), ly, ihy, iy, offy);
+            get_leftmost_indices_offset(p(i, 4), lz, ihz, iz, offz);
 
             bin(i, 0) = ix;
             bin(i, 1) = offx;
@@ -244,8 +244,8 @@ namespace deposit_impl
             int cellz1 = iz;
             int cellz2 = cellz1 + 1;
 
-            if( cellz1>=0 && cellz1<gz ) access(gx*gy*2 + cellz1) += (1.0 - offz) / hz;
-            if( cellz2>=0 && cellz2<gz ) access(gx*gy*2 + cellz2) += offz / hz;
+            if( cellz1>=0 && cellz1<gz ) access(gx*gy*2 + cellz1) += (1.0 - offz) * ihz;
+            if( cellz2>=0 && cellz2<gz ) access(gx*gy*2 + cellz2) += offz * ihz;
 
             if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) return;
 
