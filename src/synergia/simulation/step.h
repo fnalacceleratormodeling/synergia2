@@ -11,7 +11,7 @@ class Step
 
 private:
 
-    std::vector<std::unique_ptr<Operator>> operators;
+    std::vector<std::shared_ptr<Operator>> operators;
 
     double length;
     std::vector<double> step_betas;
@@ -24,14 +24,15 @@ public:
     Independent_operator & append_independent(Args &&... args)
     { 
         operators.emplace_back(
-                std::make_unique<Independent_operator>(std::forward<Args>(args)...) );
+                std::make_shared<Independent_operator>(std::forward<Args>(args)...) );
         return *(dynamic_cast<Independent_operator*>(operators.back().get()));
     }
 
     void append_collective(std::unique_ptr<CO_options> const & co_ops)
-    {
-        operators.emplace_back(co_ops->create_operator());
-    }
+    { operators.emplace_back(co_ops->create_operator()); }
+
+    void append(std::shared_ptr<Operator> col_op)
+    { operators.push_back(col_op); }
 
     void apply(Bunch_simulator & simulator, Logger & logger) const;
     void create_operations(Lattice const & lattice);

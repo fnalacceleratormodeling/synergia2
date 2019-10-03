@@ -10,6 +10,7 @@ Split_operator_stepper_elements::apply_impl(Lattice const & lattice) const
     }
 
     std::vector<Step> steps;
+    auto col_op_ptr = std::shared_ptr<Operator>(co_ops->create_operator());
 
     for (auto const & ele : lattice.get_elements())
     {
@@ -42,7 +43,8 @@ Split_operator_stepper_elements::apply_impl(Lattice const & lattice) const
                     .append_slice(ele, left, middle);
 
                 // Collective Effects
-                steps.back().append_collective(co_ops);
+                //steps.back().append_collective(co_ops);
+                steps.back().append(col_op_ptr);
 
                 // 2nd Half
                 steps.back()
