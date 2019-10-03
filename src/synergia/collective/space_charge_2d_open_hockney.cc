@@ -339,12 +339,16 @@ Space_charge_2d_open_hockney::apply_bunch(
     apply_kick(bunch, rho2, fn2, fn_norm, time_step);
 
     // release the particle_bin array so we wont run out of mem
+    simple_timer_start("sc2d_partbin_destroy");
     particle_bin = karray2d_dev();
+    simple_timer_stop("sc2d_partbin_destroy");
 }
 
 void
 Space_charge_2d_open_hockney::setup_communication(Commxx const & bunch_comm)
 {
+    scoped_simple_timer timer("sc2d_comm");
+
     comm = bunch_comm.divide(options.comm_group_size);
     fft.construct(options.doubled_shape, comm);
 }
@@ -396,7 +400,10 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     scoped_simple_timer timer("sc2d_local_rho");
 
+    simple_timer_start("sc2d_partbin_alloc");
     particle_bin = karray2d_dev("bin", bunch.get_local_num_slots(), 6);
+    simple_timer_stop("sc2d_partbin_alloc");
+
     return deposit_charge_rectangular_2d_kokkos_scatter_view(
             doubled_domain, particle_bin, bunch);
 }

@@ -47,7 +47,7 @@ public:
 
 private:
 
-    Space_charge_2d_open_hockney_options options;
+    const Space_charge_2d_open_hockney_options options;
 
     Rectangular_grid_domain domain;
     Rectangular_grid_domain doubled_domain;
