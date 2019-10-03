@@ -10,8 +10,6 @@
 
 #include "synergia/utils/logger.h"
 
-class Step;
-
 class Operator
 {
 
