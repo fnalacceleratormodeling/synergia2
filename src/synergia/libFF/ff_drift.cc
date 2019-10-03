@@ -4,6 +4,7 @@
 //#include "synergia/lattice/chef_utils.h"
 //#include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
+#include "synergia/utils/simple_timer.h"
 
 namespace
 {
@@ -91,6 +92,8 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
+    scoped_simple_timer timer("libFF_drift");
+
     const double  length = slice.get_right() - slice.get_left();
     const double    mass = bunch.get_mass();
 

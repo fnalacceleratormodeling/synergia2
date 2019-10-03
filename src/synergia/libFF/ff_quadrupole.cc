@@ -4,6 +4,7 @@
 //#include "synergia/lattice/chef_utils.h"
 //#include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
+#include "synergia/utils/simple_timer.h"
 
 namespace
 {
@@ -171,6 +172,8 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
 
 void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
+    scoped_simple_timer timer("libFF_quad");
+
     auto const& ele = slice.get_lattice_element();
 
     // length
