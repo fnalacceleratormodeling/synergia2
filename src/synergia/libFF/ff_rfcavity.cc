@@ -200,6 +200,9 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     PropRFCavity rfcavity(parts, rp, mask);
     Kokkos::parallel_for(num, rfcavity);
 
+    // bunch spectator particles
+    // TODO: ...
+
     // updated four momentum
     Four_momentum fm = ref_b.get_four_momentum();
     fm.set_momentum(rp.new_pref_b);
@@ -207,75 +210,5 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     // update the bunch reference particle with the updated ref_p
     ref_b.set_four_momentum(fm);
     ref_b.increment_trajectory(rp.length);
-
-#if 0
-    // bunch particles
-    {
-        #pragma omp parallel for
-        for (int part = 0; part < local_num; ++part)
-        {
-            double x   (particles[part][Bunch::x   ]);
-            double xp  (particles[part][Bunch::xp  ]);
-            double y   (particles[part][Bunch::y   ]);
-            double yp  (particles[part][Bunch::yp  ]);
-            double cdt (particles[part][Bunch::cdt ]);
-            double dpop(particles[part][Bunch::dpop]);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
-                    0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
-
-            FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop,
-                    w_rf, str, phi_s, m, reference_momentum, new_ref_p, mhp, nh);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
-                    0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
-
-            particles[part][Bunch::x]    = x;
-            particles[part][Bunch::xp]   = xp;
-            particles[part][Bunch::y]    = y;
-            particles[part][Bunch::yp]   = yp;
-            particles[part][Bunch::cdt]  = cdt;
-            particles[part][Bunch::dpop] = dpop;
-        }
-    }
-
-    // bunch spectator particles
-    {
-        #pragma omp parallel for
-        for (int part = 0; part < local_s_num; ++part)
-        {
-            double x   (s_particles[part][Bunch::x   ]);
-            double xp  (s_particles[part][Bunch::xp  ]);
-            double y   (s_particles[part][Bunch::y   ]);
-            double yp  (s_particles[part][Bunch::yp  ]);
-            double cdt (s_particles[part][Bunch::cdt ]);
-            double dpop(s_particles[part][Bunch::dpop]);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
-                    0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
-
-            FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop,
-                    w_rf, str, phi_s, m, reference_momentum, new_ref_p, mhp, nh);
-
-            FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
-                    0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
-
-            s_particles[part][Bunch::x]    = x;
-            s_particles[part][Bunch::xp]   = xp;
-            s_particles[part][Bunch::y]    = y;
-            s_particles[part][Bunch::yp]   = yp;
-            s_particles[part][Bunch::cdt]  = cdt;
-            s_particles[part][Bunch::dpop] = dpop;
-        }
-    }
-
-    // updated four momentum
-    Four_momentum fm = ref_b.get_four_momentum();
-    fm.set_momentum(new_ref_p);
-
-    // update the bunch reference particle with the updated ref_p
-    ref_b.set_four_momentum(fm);
-    ref_b.increment_trajectory(length);
-#endif
 }
 
