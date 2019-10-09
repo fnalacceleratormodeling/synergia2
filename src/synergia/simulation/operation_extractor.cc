@@ -154,7 +154,7 @@ Chef_mixed_operation_extractor::extract(
             std::vector<Lattice_element_slice> const & slices,
             std::vector<std::unique_ptr<Independent_operation>> & operations )
     {
-        operations.emplace_back(std::make_unique<LibFF_operation>(slices));
+        operations.push_back(std::make_unique<LibFF_operation>(slices));
     }
 
 } // namespace
