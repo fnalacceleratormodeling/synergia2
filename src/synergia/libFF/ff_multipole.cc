@@ -57,8 +57,7 @@ namespace
                 {
                     if (mp.kn[n])
                         FF_algorithm::thin_magnet_unit(
-                                p(i,0), p(i,1), p(i,2), p(i,3),
-                                &mp.kl[n*2], n+1);
+                                p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[n*2], n+1);
                 }
 #endif
             }
@@ -177,107 +176,5 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     PropMultipole multipole{parts, mp, valid};
     Kokkos::parallel_for(num, multipole);
-
-#if 0
-    // propagate bunch particles
-    for (int part = 0; part < local_num; ++part) 
-    {
-        double x   (particles[part][Bunch::x   ]);
-        double xp  (particles[part][Bunch::xp  ]);
-        double y   (particles[part][Bunch::y   ]);
-        double yp  (particles[part][Bunch::yp  ]);
-
-#if 1
-        // dipole
-        if (knl.size() > 0 && (knl[0] || ksl[0])) 
-        {
-            kL[0] = knl[0]; kL[1] = ksl[0];
-            FF_algorithm::thin_dipole_unit(x, xp, y, yp, kL);
-        }
-
-        // quad
-        if (knl.size() > 1 && (knl[1] || ksl[1])) 
-        {
-            kL[0] = knl[1]; kL[1] = ksl[1];
-            FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, kL);
-        }
-
-        // sextu
-        if (knl.size() > 2 && (knl[2] || ksl[2])) 
-        {
-            kL[0] = knl[2]; kL[1] = ksl[2];
-            FF_algorithm::thin_sextupole_unit(x, xp, y, yp, kL);
-        }
-
-        // octu 
-        if (knl.size() > 3 && (knl[3] || ksl[3])) 
-        {
-            kL[0] = knl[3]; kL[1] = ksl[3];
-            FF_algorithm::thin_octupole_unit(x, xp, y, yp, kL);
-        }
-#endif
-
-        // higher orders
-        for (int n = 4; n < knl.size(); ++n) {
-            if (knl[n] || ksl[n]) {
-                kL[0] = knl[n]; kL[1] = ksl[n];
-                FF_algorithm::thin_magnet_unit(x, xp, y, yp, kL, n+1);
-            }
-        }
-
-        particles[part][Bunch::xp] = xp;
-        particles[part][Bunch::yp] = yp;
-    }
-
-    // propagate bunch spectator particles
-    for (int part = 0; part < local_s_num; ++part) 
-    {
-        double x   (s_particles[part][Bunch::x   ]);
-        double xp  (s_particles[part][Bunch::xp  ]);
-        double y   (s_particles[part][Bunch::y   ]);
-        double yp  (s_particles[part][Bunch::yp  ]);
-
-#if 1
-        // dipole
-        if (knl.size() > 0 && (knl[0] || ksl[0])) 
-        {
-            kL[0] = knl[0]; kL[1] = ksl[0];
-            FF_algorithm::thin_dipole_unit(x, xp, y, yp, kL);
-        }
-
-        // quad
-        if (knl.size() > 1 && (knl[1] || ksl[1])) 
-        {
-            kL[0] = knl[1]; kL[1] = ksl[1];
-            FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, kL);
-        }
-
-        // sextu
-        if (knl.size() > 2 && (knl[2] || ksl[2])) 
-        {
-            kL[0] = knl[2]; kL[1] = ksl[2];
-            FF_algorithm::thin_sextupole_unit(x, xp, y, yp, kL);
-        }
-
-        // octu 
-        if (knl.size() > 3 && (knl[3] || ksl[3])) 
-        {
-            kL[0] = knl[3]; kL[1] = ksl[3];
-            FF_algorithm::thin_octupole_unit(x, xp, y, yp, kL);
-        }
-#endif
-
-        // higher orders
-        for (int n = 4; n < knl.size(); ++n) {
-            if (knl[n] || ksl[n]) {
-                kL[0] = knl[n]; kL[1] = ksl[n];
-                FF_algorithm::thin_magnet_unit(x, xp, y, yp, kL, n+1);
-            }
-        }
-
-        s_particles[part][Bunch::xp] = xp;
-        s_particles[part][Bunch::yp] = yp;
-    }
-#endif
 }
 
