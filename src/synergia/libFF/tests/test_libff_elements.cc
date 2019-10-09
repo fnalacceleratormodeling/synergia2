@@ -105,6 +105,28 @@ TEST_CASE("sbend cf 2", "[libFF][Elements]")
     std::cout << "\n";
 }
 
+TEST_CASE("rfcavity", "[libFF][Elements]")
+{
+    CHECK( true );
+
+    propagator_fixture pf("seq_rfc");
+    auto & b = pf.bunch();
+
+    b.checkout_particles();
+    auto parts = b.get_host_particles();
+    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
+    b.checkin_particles();
+
+    pf.propagate();
+
+    b.checkout_particles();
+    parts = b.get_host_particles();
+    std::cout << std::setprecision(16);
+    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
+    std::cout << "\n";
+}
+
+
 
 int main(int argc, char** argv)
 {

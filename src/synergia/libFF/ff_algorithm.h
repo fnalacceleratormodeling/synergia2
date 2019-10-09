@@ -568,7 +568,8 @@ namespace FF_algorithm
     KOKKOS_INLINE_FUNCTION
     void thin_rfcavity_unit
       (T & px, T & py, T const & cdt, T & dpop,
-       double w_rf, double volt, double phi_s, double m, double old_ref_p, double & new_ref_p, double * mhp, int nh)
+       double w_rf, double volt, double phi_s, double m, 
+       double old_ref_p, double new_ref_p, double const * mhp, int nh)
     {
         // 0 strength RF cavity does nothing (fast)
         if (volt == 0.0) {
