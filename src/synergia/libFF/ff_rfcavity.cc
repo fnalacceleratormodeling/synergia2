@@ -26,12 +26,7 @@ namespace
     {
         Particles p;
         const RFCavityParams rp;
-
         const_k1b_dev mask;
-
-        PropRFCavity(Particles const& p, RFCavityParams const& rp, const_k1b_dev mask)
-            : p(p), rp(rp), mask(mask)
-        { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
@@ -197,7 +192,7 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     auto parts = bunch.get_local_particles(ParticleGroup::regular);
     auto mask  = bunch.get_local_particles_valid(ParticleGroup::regular);
 
-    PropRFCavity rfcavity(parts, rp, mask);
+    PropRFCavity rfcavity{parts, rp, mask};
     Kokkos::parallel_for(num, rfcavity);
 
     // bunch spectator particles
