@@ -5,6 +5,7 @@
 #include "synergia/libFF/ff_sbend.h"
 #include "synergia/libFF/ff_quadrupole.h"
 #include "synergia/libFF/ff_rfcavity.h"
+#include "synergia/libFF/ff_multipole.h"
 
 namespace
 {
@@ -16,6 +17,7 @@ namespace
         case element_type::sbend:      return std::make_unique<FF_sbend>();
         case element_type::quadrupole: return std::make_unique<FF_quadrupole>();
         case element_type::rfcavity:   return std::make_unique<FF_rfcavity>();
+        case element_type::multipole:  return std::make_unique<FF_multipole>();
         default: throw std::runtime_error("unhandled element type");
         }
     }

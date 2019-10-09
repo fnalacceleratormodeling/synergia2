@@ -1,49 +1,81 @@
+
 #include "ff_multipole.h"
 #include "ff_algorithm.h"
-#include "synergia/lattice/chef_utils.h"
 
-FF_multipole::FF_multipole()
+#include "synergia/utils/simple_timer.h"
+
+
+namespace
 {
+    const int max_order = 8;
 
-}
+    struct MultipoleParams
+    {
+        bool kn[max_order];
+        double kl[max_order*2];
+    };
 
-void FF_multipole::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
-{
-    throw std::runtime_error("FF_multipole::apply(JetParticle) not implemented");
+    void zero_params(MultipoleParams & mp)
+    {
+        for(int i=0; i<max_order; ++i)
+        {
+            mp.kn[i] = false;
+            mp.kl[i*2+0] = 0.0;
+            mp.kl[i*2+1] = 0.0;
+        }
+    }
 
-#if 0
-    double length = slice.get_right() - slice.get_left();
-    double strength = 0.0;
+    struct PropMultipole
+    {
+        Particles p;
+        const MultipoleParams mp;
+        const_k1b_dev valid;
 
-    typedef PropagatorTraits<JetParticle>::State_t State_t;
-    typedef PropagatorTraits<JetParticle>::Component_t Component_t;
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int i) const
+        {
+            if (valid(i))
+            {
+                if (mp.kn[0])
+                FF_algorithm::thin_dipole_unit(
+                        p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[0]);
 
-    State_t& state = jet_particle.State();
+                if (mp.kn[1])
+                FF_algorithm::thin_quadrupole_unit(
+                        p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[2]);
 
-    Component_t & x(state[Chef::x]);
-    Component_t & xp(state[Chef::xp]);
-    Component_t & y(state[Chef::y]);
-    Component_t & yp(state[Chef::yp]);
-    Component_t & cdt(state[Chef::cdt]);
-    Component_t & dpop(state[Chef::dpop]);
+                if (mp.kn[2])
+                FF_algorithm::thin_sextupole_unit(
+                        p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[4]);
 
-    double reference_momentum = jet_particle.ReferenceMomentum();
-    double reference_brho     = jet_particle.ReferenceBRho();
-    double m = jet_particle.Mass();
+                if (mp.kn[3])
+                FF_algorithm::thin_octupole_unit(
+                        p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[6]);
 
-    multipole_unit(x, xp, y, yp, cdt, dpop,
-                   length, strength,
-                   reference_momentum, m, reference_brho);
+#if 1
+                for(int n=4; n<max_order; ++n)
+                {
+                    if (mp.kn[n])
+                        FF_algorithm::thin_magnet_unit(
+                                p(i,0), p(i,1), p(i,2), p(i,3),
+                                &mp.kl[n*2], n+1);
+                }
 #endif
+            }
+        }
+    };
 }
+
 
 void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-    double length = slice.get_right() - slice.get_left();
+    scoped_simple_timer timer("libFF_multipole");
 
-    if (length > 0.0)
-        throw std::runtime_error(
-                "FF_multipole::apply() cannot deal with thick elements");
+    if (slice.get_right() - slice.get_left() > 0.0)
+        throw std::runtime_error("FF_multipole::apply() cannot deal with thick elements");
+
+    MultipoleParams mp;
+    zero_params(mp);
 
     std::vector<double> knl;
     std::vector<double> ksl;
@@ -106,21 +138,22 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
     double brho_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
 
+    // scale
     double scale = brho_l / brho_b;
-
     for (int i=0; i<knl.size(); ++i)
     {
         knl[i] *= scale;
         ksl[i] *= scale;
     }
 
-    double kL[2];
+    // prepare the params
+    for (int i=0; i<knl.size(); ++i)
+    {
+        if (knl[i] || ksl[i]) mp.kn[i] = true;
 
-    int local_num = bunch.get_local_num();
-    int local_s_num = bunch.get_local_spectator_num();
-
-    MArray2d_ref particles = bunch.get_local_particles();
-    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
+        mp.kl[i*2+0] = knl[i];
+        mp.kl[i*2+1] = ksl[i];
+    }
 
     // propagate and update the design reference particle
     double x  = ref_l.get_state()[Bunch::x];
@@ -129,15 +162,23 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double yp = ref_l.get_state()[Bunch::yp];
     double dpop = ref_l.get_state()[Bunch::dpop];
 
-    for (int n = 0; n < knl.size(); ++n) {
-        if (knl[n] || ksl[n]) {
-            kL[0] = knl[n]; kL[1] = ksl[n];
-            FF_algorithm::thin_magnet_unit(x, xp, y, yp, kL, n+1);
+    for (int n = 0; n < max_order; ++n) {
+        if (mp.kn[n]) {
+            FF_algorithm::thin_magnet_unit(x, xp, y, yp, &mp.kl[n*2], n+1);
         }
     }
 
     ref_l.set_state(x, xp, y, yp, 0.0, dpop);
 
+    // bunch particles
+    int num = bunch.get_local_num_slots(ParticleGroup::regular);
+    auto parts = bunch.get_local_particles(ParticleGroup::regular);
+    auto valid = bunch.get_local_particles_valid(ParticleGroup::regular);
+
+    PropMultipole multipole{parts, mp, valid};
+    Kokkos::parallel_for(num, multipole);
+
+#if 0
     // propagate bunch particles
     for (int part = 0; part < local_num; ++part) 
     {
@@ -237,5 +278,6 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         s_particles[part][Bunch::xp] = xp;
         s_particles[part][Bunch::yp] = yp;
     }
+#endif
 }
 

@@ -15,7 +15,7 @@ struct propagator_fixture
     Bunch_simulator sim;
 
     propagator_fixture(std::string const& seq)
-        : screen(0, LoggerV::DEBUG)
+        : screen(0, LoggerV::INFO_TURN)
         , lattice(MadX_reader().get_lattice(seq, "fodo.madx"))
         , propagator(lattice, Independent_stepper_elements(1))
         , sim( Bunch_simulator::create_single_bunch_simulator(
@@ -126,6 +126,93 @@ TEST_CASE("rfcavity", "[libFF][Elements]")
     std::cout << "\n";
 }
 
+#if 1
+TEST_CASE("thin multipole 1 -- mad8 format", "[libFF][Elements]")
+{
+    CHECK( true );
+
+    propagator_fixture pf("seq_mp1");
+    auto & b = pf.bunch();
+
+    b.checkout_particles();
+    auto parts = b.get_host_particles();
+    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
+    b.checkin_particles();
+
+    pf.propagate();
+
+    b.checkout_particles();
+    parts = b.get_host_particles();
+    std::cout << std::setprecision(16);
+    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
+    std::cout << "\n";
+}
+
+TEST_CASE("thin multipole 2 -- mad8 format with tilts", "[libFF][Elements]")
+{
+    CHECK( true );
+
+    propagator_fixture pf("seq_mp2");
+    auto & b = pf.bunch();
+
+    b.checkout_particles();
+    auto parts = b.get_host_particles();
+    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
+    b.checkin_particles();
+
+    pf.propagate();
+
+    b.checkout_particles();
+    parts = b.get_host_particles();
+    std::cout << std::setprecision(16);
+    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
+    std::cout << "\n";
+}
+#endif
+
+
+TEST_CASE("thin multipole 3 -- madx format", "[libFF][Elements]")
+{
+    CHECK( true );
+
+    propagator_fixture pf("seq_mp3");
+    auto & b = pf.bunch();
+
+    b.checkout_particles();
+    auto parts = b.get_host_particles();
+    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
+    b.checkin_particles();
+
+    pf.propagate();
+
+    b.checkout_particles();
+    parts = b.get_host_particles();
+    std::cout << std::setprecision(16);
+    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
+    std::cout << "\n";
+}
+
+
+TEST_CASE("thin multipole 4 -- madx format with tilts", "[libFF][Elements]")
+{
+    CHECK( true );
+
+    propagator_fixture pf("seq_mp4");
+    auto & b = pf.bunch();
+
+    b.checkout_particles();
+    auto parts = b.get_host_particles();
+    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
+    b.checkin_particles();
+
+    pf.propagate();
+
+    b.checkout_particles();
+    parts = b.get_host_particles();
+    std::cout << std::setprecision(16);
+    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
+    std::cout << "\n";
+}
 
 
 int main(int argc, char** argv)
