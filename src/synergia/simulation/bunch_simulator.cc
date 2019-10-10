@@ -167,6 +167,8 @@ Bunch_simulator::Bunch_simulator(
     , diags_ele()
     , diags_opr()
     , diags_opn()
+    , prop_actions_step_end()
+    , prop_actions_turn_end()
 {
 }
 
@@ -210,6 +212,18 @@ Bunch_simulator::diag_action_operation(Independent_operation const & opn)
 }
 
 void
+Bunch_simulator::reg_prop_action_step_end(action_step_t fun, void * data)
+{
+    prop_actions_step_end.push_back({fun, data});
+}
+
+void
+Bunch_simulator::reg_prop_action_turn_end(action_turn_t fun, void * data)
+{
+    prop_actions_turn_end.push_back({fun, data});
+}
+
+void
 Bunch_simulator::prop_action_first(Lattice & lattice)
 {
 }
@@ -217,11 +231,15 @@ Bunch_simulator::prop_action_first(Lattice & lattice)
 void
 Bunch_simulator::prop_action_step_end(Lattice & lattice, int turn, int step)
 {
+    for (auto const& action : prop_actions_step_end)
+        action.fun(*this, lattice, turn, step, action.data);
 }
 
 void
 Bunch_simulator::prop_action_turn_end(Lattice & lattice, int turn)
 {
+    for (auto const& action : prop_actions_turn_end)
+        action.fun(*this, lattice, turn, action.data);
 }
 
 void 
