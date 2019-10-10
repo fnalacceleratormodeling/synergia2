@@ -183,6 +183,13 @@ Lattice::get_elements() const
     return elements;
 }
 
+std::list<Lattice_element> &
+Lattice::get_elements()
+{
+    return elements;
+}
+
+
 double
 Lattice::get_length() const
 {

@@ -119,6 +119,9 @@ public:
     std::list<Lattice_element> const &
     get_elements() const;
 
+    std::list<Lattice_element> &
+    get_elements();
+
     /// Get the combined length of all the elements in the Lattice
     double
     get_length() const;

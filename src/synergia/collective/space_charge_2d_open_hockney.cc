@@ -39,9 +39,10 @@ namespace
                 sum += hgrid((x*gy + y)*2 + off);
 #endif
         
-        logger << std::resetiosflags(std::ios::fixed)
-               << std::setiosflags(std::ios::showpos | std::ios::scientific)
-               << std::setprecision(12);
+        logger 
+            //<< std::resetiosflags(std::ios::fixed)
+            //<< std::setiosflags(std::ios::showpos | std::ios::scientific)
+            << std::setprecision(12);
 
         logger << "      " << grid.label() << " = " << sum << "\n";
 

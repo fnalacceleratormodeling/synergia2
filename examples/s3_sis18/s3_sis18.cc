@@ -1,6 +1,10 @@
 
 
 #include "synergia/simulation/propagator.h"
+#include "synergia/simulation/lattice_simulator.h"
+#include "synergia/simulation/split_operator_stepper.h"
+#include "synergia/simulation/independent_stepper_elements.h"
+
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/populate.h"
 #include "synergia/bunch/diagnostics_track.h"
@@ -11,16 +15,77 @@
 
 #include "synergia/utils/simple_timer.h"
 
+using LV = LoggerV;
+
+void print_statistics(Bunch & bunch, Logger & logger)
+{
+    // print particles after propagate
+    bunch.checkout_particles();
+    auto hparts = bunch.get_host_particles();
+
+    double sum = 0;
+    double mean[6] = {0, 0, 0, 0, 0, 0};
+    double std[6] = {0, 0, 0, 0, 0, 0};
+
+    for(int p=0; p<bunch.get_local_num(); ++p)
+    {
+        for(int i=0; i<6; ++i) 
+        {
+            sum += hparts(p, i);
+            mean[i] += hparts(p, i);
+        }
+    }
+
+    for (int i=0; i<6; ++i) mean[i]/=bunch.get_local_num();
+
+    for(int p=0; p<bunch.get_local_num(); ++p)
+    {
+        for(int i=0; i<6; ++i) 
+        {
+            std[i] += (hparts(p, i) - mean[i]) * (hparts(p, i) - mean[i]);
+        }
+    }
+
+    for (int i=0; i<6; ++i) std[i] = sqrt(std[i]/bunch.get_local_num());
+
+    logger(LV::DEBUG) 
+        << std::resetiosflags(std::ios::fixed)
+        << std::setprecision(16)
+        << "\n\nsum = " << sum << "\n"
+        << std::setiosflags(std::ios::showpos | std::ios::scientific)
+        ;
+
+
+    for (int i=0; i<6; ++i) 
+        logger(LV::DEBUG) << mean[i] << ", " << std[i] << "\n";
+
+    logger(LV::DEBUG)
+        << std::resetiosflags(std::ios::showpos | std::ios::scientific)
+        << "\n";
+
+    for (int p=0; p<4; ++p) bunch.print_particle(p, logger);
+
+#if 0
+    double g_sum = 0;
+    MPI_Reduce(&sum, &g_sum, 1, MPI_DOUBLE, MPI_SUM, 0, bunch.get_comm());
+
+    logger(LV::DEBUG) 
+        << std::setprecision(8)
+        << "\n\npropagated sum (reduced) = " << g_sum << "\n";
+#endif
+
+    logger << "\n";
+}
 
 int run()
 {
-    using LV = LoggerV;
-
     Logger screen(0, LV::DEBUG);
     Logger simlog(0, LV::INFO_TURN);
 
     MadX_reader reader;
     auto lattice = reader.get_lattice("machine", "sis18.madx");
+    Lattice_simulator::tune_circular_lattice(lattice);
+
     auto const & ref = lattice.get_reference_particle();
 
     //lattice.print(screen);
@@ -29,11 +94,13 @@ int run()
         << "reference momentum = " << ref.get_momentum() << " GeV\n";
 
     // space charge
-    Space_charge_2d_open_hockney_options sc_ops(32, 32, 128);
+    Space_charge_2d_open_hockney_options sc_ops(64, 64, 64);
     sc_ops.comm_group_size = 1;
 
     // stepper
-    Split_operator_stepper_elements stepper(1, sc_ops);
+    //Independent_stepper_elements stepper(1);
+    //Split_operator_stepper_elements stepper(1, sc_ops);
+    Split_operator_stepper stepper(sc_ops, 71);
 
     // Propagator
     Propagator propagator(lattice, stepper);
@@ -41,15 +108,23 @@ int run()
 
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
-            lattice.get_reference_particle(), 1024 * 1024 * 1, 1e13,
+            lattice.get_reference_particle(), 1024 * 1024 * 1, 2.94e10,
             Commxx() );
 
+#if 0
+    // propagate actions
+    double cdt = 0.0;
+    sim.reg_prop_action_step_end( [&cdt](Bunch_simulator& sim, Lattice&, int, int step, void*) { 
+        cdt += sim.get_bunch().get_design_reference_particle().get_state()[4]; 
+    }, nullptr );
+#endif
+
     // propagate options
-    sim.set_turns(0, 1); // (start, num_turns)
+    sim.set_turns(0, 2); // (start, num_turns)
 
     auto & bunch = sim.get_bunch();
 
-#if 1
+#if 0
     // populate particle data
     karray1d means("means", 6);
     for (int i=0; i<6; ++i) means(i) = 0.0;
@@ -70,26 +145,14 @@ int run()
     populate_6d(dist, bunch, means, covariances);
 #endif
 
-#if 0
+#if 1
     // or read from file
     bunch.read_file("turn_particles_0000.h5");
 #endif
 
-    // print
-    bunch.checkout_particles();
-    auto local_num = bunch.get_local_num();
-    auto hparts = bunch.get_host_particles();
+    // statistics before propagate
+    print_statistics(bunch, screen);
 
-    double sum = 0;
-    for(int p=0; p<bunch.get_local_num(); ++p)
-        for(int i=0; i<6; ++i) sum += hparts(p, i);
-
-    screen(LV::DEBUG) 
-        << std::setprecision(8)
-        << "\n\npopulated sum = " << sum << "\n";
-
-    for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
-    screen << "\n";
 
 #if 0
     // diagnostics
@@ -103,29 +166,8 @@ int run()
     // propagate
     propagator.propagate(sim, simlog);
 
-    // print particles after propagate
-    bunch.checkout_particles();
-
-    sum = 0;
-    for(int p=0; p<bunch.get_local_num(); ++p)
-        for(int i=0; i<6; ++i) sum += hparts(p, i);
-
-    screen(LV::DEBUG) 
-        << std::setprecision(8)
-        << "\n\npropagated sum = " << sum << "\n";
-
-
-    for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
-
-    double g_sum = 0;
-    MPI_Reduce(&sum, &g_sum, 1, MPI_DOUBLE, MPI_SUM, 0, bunch.get_comm());
-
-    screen(LV::DEBUG) 
-        << std::setprecision(8)
-        << "\n\npropagated sum (reduced) = " << g_sum << "\n";
-
-    screen << "\n";
-
+    // statistics after propagate
+    print_statistics(bunch, screen);
     simple_timer_print(screen);
 
     return 0;
