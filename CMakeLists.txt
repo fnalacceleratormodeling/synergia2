@@ -47,20 +47,36 @@ endif()
 # python
 if (USE_PYTHON_3)
   message(STATUS "Trying to find python 3")
+  find_package(Python3 COMPONENTS Interpreter Development)
+  message(STATUS "Python3_LIBRARIES: ${Python3_LIBRARIES}")
+  set(MY_PYTHON_LIBRARY ${Python3_LIBRARIES})
+  set(MY_PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+  set(MY_PYTHON_INCLUDE_DIRECTORY ${Python3_INCLUDE_DIRS})
   # If we could use cmake v3.12 or newer, this is simple:
   #find_package(Python3 COMPONENTS Interpreter Development)
   set(Python_ADDITIONAL_VERSIONS "3")
 else()
   message(STATUS "Trying to find python 2")
+  find_package(Python2 COMPONENTS Interpreter Development)
+  set(MY_PYTHON_LIBRARY ${Python2_LIBRARIES})
+  set(MY_PYTHON_EXECUTABLE ${Python2_EXECUTABLE})
+  set(MY_PYTHON_INCLUDE_DIRECTORY ${Python2_INCLUDE_DIRS})
   # If we could use cmake v3.12 or newer, this is simple:
-  #find_package(Python2 COMPONENTS Interpreter Development)
+  #find_package(Python3 COMPONENTS Interpreter Development)
   set(Python_ADDTIONAL_VERSIONS "2")
 endif()
 
 # If we could use cmake v3.12 or newer, this would not be needed.
-find_package(PythonInterp)
-find_package(PythonLibs)
-include_directories(${PYTHON_INCLUDE_DIR})
+if (NOT MY_PYTHON_LIBRARY)
+  find_package(PythonInterp REQUIRED)
+  find_package(PythonLibs REQUIRED)
+  set(MY_PYTHON_LIBRARY ${PYTHON_LIBRARIES})
+  set(MY_PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})
+  set(MY_PYTHON_INCLUDE_DIRECTORY ${PYTHON_INCLUDE_DIRS})
+endif()
+include_directories(${MY_PYTHON_INCLUDE_DIR})
+
+include(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 
 # boost
 set(Boost_NO_BOOST_CMAKE ON) # Do *not* use CMake support from Boost.
@@ -83,7 +99,9 @@ endif()
 foreach (plib ${pstem})
     find_package(Boost QUIET COMPONENTS ${plib})
     if (Boost_LIBRARIES)
-        break()
+      string(TOUPPER "${plib}" MY_PYLIB)
+      set(MY_BOOST_PYTHON_LIBRARY "${Boost_${MY_PYLIB}_LIBRARY}")
+      break()
     endif()
 endforeach()
 set(Boost_LIBRARIES ${first_boost_libraries} ${Boost_LIBRARIES})
@@ -96,6 +114,7 @@ message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost_LIBRARIES    = ${Boost_LIBRARIES}")
 message(STATUS "Boost_SERIALIZATION_LIBRARY = ${Boost_SERIALIZATION_LIBRARY}")
+message(STATUS "MY_BOOST_PYTHON_LIBRARY = ${MY_BOOST_PYTHON_LIBRARY}")
 
 # MPI
 find_package(MPI REQUIRED CXX)
@@ -136,7 +155,6 @@ find_package(MPI4PY REQUIRED)
 include_directories(${MPI4PY_INCLUDE_DIR})
 
 # misc
-INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
 include_directories(${GSL_INCLUDE_DIR})
 
@@ -146,6 +164,9 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 
 # fftw3 (and, possibly, fftw2)
 find_package(FFTW3 REQUIRED)
+message(STATUS "FFTW3 was found")
+message(STATUS "FFTW3_FOUND: ${FFTW3_FOUND}")
+message(STATUS "FFTW3_MPI_LIBRARIES: ${FFTW3_MPI_LIBRARIES}")
 if(FFTW3_MPI_FOUND)
     include_directories(${FFTW3_INCLUDE_DIR})
     set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})

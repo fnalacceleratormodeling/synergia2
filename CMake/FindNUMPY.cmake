@@ -5,12 +5,7 @@
 # NUMPY_FOUND
 
 if(NOT NUMPY_INCLUDE_DIR)
-    if(EXTRA_PYTHONPATH)
-        set(OLD_PYTHONPATH $ENV{PYTHONPATH})
-        set(ENV{PYTHONPATH} "${EXTRA_PYTHONPATH}:$ENV{PYTHONPATH}")
-    endif(EXTRA_PYTHONPATH)
-    message("Python executable is: ${PYTHON_EXECUTABLE}")
-    execute_process(COMMAND "${PYTHON_EXECUTABLE}"
+    execute_process(COMMAND "${MY_PYTHON_EXECUTABLE}"
         "-c" "from __future__ import print_function; import numpy; print(numpy.get_include())"
         OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
         RESULT_VARIABLE NUMPY_NOT_FOUND
@@ -28,9 +23,6 @@ if(NOT NUMPY_INCLUDE_DIR)
         endif (NUMPY_INCLUDE_DIR MATCHES "Traceback")
     endif(NUMPY_NOT_FOUND)
     set(NUMPY_FOUND ${INTERNAL_NUMPY_FOUND} CACHE BOOL "Numpy found" FORCE)
-    if(EXTRA_PYTHONPATH)
-        set(ENV{PYTHONPATH} ${OLD_PYTHONPATH})
-    endif(EXTRA_PYTHONPATH)
 endif(NOT NUMPY_INCLUDE_DIR)
 
 include(FindPackageHandleStandardArgs)
