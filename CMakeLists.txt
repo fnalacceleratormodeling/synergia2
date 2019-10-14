@@ -29,8 +29,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-register ${COMPILER_SPECIFIC_
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
 set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
 
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # needed to avoid warnings about rpath policy on Mac OSX
-# no known difference between "OLD" and "NEW" policies for us
 if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
@@ -48,22 +48,31 @@ endif()
 if (USE_PYTHON_3)
   message(STATUS "Trying to find python 3")
   find_package(Python3 COMPONENTS Interpreter Development)
-  message(STATUS "Python3_LIBRARIES: ${Python3_LIBRARIES}")
-  set(MY_PYTHON_LIBRARY ${Python3_LIBRARIES})
-  set(MY_PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-  set(MY_PYTHON_INCLUDE_DIRECTORY ${Python3_INCLUDE_DIRS})
-  # If we could use cmake v3.12 or newer, this is simple:
-  #find_package(Python3 COMPONENTS Interpreter Development)
-  set(Python_ADDITIONAL_VERSIONS "3")
+  if (Python3_FOUND)
+    message(STATUS "We found Python 3")
+    message(STATUS "Python3_LIBRARIES: ${Python3_LIBRARIES}")
+    set(MY_PYTHON_LIBRARY ${Python3_LIBRARIES})
+    set(MY_PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+    set(MY_PYTHON_INCLUDE_DIRECTORY ${Python3_INCLUDE_DIRS})
+    set(MY_PYTHON_VERSION_MAJOR ${Python3_VERSION_MAJOR})
+    set(MY_PYTHON_VERSION_MINOR ${Python3_VERSION_MINOR})
+    # If we could use cmake v3.12 or newer, this is simple:
+    #find_package(Python3 COMPONENTS Interpreter Development)
+    set(Python_ADDITIONAL_VERSIONS "3")
+  endif()
 else()
   message(STATUS "Trying to find python 2")
   find_package(Python2 COMPONENTS Interpreter Development)
-  set(MY_PYTHON_LIBRARY ${Python2_LIBRARIES})
-  set(MY_PYTHON_EXECUTABLE ${Python2_EXECUTABLE})
-  set(MY_PYTHON_INCLUDE_DIRECTORY ${Python2_INCLUDE_DIRS})
-  # If we could use cmake v3.12 or newer, this is simple:
-  #find_package(Python3 COMPONENTS Interpreter Development)
-  set(Python_ADDTIONAL_VERSIONS "2")
+  if (Python2_FOUND)
+    set(MY_PYTHON_LIBRARY ${Python2_LIBRARIES})
+    set(MY_PYTHON_EXECUTABLE ${Python2_EXECUTABLE})
+    set(MY_PYTHON_INCLUDE_DIRECTORY ${Python2_INCLUDE_DIRS})
+    set(MY_PYTHON_VERSION_MAJOR ${Python2_VERSION_MAJOR})
+    set(MY_PYTHON_VERSION_MINOR ${Python2_VERSION_MINOR})
+    # If we could use cmake v3.12 or newer, this is simple:
+    #find_package(Python3 COMPONENTS Interpreter Development)
+    set(Python_ADDTIONAL_VERSIONS "2")
+  endif()
 endif()
 
 # If we could use cmake v3.12 or newer, this would not be needed.
@@ -73,8 +82,14 @@ if (NOT MY_PYTHON_LIBRARY)
   set(MY_PYTHON_LIBRARY ${PYTHON_LIBRARIES})
   set(MY_PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})
   set(MY_PYTHON_INCLUDE_DIRECTORY ${PYTHON_INCLUDE_DIRS})
+  set(MY_PYTHON_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
+  set(MY_PYTHON_VERSION_MINOR ${PYTHON_VERSION_MINOR})
 endif()
 include_directories(${MY_PYTHON_INCLUDE_DIR})
+
+message(STATUS "Done looking for Python")
+message(STATUS "MY_PYTHON_VERSION_MAJOR is: ${MY_PYTHON_VERSION_MAJOR}")
+message(STATUS "MY_PYTHON_VERSION_MINOR is: ${MY_PYTHON_VERSION_MINOR}")
 
 include(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 
@@ -134,7 +149,6 @@ else()
     include_directories(${MPI_CXX_INCLUDE_PATH})
     link_libraries(${MPI_CXX_LIBRARIES})
 endif ()
-
 
 # hdf5
 find_package(HDF5)
