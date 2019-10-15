@@ -74,46 +74,50 @@ Lattice_element::Lattice_element(Lsexpr const & lsexpr)
     , revision(0)
     , lattice_ptr(nullptr)
 {
-#if 0
-    for (Lsexpr::const_iterator_t it = lsexpr.begin(); it != lsexpr.end();
-         ++it) {
-        if (it->is_labeled()) {
-            if (it->get_label() == "type") {
-                type = it->get_string();
-            } else if (it->get_label() == "name") {
-                name = it->get_string();
-            } else if (it->get_label() == "ancestors") {
-                std::vector<std::string> ancestors_vector(
-                    it->get_string_vector());
+    for (auto const& lse : lsexpr)
+    {
+        if (lse.is_labeled()) 
+        {
+            if (lse.get_label() == "type") 
+            {
+                stype = lse.get_string();
+                type = find_type(stype);
+            } 
+            else if (lse.get_label() == "name") 
+            {
+                name = lse.get_string();
+            } 
+            else if (lse.get_label() == "ancestors") 
+            {
+                auto ancestors_vector = lse.get_string_vector();
                 std::copy(ancestors_vector.begin(), ancestors_vector.end(),
                           std::back_inserter(ancestors));
-            } else if (it->get_label() == "double_attributes") {
-                for (Lsexpr::const_iterator_t ait = it->begin();
-                     ait != it->end(); ++ait) {
-                    double_attributes[ait->get_label()] = ait->get_double();
-                }
-            } else if (it->get_label() == "string_attributes") {
-                for (Lsexpr::const_iterator_t ait = it->begin();
-                     ait != it->end(); ++ait) {
-                    string_attributes[ait->get_label()] = ait->get_string();
-                }
-            } else if (it->get_label() == "vector_attributes") {
-                for (Lsexpr::const_iterator_t ait = it->begin();
-                     ait != it->end(); ++ait) {
-                    vector_attributes[ait->get_label()] =
-                        ait->get_double_vector();
-                }
+            } 
+            else if (lse.get_label() == "double_attributes") 
+            {
+                for (auto const& attr : lse)
+                    double_attributes[attr.get_label()] = attr.get_double();
+            } 
+            else if (lse.get_label() == "string_attributes") 
+            {
+                for (auto const& attr : lse)
+                    string_attributes[attr.get_label()] = attr.get_string();
+            } 
+            else if (lse.get_label() == "vector_attributes") 
+            {
+                for (auto const& attr : lse)
+                    vector_attributes[attr.get_label()] = attr.get_double_vector();
             }
-        } else {
-            if (!it->is_atomic()) {
-                for (Lsexpr::const_iterator_t ait = it->begin();
-                     ait != it->end(); ++ait) {
-                    double_attributes[ait->get_label()] = ait->get_double();
-                }
+        } 
+        else 
+        {
+            if (!lse.is_atomic())
+            {
+                for (auto const& attr : lse)
+                    double_attributes[attr.get_label()] = attr.get_double();
             }
         }
     }
-#endif
 }
 
 Lsexpr

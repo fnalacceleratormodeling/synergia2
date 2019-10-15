@@ -56,11 +56,11 @@ public:
     /// @param name an arbitrary name
     explicit Lattice(std::string const & name);
 
-#if 0
     /// Construct a Lattice from the Lsexpr representation
     /// @param lsexpr representation
     explicit Lattice(Lsexpr const & lsexpr);
 
+#if 0
     /// Extract an Lsexpr representation of the Lattice
     Lsexpr
     as_lsexpr() const;

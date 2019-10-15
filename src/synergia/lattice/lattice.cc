@@ -33,13 +33,57 @@ Lattice::Lattice(Lattice const & lattice)
     for (auto & e : elements) e.set_lattice(*this);
 }
 
-#if 0
 Lattice::Lattice(Lsexpr const & lsexpr) 
     : name("")
     , reference_particle()
     , elements()
-    , dirty(true)
+    , updated { true, true, true }
 {
+    for (auto const& lse : lsexpr)
+    {
+        if (lse.is_labeled()) 
+        {
+            if (lse.get_label() == "name") 
+            {
+                name = lse.get_string();
+                std::cout << name << "\n";
+            } 
+#if 0
+            else if (it->get_label() == "type") 
+            {
+                std::string lctype(it->get_string());
+                std::transform(lctype.begin(), lctype.end(), lctype.begin(), ::tolower);
+                if (lctype == "mad8") 
+                {
+                    element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new Mad8_adaptor_map);
+                } 
+                else if (lctype == "madx") 
+                {
+                    element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new MadX_adaptor_map);
+                } 
+                else 
+                {
+                    throw std::runtime_error("Lattice: adaptor map type " +
+                                             it->get_string() + " not handled");
+                }
+            } 
+#endif
+            else if (lse.get_label() == "reference_particle") 
+            {
+                reference_particle = Reference_particle(lse);
+                std::cout << "refpart\n";
+            } 
+            else if (lse.get_label() == "elements") 
+            {
+                std::cout << "element\n";
+                for (auto const& ele : lse)
+                {
+                    append(Lattice_element(ele));
+                }
+            }
+        }
+    }
+
 #if 0
     for (Lsexpr::const_iterator_t it = lsexpr.begin(); it != lsexpr.end();
          ++it) {
@@ -72,6 +116,7 @@ Lattice::Lattice(Lsexpr const & lsexpr)
 #endif
 }
 
+#if 0
 Lsexpr
 Lattice::as_lsexpr() const
 {
