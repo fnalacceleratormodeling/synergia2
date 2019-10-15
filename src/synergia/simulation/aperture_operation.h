@@ -3,6 +3,7 @@
 
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/utils/simple_timer.h"
 
 template<class AP>
 class Aperture_operation : public Independent_operation
@@ -16,6 +17,8 @@ private:
 
     void apply_impl(Bunch & bunch, Logger & logger) const override
     {
+        scoped_simple_timer timer(std::string("aperture_") + ap.type);
+
         int ndiscarded = bunch.apply_aperture(ap);
         double charge = ndiscarded * bunch.get_real_num() / bunch.get_total_num();
         slice.get_lattice_element().deposit_charge(charge);
