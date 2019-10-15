@@ -190,7 +190,7 @@ extract_independent_operations(
     }
     else
     {
-        throw std::runtime_error("unknown extractor_type");
+        throw std::runtime_error("unknown extractor_type: " + extractor_type);
     }
 }
 
