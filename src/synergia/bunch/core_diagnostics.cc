@@ -69,6 +69,8 @@ namespace core_diagnostics_impl
     struct mean_tag   { constexpr static int size = 6; };
     struct z_mean_tag { constexpr static int size = 1; };
     struct std_tag    { constexpr static int size = 6; };
+    struct min_tag    { constexpr static int size = 3; };
+    struct max_tag    { constexpr static int size = 3; };
     struct mom2_tag   { constexpr static int size = 36; };
 
     template<typename F>
@@ -122,6 +124,39 @@ namespace core_diagnostics_impl
         for (int j=0; j<value_count; ++j) 
             sum[j] += (p(i, j) - dev_mean(j)) * (p(i, j) - dev_mean(j)); 
     }
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<min_tag>::operator()    (const int i, value_type min) const
+    { 
+        if (valid(i))
+        {
+            min[0] = (p(i,0) < min[0]) ? p(i,0) : min[0];
+            min[1] = (p(i,2) < min[1]) ? p(i,2) : min[1];
+            min[2] = (p(i,4) < min[2]) ? p(i,4) : min[2];
+
+            //if (p(i,0) < min[0]) min[0] = p(i,0);
+            //if (p(i,2) < min[1]) min[1] = p(i,2);
+            //if (p(i,4) < min[2]) min[2] = p(i,4);
+        }
+    }
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<max_tag>::operator()    (const int i, value_type max) const
+    { 
+        if (valid(i))
+        {
+            max[0] = (p(i,0) > max[0]) ? p(i,0) : max[0];
+            max[1] = (p(i,2) > max[1]) ? p(i,2) : max[1];
+            max[2] = (p(i,4) > max[2]) ? p(i,4) : max[2];
+
+            //if (p(i,0) > max[0]) max[0] = p(i,0);
+            //if (p(i,2) > max[1]) max[1] = p(i,2);
+            //if (p(i,4) > max[2]) max[2] = p(i,4);
+        }
+    }
+
 
     template<>
     KOKKOS_INLINE_FUNCTION
@@ -340,6 +375,7 @@ Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
 
     particle_reducer<mom2_tag> pr(particles, valid, mean);
     Kokkos::parallel_reduce(npart, pr, sum2.data());
+    Kokkos::fence();
 
     for (int i=0; i<5; ++i)
         for (int j=i+1; j<6; ++j)
@@ -367,52 +403,46 @@ Core_diagnostics::calculate_mom2(Bunch const& bunch, karray1d const& mean)
 karray1d
 Core_diagnostics::calculate_min(Bunch const& bunch)
 {
+    using core_diagnostics_impl::particle_reducer;
+    using core_diagnostics_impl::min_tag;
+
     karray1d min("min", 3);
-#if 0
-    double lmin[3] = { 1.0e100, 1.0e100, 1.0e100 };
-    Const_MArray2d_ref particles(bunch.get_local_particles());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        if (particles[part][0] < lmin[0]) {
-            lmin[0] = particles[part][0];
-        }
-        if (particles[part][2] < lmin[1]) {
-            lmin[1] = particles[part][2];
-        }
-        if (particles[part][4] < lmin[2]) {
-            lmin[2] = particles[part][4];
-        }
+    min(0) = 1e100; min(1) = 1e100; min(2) = 1e100;
 
-    }
-    MPI_Allreduce(lmin, min.origin(), 3, MPI_DOUBLE, MPI_MIN,
-            bunch.get_comm().get());
+    auto particles = bunch.get_local_particles();
+    auto valid = bunch.get_local_particles_valid();
+    const int npart = bunch.get_local_num_slots();
 
-#endif
+    particle_reducer<min_tag> pr(particles, valid);
+    Kokkos::parallel_reduce("cal_min", npart, pr, min);
+    Kokkos::fence();
+
+    MPI_Allreduce(MPI_IN_PLACE, min.data(), 3, 
+            MPI_DOUBLE, MPI_MIN, bunch.get_comm());
+
     return min;
 }
 
 karray1d
 Core_diagnostics::calculate_max(Bunch const& bunch)
 {
+    using core_diagnostics_impl::particle_reducer;
+    using core_diagnostics_impl::max_tag;
+
     karray1d max("max", 3);
-#if 0
-    double lmax[3] = { -1.0e100, -1.0e100, -1.0e100 };
-    Const_MArray2d_ref particles(bunch.get_local_particles());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        if (particles[part][0] > lmax[0]) {
-            lmax[0] = particles[part][0];
-        }
-        if (particles[part][2] > lmax[1]) {
-            lmax[1] = particles[part][2];
-        }
-        if (particles[part][4] > lmax[2]) {
-            lmax[2] = particles[part][4];
-        }
+    max(0) = -1e100; max(1) = -1e100; max(2) = -1e100;
 
-    }
-    MPI_Allreduce(lmax, max.origin(), 3, MPI_DOUBLE, MPI_MAX,
-            bunch.get_comm().get());
+    auto particles = bunch.get_local_particles();
+    auto valid = bunch.get_local_particles_valid();
+    const int npart = bunch.get_local_num_slots();
 
-#endif
+    particle_reducer<max_tag> pr(particles, valid);
+    Kokkos::parallel_reduce("cal_max", npart, pr, max);
+    Kokkos::fence();
+
+    MPI_Allreduce(MPI_IN_PLACE, max.data(), 3, 
+            MPI_DOUBLE, MPI_MAX, bunch.get_comm());
+
     return max;
 }
 

@@ -50,6 +50,8 @@ Diagnostics_full2::Diagnostics_full2(
     : Diagnostics(diag_type, diag_write_serial, filename, local_dir)
     , mean("mean", 6)
     , std("std", 6)
+    , min("min", 3)
+    , max("max", 3)
     , mom2("mom2", 6, 6)
     , corr("corr", 6, 6)
 {
@@ -69,8 +71,8 @@ void Diagnostics_full2::do_update(Bunch const& bunch)
     num_particles = bunch.get_total_num();
     real_num_particles = bunch.get_real_num();
 
-    //min = ;
-    //max = ;
+    min  = Core_diagnostics::calculate_min(bunch);
+    max  = Core_diagnostics::calculate_max(bunch);
     mean = Core_diagnostics::calculate_mean(bunch);
     mom2 = Core_diagnostics::calculate_mom2(bunch, mean);
 
@@ -112,12 +114,14 @@ void Diagnostics_full2::do_write(Bunch const& bunch)
         file.write_serial("num_particles", num_particles);
         file.write_serial("real_num_particles", real_num_particles);
         file.write_serial("pz", pz);
+
         file.write_serial("mean", mean);
         file.write_serial("std", std);
-        //file.write_serial("min", min);
-        //file.write_serial("max", max);
+        file.write_serial("min", min);
+        file.write_serial("max", max);
         file.write_serial("mom2", mom2);
         file.write_serial("corr", corr);
+
         //file.write_serial("emitx", emitx);
         //file.write_serial("emity", emity);
         //file.write_serial("emitz", emitz);
