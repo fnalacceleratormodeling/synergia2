@@ -16,11 +16,11 @@ adjust_moments_eigen(
         int num_particles_slots,
         double * particles )
 {
-    Matrix<double, 6, 6, Eigen::ColMajor> C(covariances);
-    Matrix<double, 6, 6, Eigen::ColMajor> G(C.llt().matrixL());
-    Matrix<double, 6, 6, Eigen::ColMajor> X(bunch_mom2);
-    Matrix<double, 6, 6, Eigen::ColMajor> H(X.llt().matrixL());
-    Matrix<double, 6, 6, Eigen::ColMajor> A(G * H.inverse());
+    Matrix<double, 6, 6, Eigen::RowMajor> C(covariances);
+    Matrix<double, 6, 6, Eigen::RowMajor> G(C.llt().matrixL());
+    Matrix<double, 6, 6, Eigen::RowMajor> X(bunch_mom2);
+    Matrix<double, 6, 6, Eigen::RowMajor> H(X.llt().matrixL());
+    Matrix<double, 6, 6, Eigen::RowMajor> A(G * H.inverse());
 
     // jfa: dummy exists only to work around a bad interaction betwen
     //      Eigen3 and g++ 4.1.2

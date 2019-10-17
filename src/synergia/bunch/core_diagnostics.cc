@@ -326,14 +326,13 @@ Core_diagnostics::calculate_spatial_std(Bunch const& bunch, karray1d const& mean
     return std;
 }
 
-karray2d
-Core_diagnostics::calculate_mom2(Bunch const & bunch, karray1d const & mean)
+karray2d_row
+Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
 {
     using core_diagnostics_impl::particle_reducer;
     using core_diagnostics_impl::mom2_tag;
 
-    karray2d mom2("mom2", 6, 6);
-    karray1d sum2("sum2", 36);
+    karray2d_row sum2("sum2", 6, 6);
 
     auto particles = bunch.get_local_particles();
     auto valid = bunch.get_local_particles_valid();
@@ -344,46 +343,25 @@ Core_diagnostics::calculate_mom2(Bunch const & bunch, karray1d const & mean)
 
     for (int i=0; i<5; ++i)
         for (int j=i+1; j<6; ++j)
-            sum2(i*6+j) = sum2(j*6+i);
+            sum2(i, j) = sum2(j, i);
 
     MPI_Allreduce(MPI_IN_PLACE, sum2.data(), 36, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
 
+    return sum2;
+}
+
+
+karray2d_row
+Core_diagnostics::calculate_mom2(Bunch const& bunch, karray1d const& mean)
+{
+    auto sum2 = calculate_sum2(bunch, mean);
+    karray2d_row mom2("mom2", 6, 6);
+
     for (int i=0; i<6; ++i)
         for (int j=0; j<6; ++j)
-            mom2(i, j) = sum2(i*6+j) / bunch.get_total_num();
+            mom2(i, j) = sum2(i, j) / bunch.get_total_num();
 
     return mom2;
-
-#if 0
-    for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j) {
-            sum2[i][j] = 0.0;
-        }
-    }
-    Const_MArray2d_ref particles(bunch.get_local_particles());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        for (int i = 0; i < 6; ++i) {
-            double diff_i = particles[part][i] - mean[i];
-            for (int j = 0; j <= i; ++j) {
-                double diff_j = particles[part][j] - mean[j];
-                sum2[i][j] += diff_i * diff_j;
-            }
-        }
-    }
-    for (int i = 0; i < 5; ++i) {
-        for (int j = i + 1; j < 6; ++j) {
-            sum2[i][j] = sum2[j][i];
-        }
-    }
-    MPI_Allreduce(sum2.origin(), mom2.origin(), 36, MPI_DOUBLE, MPI_SUM,
-            bunch.get_comm().get());
-    for (int i = 0; i < 6; ++i) {
-        for (int j = i; j < 6; ++j) {
-            mom2[i][j] = mom2[j][i] = mom2[i][j] / bunch.get_total_num();
-        }
-    }
-#endif
-
 }
 
 karray1d

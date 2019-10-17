@@ -14,7 +14,7 @@ void
 populate_6d( Distribution & dist, 
              Bunch &bunch, 
              const_karray1d means,
-             const_karray2d covariances );
+             const_karray2d_row covariances );
 
 /// Populate a bunch with a truncated Gaussian distribution in all six dimensions.
 /// @param dist the distribution generator
@@ -27,7 +27,7 @@ void
 populate_6d_truncated( Distribution & dist, 
                        Bunch & bunch, 
                        const_karray1d means, 
-                       const_karray2d covariances, 
+                       const_karray2d_row covariances, 
                        const_karray1d limits );
 
 /// Populate a bunch with a Gaussian distribution in all four
@@ -42,7 +42,7 @@ populate_6d_truncated( Distribution & dist,
 ///  [-cdt/2,cdt/2] [m]
 void
 populate_transverse_gaussian(Distribution &dist, Bunch &bunch,
-        karray1d const& means, karray2d const& covariances, double cdt);
+        karray1d const& means, karray2d_row const& covariances, double cdt);
 
 /// Populate a bunch with a uniform cylindrical spatial distribution. The
 /// momentum-like variables are Gaussian distributed and uncorrelated.
@@ -84,7 +84,7 @@ populate_two_particles(Bunch &bunch,
          double p2x, double p2xp, double p2y, double p2yp, double p2cdt, double p2dpop); 
 
 void
-populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   karray2d const& map, double length);  
+populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   karray2d_row const& map, double length);  
 
 
 void
@@ -92,7 +92,7 @@ populate_longitudinal_uniform(Distribution &dist, Bunch &bunch,   double length)
 
 // alternative populate KV distribution using a linear map to determine coefficients.
 void
-populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   karray2d const& map,
+populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   karray2d_row const& map,
                             double radiusx,  double radiusy,   double ctrms); 
 
                             
@@ -108,6 +108,6 @@ get_correlation_matrix(karray2d const& map, double xrms, double yrms, double zrm
 void
 adjust_moments( Bunch & bunch, 
                 const_karray1d means,
-                const_karray2d covariances);                      
+                const_karray2d_row covariances);                      
 
 #endif /* POPULATE_H_ */

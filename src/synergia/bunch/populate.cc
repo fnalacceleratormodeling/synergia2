@@ -17,7 +17,7 @@ using mconstants::pi;
 
 namespace 
 {
-    bool is_symmetric66(const_karray2d m) 
+    bool is_symmetric66(const_karray2d_row m) 
     {
         bool symmetric = true;
         const double tolerance = 1.0e-14;
@@ -98,7 +98,7 @@ adjust_moments_eigen(
 void
 adjust_moments( Bunch & bunch, 
         const_karray1d means,
-        const_karray2d covariances )
+        const_karray2d_row covariances )
 {
     if (!is_symmetric66(covariances))
         throw std::runtime_error("adjust_moments: covariance matrix must be symmetric");
@@ -109,7 +109,7 @@ adjust_moments( Bunch & bunch,
     bunch.checkin_particles();
 
     karray1d bunch_mean = Core_diagnostics::calculate_mean(bunch);
-    karray2d bunch_mom2 = Core_diagnostics::calculate_mom2(bunch, bunch_mean);
+    karray2d_row bunch_mom2 = Core_diagnostics::calculate_mom2(bunch, bunch_mean);
 
     int num_particles = bunch.get_local_num();
     int num_particles_slots = bunch.get_local_num_slots();
@@ -132,7 +132,7 @@ namespace
     void
     fill_unit_6d( Distribution & dist, 
                   HostParticles particles,
-                  const_karray2d covariances, 
+                  const_karray2d_row covariances, 
                   int start, int end )
     {
         for (int j = 0; j < 6; ++j) 
@@ -208,7 +208,7 @@ void
 populate_6d( Distribution & dist, 
         Bunch & bunch, 
         const_karray1d means,
-        const_karray2d covariances )
+        const_karray2d_row covariances )
 {
     karray1d limits("limits", 6);
     for(int i=0; i<6; ++i) limits[i] = 0.0;
@@ -220,7 +220,7 @@ void
 populate_6d_truncated( Distribution & dist, 
         Bunch & bunch,
         const_karray1d means, 
-        const_karray2d covariances,
+        const_karray2d_row covariances,
         const_karray1d limits )
 {
 #if 0
@@ -234,7 +234,7 @@ populate_6d_truncated( Distribution & dist,
 
     auto particles = bunch.get_host_particles();
 
-    karray2d unit_covariances("unit_covariances", 6, 6);
+    karray2d_row unit_covariances("unit_covariances", 6, 6);
     karray1d zero_means("zero_means", 6);
 
     bool truncated(false);

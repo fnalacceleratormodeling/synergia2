@@ -23,7 +23,10 @@ struct Core_diagnostics
     static karray1d
     calculate_spatial_std(Bunch const& bunch, karray1d const& mean);
 
-    static karray2d
+    static karray2d_row
+    calculate_sum2(Bunch const& bunch, karray1d const & mean);
+
+    static karray2d_row
     calculate_mom2(Bunch const& bunch, karray1d const & mean);
 
     static karray1d
