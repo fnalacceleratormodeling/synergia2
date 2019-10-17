@@ -12,7 +12,7 @@ add_library(synergia_bunch
     diagnostics.cc 
     core_diagnostics.cc 
     #diagnostics_basic.cc
-    #diagnostics_full2.cc 
+    diagnostics_full2.cc 
     #diagnostics_particles.cc 
     diagnostics_track.cc
     diagnostics_loss.cc

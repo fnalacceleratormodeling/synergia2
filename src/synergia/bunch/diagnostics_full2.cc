@@ -1,14 +1,136 @@
-#include "diagnostics_full2.h"
+
+#include "synergia/bunch/bunch.h"
+#include "synergia/bunch/diagnostics_full2.h"
+#include "synergia/bunch/core_diagnostics.h"
+
 #include <cmath>
 #include "Eigen/Core"
 #include "Eigen/LU"
 #include <stdexcept>
 #include "synergia/utils/simple_timer.h"
 
+#if 0
 using namespace Eigen;
 
-const char Diagnostics_full2::name[] = "diagnostics_full2";
+namespace
+{
+  const double tiny = 1.0e-15;
+  double
+  eliminate_small_negative(double x)
+  {
+    if ((x < 0) && (x > -tiny)) {
+      return 0;
+    } else {
+      return x;
+    }
+  }
+}
 
+void
+Diagnostics_full2::update_emittances()
+{
+    Matrix<double, 6, 6 > mom2_matrix(mom2.origin());
+    emitx = std::sqrt(eliminate_small_negative(
+            mom2_matrix.block<2, 2 > (Bunch::x, Bunch::x).determinant()));
+    emity = std::sqrt(eliminate_small_negative(
+            mom2_matrix.block<2, 2 > (Bunch::y, Bunch::y).determinant()));
+    emitz = std::sqrt(eliminate_small_negative(
+            mom2_matrix.block<2, 2 > (Bunch::z, Bunch::z).determinant()));
+    emitxy = std::sqrt(eliminate_small_negative(
+            mom2_matrix.block<4, 4 > (Bunch::x, Bunch::x).determinant()));
+    emitxyz = std::sqrt(eliminate_small_negative(mom2_matrix.determinant()));
+}
+#endif
+
+
+
+Diagnostics_full2::Diagnostics_full2(
+            std::string const& filename, 
+            std::string const& local_dir)
+    : Diagnostics(diag_type, diag_write_serial, filename, local_dir)
+    , mean("mean", 6)
+    , std("std", 6)
+    , mom2("mom2", 6, 6)
+    , corr("corr", 6, 6)
+{
+}
+
+void Diagnostics_full2::do_update(Bunch const& bunch)
+{
+    scoped_simple_timer timer("diag_full2_update");
+
+    auto const& ref = bunch.get_reference_particle();
+
+    s = ref.get_s();
+    s_n = ref.get_s_n();
+    repetition = ref.get_repetition();
+    pz = ref.get_momentum();
+
+    num_particles = bunch.get_total_num();
+    real_num_particles = bunch.get_real_num();
+
+    //min = ;
+    //max = ;
+    mean = Core_diagnostics::calculate_mean(bunch);
+    mom2 = Core_diagnostics::calculate_mom2(bunch, mean);
+
+    for (int i=0; i<6; ++i)
+    {
+        std(i) = std::sqrt(mom2(i,i));
+
+        for (int j=0; j<6; ++j)
+            corr(i,j) = mom2(i,j) / std::sqrt(mom2(i,i) * mom2(j,j));
+    }
+
+    //update_emittances();
+}
+
+void Diagnostics_full2::do_write(Bunch const& bunch)
+{
+    scoped_simple_timer timer("diag_full2_write");
+
+    auto & helper = get_write_helper(bunch);
+
+    if (helper.write_locally()) 
+    {
+        auto & file = helper.get_hdf5_file();
+
+        if (first_write)
+        {
+            auto const & ref = bunch.get_reference_particle();
+
+            file.write("charge", ref.get_charge());
+            file.write("mass", ref.get_four_momentum().get_mass());
+
+            first_write = false;
+        }
+
+        // write serial
+        file.write_serial("s", s);
+        file.write_serial("s_n", s_n);
+        file.write_serial("repetition", repetition);
+        file.write_serial("num_particles", num_particles);
+        file.write_serial("real_num_particles", real_num_particles);
+        file.write_serial("pz", pz);
+        file.write_serial("mean", mean);
+        file.write_serial("std", std);
+        //file.write_serial("min", min);
+        //file.write_serial("max", max);
+        file.write_serial("mom2", mom2);
+        file.write_serial("corr", corr);
+        //file.write_serial("emitx", emitx);
+        //file.write_serial("emity", emity);
+        //file.write_serial("emitz", emitz);
+        //file.write_serial("emitxy", emitxy);
+        //file.write_serial("emitxyz", emitxyz);
+
+        // finish write
+        helper.finish_write();
+    } 
+}
+
+
+#if 0
 void
 Diagnostics_full2::update_full2()
 {
@@ -378,3 +500,4 @@ Diagnostics_full2::~Diagnostics_full2()
     }
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_full2)
+#endif
