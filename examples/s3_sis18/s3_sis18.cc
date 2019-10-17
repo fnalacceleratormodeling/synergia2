@@ -1,15 +1,19 @@
 
+#include "synergia/foundation/physical_constants.h"
 
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/split_operator_stepper.h"
 #include "synergia/simulation/independent_stepper_elements.h"
 
-#include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/populate.h"
+#include "synergia/bunch/core_diagnostics.h"
 #include "synergia/bunch/diagnostics_track.h"
 #include "synergia/bunch/diagnostics_bulk_track.h"
+#include "synergia/bunch/diagnostics_full2.h"
+
 #include "synergia/lattice/madx_reader.h"
+#include "synergia/utils/lsexpr.h"
 
 #include "synergia/collective/space_charge_2d_open_hockney.h"
 
@@ -20,41 +24,15 @@ using LV = LoggerV;
 void print_statistics(Bunch & bunch, Logger & logger)
 {
     // print particles after propagate
-    bunch.checkout_particles();
-    auto hparts = bunch.get_host_particles();
-
-    double sum = 0;
-    double mean[6] = {0, 0, 0, 0, 0, 0};
-    double std[6] = {0, 0, 0, 0, 0, 0};
-
-    for(int p=0; p<bunch.get_local_num(); ++p)
-    {
-        for(int i=0; i<6; ++i) 
-        {
-            sum += hparts(p, i);
-            mean[i] += hparts(p, i);
-        }
-    }
-
-    for (int i=0; i<6; ++i) mean[i]/=bunch.get_local_num();
-
-    for(int p=0; p<bunch.get_local_num(); ++p)
-    {
-        for(int i=0; i<6; ++i) 
-        {
-            std[i] += (hparts(p, i) - mean[i]) * (hparts(p, i) - mean[i]);
-        }
-    }
-
-    for (int i=0; i<6; ++i) std[i] = sqrt(std[i]/bunch.get_local_num());
+    auto mean = Core_diagnostics::calculate_mean(bunch);
+    auto std  = Core_diagnostics::calculate_std(bunch, mean);
 
     logger(LV::DEBUG) 
         << std::resetiosflags(std::ios::fixed)
         << std::setprecision(16)
-        << "\n\nsum = " << sum << "\n"
         << std::setiosflags(std::ios::showpos | std::ios::scientific)
+        << "\n"
         ;
-
 
     for (int i=0; i<6; ++i) 
         logger(LV::DEBUG) << mean[i] << ", " << std[i] << "\n";
@@ -65,15 +43,6 @@ void print_statistics(Bunch & bunch, Logger & logger)
 
     for (int p=0; p<4; ++p) bunch.print_particle(p, logger);
 
-#if 0
-    double g_sum = 0;
-    MPI_Reduce(&sum, &g_sum, 1, MPI_DOUBLE, MPI_SUM, 0, bunch.get_comm());
-
-    logger(LV::DEBUG) 
-        << std::setprecision(8)
-        << "\n\npropagated sum (reduced) = " << g_sum << "\n";
-#endif
-
     logger << "\n";
 }
 
@@ -82,13 +51,22 @@ int run()
     Logger screen(0, LV::DEBUG);
     Logger simlog(0, LV::INFO_TURN);
 
+#if 0
     MadX_reader reader;
     auto lattice = reader.get_lattice("machine", "sis18.madx");
+#endif
+
+    auto lsexpr = read_lsexpr_file("sis18-6.lsx");
+    Lattice lattice(lsexpr);
+
+    lattice.set_all_string_attribute("extractor_type", "libff");
+    // lattice.print(screen);
+
+    // tune the lattice
     Lattice_simulator::tune_circular_lattice(lattice);
 
+    // get the reference particle
     auto const & ref = lattice.get_reference_particle();
-
-    //lattice.print(screen);
 
     screen(LV::INFO) 
         << "reference momentum = " << ref.get_momentum() << " GeV\n";
@@ -108,7 +86,8 @@ int run()
 
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
-            lattice.get_reference_particle(), 1024 * 1024 * 1, 2.94e10,
+            //lattice.get_reference_particle(), 1024 * 1024 * 4, 2.94e10,
+            lattice.get_reference_particle(), 4194394, 2.94e10,
             Commxx() );
 
 #if 0
@@ -120,7 +99,7 @@ int run()
 #endif
 
     // propagate options
-    sim.set_turns(0, 2); // (start, num_turns)
+    sim.set_turns(0, 32); // (start, num_turns)
 
     auto & bunch = sim.get_bunch();
 
@@ -147,12 +126,11 @@ int run()
 
 #if 1
     // or read from file
-    bunch.read_file("turn_particles_0000.h5");
+    bunch.read_file("turn_particles_0000_4M.h5");
 #endif
 
     // statistics before propagate
     print_statistics(bunch, screen);
-
 
 #if 0
     // diagnostics
@@ -162,6 +140,9 @@ int run()
     Diagnostics_bulk_track diag_bulk_track(6, 0, "bulk_track.h5");
     sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
 #endif
+
+    Diagnostics_full2 diag_full2("diag_full.h5");
+    sim.reg_diag_per_turn("full2", diag_full2);
 
     // propagate
     propagator.propagate(sim, simlog);

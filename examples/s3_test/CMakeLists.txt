@@ -6,8 +6,8 @@ target_link_libraries(s3_test
     synergia_bunch 
     synergia_libFF
     gsl
-    MPI::MPI_C
-    MPI::MPI_CXX
+    #MPI::MPI_C
+    #MPI::MPI_CXX
     )
 
 add_custom_command(OUTPUT fodo.madx

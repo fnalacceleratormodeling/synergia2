@@ -3,6 +3,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
 
 if(${KOKKOS_ENABLE_CUDA})
     set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS --host-only)
+    set_source_files_properties(diagnostics_full2_host.cc PROPERTIES COMPILE_FLAGS --host-only)
 endif()
 
 add_library(synergia_bunch 
@@ -13,6 +14,7 @@ add_library(synergia_bunch
     core_diagnostics.cc 
     #diagnostics_basic.cc
     diagnostics_full2.cc 
+    diagnostics_full2_host.cc 
     #diagnostics_particles.cc 
     diagnostics_track.cc
     diagnostics_loss.cc

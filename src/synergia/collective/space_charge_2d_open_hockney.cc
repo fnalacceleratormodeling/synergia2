@@ -301,8 +301,9 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
     , particle_bin()
     , fft()
-    , comm()
+    , comm(MPI_COMM_NULL, comm_create_kind::attach)
 {
+    //fft.construct(options.doubled_shape, comm);
 }
 
 void 
@@ -345,8 +346,17 @@ Space_charge_2d_open_hockney::setup_communication(Commxx const & bunch_comm)
 {
     scoped_simple_timer timer("sc2d_comm");
 
-    comm = bunch_comm.divide(options.comm_group_size);
-    fft.construct(options.doubled_shape, comm);
+    if (comm.is_null()) 
+    {
+        scoped_simple_timer t2("sc2d_comm_comm");
+        comm = bunch_comm.divide(options.comm_group_size);
+    }
+
+    if (options.doubled_shape != fft.get_shape()) 
+    {
+        scoped_simple_timer t3("sc2d_comm_fft");
+        fft.construct(options.doubled_shape, comm);
+    }
 }
  
 void
@@ -415,15 +425,19 @@ Space_charge_2d_open_hockney::get_global_charge_density(
 
     auto dg = doubled_domain.get_grid_shape();
 
+    simple_timer_start("sc2d_global_rho_copy");
     karray1d_hst h_rho2 = Kokkos::create_mirror_view(rho2);
     Kokkos::deep_copy(h_rho2, rho2);
+    simple_timer_stop("sc2d_global_rho_copy");
 
+    simple_timer_start("sc2d_global_rho_reduce");
     int err = MPI_Allreduce( MPI_IN_PLACE,
                              (void*)h_rho2.data(), 
                              dg[0]*dg[1]*2 + dg[2], 
                              MPI_DOUBLE, 
                              MPI_SUM, 
                              bunch.get_comm() );
+    simple_timer_stop("sc2d_global_rho_reduce");
 
     if (err != MPI_SUCCESS)
     {
@@ -432,7 +446,9 @@ Space_charge_2d_open_hockney::get_global_charge_density(
                 "(MPI_Allreduce in get_global_charge_density)" );
     }
 
+    simple_timer_start("sc2d_global_rho_copy");
     Kokkos::deep_copy(rho2, h_rho2);
+    simple_timer_stop("sc2d_global_rho_copy");
 }
 
 
