@@ -19,7 +19,9 @@ namespace
         double pref_b;
         double m_b;
         double new_pref_b;
-        double ref_cdt;
+
+        double ref_cdt_1;
+        double ref_cdt_2;
     };
 
     struct PropRFCavity
@@ -35,7 +37,7 @@ namespace
             {
                 FF_algorithm::drift_unit(
                         p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                        0.5 * rp.length, rp.pref_b, rp.m_b, 0.5 * rp.ref_cdt);
+                        0.5 * rp.length, rp.pref_b, rp.m_b, rp.ref_cdt_1);
 
                 FF_algorithm::thin_rfcavity_unit(
                         p(i,1), p(i,3), p(i,4), p(i,5),
@@ -44,7 +46,7 @@ namespace
 
                 FF_algorithm::drift_unit(
                         p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                        0.5 * rp.length, rp.pref_b, rp.m_b, 0.5 * rp.ref_cdt);
+                        0.5 * rp.length, rp.pref_b, rp.m_b, rp.ref_cdt_2);
             }
         }
     };
@@ -168,6 +170,10 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
             ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop,
             0.5 * rp.length, ref_l_p, ref_l_m, 0.0);
 
+    double total_ref_cdt = ref_l_cdt;
+    rp.ref_cdt_1 = ref_l_cdt;
+    ref_l_cdt = 0.0;
+
     // do not give it the new_ref_l_p because the xp and yp dont get scaled, the momentum 
     // of the lattice reference particle remains unchanged, only the dpop of the state
     // has been changed
@@ -181,11 +187,11 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
             ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop,
             0.5 * rp.length, ref_l_p, ref_l_m, 0.0);
 
-    // save the state
-    ref_l.set_state(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop);
+    total_ref_cdt += ref_l_cdt;
+    rp.ref_cdt_2 = ref_l_cdt;
 
-    // and finally the reference time
-    rp.ref_cdt = ref_l_cdt;
+    // save the state
+    ref_l.set_state(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, ref_l_dpop);
 
     // bunch particles
     int num = bunch.get_local_num_slots(ParticleGroup::regular);
