@@ -15,6 +15,8 @@ target_link_libraries(synergia_foundation
     synergia_hdf5_utils 
     synergia_serialization
     lsexpr
+    gsl
+    gslcblas
     ${Boost_SERIALIZATION_LIBRARIES}
     ${Boost_FILESYSTEM_LIBRARIES}
     )

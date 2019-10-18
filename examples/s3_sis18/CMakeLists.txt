@@ -5,9 +5,6 @@ target_link_libraries(s3_sis18
     synergia_collective
     synergia_bunch 
     synergia_libFF
-    gsl
-    gslcblas
-    #MPI::MPI_C
     )
 
 add_custom_command(OUTPUT sis18.madx
