@@ -87,7 +87,7 @@ if [ x"$1" = x"--pythonpath" ]; then
 	exit 0
 fi
 
-PYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}"
+PYTHON_EXECUTABLE="${MY_PYTHON_EXECUTABLE}"
 if [ x"$1" = x"--ipython" ]; then
 	PYTHON_EXECUTABLE=ipython
 	shift
