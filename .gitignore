@@ -58,3 +58,4 @@ spack-setup.sh
 spack
 
 wiki
+build-python*/
