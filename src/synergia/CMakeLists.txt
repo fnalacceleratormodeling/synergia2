@@ -1,7 +1,5 @@
 add_subdirectory(utils)
-if (BUILD_PYTHON_BINDINGS)
-    add_subdirectory(convertors)
-endif ()
+add_subdirectory(convertors)
 add_subdirectory(foundation)
 add_subdirectory(bunch)
 add_subdirectory(lattice)

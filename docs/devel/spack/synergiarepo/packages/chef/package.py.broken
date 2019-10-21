@@ -18,7 +18,6 @@ class Chef(CMakePackage):
     def cmake_args(self):
         spec = self.spec
         args = ['-DBUILD_PARSER_MODULES=OFF', 
-                '-DBUILD_PYTHON_BINDINGS=ON',
                 '-DBUILD_SHARED_LIBS=ON']
         return args
 

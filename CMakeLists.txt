@@ -47,6 +47,8 @@ endif()
 # python
 if (USE_PYTHON_3)
   message(STATUS "Trying to find python 3")
+  message(STATUS "A failure here is not fatal... we'll try differently later")
+  set(Python_ADDITIONAL_VERSIONS "3")
   find_package(Python3 COMPONENTS Interpreter Development)
   if (Python3_FOUND)
     message(STATUS "We found Python 3")
@@ -58,10 +60,11 @@ if (USE_PYTHON_3)
     set(MY_PYTHON_VERSION_MINOR ${Python3_VERSION_MINOR})
     # If we could use cmake v3.12 or newer, this is simple:
     #find_package(Python3 COMPONENTS Interpreter Development)
-    set(Python_ADDITIONAL_VERSIONS "3")
   endif()
 else()
   message(STATUS "Trying to find python 2")
+  message(STATUS "A failure here is not fatal... we'll try differently later")
+  set(Python_ADDTIONAL_VERSIONS "2")
   find_package(Python2 COMPONENTS Interpreter Development)
   if (Python2_FOUND)
     set(MY_PYTHON_LIBRARY ${Python2_LIBRARIES})
@@ -71,7 +74,6 @@ else()
     set(MY_PYTHON_VERSION_MINOR ${Python2_VERSION_MINOR})
     # If we could use cmake v3.12 or newer, this is simple:
     #find_package(Python3 COMPONENTS Interpreter Development)
-    set(Python_ADDTIONAL_VERSIONS "2")
   endif()
 endif()
 
@@ -240,7 +242,9 @@ if(USE_SIMPLE_TIMER)
         message("-- Simple timer memory profiling enabled")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER_MEM")
     endif(USE_SIMPLE_TIMER_MEM)
-endif(USE_SIMPLE_TIMER)
+else()
+  message(STATUS "Simple time profiling not enabled")
+endif()
 
 # Additional CXXFLAGS
 if(EXTRA_CXX_FLAGS)
@@ -284,9 +288,9 @@ endif ()
 # We should probably warn someone trying to build static libraries along with
 #  the python bindings since it won't work with python.
 # The python bindings will still be build shared.
-if ( (NOT BUILD_SHARED_LIBS) AND BUILD_PYTHON_BINDINGS )
+if ( (NOT BUILD_SHARED_LIBS))
   message(WARNING "Static library build selected, ignored for python bindings")
-endif ()
+endif()
 
 function(add_test_executable name)
 #  add_executable(${name} EXCLUDE_FROM_ALL ${ARGN})
