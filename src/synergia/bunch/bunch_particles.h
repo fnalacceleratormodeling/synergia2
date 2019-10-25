@@ -6,14 +6,18 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/logger.h"
 
-typedef Kokkos::View<uint8_t*> k1b_dev;
-typedef Kokkos::View<const uint8_t*> const_k1b_dev;
-
 typedef Kokkos::View<double*[7], Kokkos::LayoutLeft> Particles;
 typedef Kokkos::View<const double*[7], Kokkos::LayoutLeft> ConstParticles;
 
 typedef Particles::HostMirror HostParticles;
 typedef ConstParticles::HostMirror ConstHostParticles;
+
+typedef Kokkos::View<uint8_t*> ParticleMasks;
+typedef Kokkos::View<const uint8_t*> ConstParticleMasks;
+
+typedef ParticleMasks::HostMirror HostParticleMasks;
+typedef ConstParticleMasks::HostMirror ConstHostParticleMasks;
+
 
 class BunchParticles
 {
@@ -27,50 +31,44 @@ private:
     /*
      * Local Particle Array Memory Layout:
      *
-     *   P: particle, O: padding, L: lost particle
+     *   P: particle, I: invalid particle
      *
-     *   +=====+
-     *   |  P  |
-     *   +-----+
-     *   |  P  |
-     *   +-----+
-     *   | ... |
-     *   +=====+  <- local_num
-     *   |  O  |
-     *   +-----+  <- local_num_aligned
-     *   |  O  |
-     *   +-----+
-     *   | ... |
-     *   +=====+  <- local_num_padded
-     *   |  L  |
-     *   +-----+
-     *   |  L  |
-     *   +-----+
-     *   | ... |
-     *   +=====+  <- local_num_slots
+     *    part       mask
+     *   +=====+    +=====+
+     *   |  P  |    |  1  |
+     *   +-----+    +-----+
+     *   |  I  |    |  0  |
+     *   +-----+    +-----+
+     *   |  P  |    |  1  |
+     *   +-----+    +-----+
+     *   |  P  |    |  1  |
+     *   +-----+    +-----+
+     *   |  P  |    |  1  |
+     *   +-----+    +-----+
+     *   |  I  |    |  0  |
+     *   +-----+    +-----+
+     *   |  I  |    |  0  |
+     *   +-----+    +-----+
+     *   |  P  |    |  1  |
+     *   +=====+    +=====+ 
      *
-     *   * number of padding slots  = local_num_padded - local_num
-     *   * number of lost particles = local_num_slots - local_num_padded
+     *   slots = 8   (num of slots)
+     *   num = 5     (num of local particles)
      *
-     *   At bunch construction the size of padding (num_padding) is decided 
-     *   such that the local_num_slots is always aligned (depending on the 
-     *   vector specification, e.g., SSE or AVX or AVX512). 
+     *   when allocating an particle array, the padding flag of the Kokkos::View
+     *   object is turned on. So the 'slots' is the actual array size in the 
+     *   first dimension.
      *
-     *   local_num_aligned is initialized in the range [local_num, 
-     *   local_num_paded], and gets adjusted everytime the local_num 
-     *   changes such tht local_num_aligned is always aligned.
+     *   'num' is the actual number of local particles.
      *
      */
 
+
     int num;
-    int num_aligned;
-    int padding;
     int slots;
     int total;
 
     // number of particles discarded from the most recent aperture apply.
-    // so the discarded particle array can be retrieved by calling:
-    // get_particles_in_range(local_num_padded(), last_discarded);
     int last_discarded_;
 
     Commxx comm;
@@ -78,16 +76,14 @@ private:
 public:
 
     Particles parts;
-    HostParticles hparts;
+    ParticleMasks masks;
 
-    k1b_dev valid;
+    HostParticles hparts;
+    HostParticleMasks hmasks;
 
     BunchParticles(int total_num, Commxx const& comm);
 
     int local_num()         const { return num; }
-    int local_num_aligned() const { return num_aligned; }
-    int local_num_padding() const { return padding; }
-    int local_num_padded()  const { return num + padding; }
     int local_num_slots()   const { return slots; }
     int total_num()         const { return total; }
     int last_discarded()    const { return last_discarded_; }
@@ -115,14 +111,11 @@ public:
     int search_particle(int pid, int last_idx) const;
     karray1d_row get_particle(int idx) const;
     karray2d_row get_particles_in_range(int idx, int num) const;
-
-    karray2d_row get_particles_last_discarded() const
-    { return get_particles_in_range(local_num_padded(), last_discarded()); }
+    karray2d_row get_particles_last_discarded() const;
 
     void check_pz2_positive();
     void print_particle(size_t idx, Logger & logger) const;
 };
-
 
 
 namespace bunch_particles_impl
@@ -134,14 +127,14 @@ namespace bunch_particles_impl
 
         AP ap;
         ConstParticles parts;
-        k1b_dev valid;
+        ParticleMasks masks;
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i, int& discarded) const
         {
-            if (valid(i) && ap.discard(parts, i))
+            if (masks(i) && ap.discard(parts, i))
             {
-                valid(i) = 0;
+                masks(i) = 0;
                 ++discarded;
             }
         }
@@ -242,7 +235,7 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     int ndiscarded = 0;
 
     // go through each particle to see which one is been filtered out
-    discard_applier<AP> da{ap, parts, valid};
+    discard_applier<AP> da{ap, parts, masks};
     Kokkos::parallel_reduce(slots, da, ndiscarded);
 
     //std::cout << "      discarded = " << ndiscarded << "\n";

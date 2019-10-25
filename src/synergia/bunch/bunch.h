@@ -178,33 +178,20 @@ public:
     ConstHostParticles get_host_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).hparts; }
 
-    k1b_dev            get_local_particles_valid(ParticleGroup pg = PG::regular)
-    { return get_bunch_particles(pg).valid; }
+    ParticleMasks      get_local_particles_masks(ParticleGroup pg = PG::regular)
+    { return get_bunch_particles(pg).masks; }
 
-    const_k1b_dev      get_local_particles_valid(ParticleGroup pg = PG::regular) const
-    { return get_bunch_particles(pg).valid; }
+    ConstParticleMasks get_local_particles_masks(ParticleGroup pg = PG::regular) const
+    { return get_bunch_particles(pg).masks; }
 
-    /// getters of particle array dimensions
     int get_total_num(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).total_num(); }
 
     int get_local_num(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).local_num(); }
 
-    int get_local_num_aligned (ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num_aligned(); }
-
-    int get_local_num_padded  (ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num_padded(); }
-
     int get_local_num_slots   (ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).local_num_slots(); }
-
-    int get_local_num_padding (ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num_padding(); }
-
-    int get_local_num_lost    (ParticleGroup pg = PG::regular) const 
-    { return get_local_num_slots(pg) - get_local_num_padded(pg); }
 
     ///
     /// Reduce (set) the number of particles on this processor. The number

@@ -28,13 +28,13 @@ namespace
     struct PropMultipole
     {
         Particles p;
+        ConstParticleMasks masks;
         const MultipoleParams mp;
-        const_k1b_dev valid;
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
-            if (valid(i))
+            if (masks(i))
             {
                 if (mp.kn[0])
                 FF_algorithm::thin_dipole_unit(
@@ -172,9 +172,9 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     // bunch particles
     int num = bunch.get_local_num_slots(ParticleGroup::regular);
     auto parts = bunch.get_local_particles(ParticleGroup::regular);
-    auto valid = bunch.get_local_particles_valid(ParticleGroup::regular);
+    auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 
-    PropMultipole multipole{parts, mp, valid};
+    PropMultipole multipole{parts, masks, mp};
     Kokkos::parallel_for(num, multipole);
 }
 

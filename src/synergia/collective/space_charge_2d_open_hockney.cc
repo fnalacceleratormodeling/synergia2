@@ -224,7 +224,7 @@ namespace
     struct alg_kicker
     {
         Particles p;
-        const_k1b_dev valid;
+        ConstParticleMasks masks;
 
         karray1d_dev fn;
         karray1d_dev rho;
@@ -235,13 +235,13 @@ namespace
 
         alg_kicker(
                 Particles p,
-                const_k1b_dev valid,
+                ConstParticleMasks masks,
                 karray1d_dev const & fn,
                 karray1d_dev const & rho,
                 karray2d_dev const & bin,
                 std::array<int, 3> const & g,
                 double factor )
-            : p(p), valid(valid)
+            : p(p), masks(masks)
             , fn(fn), rho(rho), bin(bin)
             , gx(g[0]), gy(g[1]), gz(g[2])
             , factor(factor)
@@ -250,43 +250,43 @@ namespace
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
-            if (valid(i))
+            if (masks(i))
             {
-            int ix = fast_int_floor_kokkos(bin(i, 0));
-            int iy = fast_int_floor_kokkos(bin(i, 2));
-            int iz = fast_int_floor_kokkos(bin(i, 4));
+                int ix = fast_int_floor_kokkos(bin(i, 0));
+                int iy = fast_int_floor_kokkos(bin(i, 2));
+                int iz = fast_int_floor_kokkos(bin(i, 4));
 
-            double ox = bin(i, 1);
-            double oy = bin(i, 3);
-            double oz = bin(i, 5);
+                double ox = bin(i, 1);
+                double oy = bin(i, 3);
+                double oz = bin(i, 5);
 
-            double aox = 1.0 - ox;
-            double aoy = 1.0 - oy;
-            double aoz = 1.0 - oz;
+                double aox = 1.0 - ox;
+                double aoy = 1.0 - oy;
+                double aoz = 1.0 - oz;
 
-            int zbase = gx*gy*2;
+                int zbase = gx*gy*2;
 
-            if ( ( ix>=0 && ix<gx-1 ) && 
-                 ( iy>=0 && iy<gy-1 ) && 
-                 ( /*periodic_z ||*/ (iz>=0 && iz<gz-1) ) ) 
-            {
-                double line_density = aoz * rho(zbase+iz) + oz * rho(zbase+iz+1);
+                if ( ( ix>=0 && ix<gx-1 ) && 
+                     ( iy>=0 && iy<gy-1 ) && 
+                     ( /*periodic_z ||*/ (iz>=0 && iz<gz-1) ) ) 
+                {
+                    double line_density = aoz * rho(zbase+iz) + oz * rho(zbase+iz+1);
 
-                double vx = line_density * (
-                          aox * aoy * fn( ((ix  )*gy + (iy  ))*2 )
-                        +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 )
-                        + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 )
-                        +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 ) );
+                    double vx = line_density * (
+                              aox * aoy * fn( ((ix  )*gy + (iy  ))*2 )
+                            +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 )
+                            + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 )
+                            +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 ) );
 
-                double vy = line_density * (
-                          aox * aoy * fn( ((ix  )*gy + (iy  ))*2 + 1 )
-                        +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 + 1 )
-                        + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 + 1 )
-                        +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 + 1 ) );
+                    double vy = line_density * (
+                              aox * aoy * fn( ((ix  )*gy + (iy  ))*2 + 1 )
+                            +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 + 1 )
+                            + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 + 1 )
+                            +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 + 1 ) );
 
-                p(i, 1) += factor * vx;
-                p(i, 3) += factor * vy;
-            }
+                    p(i, 1) += factor * vx;
+                    p(i, 3) += factor * vy;
+                }
             }
         }
     };
@@ -618,9 +618,9 @@ Space_charge_2d_open_hockney::apply_kick(
                     / (gamma * beta);
 
     auto parts = bunch.get_local_particles();
-    auto valid = bunch.get_local_particles_valid();
+    auto masks = bunch.get_local_particles_masks();
 
-    alg_kicker kicker(parts, valid, phi2, rho2, particle_bin,
+    alg_kicker kicker(parts, masks, fn2, rho2, particle_bin,
             doubled_domain.get_grid_shape(), factor);
 
     Kokkos::parallel_for(bunch.get_local_num_slots(), kicker);

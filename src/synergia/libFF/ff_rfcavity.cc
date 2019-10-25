@@ -27,13 +27,13 @@ namespace
     struct PropRFCavity
     {
         Particles p;
+        ConstParticleMasks masks;
         const RFCavityParams rp;
-        const_k1b_dev mask;
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
-            if (mask(i))
+            if (masks(i))
             {
                 FF_algorithm::drift_unit(
                         p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
@@ -196,9 +196,9 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     // bunch particles
     int num = bunch.get_local_num_slots(ParticleGroup::regular);
     auto parts = bunch.get_local_particles(ParticleGroup::regular);
-    auto mask  = bunch.get_local_particles_valid(ParticleGroup::regular);
+    auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 
-    PropRFCavity rfcavity{parts, rp, mask};
+    PropRFCavity rfcavity{parts, masks, rp};
     Kokkos::parallel_for(num, rfcavity);
 
     // bunch spectator particles
