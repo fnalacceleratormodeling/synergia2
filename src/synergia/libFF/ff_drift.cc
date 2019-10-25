@@ -11,18 +11,18 @@ namespace
     struct PropDrift
     {
         Particles p;
-        double l, ref_p, m, ref_t;
+        ConstParticleMasks masks;
 
-        const_k1b_dev valid;
+        double l, ref_p, m, ref_t;
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
-            if (valid(i))
-            FF_algorithm::drift_unit(
-                    p(i, 0), p(i, 1), p(i, 2),
-                    p(i, 3), p(i, 4), p(i, 5),
-                    l, ref_p, m, ref_t);
+            if (masks(i))
+                FF_algorithm::drift_unit(
+                        p(i, 0), p(i, 1), p(i, 2),
+                        p(i, 3), p(i, 4), p(i, 5),
+                        l, ref_p, m, ref_t);
         }
     };
 
@@ -50,7 +50,7 @@ namespace
     {
         if (bp.local_num())
         {
-            PropDrift drift{bp.parts, length, ref_p, mass, ref_cdt, bp.valid};
+            PropDrift drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
             Kokkos::parallel_for(bp.local_num_slots(), drift);
         }
     }

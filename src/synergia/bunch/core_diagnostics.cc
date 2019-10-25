@@ -80,14 +80,14 @@ namespace core_diagnostics_impl
 
         const int value_count = F::size;
         ConstParticles p;
-        const_k1b_dev valid;
+        ConstParticleMasks masks;
         karray1d_dev dev_mean;
 
         particle_reducer(
                 ConstParticles const & p, 
-                const_k1b_dev valid,
+                ConstParticleMasks const & masks, 
                 karray1d const & mean = karray1d("mean", 6) )
-            : p(p), valid(valid), dev_mean("dev_mean", 6) 
+            : p(p), masks(masks), dev_mean("dev_mean", 6) 
         { Kokkos::deep_copy(dev_mean, mean); }
 
 #if 0
@@ -104,32 +104,31 @@ namespace core_diagnostics_impl
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<mean_tag>::operator()   (const int i, value_type sum) const
     { 
-        if (valid(i))
-        for (int j=0; j<value_count; ++j) sum[j] += p(i, j); 
+        if (masks(i)) 
+            for (int j=0; j<value_count; ++j) sum[j] += p(i, j); 
     }
 
     template<>
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<z_mean_tag>::operator() (const int i, value_type sum) const
     { 
-        if (valid(i))
-        sum[0] += p(i, 4);
+        if (masks(i)) sum[0] += p(i, 4);
     }
 
     template<>
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<std_tag>::operator()    (const int i, value_type sum) const
     { 
-        if (valid(i))
-        for (int j=0; j<value_count; ++j) 
-            sum[j] += (p(i, j) - dev_mean(j)) * (p(i, j) - dev_mean(j)); 
+        if (masks(i))
+            for (int j=0; j<value_count; ++j) 
+                sum[j] += (p(i, j) - dev_mean(j)) * (p(i, j) - dev_mean(j)); 
     }
 
     template<>
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<min_tag>::operator()    (const int i, value_type min) const
     { 
-        if (valid(i))
+        if (masks(i))
         {
             min[0] = (p(i,0) < min[0]) ? p(i,0) : min[0];
             min[1] = (p(i,2) < min[1]) ? p(i,2) : min[1];
@@ -145,7 +144,7 @@ namespace core_diagnostics_impl
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<max_tag>::operator()    (const int i, value_type max) const
     { 
-        if (valid(i))
+        if (masks(i))
         {
             max[0] = (p(i,0) > max[0]) ? p(i,0) : max[0];
             max[1] = (p(i,2) > max[1]) ? p(i,2) : max[1];
@@ -162,14 +161,16 @@ namespace core_diagnostics_impl
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<mom2_tag>::operator()   (const int i, value_type sum) const
     {
-        if (valid(i))
-        for (int j=0; j<6; ++j)
+        if (masks(i))
         {
-            double diff_j = p(i, j) - dev_mean(j);
-            for (int k=0; k<=j; ++k)
+            for (int j=0; j<6; ++j)
             {
-                double diff_k = p(i, k) - dev_mean(k);
-                sum[j*6+k] += diff_j * diff_k;
+                double diff_j = p(i, j) - dev_mean(j);
+                for (int k=0; k<=j; ++k)
+                {
+                    double diff_k = p(i, k) - dev_mean(k);
+                    sum[j*6+k] += diff_j * diff_k;
+                }
             }
         }
     }
@@ -184,10 +185,10 @@ Core_diagnostics::calculate_mean(Bunch const & bunch)
     karray1d mean("mean", 6);
 
     auto particles = bunch.get_local_particles();
-    auto valid = bunch.get_local_particles_valid();
+    auto masks = bunch.get_local_particles_masks();
     const int npart = bunch.get_local_num_slots();
 
-    particle_reducer<mean_tag> pr(particles, valid);
+    particle_reducer<mean_tag> pr(particles, masks);
     Kokkos::parallel_reduce("cal_mean", npart, pr, mean.data());
 
     Kokkos::fence();
@@ -210,10 +211,10 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
     double mean = 0;
 
     auto particles = bunch.get_local_particles();
-    auto valid = bunch.get_local_particles_valid();
+    auto masks = bunch.get_local_particles_masks();
     const int npart = bunch.get_local_num_slots();
 
-    particle_reducer<z_mean_tag> pr(particles, valid);
+    particle_reducer<z_mean_tag> pr(particles, masks);
     Kokkos::parallel_reduce(npart, pr, &mean);
 
     Kokkos::fence();
@@ -301,10 +302,10 @@ Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
     karray1d std("std", 6);
 
     auto particles = bunch.get_local_particles();
-    auto valid = bunch.get_local_particles_valid();
+    auto masks = bunch.get_local_particles_masks();
     const int npart = bunch.get_local_num_slots();
 
-    particle_reducer<std_tag> pr(particles, valid, mean);
+    particle_reducer<std_tag> pr(particles, masks, mean);
     Kokkos::parallel_reduce(npart, pr, std.data());
 
     double t = simple_timer_current();
@@ -370,10 +371,10 @@ Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
     karray2d_row sum2("sum2", 6, 6);
 
     auto particles = bunch.get_local_particles();
-    auto valid = bunch.get_local_particles_valid();
+    auto masks = bunch.get_local_particles_masks();
     auto npart = bunch.get_local_num_slots();
 
-    particle_reducer<mom2_tag> pr(particles, valid, mean);
+    particle_reducer<mom2_tag> pr(particles, masks, mean);
     Kokkos::parallel_reduce(npart, pr, sum2.data());
     Kokkos::fence();
 
@@ -410,10 +411,10 @@ Core_diagnostics::calculate_min(Bunch const& bunch)
     min(0) = 1e100; min(1) = 1e100; min(2) = 1e100;
 
     auto particles = bunch.get_local_particles();
-    auto valid = bunch.get_local_particles_valid();
+    auto masks = bunch.get_local_particles_masks();
     const int npart = bunch.get_local_num_slots();
 
-    particle_reducer<min_tag> pr(particles, valid);
+    particle_reducer<min_tag> pr(particles, masks);
     Kokkos::parallel_reduce("cal_min", npart, pr, min);
     Kokkos::fence();
 
@@ -433,10 +434,10 @@ Core_diagnostics::calculate_max(Bunch const& bunch)
     max(0) = -1e100; max(1) = -1e100; max(2) = -1e100;
 
     auto particles = bunch.get_local_particles();
-    auto valid = bunch.get_local_particles_valid();
+    auto masks = bunch.get_local_particles_masks();
     const int npart = bunch.get_local_num_slots();
 
-    particle_reducer<max_tag> pr(particles, valid);
+    particle_reducer<max_tag> pr(particles, masks);
     Kokkos::parallel_reduce("cal_max", npart, pr, max);
     Kokkos::fence();
 

@@ -51,69 +51,67 @@ namespace
     struct PropSbend
     {
         Particles p;
+        ConstParticleMasks masks;
         const SbendParams sp;
 
         const double dphi;
         const Kokkos::complex<double> phase;
         const Kokkos::complex<double> term;
 
-        const_k1b_dev valid;
-
-        PropSbend(Particles const& p, SbendParams const& sp, const_k1b_dev valid)
-            : p(p), sp(sp)
+        PropSbend(Particles const& p, ConstParticleMasks const& masks, SbendParams const& sp)
+            : p(p), masks(masks), sp(sp)
             , dphi( -(sp.angle - (sp.e1 + sp.e2)) )   // -psi
             , phase(std::exp(std::complex<double>(0.0, -dphi)))
             , term( std::complex<double>(0.0, sp.length / sp.angle) *
                     std::complex<double>(1.0 - cos(sp.angle), - sin(sp.angle)) *
                     std::complex<double>(cos(sp.e2), -sin(sp.e2)) )
-            , valid(valid)
         { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
-            if (valid(i))
+            if (masks(i))
             {
-            if (sp.ledge)
-            {
-                // slot
-                FF_algorithm::slot_unit( 
+                if (sp.ledge)
+                {
+                    // slot
+                    FF_algorithm::slot_unit( 
+                            p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+                            sp.ce1, sp.se1, sp.pref_b, sp.m_b );
+
+                    // edge:
+                    // 1. chef fixed angle (only kicks yp)
+                    // FF_algorithm::edge_unit(
+                    //        p(i,2), p(i,3), us_edge_k );
+                    //
+                    // 2. chef per-particle angle
+                    // FF_algorithm::edge_unit(
+                    //        p(i,2), p(i,1), p(i,3), dpop, us_edge_k_p);
+                    //
+                    // 3. ref particle angle (kicks both xp and yp)
+                    FF_algorithm::edge_unit(
+                            p(i,2), p(i,1), p(i,3), sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                }
+
+                // bend
+                FF_algorithm::bend_unit(
                         p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                        sp.ce1, sp.se1, sp.pref_b, sp.m_b );
+                        dphi, sp.strength, sp.pref_b, sp.m_b, sp.ref_cdt, 
+                        phase, term );
 
-                // edge:
-                // 1. chef fixed angle (only kicks yp)
-                // FF_algorithm::edge_unit(
-                //        p(i,2), p(i,3), us_edge_k );
-                //
-                // 2. chef per-particle angle
-                // FF_algorithm::edge_unit(
-                //        p(i,2), p(i,1), p(i,3), dpop, us_edge_k_p);
-                //
-                // 3. ref particle angle (kicks both xp and yp)
-                FF_algorithm::edge_unit(
-                        p(i,2), p(i,1), p(i,3), sp.us_edge_k_x, sp.us_edge_k_y, 0); 
-            }
+                if (sp.redge)
+                {
+                    // edge
+                    // FF_algorithm::edge_unit(y, yp, ds_edge_k);
+                    // FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                    FF_algorithm::edge_unit(
+                            p(i,2), p(i,1), p(i,3), sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
 
-            // bend
-            FF_algorithm::bend_unit(
-                    p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                    dphi, sp.strength, sp.pref_b, sp.m_b, sp.ref_cdt, 
-                    phase, term );
-
-            if (sp.redge)
-            {
-                // edge
-                // FF_algorithm::edge_unit(y, yp, ds_edge_k);
-                // FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
-                FF_algorithm::edge_unit(
-                        p(i,2), p(i,1), p(i,3), sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
-
-                // slot
-                FF_algorithm::slot_unit(
-                        p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                        sp.ce2, sp.se2, sp.pref_b, sp.m_b);
-            }
+                    // slot
+                    FF_algorithm::slot_unit(
+                            p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+                            sp.ce2, sp.se2, sp.pref_b, sp.m_b);
+                }
             }
         }
     };
@@ -124,6 +122,7 @@ namespace
     struct PropSbendCF
     {
         Particles p;
+        ConstParticleMasks masks;
         const SbendParams sp;
 
         const double step_angle;
@@ -138,10 +137,8 @@ namespace
         const Kokkos::complex<double> step_term[4];
         const double step_dphi[4];
 
-        const_k1b_dev valid;
-
-        PropSbendCF( Particles const& p, SbendParams const& sp, const_k1b_dev valid )
-            : p(p), sp(sp)
+        PropSbendCF( Particles const& p, ConstParticleMasks const& masks, SbendParams const& sp )
+            : p(p), masks(masks), sp(sp)
 
             , step_angle(sp.angle/sp.steps)
             , step_ref_cdt(sp.ref_cdt/sp.steps)
@@ -174,59 +171,57 @@ namespace
                 fa::sbend_dphi(by6::c2, step_angle),
                 fa::sbend_dphi(by6::c3, step_angle),
                 fa::sbend_dphi(by6::c4, step_angle) }
-
-            , valid(valid)
         { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
-            if (valid(i))
+            if (masks(i))
             {
-            if (sp.ledge)
-            {
-                // slot
-                FF_algorithm::slot_unit(
-                        p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                        sp.ce1, sp.se1, sp.pref_b, sp.m_b );
+                if (sp.ledge)
+                {
+                    // slot
+                    FF_algorithm::slot_unit(
+                            p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+                            sp.ce1, sp.se1, sp.pref_b, sp.m_b );
 
-                // edge
-                //FF_algorithm::edge_unit(y, yp, us_edge_k);
-                //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
-                FF_algorithm::edge_unit(
-                        p(i,2), p(i,1), p(i,3), sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                    // edge
+                    //FF_algorithm::edge_unit(y, yp, us_edge_k);
+                    //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+                    FF_algorithm::edge_unit(
+                            p(i,2), p(i,1), p(i,3), sp.us_edge_k_x, sp.us_edge_k_y, 0); 
 
-                // bend edge (thin, but with face angle)
-                FF_algorithm::bend_edge(
-                        p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                        sp.e1, phase_e1, sp.strength, sp.pref_b, sp.m_b);
-            }
+                    // bend edge (thin, but with face angle)
+                    FF_algorithm::bend_edge(
+                            p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+                            sp.e1, phase_e1, sp.strength, sp.pref_b, sp.m_b);
+                }
 
-            // bend body
-            FF_algorithm::bend_yoshida6<double, fa::thin_cf_kick_2<double>, 2> ( 
-                  p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                  sp.pref_b, sp.m_b, step_ref_cdt,
-                  step_kl, step_dphi, step_phase, step_term,
-                  sp.r0, sp.strength, sp.steps );
+                // bend body
+                FF_algorithm::bend_yoshida6<double, fa::thin_cf_kick_2<double>, 2> ( 
+                      p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+                      sp.pref_b, sp.m_b, step_ref_cdt,
+                      step_kl, step_dphi, step_phase, step_term,
+                      sp.r0, sp.strength, sp.steps );
 
-            if (sp.redge)
-            {
-                // bend edge (thin, but with face angle)
-                FF_algorithm::bend_edge(
-                        p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                        sp.e2, phase_e2, sp.strength, sp.pref_b, sp.m_b);
+                if (sp.redge)
+                {
+                    // bend edge (thin, but with face angle)
+                    FF_algorithm::bend_edge(
+                            p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+                            sp.e2, phase_e2, sp.strength, sp.pref_b, sp.m_b);
 
-                // edge
-                //FF_algorithm::edge_unit(y, yp, ds_edge_k);
-                //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
-                FF_algorithm::edge_unit(
-                        p(i,2), p(i,1), p(i,3), sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+                    // edge
+                    //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+                    //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                    FF_algorithm::edge_unit(
+                            p(i,2), p(i,1), p(i,3), sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
 
-                // slot
-                FF_algorithm::slot_unit(
-                        p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                        sp.ce2, sp.se2, sp.pref_b, sp.m_b);
-            }
+                    // slot
+                    FF_algorithm::slot_unit(
+                            p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+                            sp.ce2, sp.se2, sp.pref_b, sp.m_b);
+                }
             }
         }
     };
@@ -502,9 +497,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         int num = bunch.get_local_num_slots(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
-        auto valid = bunch.get_local_particles_valid(ParticleGroup::regular);
+        auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 
-        PropSbend sbend(parts, sp, valid);
+        PropSbend sbend(parts, masks, sp);
         Kokkos::parallel_for(num, sbend);
     }
     else
@@ -515,9 +510,9 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // propagate bunch regular particles
         int num = bunch.get_local_num_slots(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
-        auto valid = bunch.get_local_particles_valid(ParticleGroup::regular);
+        auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 
-        PropSbendCF sbend(parts, sp, valid);
+        PropSbendCF sbend(parts, masks, sp);
         Kokkos::parallel_for(num, sbend);
     }
 

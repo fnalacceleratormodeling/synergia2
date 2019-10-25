@@ -81,7 +81,7 @@ int run()
     covariances(5,5) = 1e-6;
 
     Random_distribution dist(5, Commxx());
-    populate_6d(dist, bunch, means, covariances);
+    //populate_6d(dist, bunch, means, covariances);
 
     bunch.checkout_particles();
 
@@ -159,6 +159,21 @@ void print_layout_props(T const& a)
 
 void layout_test()
 {
+    std::cout << "\nkarray1d_dev allow padding\n";
+    for (int x = 10; x<20; ++x)
+    {
+        karray1d_dev b(Kokkos::view_alloc("b", Kokkos::AllowPadding), x);
+        print_layout_props(b);
+    }
+
+    std::cout << "\nkarray1d_dev no padding\n";
+    for (int x = 10; x<20; ++x)
+    {
+        karray1d_dev b(Kokkos::view_alloc("b"), x);
+        print_layout_props(b);
+    }
+
+
     std::cout << "\nkarray2d_dev allow padding\n";
     for (int x = 10; x<20; ++x)
     {
@@ -169,7 +184,7 @@ void layout_test()
     std::cout << "\nkarray2d_dev no padding\n";
     for (int x = 10; x<20; ++x)
     {
-        karray2d_dev a(Kokkos::view_alloc("b"), x, 7);
+        karray2d_dev a(Kokkos::view_alloc("a"), x, 7);
         print_layout_props(a);
     }
 

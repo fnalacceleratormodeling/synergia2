@@ -195,7 +195,7 @@ namespace deposit_impl
     struct sv_rho_reducer
     {
         ConstParticles p;
-        const_k1b_dev valid;
+        ConstParticleMasks masks;
 
         Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> scatter;
         karray2d_dev bin;
@@ -206,14 +206,14 @@ namespace deposit_impl
 
         sv_rho_reducer(
                 ConstParticles          const & p,
-                const_k1b_dev           const & valid,
+                ConstParticleMasks      const & masks,
                 Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> const& scatter,
                 karray2d_dev            const & bin,
                 std::array<int,    3>   const & g,
                 std::array<double, 3>   const & h,
                 std::array<double, 3>   const & l,
                 double w0 )
-            : p(p), valid(valid), scatter(scatter), bin(bin)
+            : p(p), masks(masks), scatter(scatter), bin(bin)
             , gx(g[0]), gy(g[1]), gz(g[2])
             , ihx(1.0/h[0]), ihy(1.0/h[1]), ihz(1.0/h[2])
             , lx(l[0]), ly(l[1]), lz(l[2])
@@ -223,46 +223,46 @@ namespace deposit_impl
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
-            if (valid(i))
+            if (masks(i))
             {
-            auto access = scatter.access();
+                auto access = scatter.access();
 
-            int ix, iy, iz;
-            double offx, offy, offz;
+                int ix, iy, iz;
+                double offx, offy, offz;
 
-            get_leftmost_indices_offset(p(i, 0), lx, ihx, ix, offx);
-            get_leftmost_indices_offset(p(i, 2), ly, ihy, iy, offy);
-            get_leftmost_indices_offset(p(i, 4), lz, ihz, iz, offz);
+                get_leftmost_indices_offset(p(i, 0), lx, ihx, ix, offx);
+                get_leftmost_indices_offset(p(i, 2), ly, ihy, iy, offy);
+                get_leftmost_indices_offset(p(i, 4), lz, ihz, iz, offz);
 
-            bin(i, 0) = ix;
-            bin(i, 1) = offx;
-            bin(i, 2) = iy;
-            bin(i, 3) = offy;
-            bin(i, 4) = iz;
-            bin(i, 5) = offz;
+                bin(i, 0) = ix;
+                bin(i, 1) = offx;
+                bin(i, 2) = iy;
+                bin(i, 3) = offy;
+                bin(i, 4) = iz;
+                bin(i, 5) = offz;
 
-            int cellz1 = iz;
-            int cellz2 = cellz1 + 1;
+                int cellz1 = iz;
+                int cellz2 = cellz1 + 1;
 
-            if( cellz1>=0 && cellz1<gz ) access(gx*gy*2 + cellz1) += (1.0 - offz) * ihz;
-            if( cellz2>=0 && cellz2<gz ) access(gx*gy*2 + cellz2) += offz * ihz;
+                if( cellz1>=0 && cellz1<gz ) access(gx*gy*2 + cellz1) += (1.0 - offz) * ihz;
+                if( cellz2>=0 && cellz2<gz ) access(gx*gy*2 + cellz2) += offz * ihz;
 
-            if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) return;
+                if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) return;
 
-            int cellx1, cellx2, celly1, celly2;
-            cellx1 = ix;
-            cellx2 = ix + 1;
-            celly1 = iy;
-            celly2 = iy + 1;
+                int cellx1, cellx2, celly1, celly2;
+                cellx1 = ix;
+                cellx2 = ix + 1;
+                celly1 = iy;
+                celly2 = iy + 1;
 
-            double aoffx, aoffy;
-            aoffx = 1. - offx;
-            aoffy = 1. - offy;
+                double aoffx, aoffy;
+                aoffx = 1. - offx;
+                aoffy = 1. - offy;
 
-            access( (cellx1*gy + celly1)*2 ) += w0 * aoffx * aoffy;
-            access( (cellx1*gx + celly2)*2 ) += w0 * aoffx *  offy;
-            access( (cellx2*gy + celly1)*2 ) += w0 *  offx * aoffy;
-            access( (cellx2*gx + celly2)*2 ) += w0 *  offx *  offy;
+                access( (cellx1*gy + celly1)*2 ) += w0 * aoffx * aoffy;
+                access( (cellx1*gx + celly2)*2 ) += w0 * aoffx *  offy;
+                access( (cellx2*gy + celly1)*2 ) += w0 *  offx * aoffy;
+                access( (cellx2*gx + celly2)*2 ) += w0 *  offx *  offy;
             }
         }
     };
@@ -341,7 +341,7 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_scatter_view(
     auto l = domain.get_left();
 
     auto parts = bunch.get_local_particles();
-    auto valid = bunch.get_local_particles_valid();
+    auto masks = bunch.get_local_particles_masks();
     int nparts = bunch.get_local_num_slots();
 
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
@@ -352,17 +352,9 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_scatter_view(
     karray1d_dev rho_dev("rho", g[0]*g[1]*2 + g[2]);
     Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> scatter(rho_dev);
 
-    sv_rho_reducer rr(parts, valid, scatter, particle_bin, g, h, l, weight0);
+    sv_rho_reducer rr(parts, masks, scatter, particle_bin, g, h, l, weight0);
     Kokkos::parallel_for(nparts, rr);
     Kokkos::Experimental::contribute(rho_dev, scatter);
-
-#if 0
-    karray1d_atomic_dev rho_atomic = rho_dev;
-
-    atomic_rho_reducer rr(parts, rho_atomic, particle_bin, g, h, l, weight0);
-    Kokkos::parallel_for(nparts, rr);
-#endif
-
     Kokkos::fence();
 
     return rho_dev;

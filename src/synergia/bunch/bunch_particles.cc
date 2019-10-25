@@ -35,45 +35,15 @@ namespace
         { parts(i, 6) = i + offset; }
     };
 
-    struct particle_valid_initializer
+    struct particle_masks_initializer
     {
-        k1b_dev valid;
+        ParticleMasks masks;
         const int num;
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
-        { valid(i) = i<num ? 1 : 0; }
+        { masks(i) = i<num ? 1 : 0; }
     };
-
-    /// For a given number of particles, returns the next alignement position
-    int calculate_aligned_pos(int num, int alignment)
-    {
-        if (alignment <= 0)
-            throw std::runtime_error("calculate_aligned_pos() invalid particle_alignment value");
-
-        if (num < 0)
-            throw std::runtime_error("calculate_aligned_pos() invalid num value");
-
-        if (num == 0) return 0;
-        if (num % alignment == 0) return num;
-        return num + alignment - (num % alignment);
-    }
-
-    /// For a given number of particles, returns the needed size of padding
-    /// for the particle array to be aligned
-    int calculate_padding_size(int num, int alignment)
-    {
-        if (alignment <= 0)
-            throw std::runtime_error("calculate_padding_size() invalid particle_alignment value");
-
-        if (num < 0)
-            throw std::runtime_error("calculate_padding_size() invalid num value");
-
-        if (num == 0) return 0;
-        if (num % alignment == 0) return alignment;
-        return alignment * 2 - num % alignment;
-    }
-
 
     // Kokkos functors
     struct particle_copier_many
@@ -150,15 +120,14 @@ namespace
 
 BunchParticles::BunchParticles(int total_num, Commxx const& comm)
     : num(0)
-    , num_aligned(0)
-    , padding(0)
     , slots(0)
     , total(total_num)
     , last_discarded_(0)
     , comm(comm)
-    , parts("particles", slots)
+    , parts()
+    , masks()
     , hparts(Kokkos::create_mirror_view(parts))
-    , valid("valid", slots)
+    , hmasks(Kokkos::create_mirror_view(masks))
 {
     if (!comm.is_null() && total) 
     {
@@ -166,23 +135,24 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
         std::vector<int> counts(comm.size());
         decompose_1d(comm, total, offsets, counts);
 
-        num         = counts[comm.rank()];
-        num_aligned = calculate_aligned_pos(num, alignment);
-        padding     = calculate_padding_size(num, alignment);
-        slots       = num + padding;
+        // local_num
+        num = counts[comm.rank()];
 
         // allocate
-        Kokkos::resize(parts, slots);
-        hparts = Kokkos::create_mirror_view(parts);
+        parts = Particles(Kokkos::view_alloc("parts", Kokkos::AllowPadding), num, 7);
+        slots = parts.stride(1);
 
-        Kokkos::resize(valid, slots);
+        masks = ParticleMasks("masks", slots);
+
+        hparts = Kokkos::create_mirror_view(parts);
+        hmasks = Kokkos::create_mirror_view(masks);
 
         // id
         assign_ids(offsets[comm.rank()]);
 
         // valid particles
-        particle_valid_initializer pvi{valid, num};
-        Kokkos::parallel_for(slots, pvi);
+        particle_masks_initializer pmi{masks, num};
+        Kokkos::parallel_for(slots, pmi);
     } 
 }
 
@@ -242,6 +212,15 @@ BunchParticles::search_particle(int pid, int last_idx) const
 
     return idx;
 }
+
+karray2d_row
+BunchParticles::get_particles_last_discarded() const
+{ 
+    // TODO: need a better way to handle this
+    // return get_particles_in_range(local_num_padded(), last_discarded()); 
+    throw std::runtime_error("get_particles_last_discarded() not implemented");
+}
+
 
 void
 BunchParticles::set_local_num(int n)
