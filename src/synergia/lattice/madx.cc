@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <iostream>
 
-
 using namespace synergia;
 using namespace std;
 

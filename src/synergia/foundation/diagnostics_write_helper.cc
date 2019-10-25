@@ -3,19 +3,25 @@
 #include <iomanip>
 #include <stdexcept>
 
+#pragma message "TODO: replace boost::filesystem here"
+
+#if 0
 // avoid bad interaction between Boost Filesystem and clang
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
+#endif
 
 void
 move_file_overwrite_if_exists(std::string const & source,
         std::string const & dest)
 {
+#if 0
     if (boost::filesystem::exists(dest)) {
         boost::filesystem::remove(dest);
     }
     boost::filesystem::copy_file(source, dest);
     boost::filesystem::remove(source);
+#endif
 }
 
 std::string

@@ -76,13 +76,13 @@ if (BUILD_PYTHON_BINDINGS)
 endif()
 
 # boost
-SET(Boost_USE_STATIC_LIBS OFF)
-SET(Boost_USE_MULTITHREAD ON)
-SET(Boost_NO_BOOST_CMAKE ON)
-FIND_PACKAGE(Boost COMPONENTS regex unit_test_framework serialization
-    filesystem system iostreams REQUIRED)
-list(APPEND extra_includes ${Boost_INCLUDE_DIRS})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+#SET(Boost_USE_STATIC_LIBS OFF)
+#SET(Boost_USE_MULTITHREAD ON)
+#SET(Boost_NO_BOOST_CMAKE ON)
+#FIND_PACKAGE(Boost COMPONENTS regex unit_test_framework serialization
+#    filesystem system iostreams REQUIRED)
+#list(APPEND extra_includes ${Boost_INCLUDE_DIRS})
+#LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # hdf5
 find_package(HDF5)

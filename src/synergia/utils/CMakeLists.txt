@@ -13,12 +13,14 @@ target_link_libraries(synergia_parallel_utils
     )
 
 add_library(synergia_serialization 
-    serialization_files.cc
+    #serialization_files.cc
+    cereal_files.cc
     )
+
 target_link_libraries(synergia_serialization 
-    ${Boost_FILESYSTEM_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARIES} 
-    ${Boost_SERIALIZATION_LIBRARY} 
+#    ${Boost_FILESYSTEM_LIBRARIES}
+#    ${Boost_SYSTEM_LIBRARIES} 
+#    ${Boost_SERIALIZATION_LIBRARY} 
     synergia_parallel_utils
     )
 
@@ -30,7 +32,7 @@ add_library(synergia_hdf5_utils
     )
 target_link_libraries(synergia_hdf5_utils 
     ${HDF5_LIBRARIES} 
-    synergia_serialization
+    #synergia_serialization
     )
 
 if (BUILD_PYTHON_BINDINGS)
@@ -58,7 +60,7 @@ add_library(synergia_distributed_fft
 
 target_link_libraries(synergia_distributed_fft 
     ${FFT_LIB}
-    synergia_serialization 
+    #synergia_serialization 
     synergia_parallel_utils
     )
 
@@ -70,7 +72,7 @@ install(TARGETS
     synergia_parallel_utils
     synergia_hdf5_utils
     synergia_distributed_fft
-    synergia_serialization
+    #synergia_serialization
     synergia_command_line
     lsexpr
     DESTINATION ${LIB_INSTALL_DIR})
