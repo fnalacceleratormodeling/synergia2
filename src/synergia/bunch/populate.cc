@@ -10,8 +10,8 @@
 //using namespace Eigen;
 
 #include "synergia/utils/floating_point.h"
-#include "synergia/utils/multi_array_print.h"
-#include "synergia/utils/multi_array_assert.h"
+//#include "synergia/utils/multi_array_print.h"
+//#include "synergia/utils/multi_array_assert.h"
 #include "synergia/foundation/math_constants.h"
 using mconstants::pi;
 
