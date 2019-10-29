@@ -193,6 +193,7 @@ public:
     int get_local_num_slots   (ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).local_num_slots(); }
 
+#if 0
     ///
     /// Reduce (set) the number of particles on this processor. The number
     /// of particles can only be lowered by this member function. (In order
@@ -210,6 +211,7 @@ public:
     /// Set the total number (and the real number) of particles
     void set_total_num(int num, ParticleGroup pg = PG::regular)
     { get_bunch_particles(pg).set_total_num(num); }
+#endif
  
     ///
     /// Update the total number and real number of particles after the local
