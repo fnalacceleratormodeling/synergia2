@@ -239,6 +239,7 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     Kokkos::parallel_reduce(slots, da, ndiscarded);
 
     //std::cout << "      discarded = " << ndiscarded << "\n";
+    last_discarded_ = ndiscarded;
     set_local_num(num - ndiscarded);
     return ndiscarded;
 
