@@ -20,8 +20,8 @@ target_link_libraries(synergia_foundation
     )
 
 if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(foundation foundation_wrap.cc)
-    target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
+    #add_python_extension(foundation foundation_wrap.cc)
+    #target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
 endif ()
 
 install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
@@ -39,7 +39,7 @@ if (BUILD_PYTHON_BINDINGS)
         __init__.py
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/foundation)
     install(TARGETS
-        foundation
+        #foundation
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/foundation)
 endif ()
 

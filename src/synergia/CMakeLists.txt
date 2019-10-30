@@ -15,7 +15,7 @@ add_subdirectory(collective)
 add_subdirectory(tools)
 
 if (BUILD_PYTHON_BINDINGS)
-    add_subdirectory(convertors)
+    #add_subdirectory(convertors)
 endif ()
 
 

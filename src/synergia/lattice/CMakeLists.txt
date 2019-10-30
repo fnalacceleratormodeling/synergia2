@@ -49,6 +49,9 @@ if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(lattice lattice_wrap.cc)
     #target_link_libraries(lattice synergia_lattice synergia_foundation synergia_bunch
     #    ${CHEF_LIBS} ${Boost_LIBRARIES})
+
+    pybind11_add_module(lattice lattice_pywrap.cc)
+    target_link_libraries(lattice PRIVATE synergia_lattice)
 endif ()
 
 install(TARGETS synergia_lattice DESTINATION ${LIB_INSTALL_DIR})

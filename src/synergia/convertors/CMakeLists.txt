@@ -12,4 +12,4 @@ install(TARGETS
     convertors
     DESTINATION ${PYTHON_INSTALL_DIR}/synergia/convertors)
 
-add_subdirectory(tests)
+#add_subdirectory(tests)
