@@ -7,10 +7,10 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(parallel_utils_py, m)
+PYBIND11_MODULE(parallel_utils, m)
 {
-    m.def("generate_subcomms", generate_subcomms);
-    m.def("make_optimal_spc_comm", make_optimal_spc_comm);
+    //m.def("generate_subcomms", generate_subcomms);
+    //m.def("make_optimal_spc_comm", make_optimal_spc_comm);
     m.def("decompose_1d_local", decompose_1d_local);
 
     py::enum_<LoggerV>(m, "LoggerV", py::arithmetic())

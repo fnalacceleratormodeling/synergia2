@@ -13,55 +13,6 @@
 
 class Propagator
 {
-
-#if 0
-public:
-    static const std::string default_checkpoint_dir;
-    static const std::string description_file_name;
-    static const std::string propagator_archive_name;
-    static const std::string propagator_xml_archive_name;
-    static const std::string state_archive_name;
-    static const std::string state_xml_archive_name;
-    static const std::string log_file_name;
-    static const std::string stop_file_name;
-    static const std::string alt_stop_file_name;
-    static const int default_checkpoint_period;
-    static const int default_concurrent_io;
-
-    struct State
-    {
-        Bunch_simulator * bunch_simulator_ptr;
-        Propagate_actions * propagate_actions_ptr;
-
-        int num_turns;
-        int first_turn;
-        int max_turns;
-        int verbosity;
-
-        State(Bunch_simulator * bunch_simulator_ptr,
-                Propagate_actions * propagate_actions_ptr, int num_turns,
-                int first_turn, int max_turns, int verbosity);
-
-        State() 
-        { }
-
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version);
-    };
-
-private:
-
-    Stepper_sptr stepper_sptr;
-
-    int checkpoint_period;
-    std::string checkpoint_dir;
-    bool checkpoint_with_xml;
-    int concurrent_io;
-    bool final_checkpoint;
-
-    int omp_threads;
-#endif
-
 public:
 
     static const int FINAL_STEP = -1;

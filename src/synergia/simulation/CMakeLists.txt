@@ -38,16 +38,17 @@ target_link_libraries(synergia_simulation
     synergia_lattice 
     synergia_libFF 
     synergia_collective
-    #${CHEF_LIBS} 
-    #${Boost_REGEX_LIBRARY}
     )
 
-#if (BUILD_PYTHON_BINDINGS)
+if (BUILD_PYTHON_BINDINGS)
 #    add_python_extension(simulation simulation_wrap.cc)
 #    target_link_libraries(simulation synergia_foundation synergia_bunch
 #        synergia_lattice synergia_simulation
 #        ${CHEF_LIBS} ${Boost_LIBRARIES})
-#endif ()
+
+    pybind11_add_module(simulation simulation_pywrap.cc)
+    target_link_libraries(simulation PRIVATE synergia_simulation)
+endif ()
 
 install(TARGETS synergia_simulation 
     DESTINATION ${LIB_INSTALL_DIR})
