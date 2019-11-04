@@ -8,6 +8,50 @@
 namespace py = pybind11;
 using namespace py::literals;
 
+
+namespace pybind11
+{
+    namespace detail
+    {
+        template <> struct type_caster<std::list<Lattice_element>>
+        {
+            using value_conv = make_caster<Lattice_element>;
+
+            bool load(handle src, bool convert) 
+            { return false; }
+
+            template <typename T>
+            static handle cast(T && src, 
+                    return_value_policy policy, 
+                    handle parent) 
+            {
+                if (!std::is_lvalue_reference<T>::value)
+                    policy = return_value_policy_override<Lattice_element>::policy(policy);
+                tuple t(src.size());
+                size_t index = 0;
+
+                for (auto &&value : src) 
+                {
+                    auto value_ = reinterpret_steal<object>(
+                            value_conv::cast(forward_like<T>(value), policy, parent));
+
+                    if (!value_)
+                        return handle();
+
+                    // steals a reference
+                    PyTuple_SET_ITEM(t.ptr(), (ssize_t) index++, value_.release().ptr());
+                }
+
+                return t.release();
+            }
+
+            PYBIND11_TYPE_CASTER(std::list<Lattice_element>, _("Tuple[") + value_conv::name + _("]"));
+        };
+    }
+}
+
+
+
 PYBIND11_MODULE(lattice, m)
 {
     py::enum_<element_type>(m, "element_type", py::arithmetic())
@@ -20,6 +64,7 @@ PYBIND11_MODULE(lattice, m)
         .value("rfcavity",   element_type::rfcavity)
         ;
 
+    // Lattice_element
     py::class_<Lattice_element>(m, "Lattice_element")
         .def( py::init<>(),
                 "Construct a generic lattice element" )
@@ -109,6 +154,50 @@ PYBIND11_MODULE(lattice, m)
                 "Print the lattice element" )
 
         .def( "__repr__", &Lattice_element::as_string )
+        ;
+
+    // Lattice_element_slice
+    py::class_<Lattice_element_slice>(m, "Lattice_element_slice")
+        .def( "is_whole", 
+                &Lattice_element_slice::is_whole, 
+                "Is a whole element" )
+
+        .def( "has_left_edge", 
+                &Lattice_element_slice::has_left_edge, 
+                "Does this slice include the left edge of the element" )
+
+        .def( "has_right_edge", 
+                &Lattice_element_slice::has_right_edge, 
+                "Does this slice include the right edge of the element" )
+
+        .def( "get_left", 
+                &Lattice_element_slice::get_left, 
+                "Get the start position of the slice" )
+
+        .def( "get_right", 
+                &Lattice_element_slice::get_right, 
+                "Get the end position of the slice" )
+        ;
+
+    py::class_<Lattice>(m, "Lattice")
+        .def( py::init<>(),
+                "Construct an unnamed empty lattice" )
+        .def( py::init<std::string const&>(),
+                "Construct an empty latttice",
+                "name"_a )
+        .def( "append",
+                &Lattice::append,
+                "Append a lattice element to the lattice",
+                "element"_a )
+        .def( "get_elements",
+                py::overload_cast<>(&Lattice::get_elements),
+                py::return_value_policy::reference_internal,
+                "Get the list of all lattice elements" )
+        .def( "get_elements_const",
+                py::overload_cast<>(&Lattice::get_elements, py::const_),
+                py::return_value_policy::reference_internal,
+                "Get the list of all lattice elements" )
+        .def( "__repr__", &Lattice::as_string )
         ;
 }
 
