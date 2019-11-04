@@ -1,6 +1,8 @@
 #ifndef DIGITS_H_
 #define DIGITS_H_
 
+#include <cmath>
+
 inline
 long int
 digits(long int val)
@@ -24,7 +26,7 @@ decimal_digits(double val)
     double base = 1;
     for (int i = 0; i < 14; ++i) {
         base *= 0.1;
-        if (std::abs(val) < base) {
+        if (std::fabs(val) < base) {
             retval += 1;
         }
     }
