@@ -328,17 +328,17 @@ Space_charge_2d_open_hockney::apply_bunch(
 
     update_domain(bunch);
 
-    auto rho2 = get_local_charge_density(bunch); // [C/m^3]
-    get_global_charge_density(rho2, bunch);
+    get_local_charge_density(bunch); // [C/m^3]
+    get_global_charge_density(bunch);
 
-    auto g2 = get_green_fn2_pointlike();
+    get_green_fn2_pointlike();
 
-    auto fn2 = get_local_force2(rho2, g2);
-    get_global_force2(fn2);
+    get_local_force2();
+    get_global_force2();
 
     auto fn_norm = get_normalization_force(bunch);
 
-    apply_kick(bunch, rho2, fn2, fn_norm, time_step);
+    apply_kick(bunch, fn_norm, time_step);
 }
 
 void
@@ -356,7 +356,27 @@ Space_charge_2d_open_hockney::setup_communication(Commxx const & bunch_comm)
     {
         scoped_simple_timer t3("sc2d_comm_fft");
         fft.construct(options.doubled_shape, comm);
+        construct_workspaces(options.doubled_shape);
     }
+}
+
+void
+Space_charge_2d_open_hockney::construct_workspaces(std::array<int, 3> const& s)
+{
+    int lower = fft.get_lower();
+    int upper = fft.get_upper();
+    int nx = upper - lower;
+
+    rho2 = karray1d_dev("rho2", s[0] * s[1] * 2 + s[2]);
+      g2 = karray1d_dev(  "g2", s[0] * s[1] * 2);
+    phi2 = karray1d_dev("phi2", s[0] * s[1] * 2);
+
+    h_rho2 = Kokkos::create_mirror_view(rho2);
+    h_phi2 = Kokkos::create_mirror_view(phi2);
+
+    rho2hat = karray1d_dev("rho2hat", nx * s[1] * 2);
+      g2hat = karray1d_dev(  "g2hat", nx * s[1] * 2);
+    phi2hat = karray1d_dev("phi2hat", nx * s[1] * 2);
 }
  
 void
@@ -401,7 +421,7 @@ Space_charge_2d_open_hockney::update_domain(Bunch const & bunch)
 }
 
 
-karray1d_dev
+void
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     scoped_simple_timer timer("sc2d_local_rho");
@@ -409,13 +429,12 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
     if (bunch.get_local_num_slots() > particle_bin.extent(0))
         Kokkos::resize(particle_bin, bunch.get_local_num_slots(), 6);
 
-    return deposit_charge_rectangular_2d_kokkos_scatter_view(
+    deposit_charge_rectangular_2d_kokkos_scatter_view(rho2,
             doubled_domain, particle_bin, bunch);
 }
 
 void
 Space_charge_2d_open_hockney::get_global_charge_density(
-        karray1d_dev & rho2,
         Bunch const & bunch )
 {
     // do nothing if the solver only has a single rank
@@ -426,7 +445,6 @@ Space_charge_2d_open_hockney::get_global_charge_density(
     auto dg = doubled_domain.get_grid_shape();
 
     simple_timer_start("sc2d_global_rho_copy");
-    karray1d_hst h_rho2 = Kokkos::create_mirror_view(rho2);
     Kokkos::deep_copy(h_rho2, rho2);
     simple_timer_stop("sc2d_global_rho_copy");
 
@@ -452,7 +470,7 @@ Space_charge_2d_open_hockney::get_global_charge_density(
 }
 
 
-karray1d_dev
+void
 Space_charge_2d_open_hockney::get_green_fn2_pointlike()
 {
     scoped_simple_timer timer("sc2d_green_fn2");
@@ -461,32 +479,22 @@ Space_charge_2d_open_hockney::get_green_fn2_pointlike()
     auto  h = doubled_domain.get_cell_size();
     auto dg = doubled_domain.get_grid_shape();
 
-    karray1d_dev g2("g2", dg[0]*dg[1]*2);
     alg_g2_pointlike alg(g2, g, dg, h);
 
     Kokkos::parallel_for(dg[0]*dg[1], alg);
     Kokkos::fence();
-
-    return g2;
 }
 
-karray1d_dev
-Space_charge_2d_open_hockney::get_local_force2(
-        karray1d_dev & rho2,
-        karray1d_dev & g2 )
+void
+Space_charge_2d_open_hockney::get_local_force2()
 {
     scoped_simple_timer timer("sc2d_local_f");
 
     auto dg = doubled_domain.get_grid_shape();
-    karray1d_dev phi2("phi2", dg[0]*dg[1]*2);
 
     int lower = fft.get_lower();
     int upper = fft.get_upper();
     int nx = upper - lower;
-
-    karray1d_dev rho2hat("rho2hat", nx * dg[1] * 2);
-    karray1d_dev   g2hat(  "g2hat", nx * dg[1] * 2);
-    karray1d_dev phi2hat("phi2hat", nx * dg[1] * 2);
 
     fft.transform(rho2, rho2hat);
     fft.transform(  g2,   g2hat);
@@ -496,13 +504,10 @@ Space_charge_2d_open_hockney::get_local_force2(
     Kokkos::fence();
 
     fft.inv_transform(phi2hat, phi2);
-
-    return phi2;
 }
 
 void
-Space_charge_2d_open_hockney::get_global_force2(
-        karray1d_dev & phi2 )
+Space_charge_2d_open_hockney::get_global_force2()
 {
     // do nothing if the solver only has a single rank
     if (comm.size() == 1) return;
@@ -511,7 +516,6 @@ Space_charge_2d_open_hockney::get_global_force2(
 
     auto dg = doubled_domain.get_grid_shape();
 
-    karray1d_hst h_phi2 = Kokkos::create_mirror_view(phi2);
     Kokkos::deep_copy(h_phi2, phi2);
 
     int err = MPI_Allreduce( MPI_IN_PLACE,
@@ -567,8 +571,6 @@ Space_charge_2d_open_hockney::get_normalization_force(Bunch const & bunch)
 void
 Space_charge_2d_open_hockney::apply_kick(
         Bunch & bunch,
-        karray1d_dev const & rho2,
-        karray1d_dev const & fn2,
         double fn_norm,
         double time_step )
 {
@@ -618,7 +620,7 @@ Space_charge_2d_open_hockney::apply_kick(
     auto parts = bunch.get_local_particles();
     auto valid = bunch.get_local_particles_valid();
 
-    alg_kicker kicker(parts, valid, fn2, rho2, particle_bin,
+    alg_kicker kicker(parts, valid, phi2, rho2, particle_bin,
             doubled_domain.get_grid_shape(), factor);
 
     Kokkos::parallel_for(bunch.get_local_num_slots(), kicker);

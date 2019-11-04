@@ -57,6 +57,18 @@ private:
     Distributed_fft2d fft;
     Commxx comm;
 
+    karray1d_dev rho2;
+    karray1d_dev phi2;
+    karray1d_dev g2;
+
+    karray1d_dev rho2hat;
+    karray1d_dev phi2hat;
+    karray1d_dev g2hat;
+
+    karray1d_hst h_rho2;
+    karray1d_hst h_phi2;
+
+
 #if 0
     std::vector<int > grid_shape, doubled_grid_shape;
     Rectangular_grid_domain_sptr domain_sptr, doubled_domain_sptr;
@@ -91,6 +103,8 @@ private:
     void set_doubled_domain();
 #endif
 
+    void construct_workspaces(std::array<int, 3> const& s);
+
     void apply_impl(
             Bunch_simulator & simulator, 
             double time_step, 
@@ -104,17 +118,15 @@ private:
     void setup_communication(Commxx const & bunch_comm);
     void update_domain(Bunch const & bunch);
 
-    karray1d_dev get_local_charge_density(Bunch const& bunch);
-    karray1d_dev get_green_fn2_pointlike();
-    karray1d_dev get_local_force2(karray1d_dev & rho2, karray1d_dev & g2);
+    void get_local_charge_density(Bunch const& bunch);
+    void get_green_fn2_pointlike();
+    void get_local_force2();
 
-    void get_global_charge_density(karray1d_dev & rho2, Bunch const & bunch);
-    void get_global_force2(karray1d_dev & phi2);
+    void get_global_charge_density(Bunch const & bunch);
+    void get_global_force2();
 
     void apply_kick(
             Bunch & bunch,
-            karray1d_dev const & rho2,
-            karray1d_dev const & fn2,
             double fn_norm,
             double time_step );
 

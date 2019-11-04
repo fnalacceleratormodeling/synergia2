@@ -191,6 +191,15 @@ namespace deposit_impl
         }
     };
 
+    struct rho_zeroer
+    {
+        karray1d_dev rho;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { rho(i) = 0.0; }
+    };
+
     // use scatter view
     struct sv_rho_reducer
     {
@@ -329,12 +338,15 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_atomic(
     return rho_dev;
 }
 
-karray1d_dev deposit_charge_rectangular_2d_kokkos_scatter_view(
+void 
+deposit_charge_rectangular_2d_kokkos_scatter_view(
+        karray1d_dev & rho_dev,
         Rectangular_grid_domain & domain,
         karray2d_dev & particle_bin, 
         Bunch const & bunch )
 {
     using deposit_impl::sv_rho_reducer;
+    using deposit_impl::rho_zeroer;
 
     auto g = domain.get_grid_shape();
     auto h = domain.get_cell_size();
@@ -349,23 +361,22 @@ karray1d_dev deposit_charge_rectangular_2d_kokkos_scatter_view(
             / (h[0] * h[1]); // * h[2]);
 
     // double[x][y][2] + double[z]
-    karray1d_dev rho_dev("rho", g[0]*g[1]*2 + g[2]);
+    if (rho_dev.extent(0) != g[0]*g[1]*2 + g[2])
+        throw std::runtime_error("wrong size for rho in deposit charge");
+
+    // zero first
+    rho_zeroer rz{rho_dev};
+    Kokkos::parallel_for(rho_dev.extent(0), rz);
+    Kokkos::fence();
+
+    // deposit
     Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft> scatter(rho_dev);
 
     sv_rho_reducer rr(parts, valid, scatter, particle_bin, g, h, l, weight0);
     Kokkos::parallel_for(nparts, rr);
     Kokkos::Experimental::contribute(rho_dev, scatter);
 
-#if 0
-    karray1d_atomic_dev rho_atomic = rho_dev;
-
-    atomic_rho_reducer rr(parts, rho_atomic, particle_bin, g, h, l, weight0);
-    Kokkos::parallel_for(nparts, rr);
-#endif
-
     Kokkos::fence();
-
-    return rho_dev;
 }
 
 

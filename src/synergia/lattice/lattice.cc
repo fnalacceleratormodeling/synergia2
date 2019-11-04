@@ -46,7 +46,6 @@ Lattice::Lattice(Lsexpr const & lsexpr)
             if (lse.get_label() == "name") 
             {
                 name = lse.get_string();
-                std::cout << name << "\n";
             } 
 #if 0
             else if (it->get_label() == "type") 
@@ -71,11 +70,9 @@ Lattice::Lattice(Lsexpr const & lsexpr)
             else if (lse.get_label() == "reference_particle") 
             {
                 reference_particle = Reference_particle(lse);
-                std::cout << "refpart\n";
             } 
             else if (lse.get_label() == "elements") 
             {
-                std::cout << "element\n";
                 for (auto const& ele : lse)
                 {
                     append(Lattice_element(ele));
