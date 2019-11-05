@@ -147,6 +147,7 @@ PYBIND11_MODULE(lattice, m)
     py::class_<Lattice>(m, "Lattice")
         .def( py::init<>(), "Construct an unnamed empty lattice" )
         .def( py::init<std::string const&>(), "Construct an empty latttice", "name"_a )
+        .def( py::init<Lsexpr const&>(), "Construct from the Lsexpr representation", "lsexpr"_a )
 
         .def( "append",
                 &Lattice::append,
