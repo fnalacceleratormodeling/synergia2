@@ -1,5 +1,3 @@
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_parser.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_reader.py 
@@ -52,6 +50,8 @@ if (BUILD_PYTHON_BINDINGS)
 
     pybind11_add_module(lattice lattice_pywrap.cc)
     target_link_libraries(lattice PRIVATE synergia_lattice)
+
+    copy_file(__init__.py lattice)
 endif ()
 
 install(TARGETS synergia_lattice DESTINATION ${LIB_INSTALL_DIR})

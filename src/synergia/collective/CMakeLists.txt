@@ -24,10 +24,8 @@ if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(collective collective_wrap.cc)
     #target_link_libraries(collective synergia_collective synergia_bunch
     #    synergia_simulation synergia_distributed_fft ${Boost_LIBRARIES})
+    #copy_file(__init__.py, collective)
 endif ()
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 install(TARGETS synergia_collective DESTINATION lib)
 install(FILES

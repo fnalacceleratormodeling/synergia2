@@ -104,6 +104,7 @@ if (BUILD_PYTHON_BINDINGS)
 endif()
 
 # misc
+INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/CopyFile.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
 list(APPEND extra_includes ${GSL_INCLUDE_DIR})

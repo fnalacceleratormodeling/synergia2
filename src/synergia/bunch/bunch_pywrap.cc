@@ -3,7 +3,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(bunch_py, m)
+PYBIND11_MODULE(bunch, m)
 {
 #if 0
     m.def("generate_subcomms", generate_subcomms);

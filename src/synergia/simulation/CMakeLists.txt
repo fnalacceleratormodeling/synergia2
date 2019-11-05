@@ -1,6 +1,3 @@
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 add_library(synergia_simulation 
     operator.cc 
     step.cc 
@@ -48,6 +45,8 @@ if (BUILD_PYTHON_BINDINGS)
 
     pybind11_add_module(simulation simulation_pywrap.cc)
     target_link_libraries(simulation PRIVATE synergia_simulation)
+
+    copy_file(__init__.py simulation)
 endif ()
 
 install(TARGETS synergia_simulation 

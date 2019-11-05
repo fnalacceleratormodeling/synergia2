@@ -1,5 +1,5 @@
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+#    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 if(${KOKKOS_ENABLE_CUDA})
     set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS --host-only)
@@ -42,6 +42,8 @@ if (BUILD_PYTHON_BINDINGS)
 
     pybind11_add_module(bunch bunch_pywrap.cc)
     target_link_libraries(bunch PRIVATE synergia_bunch)
+
+    copy_file(__init__.py bunch)
 endif ()
 
 

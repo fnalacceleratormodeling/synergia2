@@ -14,13 +14,6 @@ add_subdirectory(simulation)
 add_subdirectory(collective)
 add_subdirectory(tools)
 
-if (BUILD_PYTHON_BINDINGS)
-    #add_subdirectory(convertors)
-endif ()
-
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/synergia.cc.in"
     "${CMAKE_CURRENT_BINARY_DIR}/synergia.cc" IMMEDIATE)
@@ -41,6 +34,13 @@ target_link_libraries(synergia
     synergia_distributed_fft 
     #synergia_collective
     )
+
+if (BUILD_PYTHON_BINDINGS)
+    #add_subdirectory(convertors)
+    copy_file(__init__.py synergia)
+endif ()
+
+
 
 install(TARGETS synergia DESTINATION ${LIB_INSTALL_DIR})
 install(FILES synergia.h DESTINATION ${INCLUDE_INSTALL_DIR}/synergia)

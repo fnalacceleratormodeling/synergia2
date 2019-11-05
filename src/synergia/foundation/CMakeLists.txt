@@ -1,5 +1,3 @@
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(synergia_foundation 
     four_momentum.cc 
@@ -24,6 +22,7 @@ target_link_libraries(synergia_foundation
 if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(foundation foundation_wrap.cc)
     #target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
+    #copy_file(__init__.py foundation)
 endif ()
 
 install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
