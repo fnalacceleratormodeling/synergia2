@@ -620,7 +620,7 @@ Space_charge_2d_open_hockney::apply_kick(
     auto parts = bunch.get_local_particles();
     auto masks = bunch.get_local_particles_masks();
 
-    alg_kicker kicker(parts, masks, fn2, rho2, particle_bin,
+    alg_kicker kicker(parts, masks, phi2, rho2, particle_bin,
             doubled_domain.get_grid_shape(), factor);
 
     Kokkos::parallel_for(bunch.get_local_num_slots(), kicker);
