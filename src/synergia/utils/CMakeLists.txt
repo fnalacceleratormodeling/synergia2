@@ -44,6 +44,9 @@ if (BUILD_PYTHON_BINDINGS)
 
     pybind11_add_module(parallel_utils parallel_utils_pywrap.cc)
     target_link_libraries(parallel_utils PRIVATE synergia_parallel_utils)
+
+    pybind11_add_module(pylsexpr lsexpr_pywrap.cc)
+    target_link_libraries(pylsexpr PRIVATE lsexpr)
 endif ()
 
 if(${KOKKOS_ENABLE_CUDA})
@@ -124,7 +127,7 @@ if (BUILD_PYTHON_BINDINGS)
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
     install(TARGETS
         parallel_utils
-        #pylsexpr
+        pylsexpr
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 endif ()
 
