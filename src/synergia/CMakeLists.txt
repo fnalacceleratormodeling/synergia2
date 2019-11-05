@@ -14,6 +14,8 @@ add_subdirectory(simulation)
 add_subdirectory(collective)
 add_subdirectory(tools)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/synergia.cc.in"
     "${CMAKE_CURRENT_BINARY_DIR}/synergia.cc" IMMEDIATE)
