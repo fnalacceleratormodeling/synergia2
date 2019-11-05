@@ -143,24 +143,44 @@ PYBIND11_MODULE(lattice, m)
                 "Get the end position of the slice" )
         ;
 
+    // Lattice
     py::class_<Lattice>(m, "Lattice")
-        .def( py::init<>(),
-                "Construct an unnamed empty lattice" )
-        .def( py::init<std::string const&>(),
-                "Construct an empty latttice",
-                "name"_a )
+        .def( py::init<>(), "Construct an unnamed empty lattice" )
+        .def( py::init<std::string const&>(), "Construct an empty latttice", "name"_a )
+
         .def( "append",
                 &Lattice::append,
                 "Append a lattice element to the lattice",
                 "element"_a )
+
         .def( "get_elements",
                 py::overload_cast<>(&Lattice::get_elements),
                 py::return_value_policy::reference_internal,
                 "Get the list of all lattice elements" )
+
+        .def( "get_length",
+                &Lattice::get_length,
+                "Get the combined length of all elements in the lattice" )
+
+        .def( "get_total_angle",
+                &Lattice::get_total_angle,
+                "Get the total angle in radians subtended by all elements in the lattice" )
+
         .def( "get_elements_const",
                 py::overload_cast<>(&Lattice::get_elements, py::const_),
                 py::return_value_policy::reference_internal,
                 "Get the list of all lattice elements" )
+
+        .def( "set_all_double_attribute",
+                &Lattice::set_all_double_attribute,
+                "Set the value of the named double attribute on all elements",
+                "name"_a, "value"_a, "increment_revision"_a = true )
+
+        .def( "set_all_string_attribute",
+                &Lattice::set_all_string_attribute,
+                "Set the value of the named string attribute on all elements",
+                "name"_a, "value"_a, "increment_revision"_a = true )
+
         .def( "__repr__", &Lattice::as_string )
         ;
 }

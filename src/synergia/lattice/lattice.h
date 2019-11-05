@@ -112,7 +112,7 @@ public:
     /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
     set_all_string_attribute(
-            std::string const & name, std::string const & value,
+            std::string const& name, std::string const& value,
             bool increment_revision = true);
 
     /// Get the list of elements in the Lattice
