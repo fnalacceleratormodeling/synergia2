@@ -18,6 +18,7 @@ using namespace py::literals;
 
 PYBIND11_MODULE(foundation, m)
 {
+    // Four_momentum
     py::class_<Four_momentum>(m, "Four_momentum")
         .def( py::init<double>(),
                 "Construct a Four_momentum in the rest frame."
@@ -87,34 +88,125 @@ PYBIND11_MODULE(foundation, m)
                 "four_momentum"_a, "tolerance"_a )
         ;
 
-#if 0
-    class_<Reference_particle>("Reference_particle",
-            init<int, double, double>())
-        .def(init<int, Four_momentum const &>())
-        .def(init<int, Four_momentum const &,Const_MArray1d_ref>())
-        .def("set_four_momentum",&Reference_particle::set_four_momentum)
-        .def("set_state", set_state1)
-        .def("set_state", set_state2)
-        .def("set_total_energy",&Reference_particle::set_total_energy)
-        .def("increment_trajectory", &Reference_particle::increment_trajectory)
-        .def("start_repetition", &Reference_particle::start_repetition)
-        .def("set_trajectory", &Reference_particle::set_trajectory)
-        .def("get_charge", &Reference_particle::get_charge)
-        .def("get_mass", &Reference_particle::get_mass)
-        .def("get_four_momentum",&Reference_particle::get_four_momentum,
-                return_internal_reference<>())
-        .def("get_state",&Reference_particle::get_state)
-        .def("get_beta",&Reference_particle::get_beta)
-        .def("get_gamma",&Reference_particle::get_gamma)
-        .def("get_momentum",&Reference_particle::get_momentum)
-        .def("get_total_energy",&Reference_particle::get_total_energy)
-        .def("get_s", &Reference_particle::get_s)
-        .def("get_s_n", &Reference_particle::get_s_n)
-        .def("get_repetition", &Reference_particle::get_repetition)
-        .def("get_repetition_length", &Reference_particle::get_repetition_length)
-        .def("equal",&Reference_particle::equal)
+    // Reference_particle
+    py::class_<Reference_particle>(m, "Reference_particle")
+        .def( py::init<int, double, double>(),
+                "Construct a Reference_particle with a given mass and total energy."
+                "\n\tparam: charge in units of e"
+                "\n\tparam: mass in GeV/c^2"
+                "\n\tparam: total_energy in GeV in the lab frame",
+                "charge"_a, "mass"_a, "total_energy"_a )
+
+        .def( py::init<int, Four_momentum const&>(),
+                "Construct a Reference_particle with a given four momentum"
+                "\n\tparam: charge in units of e"
+                "\n\tparam: four_momentum in the lab frame",
+                "charge"_a, "four_momentum"_a )
+
+        .def( py::init<int, Four_momentum const&, std::array<double, 6> const&>(),
+                "Construct a Reference_particle with a given four momentum and state"
+                " in the reference frame."
+                "\n\tparam: charge in units of e"
+                "\n\tparam: four_momentum in the lab frame"
+                "\n\tparam: state is a six-dimensional state vector",
+                "charge"_a, "four_momentum"_a, "state"_a )
+
+        .def( "set_four_momentum",
+                &Reference_particle::set_four_momentum,
+                "Set the four momentum."
+                "four_momentum"_a )
+
+        .def( "set_state", 
+                py::overload_cast<std::array<double, 6> const&>(&Reference_particle::set_state),
+                "Set the state vector in the reference frame.",
+                "state"_a )
+
+        .def( "set_state",
+                py::overload_cast<double, double, double, double, double, double>(&Reference_particle::set_state),
+                "Set the state vector in the reference frame.",
+                "x"_a, "xp"_a, "y"_a, "yp"_a, "cdt"_a, "dpop"_a )
+
+        .def( "set_total_energy",
+                &Reference_particle::set_total_energy,
+                "Set the total energy."
+                "\n\tparam: total_energy in GeV in the lab frame",
+                "total_energy"_a )
+
+        .def( "increment_trajectory", 
+                &Reference_particle::increment_trajectory,
+                "Increment the trajectory length."
+                "\n\tparam: length in m",
+                "length"_a )
+
+        .def( "start_repetition", 
+                &Reference_particle::start_repetition,
+                "Start a new repetition." )
+
+        .def( "set_trajectory", 
+                &Reference_particle::set_trajectory,
+                "Manually set the trajectory parameters."
+                "\n\tparam: repetition starting at 0"
+                "\n\tparam: repetition_length in m"
+                "\n\tparam: s in m",
+                "repetition"_a, "repetition_length"_a, "s"_a )
+
+        .def( "get_charge", 
+                &Reference_particle::get_charge,
+                "Return the Reference_particle charge in units of e." )
+
+        .def( "get_mass", 
+                &Reference_particle::get_mass,
+                "Return the Reference_particle mass in units of GeV/c." )
+
+        .def( "get_four_momentum",
+                &Reference_particle::get_four_momentum,
+                "Get the four momentum in the lab frame." )
+
+        .def( "get_state",
+                &Reference_particle::get_state,
+                "Get the six-dimensional state vector the reference frame." )
+
+        .def( "get_beta",
+                &Reference_particle::get_beta,
+                "Get the relativistic beta in the lab frame." )
+
+        .def( "get_gamma",
+                &Reference_particle::get_gamma,
+                "Get the relativistic gamma in the lab frame." )
+
+        .def( "get_momentum",
+                &Reference_particle::get_momentum,
+                "Get the momentum in GeV/c in the lab frame." )
+
+        .def( "get_total_energy",
+                &Reference_particle::get_total_energy,
+                "Get the total energy in GeV in the lab frame." )
+
+        .def( "get_s", 
+                &Reference_particle::get_s,
+                "Get the total path length in m of the reference particle trajectory." )
+
+        .def( "get_s_n", 
+                &Reference_particle::get_s_n,
+                "Get the distance traveled in m since the beginning of the current repetition." )
+
+        .def( "get_repetition", 
+                &Reference_particle::get_repetition,
+                "Get the number of repetition." )
+
+        .def( "get_repetition_length", 
+                &Reference_particle::get_repetition_length,
+                "Get the repetition length in m." )
+
+        .def( "equal",
+                &Reference_particle::equal,
+                "Check equality to the given tolerance."
+                "\n\tparam: reference_particle another Reference_particle"
+                "\n\tparam: tolerance fractional accuracy",
+                "reference_particle"_a, "tolerance"_a )
         ;
 
+#if 0
     class_<Distribution, boost::noncopyable > ("Distribution", no_init);
 
     class_<Dummy1 >("mconstants",no_init)
