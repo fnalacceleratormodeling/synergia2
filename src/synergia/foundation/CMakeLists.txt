@@ -11,18 +11,20 @@ target_link_libraries(synergia_foundation
     ${GSL_CONFIG_LIBS}
     synergia_parallel_utils 
     synergia_hdf5_utils 
-    synergia_serialization
+    #synergia_serialization
     lsexpr
     gsl
     gslcblas
-    ${Boost_SERIALIZATION_LIBRARIES}
-    ${Boost_FILESYSTEM_LIBRARIES}
     )
 
 if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(foundation foundation_wrap.cc)
     #target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
-    #copy_file(__init__.py foundation)
+
+    pybind11_add_module(foundation foundation_pywrap.cc)
+    target_link_libraries(foundation PRIVATE synergia_foundation)
+
+    copy_file(__init__.py foundation)
 endif ()
 
 install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
@@ -35,6 +37,7 @@ install(FILES
     physical_constants.h
     reference_particle.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/foundation)
+
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
         __init__.py

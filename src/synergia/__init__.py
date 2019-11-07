@@ -5,7 +5,7 @@
 
 #from version import __version__, version_major, version_minor, version_patch, version_tweak
 #import convertors
-#import foundation
+import foundation
 import bunch
 import lattice
 #import optics

@@ -30,6 +30,7 @@ add_library(synergia_hdf5_utils
 target_link_libraries(synergia_hdf5_utils 
     ${HDF5_LIBRARIES} 
     #synergia_serialization
+    kokkos
     )
 
 if (BUILD_PYTHON_BINDINGS)

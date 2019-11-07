@@ -154,6 +154,10 @@ PYBIND11_MODULE(lattice, m)
                 "Append a lattice element to the lattice",
                 "element"_a )
 
+        .def( "get_reference_particle",
+                &Lattice::get_reference_particle,
+                "Get the lattice reference particle" )
+
         .def( "get_elements",
                 py::overload_cast<>(&Lattice::get_elements),
                 py::return_value_policy::reference_internal,
