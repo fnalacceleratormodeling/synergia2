@@ -24,7 +24,11 @@ if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(collective collective_wrap.cc)
     #target_link_libraries(collective synergia_collective synergia_bunch
     #    synergia_simulation synergia_distributed_fft ${Boost_LIBRARIES})
-    #copy_file(__init__.py, collective)
+
+    pybind11_add_module(collective collective_pywrap.cc)
+    target_link_libraries(collective PRIVATE synergia_collective)
+
+    copy_file(__init__.py collective)
 endif ()
 
 install(TARGETS synergia_collective DESTINATION lib)

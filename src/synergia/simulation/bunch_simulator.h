@@ -88,6 +88,9 @@ private:
 
 public:
 
+    Bunch_simulator(Bunch_simulator const&) = delete;
+    Bunch_simulator(Bunch_simulator &&) = default;
+
     // factory methods
     static Bunch_simulator 
         create_single_bunch_simulator(

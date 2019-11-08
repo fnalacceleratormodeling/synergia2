@@ -1,26 +1,50 @@
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include "synergia/bunch/bunch.h"
 
 namespace py = pybind11;
+using namespace py::literals;
 
 PYBIND11_MODULE(bunch, m)
 {
-#if 0
-    m.def("generate_subcomms", generate_subcomms);
-    m.def("make_optimal_spc_comm", make_optimal_spc_comm);
-    m.def("decompose_1d_local", decompose_1d_local);
-
-    py::class_<Logger>(m, "Logger")
-        .def(py::init<int>())
-        .def(py::init<int, std::string const& >())
-        .def(py::init<int, std::string const&, bool >())
-        .def(py::init<int, std::string const&, bool, bool >())
-        .def(py::init<std::string const& >())
-        .def(py::init<std::string const&, bool >())
-        .def("write", &Logger::write, py::return_value_policy::reference_internal)
-        .def("flush", &Logger::flush, py::return_value_policy::reference_internal)
+    py::enum_<ParticleGroup>(m, "ParticleGroup", py::arithmetic())
+        .value("regular",   ParticleGroup::regular)
+        .value("spectator", ParticleGroup::spectator)
         ;
-#endif
+
+    py::enum_<LongitudinalBoundary>(m, "LongitudinalBoundary", py::arithmetic())
+        .value("open",           LongitudinalBoundary::open)
+        .value("periodic",       LongitudinalBoundary::periodic)
+        .value("aperture",       LongitudinalBoundary::aperture)
+        .value("bucket_barrier", LongitudinalBoundary::bucket_barrier)
+        ;
+
+    // Bunch
+    py::class_<Bunch>(m, "Bunch")
+        .def( py::init< Reference_particle const&,
+                        int, double, Commxx,
+                        int, int, int, int >(),
+              "Construct a Bunch object.",
+              "reference_particle"_a,
+              "total_num"_a,
+              "real_num"_a,
+              "comm"_a,
+              "total_spectator_num"_a = 0,
+              "bunch_index"_a = 0,
+              "bucket_index"_a = 0,
+              "array_index"_a = 0 )
+
+        .def( "read_file",
+                &Bunch::read_file,
+                "Read particle data from file.",
+                "filename"_a, 
+                "particle_group"_a = ParticleGroup::regular )
+
+        ;
+
+
 }
 
 

@@ -31,15 +31,15 @@ namespace
 
     struct PropQuad
     {
-        Particles p;
-        ConstParticleMasks masks;
+        Particles const& p;
+        ConstParticleMasks const& masks;
         int steps;
         double xoff, yoff;
         double ref_p, ref_m, step_ref_t, step_l, step_k[2];
 
 
-        PropQuad( Particles p, 
-                  ConstParticleMasks mask,
+        PropQuad( Particles const& p, 
+                  ConstParticleMasks const& mask,
                   int steps,
                   double xoff,
                   double yoff,
@@ -169,6 +169,8 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     scoped_simple_timer timer("libFF_quad");
 
+    std::cout << "quad" << std::endl;
+
     auto const& ele = slice.get_lattice_element();
 
     // length
@@ -232,7 +234,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         PropQuadThin pqt{parts, masks, {k[0], k[1]}, xoff, yoff};
         Kokkos::parallel_for(num, pqt);
-        Kokkos::fence();
 
         // TODO: spectator particles
         // ...
@@ -254,7 +255,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         PropQuad pq(parts, masks, steps, xoff, yoff, ref_p, ref_m, ref_t, length, k[0], k[1]);
         Kokkos::parallel_for(num, pq);
-        Kokkos::fence();
 
         // TODO: spectator particles
         // ...
@@ -264,5 +264,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     Kokkos::fence();
+    std::cout << "quad 2" << std::endl;
 }
 
