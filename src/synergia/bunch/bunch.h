@@ -111,7 +111,7 @@ public:
     Bunch(  Reference_particle const& reference_particle, 
             int total_num,
             double real_num, 
-            Commxx comm,
+            Commxx comm = Commxx(),
             int total_spectator_num = 0,
             int bunch_index = 0,
             int bucket_index = 0,

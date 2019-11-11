@@ -39,6 +39,7 @@ PYBIND11_MODULE(parallel_utils, m)
 
     py::class_<Commxx>(m, "Commxx")
         .def(py::init<>())
+        .def( "rank", &Commxx::rank )
         ;
 
 }

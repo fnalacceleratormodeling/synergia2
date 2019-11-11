@@ -21,6 +21,20 @@ PYBIND11_MODULE(bunch, m)
         .value("bucket_barrier", LongitudinalBoundary::bucket_barrier)
         ;
 
+    py::class_<HostParticles>(m, "Particles", py::buffer_protocol())
+        .def_buffer([](HostParticles & p) -> py::buffer_info {
+            return py::buffer_info(
+                p.data(),
+                sizeof(double),
+                py::format_descriptor<double>::format(),
+                2,
+                { p.extent(0), p.extent(1) },
+                { p.stride(0), p.stride(1) }
+            );
+        })
+        ;
+
+
     // Bunch
     py::class_<Bunch>(m, "Bunch")
         .def( py::init< Reference_particle const&,
@@ -30,7 +44,7 @@ PYBIND11_MODULE(bunch, m)
               "reference_particle"_a,
               "total_num"_a,
               "real_num"_a,
-              "comm"_a,
+              "comm"_a = Commxx(),
               "total_spectator_num"_a = 0,
               "bunch_index"_a = 0,
               "bucket_index"_a = 0,
@@ -40,6 +54,21 @@ PYBIND11_MODULE(bunch, m)
                 &Bunch::read_file,
                 "Read particle data from file.",
                 "filename"_a, 
+                "particle_group"_a = ParticleGroup::regular )
+
+        .def( "checkout_particles",
+                &Bunch::checkout_particles,
+                "Copy the particle array from device memory to host memory.",
+                "particle_group"_a = ParticleGroup::regular )
+
+        .def( "checkin_particles",
+                &Bunch::checkin_particles,
+                "Copy the particle array from device memory to host memory.",
+                "particle_group"_a = ParticleGroup::regular )
+
+        .def( "get_host_particles",
+                py::overload_cast<ParticleGroup>(&Bunch::get_host_particles),
+                "Get host particles.",
                 "particle_group"_a = ParticleGroup::regular )
 
         ;
