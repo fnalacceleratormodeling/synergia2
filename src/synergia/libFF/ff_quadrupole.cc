@@ -31,15 +31,15 @@ namespace
 
     struct PropQuad
     {
-        Particles const& p;
-        ConstParticleMasks const& masks;
+        Particles p;
+        ConstParticleMasks masks;
         int steps;
         double xoff, yoff;
         double ref_p, ref_m, step_ref_t, step_l, step_k[2];
 
 
         PropQuad( Particles const& p, 
-                  ConstParticleMasks const& mask,
+                  ConstParticleMasks const& masks,
                   int steps,
                   double xoff,
                   double yoff,
@@ -169,8 +169,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     scoped_simple_timer timer("libFF_quad");
 
-    std::cout << "quad" << std::endl;
-
+    // element
     auto const& ele = slice.get_lattice_element();
 
     // length
@@ -264,6 +263,5 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     Kokkos::fence();
-    std::cout << "quad 2" << std::endl;
 }
 
