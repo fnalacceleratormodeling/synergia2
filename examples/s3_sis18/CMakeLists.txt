@@ -7,17 +7,6 @@ target_link_libraries(s3_sis18
     synergia_libFF
     )
 
-add_custom_command(OUTPUT sis18.madx
-    COMMAND ${CMAKE_COMMAND} -E copy 
-        ${CMAKE_CURRENT_SOURCE_DIR}/sis18.madx 
-        ${CMAKE_CURRENT_BINARY_DIR}/sis18.madx
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sis18.madx
-    COMMENT "Copying lattice file for s3_sis18"
-    )
-
-add_custom_target(s3_sis18_lattice ALL
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/sis18.madx
-    )
-
-add_dependencies(s3_sis18 s3_sis18_lattice)
+copy_file(sis18.madx s3_sis18)
+copy_file(sis18.py s3_sis18)
 

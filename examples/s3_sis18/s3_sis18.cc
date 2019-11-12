@@ -99,7 +99,7 @@ int run()
 #endif
 
     // propagate options
-    sim.set_turns(0, 32); // (start, num_turns)
+    sim.set_turns(0, 1); // (start, num_turns)
 
     auto & bunch = sim.get_bunch();
 
