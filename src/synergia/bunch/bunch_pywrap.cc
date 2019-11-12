@@ -24,12 +24,13 @@ PYBIND11_MODULE(bunch, m)
     py::class_<HostParticles>(m, "Particles", py::buffer_protocol())
         .def_buffer([](HostParticles & p) -> py::buffer_info {
             return py::buffer_info(
-                p.data(),
-                sizeof(double),
+                p.data(),       // pointer to buffer
+                sizeof(double), // size of one scalar
                 py::format_descriptor<double>::format(),
-                2,
-                { p.extent(0), p.extent(1) },
-                { p.stride(0), p.stride(1) }
+                2,              // num of dimensions
+                { p.extent(0), p.extent(1) },    // dimensions
+                { p.stride(0) * sizeof(double), 
+                  p.stride(1) * sizeof(double) } // strides (in bytes)
             );
         })
         ;
