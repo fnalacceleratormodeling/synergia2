@@ -6,8 +6,6 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
 #include "synergia/utils/logger.h"
-#include "synergia/utils/simple_timer.h"
-#include "synergia/utils/synergia_omp.h"
 
 #include <functional>
 
@@ -190,13 +188,9 @@ Core_diagnostics::calculate_mean(Bunch const & bunch)
 
     particle_reducer<mean_tag> pr(particles, masks);
     Kokkos::parallel_reduce("cal_mean", npart, pr, mean.data());
-
     Kokkos::fence();
 
-    double t = simple_timer_current();
     MPI_Allreduce(MPI_IN_PLACE, mean.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
-    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
-
     for (int i=0; i<6; ++i) mean(i) /= bunch.get_total_num();
 
     return mean;
@@ -216,13 +210,9 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
 
     particle_reducer<z_mean_tag> pr(particles, masks);
     Kokkos::parallel_reduce(npart, pr, &mean);
-
     Kokkos::fence();
 
-    double t = simple_timer_current();
     MPI_Allreduce(MPI_IN_PLACE, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
-    t = simple_timer_show(t, "allmpireduce_in_diagnostic z mean");
-
     mean = mean / bunch.get_total_num();
 
     return mean;
@@ -280,11 +270,8 @@ Core_diagnostics::calculate_spatial_mean(Bunch const& bunch)
         }
     }
 
-    double t;
-    t = simple_timer_current();
     MPI_Allreduce(sum, mean.origin(), 3, MPI_DOUBLE, MPI_SUM,
             bunch.get_comm().get());
-    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
 
     for (int i = 0; i < 3; ++i) {
         mean[i] /= bunch.get_total_num();
@@ -307,11 +294,9 @@ Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
 
     particle_reducer<std_tag> pr(particles, masks, mean);
     Kokkos::parallel_reduce(npart, pr, std.data());
+    Kokkos::fence();
 
-    double t = simple_timer_current();
     MPI_Allreduce(MPI_IN_PLACE, std.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
-    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
-
     for (int i=0; i<6; ++i) std(i) = std::sqrt(std(i) / bunch.get_total_num());
 
     return std;
