@@ -44,8 +44,9 @@ def run():
 
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO)
-    #propagator.propagate(sim, simlog)
+    propagator.propagate(sim, simlog)
 
+    print_statistics(bunch)
 
 def main():
 
