@@ -3,6 +3,7 @@
 #include <pybind11/stl.h>
 
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/core_diagnostics.h"
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -22,7 +23,7 @@ PYBIND11_MODULE(bunch, m)
         ;
 
     py::class_<HostParticles>(m, "Particles", py::buffer_protocol())
-        .def_buffer([](HostParticles & p) -> py::buffer_info {
+        .def_buffer([](HostParticles const& p) -> py::buffer_info {
             return py::buffer_info(
                 p.data(),       // pointer to buffer
                 sizeof(double), // size of one scalar
@@ -31,6 +32,32 @@ PYBIND11_MODULE(bunch, m)
                 { p.extent(0), p.extent(1) },    // dimensions
                 { p.stride(0) * sizeof(double), 
                   p.stride(1) * sizeof(double) } // strides (in bytes)
+            );
+        })
+        ;
+
+    py::class_<karray1d>(m, "karray1d", py::buffer_protocol())
+        .def_buffer([](karray1d const& p) -> py::buffer_info {
+            return py::buffer_info(
+                p.data(),
+                sizeof(double),
+                py::format_descriptor<double>::format(),
+                1,
+                { p.extent(0) },
+                { p.stride(0) * sizeof(double) }
+            );
+        })
+        ;
+
+    py::class_<karray2d_row>(m, "karray2d_row", py::buffer_protocol())
+        .def_buffer([](karray2d_row const& p) -> py::buffer_info {
+            return py::buffer_info(
+                p.data(),
+                sizeof(double),
+                py::format_descriptor<double>::format(),
+                2,
+                { p.extent(0), p.extent(1) },
+                { p.stride(0)*sizeof(double), p.stride(1)*sizeof(double) }
             );
         })
         ;
@@ -74,6 +101,23 @@ PYBIND11_MODULE(bunch, m)
 
         ;
 
+    // Core_diagnostics
+    py::class_<Core_diagnostics>(m, "Core_diagnostics")
+        .def_static( "calculate_mean_ka",
+                &Core_diagnostics::calculate_mean,
+                "Calculate the mean for the bunch.",
+                "bunch"_a )
+
+        .def_static( "calculate_std_ka",
+                [](Bunch const& bunch, py::buffer b) {
+                    py::buffer_info info = b.request();
+                    Kokkos::View<double*, Kokkos::HostSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>>
+                      array((double*)info.ptr, info.shape[0]);
+                    return Core_diagnostics::calculate_std(bunch, array);
+                },
+                "Calculate the standard deviation for the bunch.",
+                "bunch"_a, "mean"_a )
+        ;
 
 }
 

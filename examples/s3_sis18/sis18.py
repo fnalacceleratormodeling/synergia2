@@ -2,6 +2,12 @@ from mpi4py import MPI
 import numpy as np
 import synergia
 
+def print_statistics(bunch):
+    mean = synergia.bunch.Core_diagnostics.calculate_mean(bunch)
+    std = synergia.bunch.Core_diagnostics.calculate_std(bunch, mean)
+    print("mean = {}".format(mean))
+    print("std = {}".format(std))
+
 def run():
     lsexpr = synergia.utils.pylsexpr.read_lsexpr_file("sis18-6.lsx")
     lattice = synergia.lattice.Lattice(lsexpr)
@@ -28,14 +34,17 @@ def run():
 
     parts = bunch.get_host_particles()
     p = np.array(parts, copy=False)
-    print p.shape
+    print(p.shape,  ", ", p.size )
+    print("shape: {0}, {1}".format(p.shape[0], p.shape[1]))
+
+    print_statistics(bunch)
 
     #diag_full2 = synergia.bunch.Diagnostics_full2("diag_full.h5")
     #sim.reg_diag_per_turn("full2", diag_full2)
 
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO)
-    propagator.propagate(sim, simlog)
+    #propagator.propagate(sim, simlog)
 
 
 def main():
