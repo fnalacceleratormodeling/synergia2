@@ -53,17 +53,12 @@ private:
     };
 
     // void action(Bunch_simulator&, Lattice&, int turn, int step, void* data)
-    using action_step_t = std::function<void(Bunch_simulator&, Lattice&, int, int, void*)>;
+    using action_step_t = std::function<void(Bunch_simulator&, Lattice&, int, int)>;
+    using action_data_step_t = std::function<void(Bunch_simulator&, Lattice&, int, int, void*)>;
 
     // void action(Bunch_simulator&, Lattice&, int turn, void* data)
-    using action_turn_t = std::function<void(Bunch_simulator&, Lattice&, int, void*)>;
-
-    template<typename ActionT>
-    struct prop_action_tuple_t
-    {
-        ActionT fun;
-        void* data;
-    };
+    using action_turn_t = std::function<void(Bunch_simulator&, Lattice&, int)>;
+    using action_data_turn_t = std::function<void(Bunch_simulator&, Lattice&, int, void*)>;
 
 private:
 
@@ -195,8 +190,11 @@ public:
 
 
     // propagate actions
-    void reg_prop_action_step_end(action_step_t fun, void* data = nullptr);
-    void reg_prop_action_turn_end(action_turn_t fun, void* data = nullptr);
+    void reg_prop_action_step_end(action_step_t fun);
+    void reg_prop_action_turn_end(action_turn_t fun);
+
+    void reg_prop_action_step_end(action_data_step_t fun, void* data = nullptr);
+    void reg_prop_action_turn_end(action_data_turn_t fun, void* data = nullptr);
 
     void prop_action_first(Lattice & lattice);
     void prop_action_step_end(Lattice & lattice, int turn, int step);
@@ -249,8 +247,8 @@ private:
     std::vector<diag_tuple_t<trigger_opr_t>>  diags_opr;
     std::vector<diag_tuple_t<trigger_opn_t>>  diags_opn;
 
-    std::vector<prop_action_tuple_t<action_step_t>> prop_actions_step_end;
-    std::vector<prop_action_tuple_t<action_turn_t>> prop_actions_turn_end;
+    std::vector<action_step_t> prop_actions_step_end;
+    std::vector<action_turn_t> prop_actions_turn_end;
 };
 
 #endif

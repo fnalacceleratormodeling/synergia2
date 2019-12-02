@@ -212,15 +212,31 @@ Bunch_simulator::diag_action_operation(Independent_operation const & opn)
 }
 
 void
-Bunch_simulator::reg_prop_action_step_end(action_step_t fun, void * data)
+Bunch_simulator::reg_prop_action_step_end(action_step_t fun)
 {
-    prop_actions_step_end.push_back({fun, data});
+    prop_actions_step_end.push_back(fun);
 }
 
 void
-Bunch_simulator::reg_prop_action_turn_end(action_turn_t fun, void * data)
+Bunch_simulator::reg_prop_action_turn_end(action_turn_t fun)
 {
-    prop_actions_turn_end.push_back({fun, data});
+    prop_actions_turn_end.push_back(fun);
+}
+
+void
+Bunch_simulator::reg_prop_action_step_end(action_data_step_t fun, void* data)
+{
+    using namespace std::placeholders;
+    auto fun2 = std::bind(fun, _1, _2, _3, _4, data);
+    prop_actions_step_end.push_back(fun2);
+}
+
+void
+Bunch_simulator::reg_prop_action_turn_end(action_data_turn_t fun, void* data)
+{
+    using namespace std::placeholders;
+    auto fun2 = std::bind(fun, _1, _2, _3, data);
+    prop_actions_turn_end.push_back(fun2);
 }
 
 void
@@ -232,14 +248,14 @@ void
 Bunch_simulator::prop_action_step_end(Lattice & lattice, int turn, int step)
 {
     for (auto const& action : prop_actions_step_end)
-        action.fun(*this, lattice, turn, step, action.data);
+        action(*this, lattice, turn, step);
 }
 
 void
 Bunch_simulator::prop_action_turn_end(Lattice & lattice, int turn)
 {
     for (auto const& action : prop_actions_turn_end)
-        action.fun(*this, lattice, turn, action.data);
+        action(*this, lattice, turn);
 }
 
 void 
