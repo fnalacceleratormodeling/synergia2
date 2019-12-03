@@ -1,6 +1,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/functional.h>
 
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/lattice_simulator.h"
@@ -32,6 +33,7 @@ PYBIND11_MODULE(simulation, m)
         .def("print_steps", &Propagator::print_steps)
         ;
 
+    // Lattice simulator -- only a namespace
     m.def_submodule("Lattice_simulator")
         .def( "tune_linear_lattice", 
                 &Lattice_simulator::tune_linear_lattice,
@@ -44,7 +46,7 @@ PYBIND11_MODULE(simulation, m)
                 "lattice"_a, "tolerance"_a = 1.0e-13 )
         ;
 
-    // Steppers
+    // Stepper base class
     py::class_<Stepper>(m, "Stepper")
         .def_readonly_static( "fixed_step_tolerance", 
                 &Stepper::fixed_step_tolerance)
@@ -57,6 +59,9 @@ PYBIND11_MODULE(simulation, m)
         ;
 
     // Bunch_simulator
+    using action_step_t = std::function<void(Bunch_simulator&, Lattice&, int, int)>;
+    using action_turn_t = std::function<void(Bunch_simulator&, Lattice&, int)>;
+
     py::class_<Bunch_simulator>(m, "Bunch_simulator")
         .def_static( "create_single_bunch_simulator",
                 &Bunch_simulator::create_single_bunch_simulator,
@@ -75,6 +80,17 @@ PYBIND11_MODULE(simulation, m)
                 "Get the bunch reference from the bunch_simulator.",
                 "train"_a = 0, "bunch"_a = 0 )
 
+        .def( "reg_prop_action_step_end",
+                py::overload_cast<action_step_t>(&Bunch_simulator::reg_prop_action_step_end),
+                "Register the step end propagate action (callback)."
+                "\nthe callback should have a signature of (Bunch_simulator, Lattice, turn_num, step_num)",
+                "action"_a )
+
+        .def( "reg_prop_action_turn_end",
+                py::overload_cast<action_turn_t>(&Bunch_simulator::reg_prop_action_turn_end),
+                "Register the turn end propagate action (callback)."
+                "\nthe callback should have a signature of (Bunch_simulator, Lattice, turn_num)",
+                "action"_a )
         ;
 
 
