@@ -1,4 +1,4 @@
-from bunch import *
+from .bunch import *
 import numpy as np
 
 def get_particles_numpy(self):

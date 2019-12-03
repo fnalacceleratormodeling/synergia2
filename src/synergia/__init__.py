@@ -5,13 +5,13 @@ from mpi4py import MPI
 
 #from version import __version__, version_major, version_minor, version_patch, version_tweak
 #import convertors
-import foundation
-import utils
-import bunch
-import lattice
-#import optics
-import simulation
-import collective
+from . import foundation
+from . import utils
+from . import bunch
+from . import lattice
+#from . import optics
+from . import simulation
+from . import collective
 
 # Kokkos init
 simulation.init()
