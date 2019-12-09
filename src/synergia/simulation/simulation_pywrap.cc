@@ -9,8 +9,6 @@
 #include "synergia/simulation/stepper.h"
 #include "synergia/simulation/split_operator_stepper.h"
 
-#include "synergia/collective/space_charge_2d_open_hockney.h"
-
 namespace py = pybind11;
 using namespace py::literals;
 
@@ -46,6 +44,9 @@ PYBIND11_MODULE(simulation, m)
                 "lattice"_a, "tolerance"_a = 1.0e-13 )
         ;
 
+    // Collective operator options (base class)
+    py::class_<CO_options>(m, "CO_options");
+
     // Stepper base class
     py::class_<Stepper>(m, "Stepper")
         .def_readonly_static( "fixed_step_tolerance", 
@@ -54,7 +55,7 @@ PYBIND11_MODULE(simulation, m)
 
     // Split_operator_stepper
     py::class_<Split_operator_stepper, Stepper>(m, "Split_operator_stepper")
-        .def( py::init<Space_charge_2d_open_hockney_options const&, int>(),
+        .def( py::init<CO_options const&, int>(),
                 "collective_options"_a, "num_steps"_a )
         ;
 

@@ -19,9 +19,8 @@ private:
 
 public:
 
-    template<class COO>
-    Split_operator_stepper(COO const & coo, int num_steps)
-    : num_steps(num_steps), co_ops(std::make_unique<COO>(coo))
+    Split_operator_stepper(CO_options const & coo, int num_steps)
+    : num_steps(num_steps), co_ops(coo.clone())
     { }
 };
 

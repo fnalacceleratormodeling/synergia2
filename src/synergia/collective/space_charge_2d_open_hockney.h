@@ -29,6 +29,9 @@ struct Space_charge_2d_open_hockney_options : public CO_options
         , comm_group_size(4)
     { }
 
+    CO_options * clone() const override
+    { return new Space_charge_2d_open_hockney_options(*this); }
+
     Collective_operator * create_operator() const override;
 };
 

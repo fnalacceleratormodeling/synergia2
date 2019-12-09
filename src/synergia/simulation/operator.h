@@ -78,6 +78,7 @@ public:
 
 struct CO_options
 {
+    virtual CO_options * clone() const = 0;
     virtual Collective_operator * create_operator() const = 0;
 };
 
@@ -86,7 +87,9 @@ struct CO_options
 struct Dummy_CO_options : public CO_options
 {
     std::string name = "dummy collective";
+
     Collective_operator * create_operator() const override;
+    CO_options * clone() const override { return new Dummy_CO_options(*this); }
 };
 
 class Dummy_collective_operator : public Collective_operator
