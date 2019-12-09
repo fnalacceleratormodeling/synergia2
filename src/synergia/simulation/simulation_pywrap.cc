@@ -91,6 +91,14 @@ PYBIND11_MODULE(simulation, m)
                 "Register the turn end propagate action (callback)."
                 "\nthe callback should have a signature of (Bunch_simulator, Lattice, turn_num)",
                 "action"_a )
+
+        .def( "reg_diag_per_turn",
+                (void(Bunch_simulator::*)(std::string const&, Diagnostics&, int, int, int))
+                    &Bunch_simulator::reg_diag_per_turn,  // overload_cast<> wont resolve here
+                "Register a per turn diagnostics.",
+                "name"_a, "diag"_a, 
+                "train_idx"_a = 0, "bunch_idx"_a = 0, "period"_a = 1 )
+
         ;
 
 

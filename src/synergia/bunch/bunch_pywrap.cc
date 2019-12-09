@@ -5,8 +5,12 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/core_diagnostics.h"
 
+#include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/diagnostics_full2.h"
+
 namespace py = pybind11;
 using namespace py::literals;
+
 
 PYBIND11_MODULE(bunch, m)
 {
@@ -117,6 +121,37 @@ PYBIND11_MODULE(bunch, m)
                 },
                 "Calculate the standard deviation for the bunch.",
                 "bunch"_a, "mean"_a )
+        ;
+
+    // Diagnostics base class
+    py::class_<Diagnostics>(m, "Diagnostics")
+        .def( "get_filename",
+                &Diagnostics::get_filename,
+                "Get the diagnostics filename." )
+
+        .def( "get_local_dir",
+                &Diagnostics::get_local_dir,
+                "Get the dianostics local directory." )
+
+        .def( "update",
+                &Diagnostics::update,
+                "Update the diagnostics with given Bunch.",
+                "bunch"_a )
+
+        .def( "write",
+                &Diagnostics::write,
+                "Write the diagnostics with given Bunch.",
+                "bunch"_a )
+
+        .def( "update_and_write",
+                &Diagnostics::update_and_write,
+                "Update and write the diagnostics with given Bunch.",
+                "bunch"_a )
+        ;
+
+    // Diagnostics_full2
+    py::class_<Diagnostics_full2, Diagnostics>(m, "Diagnostics_full2")
+        .def( py::init<std::string>() )
         ;
 
 }

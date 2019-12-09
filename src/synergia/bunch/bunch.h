@@ -296,19 +296,18 @@ public:
     Commxx const& get_comm() const { return comm; }
 
     // Diagnostics
-    template<typename Diag>
-    void add_diagnostics(std::string const& name, Diag&& diag)
-    { diags.emplace(name, std::make_unique<Diag>(std::move(diag))); }
+    void add_diagnostics(std::string const& name, Diagnostics & diag)
+    { diags.emplace(name, diag.pilfer()); }
 
     Diagnostics & get_diag(std::string const & name);
 
     void diag_update_and_write(std::string const& name)
     { get_diag(name).update_and_write(*this); }
 
-    void set_diag_loss_aperture(Diagnostics_loss && diag)
+    void set_diag_loss_aperture(Diagnostics_loss & diag)
     { diag_aperture = std::make_unique<Diagnostics_loss>(std::move(diag)); }
 
-    void set_diag_loss_zcut(Diagnostics_loss && diag)
+    void set_diag_loss_zcut(Diagnostics_loss & diag)
     { diag_zcut = std::make_unique<Diagnostics_loss>(std::move(diag)); }
 
     /// Add a copy of the particles in bunch to the current bunch. The

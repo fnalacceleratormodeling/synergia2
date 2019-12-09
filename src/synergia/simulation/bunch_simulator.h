@@ -117,26 +117,16 @@ public:
             );
 
 
-    // diagnostics registration
-    template<typename DiagT>
+    // general diagnostics registration
     void reg_diag(
-            std::string const& name,
-            DiagT&& diag, 
-            trigger_step_t trig, 
-            int train, 
-            int bunch )
+            std::string const& name, Diagnostics & diag, 
+            trigger_step_t trig, int train, int bunch )
     { 
-        get_bunch(train, bunch).add_diagnostics(name, std::move(diag));
+        get_bunch(train, bunch).add_diagnostics(name, diag);
         diags_step.emplace_back(diag_tuple_t<trigger_step_t>{train, bunch, name, trig});
     }
 
 #if 0
-    template<typename DiagT>
-    void reg_diag_particle_loss(
-            DiagT & diag, 
-            trigger_loss_t,
-            int train = 0, int bunch = 0 );
-
     template<typename DiagT>
     void reg_diag_element(
             DiagT & diag, 
@@ -156,28 +146,29 @@ public:
             int train = 0, int bunch = 0 );
 #endif
 
-    template<typename DiagT>
     void reg_diag_per_turn(
-            std::string const& name,
-            DiagT&& diag, 
-            int train = 0, 
-            int bunch = 0, 
-            int period = 1 )
+            std::string const& name, Diagnostics & diag, 
+            int train = 0, int bunch = 0, int period = 1 )
     { 
         auto trig = [period](int turn, int step) { 
             return step==Bunch_simulator::FINAL_STEP && turn%period==0; 
         };
 
-        reg_diag( name, std::move(diag), trig, train, bunch );
+        reg_diag( name, diag, trig, train, bunch );
     }
 
+    void reg_diag_per_turn(
+            std::string const& name, Diagnostics && diag, 
+            int train = 0, int bunch = 0, int period = 1 )
+    { reg_diag_per_turn(name, diag, train, bunch, period); }
+
     void reg_diag_loss_aperture(
-            Diagnostics_loss && diag, int train = 0, int bunch = 0 )
-    { get_bunch(train, bunch).set_diag_loss_aperture(std::move(diag)); }
+            Diagnostics_loss & diag, int train = 0, int bunch = 0 )
+    { get_bunch(train, bunch).set_diag_loss_aperture(diag); }
 
     void reg_diag_loss_zcut(
-            Diagnostics_loss && diag, int train = 0, int bunch = 0 )
-    { get_bunch(train, bunch).set_diag_loss_zcut(std::move(diag)); }
+            Diagnostics_loss & diag, int train = 0, int bunch = 0 )
+    { get_bunch(train, bunch).set_diag_loss_zcut(diag); }
 
 
     void diag_action_step_and_turn(int turn_num, int step_num);

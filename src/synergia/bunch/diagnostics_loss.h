@@ -25,6 +25,9 @@ private:
      void do_update(Bunch const& bunch) override {};
      void do_write (Bunch const& bunch) override;
     
+    std::unique_ptr<Diagnostics> do_pilfer() override
+    { return std::make_unique<Diagnostics_loss>(std::move(*this)); }
+
 public: 
 
     Diagnostics_loss( 

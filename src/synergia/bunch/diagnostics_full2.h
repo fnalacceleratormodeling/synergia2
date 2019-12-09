@@ -12,7 +12,6 @@ public:
     constexpr static const char* diag_type = "diagnostics_full2";
     constexpr static const bool  diag_write_serial = true;
 
-
 private:
 
     bool first_write = true;
@@ -39,6 +38,9 @@ private:
 
     void do_update(Bunch const& bunch) override;
     void do_write (Bunch const& bunch) override;
+
+    std::unique_ptr<Diagnostics> do_pilfer() override
+    { return std::make_unique<Diagnostics_full2>(std::move(*this)); }
 
 public:
 

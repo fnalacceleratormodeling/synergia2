@@ -104,7 +104,6 @@ void Diagnostics_full2::do_write(Bunch const& bunch)
     } 
 }
 
-
 #if 0
 void
 Diagnostics_full2::update_full2()

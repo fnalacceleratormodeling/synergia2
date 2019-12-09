@@ -37,6 +37,9 @@ private:
     void do_update(Bunch const& bunch) override;
     void do_write (Bunch const& bunch) override;
 
+    std::unique_ptr<Diagnostics> do_pilfer() override
+    { return std::make_unique<Diagnostics_track>(std::move(*this)); }
+
 public:
 
     /// Create an empty Diagnostics_track object

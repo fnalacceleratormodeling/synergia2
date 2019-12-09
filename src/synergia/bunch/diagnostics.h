@@ -28,12 +28,16 @@ private:
 
     virtual void do_update(Bunch const&) = 0;
     virtual void do_write (Bunch const&) = 0;
+    virtual std::unique_ptr<Diagnostics> do_pilfer() = 0;
 
 public:
 
     Diagnostics( std::string const& name, bool serial,
                  std::string const& filename, 
                  std::string const& local_dir="" );
+
+    virtual ~Diagnostics() = default;
+    Diagnostics(Diagnostics &&) noexcept = default;
 
     std::string const& get_filename()  const { return filename; }
     std::string const& get_local_dir() const { return local_dir; }
@@ -58,8 +62,13 @@ public:
     { do_write(bunch); }
 
     /// Update the diagnostics and write them to the file
-    void update_and_write(Bunch const& bunch) 
+    void update_and_write(Bunch const& bunch)
     { do_update(bunch); do_write(bunch); }
+
+    /// Create a unique_ptr by moving the current diagnostics.
+    /// the current diagnostics after pilfer() will be invalid
+    std::unique_ptr<Diagnostics> pilfer()
+    { return do_pilfer(); }
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);

@@ -58,6 +58,10 @@ def run2():
     sim.reg_prop_action_step_end(action)
     sim.set_turns(0, 1)
 
+    diag_full2 = synergia.bunch.Diagnostics_full2("diag_full.h5")
+    sim.reg_diag_per_turn("full2", diag_full2)
+    #sim.reg_diag_per_turn("full3", synergia.bunch.Diagnostics_full2("diag_full3.h5"))
+
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO)
 
@@ -109,8 +113,8 @@ def run():
 
     sim.reg_prop_action_step_end(action)
 
-    #diag_full2 = synergia.bunch.Diagnostics_full2("diag_full.h5")
-    #sim.reg_diag_per_turn("full2", diag_full2)
+    diag_full2 = synergia.bunch.Diagnostics_full2("diag_full.h5")
+    sim.reg_diag_per_turn_full2("full2", diag_full2)
 
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO)
