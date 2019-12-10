@@ -81,6 +81,7 @@ private:
                    Commxx const & comm);
 
 
+
 public:
 
     Bunch_simulator(Bunch_simulator const&) = delete;
@@ -117,7 +118,7 @@ public:
             );
 
 
-    // general diagnostics registration
+    // general per step diagnostics registration
     void reg_diag(
             std::string const& name, Diagnostics & diag, 
             trigger_step_t trig, int train, int bunch )
@@ -126,35 +127,15 @@ public:
         diags_step.emplace_back(diag_tuple_t<trigger_step_t>{train, bunch, name, trig});
     }
 
-#if 0
-    template<typename DiagT>
-    void reg_diag_element(
-            DiagT & diag, 
-            trigger_ele_t,
-            int train = 0, int bunch = 0 );
-
-    template<typename DiagT>
-    void reg_diag_operator(
-            DiagT & diag, 
-            trigger_opr_t,
-            int train = 0, int bunch = 0 );
-
-    template<typename DiagT>
-    void reg_diag_operation(
-            DiagT & diag, 
-            trigger_opn_t,
-            int train = 0, int bunch = 0 );
-#endif
-
+    // diag per turn
     void reg_diag_per_turn(
             std::string const& name, Diagnostics & diag, 
             int train = 0, int bunch = 0, int period = 1 )
     { 
-        auto trig = [period](int turn, int step) { 
-            return step==Bunch_simulator::FINAL_STEP && turn%period==0; 
-        };
-
-        reg_diag( name, diag, trig, train, bunch );
+        reg_diag( name, diag, 
+            [period](int turn, int step) { 
+                return step==Bunch_simulator::FINAL_STEP && turn%period==0; 
+            }, train, bunch );
     }
 
     void reg_diag_per_turn(
@@ -162,6 +143,7 @@ public:
             int train = 0, int bunch = 0, int period = 1 )
     { reg_diag_per_turn(name, diag, train, bunch, period); }
 
+    // diag loss
     void reg_diag_loss_aperture(
             Diagnostics_loss & diag, int train = 0, int bunch = 0 )
     { get_bunch(train, bunch).set_diag_loss_aperture(diag); }
@@ -170,7 +152,32 @@ public:
             Diagnostics_loss & diag, int train = 0, int bunch = 0 )
     { get_bunch(train, bunch).set_diag_loss_zcut(diag); }
 
+    // diag per element
+    void reg_diag_element(
+            std::string const& name, Diagnostics & diag, 
+            trigger_ele_t, int train = 0, int bunch = 0 )
+    { }
 
+    // diag per operator
+    void reg_diag_operator(
+            std::string const& name, Diagnostics & diag, 
+            trigger_opr_t, int train = 0, int bunch = 0 )
+    { }
+
+    // diag per operation
+    void reg_diag_operation(
+            std::string const& name, Diagnostics & diag, 
+            trigger_opn_t, int train = 0, int bunch = 0 )
+    { }
+
+    // register propagation actions
+    void reg_prop_action_step_end(action_step_t fun);
+    void reg_prop_action_turn_end(action_turn_t fun);
+
+    void reg_prop_action_step_end(action_data_step_t fun, void* data = nullptr);
+    void reg_prop_action_turn_end(action_data_turn_t fun, void* data = nullptr);
+
+    // diag actions
     void diag_action_step_and_turn(int turn_num, int step_num);
     void diag_action_particle_loss_update( );
     void diag_action_particle_loss_write( );
@@ -178,20 +185,10 @@ public:
     void diag_action_operator(Operator const & opr);
     void diag_action_operation(Independent_operation const & opn);
 
-
-
     // propagate actions
-    void reg_prop_action_step_end(action_step_t fun);
-    void reg_prop_action_turn_end(action_turn_t fun);
-
-    void reg_prop_action_step_end(action_data_step_t fun, void* data = nullptr);
-    void reg_prop_action_turn_end(action_data_turn_t fun, void* data = nullptr);
-
     void prop_action_first(Lattice & lattice);
     void prop_action_step_end(Lattice & lattice, int turn, int step);
     void prop_action_turn_end(Lattice & lattice, int turn);
-
-    void set_lattice_reference_particle(Reference_particle const & ref);
 
     // accessors
     std::array<Bunch_train, 2> & get_trains()
@@ -217,6 +214,8 @@ public:
 
     void set_turns(int first, int turns)
     { first_turn = first; num_turns = turns; }
+
+    void set_lattice_reference_particle(Reference_particle const & ref);
 
 public:
 
