@@ -301,7 +301,7 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
     , particle_bin()
     , fft()
-    , comm(MPI_COMM_NULL, comm_create_kind::attach)
+    , comm(Commxx::Null)
 {
     //fft.construct(options.doubled_shape, comm);
 }

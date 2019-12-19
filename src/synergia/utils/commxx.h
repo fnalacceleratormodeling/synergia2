@@ -1,14 +1,12 @@
 #ifndef COMMXX_H_
 #define COMMXX_H_
 
-#include <vector>
-#include <stdexcept>
-#include <memory>
 #include "mpi.h"
 
-//#include "synergia/utils/cereal.h"
+#include <vector>
+#include <memory>
 
-enum class comm_create_kind { duplicate, take_ownership, attach };
+#include <cereal/types/memory.hpp>
 
 /// Commxx is a wrapper around MPI communicator (MPI_Comm) objects.
 ///
@@ -16,26 +14,34 @@ enum class comm_create_kind { duplicate, take_ownership, attach };
 /// mpi4py Comm objects may be passed from python anywhere a Commxx object is
 /// expected.
 
+enum class comm_type
+{ null, world, regular };
+
 class Commxx
 {
+
 public:
 
-    static const Commxx world;
+    static const Commxx World;
+    static const Commxx Null;
 
 private:
 
     std::shared_ptr<MPI_Comm> comm;
-    std::weak_ptr<MPI_Comm> parent_comm;
+    std::shared_ptr<Commxx> parent_comm;
+
+    comm_type type;
+    int color, key;
 
 private:
 
-    Commxx(std::shared_ptr<MPI_Comm> c);
+    Commxx(Commxx const& parent, int color, int key);
+    void construct();
 
 public:
 
-    /// Construct a Commxx object using MPI_COMM_WORLD
-    Commxx();
-    Commxx(MPI_Comm const & comm, comm_create_kind kind);
+    /// Construct a Commxx object of MPI_COMM_WORLD or MPI_COMM_NULL
+    Commxx(comm_type type = comm_type::world);
 
     operator MPI_Comm() const
     { if (comm) return *comm; else return MPI_COMM_NULL; }
@@ -52,6 +58,9 @@ public:
     bool has_this_rank() const { return (bool)comm; }
     bool is_null() const { return !(bool)comm; }
 
+    /// is this the root Commxx object
+    bool is_root() const { return type != comm_type::regular; }
+
     // get the parent communicator if available
     Commxx parent() const;
 
@@ -67,6 +76,31 @@ public:
     Commxx split(int color, int key) const;
     Commxx divide(int subgroup_size) const;
     Commxx group(std::vector<int> const & ranks) const;
+
+    template<class AR>
+    void save(AR & ar) const
+    {
+        ar(CEREAL_NVP(parent_comm));
+        ar(CEREAL_NVP(type));
+        ar(CEREAL_NVP(color));
+        ar(CEREAL_NVP(key));
+    }
+
+    template<class AR>
+    void load(AR & ar)
+    { 
+        ar(CEREAL_NVP(parent_comm));
+        ar(CEREAL_NVP(type));
+        ar(CEREAL_NVP(color));
+        ar(CEREAL_NVP(key));
+
+        switch(type)
+        { 
+        case comm_type::null: comm.reset(); break;
+        case comm_type::world: comm.reset(new MPI_Comm(MPI_COMM_WORLD)); break;
+        case comm_type::regular: construct(); break;
+        }
+    }
 };
 
 bool operator== (Commxx const & comm1, Commxx const & comm2);

@@ -17,6 +17,7 @@ add_library(synergia_collective
 target_link_libraries(synergia_collective 
     synergia_bunch
     synergia_distributed_fft
+    synergia_parallel_utils
     #synergia_simulation 
     )
 

@@ -6,7 +6,7 @@ add_library(synergia_parallel_utils
     simple_timer.cc
     )
 target_link_libraries(synergia_parallel_utils 
-    ${Boost_SERIALIZATION_LIBRARIES}
+    #${Boost_SERIALIZATION_LIBRARIES}
     )
 
 add_library(synergia_serialization 

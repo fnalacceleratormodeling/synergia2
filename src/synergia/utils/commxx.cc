@@ -2,9 +2,7 @@
 #include "parallel_utils.h"
 #include <stdexcept>
 #include <climits>
-
-
-const Commxx Commxx::world;
+#include <algorithm>
 
 
 namespace
@@ -27,7 +25,6 @@ namespace
         while (*s) h = h * 101 + (unsigned char) *s++;
         return h;
     }
-
 }
 
 
@@ -110,37 +107,42 @@ Commxx::construct(MPI_Comm const& parent_mpi_comm)
 }
 #endif
 
+const Commxx Commxx::World(comm_type::world);
+const Commxx Commxx::Null(comm_type::null);
 
-Commxx::Commxx(std::shared_ptr<MPI_Comm> c)
-    : comm(c)
+Commxx::Commxx(comm_type type) 
+    : comm(type==comm_type::null ? nullptr : new MPI_Comm(MPI_COMM_WORLD))
+    , parent_comm()
+    , type(type)
+    , color(0)
+    , key(0)
 {
+    if (type == comm_type::regular)
+        throw std::runtime_error("only null or mpi_comm_world can be created");
 }
 
-Commxx::Commxx() 
-    : comm(new MPI_Comm(MPI_COMM_WORLD))
+void Commxx::construct()
 {
+    if (!parent_comm || parent_comm->is_null())
+        throw std::runtime_error("invalid parent communicator while in construct");
+
+    MPI_Comm newcomm;
+    MPI_Comm_split(*(parent_comm->comm), color, key, &newcomm);
+
+    // do not construct the null communicator 
+    // always take the ownership
+    if (newcomm != MPI_COMM_NULL) 
+        comm.reset(new MPI_Comm(newcomm), comm_free());
 }
 
-Commxx::Commxx(MPI_Comm const & mpi_comm, comm_create_kind kind)
+Commxx::Commxx(Commxx const & parent, int color, int key)
+    : comm()
+    , parent_comm(std::make_shared<Commxx>(parent))
+    , type(comm_type::regular)
+    , color(color)
+    , key(key)
 {
-    if (mpi_comm == MPI_COMM_NULL) return;
-
-    switch(kind)
-    {
-        case comm_create_kind::attach:
-            comm.reset(new MPI_Comm(mpi_comm));
-            break;
-
-        case comm_create_kind::duplicate:
-            MPI_Comm newcomm;
-            MPI_Comm_dup(mpi_comm, &newcomm);
-            comm.reset(new MPI_Comm(newcomm), comm_free());
-            break;
-
-        case comm_create_kind::take_ownership:
-            comm.reset(new MPI_Comm(mpi_comm), comm_free());
-            break;
-    }
+    construct();
 }
 
 int
@@ -167,31 +169,35 @@ Commxx::get_size() const
 
 Commxx Commxx::parent() const
 {
-    auto pc = parent_comm.lock();
-    return Commxx(pc);
+    if (!parent_comm)
+        throw std::runtime_error("Invalid parent communicator");
+
+    return *parent_comm;
 }
 
 Commxx Commxx::dup() const
 {
-    return Commxx(MPI_Comm(*this), comm_create_kind::duplicate);
+    if (is_null()) throw std::runtime_error("dup from a null comm");
+    return Commxx(*this, 0, rank());
 }
 
 Commxx Commxx::split(int color) const
 {
-    return split(color, rank());
+    if (is_null()) throw std::runtime_error("split from a null comm");
+    return Commxx(*this, color, rank());
 }
 
 Commxx Commxx::split(int color, int key) const
 {
-    MPI_Comm newcomm;
-    MPI_Comm_split(MPI_Comm(*this), color, key, &newcomm);
-    return Commxx(newcomm, comm_create_kind::take_ownership);
+    if (is_null()) throw std::runtime_error("split from a null comm");
+    return Commxx(*this, color, key);
 }
 
 Commxx Commxx::divide(int subgroup_size) const
 {
-    if (size() < subgroup_size) return dup();
+    if (is_null()) throw std::runtime_error("divide from a null comm");
 
+    if (size() < subgroup_size) return dup();
     if (size() % subgroup_size != 0)
     {
         throw std::runtime_error(
@@ -204,6 +210,15 @@ Commxx Commxx::divide(int subgroup_size) const
 
 Commxx Commxx::group(std::vector<int> const & ranks) const
 {
+    if (is_null()) throw std::runtime_error("group from a null comm");
+
+    int r = rank();
+    int color = (std::find(ranks.begin(), ranks.end(), r) != ranks.end())
+        ? 0 : MPI_UNDEFINED;
+
+    return Commxx(*this, color, r);
+
+#if 0
     MPI_Group grp;
     MPI_Comm_group(MPI_Comm(*this), &grp);
 
@@ -217,6 +232,7 @@ Commxx Commxx::group(std::vector<int> const & ranks) const
     MPI_Group_free(&subgrp);
 
     return Commxx(subcomm, comm_create_kind::take_ownership);
+#endif
 }
 
 bool operator== (Commxx const & comm1, Commxx const & comm2)
