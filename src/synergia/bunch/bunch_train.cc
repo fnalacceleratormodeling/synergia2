@@ -116,7 +116,7 @@ Bunch_train::Bunch_train(
         int index ) 
 : bunches()
 , spacings()
-, comm(bt_comm.dup())
+, comm(bt_comm)
 , index(index)
 , num_bunches(num_bunches)
 , num_buckets(num_bunches)
