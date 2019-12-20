@@ -123,7 +123,6 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
     , slots(0)
     , total(total_num)
     , last_discarded_(0)
-    , comm(comm)
     , parts()
     , masks()
     , hparts(Kokkos::create_mirror_view(parts))
@@ -148,7 +147,7 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
         hmasks = Kokkos::create_mirror_view(masks);
 
         // id
-        assign_ids(offsets[comm.rank()]);
+        assign_ids(offsets[comm.rank()], comm);
 
         // valid particles
         particle_masks_initializer pmi{masks, num};
@@ -157,7 +156,7 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
 }
 
 
-void BunchParticles::assign_ids(int local_offset)
+void BunchParticles::assign_ids(int local_offset, Commxx const& comm)
 {
     int request_num = (comm.rank() == 0) ? total : 0;
     int global_offset = Particle_id_offset::get(request_num, comm);
@@ -324,7 +323,7 @@ BunchParticles::expand_local_num(int num, int added_lost)
 }
 
 int
-BunchParticles::update_total_num()
+BunchParticles::update_total_num(Commxx const& comm)
 {
     int old_total_num = total;
     MPI_Allreduce(&num, &total, 1, MPI_INT, MPI_SUM, comm);
@@ -350,7 +349,7 @@ BunchParticles::set_total_num(int totalnum)
 }
 
 void
-BunchParticles::read_file(std::string const & filename)
+BunchParticles::read_file(std::string const & filename, Commxx const& comm)
 {
     Hdf5_file file(filename, Hdf5_file::read_only);
     auto read_particles = file.read<karray2d_row>("particles");

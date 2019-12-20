@@ -71,8 +71,6 @@ private:
     // number of particles discarded from the most recent aperture apply.
     int last_discarded_;
 
-    Commxx comm;
-
 public:
 
     Particles parts;
@@ -91,7 +89,7 @@ public:
     void checkin_particles()  { Kokkos::deep_copy(parts, hparts); }
     void checkout_particles() { Kokkos::deep_copy(hparts, parts); }
 
-    void assign_ids(int local_offset);
+    void assign_ids(int local_offset, Commxx const& comm);
 
     void set_local_num(int num);
     void set_total_num(int num);
@@ -99,10 +97,10 @@ public:
 
     // read from a hdf5 file. total_num of current bunch must be the same 
     // as the one stored in the particle file
-    void read_file(std::string const& filename);
+    void read_file(std::string const& filename, Commxx const& comm);
 
     // update total num across the ranks and returns the old total number
-    int update_total_num();
+    int update_total_num(Commxx const& comm);
 
     // apply aperture operation
     template<typename AP>
@@ -115,6 +113,30 @@ public:
 
     void check_pz2_positive();
     void print_particle(size_t idx, Logger & logger) const;
+
+private:
+
+    friend class cereal::access;
+
+    template<class AR>
+    void save(AR & ar) const
+    { 
+        ar(CEREAL_NVP(num));
+        ar(CEREAL_NVP(slots));
+        ar(CEREAL_NVP(total));
+
+        // TODO: save particle and mask array
+    }
+
+    template<class AR>
+    void load(AR & ar)
+    { 
+        ar(CEREAL_NVP(num));
+        ar(CEREAL_NVP(slots));
+        ar(CEREAL_NVP(total));
+
+        // TODO: construct
+    }
 };
 
 
