@@ -43,7 +43,7 @@ def plot_density(x, y, label, bins):
             # matplotlib chooses number of contours
             axScatter.contourf(X, Y, H.transpose())
 
-    axScatter.set_axis_bgcolor((0, 0, 0.5))
+    axScatter.set_facecolor((0, 0, 0.5)) if hasattr(axScatter, 'set_facecolor') else axScatter.set_axis_bgcolor((0, 0, 0.5))
     axHistx.hist(x, bins=bins)
     axHisty.hist(y, bins=bins, orientation='horizontal')
 #    axScatter.plot(x, y, '.', label=fancylabel)
