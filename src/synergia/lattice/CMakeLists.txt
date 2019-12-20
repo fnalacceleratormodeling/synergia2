@@ -18,11 +18,9 @@ add_library(synergia_lattice lattice_element.cc lattice_element_slice.cc
 target_link_libraries(synergia_lattice synergia_foundation synergia_bunch
     ${CHEF_LIBS} ${Boost_REGEX_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
 
-if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(lattice lattice_wrap.cc)
-    target_link_libraries(lattice synergia_lattice synergia_foundation synergia_bunch
+add_python_extension(lattice lattice_wrap.cc)
+target_link_libraries(lattice synergia_lattice synergia_foundation synergia_bunch
         ${CHEF_LIBS} ${Boost_LIBRARIES})
-endif ()
 
 install(TARGETS synergia_lattice DESTINATION lib)
 install(FILES
@@ -47,16 +45,16 @@ install(FILES
     mx_tree.h
     diagnostics_apertures_loss.h
     DESTINATION include/synergia/lattice)
-if (BUILD_PYTHON_BINDINGS)
-    install(FILES
+
+install(FILES
         __init__.py
         mad8_parser.py
         mad8_reader.py
         simplify.py
         DESTINATION lib/synergia/lattice)
-    install(TARGETS
+install(TARGETS
         lattice
         DESTINATION lib/synergia/lattice)
-endif ()
+
 
 add_subdirectory(tests)

@@ -4,13 +4,11 @@ add_library(synergia_collective rectangular_grid_domain.cc rectangular_grid.cc
     space_charge_2d_kv.cc
     space_charge_rectangular.cc impedance.cc wake_field.cc diagnostics_space_charge.cc)
 target_link_libraries(synergia_collective synergia_bunch
-    synergia_simulation synergia_distributed_fft)
+  synergia_simulation synergia_distributed_fft gsl gslcblas)
 
-if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(collective collective_wrap.cc)
-    target_link_libraries(collective synergia_collective synergia_bunch
+add_python_extension(collective collective_wrap.cc)
+target_link_libraries(collective synergia_collective synergia_bunch
         synergia_simulation synergia_distributed_fft ${Boost_LIBRARIES})
-endif ()
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -33,13 +31,12 @@ install(FILES
     wake_field.h
     diagnostics_space_charge.h
     DESTINATION include/synergia/collective)
-if (BUILD_PYTHON_BINDINGS)
-    install(FILES
+
+install(FILES
         __init__.py
         DESTINATION lib/synergia/collective)
-    install(TARGETS
+install(TARGETS
         collective
         DESTINATION lib/synergia/collective)
-endif ()
 
 add_subdirectory(tests)

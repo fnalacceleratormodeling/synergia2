@@ -42,7 +42,7 @@ add_custom_command(OUTPUT test_diagnostics_get_corr.icc
         test_diagnostics_get_mom2.icc
         test_diagnostics_get_random_particles.icc
         test_diagnostics_get_std.icc
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_crosscheck.py
+    COMMAND ${MY_PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_crosscheck.py
     DEPENDS test_diagnostics_crosscheck.py)
 add_test_executable(test_diagnostics test_diagnostics.cc test_diagnostics_get_corr.icc
     test_diagnostics_get_emitx.icc
