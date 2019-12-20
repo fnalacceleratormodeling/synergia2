@@ -126,6 +126,7 @@ Bunch_train::Bunch_train(
 
     // empty train
     if (comm.is_null()) return;
+    if (num_bunches == 0) return;
 
     // construct bunches
     int rank = comm.rank();
