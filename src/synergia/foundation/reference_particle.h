@@ -4,6 +4,7 @@
 //#include "synergia/utils/multi_array_typedefs.h"
 //#include "synergia/utils/multi_array_serialization.h"
 #include "synergia/foundation/four_momentum.h"
+#include <cereal/types/array.hpp>
 
 /// Reference_particle stores the four momentum of the reference frame
 /// with respect to  the lab frame (defined to be along the axis of the
@@ -168,9 +169,15 @@ public:
 
     /// Serialization support
     template<class Archive>
-    void
-    serialize(Archive & ar, const unsigned int version)
-    { }
+    void serialize(Archive & ar)
+    { 
+        ar(CEREAL_NVP(charge));
+        ar(CEREAL_NVP(four_momentum));
+        ar(CEREAL_NVP(state));
+        ar(CEREAL_NVP(repetition));
+        ar(CEREAL_NVP(s));
+        ar(CEREAL_NVP(s_n));
+    }
 };
 
 #endif /* REFERENCE_PARTICLE_H_ */

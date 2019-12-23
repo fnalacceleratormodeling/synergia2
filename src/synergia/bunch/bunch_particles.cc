@@ -118,8 +118,9 @@ namespace
 }
 
 
-BunchParticles::BunchParticles(int total_num, Commxx const& comm)
-    : num(0)
+BunchParticles::BunchParticles(std::string const& label, int total_num, Commxx const& comm)
+    : label(label)
+    , num(0)
     , slots(0)
     , total(total_num)
     , last_discarded_(0)
@@ -154,7 +155,6 @@ BunchParticles::BunchParticles(int total_num, Commxx const& comm)
         Kokkos::parallel_for(slots, pmi);
     } 
 }
-
 
 void BunchParticles::assign_ids(int local_offset, Commxx const& comm)
 {

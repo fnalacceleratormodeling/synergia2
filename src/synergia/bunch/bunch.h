@@ -16,6 +16,9 @@
 #include "synergia/utils/restrict_extension.h"
 #include "synergia/utils/logger.h"
 
+#include <cereal/types/array.hpp>
+#include <cereal/types/map.hpp>
+
 enum class ParticleGroup
 {
     regular = 0,
@@ -116,6 +119,9 @@ public:
             int bunch_index = 0,
             int bucket_index = 0,
             int array_index = 0 );
+
+    // default ctor for serialization only
+    Bunch();
     
     // non-copyable but moveable
     Bunch(Bunch const&) = delete;
@@ -218,10 +224,10 @@ public:
     /// number has been changed. Requires comm_sptrunication.
     void update_total_num()
     { 
-        get_bunch_particles(PG::spectator).update_total_num(); 
+        get_bunch_particles(PG::spectator).update_total_num(comm); 
 
         auto & bp = get_bunch_particles(PG::regular);
-        int old_total = bp.update_total_num();
+        int old_total = bp.update_total_num(comm);
         real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;
     }
 
@@ -317,20 +323,36 @@ public:
     void inject(Bunch const& bunch);
     
     void read_file(std::string const& filename, ParticleGroup pg = PG::regular)
-    { get_bunch_particles(pg).read_file(filename); }
+    { get_bunch_particles(pg).read_file(filename, comm); }
 
     void check_pz2_positive()
     {
         get_bunch_particles(ParticleGroup::regular).check_pz2_positive();
         get_bunch_particles(ParticleGroup::spectator).check_pz2_positive();
     }
-    
-    /// serialization
-    template<class Archive> 
-    void save(Archive & ar, const unsigned int version) const;
+
+private:
+
+    friend class cereal::access;
 
     template<class Archive>
-    void load(Archive & ar, const unsigned int version);
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(comm));
+        ar(CEREAL_NVP(boundary));
+        ar(CEREAL_NVP(boundary_param));
+        ar(CEREAL_NVP(ref_part));
+        ar(CEREAL_NVP(design_ref_part));
+        ar(CEREAL_NVP(particle_charge));
+        ar(CEREAL_NVP(real_num));
+        ar(CEREAL_NVP(parts));
+        //ar(CEREAL_NVP(diags));
+        //ar(CEREAL_NVP(diag_aperture));
+        //ar(CEREAL_NVP(diag_zcut));
+        ar(CEREAL_NVP(bunch_index));
+        ar(CEREAL_NVP(bucket_index));
+        ar(CEREAL_NVP(array_index));
+    }
 };
 
 template<typename AP>
@@ -342,7 +364,7 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
     if (ndiscarded)
     {
         auto & bp = get_bunch_particles(pg);
-        int old_total = bp.update_total_num();
+        int old_total = bp.update_total_num(comm);
 
         if (pg == PG::regular)
             real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;

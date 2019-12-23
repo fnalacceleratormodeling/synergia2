@@ -6,6 +6,17 @@
 
 
 Bunch_simulator
+Bunch_simulator::create_empty_bunch_simulator()
+{
+    return construct( Reference_particle(), 
+                      Reference_particle(),
+                      1.0, 1.0,  // num_real_particle
+                      0,   0,    // num bunches
+                      1.0, 1.0,  // spacing
+                      Commxx() );
+}
+
+Bunch_simulator
 Bunch_simulator::create_single_bunch_simulator(
         Reference_particle const & ref,
         size_t num_particles,
@@ -58,7 +69,12 @@ Bunch_simulator::construct(
 
     std::vector<std::vector<int>> bunch_ranks;
 
-    if ( size < num_bunches )
+    if (num_bunches == 0)
+    {
+        comm_pri = Commxx::Null;
+        comm_sec = Commxx::Null;
+    }
+    else if ( size < num_bunches )
     {
         if (num_bunches % size != 0)
         {

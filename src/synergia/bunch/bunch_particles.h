@@ -6,6 +6,10 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/logger.h"
 
+#include "synergia/utils/hdf5_file.h"
+
+#include <cereal/cereal.hpp>
+
 typedef Kokkos::View<double*[7], Kokkos::LayoutLeft> Particles;
 typedef Kokkos::View<const double*[7], Kokkos::LayoutLeft> ConstParticles;
 
@@ -17,6 +21,47 @@ typedef Kokkos::View<const uint8_t*> ConstParticleMasks;
 
 typedef ParticleMasks::HostMirror HostParticleMasks;
 typedef ConstParticleMasks::HostMirror ConstHostParticleMasks;
+
+// serialization
+namespace cereal
+{
+    // particles
+    template<class AR>
+    void save(AR & ar, Particles const& p)
+    {
+        ar(p.label(), p.stride(1));
+    }
+
+    template<class AR>
+    void load(AR & ar, Particles & p)
+    {
+        std::string label;
+        int slots;
+
+        ar(label, slots);
+        p = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding), slots, 7);
+
+        if (p.stride(1) != slots)
+            throw std::runtime_error("inconsistent padding while loading particles");
+    }
+
+    // masks
+    template<class AR>
+    void save(AR & ar, ParticleMasks const& p)
+    {
+        ar(p.label(), p.dimension(0));
+    }
+
+    template<class AR>
+    void load(AR & ar, ParticleMasks & p)
+    {
+        std::string label;
+        int slots;
+
+        ar(label, slots);
+        p = ParticleMasks(label, slots);
+    }
+}
 
 
 class BunchParticles
@@ -63,6 +108,7 @@ private:
      *
      */
 
+    std::string label;
 
     int num;
     int slots;
@@ -70,6 +116,7 @@ private:
 
     // number of particles discarded from the most recent aperture apply.
     int last_discarded_;
+
 
 public:
 
@@ -79,15 +126,18 @@ public:
     HostParticles hparts;
     HostParticleMasks hmasks;
 
-    BunchParticles(int total_num, Commxx const& comm);
+    BunchParticles(std::string const& label, int total_num, Commxx const& comm);
 
     int local_num()         const { return num; }
     int local_num_slots()   const { return slots; }
     int total_num()         const { return total; }
     int last_discarded()    const { return last_discarded_; }
 
-    void checkin_particles()  { Kokkos::deep_copy(parts, hparts); }
-    void checkout_particles() { Kokkos::deep_copy(hparts, parts); }
+    void checkin_particles() const
+    { Kokkos::deep_copy(parts, hparts); Kokkos::deep_copy(masks, hmasks); }
+
+    void checkout_particles()  const
+    { Kokkos::deep_copy(hparts, parts); Kokkos::deep_copy(hmasks, masks); }
 
     void assign_ids(int local_offset, Commxx const& comm);
 
@@ -121,11 +171,25 @@ private:
     template<class AR>
     void save(AR & ar) const
     { 
+        ar(CEREAL_NVP(label));
         ar(CEREAL_NVP(num));
         ar(CEREAL_NVP(slots));
         ar(CEREAL_NVP(total));
+        ar(CEREAL_NVP(parts));
+        ar(CEREAL_NVP(masks));
 
-        // TODO: save particle and mask array
+        // particle .h5 file
+        std::stringstream ss;
+        ss << "bunch_particles_" << label << "_" << Commxx().rank() << ".h5";
+        ar(cereal::make_nvp("fname", ss.str()));
+
+        // checkout first
+        checkout_particles();
+
+        // save particle and mask array
+        Hdf5_file file(ss.str(), Hdf5_file::truncate);
+        file.write_array("parts", hparts.data(), hparts.span());
+        file.write_array("masks", hmasks.data(), hmasks.span());
     }
 
     template<class AR>
@@ -134,8 +198,24 @@ private:
         ar(CEREAL_NVP(num));
         ar(CEREAL_NVP(slots));
         ar(CEREAL_NVP(total));
+        ar(CEREAL_NVP(parts));
+        ar(CEREAL_NVP(masks));
 
-        // TODO: construct
+        // construct the host array first
+        hparts = Kokkos::create_mirror_view(parts);
+        hmasks = Kokkos::create_mirror_view(masks);
+
+        // load the filename
+        std::string fname;
+        ar(CEREAL_NVP(fname));
+
+        // load the particle data
+        Hdf5_file file(fname, Hdf5_file::read_only);
+        file.read_array("parts", hparts.data());
+        file.read_array("masks", hmasks.data());
+
+        // and check in to the device memory
+        checkin_particles();
     }
 };
 

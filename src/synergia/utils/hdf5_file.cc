@@ -136,6 +136,7 @@ Hdf5_file::get_dims(std::string const& name)
 }
 
 
+#if 0
 template<>
 int* Hdf5_file::read<int*>(std::string const& name)
 {
@@ -170,7 +171,6 @@ int* Hdf5_file::read<int*>(std::string const& name)
     return retval;
 }
 
-
 template<>
 double* Hdf5_file::read<double*>(std::string const& name)
 {
@@ -203,6 +203,65 @@ double* Hdf5_file::read<double*>(std::string const& name)
     if (res < 0) throw Hdf5_exception("error reading from hdf5 file");
 
     return retval;
+}
+#endif
+
+template<>
+void Hdf5_file::read_array<double>(std::string const& name, double * const ptr)
+{
+    Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace   = H5Dget_space(dataset);
+    Hdf5_handler atomic_type = hdf5_atomic_data_type<double>();
+
+    const int rank = 1;
+    int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+    if (file_rank != rank)
+    {
+        throw std::runtime_error(
+                "Hdf5_file::read_array<double>: data to read has wrong rank");
+    }
+
+    // dims
+    std::vector<hsize_t> dims(rank);
+    herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+    if (res < 0) throw Hdf5_exception("error getting dims from dataspace");
+
+    // memspace
+    Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+
+    // read
+    res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, ptr);
+    if (res < 0) throw Hdf5_exception("error reading from hdf5 file");
+}
+
+template<>
+void Hdf5_file::read_array<uint8_t>(std::string const& name, uint8_t* const ptr)
+{
+    Hdf5_handler dataset     = H5Dopen(h5file, name.c_str(), H5P_DEFAULT);
+    Hdf5_handler dataspace   = H5Dget_space(dataset);
+    Hdf5_handler atomic_type = hdf5_atomic_data_type<uint8_t>();
+
+    const int rank = 1;
+    int file_rank = H5Sget_simple_extent_ndims(dataspace);
+
+    if (file_rank != rank)
+    {
+        throw std::runtime_error(
+                "Hdf5_file::read_array<uint8_t>: data to read has wrong rank");
+    }
+
+    // dims
+    std::vector<hsize_t> dims(rank);
+    herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
+    if (res < 0) throw Hdf5_exception("error getting dims from dataspace");
+
+    // memspace
+    Hdf5_handler memspace = H5Screate_simple(rank, &dims[0], NULL);
+
+    // read
+    res = H5Dread(dataset, atomic_type, memspace, dataspace, H5P_DEFAULT, ptr);
+    if (res < 0) throw Hdf5_exception("error reading from hdf5 file");
 }
 
 template<>

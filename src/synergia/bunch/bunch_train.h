@@ -3,6 +3,9 @@
 
 #include "synergia/bunch/bunch.h"
 
+#include <cereal/types/array.hpp>
+#include <cereal/types/vector.hpp>
+
 class Bunch_train
 {
 
@@ -88,11 +91,22 @@ public:
     std::vector< int> & get_proc_counts_for_impedance();
     std::vector< int> & get_proc_offsets_for_impedance();
 
-#if 0
+private:
+
+    friend class cereal::access;
+
     template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
-#endif
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(bunches));
+        ar(CEREAL_NVP(spacings));
+        ar(CEREAL_NVP(comm));
+        ar(CEREAL_NVP(index));
+        ar(CEREAL_NVP(num_bunches));
+        ar(CEREAL_NVP(num_buckets));
+        ar(CEREAL_NVP(proc_counts_imped));
+        ar(CEREAL_NVP(proc_offsets_imped));
+    }
 };
 
 #endif /* BUNCH_TRAIN_H_ */

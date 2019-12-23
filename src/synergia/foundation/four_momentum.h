@@ -1,8 +1,8 @@
 #ifndef FOUR_MOMENTUM_H_
 #define FOUR_MOMENTUM_H_
 
-#include "synergia/utils/cereal.h"
 #include "synergia/utils/lsexpr.h"
+#include <cereal/cereal.hpp>
 
 /// Four_momentum provides conversion between various relativistic kinematic
 /// parameters.
@@ -90,9 +90,14 @@ public:
 
     /// Serialization support
     template<class Archive>
-    void
-    serialize(Archive & ar, const unsigned int version)
-    { }
+    void serialize(Archive & ar)
+    { 
+        ar(CEREAL_NVP(mass));
+        ar(CEREAL_NVP(energy));
+        ar(CEREAL_NVP(momentum));
+        ar(CEREAL_NVP(gamma));
+        ar(CEREAL_NVP(beta));
+    }
 };
 
 #endif /* FOUR_MOMENTUM_H_ */

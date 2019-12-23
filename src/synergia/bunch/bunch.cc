@@ -72,11 +72,27 @@ Bunch::Bunch(
     , design_ref_part(reference_particle)
     , particle_charge(reference_particle.get_charge())
     , real_num(real_num)
-    , parts{ BunchParticles(total_num, comm),
-             BunchParticles(total_spectator_num, comm) }
+    , parts{ BunchParticles("main", total_num, comm),
+             BunchParticles("spec", total_spectator_num, comm) }
     , bunch_index(bunch_index)
     , bucket_index(bucket_index)
     , array_index(array_index)
+{
+}
+
+Bunch::Bunch()
+    : comm()
+    , boundary(LB::open)
+    , boundary_param(0.0)
+    , ref_part()
+    , design_ref_part()
+    , particle_charge(ref_part.get_charge())
+    , real_num(1.0)
+    , parts{ BunchParticles("main", 0, comm), 
+             BunchParticles("spec", 0, comm) }
+    , bunch_index(0)
+    , bucket_index(0)
+    , array_index(0)
 {
 }
 

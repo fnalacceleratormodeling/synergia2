@@ -89,6 +89,9 @@ public:
 
     // factory methods
     static Bunch_simulator 
+        create_empty_bunch_simulator();
+
+    static Bunch_simulator 
         create_single_bunch_simulator(
             Reference_particle const & ref,
             size_t num_particles,
@@ -239,6 +242,18 @@ private:
 
     std::vector<action_step_t> prop_actions_step_end;
     std::vector<action_turn_t> prop_actions_turn_end;
+
+    friend class cereal::access;
+
+    template<class AR>
+    void serialize(AR & ar)
+    {
+        ar(CEREAL_NVP(trains));
+        ar(CEREAL_NVP(bunch_ranks));
+        ar(CEREAL_NVP(pt_bunches));
+        ar(CEREAL_NVP(st_bunches));
+        ar(CEREAL_NVP(comm));
+    }
 };
 
 #endif

@@ -117,6 +117,10 @@ template<typename T>
 inline hid_t hdf5_atomic_data_type();
 
 template<>
+inline hid_t hdf5_atomic_data_type<uint8_t>()
+{ return H5Tcopy(H5T_NATIVE_UCHAR); }
+
+template<>
 inline hid_t hdf5_atomic_data_type<int>()
 { return H5Tcopy(H5T_NATIVE_INT); }
 

@@ -62,7 +62,7 @@ public:
     { Hdf5_writer<T>(h5file.hid, name).write(data); }
 
     template<typename T>
-    void write(std::string const & name, T const* data, size_t len)
+    void write_array(std::string const & name, T const* data, size_t len)
     { Hdf5_writer<T>(h5file.hid, name).write(data, len); }
 
     template<typename T>
@@ -93,6 +93,9 @@ public:
 
         return retval;
     }
+
+    template<typename T>
+    void read_array(std::string const& name, T * const ptr);
 
 
     template<class Archive>
