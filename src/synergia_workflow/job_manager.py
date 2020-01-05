@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function # for python2
 
 import sys
 import os, os.path
@@ -252,7 +253,7 @@ class Job_manager:
             # edit the absolute resumedir path into the resumedir= argument
             foundresumedir = False
             for argidx in range(len(self.argv)):
-                splitarg = string.split(self.argv[argidx], "=")
+                splitarg = "=".split(self.argv[argidx])
                 if len(splitarg) > 1:
                     if splitarg[0] == "resumedir":
                         foundresumedir = True
@@ -276,14 +277,14 @@ class Job_manager:
         retval = ""
         for arg in args:
             argout = arg
-            splitarg = string.split(arg, "=")
+            splitarg = "=".split(arg)
             if len(splitarg) > 1:
                 if splitarg[0] in strip:
                     argout = None
-                elif(string.count(splitarg[1], " ")) > 0:
+                elif(splitarg[1].count(" ")) > 0:
                     argout = splitarg[0] + '="'
                     splitarg.pop(0)
-                    argout = argout + string.join(splitarg, "=") + '"'
+                    argout = argout + "=".join(splitarg) + '"'
             if argout:
                 if retval != "":
                     retval += " "
@@ -687,14 +688,14 @@ def cxx_source_value(val):
 def process_line(line, subs, unknown_vars = []):
     match = re.search("@@[A-z0-9]+@@", line)
     while match:
-        var = string.replace(match.group(), "@@", "")
+        var = match.group().replace("@@", "")
         if var in subs:
             replacement = str(subs[var])
         else:
             replacement = ""
             unknown_vars.append(var)
         original = match.group()
-        line = string.replace(line, original, replacement)
+        line = line.replace(original, replacement)
         match = re.search("@@[A-z0-9]+@@", line)
     match = re.search("__([A-z0-9]+){{(.*)}}{{(.*)}}__", line)
     while match:
@@ -711,7 +712,7 @@ def process_line(line, subs, unknown_vars = []):
                 unknown_vars.remove(var)
         original = "__%s{{%s}}{{%s}}__" % (match.group(1), match.group(2),
                                            match.group(3))
-        line = string.replace(line, original, replacement)
+        line = line.replace(original, replacement)
         match = re.search("@@[A-z0-9]+@@", line)
     return line
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-import string
+from __future__ import print_function # for python2
+
 import sys
 import textwrap
+
 
 class _option:
     def __init__(self, name, default_value, doc_string, val_type, valid_values):
@@ -175,11 +177,11 @@ class Options:
         equals = []
         for word in words:
             equals.append(''.ljust(len(word),'='))
-        return string.join(equals, ' ')
+        return ' '.join(equals)
     
     def _underoverequals_words(self, words):
         retval = self._justequals_words(words) + '\n'
-        retval += string.join(words, ' ') + '\n'
+        retval += ' '.join(words) + '\n'
         retval += self._justequals_words(words)
         return retval
     
@@ -237,7 +239,7 @@ class Options:
         desc_str += self._get_opt_default_str(option, ReST)
         if self.dict[option].valid_values:
             desc_str += ", valid values: " + \
-                string.join(list(map (str, self.dict[option].valid_values)), ',')
+                ','.join(list(map (str, self.dict[option].valid_values)))
         return desc_str
 
     def usage(self):
@@ -306,7 +308,7 @@ class Options:
                 self.usage_error(arg)
             if self.has_option(pair[0]):
                 first = pair.pop(0)
-                self.set(first, string.join(pair, "="))
+                self.set(first, "=".join(pair))
             else:
                 self.usage_error(arg)
 
