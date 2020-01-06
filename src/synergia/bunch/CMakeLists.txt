@@ -10,16 +10,17 @@ add_library(synergia_bunch
     bunch_particles.cc
     bunch.cc
     bunch_train.cc
-    diagnostics.cc 
     core_diagnostics.cc 
+    diagnostics_worker.cc 
+    diagnostics_writer.cc 
     #diagnostics_basic.cc
-    diagnostics_full2.cc 
-    diagnostics_full2_host.cc 
+    #diagnostics_full2.cc 
+    #diagnostics_full2_host.cc 
     #diagnostics_particles.cc 
-    diagnostics_track.cc
+    #diagnostics_track.cc
     diagnostics_loss.cc
     #diagnostics_reference_particle.cc 
-    diagnostics_bulk_track.cc 
+    #diagnostics_bulk_track.cc 
     #diagnostics_bulk_spectator_track.cc 
     #diagnostics_phase_space_density.cc
     populate.cc 

@@ -126,7 +126,7 @@ public:
             std::string const& name, Diagnostics & diag, 
             trigger_step_t trig, int train, int bunch )
     { 
-        get_bunch(train, bunch).add_diagnostics(name, diag);
+        //get_bunch(train, bunch).add_diagnostics(name, diag);
         diags_step.emplace_back(diag_tuple_t<trigger_step_t>{train, bunch, name, trig});
     }
 

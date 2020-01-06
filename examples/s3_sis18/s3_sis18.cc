@@ -8,9 +8,10 @@
 
 #include "synergia/bunch/populate.h"
 #include "synergia/bunch/core_diagnostics.h"
-#include "synergia/bunch/diagnostics_track.h"
-#include "synergia/bunch/diagnostics_bulk_track.h"
-#include "synergia/bunch/diagnostics_full2.h"
+#include "synergia/bunch/diagnostics_loss.h"
+//#include "synergia/bunch/diagnostics_track.h"
+//#include "synergia/bunch/diagnostics_bulk_track.h"
+//#include "synergia/bunch/diagnostics_full2.h"
 
 #include "synergia/lattice/madx_reader.h"
 #include "synergia/utils/lsexpr.h"
@@ -141,9 +142,11 @@ int run()
     sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
 #endif
 
+#if 0
     Diagnostics_full2 diag_full2("diag_full.h5");
     sim.reg_diag_per_turn("full2", diag_full2);
     sim.reg_diag_per_turn("full3", Diagnostics_full2("diag_full3.h5"));
+#endif
 
     // propagate
     propagator.propagate(sim, simlog);
@@ -155,13 +158,71 @@ int run()
     return 0;
 }
 
+std::string ar_name()
+{
+    std::stringstream ss;
+    ss << "cp-" << Commxx().rank() << ".json";
+    return ss.str();
+}
+
+void save()
+{
+    std::ofstream os(ar_name());
+    cereal::JSONOutputArchive ar(os);
+
+    auto sim = Bunch_simulator::create_single_bunch_simulator(
+            Reference_particle(), 4194394, 2.94e10,
+            Commxx() );
+
+    Bunch& b = sim.get_bunch();
+
+    Diagnostics_dummy diag;
+    b.add_diagnostics(diag, "dummy", "dummy.h5");
+
+    Diagnostics_loss d2();
+    //b.set_diag_loss_aperture(d2);
+
+    b.checkout_particles();
+    auto parts = b.get_local_particles();
+    parts(122, 3) = 122.3;
+    parts(23, 5) = 23.5;
+    b.checkin_particles();
+
+    ar(sim);
+}
+
+void load()
+{
+    std::ifstream is(ar_name());
+    cereal::JSONInputArchive ar(is);
+
+    auto sim = Bunch_simulator::create_empty_bunch_simulator();
+
+    ar(sim);
+
+    Bunch& b = sim.get_bunch();
+    b.checkout_particles();
+    auto parts = b.get_local_particles();
+
+    std::cout << "122.3 = " << parts(122, 3) << "\n";
+    std::cout << "23.5 = " << parts(23, 5) << "\n";
+    std::cout << "1000.6 = " << parts(1000, 6) << "\n";
+    std::cout << "1024.2 = " << parts(1024, 2) << "\n";
+}
+
+
+
 
 int main(int argc, char ** argv)
 {
     MPI_Init(&argc, &argv);
     Kokkos::initialize(argc, argv);
 
-    run();
+    //run();
+
+    save();
+    load();
+
 
     Kokkos::finalize();
     MPI_Finalize();

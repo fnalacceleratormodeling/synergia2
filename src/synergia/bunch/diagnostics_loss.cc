@@ -2,6 +2,19 @@
 #include "synergia/foundation/math_constants.h"
 #include "synergia/bunch/bunch.h"
 
+
+
+void Diagnostics_loss::do_update(Bunch const& bunch)
+{ }
+
+void Diagnostics_loss::do_collect(Commxx comm, int writer_rank)
+{ }
+
+void Diagnostics_loss::do_write(Hdf5_file & file, bool first_write)
+{ }
+
+
+#if 0
 Diagnostics_loss::Diagnostics_loss(
         std::string const& filename, 
         std::string const& local_dir )
@@ -77,5 +90,6 @@ Diagnostics_loss::do_write(Bunch const& bunch)
         write_helper.finish_write();
     }
 }
+#endif
 
 

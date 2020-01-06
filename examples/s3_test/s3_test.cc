@@ -3,8 +3,8 @@
 #include "synergia/simulation/propagator.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/populate.h"
-#include "synergia/bunch/diagnostics_track.h"
-#include "synergia/bunch/diagnostics_bulk_track.h"
+//#include "synergia/bunch/diagnostics_track.h"
+//#include "synergia/bunch/diagnostics_bulk_track.h"
 #include "synergia/lattice/madx_reader.h"
 
 #include "synergia/collective/space_charge_2d_open_hockney.h"
@@ -95,12 +95,14 @@ int run()
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
 
+#if 0
     // diagnostics
     Diagnostics_track diag_track(2, "part_2_track.h5");
     sim.reg_diag_per_turn("track_2", diag_track);
 
     Diagnostics_bulk_track diag_bulk_track(6, 0, "bulk_track.h5");
     sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
+#endif
 
     // propagate options
     sim.set_turns(0, 4); // (start, num_turns)

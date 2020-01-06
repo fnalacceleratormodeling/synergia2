@@ -49,7 +49,17 @@ public:
     /// @param filename filename for output
     /// @param local_dir local directory to use for temporary scratch
     Diagnostics_full2(
-            std::string const& filename, 
+            std::string const& filename = "", 
             std::string const& local_dir = "" );
+
+    template<class AR>
+    void serialize(AR & ar)
+    {
+        ar(cereal::base_class<Diagnostics>(this));
+        ar(CEREAL_NVP(s));
+    }
 };
+
+CEREAL_REGISTER_TYPE(Diagnostics_full2)
+
 #endif /* DIAGNOSTICS_FULL2_H_ */

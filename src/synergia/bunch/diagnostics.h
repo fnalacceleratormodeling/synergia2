@@ -3,11 +3,84 @@
 
 #include <string>
 #include <map>
+
 #include "synergia/foundation/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
+#include <cereal/types/polymorphic.hpp>
+
+#include <cereal/archives/json.hpp>
+//#include <cereal/archives/binary.hpp>
+//#include <cereal/archives/xml.hpp>
+
 class Bunch;
 
+class Diagnostics
+{
+private:
+
+    std::string type_;
+    bool serial_;
+    bool first_write = true;
+
+    virtual void do_update(Bunch const&) = 0;
+    virtual void do_collect(Commxx, int) = 0;
+    virtual void do_write(Hdf5_file&, bool) = 0;
+
+public:
+
+    Diagnostics(std::string const& type = "Diagnostics", bool serial = true)
+        : type_(type), serial_(serial)
+    { }
+
+    virtual ~Diagnostics() = default;
+
+    std::string type() const { return type_; }
+
+    void update(Bunch const& bunch)
+    { do_update(bunch); }
+
+    void collect(Commxx comm, int root)
+    { do_collect(comm, root); }
+
+    void write(Hdf5_file & file)
+    { do_write(file, first_write); first_write = false; }
+
+    bool serial() const { return serial_; }
+
+    template<class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(type_));
+        ar(CEREAL_NVP(serial_));
+        ar(CEREAL_NVP(first_write));
+    }
+};
+
+class Diagnostics_dummy : public Diagnostics
+{
+
+public:
+
+    Diagnostics_dummy() : Diagnostics("diag_dummy", true)
+    { }
+
+private:
+
+    void do_update(Bunch const& bunch) override { }
+    void do_collect(Commxx comm, int writer_rank) override { }
+    void do_write(Hdf5_file & file, bool first_write) override { }
+
+    friend class cereal::access;
+    
+    template<class Archive>
+    void serialize(Archive & ar)
+    { ar(cereal::base_class<Diagnostics>(this)); }
+};
+
+CEREAL_REGISTER_TYPE(Diagnostics_dummy)
+
+#if 0
 /// Diagnostics is an abstract base class for bunch diagnostics classes
 class Diagnostics
 {
@@ -71,7 +144,15 @@ public:
     { return do_pilfer(); }
 
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version);
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(filename));
+        ar(CEREAL_NVP(local_dir));
+        ar(CEREAL_NVP(serial));
+        //ar(CEREAL_NVP(writers));
+    }
 };
+#endif
 
 #endif /* DIAGNOSTICS_H_ */

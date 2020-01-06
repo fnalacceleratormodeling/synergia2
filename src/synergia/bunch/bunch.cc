@@ -257,12 +257,12 @@ Bunch::inject(Bunch const& bunch)
 #endif
 }
 
-Diagnostics & 
+Diagnostics_worker & 
 Bunch::get_diag(std::string const & name)
 { 
     auto it = diags.find(name);
     if (it == diags.end()) throw std::runtime_error("cannot find diagnostics " + name);
-    return *it->second;
+    return it->second;
 }
 
 #if 0

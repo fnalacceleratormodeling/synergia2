@@ -5,6 +5,42 @@
 
 
 class Diagnostics_loss : public Diagnostics
+{
+private:
+
+    int bucket_index;
+    int repetition;
+    double s_ref_particle;
+    double sn_ref_particle;
+
+    karray2d_row coords;
+ 
+public:
+
+    Diagnostics_loss()
+        : Diagnostics("diagnostics_loss", true)
+    { }
+
+private:
+
+    void do_update(Bunch const& bunch) override;
+    void do_collect(Commxx comm, int writer_rank) override;
+    void do_write(Hdf5_file & file, bool first_write) override;
+
+    friend class cereal::access;
+
+    template<class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(cereal::base_class<Diagnostics>(this));
+        ar(bucket_index);
+    }
+};
+
+CEREAL_REGISTER_TYPE(Diagnostics_loss)
+
+#if 0
+class Diagnostics_loss : public Diagnostics
 { 
 public:  
 
@@ -31,14 +67,21 @@ private:
 public: 
 
     Diagnostics_loss( 
-            std::string const& filename, 
+            std::string const& filename = "", 
             std::string const& local_dir = "" );
     
     void update(Bunch const& bunch, karray2d_row coords);
     
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version);
+    void serialize(Archive & ar)
+    {
+        ar(cereal::base_class<Diagnostics>(this));
+        ar(bucket_index);
+    }
 };
+#endif
+
+//CEREAL_REGISTER_TYPE(Diagnostics_loss)
 
 #endif /* LOSS_DIAGNOSTICS_H_ */
  

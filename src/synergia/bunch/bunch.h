@@ -8,7 +8,7 @@
 #include "synergia/foundation/reference_particle.h"
 
 #include "synergia/bunch/bunch_particles.h"
-#include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/diagnostics_worker.h"
 #include "synergia/bunch/diagnostics_loss.h"
 
 #include "synergia/utils/commxx.h"
@@ -84,7 +84,7 @@ private:
     std::array<BunchParticles, 2> parts;
 
     // diagnostics
-    std::map<std::string, std::unique_ptr<Diagnostics>> diags;
+    std::map<std::string, Diagnostics_worker> diags;
 
     // diagnostics for particle losses
     std::unique_ptr<Diagnostics_loss> diag_aperture;
@@ -302,10 +302,39 @@ public:
     Commxx const& get_comm() const { return comm; }
 
     // Diagnostics
-    void add_diagnostics(std::string const& name, Diagnostics & diag)
-    { diags.emplace(name, diag.pilfer()); }
+    template<class Diag>
+    void add_diagnostics(
+            Diag const& diag,
+            std::string const& name, 
+            std::string const& filename,
+            std::string const& local_dir = "")
+    { diags.emplace(name, Diagnostics_worker(diag, filename, local_dir)); }
 
-    Diagnostics & get_diag(std::string const & name);
+    void add_diagnostics_sptr(
+            std::shared_ptr<Diagnostics> diag,
+            std::string const& name, 
+            std::string const& filename,
+            std::string const& local_dir = "")
+    { diags.emplace(name, Diagnostics_worker(diag, filename, local_dir)); }
+
+#if 0
+    void add_diagnostics_ref(
+            Diagnostics & diag,
+            std::string const& name, 
+            std::string const& filename,
+            std::string const& local_dir = "")
+    { diags.emplace(name, Diagnostics_worker(diag, filename, local_dir)); }
+#endif
+
+
+
+    Diagnostics_worker & get_diag(std::string const & name);
+
+    std::string diag_type(std::string const& name)
+    { return get_diag(name).type(); }
+
+    void diag_update(std::string const& name)
+    { get_diag(name).update(*this); }
 
     void diag_update_and_write(std::string const& name)
     { get_diag(name).update_and_write(*this); }
@@ -346,9 +375,9 @@ private:
         ar(CEREAL_NVP(particle_charge));
         ar(CEREAL_NVP(real_num));
         ar(CEREAL_NVP(parts));
-        //ar(CEREAL_NVP(diags));
-        //ar(CEREAL_NVP(diag_aperture));
-        //ar(CEREAL_NVP(diag_zcut));
+        ar(CEREAL_NVP(diags));
+        ar(CEREAL_NVP(diag_aperture));
+        ar(CEREAL_NVP(diag_zcut));
         ar(CEREAL_NVP(bunch_index));
         ar(CEREAL_NVP(bucket_index));
         ar(CEREAL_NVP(array_index));
@@ -374,8 +403,8 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
     if (ndiscarded && diag_aperture)
     {
         auto discarded = get_bunch_particles(pg).get_particles_last_discarded();
-        diag_aperture->update(*this, discarded);
-        diag_aperture->write(*this);
+        //diag_aperture->update(*this, discarded);
+        //diag_aperture->write(*this);
     }
 
     return ndiscarded;

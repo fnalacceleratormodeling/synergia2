@@ -2,7 +2,7 @@
 #include "synergia/bunch/bunch.h"
 #include <stdexcept>
 
-Diagnostics ::Diagnostics(
+Diagnostics::Diagnostics(
         std::string const& name, bool serial,
         std::string const& filename,
         std::string const& local_dir) 

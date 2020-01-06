@@ -5,8 +5,10 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/core_diagnostics.h"
 
-#include "synergia/bunch/diagnostics.h"
-#include "synergia/bunch/diagnostics_full2.h"
+#include "synergia/bunch/diagnostics_worker.h"
+#include "synergia/bunch/diagnostics_loss.h"
+
+#include "synergia/bunch/diagnostics_py.h"
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -103,7 +105,22 @@ PYBIND11_MODULE(bunch, m)
                 "Get host particles.",
                 "particle_group"_a = ParticleGroup::regular )
 
+        .def( "add_diagnostics",
+                &Bunch::add_diagnostics_sptr,
+                "Add a diagnostics to the bunch object.",
+                "diag"_a, "name"_a, "filename"_a, "local_dir"_a = "" )
+
+        .def( "diag_type",
+                &Bunch::diag_type,
+                "Get the type of the named diagnostics.",
+                "name"_a )
+
+        .def( "diag_update",
+                &Bunch::diag_update,
+                "Performs the update on the named diagnostics.",
+                "name"_a )
         ;
+
 
     // Core_diagnostics
     py::class_<Core_diagnostics>(m, "Core_diagnostics")
@@ -123,35 +140,22 @@ PYBIND11_MODULE(bunch, m)
                 "bunch"_a, "mean"_a )
         ;
 
-    // Diagnostics base class
-    py::class_<Diagnostics>(m, "Diagnostics")
-        .def( "get_filename",
-                &Diagnostics::get_filename,
-                "Get the diagnostics filename." )
+    // Diagnostics_calculator base class
+    py::class_<Diagnostics, PyDiagnostics, std::shared_ptr<Diagnostics>>(m, "Diagnostics")
+        .def( py::init<std::string const&, bool>(),
+                "Construct a Diagnostics object.",
+                "type"_a = "py_diag", 
+                "serial"_a = true )
 
-        .def( "get_local_dir",
-                &Diagnostics::get_local_dir,
-                "Get the dianostics local directory." )
+        .def( "type",
+                &Diagnostics::type,
+                "Get the type of the Diagnostics." )
 
-        .def( "update",
-                &Diagnostics::update,
-                "Update the diagnostics with given Bunch.",
-                "bunch"_a )
-
-        .def( "write",
-                &Diagnostics::write,
-                "Write the diagnostics with given Bunch.",
-                "bunch"_a )
-
-        .def( "update_and_write",
-                &Diagnostics::update_and_write,
-                "Update and write the diagnostics with given Bunch.",
-                "bunch"_a )
         ;
 
-    // Diagnostics_full2
-    py::class_<Diagnostics_full2, Diagnostics>(m, "Diagnostics_full2")
-        .def( py::init<std::string>() )
+    // Diagnostics_dummy
+    py::class_<Diagnostics_dummy, Diagnostics, std::shared_ptr<Diagnostics_dummy>>(m, "Diagnostics_dummy")
+        .def( py::init<>() )
         ;
 
 }
