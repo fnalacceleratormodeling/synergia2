@@ -3,6 +3,7 @@
 
 #include "synergia/bunch/bunch_train.h"
 #include "synergia/lattice/lattice.h"
+#include "synergia/simulation/propagate_actions.h"
 
 #include <cereal/types/vector.hpp>
 #include <cereal/types/utility.hpp>  // std::pair
@@ -207,6 +208,11 @@ public:
 #endif
 
     // register propagation actions
+    template<class PA>
+    void reg_prop_actions(PA const& pa)
+    { prop_actions = std::make_shared<PA>(pa); }
+
+    // register individual propagation actions
     void reg_prop_action_step_end(action_step_t fun);
     void reg_prop_action_turn_end(action_turn_t fun);
 
@@ -269,6 +275,11 @@ private:
     std::vector<dt_step_listed> diags_step_listed;
     std::vector<dt_element>     diags_element;
 
+    // it would survive the checkpoint load
+    std::shared_ptr<Propagate_actions> prop_actions;
+
+    // non-persistent propagate actions -- 
+    // reg again after checkpoint load
     std::vector<action_step_t> prop_actions_step_end;
     std::vector<action_turn_t> prop_actions_turn_end;
 
@@ -286,7 +297,14 @@ private:
         ar(CEREAL_NVP(diags_step_period));
         ar(CEREAL_NVP(diags_step_listed));
         ar(CEREAL_NVP(diags_element));
+
+        ar(CEREAL_NVP(prop_actions));
     }
 };
+
+template<>
+inline
+void Bunch_simulator::reg_prop_actions(std::shared_ptr<Propagate_actions> const& pa)
+{ prop_actions = pa; }
 
 #endif
