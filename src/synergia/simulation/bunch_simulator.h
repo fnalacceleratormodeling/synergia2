@@ -283,11 +283,17 @@ private:
     std::vector<action_step_t> prop_actions_step_end;
     std::vector<action_turn_t> prop_actions_turn_end;
 
+private:
+
     friend class cereal::access;
 
     template<class AR>
     void serialize(AR & ar)
     {
+        ar(CEREAL_NVP(num_turns));
+        ar(CEREAL_NVP(first_turn));
+        ar(CEREAL_NVP(max_turns));
+
         ar(CEREAL_NVP(trains));
         ar(CEREAL_NVP(bunch_ranks));
         ar(CEREAL_NVP(pt_bunches));
