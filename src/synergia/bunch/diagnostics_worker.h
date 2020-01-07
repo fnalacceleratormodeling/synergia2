@@ -28,18 +28,14 @@ public:
     { }
 
     // construct a diag worker with given type of diag and filename
+    // specialization is provided for s_p<Diagnostics> so the python
+    // interface can register
     template<class DiagCal>
     Diagnostics_worker(DiagCal const& diag,
             std::string const& filename,
             std::string const& local_dir = "" )
         : diag(std::make_shared<DiagCal>(diag))
         , writer(filename, local_dir)
-    { }
-
-    Diagnostics_worker(std::shared_ptr<Diagnostics> diag,
-            std::string const& filename,
-            std::string const& local_dir = "" )
-        : diag(diag), writer(filename, local_dir)
     { }
 
     std::string type() const;
@@ -61,5 +57,15 @@ private:
         ar(CEREAL_NVP(writer));
     }
 };
+
+template<>
+inline
+Diagnostics_worker::Diagnostics_worker<std::shared_ptr<Diagnostics>>(
+        std::shared_ptr<Diagnostics> const& diag,
+        std::string const& filename,
+        std::string const& local_dir)
+    : diag(diag), writer(filename, local_dir)
+{ }
+
 
 #endif

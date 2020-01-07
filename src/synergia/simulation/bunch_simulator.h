@@ -4,6 +4,9 @@
 #include "synergia/bunch/bunch_train.h"
 #include "synergia/lattice/lattice.h"
 
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>  // std::pair
+
 class Operator;
 class Independent_operation;
 
@@ -19,20 +22,9 @@ public:
 
 private:
 
-    enum class diag_event_t
-    {
-        step_and_turn,
-        element,
-        syn_operator,
-        syn_operation,
-        particle_loss,
-    };
-
+#if 0
     // bool trigger(int turn, int step)
     using trigger_step_t = std::function<bool(int, int)>;
-
-    // bool trigger(void)
-    using trigger_loss_t = std::function<bool(void)>;
 
     // bool trigger(Lattice_element const & ele)
     using trigger_ele_t  = std::function<bool(Lattice_element const &)>;
@@ -42,6 +34,49 @@ private:
 
     // bool trigger(Operation const & opn)
     using trigger_opn_t  = std::function<bool(Independent_operation const &)>;
+#endif
+
+    struct trigger_step_period
+    {
+        int turn_period, step_period;
+
+        bool operator()(int turn, int step) const
+        {
+            return (step == FINAL_STEP) && (turn % turn_period == 0); 
+        }
+
+        template<class AR>
+        void serialize(AR & ar)
+        { ar(turn_period, step_period); }
+    };
+
+    struct trigger_step_listed
+    {
+        std::vector<std::pair<int, int>> numbers;
+
+        bool operator()(int turn, int step) const
+        {
+            return false;
+        }
+
+        template<class AR>
+        void serialize(AR & ar)
+        { ar(numbers); }
+    };
+
+    struct trigger_element
+    {
+        std::vector<std::string> names;
+
+        bool operator()(Lattice_element const& ele) const
+        {
+            return false;
+        }
+
+        template<class AR>
+        void serialize(AR & ar)
+        { ar(names); }
+    };
 
     template<typename TriggerT>
     struct diag_tuple_t
@@ -50,7 +85,15 @@ private:
         int bunch;
         std::string diag_name;
         TriggerT trigger;
+
+        template<class AR>
+        void serialize(AR & ar)
+        { ar(train, bunch, diag_name, trigger); }
     };
+
+    using dt_step_period = diag_tuple_t<trigger_step_period>;
+    using dt_step_listed = diag_tuple_t<trigger_step_listed>;
+    using dt_element     = diag_tuple_t<trigger_element>;
 
     // void action(Bunch_simulator&, Lattice&, int turn, int step, void* data)
     using action_step_t = std::function<void(Bunch_simulator&, Lattice&, int, int)>;
@@ -121,31 +164,20 @@ public:
             );
 
 
-    // general per step diagnostics registration
-    void reg_diag(
-            std::string const& name, Diagnostics & diag, 
-            trigger_step_t trig, int train, int bunch )
-    { 
-        //get_bunch(train, bunch).add_diagnostics(name, diag);
-        diags_step.emplace_back(diag_tuple_t<trigger_step_t>{train, bunch, name, trig});
-    }
-
     // diag per turn
+    template<class Diag>
     void reg_diag_per_turn(
-            std::string const& name, Diagnostics & diag, 
+            Diag const& diag, 
+            std::string const& name, 
+            std::string const& filename,
             int train = 0, int bunch = 0, int period = 1 )
     { 
-        reg_diag( name, diag, 
-            [period](int turn, int step) { 
-                return step==Bunch_simulator::FINAL_STEP && turn%period==0; 
-            }, train, bunch );
+        dt_step_period dt{train, bunch, name, trigger_step_period{period, -1}};
+        diags_step_period.push_back(dt);
+        get_bunch(train, bunch).add_diagnostics(diag, name, filename);
     }
 
-    void reg_diag_per_turn(
-            std::string const& name, Diagnostics && diag, 
-            int train = 0, int bunch = 0, int period = 1 )
-    { reg_diag_per_turn(name, diag, train, bunch, period); }
-
+#if 0
     // diag loss
     void reg_diag_loss_aperture(
             Diagnostics_loss & diag, int train = 0, int bunch = 0 )
@@ -172,6 +204,7 @@ public:
             std::string const& name, Diagnostics & diag, 
             trigger_opn_t, int train = 0, int bunch = 0 )
     { }
+#endif
 
     // register propagation actions
     void reg_prop_action_step_end(action_step_t fun);
@@ -182,8 +215,6 @@ public:
 
     // diag actions
     void diag_action_step_and_turn(int turn_num, int step_num);
-    void diag_action_particle_loss_update( );
-    void diag_action_particle_loss_write( );
     void diag_action_element(Lattice_element const & element);
     void diag_action_operator(Operator const & opr);
     void diag_action_operation(Independent_operation const & opn);
@@ -234,11 +265,9 @@ private:
     int st_bunches;
     Commxx comm;
 
-    std::vector<diag_tuple_t<trigger_step_t>> diags_step;
-    std::vector<diag_tuple_t<trigger_loss_t>> diags_loss;
-    std::vector<diag_tuple_t<trigger_ele_t>>  diags_ele;
-    std::vector<diag_tuple_t<trigger_opr_t>>  diags_opr;
-    std::vector<diag_tuple_t<trigger_opn_t>>  diags_opn;
+    std::vector<dt_step_period> diags_step_period;
+    std::vector<dt_step_listed> diags_step_listed;
+    std::vector<dt_element>     diags_element;
 
     std::vector<action_step_t> prop_actions_step_end;
     std::vector<action_turn_t> prop_actions_turn_end;
@@ -253,6 +282,10 @@ private:
         ar(CEREAL_NVP(pt_bunches));
         ar(CEREAL_NVP(st_bunches));
         ar(CEREAL_NVP(comm));
+
+        ar(CEREAL_NVP(diags_step_period));
+        ar(CEREAL_NVP(diags_step_listed));
+        ar(CEREAL_NVP(diags_element));
     }
 };
 

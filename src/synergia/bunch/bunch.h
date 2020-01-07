@@ -87,8 +87,8 @@ private:
     std::map<std::string, Diagnostics_worker> diags;
 
     // diagnostics for particle losses
-    std::unique_ptr<Diagnostics_loss> diag_aperture;
-    std::unique_ptr<Diagnostics_loss> diag_zcut;
+    std::unique_ptr<Diagnostics_worker> diag_aperture;
+    std::unique_ptr<Diagnostics_worker> diag_zcut;
 
     // bunch indicies
     int bunch_index;    // index in the train
@@ -310,23 +310,6 @@ public:
             std::string const& local_dir = "")
     { diags.emplace(name, Diagnostics_worker(diag, filename, local_dir)); }
 
-    void add_diagnostics_sptr(
-            std::shared_ptr<Diagnostics> diag,
-            std::string const& name, 
-            std::string const& filename,
-            std::string const& local_dir = "")
-    { diags.emplace(name, Diagnostics_worker(diag, filename, local_dir)); }
-
-#if 0
-    void add_diagnostics_ref(
-            Diagnostics & diag,
-            std::string const& name, 
-            std::string const& filename,
-            std::string const& local_dir = "")
-    { diags.emplace(name, Diagnostics_worker(diag, filename, local_dir)); }
-#endif
-
-
 
     Diagnostics_worker & get_diag(std::string const & name);
 
@@ -339,11 +322,11 @@ public:
     void diag_update_and_write(std::string const& name)
     { get_diag(name).update_and_write(*this); }
 
-    void set_diag_loss_aperture(Diagnostics_loss & diag)
-    { diag_aperture = std::make_unique<Diagnostics_loss>(std::move(diag)); }
+    void set_diag_loss_aperture(std::string const& filename)
+    { diag_aperture.reset(new Diagnostics_worker(Diagnostics_loss(), filename)); }
 
-    void set_diag_loss_zcut(Diagnostics_loss & diag)
-    { diag_zcut = std::make_unique<Diagnostics_loss>(std::move(diag)); }
+    void set_diag_loss_zcut(std::string const& filename)
+    { diag_zcut.reset(new Diagnostics_worker(Diagnostics_loss(), filename)); }
 
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,

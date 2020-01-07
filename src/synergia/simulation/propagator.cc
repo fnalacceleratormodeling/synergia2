@@ -445,7 +445,6 @@ Propagator::do_turn_end(
 
     // diagnostic actions
     simulator.diag_action_step_and_turn(turn_count, Propagator::FINAL_STEP);
-    simulator.diag_action_particle_loss_write();
 
     // propagate actions
     simulator.prop_action_turn_end(lattice, turn_count);

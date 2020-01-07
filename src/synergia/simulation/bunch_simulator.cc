@@ -178,11 +178,9 @@ Bunch_simulator::Bunch_simulator(
     , pt_bunches(pt.get_size())
     , st_bunches(st.get_size())
     , comm(comm)
-    , diags_step()
-    , diags_loss()
-    , diags_ele()
-    , diags_opr()
-    , diags_opn()
+    , diags_step_period()
+    , diags_step_listed()
+    , diags_element()
     , prop_actions_step_end()
     , prop_actions_turn_end()
 {
@@ -191,7 +189,16 @@ Bunch_simulator::Bunch_simulator(
 void
 Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
 {
-    for (auto const & dt : diags_step)
+    for (auto const& dt : diags_step_period)
+    {
+        if (dt.trigger(turn_num, step_num))
+        {
+            get_bunch(dt.train, dt.bunch)
+                .diag_update_and_write(dt.diag_name);
+        }
+    }
+
+    for (auto const& dt : diags_step_listed)
     {
         if (dt.trigger(turn_num, step_num))
         {
@@ -202,18 +209,17 @@ Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
 }
 
 void
-Bunch_simulator::diag_action_particle_loss_update()
+Bunch_simulator::diag_action_element(Lattice_element const& element)
 {
-}
+    for (auto const& dt : diags_element)
+    {
+        if (dt.trigger(element))
+        {
+            get_bunch(dt.train, dt.bunch)
+                .diag_update_and_write(dt.diag_name);
+        }
+    }
 
-void
-Bunch_simulator::diag_action_particle_loss_write()
-{
-}
-
-void
-Bunch_simulator::diag_action_element(Lattice_element const & element)
-{
 }
 
 

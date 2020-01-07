@@ -74,15 +74,15 @@ PYBIND11_MODULE(bunch, m)
         .def( py::init< Reference_particle const&,
                         int, double, Commxx,
                         int, int, int, int >(),
-              "Construct a Bunch object.",
-              "reference_particle"_a,
-              "total_num"_a,
-              "real_num"_a,
-              "comm"_a = Commxx(),
-              "total_spectator_num"_a = 0,
-              "bunch_index"_a = 0,
-              "bucket_index"_a = 0,
-              "array_index"_a = 0 )
+                "Construct a Bunch object.",
+                "reference_particle"_a,
+                "total_num"_a,
+                "real_num"_a,
+                "comm"_a = Commxx(),
+                "total_spectator_num"_a = 0,
+                "bunch_index"_a = 0,
+                "bucket_index"_a = 0,
+                "array_index"_a = 0 )
 
         .def( "read_file",
                 &Bunch::read_file,
@@ -106,7 +106,7 @@ PYBIND11_MODULE(bunch, m)
                 "particle_group"_a = ParticleGroup::regular )
 
         .def( "add_diagnostics",
-                &Bunch::add_diagnostics_sptr,
+                &Bunch::add_diagnostics<std::shared_ptr<Diagnostics>>,
                 "Add a diagnostics to the bunch object.",
                 "diag"_a, "name"_a, "filename"_a, "local_dir"_a = "" )
 
