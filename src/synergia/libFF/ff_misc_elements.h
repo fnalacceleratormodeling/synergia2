@@ -46,4 +46,26 @@ public:
 
 typedef boost::shared_ptr<FF_instrument > FF_instrument_sptr;
 
+// =========== rcollimator =================
+
+class FF_rcollimator : public FF_drift
+{
+public:
+    FF_rcollimator() { }
+    virtual ~FF_rcollimator() {}
+};
+
+typedef boost::shared_ptr<FF_rcollimator > FF_rcollimator_sptr;
+
+// =========== ecollimator =================
+
+class FF_ecollimator : public FF_drift
+{
+public:
+    FF_ecollimator() { }
+    virtual ~FF_ecollimator() {}
+};
+
+typedef boost::shared_ptr<FF_ecollimator > FF_ecollimator_sptr;
+
 #endif // FF_MISC_ELEMENTS_H

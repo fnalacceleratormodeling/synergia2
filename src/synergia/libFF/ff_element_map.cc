@@ -103,4 +103,6 @@ void construct_big_giant_global_ff_element_map()
     the_big_giant_global_ff_element_map.set_element_type("solenoid",   FF_solenoid_sptr(new FF_solenoid()));
     the_big_giant_global_ff_element_map.set_element_type("elens",      FF_elens_sptr(new FF_elens()));
     the_big_giant_global_ff_element_map.set_element_type("instrument", FF_instrument_sptr(new FF_instrument()));
+    the_big_giant_global_ff_element_map.set_element_type("rcollimator", FF_rcollimator_sptr(new FF_rcollimator()));
+    the_big_giant_global_ff_element_map.set_element_type("ecollimator", FF_ecollimator_sptr(new FF_ecollimator()));
 }
