@@ -343,6 +343,23 @@ public:
         get_bunch_particles(ParticleGroup::spectator).check_pz2_positive();
     }
 
+    std::string dump() const
+    {
+        std::stringstream ss;
+        {
+            cereal::JSONOutputArchive ar(ss);
+            ar(*this);
+        }
+        return ss.str();
+    }
+
+    void load(std::string const& str)
+    {
+        std::stringstream ss(str);
+        cereal::JSONInputArchive ar(ss);
+        ar(*this);
+    }
+
 private:
 
     friend class cereal::access;

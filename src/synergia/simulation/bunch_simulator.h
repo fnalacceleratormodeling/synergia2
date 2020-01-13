@@ -257,6 +257,16 @@ public:
 
     void set_lattice_reference_particle(Reference_particle const & ref);
 
+    std::string dump() const
+    {
+        std::stringstream ss;
+        {
+            cereal::JSONOutputArchive ar(ss);
+            ar(*this);
+        }
+        return ss.str();
+    }
+
 public:
 
     int num_turns = 0;

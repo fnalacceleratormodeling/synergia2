@@ -1,6 +1,11 @@
 #ifndef PROPAGATE_ACTIONS_H
 #define PROPAGATE_ACTIONS_H
 
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/json.hpp>
+//#include <cereal/archives/binary.hpp>
+//#include <cereal/archives/xml.hpp>
+
 class Bunch_simulator;
 class Lattice;
 

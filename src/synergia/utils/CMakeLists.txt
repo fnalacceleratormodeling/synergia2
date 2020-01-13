@@ -4,6 +4,7 @@ add_library(synergia_parallel_utils
     #commxx_divider.cc 
     logger.cc
     simple_timer.cc
+    base64.cpp
     )
 target_link_libraries(synergia_parallel_utils 
     #${Boost_SERIALIZATION_LIBRARIES}

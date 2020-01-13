@@ -103,6 +103,10 @@ PYBIND11_MODULE(simulation, m)
                 "bunch_idx"_a = 0, 
                 "period"_a = 1 )
 
+        .def( "dump",
+                &Bunch_simulator::dump,
+                "Dump." )
+
         ;
 
 

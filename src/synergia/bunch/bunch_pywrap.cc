@@ -106,7 +106,20 @@ PYBIND11_MODULE(bunch, m)
                 "particle_group"_a = ParticleGroup::regular )
 
         .def( "add_diagnostics",
-                &Bunch::add_diagnostics<std::shared_ptr<Diagnostics>>,
+                []( Bunch& self,
+                    std::shared_ptr<Diagnostics> const& diag, 
+                    std::string const& name,
+                    std::string const& filename,
+                    std::string const& local_dir) {
+                        // if the diagnostics is an inherited python type,
+                        // reg a ref of the python instance to keep it alive so the
+                        // __dict__ object which contains the actual python methods
+                        // is available for serializing and calling from C++
+                        PyDiagnostics* p = dynamic_cast<PyDiagnostics*>(diag.get());
+                        if (p) { p->reg_self(); }
+
+                        self.add_diagnostics(diag, name, filename, local_dir);
+                },
                 "Add a diagnostics to the bunch object.",
                 "diag"_a, "name"_a, "filename"_a, "local_dir"_a = "" )
 
@@ -119,6 +132,14 @@ PYBIND11_MODULE(bunch, m)
                 &Bunch::diag_update,
                 "Performs the update on the named diagnostics.",
                 "name"_a )
+
+        .def( "dump",
+                &Bunch::dump,
+                "Dump." )
+
+        .def( "load",
+                &Bunch::load,
+                "Load." )
         ;
 
 
@@ -151,11 +172,32 @@ PYBIND11_MODULE(bunch, m)
                 &Diagnostics::type,
                 "Get the type of the Diagnostics." )
 
+#if 0
+        .def( "__reduce__",
+                [](py::object const& self) {
+                    std::cout << "diag reduce\n";
+                    return py::tuple(py::cpp_function([](){
+                        return PyDiagnostics("reduced pydiag"); 
+                    }), py::tuple() );
+                } )
+#endif
+
+        .def( py::pickle(
+                [](py::object self) { 
+                    return py::make_tuple(self.attr("__dict__")); 
+                },
+                [](py::tuple const& t) { 
+                    PyDiagnostics cpp_diag("restored pydiag");
+                    auto py_diag = t[0].cast<py::dict>();
+                    return std::make_pair(cpp_diag, py_diag);
+                } ) )
+
         ;
 
     // Diagnostics_dummy
     py::class_<Diagnostics_dummy, Diagnostics, std::shared_ptr<Diagnostics_dummy>>(m, "Diagnostics_dummy")
         .def( py::init<>() )
+
         ;
 
 }
