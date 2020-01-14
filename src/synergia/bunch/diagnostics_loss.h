@@ -24,7 +24,7 @@ public:
 private:
 
     void do_update(Bunch const& bunch) override;
-    void do_collect(Commxx comm, int writer_rank) override;
+    void do_reduce(Commxx comm, int writer_rank) override;
     void do_write(Hdf5_file & file, bool first_write) override;
 
     friend class cereal::access;

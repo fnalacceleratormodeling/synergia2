@@ -38,15 +38,15 @@ private:
 #endif
     }
 
-    void do_collect(Commxx comm, int root) override
+    void do_reduce(Commxx comm, int root) override
     {
-        self.attr("do_collect")(comm, root);
+        self.attr("do_reduce")(comm, root);
 
 #if 0
         PYBIND11_OVERLOAD_PURE(
                 void,        // return type
                 Diagnostics, // parent class
-                do_collect,
+                do_reduce,
                 comm,
                 root
         );
