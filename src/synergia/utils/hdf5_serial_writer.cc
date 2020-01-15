@@ -2,7 +2,7 @@
 
 
 
-void Hdf5_serial_writer::do_setup(std::vector<int> const& data_dims)
+void Hdf5_serial_writer::do_setup(std::vector<hsize_t> const& data_dims)
 {
     std::vector<hsize_t> chunk_dims(data_rank + 1);
 
@@ -22,26 +22,38 @@ void Hdf5_serial_writer::do_setup(std::vector<int> const& data_dims)
 
     max_dims[data_rank] = H5S_UNLIMITED;
 
-    if (resume) 
+    try 
     {
+        // try to open the dataset
         dataset = H5Dopen(file_ptr, name.c_str(), H5P_DEFAULT);
         Hdf5_handler dataspace = H5Dget_space(dataset);
 
+        // check the data_rank
         if ( H5Sget_simple_extent_ndims(dataspace) != data_rank + 1 ) 
         {
             throw std::runtime_error(
                     "Hdf5_serial_writer::resumed data has wrong rank");
         }
 
-        herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
-        if (res < 0) throw Hdf5_exception();
+        std::vector<hsize_t> fdims(data_rank+1);
+        herr_t res = H5Sget_simple_extent_dims(dataspace, &fdims[0], NULL);
+        if (res < 0) throw Hdf5_exception("Error getting dims of the dataspace");
 
-        size[data_rank] = dims[data_rank];
-        offset[data_rank] = dims[data_rank];
+        // check the dims of each rank
+        for (int i=0; i<data_rank; ++i)
+        {
+            if (dims[i] != fdims[i]) throw std::runtime_error(
+                    "inconsistent data dimensions" );
+        }
+
+        size[data_rank] = fdims[data_rank];
+        offset[data_rank] = fdims[data_rank];
         dims[data_rank] = 1;
+ 
     } 
-    else 
+    catch (Hdf5_exception & e) 
     {
+        // dataset not exist, create a new one
         size[data_rank] = 0;
         offset[data_rank] = 0;
         dims[data_rank] = 1;
