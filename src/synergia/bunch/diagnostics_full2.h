@@ -7,23 +7,12 @@
 /// quantities to be calculated for a Bunch up to the second moments.
 class Diagnostics_full2 : public Diagnostics
 {
-public:
-
-    constexpr static const char* diag_type = "diagnostics_full2";
-    constexpr static const bool  diag_write_serial = true;
-
 private:
 
-    bool first_write = true;
+    Reference_particle ref;
 
-    double s;
-    double s_n;
-
-    int repetition;
     int num_particles;
-
     double real_num_particles;
-    double pz;
 
     karray1d mean;
     karray1d std;
@@ -34,30 +23,32 @@ private:
 
     double emitx, emity, emitz, emitxy, emitxyz;
 
+public:
+
+    Diagnostics_full2()
+        : Diagnostics("diagnostics_full2", true)
+        , ref()
+        , num_particles(0)
+        , real_num_particles(0.0)
+        , mean("mean", 6)
+        , std("std", 6)
+        , min("min", 3)
+        , max("max", 3)
+        , mom2("mom2", 6, 6)
+        , corr("corr", 6, 6)
+    { }
+
 private:
 
     void do_update(Bunch const& bunch) override;
-    void do_write (Bunch const& bunch) override;
+    void do_reduce(Commxx comm, int writer_rank) override { }
+    void do_write (Hdf5_file & file, bool first_write) override;
 
-    std::unique_ptr<Diagnostics> do_pilfer() override
-    { return std::make_unique<Diagnostics_full2>(std::move(*this)); }
-
-public:
-
-    /// Create a Diagnostics_full2 object
-    /// @param bunch the Bunch
-    /// @param filename filename for output
-    /// @param local_dir local directory to use for temporary scratch
-    Diagnostics_full2(
-            std::string const& filename = "", 
-            std::string const& local_dir = "" );
+    friend class cereal::access;
 
     template<class AR>
     void serialize(AR & ar)
-    {
-        ar(cereal::base_class<Diagnostics>(this));
-        ar(CEREAL_NVP(s));
-    }
+    { ar(cereal::base_class<Diagnostics>(this)); }
 };
 
 CEREAL_REGISTER_TYPE(Diagnostics_full2)

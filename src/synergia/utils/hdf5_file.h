@@ -69,16 +69,10 @@ public:
     void write_serial(std::string const& name, T const& data)
     { 
         auto w = swriters.find(name);
-        if (w != swriters.end())
-        {
-            w->second.append<T>(data);
-        }
-        else
-        {
-            swriters
-                .emplace(name, Hdf5_serial_writer(h5file.hid, name))
-                .first->second.append<T>(data); 
-        }
+        if (w == swriters.end()) 
+            w = swriters.emplace(name, Hdf5_serial_writer(h5file.hid, name)).first;
+
+        w->second.append(data);
     }
 
     template<typename T>

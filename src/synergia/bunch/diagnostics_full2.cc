@@ -14,29 +14,11 @@ void calculate_emittances(
         double& emitxyz );
 
 
-Diagnostics_full2::Diagnostics_full2(
-            std::string const& filename, 
-            std::string const& local_dir)
-    : Diagnostics(diag_type, diag_write_serial, filename, local_dir)
-    , mean("mean", 6)
-    , std("std", 6)
-    , min("min", 3)
-    , max("max", 3)
-    , mom2("mom2", 6, 6)
-    , corr("corr", 6, 6)
-{
-}
-
 void Diagnostics_full2::do_update(Bunch const& bunch)
 {
     scoped_simple_timer timer("diag_full2_update");
 
-    auto const& ref = bunch.get_reference_particle();
-
-    s = ref.get_s();
-    s_n = ref.get_s_n();
-    repetition = ref.get_repetition();
-    pz = ref.get_momentum();
+    ref = bunch.get_reference_particle();
 
     num_particles = bunch.get_total_num();
     real_num_particles = bunch.get_real_num();
@@ -58,50 +40,36 @@ void Diagnostics_full2::do_update(Bunch const& bunch)
             emitx, emity, emitz, emitxy, emitxyz);
 }
 
-void Diagnostics_full2::do_write(Bunch const& bunch)
+void Diagnostics_full2::do_write(Hdf5_file & file, bool first_write)
 {
     scoped_simple_timer timer("diag_full2_write");
 
-    auto & helper = get_write_helper(bunch);
-
-    if (helper.write_locally()) 
+    if (first_write)
     {
-        auto & file = helper.get_hdf5_file();
+        file.write("charge", ref.get_charge());
+        file.write("mass", ref.get_four_momentum().get_mass());
+    }
 
-        if (first_write)
-        {
-            auto const & ref = bunch.get_reference_particle();
+    // write serial
+    file.write_serial("s", ref.get_s());
+    file.write_serial("s_n", ref.get_s_n());
+    file.write_serial("repetition", ref.get_repetition());
+    file.write_serial("num_particles", num_particles);
+    file.write_serial("real_num_particles", real_num_particles);
+    file.write_serial("pz", ref.get_momentum());
 
-            file.write("charge", ref.get_charge());
-            file.write("mass", ref.get_four_momentum().get_mass());
+    file.write_serial("mean", mean);
+    file.write_serial("std", std);
+    file.write_serial("min", min);
+    file.write_serial("max", max);
+    file.write_serial("mom2", mom2);
+    file.write_serial("corr", corr);
 
-            first_write = false;
-        }
-
-        // write serial
-        file.write_serial("s", s);
-        file.write_serial("s_n", s_n);
-        file.write_serial("repetition", repetition);
-        file.write_serial("num_particles", num_particles);
-        file.write_serial("real_num_particles", real_num_particles);
-        file.write_serial("pz", pz);
-
-        file.write_serial("mean", mean);
-        file.write_serial("std", std);
-        file.write_serial("min", min);
-        file.write_serial("max", max);
-        file.write_serial("mom2", mom2);
-        file.write_serial("corr", corr);
-
-        file.write_serial("emitx", emitx);
-        file.write_serial("emity", emity);
-        file.write_serial("emitz", emitz);
-        file.write_serial("emitxy", emitxy);
-        file.write_serial("emitxyz", emitxyz);
-
-        // finish write
-        helper.finish_write();
-    } 
+    file.write_serial("emitx", emitx);
+    file.write_serial("emity", emity);
+    file.write_serial("emitz", emitz);
+    file.write_serial("emitxy", emitxy);
+    file.write_serial("emitxyz", emitxyz);
 }
 
 #if 0

@@ -7,6 +7,7 @@
 
 #include "synergia/bunch/diagnostics_worker.h"
 #include "synergia/bunch/diagnostics_loss.h"
+#include "synergia/bunch/diagnostics_full2.h"
 
 #include "synergia/bunch/diagnostics_py.h"
 
@@ -133,6 +134,11 @@ PYBIND11_MODULE(bunch, m)
                 "Performs the update on the named diagnostics.",
                 "name"_a )
 
+        .def( "diag_update_and_write",
+                &Bunch::diag_update_and_write,
+                "Performs the update and write on the named diagnostics.",
+                "name"_a )
+
         .def( "dump",
                 &Bunch::dump,
                 "Dump." )
@@ -197,7 +203,10 @@ PYBIND11_MODULE(bunch, m)
     // Diagnostics_dummy
     py::class_<Diagnostics_dummy, Diagnostics, std::shared_ptr<Diagnostics_dummy>>(m, "Diagnostics_dummy")
         .def( py::init<>() )
+        ;
 
+    py::class_<Diagnostics_full2, Diagnostics, std::shared_ptr<Diagnostics_full2>>(m, "Diagnostics_full2")
+        .def( py::init<>() )
         ;
 
 }
