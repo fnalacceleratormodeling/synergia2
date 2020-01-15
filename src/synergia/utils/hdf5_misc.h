@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <iomanip>
 #include <exception>
 
 namespace storage_order
@@ -29,9 +30,8 @@ struct Hdf5_exception : public std::exception
     { 
         std::stringstream buf;
 
-        //cerr_redirect cr(buf.rdbuf());
-        H5Eprint(H5E_DEFAULT, stderr);
-        H5Eclear(H5E_DEFAULT);
+        //H5Eprint(H5E_DEFAULT, stderr);
+        H5Ewalk(H5E_DEFAULT, H5E_WALK_UPWARD, &Hdf5_exception::err_walk, &buf);
 
         hdf5_msg = buf.str();
     }
@@ -42,25 +42,37 @@ struct Hdf5_exception : public std::exception
     {
         std::string res = std::string("\n")
             + "===================================\n" 
-            + "USER MESSAGE:\n" + user_msg + "\n\n"
-            + "HDF5 MESSAGE:\n" + hdf5_msg + "\n"
+            + "USER MESSAGE:\n  " + user_msg + "\n\n"
+            + "HDF5 MESSAGE:\n"   + hdf5_msg
             + "===================================\n";
         return res.c_str();
     }
 
 private:
 
-#if 0
-    struct cerr_redirect
+    static herr_t err_walk(unsigned int n, H5E_error_t const *err_desc, void *client_data)
     {
-        cerr_redirect(std::streambuf * new_buf) : old(std::cerr.rdbuf(new_buf)) { }
-        ~cerr_redirect() { std::cerr.rdbuf(old); }
+        std::stringstream *ss = (std::stringstream *)client_data;
 
-        std::streambuf * old;
-    };
-#endif
+        /* Check arguments */
+        if (!client_data) return 0;
 
-private:
+        /* Get descriptions for the major and minor error numbers */
+        const char *maj_str = H5Eget_major(err_desc->maj_num);
+        const char *min_str = H5Eget_minor(err_desc->min_num);
+
+        /* Print error message */
+        (*ss) << "  #" << std::setfill('0') << std::setw(4) << n
+              << ": " << err_desc->file_name << " line " << err_desc->line 
+              << " in " << err_desc->func_name << "(): " << err_desc->desc << "\n"
+              << "    major(" << std::setfill('0') << std::setw(3) << (int)err_desc->maj_num 
+              << "): " << maj_str << "\n"
+              << "    minor(" << std::setfill('0') << std::setw(3) << (int)err_desc->min_num 
+              << "): " << min_str << "\n"
+            ;
+
+        return 0;
+    }
 
     std::string hdf5_msg;
     std::string user_msg;
