@@ -19,7 +19,7 @@ void Diagnostics_worker::write()
     { 
         writer.open_file();
         diag->write(writer.get_file()); 
-        writer.finish_write(diag->serial());
+        writer.finish_write();
     }
 }
 

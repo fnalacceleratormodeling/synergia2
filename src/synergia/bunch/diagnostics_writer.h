@@ -2,10 +2,10 @@
 #define DIAGNOSTICS_WRITER_H
 
 #include <memory>
-
 #include <cereal/types/memory.hpp>
 
 class Hdf5_file;
+class Bunch;
 
 class Diagnostics_writer
 {
@@ -13,10 +13,13 @@ private:
 
     std::unique_ptr<Hdf5_file> file;
 
+    bool serial;
     int file_count;
-    int wrank;
 
-    std::string local_dir;
+    int wrank;
+    int rank;
+
+    std::string temp_dir;
     std::string filename;
     std::string filename_base;
     std::string filename_suffix;
@@ -28,9 +31,10 @@ public:
 
     Diagnostics_writer( 
             std::string const& filename,
-            std::string const& local_dir = "" );
+            std::string const& temp_dir,
+            bool serial,
+            Bunch const& bunch);
 
-    Diagnostics_writer();
     ~Diagnostics_writer();
 
     Diagnostics_writer(Diagnostics_writer const&) = delete;
@@ -40,12 +44,12 @@ public:
     int writer_rank() const { return wrank; }
 
     // count for non-serial writer
-    int  get_count() const { return file_count; }
-    void set_count(int count) { file_count = count; }
-    void increment_count() { ++file_count; }
+    int  get_count() const     { return file_count; }
+    void set_count(int count)  { file_count = count; }
+    void increment_count()     { ++file_count; }
+    bool write_locally() const { return wrank == rank; }
 
-    bool write_locally();
-    void finish_write(bool serial);
+    void finish_write();
 
     void open_file();
     void flush_file();
@@ -53,14 +57,31 @@ public:
 
 private:
 
-    std::string get_filename(bool include_local_dir);
-    void move_file_overwrite_if_exists();
+    std::string get_filename(
+            bool use_temp_dir);
 
+    void move_file_overwrite_if_exists(
+            std::string const& src, 
+            std::string const& dst );
+
+    friend class Diagnostics_worker;
     friend class cereal::access;
+
+    Diagnostics_writer();
 
     template<class AR>
     void serialize(AR & ar)
     {
+        ar(CEREAL_NVP(file));
+        ar(CEREAL_NVP(serial));
+        ar(CEREAL_NVP(file_count));
+        ar(CEREAL_NVP(wrank));
+        ar(CEREAL_NVP(rank));
+        ar(CEREAL_NVP(temp_dir));
+        ar(CEREAL_NVP(filename));
+        ar(CEREAL_NVP(filename_base));
+        ar(CEREAL_NVP(filename_suffix));
+        ar(CEREAL_NVP(filename_appendix));
     }
 };
 

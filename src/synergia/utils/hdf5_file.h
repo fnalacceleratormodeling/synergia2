@@ -67,8 +67,19 @@ public:
 
     template<typename T>
     void write_serial(std::string const& name, T const& data)
-    { swriters.emplace(name, Hdf5_serial_writer(h5file.hid, name))
-        .first->second.append<T>(data); }
+    { 
+        auto w = swriters.find(name);
+        if (w != swriters.end())
+        {
+            w->second.append<T>(data);
+        }
+        else
+        {
+            swriters
+                .emplace(name, Hdf5_serial_writer(h5file.hid, name))
+                .first->second.append<T>(data); 
+        }
+    }
 
     template<typename T>
     T read(std::string const& name)
@@ -97,16 +108,22 @@ public:
     template<typename T>
     void read_array(std::string const& name, T * const ptr);
 
+private:
+
+    friend class cereal::access;
+
+    Hdf5_file() { }
 
     template<class Archive>
-    void save(Archive & ar, const unsigned int version) const;
+    void save(Archive & ar) const
+    {
+    }
 
     template<class Archive>
-    void load(Archive & ar, const unsigned int version);
-
+    void load(Archive & ar)
+    {
+    }
 };
-
-typedef std::shared_ptr<Hdf5_file > Hdf5_file_sptr; // syndoc:include
 
 
 template<>

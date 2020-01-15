@@ -34,18 +34,20 @@ public:
     Diagnostics_worker(
             DiagCal const& diag,
             std::string const& filename,
-            std::string const& local_dir = "" )
+            std::string const& local_dir,
+            Bunch const& bunch)
         : diag(std::make_shared<DiagCal>(diag))
-        , writer(filename, local_dir)
+        , writer(filename, local_dir, diag.serial(), bunch)
     { }
 
     // for registering from python only
     Diagnostics_worker(
             std::shared_ptr<Diagnostics> const& diag,
             std::string const& filename,
-            std::string const& local_dir = "" )
+            std::string const& local_dir,
+            Bunch const& bunch)
         : diag(diag)
-        , writer(filename, local_dir)
+        , writer(filename, local_dir, diag->serial(), bunch)
     { }
 
     std::string type() const;

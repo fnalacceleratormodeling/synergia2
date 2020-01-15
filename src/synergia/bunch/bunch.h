@@ -307,8 +307,9 @@ public:
             Diag const& diag,
             std::string const& name, 
             std::string const& filename,
-            std::string const& local_dir = "")
-    { diags.emplace(name, Diagnostics_worker(diag, filename, local_dir)); }
+            std::string const& temp_dir = "")
+    { diags.emplace(name, Diagnostics_worker(
+                diag, filename, temp_dir, *this)); }
 
 
     Diagnostics_worker & get_diag(std::string const & name);
@@ -322,11 +323,17 @@ public:
     void diag_update_and_write(std::string const& name)
     { get_diag(name).update_and_write(*this); }
 
-    void set_diag_loss_aperture(std::string const& filename)
-    { diag_aperture.reset(new Diagnostics_worker(Diagnostics_loss(), filename)); }
+    void set_diag_loss_aperture(
+            std::string const& filename, 
+            std::string const& temp_dir = "" )
+    { diag_aperture.reset( new Diagnostics_worker(
+                Diagnostics_loss(), filename, temp_dir, *this)); }
 
-    void set_diag_loss_zcut(std::string const& filename)
-    { diag_zcut.reset(new Diagnostics_worker(Diagnostics_loss(), filename)); }
+    void set_diag_loss_zcut(
+            std::string const& filename,
+            std::string const& temp_dir = "" )
+    { diag_zcut.reset( new Diagnostics_worker(
+                Diagnostics_loss(), filename, temp_dir, *this)); }
 
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,
