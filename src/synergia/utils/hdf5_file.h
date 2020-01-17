@@ -69,6 +69,7 @@ public:
     void write_serial(std::string const& name, T const& data)
     { 
         auto w = swriters.find(name);
+
         if (w == swriters.end()) 
             w = swriters.emplace(name, Hdf5_serial_writer(h5file.hid, name)).first;
 
@@ -106,16 +107,37 @@ private:
 
     friend class cereal::access;
 
-    Hdf5_file() { }
+    Hdf5_file() 
+    : file_name(), h5file(), is_open(false), current_flag(Hdf5_file::read_only) 
+    { }
 
     template<class Archive>
     void save(Archive & ar) const
     {
+        ar(CEREAL_NVP(file_name));
+        ar(CEREAL_NVP(is_open));
+        ar(CEREAL_NVP(current_flag));
+
+        if (is_open)
+        {
+            flush();
+            // TODO: copy_to_serialization_directory(file_name);
+        }
     }
 
     template<class Archive>
     void load(Archive & ar)
     {
+        ar(CEREAL_NVP(file_name));
+        ar(CEREAL_NVP(is_open));
+        ar(CEREAL_NVP(current_flag));
+
+        if (is_open)
+        {
+            // TODO: copy_from_serialization_directory(file_name)
+            is_open = false;
+            open(current_flag);
+        }
     }
 };
 

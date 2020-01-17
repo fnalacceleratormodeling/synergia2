@@ -7,12 +7,13 @@ Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag)
     : file_name(file_name)
     , h5file()
     , is_open(false)
+    , current_flag(flag)
 {
-    // turn off error printing
+    // turn off the automatic error printing
     H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
+    // open file
     open(flag);
-    current_flag = flag;
 }
 
 void Hdf5_file::open(Flag flag)
@@ -30,6 +31,7 @@ void Hdf5_file::open(Flag flag)
             {
                 // create
                 h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+                current_flag = Hdf5_file::read_write;
             }
             else
             {
