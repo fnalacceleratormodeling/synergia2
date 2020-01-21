@@ -40,25 +40,30 @@ install(TARGETS
     DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
     boost_test_mpi_fixture.h
-    comm_converter.h
     command_line_arg.h
+    comm_converter.h
     commxx.h
     commxx_divider.h
+    complex_error_function.h
     container_conversions.h
-    distributed_fft3d.h
+    containers_to_string.h
+    digits.h
     distributed_fft2d.h
+    distributed_fft3d.h
     fast_int_floor.h
     floating_point.h
     gsvector.h
     hdf5_chunked_array2d_writer.h
-    hdf5_misc.h
     hdf5_file.h
     hdf5_file.tcc
+    hdf5_misc.h
     hdf5_serial_writer.h
     hdf5_serial_writer.tcc
     hdf5_writer.h
     hdf5_writer.tcc
-    complex_error_function.h
+    invsqrt.h
+    logger.h
+    lsexpr.h
     multi_array_assert.h
     multi_array_check_equal.h
     multi_array_offsets.h
@@ -69,12 +74,10 @@ install(FILES
     numpy_multi_array_converter.h
     numpy_multi_ref_converter.h
     parallel_utils.h
+    restrict_extension.h
     simple_timer.h
-    serialization.h
     serialization_files.h
-    digits.h
-    logger.h
-    lsexpr.h
+    serialization.h
     synergia_omp.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/utils)
 if (BUILD_PYTHON_BINDINGS)
