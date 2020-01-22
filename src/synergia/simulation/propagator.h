@@ -71,6 +71,24 @@ public:
         steps = stepper_ptr->apply(this->lattice);
     }
 
+    void propagate(Bunch_simulator & simulator, Logger & logger);
+
+    void print_steps(Logger & logger) const
+    { for(auto const & s : steps) s.print(logger); }
+
+    // dump to a string
+    std::string dump() const
+    {
+        std::stringstream ss;
+
+        {
+            cereal::JSONOutputArchive ar(ss);
+            ar(*this);
+        }
+
+        return ss.str();
+    }
+
     // static method to load from a serialize string to void
     // the public default constructor
     static Propagator load_from_string(std::string const& str)
@@ -83,11 +101,6 @@ public:
 
         return p;
     }
-
-    void propagate(Bunch_simulator & simulator, Logger & logger);
-
-    void print_steps(Logger & logger) const
-    { for(auto const & s : steps) s.print(logger); }
 
 private:
 

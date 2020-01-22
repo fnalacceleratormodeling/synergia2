@@ -158,6 +158,101 @@ int run()
     return 0;
 }
 
+void run_and_save(std::string & prop_str, std::string & sim_str)
+{
+    Logger screen(0, LV::DEBUG);
+    Logger simlog(0, LV::INFO_STEP);
+
+    auto lsexpr = read_lsexpr_file("sis18-6.lsx");
+    Lattice lattice(lsexpr);
+
+    lattice.set_all_string_attribute("extractor_type", "libff");
+
+    // tune the lattice
+    Lattice_simulator::tune_circular_lattice(lattice);
+
+    // get the reference particle
+    auto const & ref = lattice.get_reference_particle();
+
+    screen(LV::INFO) 
+        << "reference momentum = " << ref.get_momentum() << " GeV\n";
+
+    // space charge
+    Space_charge_2d_open_hockney_options sc_ops(64, 64, 64);
+    sc_ops.comm_group_size = 1;
+
+    // stepper
+    Split_operator_stepper stepper(sc_ops, 71);
+
+    // Propagator
+    Propagator propagator(lattice, stepper);
+
+    // bunch simulator
+    auto sim = Bunch_simulator::create_single_bunch_simulator(
+            //lattice.get_reference_particle(), 1024 * 1024 * 4, 2.94e10,
+            lattice.get_reference_particle(), 4194394, 2.94e10,
+            Commxx() );
+
+    // propagate options
+    sim.set_turns(0, 1); // (start, num_turns)
+
+    auto & bunch = sim.get_bunch();
+
+    // or read from file
+    bunch.read_file("turn_particles_0000_4M.h5");
+
+    // statistics before propagate
+    print_statistics(bunch, screen);
+
+#if 0
+    // diagnostics
+    Diagnostics_track diag_track(2, "part_2_track.h5");
+    sim.reg_diag_per_turn("track_2", diag_track);
+
+    Diagnostics_bulk_track diag_bulk_track(6, 0, "bulk_track.h5");
+    sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
+#endif
+
+#if 0
+    Diagnostics_full2 diag_full2("diag_full.h5");
+    sim.reg_diag_per_turn("full2", diag_full2);
+    sim.reg_diag_per_turn("full3", Diagnostics_full2("diag_full3.h5"));
+#endif
+
+    // propagate
+    propagator.propagate(sim, simlog);
+
+    // statistics after propagate
+    print_statistics(bunch, screen);
+    simple_timer_print(screen);
+
+    // dump
+    prop_str = propagator.dump();
+    sim_str = sim.dump();
+
+    return;
+}
+
+void run_resume(std::string const& prop_str, std::string const& sim_str)
+{
+    Logger screen(0, LV::DEBUG);
+    Logger simlog(0, LV::INFO_STEP);
+
+    auto propagator = Propagator::load_from_string(prop_str);
+    auto sim = Bunch_simulator::load_from_string(sim_str);
+
+    sim.set_turns(1, 2);
+
+    auto & bunch = sim.get_bunch();
+    print_statistics(bunch, screen);
+
+    propagator.propagate(sim, simlog);
+
+    print_statistics(bunch, screen);
+}
+
+
+
 std::string ar_name()
 {
     std::stringstream ss;
@@ -242,13 +337,7 @@ std::string prop_save()
     Propagator propagator(lattice, stepper);
     //propagator.print_steps(screen);
  
-    std::stringstream ss;
-    {
-        cereal::JSONOutputArchive ar(ss);
-        ar(propagator);
-    }
-
-    return ss.str();
+    return propagator.dump();
 }
 
 void prop_load(std::string const& str)
@@ -267,10 +356,18 @@ int main(int argc, char ** argv)
     //bs_save();
     //bs_load();
 
-    std::string str = prop_save();
-    std::cout << str << "\n";
+    //std::string str = prop_save();
+    //prop_load(str);
 
-    prop_load(str);
+
+    std::string prop_str, sim_str;
+    run_and_save(prop_str, sim_str);
+
+    std::cout << prop_str << "\n";
+    std::cout << sim_str << "\n";
+
+    run_resume(prop_str, sim_str);
+
 
     Kokkos::finalize();
     MPI_Finalize();

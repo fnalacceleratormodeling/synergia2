@@ -267,6 +267,17 @@ public:
         return ss.str();
     }
 
+    static Bunch_simulator load_from_string(std::string const& str)
+    {
+        std::stringstream ss(str);
+        cereal::JSONInputArchive ar(ss);
+
+        auto bs = create_empty_bunch_simulator();
+        ar(bs);
+
+        return bs;
+    }
+
 public:
 
     int num_turns = 0;
