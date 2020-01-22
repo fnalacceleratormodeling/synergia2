@@ -75,6 +75,7 @@ private:
 public:
 
     /// Construct a Lattice_element with an empty name and type.
+    /// for serialization only
     Lattice_element();
 
     /// Construct a Lattice_element.
@@ -254,9 +255,25 @@ public:
     void
     print() const;
     
+private:
+
+    friend class Lattice;
+    friend class cereal::access;
+
     template<class Archive>
-    void
-    serialize(Archive & ar, const unsigned int version);
+    void serialize(Archive & ar)
+    {
+        ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(stype));
+        ar(CEREAL_NVP(type));
+        ar(CEREAL_NVP(ancestors));
+        ar(CEREAL_NVP(double_attributes));
+        ar(CEREAL_NVP(string_attributes));
+        ar(CEREAL_NVP(vector_attributes));
+        ar(CEREAL_NVP(length_attribute_name));
+        ar(CEREAL_NVP(bend_angle_attribute_name));
+        ar(CEREAL_NVP(revision));
+    }
 };
 
 

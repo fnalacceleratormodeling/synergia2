@@ -9,7 +9,8 @@
 #include "synergia/simulation/independent_stepper_elements.h"
 
 #include "synergia/utils/cereal.h"
-#include "synergia/utils/logger.h"
+
+#include <cereal/types/memory.hpp>
 
 class Propagator
 {
@@ -96,9 +97,20 @@ private:
     friend class cereal::access;
 
     template<class AR>
-    void serialize(AR & ar)
+    void save(AR & ar) const
     {
+        ar(CEREAL_NVP(lattice));
         ar(CEREAL_NVP(stepper_ptr));
+    }
+
+    template<class AR>
+    void load(AR & ar)
+    {
+        ar(CEREAL_NVP(lattice));
+        ar(CEREAL_NVP(stepper_ptr));
+
+        lattice.update();
+        steps = stepper_ptr->apply(lattice);
     }
 
 #if 0

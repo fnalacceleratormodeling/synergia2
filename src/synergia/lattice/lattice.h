@@ -12,7 +12,8 @@
 //#include "synergia/lattice/element_adaptor_map.h"
 
 #include "synergia/utils/logger.h"
-#include "synergia/utils/cereal.h"
+
+#include <cereal/types/list.hpp>
 
 /// The Lattice class contains an abstract representation of an ordered
 /// set of objects of type Lattice_element.
@@ -26,6 +27,10 @@ public:
         bool ref;        // lattice reference particle updated
         bool structure;  // add or remove any element
         bool element;    // changes to the element attributes
+
+        template<class AR>
+        void serialize(AR & ar)
+        { ar(ref, structure, element); }
     };
 
 private:
@@ -140,11 +145,30 @@ public:
     void
     print(Logger & logger) const;
 
-#if 0
+private:
+
+    friend class cereal::access;
+
     template<class Archive>
-    void
-    serialize(Archive & ar, const unsigned int version);
-#endif
+    void save(Archive & ar) const
+    {
+        ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(reference_particle));
+        ar(CEREAL_NVP(elements));
+        ar(CEREAL_NVP(updated));
+    }
+
+    template<class Archive>
+    void load(Archive & ar)
+    {
+        ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(reference_particle));
+        ar(CEREAL_NVP(elements));
+        ar(CEREAL_NVP(updated));
+
+        for(auto & e : elements) 
+            e.set_lattice(*this);
+    }
 };
 
 #endif /* LATTICE_H_ */
