@@ -252,11 +252,16 @@ public:
     std::vector<int> const & get_bunch_ranks(size_t train, size_t bunch) const
     { return bunch_ranks[train==0 ? bunch : pt_bunches + bunch]; }
 
-    void set_turns(int first, int turns)
-    { first_turn = first; num_turns = turns; }
-
     void set_lattice_reference_particle(Reference_particle const & ref);
 
+    // turns
+    void inc_turn() { ++curr_turn; }
+    void set_num_turns(int turns) { num_turns = turns; }
+
+    int current_turn() const { return curr_turn; }
+    int total_num_turns() const { return num_turns; }
+
+    // serialization helper
     std::string dump() const
     {
         std::stringstream ss;
@@ -278,13 +283,10 @@ public:
         return bs;
     }
 
-public:
-
-    int num_turns = 0;
-    int first_turn = 0;
-    int max_turns = 0;
-
 private:
+
+    int curr_turn = 0;   // current progress in turns
+    int num_turns = -1;  // total number of turns (-1 no limit)
 
     std::array<Bunch_train, 2> trains;
     std::vector<std::vector<int>> bunch_ranks;
@@ -311,9 +313,8 @@ private:
     template<class AR>
     void serialize(AR & ar)
     {
+        ar(CEREAL_NVP(curr_turn));
         ar(CEREAL_NVP(num_turns));
-        ar(CEREAL_NVP(first_turn));
-        ar(CEREAL_NVP(max_turns));
 
         ar(CEREAL_NVP(trains));
         ar(CEREAL_NVP(bunch_ranks));

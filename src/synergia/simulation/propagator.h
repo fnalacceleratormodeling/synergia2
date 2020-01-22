@@ -27,8 +27,6 @@ private:
 
 private:
 
-	void construct();
-
 	void do_before_start(
             Bunch_simulator & simulator, 
             Logger & logger);
@@ -71,8 +69,10 @@ public:
         steps = stepper_ptr->apply(this->lattice);
     }
 
-    void propagate(Bunch_simulator & simulator, Logger & logger);
+    // max_turns: number of turns in this propagate. -1 run to the end
+    void propagate(Bunch_simulator & simulator, Logger & logger, int max_turns = -1);
 
+    // print
     void print_steps(Logger & logger) const
     { for(auto const & s : steps) s.print(logger); }
 

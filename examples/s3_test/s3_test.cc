@@ -48,7 +48,7 @@ int run()
     sc_ops.comm_group_size = 1;
 
     // stepper
-    Split_operator_stepper_elements stepper(1, sc_ops);
+    Split_operator_stepper_elements stepper(sc_ops, 1);
 
     // Propagator
     Propagator propagator(lattice, stepper);
@@ -105,11 +105,8 @@ int run()
     sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
 #endif
 
-    // propagate options
-    sim.set_turns(0, 4); // (start, num_turns)
-
     // propagate
-    propagator.propagate(sim, screen);
+    propagator.propagate(sim, screen, 4);
 
     // print particles after propagate
     bunch.checkout_particles();

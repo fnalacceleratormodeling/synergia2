@@ -48,12 +48,9 @@ Lattice_simulator::tune_rfcavities(Lattice & lattice)
         accum_cdt += sim.get_bunch().get_design_reference_particle().get_state()[4]; 
     }, nullptr );
 
-    // run for one turn
-    sim.set_turns(0, 1);
-
     // propagate to get the accumulated cdt
     Logger simlog(0, LoggerV::ERROR);
-    propagator.propagate(sim, simlog);
+    propagator.propagate(sim, simlog, 1);
 
     // return the state
     auto state = sim.get_bunch().get_reference_particle().get_state();

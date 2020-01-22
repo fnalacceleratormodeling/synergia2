@@ -100,7 +100,7 @@ int run()
 #endif
 
     // propagate options
-    sim.set_turns(0, 1); // (start, num_turns)
+    sim.set_num_turns(1);
 
     auto & bunch = sim.get_bunch();
 
@@ -193,9 +193,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
             lattice.get_reference_particle(), 4194394, 2.94e10,
             Commxx() );
 
-    // propagate options
-    sim.set_turns(0, 1); // (start, num_turns)
-
+    // get bunch
     auto & bunch = sim.get_bunch();
 
     // or read from file
@@ -220,7 +218,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 #endif
 
     // propagate
-    propagator.propagate(sim, simlog);
+    propagator.propagate(sim, simlog, 2);
 
     // statistics after propagate
     print_statistics(bunch, screen);
@@ -241,12 +239,10 @@ void run_resume(std::string const& prop_str, std::string const& sim_str)
     auto propagator = Propagator::load_from_string(prop_str);
     auto sim = Bunch_simulator::load_from_string(sim_str);
 
-    sim.set_turns(1, 2);
-
     auto & bunch = sim.get_bunch();
     print_statistics(bunch, screen);
 
-    propagator.propagate(sim, simlog);
+    propagator.propagate(sim, simlog, 1);
 
     print_statistics(bunch, screen);
 }
@@ -363,8 +359,8 @@ int main(int argc, char ** argv)
     std::string prop_str, sim_str;
     run_and_save(prop_str, sim_str);
 
-    std::cout << prop_str << "\n";
-    std::cout << sim_str << "\n";
+    //std::cout << prop_str << "\n";
+    //std::cout << sim_str << "\n";
 
     run_resume(prop_str, sim_str);
 

@@ -101,11 +101,6 @@ Propagator::get_stepper_sptr()
 }
 #endif
 
-void
-Propagator::construct()
-{
-}
-
 #if 0
 void
 Propagator::set_checkpoint_period(int period)
@@ -237,7 +232,7 @@ Propagator::do_before_start(Bunch_simulator & simulator, Logger & logger)
     }
 #endif
 
-    if (simulator.first_turn == 0) 
+    if (simulator.current_turn() == 0) 
     {
         simulator.diag_action_step_and_turn(0, 0);
         simulator.prop_action_first(lattice);
@@ -446,7 +441,7 @@ Propagator::do_turn_end(
     //if (updates.structure()) steps = stepper.apply(lattice);
 
     // increment the turn number
-    simulator.first_turn = turn_count + 1;
+    simulator.inc_turn();
 
     //double t_turn1 = MPI_Wtime();
 
@@ -571,8 +566,19 @@ Propagator::do_turn_end(
 }
 
 void
-Propagator::propagate(Bunch_simulator & sim, Logger & logger)
+Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
 {
+    const int total_turns = sim.total_num_turns();
+
+    // parameter check
+    if (max_turns == -1 && total_turns == -1)
+    {
+        throw std::runtime_error(
+                "Max number of turns must be set either in the Bunch_simulator "
+                "(Bunch_simulator::set_num_turns(int)), or in the Propagator "
+                "(Propagator::propagate(..., int max_turns))" );
+    }
+
     try 
     {
         //double t_total = simple_timer_current();
@@ -580,17 +586,23 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
 
         do_before_start(sim, logger);
 
-        int turns_since_checkpoint = 0;
-        int orig_first_turn = sim.first_turn;
-        bool out_of_particles = false;
+        // first turn is always the current turn from simulator
+        int turn = sim.current_turn();
 
+        // decide the last turn
+        int last_turn = (max_turns == -1) ? total_turns : turn + max_turns;
+        if ((last_turn > total_turns) && (total_turns != -1)) last_turn = total_turns;
+
+        int turns_since_checkpoint = 0;
+        bool out_of_particles = false;
         double t_prop0 = MPI_Wtime();
 
         logger(LoggerV::INFO_TURN) 
             << "Propagator: starting turn " 
-            << sim.first_turn + 1 << "\n\n";
+            << turn + 1 << ", final turn "
+            << last_turn << "\n\n";
 
-        for (int turn_count = sim.first_turn; turn_count < sim.num_turns; ++turn_count) 
+        for (; turn < last_turn; ++turn) 
         {
             double t_turn0 = MPI_Wtime();
 
@@ -600,7 +612,7 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
             for (auto & step : steps)
             {
                 ++step_count;
-                do_step(sim, step, step_count, turn_count, logger);
+                do_step(sim, step, step_count, turn, logger);
 
                 out_of_particles = check_out_of_particles(sim, logger);
                 if (out_of_particles) break;
@@ -610,9 +622,13 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
 
             // turn end log
             logger(LoggerV::INFO_TURN) 
-                << "Propagator: turn " << std::setw(digits(sim.num_turns)) 
-                << turn_count + 1 << "/" << sim.num_turns 
+                << "Propagator: turn " << std::setw(digits(total_turns)) 
+                << turn + 1 << "/";
 
+            if (total_turns == -1) logger << "inf.";
+            else logger << total_turns;
+
+            logger
                 << ", time = " << std::fixed << std::setprecision(3) 
                 << t_turn1 - t_turn0 << "s" 
                 
@@ -639,7 +655,7 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
             if (out_of_particles) break;
 
             ++turns_since_checkpoint;
-            do_turn_end(sim, turn_count, logger);
+            do_turn_end(sim, turn, logger);
 
 #if 0
             if ((turns_since_checkpoint == checkpoint_period) 
@@ -652,23 +668,23 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
             }
 #endif
 
+#if 0
             if (((turn_count - orig_first_turn + 1) == sim.max_turns) 
                     && (turn_count != (sim.num_turns - 1))) 
             {
                 logger(LoggerV::INFO_TURN) 
                     << "Propagator: maximum number of turns reached\n";
 
-#if 0
                 if (turns_since_checkpoint > 0) 
                 {
                     t = simple_timer_current();
                     checkpoint(sim, logger, t);
                     t = simple_timer_show(t, "propagate-checkpoint_max");
                 }
-#endif
 
                 break;
             }
+#endif
 
 #if 0
             if (boost::filesystem::exists(stop_file_name)
@@ -689,8 +705,19 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger)
 
         }
 
-        if (out_of_particles) logger(LoggerV::WARNING) << "Propagator: no particles left\n";
-        // simple_timer_show(t_total, "propagate-total");
+        if (last_turn != total_turns)
+        {
+            logger(LoggerV::INFO_TURN) 
+                << "Propagator: maximum number of turns reached\n";
+
+            // TODO: checkpoint
+        }
+
+        if (out_of_particles) 
+        {
+            logger(LoggerV::WARNING) 
+                << "Propagator: no particles left\n";
+        }
 
         double t_prop1 = MPI_Wtime();
 
