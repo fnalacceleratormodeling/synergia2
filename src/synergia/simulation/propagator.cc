@@ -101,14 +101,6 @@ Propagator::get_stepper_sptr()
 }
 #endif
 
-Propagator::Propagator(Lattice const & lattice, Stepper const & stepper)
-: lattice(lattice)
-, steps()
-{
-    this->lattice.update();
-    steps = stepper.apply(this->lattice);
-}
-
 void
 Propagator::construct()
 {

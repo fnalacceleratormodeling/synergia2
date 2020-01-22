@@ -6,7 +6,7 @@
 #include "synergia/simulation/bunch_simulator.h"
 #include "synergia/simulation/step.h"
 #include "synergia/simulation/stepper.h"
-#include "synergia/simulation/split_operator_stepper_elements.h"
+#include "synergia/simulation/independent_stepper_elements.h"
 
 #include "synergia/utils/cereal.h"
 #include "synergia/utils/logger.h"
@@ -21,6 +21,8 @@ private:
 
     Lattice lattice;
     std::vector<Step> steps;
+    
+    std::unique_ptr<Stepper> stepper_ptr;
 
 private:
 
@@ -56,14 +58,48 @@ private:
 
 public:
 
-    explicit Propagator(
-            Lattice const & lattice, 
-            Stepper const & stepper = Split_operator_stepper_elements(1, Dummy_CO_options()) );
+    // given lattice and stepper
+    Propagator(
+            Lattice const& lattice, 
+            Stepper const& stepper = Independent_stepper_elements(1) )
+        : lattice(lattice)
+        , steps()
+        , stepper_ptr(stepper.clone())
+    {
+        this->lattice.update();
+        steps = stepper_ptr->apply(this->lattice);
+    }
+
+    // static method to load from a serialize string to void
+    // the public default constructor
+    static Propagator load_from_string(std::string const& str)
+    {
+        std::stringstream ss(str);
+        cereal::JSONInputArchive ar(ss);
+
+        Propagator p;
+        ar(p);
+
+        return p;
+    }
 
     void propagate(Bunch_simulator & simulator, Logger & logger);
 
     void print_steps(Logger & logger) const
     { for(auto const & s : steps) s.print(logger); }
+
+private:
+
+    // default ctor for serialization only
+    Propagator() : lattice(), steps(), stepper_ptr() { }
+
+    friend class cereal::access;
+
+    template<class AR>
+    void serialize(AR & ar)
+    {
+        ar(CEREAL_NVP(stepper_ptr));
+    }
 
 #if 0
     Stepper_sptr

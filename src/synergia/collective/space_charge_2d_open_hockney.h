@@ -2,8 +2,11 @@
 #define SPACE_CHARGE_2D_OPEN_HOCKNEY_H_
 
 #include "synergia/simulation/operator.h"
+#include "synergia/simulation/collective_operator_options.h"
+
 #include "synergia/collective/rectangular_grid.h"
 #include "synergia/collective/rectangular_grid_domain.h"
+
 #include "synergia/utils/distributed_fft2d.h"
 
 
@@ -19,7 +22,8 @@ struct Space_charge_2d_open_hockney_options : public CO_options
 
     int comm_group_size;
 
-    Space_charge_2d_open_hockney_options(int gridx, int gridy, int gridz)
+    Space_charge_2d_open_hockney_options(
+            int gridx = 32, int gridy = 32, int gridz = 32)
         : shape{gridx, gridy, gridz}
         , doubled_shape{gridx*2, gridy*2, gridz}
         , periodic_z(false)
@@ -33,7 +37,22 @@ struct Space_charge_2d_open_hockney_options : public CO_options
     { return new Space_charge_2d_open_hockney_options(*this); }
 
     Collective_operator * create_operator() const override;
+
+    template<class Archive>
+    void serialize(Archive & ar)
+    { 
+        ar(cereal::base_class<CO_options>(this));
+        ar(shape);
+        ar(doubled_shape);
+        ar(periodic_z);
+        ar(z_period);
+        ar(grid_entire_period);
+        ar(n_sigma);
+        ar(comm_group_size);
+    }
 };
+
+CEREAL_REGISTER_TYPE(Space_charge_2d_open_hockney_options)
 
 
 class Space_charge_2d_open_hockney : public Collective_operator

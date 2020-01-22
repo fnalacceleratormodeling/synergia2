@@ -17,9 +17,25 @@ private:
 
 public:
 
-    Independent_stepper_elements(int steps_per_element)
+    Independent_stepper_elements(int steps_per_element = 1)
         : steps_per_element(steps_per_element)
     { }
+
+    std::unique_ptr<Stepper> clone() const override
+    { return std::make_unique<Independent_stepper_elements>(*this); }
+
+private:
+
+    friend class cereal::access;
+
+    template<class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(cereal::base_class<Stepper>(this));
+        ar(steps_per_element);
+    }
 };
+
+CEREAL_REGISTER_TYPE(Independent_stepper_elements)
 
 #endif /* INDEPENDENT_STEPPER_ELEMENTS_H_ */

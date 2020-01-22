@@ -3,6 +3,7 @@
 
 #include "synergia/utils/logger.h"
 #include "synergia/simulation/operator.h"
+#include "synergia/simulation/collective_operator_options.h"
 #include "synergia/simulation/bunch_simulator.h"
 
 

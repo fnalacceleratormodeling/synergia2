@@ -1,15 +1,31 @@
 #ifndef STEPPER_H_
 #define STEPPER_H_
 
-#include "synergia/utils/cereal.h"
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/access.hpp>
+
 #include "synergia/simulation/step.h"
 
 class Stepper
 {
 public:
 
-    static const std::string force_diagnostics_attribute;
     static const double fixed_step_tolerance;
+
+public:
+
+    Stepper();
+
+    virtual ~Stepper() = default;
+    virtual std::unique_ptr<Stepper> clone() const = 0;
+
+    std::vector<Step> 
+    apply(Lattice const & lattice) const
+    { 
+        auto steps = apply_impl(lattice); 
+        create_operations(lattice, steps);
+        return steps;
+    }
 
 private:
 
@@ -22,11 +38,17 @@ private:
     }
 
     virtual std::vector<Step> 
-        apply_impl(Lattice const & lattice) const = 0;
+    apply_impl(Lattice const & lattice) const = 0;
 
-protected:
+    friend class cereal::access;
+
+    template<class Archive>
+    void serialize(Archive & ar)
+    { }
 
 #if 0
+protected:
+
     Independent_operator_sptr get_fixed_step(
             std::string const& name, 
             Lattice_elements::iterator & lattice_it, 
@@ -38,19 +60,6 @@ protected:
 
     Lattice_element_slices extract_slices(Steps const& steps);
 #endif
-
-public:
-
-    Stepper();
-    virtual ~Stepper() = default;
-
-    std::vector<Step> 
-        apply(Lattice const & lattice) const
-    { 
-        auto steps = apply_impl(lattice); 
-        create_operations(lattice, steps);
-        return steps;
-    }
 
 #if 0
     /// Deprecated
@@ -73,5 +82,13 @@ public:
 #endif
 
 };
+
+// include the archive types before registering the derived class
+#include <cereal/archives/json.hpp>
+
+// derived class type will be registered in the header of each
+// concrete stepper types, e.g.,
+// CEREAL_REGISTER_TYPE(Independent_stepper)
+
 
 #endif /* STEPPER_H_ */

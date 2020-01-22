@@ -2,6 +2,7 @@
 #define SPLIT_OPERATOR_STEPPER_ELEMENTS_H_
 
 #include "synergia/simulation/stepper.h"
+#include "synergia/collective/dummy_collective_operator.h"
 
 /// The Split_operator_stepper_elements class generates a constant number of
 /// split-operator steps per thick element. Thin elements are assigned
@@ -12,20 +13,36 @@ class Split_operator_stepper_elements : public Stepper
 private:
 
     int steps_per_element;
-    std::unique_ptr<CO_options> co_ops;
+    std::shared_ptr<const CO_options> co_ops;
 
     std::vector<Step> 
-        apply_impl(Lattice const & lattice) const override;
+    apply_impl(Lattice const & lattice) const override;
 
 public:
 
-    template<class COO>
-    Split_operator_stepper_elements(
-               int steps_per_element,
-               COO const & coo )
+    Split_operator_stepper_elements( 
+            CO_options const & coo = Dummy_CO_options(),
+            int steps_per_element = 1 )
     : steps_per_element(steps_per_element)
-    , co_ops(std::make_unique<COO>(coo))
+    , co_ops(coo.clone())
     { }
+
+    std::unique_ptr<Stepper> clone() const override
+    { return std::make_unique<Split_operator_stepper_elements>(*this); }
+
+private:
+
+    friend class cereal::access;
+
+    template<class Archive>
+    void serialize(Archive & ar)
+    {
+        ar(cereal::base_class<Stepper>(this));
+        ar(steps_per_element);
+        ar(co_ops);
+    }
 };
+
+CEREAL_REGISTER_TYPE(Split_operator_stepper_elements)
 
 #endif /* SPLIT_OPERATOR_STEPPER_ELEMENTS_H_ */

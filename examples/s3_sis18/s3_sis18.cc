@@ -165,7 +165,7 @@ std::string ar_name()
     return ss.str();
 }
 
-void save()
+void bs_save()
 {
     std::ofstream os(ar_name());
     cereal::JSONOutputArchive ar(os);
@@ -191,7 +191,7 @@ void save()
     ar(sim);
 }
 
-void load()
+void bs_load()
 {
     std::ifstream is(ar_name());
     cereal::JSONInputArchive ar(is);
@@ -211,6 +211,50 @@ void load()
 }
 
 
+std::string prop_save()
+{
+
+    Logger screen(0, LV::DEBUG);
+    Logger simlog(0, LV::INFO_TURN);
+
+    auto lsexpr = read_lsexpr_file("sis18-6.lsx");
+    Lattice lattice(lsexpr);
+
+    lattice.set_all_string_attribute("extractor_type", "libff");
+    // lattice.print(screen);
+
+    // tune the lattice
+    Lattice_simulator::tune_circular_lattice(lattice);
+
+    // get the reference particle
+    auto const & ref = lattice.get_reference_particle();
+
+    // space charge
+    Space_charge_2d_open_hockney_options sc_ops(64, 64, 64);
+    sc_ops.comm_group_size = 1;
+
+    // stepper
+    //Independent_stepper_elements stepper(1);
+    //Split_operator_stepper_elements stepper(1, sc_ops);
+    Split_operator_stepper stepper(sc_ops, 71);
+
+    // Propagator
+    Propagator propagator(lattice, stepper);
+    //propagator.print_steps(screen);
+ 
+    std::stringstream ss;
+    {
+        cereal::JSONOutputArchive ar(ss);
+        ar(propagator);
+    }
+
+    return ss.str();
+}
+
+void prop_load(std::string const& str)
+{
+    auto prop = Propagator::load_from_string(str);
+}
 
 
 int main(int argc, char ** argv)
@@ -220,9 +264,13 @@ int main(int argc, char ** argv)
 
     //run();
 
-    save();
-    load();
+    //bs_save();
+    //bs_load();
 
+    std::string str = prop_save();
+    std::cout << str << "\n";
+
+    prop_load(str);
 
     Kokkos::finalize();
     MPI_Finalize();

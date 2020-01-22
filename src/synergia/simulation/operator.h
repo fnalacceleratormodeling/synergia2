@@ -62,6 +62,8 @@ public:
     }
 };
 
+
+// collective
 class Collective_operator : public Operator
 {
 private:
@@ -75,43 +77,6 @@ public:
         : Operator(name, "collective", time)
     { }
 };
-
-struct CO_options
-{
-    virtual CO_options * clone() const = 0;
-    virtual Collective_operator * create_operator() const = 0;
-};
-
-
-// Dummy collective
-struct Dummy_CO_options : public CO_options
-{
-    std::string name = "dummy collective";
-
-    Collective_operator * create_operator() const override;
-    CO_options * clone() const override { return new Dummy_CO_options(*this); }
-};
-
-class Dummy_collective_operator : public Collective_operator
-{
-private:
-
-    virtual void apply_impl(
-            Bunch_simulator & simulator, 
-            double time_step, 
-            Logger & logger) override
-    { }
-
-public:
-
-    Dummy_collective_operator(Dummy_CO_options const & ops)
-        : Collective_operator(ops.name, 1.0)
-    { }
-};
-
-inline Collective_operator *
-Dummy_CO_options::create_operator() const
-{ return new Dummy_collective_operator(*this); }
 
 
 // Independent

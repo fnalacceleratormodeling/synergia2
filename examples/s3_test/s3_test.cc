@@ -1,6 +1,7 @@
 
 
 #include "synergia/simulation/propagator.h"
+#include "synergia/simulation/split_operator_stepper_elements.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/populate.h"
 //#include "synergia/bunch/diagnostics_track.h"
