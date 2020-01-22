@@ -105,6 +105,8 @@ Split_operator_stepper::apply_impl(Lattice const & lattice) const
     auto lattice_it  = lattice.get_elements().begin();
     auto lattice_end = lattice.get_elements().end();
 
+    if (lattice_it == lattice_end) return steps;
+
     double left = 0.0;
     double offset_fudge = 0.0;
 
