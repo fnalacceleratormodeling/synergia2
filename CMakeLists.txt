@@ -176,6 +176,9 @@ endif(EXTRA_CXX_FLAGS)
 message("-- VECTOR_FLAGS to ${VECTOR_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGSV_${VECTOR_FLAGS}")
 
+# enable fast-math, but disable the finite-math-only to avoid the std::isfinite() woes
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math -fno-finite-math-only")
+
 # simple timer
 if(USE_SIMPLE_TIMER)
     message("-- Simple timer profiling enabled")

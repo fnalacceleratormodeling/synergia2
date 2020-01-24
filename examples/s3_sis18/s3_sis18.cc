@@ -266,7 +266,7 @@ void bs_save()
     Diagnostics_dummy diag;
     b.add_diagnostics(diag, "dummy", "dummy.h5");
 
-    Diagnostics_loss d2();
+    Diagnostics_loss d2;
     //b.set_diag_loss_aperture(d2);
 
     b.checkout_particles();

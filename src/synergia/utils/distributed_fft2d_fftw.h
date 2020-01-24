@@ -4,7 +4,7 @@
 #include <fftw3.h>
 #include <fftw3-mpi.h>
 
-#include <vector>
+#include <array>
 #include <string>
 
 #include "synergia/utils/multi_array_typedefs.h"

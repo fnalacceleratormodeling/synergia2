@@ -1,1 +1,17 @@
-CC=/home/qlu/local/bin/gcc CXX=/home/qlu/local/bin/g++ cmake -DCMAKE_INSTALL_PREFIX=/home/qlu/s3-devel/install -DBoost_INCLUDE_DIR=/home/qlu/s2-devel/install/include -DFFTW3_LIBRARY_DIRS:PATH=/home/qlu/s2-devel/install/lib -DEIGEN3_INCLUDE_DIR:PATH=/home/qlu/s2-devel/install/include/eigen3 -DHDF5_ROOT=/home/qlu/s2-devel/install -DBUILD_PYTHON_BINDINGS=off  -DCMAKE_BUILD_TYPE=Release -DKOKKOS_ENABLE_OPENMP=on ../synergia2/
+Linux:
+CC=gcc CXX=g++ cmake -DCMAKE_INSTALL_PREFIX=/home/qlu/s3-devel/install -DFFTW3_LIBRARY_DIRS:PATH=/home/qlu/s2-devel/install/lib -DEIGEN3_INCLUDE_DIR:PATH=/home/qlu/s2-devel/install/include/eigen3 -DHDF5_ROOT=/home/qlu/s2-devel/install -DBUILD_PYTHON_BINDINGS=off  -DCMAKE_BUILD_TYPE=Release -DKOKKOS_ENABLE_OPENMP=on ../synergia2/
+
+Enable Python bindings:
+cmake -DBUILD_PYTHON_BINDINGS=on
+
+MacOS:
+brew install gcc hdf5 eigen fftw3
+
+MacOS with gcc:
+CC=gcc-9 CXX=g++-9 cmake -DKOKKOS_ENABLE_OPENMP=1 -DCMAKE_OSX_SYSROOT="/" -DCMAKE_OSX_DEPLOYMENT_TARGET="" ../synergia2/
+
+MacOS with apple clang (openmp missing, possible with '-Xpreprocessor -fopenmp -lomp'):
+cmake ../synergia2/
+
+Python 3 (homebrew):
+cmake -DPYTHON_EXECUTABLE=/usr/local/bin/python3 -DPYTHON_INCLUDE_DIR=/usr/local/Cellar/python/3.7.6_1/Frameworks/Python.framework/Headers/ -DPYTHON_LIB_DIR=/usr/local/Cellar/python/3.7.6_1/lib/

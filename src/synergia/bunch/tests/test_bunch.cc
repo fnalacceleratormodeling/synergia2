@@ -8,7 +8,7 @@ const double mass = 100.0;
 const double total_energy = 125.0;
 const int total_num = 100;
 const double real_num = 2.0e12;
-
+auto const id = Bunch::id;
 
 TEST_CASE("Bunch", "[Bunch]")
 {
@@ -21,8 +21,8 @@ TEST_CASE("Bunch", "[Bunch]")
     bunch.checkout_particles();
     auto parts = bunch.get_host_particles();
 
-    CHECK(parts(3, Bunch::id) == 3);
-    CHECK(parts(307, Bunch::id) == 307);
+    CHECK(parts(3, id) == 3);
+    CHECK(parts(307, id) == 307);
 
     auto idx1 = bunch.search_particle(12);
     CHECK(idx1 == 12);

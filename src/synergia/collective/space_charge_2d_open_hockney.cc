@@ -389,9 +389,11 @@ Space_charge_2d_open_hockney::update_domain(Bunch const & bunch)
 
     const double tiny = 1.0e-10;
 
-    if ((std[Bunch::x] < tiny) 
-            && (std[Bunch::y] < tiny) 
-            && (std[Bunch::z] < tiny)) 
+    const auto ix = Bunch::x;
+    const auto iy = Bunch::y;
+    const auto iz = Bunch::z;
+
+    if ( (std[ix] < tiny) && (std[iy] < tiny) && (std[iz] < tiny) ) 
     {
         throw std::runtime_error(
                 "Space_charge_3d_open_hockney_eigen::update_domain: "

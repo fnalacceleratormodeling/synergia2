@@ -25,8 +25,8 @@ private:
 
 public:
 
-    Independent_operation(std::string const & type) : type(type) 
-    { }
+    Independent_operation(std::string const & type) : type(type) { }
+    virtual ~Independent_operation() = default;
 
     void apply(Bunch & bunch, Logger & logger) const
     { apply_impl(bunch, logger); }
