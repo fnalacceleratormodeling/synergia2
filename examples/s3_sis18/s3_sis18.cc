@@ -8,10 +8,10 @@
 
 #include "synergia/bunch/populate.h"
 #include "synergia/bunch/core_diagnostics.h"
-#include "synergia/bunch/diagnostics_loss.h"
+//#include "synergia/bunch/diagnostics_loss.h"
 //#include "synergia/bunch/diagnostics_track.h"
 //#include "synergia/bunch/diagnostics_bulk_track.h"
-//#include "synergia/bunch/diagnostics_full2.h"
+#include "synergia/bunch/diagnostics_full2.h"
 
 #include "synergia/lattice/madx_reader.h"
 #include "synergia/utils/lsexpr.h"
@@ -211,14 +211,13 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
 #endif
 
-#if 0
-    Diagnostics_full2 diag_full2("diag_full.h5");
-    sim.reg_diag_per_turn("full2", diag_full2);
-    sim.reg_diag_per_turn("full3", Diagnostics_full2("diag_full3.h5"));
+#if 1
+    Diagnostics_full2 diag_full2;
+    sim.reg_diag_per_turn(diag_full2, "full2", "diag_full2.h5");
 #endif
 
     // propagate
-    propagator.propagate(sim, simlog, 2);
+    //propagator.propagate(sim, simlog, 1);
 
     // statistics after propagate
     print_statistics(bunch, screen);
@@ -231,7 +230,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     return;
 }
 
-void run_resume(std::string const& prop_str, std::string const& sim_str)
+void resume_and_save(std::string & prop_str, std::string & sim_str)
 {
     Logger screen(0, LV::DEBUG);
     Logger simlog(0, LV::INFO_STEP);
@@ -239,14 +238,11 @@ void run_resume(std::string const& prop_str, std::string const& sim_str)
     auto propagator = Propagator::load_from_string(prop_str);
     auto sim = Bunch_simulator::load_from_string(sim_str);
 
-    auto & bunch = sim.get_bunch();
-    print_statistics(bunch, screen);
-
     propagator.propagate(sim, simlog, 1);
 
-    print_statistics(bunch, screen);
+    prop_str = propagator.dump();
+    sim_str = sim.dump();
 }
-
 
 
 std::string ar_name()
@@ -301,46 +297,7 @@ void bs_load()
     std::cout << "1024.2 = " << parts(1024, 2) << "\n";
 }
 
-
-std::string prop_save()
-{
-
-    Logger screen(0, LV::DEBUG);
-    Logger simlog(0, LV::INFO_TURN);
-
-    auto lsexpr = read_lsexpr_file("sis18-6.lsx");
-    Lattice lattice(lsexpr);
-
-    lattice.set_all_string_attribute("extractor_type", "libff");
-    // lattice.print(screen);
-
-    // tune the lattice
-    Lattice_simulator::tune_circular_lattice(lattice);
-
-    // get the reference particle
-    auto const & ref = lattice.get_reference_particle();
-
-    // space charge
-    Space_charge_2d_open_hockney_options sc_ops(64, 64, 64);
-    sc_ops.comm_group_size = 1;
-
-    // stepper
-    //Independent_stepper_elements stepper(1);
-    //Split_operator_stepper_elements stepper(1, sc_ops);
-    Split_operator_stepper stepper(sc_ops, 71);
-
-    // Propagator
-    Propagator propagator(lattice, stepper);
-    //propagator.print_steps(screen);
- 
-    return propagator.dump();
-}
-
-void prop_load(std::string const& str)
-{
-    auto prop = Propagator::load_from_string(str);
-}
-
+#include "synergia/utils/json.h"
 
 int main(int argc, char ** argv)
 {
@@ -352,18 +309,17 @@ int main(int argc, char ** argv)
     //bs_save();
     //bs_load();
 
-    //std::string str = prop_save();
-    //prop_load(str);
-
-
     std::string prop_str, sim_str;
     run_and_save(prop_str, sim_str);
+
+    auto d = syn::json::parse(prop_str);
+    std::cout << d["value0"]["stepper_ptr"] << "\n";
 
     //std::cout << prop_str << "\n";
     //std::cout << sim_str << "\n";
 
-    run_resume(prop_str, sim_str);
-
+    //resume_and_save(prop_str, sim_str);
+    //resume_and_save(prop_str, sim_str);
 
     Kokkos::finalize();
     MPI_Finalize();

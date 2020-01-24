@@ -115,7 +115,7 @@ Bunch_simulator::construct(
         {
             throw std::runtime_error(
                     "Bunch_simulator::create_bunch_train_simulator() "
-                    "the number of bunches must be divisible by the number of ranks" );
+                    "the number of ranks must be divisible by the number of bunches" );
         }
 
         size_t ranks_per_bunch = size / num_bunches;

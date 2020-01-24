@@ -124,7 +124,8 @@ private:
                    double spacing_sec,
                    Commxx const & comm);
 
-
+    int get_bunch_idx(int train, int bunch) const
+    { return bunch_idx_map[train][bunch]; }
 
 public:
 
@@ -165,7 +166,9 @@ public:
             );
 
 
-    // diag per turn
+    // register a per-turn diagnostics (with an optional turn period)
+    // the train and bunch are indexed based on actual number of
+    // bunches per train
     template<class Diag>
     void reg_diag_per_turn(
             Diag const& diag, 
@@ -173,9 +176,15 @@ public:
             std::string const& filename,
             int train = 0, int bunch = 0, int period = 1 )
     { 
-        dt_step_period dt{train, bunch, name, trigger_step_period{period, -1}};
-        diags_step_period.push_back(dt);
-        get_bunch(train, bunch).add_diagnostics(diag, name, filename);
+        int bunch_idx = get_bunch_idx(train, bunch);
+        if (bunch_idx != -1)
+        {
+            dt_step_period dt{ train, bunch_idx, name, 
+                trigger_step_period{period, -1} };
+            diags_step_period.push_back(dt);
+            get_bunch(train, bunch_idx)
+                .add_diagnostics(diag, name, filename);
+        }
     }
 
 #if 0
@@ -294,6 +303,10 @@ private:
     int st_bunches;
     Commxx comm;
 
+    // from global [train][bunch] to local [train][bunch_idx] map
+    std::array<std::vector<int>, 2> bunch_idx_map;
+
+    // diagnostics action trigger conditions
     std::vector<dt_step_period> diags_step_period;
     std::vector<dt_step_listed> diags_step_listed;
     std::vector<dt_element>     diags_element;

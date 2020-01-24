@@ -581,9 +581,6 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
 
     try 
     {
-        //double t_total = simple_timer_current();
-        //double t = simple_timer_current();
-
         do_before_start(sim, logger);
 
         // first turn is always the current turn from simulator
@@ -731,6 +728,10 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
         std::cerr << e.what() << std::endl;
         MPI_Abort(MPI_COMM_WORLD, 888);
     }
+}
+
+void Propagator::checkpoint(Bunch_simulator const& sim) const
+{
 }
 
 #if 0

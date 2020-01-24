@@ -76,6 +76,10 @@ public:
     void print_steps(Logger & logger) const
     { for(auto const & s : steps) s.print(logger); }
 
+    // checkpoint and resume
+    void checkpoint(Bunch_simulator const& sim) const;
+    void resume();
+
     // dump to a string
     std::string dump() const
     {
