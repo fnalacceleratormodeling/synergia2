@@ -70,10 +70,12 @@ PYBIND11_MODULE(simulation, m)
                 "Create a Bunch_simulator with a single bunch.",
                 "reference_particle"_a, "num_particles"_a, "num_real_particles"_a, "commxx"_a = Commxx() )
         
+#if 0
         .def( "set_turns",
                 &Bunch_simulator::set_turns,
                 "Set the simulation start turn and total number of turns.",
                 "first_turn"_a, "num_turns"_a )
+#endif
 
         .def( "get_bunch",
                 py::overload_cast<size_t, size_t>(&Bunch_simulator::get_bunch, py::const_),

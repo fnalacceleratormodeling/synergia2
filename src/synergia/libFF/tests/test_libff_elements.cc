@@ -30,7 +30,7 @@ struct propagator_fixture
         //sim = Bunch_simulator::create_single_bunch_simulator(ref, 1, 1e09, Commxx());
 
         // propagate options (start turn, num turns)
-        sim.set_turns(0, 1);
+        // sim.set_turns(0, 1);
     }
 
     void propagate()
