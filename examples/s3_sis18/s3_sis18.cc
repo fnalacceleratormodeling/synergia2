@@ -217,7 +217,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 #endif
 
     // propagate
-    //propagator.propagate(sim, simlog, 1);
+    propagator.propagate(sim, simlog, 1);
 
     // statistics after propagate
     print_statistics(bunch, screen);
@@ -318,7 +318,7 @@ int main(int argc, char ** argv)
     //std::cout << prop_str << "\n";
     //std::cout << sim_str << "\n";
 
-    //resume_and_save(prop_str, sim_str);
+    resume_and_save(prop_str, sim_str);
     //resume_and_save(prop_str, sim_str);
 
     Kokkos::finalize();

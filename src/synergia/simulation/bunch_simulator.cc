@@ -67,14 +67,12 @@ Bunch_simulator::construct(
     Commxx comm_pri;
     Commxx comm_sec;
 
-    std::vector<std::vector<int>> bunch_ranks;
+    int num_ranks_pri = 0;
+    int num_ranks_sec = 0;
 
-    if (num_bunches == 0)
-    {
-        comm_pri = Commxx::Null;
-        comm_sec = Commxx::Null;
-    }
-    else if ( size < num_bunches )
+    // in the case of num_bunches=0, both num_ranks_pri/sec would be 0, so
+    // comm_pri/sec are both null communicators 
+    if ( size < num_bunches )
     {
         if (num_bunches % size != 0)
         {
@@ -83,33 +81,21 @@ Bunch_simulator::construct(
                     "the number of bunches must be divisible by the number of ranks" );
         }
 
-        size_t bunches_per_rank = num_bunches / size;
+        int bunch_per_rank = num_bunches / size;
 
-        size_t num_ranks_pri = std::ceil(1.0*num_bunches_pri/bunches_per_rank);
-        size_t num_ranks_sec = std::ceil(1.0*num_bunches_sec/bunches_per_rank);
-
-        size_t st_starting_rank = size - num_ranks_sec;
-
-        // which ranks (in the context of simulator comm) 
-        // are a particular bunch at
-        for (int b=0; b<num_bunches; ++b)
+        if (num_bunches_pri % bunch_per_rank != 0
+                || num_bunches_sec % bunch_per_rank != 0 )
         {
-            int rank = b / bunches_per_rank;
-            bunch_ranks.emplace_back(1, rank);
+            throw std::runtime_error(
+                    "Bunch_simulator::create_bunch_train_simulator() "
+                    "the number of bunches in primary or secondary train must be "
+                    "divisible by the number of bunches per rank" );
         }
 
-        // construct the communicators for the 
-        // primary and secondary trains
-        std::vector<int> p_ranks(num_ranks_pri);
-        std::vector<int> s_ranks(num_ranks_sec);
-
-        for (int r=0; r<num_ranks_pri; ++r) p_ranks[r] = r;
-        comm_pri = comm.group(p_ranks);
-
-        for (int r=0; r<num_ranks_sec; ++r) s_ranks[r] = st_starting_rank + r;
-        comm_sec = comm.group(s_ranks);
+        num_ranks_pri = num_bunches_pri/bunch_per_rank;
+        num_ranks_sec = num_bunches_sec/bunch_per_rank;
     }
-    else
+    else if ( num_bunches > 0)
     {
         if (size % num_bunches != 0)
         {
@@ -118,34 +104,22 @@ Bunch_simulator::construct(
                     "the number of ranks must be divisible by the number of bunches" );
         }
 
-        size_t ranks_per_bunch = size / num_bunches;
+        int rank_per_bunch = size / num_bunches;
 
-        size_t num_ranks_pri = ranks_per_bunch * num_bunches_pri;
-        size_t num_ranks_sec = ranks_per_bunch * num_bunches_sec;
-
-        size_t st_starting_rank = num_ranks_pri;
-
-        // which ranks (in the context of simulator comm) 
-        // do a particular bunch resides
-        for (int b=0; b<num_bunches; ++b)
-        {
-            int starting_rank = b * ranks_per_bunch;
-            std::vector<int> ranks(ranks_per_bunch);
-            std::iota(ranks.begin(), ranks.end(), starting_rank);
-            bunch_ranks.emplace_back(std::move(ranks));
-        }
-
-        // construct the communicators for the 
-        // primary and secondary trains
-        std::vector<int> p_ranks(num_ranks_pri);
-        std::vector<int> s_ranks(num_ranks_sec);
-
-        for (int r=0; r<num_ranks_pri; ++r) p_ranks[r] = r;
-        comm_pri = comm.group(p_ranks);
-
-        for (int r=0; r<num_ranks_sec; ++r) s_ranks[r] = st_starting_rank + r;
-        comm_sec = comm.group(s_ranks);
+        num_ranks_pri = rank_per_bunch * num_bunches_pri;
+        num_ranks_sec = rank_per_bunch * num_bunches_sec; 
     }
+
+    // construct the communicators for the 
+    // primary and secondary trains
+    std::vector<int> p_ranks(num_ranks_pri);
+    std::vector<int> s_ranks(num_ranks_sec);
+
+    for (int r=0; r<num_ranks_pri; ++r) p_ranks[r] = r;
+    comm_pri = comm.group(p_ranks);
+
+    for (int r=0; r<num_ranks_sec; ++r) s_ranks[r] = num_ranks_pri + r;
+    comm_sec = comm.group(s_ranks);
 
     return Bunch_simulator( Bunch_train( ref_pri, 
                                          num_bunches_pri, 
@@ -161,22 +135,104 @@ Bunch_simulator::construct(
                                          spacing_sec, 
                                          comm_sec,
                                          1 ),
-                            bunch_ranks, 
                             comm );
+
+
+
+    // A more general approach to the above logic could be like:
+    //
+    // bunch_ranks[ti][bi][ri]:
+    //
+    //   stores the MPI rank in the simulator communicator of given
+    //   bunch index and rank inex
+    //
+    //   ti - index of the train (0 or 1)
+    //   bi - index of the bunch (0 to num_bunches of the train)
+    //   ri - index from 0 to number of ranks of this bunch
+    //
+    // bunch_idx_map[ti][bi]
+    //
+    //   stores the array index in the local bunch array of the
+    //   given train/bunch. -1 if the bunch is not present in the
+    //   current rank
+    //
+    //   ti: index of the train, 0 or 1
+    //   bi: index of the bunch, 0 to num_bunches in the train
+    //
+    // E.g.: 
+    //
+    //   1. num_bunches_pri = 1, num_bunches_sec = 1
+    //      total 2 bunches, 8 ranks (n_ranks > n_bunches)
+    //
+    //      bunch_ranks = { 
+    //          { {0, 1, 2, 3} }, 
+    //          { {4, 5, 6, 7} } 
+    //      }
+    //
+    //      First bunch spans across 4 MPI processors of rank (0, 1, 
+    //      2, and 3), in the context of the bunch simulator 
+    //      communicator. The second bunch on rank (4, 5, 6, and 7). 
+    //
+    //      bunch_idx_map = { {0}, {-1} } on rank 0
+    //      bunch_idx_map = { {0}, {-1} } on rank 1
+    //      bunch_idx_map = { {0}, {-1} } on rank 2
+    //      bunch_idx_map = { {0}, {-1} } on rank 3
+    //      bunch_idx_map = { {-1}, {0} } on rank 4
+    //      bunch_idx_map = { {-1}, {0} } on rank 5
+    //      bunch_idx_map = { {-1}, {0} } on rank 6
+    //      bunch_idx_map = { {-1}, {0} } on rank 7
+    //
+    //
+    //   2. num_bunches_pri = 2, num_bunches_sec = 2
+    //      4 bunches, 4 ranks (n_ranks = n_bunches)
+    //
+    //      bunch_ranks = { 
+    //          { {0}, {1} }, 
+    //          { {2}, {3} } 
+    //      }
+    //
+    //      Each of the bunch takes over a single rank from 0 to 3. 
+    //
+    //      bunch_idx_map = { { 0, -1}, {-1, -1} } on rank 0
+    //      bunch_idx_map = { {-1,  0}, {-1, -1} } on rank 1
+    //      bunch_idx_map = { {-1, -1}, { 0, -1} } on rank 2
+    //      bunch_idx_map = { {-1, -1}, {-1,  0} } on rank 3
+    //
+    //
+    //   3. num_bunches_pri = 2, num_bunches_sec = 2
+    //      4 bunches, 2 ranks (n_ranks < n_bunches)
+    //
+    //      bunch_ranks = { 
+    //          { {0}, {0} }, 
+    //          { {1], {1} }
+    //      }
+    //
+    //      The first two bunches reside on rank 0, and the next two 
+    //      on rank 1. 
+    //
+    //      bunch_idx_map = { { 0,  1}, {-1, -1} } on rank 0
+    //      bunch_idx_map = { {-1, -1}, { 0,  1} } on rank 1
+    //
+    //   4. num_bunches_pri = 4, num_bunches_sec = 2
+    //      6 bunches, 3 ranks (n_ranks < n_bunches)
+    //
+    //      bunch_ranks = { 
+    //          { {0}, {0}, {1}, {1} }, 
+    //          { {2}, {2} }
+    //      }
+    //
+    //      bunch_idx_map = { { 0,  1, -1, -1}, {-1, -1} } on rank 0
+    //      bunch_idx_map = { {-1, -1,  0,  1}, {-1, -1} } on rank 1
+    //      bunch_idx_map = { {-1, -1, -1, -1}, { 0,  1} } on rank 2
+    //
 }
-
-
 
 
 Bunch_simulator::Bunch_simulator(
         Bunch_train && pt, 
         Bunch_train && st,
-        std::vector<std::vector<int>> const & bunch_ranks,
         Commxx const & comm )
     : trains{std::move(pt), std::move(st)}
-    , bunch_ranks(bunch_ranks)
-    , pt_bunches(pt.get_size())
-    , st_bunches(st.get_size())
     , comm(comm)
     , diags_step_period()
     , diags_step_listed()
@@ -185,6 +241,18 @@ Bunch_simulator::Bunch_simulator(
     , prop_actions_step_end()
     , prop_actions_turn_end()
 {
+}
+
+std::vector<int> 
+Bunch_simulator::get_bunch_ranks(size_t train, size_t bunch) const
+{
+    int rank_per_bunch = std::ceil( 1.0 * comm.size() / 
+        (trains[0].get_num_bunches() + trains[1].get_num_bunches()) );
+
+    std::vector<int> ranks(rank_per_bunch);
+    std::iota(ranks.begin(), ranks.end(), bunch*rank_per_bunch);
+
+    return ranks;
 }
 
 void

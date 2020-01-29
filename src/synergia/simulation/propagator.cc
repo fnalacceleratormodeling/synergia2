@@ -638,7 +638,8 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
                 for(auto const& bunch : train.get_bunches())
                 {
                     logger << bunch.get_total_num();
-                    if (bunch.get_array_index() != train.get_size()-1) logger << ", ";
+                    if (bunch.get_array_index() != train.get_bunch_array_size()-1) 
+                        logger << ", ";
                 }
 
                 logger << ")";

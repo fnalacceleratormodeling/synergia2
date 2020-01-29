@@ -109,7 +109,6 @@ private:
     // constructor
     Bunch_simulator( Bunch_train && pt, 
                      Bunch_train && st, 
-                     std::vector<std::vector<int>> const & bunch_ranks,
                      Commxx const & comm );
 
 
@@ -124,8 +123,8 @@ private:
                    double spacing_sec,
                    Commxx const & comm);
 
-    int get_bunch_idx(int train, int bunch) const
-    { return bunch_idx_map[train][bunch]; }
+    int get_bunch_array_idx(int train, int bunch) const
+    { return trains[train].get_bunch_array_idx(bunch); }
 
 public:
 
@@ -176,7 +175,7 @@ public:
             std::string const& filename,
             int train = 0, int bunch = 0, int period = 1 )
     { 
-        int bunch_idx = get_bunch_idx(train, bunch);
+        int bunch_idx = get_bunch_array_idx(train, bunch);
         if (bunch_idx != -1)
         {
             dt_step_period dt{ train, bunch_idx, name, 
@@ -258,8 +257,7 @@ public:
     Bunch const & get_bunch(size_t train = 0, size_t bunch = 0) const
     { return trains[train][bunch]; }
 
-    std::vector<int> const & get_bunch_ranks(size_t train, size_t bunch) const
-    { return bunch_ranks[train==0 ? bunch : pt_bunches + bunch]; }
+    std::vector<int> get_bunch_ranks(size_t train, size_t bunch) const;
 
     void set_lattice_reference_particle(Reference_particle const & ref);
 
@@ -298,13 +296,7 @@ private:
     int num_turns = -1;  // total number of turns (-1 no limit)
 
     std::array<Bunch_train, 2> trains;
-    std::vector<std::vector<int>> bunch_ranks;
-    int pt_bunches;
-    int st_bunches;
     Commxx comm;
-
-    // from global [train][bunch] to local [train][bunch_idx] map
-    std::array<std::vector<int>, 2> bunch_idx_map;
 
     // diagnostics action trigger conditions
     std::vector<dt_step_period> diags_step_period;
@@ -330,9 +322,6 @@ private:
         ar(CEREAL_NVP(num_turns));
 
         ar(CEREAL_NVP(trains));
-        ar(CEREAL_NVP(bunch_ranks));
-        ar(CEREAL_NVP(pt_bunches));
-        ar(CEREAL_NVP(st_bunches));
         ar(CEREAL_NVP(comm));
 
         ar(CEREAL_NVP(diags_step_period));

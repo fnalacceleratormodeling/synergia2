@@ -20,6 +20,11 @@ private:
     int num_bunches;
     int num_buckets;
 
+    // bunch_idx_map[bunch] stores the index in the local bunch array.
+    // the array has the dim of num_bunches, if the bunch is not present in 
+    // the current rank, the stored value is -1
+    std::vector<int> bunch_idx_map;
+
     /// counts and offsets are needed for impedance, counts.size()=offsets.size()=num_procs
     /// they are meaningfull only on the local rank=0 of every bunch communicator 
     /// for example:  3 bunches on 5 processors: proc 2 and 4 has local rank different form zero
@@ -52,8 +57,11 @@ public:
     { return index; }
 
     // number of bunches on this rank (size of the bunch array)
-    size_t get_size() const
+    size_t get_bunch_array_size() const
     { return bunches.size(); }
+
+    int get_bunch_array_idx(int bunch) const
+    { return bunch_idx_map[bunch]; }
 
     // total number of bunches in the train. it is not always
     // the same as the size of the bunch array

@@ -120,6 +120,7 @@ Bunch_train::Bunch_train(
 , index(index)
 , num_bunches(num_bunches)
 , num_buckets(num_bunches)
+, bunch_idx_map(num_bunches, -1)
 {
     for(auto i=0; i<num_bunches; ++i)
         spacings.emplace_back( spacing );
@@ -132,28 +133,48 @@ Bunch_train::Bunch_train(
     int rank = comm.rank();
     int size = comm.size();
 
-    int bunches_per_rank = std::ceil(1.0*num_bunches/size);
-    int ranks_per_bunch  = std::ceil(1.0*size/num_bunches);
+    int bunches_per_rank = 0;
+    int color = 0;
 
-    int total_colors = std::ceil(1.0*size/ranks_per_bunch);
-    int ranks_per_color = size / total_colors;
-
-    bunches.reserve(bunches_per_rank);
-
-    for(int b=0; b<bunches_per_rank; ++b)
+    if (size < num_bunches)
     {
-        int bunch_index = rank * bunches_per_rank + b;
+       if (num_bunches % size != 0)
+       {
+           throw std::runtime_error( 
+                   "Bunch_train::Bunch_train() number of bunches must be divisible "
+                   "by the number of ranks." ); 
+       }
 
-        int color = rank / ranks_per_color;
-        auto bunch_comm = comm.split(color, 0);
+       bunches_per_rank = num_bunches / size;
+       color = rank;
+    }
+    else
+    {
+        if (size % num_bunches != 0)
+        {
+            throw std::runtime_error(
+                    "Bunch_train::Bunch_train() number of ranks must be divisible "
+                    "by the number of bunches." );
+        }
+
+        bunches_per_rank = 1;
+        color = rank / (size / num_bunches);  // rank / ranks_per_bunch
+    }
+
+    for (int b=0; b<bunches_per_rank; ++b)
+    {
+        int  b_idx = b + color * bunches_per_rank;
+        bunch_idx_map[b_idx] = bunches.size();
+
+        auto bunch_comm = comm.split(color);
 
         bunches.emplace_back( ref, 
                 num_particles_per_bunch,
                 num_real_particles_per_bunch,
                 bunch_comm,
                 0,             // num of specatator particles
-                bunch_index,   // bunch index in the train
-                bunch_index,   // bucket index set to the same of bunch index
+                b_idx,         // bunch index in the train
+                b_idx,         // bucket index set to the same of bunch index
                 bunches.size() // array index in the bunches array
                 );
     }
