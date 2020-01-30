@@ -10,6 +10,9 @@ target_link_libraries(synergia_parallel_utils
     #${Boost_SERIALIZATION_LIBRARIES}
     )
 
+add_library(synergia_test_main STATIC catch_test_main.cc)
+target_link_libraries(synergia_test_main kokkos)
+
 add_library(synergia_serialization 
     #serialization_files.cc
     cereal_files.cc
