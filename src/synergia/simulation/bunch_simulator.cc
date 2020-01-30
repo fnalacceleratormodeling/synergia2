@@ -269,6 +269,24 @@ Bunch_simulator::Bunch_simulator(
 {
 }
 
+int 
+Bunch_simulator::get_bunch_array_idx(int train, int bunch) const
+{ 
+    if (train > 1) return -1;
+    if (bunch >= trains[train].get_num_bunches()) return -1;
+
+    return trains[train].get_bunch_array_idx(bunch);
+}
+
+bool
+Bunch_simulator::has_bunch(size_t train, size_t bunch) const
+{
+    if (train > 1) return false;
+    if (bunch >= trains[train].get_num_bunches()) return false;
+
+    return get_bunch_array_idx(train, bunch) != -1;
+}
+
 Bunch & 
 Bunch_simulator::get_bunch(size_t train, size_t bunch)
 {

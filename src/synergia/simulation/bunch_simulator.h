@@ -123,8 +123,7 @@ private:
                    double spacing_sec,
                    Commxx const & comm);
 
-    int get_bunch_array_idx(int train, int bunch) const
-    { return trains[train].get_bunch_array_idx(bunch); }
+    int get_bunch_array_idx(int train, int bunch) const;
 
 public:
 
@@ -238,27 +237,26 @@ public:
     void prop_action_step_end(Lattice & lattice, int turn, int step);
     void prop_action_turn_end(Lattice & lattice, int turn);
 
+    // set reference particle
+    void set_lattice_reference_particle(Reference_particle const & ref);
+
     // accessors
-    std::array<Bunch_train, 2> & get_trains()
-    { return trains; }
+    std::array<Bunch_train, 2>      & get_trains()       { return trains; }
+    std::array<Bunch_train, 2> const& get_trains() const { return trains; }
 
-    std::array<Bunch_train, 2> const & get_trains() const
-    { return trains; }
-
-    Bunch_train & operator[](size_t idx)
-    { return trains[idx]; }
-
-    Bunch_train const & operator[](size_t idx) const
-    { return trains[idx]; }
+    Bunch_train      & operator[](size_t idx)       { return trains[idx]; }
+    Bunch_train const& operator[](size_t idx) const { return trains[idx]; }
 
     // retrive the bunch according to its index in the train, 
     // not the index in the array
     Bunch      & get_bunch(size_t train = 0, size_t bunch = 0);
     Bunch const& get_bunch(size_t train = 0, size_t bunch = 0) const;
 
-    std::vector<int> get_bunch_ranks(size_t train, size_t bunch) const;
+    // test. returns false when train and bunch out of bounds
+    bool has_bunch(size_t train, size_t bunch) const;
 
-    void set_lattice_reference_particle(Reference_particle const & ref);
+    // which ranks are a given bunch on
+    std::vector<int> get_bunch_ranks(size_t train, size_t bunch) const;
 
     // turns
     void inc_turn() { ++curr_turn; }
