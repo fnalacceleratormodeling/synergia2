@@ -94,13 +94,14 @@ Bunch_simulator::create_empty_bunch_simulator()
 
 Bunch_simulator
 Bunch_simulator::create_single_bunch_simulator(
-        Reference_particle const & ref,
+        Reference_particle const& ref,
         size_t num_particles,
         double num_real_particles,
-        Commxx const & comm )
+        Commxx const& comm )
 {
     return construct( ref, ref, 
-                      num_particles, num_real_particles,
+                      num_particles, 
+                      num_real_particles,
                       1,   0,   // num_bunches
                       1.0, 1.0, // spacing
                       comm );
@@ -109,31 +110,55 @@ Bunch_simulator::create_single_bunch_simulator(
 
 Bunch_simulator 
 Bunch_simulator::create_bunch_train_simulator(
-        Reference_particle const & ref,
+        Reference_particle const& ref,
         size_t num_particles,
         double num_real_particles,
         size_t num_bunches,
         double spacing,
-        Commxx const & comm )
+        Commxx const& comm )
 {
     return construct( ref, ref, 
-                      num_particles, num_real_particles,
+                      num_particles, 
+                      num_real_particles,
                       num_bunches, 0, // num_bunches
                       spacing, 1.0,   // spacing
                       comm );
 }
 
+Bunch_simulator 
+Bunch_simulator::create_two_trains_simulator(
+        Reference_particle const& ref_pri,
+        Reference_particle const& ref_sec,
+        size_t num_particles,
+        double num_real_particles,
+        size_t num_bunches_pri,
+        size_t num_bunches_sec,
+        double spacing_pri,
+        double spacing_sec,
+        Commxx const& comm )
+{
+    return construct( ref_pri, ref_sec, 
+                      num_particles, 
+                      num_real_particles,
+                      num_bunches_pri,
+                      num_bunches_sec,
+                      spacing_pri, 
+                      spacing_sec,
+                      comm );
+}
+
+
 Bunch_simulator
 Bunch_simulator::construct(
-        Reference_particle const & ref_pri,
-        Reference_particle const & ref_sec,
+        Reference_particle const& ref_pri,
+        Reference_particle const& ref_sec,
         size_t num_part,
         double num_real_part,
         size_t num_bunches_pri,
         size_t num_bunches_sec,
         double spacing_pri,
         double spacing_sec,
-        Commxx const & comm)
+        Commxx const& comm)
 {
     std::vector<int> p_ranks;
     std::vector<int> s_ranks;
@@ -257,7 +282,7 @@ Bunch_simulator::construct(
 Bunch_simulator::Bunch_simulator(
         Bunch_train && pt, 
         Bunch_train && st,
-        Commxx const & comm )
+        Commxx const& comm )
     : trains{std::move(pt), std::move(st)}
     , comm(comm)
     , diags_step_period()
@@ -349,12 +374,12 @@ Bunch_simulator::diag_action_element(Lattice_element const& element)
 
 
 void
-Bunch_simulator::diag_action_operator(Operator const & opr)
+Bunch_simulator::diag_action_operator(Operator const& opr)
 {
 }
 
 void
-Bunch_simulator::diag_action_operation(Independent_operation const & opn)
+Bunch_simulator::diag_action_operation(Independent_operation const& opn)
 {
 }
 
@@ -414,7 +439,7 @@ Bunch_simulator::prop_action_turn_end(Lattice & lattice, int turn)
 }
 
 void 
-Bunch_simulator::set_lattice_reference_particle(Reference_particle const & ref)
+Bunch_simulator::set_lattice_reference_particle(Reference_particle const& ref)
 {
     for(auto & train : get_trains())
     {

@@ -27,14 +27,14 @@ private:
     // bool trigger(int turn, int step)
     using trigger_step_t = std::function<bool(int, int)>;
 
-    // bool trigger(Lattice_element const & ele)
-    using trigger_ele_t  = std::function<bool(Lattice_element const &)>;
+    // bool trigger(Lattice_element const& ele)
+    using trigger_ele_t  = std::function<bool(Lattice_element const&)>;
 
-    // bool trigger(Operator const & opr)
-    using trigger_opr_t  = std::function<bool(Operator const &)>;
+    // bool trigger(Operator const& opr)
+    using trigger_opr_t  = std::function<bool(Operator const&)>;
 
-    // bool trigger(Operation const & opn)
-    using trigger_opn_t  = std::function<bool(Independent_operation const &)>;
+    // bool trigger(Operation const& opn)
+    using trigger_opn_t  = std::function<bool(Independent_operation const&)>;
 #endif
 
     struct trigger_step_period
@@ -109,19 +109,19 @@ private:
     // constructor
     Bunch_simulator( Bunch_train && pt, 
                      Bunch_train && st, 
-                     Commxx const & comm );
+                     Commxx const& comm );
 
 
     static Bunch_simulator 
-        construct( Reference_particle const & ref_pri,
-                   Reference_particle const & ref_sec,
+        construct( Reference_particle const& ref_pri,
+                   Reference_particle const& ref_sec,
                    size_t num_part,
                    double num_real_part,
                    size_t num_bunches_pri,
                    size_t num_bunches_sec,
                    double spacing_pri,
                    double spacing_sec,
-                   Commxx const & comm);
+                   Commxx const& comm);
 
     int get_bunch_array_idx(int train, int bunch) const;
 
@@ -136,31 +136,33 @@ public:
 
     static Bunch_simulator 
         create_single_bunch_simulator(
-            Reference_particle const & ref,
+            Reference_particle const& ref,
             size_t num_particles,
             double num_real_particles,
-            Commxx const & comm = Commxx()
+            Commxx const& comm = Commxx()
             );
 
     static Bunch_simulator 
         create_bunch_train_simulator(
-            Reference_particle const & ref,
+            Reference_particle const& ref,
             size_t num_particles,
             double num_real_particles,
             size_t num_bunches,
             double spacing,
-            Commxx const & comm = Commxx()
+            Commxx const& comm = Commxx()
             );
 
     static Bunch_simulator 
         create_two_trains_simulator(
-            Reference_particle const & primary_ref,
-            Reference_particle const & secondary_ref,
+            Reference_particle const& ref_pri,
+            Reference_particle const& ref_sec,
             size_t num_particles,
             double num_real_particles,
-            size_t num_bunches_primary,
-            size_t num_bunches_secondary,
-            Commxx const & comm = Commxx()
+            size_t num_bunches_pri,
+            size_t num_bunches_sec,
+            double spacing_pri,
+            double spacing_sec,
+            Commxx const& comm = Commxx()
             );
 
 
@@ -228,9 +230,9 @@ public:
 
     // diag actions
     void diag_action_step_and_turn(int turn_num, int step_num);
-    void diag_action_element(Lattice_element const & element);
-    void diag_action_operator(Operator const & opr);
-    void diag_action_operation(Independent_operation const & opn);
+    void diag_action_element(Lattice_element const& element);
+    void diag_action_operator(Operator const& opr);
+    void diag_action_operation(Independent_operation const& opn);
 
     // propagate actions
     void prop_action_first(Lattice & lattice);
@@ -238,7 +240,7 @@ public:
     void prop_action_turn_end(Lattice & lattice, int turn);
 
     // set reference particle
-    void set_lattice_reference_particle(Reference_particle const & ref);
+    void set_lattice_reference_particle(Reference_particle const& ref);
 
     // accessors
     std::array<Bunch_train, 2>      & get_trains()       { return trains; }
