@@ -326,6 +326,211 @@ TEST_CASE("create bunch train (3 bunches)", "[Bunch_simulator]")
     }
 }
 
+TEST_CASE("create two bunch trains (4 and 2 bunches)", "[Bunch_simulator]")
+{
+    int mpi_size = Commxx().size();
+    int mpi_rank = Commxx().rank();
 
+    const size_t nb_pt = 4;
+    const size_t nb_st = 2;
 
+    const double spacing = 1.0;
+
+    if (mpi_size == 1)
+    {
+        auto sim = Bunch_simulator::create_two_trains_simulator(
+                ref, ref, total_num, real_num, nb_pt, nb_st, spacing, spacing, Commxx() );
+
+        CHECK(sim[0].get_num_bunches() == 4);
+        CHECK(sim[1].get_num_bunches() == 2);
+
+        REQUIRE(sim[0].get_bunch_array_size() == 4);
+        REQUIRE(sim[1].get_bunch_array_size() == 2);
+
+        REQUIRE(sim[0][0].get_array_index() == 0);
+        REQUIRE(sim[0][0].get_bunch_index() == 0);
+        REQUIRE(sim[0][0].get_bucket_index() == 0);
+
+        REQUIRE(sim[0][1].get_array_index() == 1);
+        REQUIRE(sim[0][1].get_bunch_index() == 1);
+        REQUIRE(sim[0][1].get_bucket_index() == 1);
+
+        REQUIRE(sim[0][2].get_array_index() == 2);
+        REQUIRE(sim[0][2].get_bunch_index() == 2);
+        REQUIRE(sim[0][2].get_bucket_index() == 2);
+
+        REQUIRE(sim[0][3].get_array_index() == 3);
+        REQUIRE(sim[0][3].get_bunch_index() == 3);
+        REQUIRE(sim[0][3].get_bucket_index() == 3);
+
+        REQUIRE(sim[1][0].get_array_index() == 0);
+        REQUIRE(sim[1][0].get_bunch_index() == 0);
+        REQUIRE(sim[1][0].get_bucket_index() == 0);
+
+        REQUIRE(sim[1][1].get_array_index() == 1);
+        REQUIRE(sim[1][1].get_bunch_index() == 1);
+        REQUIRE(sim[1][1].get_bucket_index() == 1);
+
+        REQUIRE(sim.has_local_bunch(0, 0));
+        REQUIRE(sim.has_local_bunch(0, 1));
+        REQUIRE(sim.has_local_bunch(0, 2));
+        REQUIRE(sim.has_local_bunch(0, 3));
+
+        REQUIRE(sim.has_local_bunch(1, 0));
+        REQUIRE(sim.has_local_bunch(1, 1));
+
+        CHECK_THROWS(sim.get_bunch(0, 4));
+        CHECK_THROWS(sim.get_bunch(1, 2));
+
+        CHECK(sim.get_bunch(0, 0).get_array_index() == 0);
+        CHECK(sim.get_bunch(0, 0).get_bunch_index() == 0);
+        CHECK(sim.get_bunch(0, 0).get_bucket_index() == 0);
+        CHECK(sim.get_bunch(0, 0).get_local_num() == total_num);
+
+        CHECK(sim.get_bunch(0, 1).get_array_index() == 1);
+        CHECK(sim.get_bunch(0, 1).get_bunch_index() == 1);
+        CHECK(sim.get_bunch(0, 1).get_bucket_index() == 1);
+        CHECK(sim.get_bunch(0, 1).get_local_num() == total_num);
+
+        CHECK(sim.get_bunch(0, 2).get_array_index() == 2);
+        CHECK(sim.get_bunch(0, 2).get_bunch_index() == 2);
+        CHECK(sim.get_bunch(0, 2).get_bucket_index() == 2);
+        CHECK(sim.get_bunch(0, 2).get_local_num() == total_num);
+    }
+    else if (mpi_size == 2)
+    {
+        CHECK_THROWS( Bunch_simulator::create_two_trains_simulator(
+                ref, ref, total_num, real_num, nb_pt, nb_st, spacing, spacing, Commxx() ) );
+    }
+    else if (mpi_size == 3)
+    {
+        auto sim = Bunch_simulator::create_two_trains_simulator(
+                ref, ref, total_num, real_num, nb_pt, nb_st, spacing, spacing, Commxx() );
+
+        CHECK(sim[0].get_num_bunches() == 4);
+        CHECK(sim[1].get_num_bunches() == 2);
+
+        if (mpi_rank < 2)
+        {
+            REQUIRE(sim[0].get_bunch_array_size() == 2);
+            REQUIRE(sim[1].get_bunch_array_size() == 0);
+
+            REQUIRE(sim[0][0].get_array_index() == 0);
+            REQUIRE(sim[0][0].get_bunch_index() == mpi_rank*2);
+            REQUIRE(sim[0][0].get_bucket_index() == mpi_rank*2);
+            REQUIRE(sim[0][0].get_local_num() == total_num);
+
+            REQUIRE(sim[0][1].get_array_index() == 1);
+            REQUIRE(sim[0][1].get_bunch_index() == mpi_rank*2+1);
+            REQUIRE(sim[0][1].get_bucket_index() == mpi_rank*2+1);
+            REQUIRE(sim[0][1].get_local_num() == total_num);
+
+            REQUIRE(sim.has_local_bunch(0, 0) == (mpi_rank==0));
+            REQUIRE(sim.has_local_bunch(0, 1) == (mpi_rank==0));
+            REQUIRE(sim.has_local_bunch(0, 2) == (mpi_rank==1));
+            REQUIRE(sim.has_local_bunch(0, 3) == (mpi_rank==1));
+
+            REQUIRE(sim.has_local_bunch(1, 0) == false);
+            REQUIRE(sim.has_local_bunch(1, 1) == false);
+
+            REQUIRE(sim[0].get_bunch_array_idx(0) == (mpi_rank==0 ? 0 : -1));
+            REQUIRE(sim[0].get_bunch_array_idx(1) == (mpi_rank==0 ? 1 : -1));
+            REQUIRE(sim[0].get_bunch_array_idx(2) == (mpi_rank==1 ? 0 : -1));
+            REQUIRE(sim[0].get_bunch_array_idx(3) == (mpi_rank==1 ? 1 : -1));
+        }
+        else
+        {
+            REQUIRE(sim[0].get_bunch_array_size() == 0);
+            REQUIRE(sim[1].get_bunch_array_size() == 2);
+
+            REQUIRE(sim[1][0].get_array_index() == 0);
+            REQUIRE(sim[1][0].get_bunch_index() == (mpi_rank-2)*2);
+            REQUIRE(sim[1][0].get_bunch_index() == (mpi_rank-2)*2);
+            REQUIRE(sim[1][0].get_local_num() == total_num);
+
+            REQUIRE(sim[1][1].get_array_index() == 1);
+            REQUIRE(sim[1][1].get_bunch_index() == (mpi_rank-2)*2+1);
+            REQUIRE(sim[1][1].get_bunch_index() == (mpi_rank-2)*2+1);
+            REQUIRE(sim[1][0].get_local_num() == total_num);
+
+            REQUIRE(sim.has_local_bunch(0, 0) == false);
+            REQUIRE(sim.has_local_bunch(0, 1) == false);
+            REQUIRE(sim.has_local_bunch(0, 2) == false);
+            REQUIRE(sim.has_local_bunch(0, 3) == false);
+
+            REQUIRE(sim.has_local_bunch(1, 0) == true);
+            REQUIRE(sim.has_local_bunch(1, 1) == true);
+
+            REQUIRE(sim[1].get_bunch_array_idx(0) == 0);
+            REQUIRE(sim[1].get_bunch_array_idx(1) == 1);
+        }
+    }
+    else if (mpi_size == 4)
+    {
+        CHECK_THROWS( Bunch_simulator::create_two_trains_simulator(
+                ref, ref, total_num, real_num, nb_pt, nb_st, spacing, spacing, Commxx() ) );
+    }
+    else if (mpi_size == 5)
+    {
+        CHECK_THROWS( Bunch_simulator::create_two_trains_simulator(
+                ref, ref, total_num, real_num, nb_pt, nb_st, spacing, spacing, Commxx() ) );
+    }
+    else if (mpi_size == 6)
+    {
+        auto sim = Bunch_simulator::create_two_trains_simulator(
+                ref, ref, total_num, real_num, nb_pt, nb_st, spacing, spacing, Commxx() );
+
+        CHECK(sim[0].get_num_bunches() == 4);
+        CHECK(sim[1].get_num_bunches() == 2);
+
+        if (mpi_rank < 4)
+        {
+            REQUIRE(sim[0].get_bunch_array_size() == 1);
+            REQUIRE(sim[1].get_bunch_array_size() == 0);
+
+            REQUIRE(sim[0][0].get_array_index() == 0);
+            REQUIRE(sim[0][0].get_bunch_index() == mpi_rank);
+            REQUIRE(sim[0][0].get_bucket_index() == mpi_rank);
+            REQUIRE(sim[0][0].get_local_num() == total_num);
+
+            REQUIRE(sim.has_local_bunch(0, 0) == (mpi_rank==0));
+            REQUIRE(sim.has_local_bunch(0, 1) == (mpi_rank==1));
+            REQUIRE(sim.has_local_bunch(0, 2) == (mpi_rank==2));
+            REQUIRE(sim.has_local_bunch(0, 3) == (mpi_rank==3));
+
+            REQUIRE(sim.has_local_bunch(1, 0) == false);
+            REQUIRE(sim.has_local_bunch(1, 1) == false);
+
+            REQUIRE(sim[0].get_bunch_array_idx(0) == (mpi_rank==0 ? 0 : -1));
+            REQUIRE(sim[0].get_bunch_array_idx(1) == (mpi_rank==1 ? 0 : -1));
+            REQUIRE(sim[0].get_bunch_array_idx(2) == (mpi_rank==2 ? 0 : -1));
+            REQUIRE(sim[0].get_bunch_array_idx(3) == (mpi_rank==3 ? 0 : -1));
+        }
+        else
+        {
+            REQUIRE(sim[0].get_bunch_array_size() == 0);
+            REQUIRE(sim[1].get_bunch_array_size() == 1);
+
+            REQUIRE(sim[1][0].get_array_index() == 0);
+            REQUIRE(sim[1][0].get_bunch_index() == mpi_rank-4);
+            REQUIRE(sim[1][0].get_bunch_index() == mpi_rank-4);
+            REQUIRE(sim[1][0].get_local_num() == total_num);
+
+            REQUIRE(sim.has_local_bunch(0, 0) == false);
+            REQUIRE(sim.has_local_bunch(0, 1) == false);
+            REQUIRE(sim.has_local_bunch(0, 2) == false);
+            REQUIRE(sim.has_local_bunch(0, 3) == false);
+
+            REQUIRE(sim.has_local_bunch(1, 0) == (mpi_rank==4));
+            REQUIRE(sim.has_local_bunch(1, 1) == (mpi_rank==5));
+
+            REQUIRE(sim[1].get_bunch_array_idx(0) == (mpi_rank==4 ? 0 : -1));
+            REQUIRE(sim[1].get_bunch_array_idx(1) == (mpi_rank==5 ? 0 : -1));
+        }
+    }
+    else
+    {
+        CHECK(false);
+    }
+}
 
