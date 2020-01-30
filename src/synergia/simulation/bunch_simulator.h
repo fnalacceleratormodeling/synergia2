@@ -253,7 +253,7 @@ public:
     Bunch const& get_bunch(size_t train = 0, size_t bunch = 0) const;
 
     // test. returns false when train and bunch out of bounds
-    bool has_bunch(size_t train, size_t bunch) const;
+    bool has_local_bunch(size_t train, size_t bunch) const;
 
     // which ranks are a given bunch on
     std::vector<int> get_bunch_ranks(size_t train, size_t bunch) const;

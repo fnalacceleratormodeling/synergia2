@@ -279,11 +279,8 @@ Bunch_simulator::get_bunch_array_idx(int train, int bunch) const
 }
 
 bool
-Bunch_simulator::has_bunch(size_t train, size_t bunch) const
+Bunch_simulator::has_local_bunch(size_t train, size_t bunch) const
 {
-    if (train > 1) return false;
-    if (bunch >= trains[train].get_num_bunches()) return false;
-
     return get_bunch_array_idx(train, bunch) != -1;
 }
 
