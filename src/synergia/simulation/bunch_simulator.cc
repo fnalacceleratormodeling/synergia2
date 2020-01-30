@@ -4,13 +4,89 @@
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/independent_operation.h"
 
+namespace impl {
+
+    void divide_bunches(int size, 
+            size_t num_bunches_pri, 
+            size_t num_bunches_sec,
+            std::vector<int> & p_ranks,
+            std::vector<int> & s_ranks )
+    {
+        assert(size > 0);
+
+        const size_t num_bunches = num_bunches_pri + num_bunches_sec;
+        size_t st_start_rank = 0;
+
+        if ( num_bunches == 0 )
+        {
+            // no bunch at all
+            p_ranks.resize(0);
+            s_ranks.resize(0);
+            st_start_rank = 0;
+        } 
+        else if ( size == 1 )
+        {
+            // all bunches on a single rank
+            p_ranks.resize(num_bunches_pri ? 1 : 0);
+            s_ranks.resize(num_bunches_sec ? 1 : 0);
+            st_start_rank = 0;
+        }
+        else if ( size < num_bunches )
+        {
+            // multiple ranks, each rank stores 1 train at max
+            if (num_bunches % size != 0)
+            {
+                throw std::runtime_error(
+                        "Bunch_simulator::create_bunch_train_simulator() "
+                        "the number of bunches must be divisible by the number of ranks" );
+            }
+
+            int const bunch_per_rank = num_bunches / size;
+
+            if (num_bunches_pri % bunch_per_rank != 0
+                    || num_bunches_sec % bunch_per_rank != 0 )
+            {
+                throw std::runtime_error(
+                        "Bunch_simulator::create_bunch_train_simulator() "
+                        "the number of bunches in primary or secondary train must be "
+                        "divisible by the number of bunches per rank" );
+            }
+
+            p_ranks.resize(num_bunches_pri/bunch_per_rank);
+            s_ranks.resize(num_bunches_sec/bunch_per_rank);
+            st_start_rank = p_ranks.size();
+        }
+        else
+        {
+            // now size >= num_bunches, one bunch (or a fraciton of a bunch) per rank
+            if (size % num_bunches != 0)
+            {
+                throw std::runtime_error(
+                        "Bunch_simulator::create_bunch_train_simulator() "
+                        "the number of ranks must be divisible by the number of bunches" );
+            }
+
+            int const rank_per_bunch = size / num_bunches;
+
+            p_ranks.resize(rank_per_bunch * num_bunches_pri);
+            s_ranks.resize(rank_per_bunch * num_bunches_sec); 
+            st_start_rank = p_ranks.size();
+        }
+
+        std::iota(p_ranks.begin(), p_ranks.end(), 0);
+        std::iota(s_ranks.begin(), s_ranks.end(), st_start_rank);
+
+        return;
+    }
+
+}
 
 Bunch_simulator
 Bunch_simulator::create_empty_bunch_simulator()
 {
     return construct( Reference_particle(), 
                       Reference_particle(),
-                      1.0, 1.0,  // num_real_particle
+                      1.0, 1.0,  // num_particle, num_real_particle
                       0,   0,    // num bunches
                       1.0, 1.0,  // spacing
                       Commxx() );
@@ -25,7 +101,7 @@ Bunch_simulator::create_single_bunch_simulator(
 {
     return construct( ref, ref, 
                       num_particles, num_real_particles,
-                      1, 0,     // num_bunches
+                      1,   0,   // num_bunches
                       1.0, 1.0, // spacing
                       comm );
 }
@@ -59,67 +135,17 @@ Bunch_simulator::construct(
         double spacing_sec,
         Commxx const & comm)
 {
-    int size = comm.size();
-    int rank = comm.rank();
+    std::vector<int> p_ranks;
+    std::vector<int> s_ranks;
 
-    size_t num_bunches = num_bunches_pri + num_bunches_sec;
+    impl::divide_bunches( comm.size(),
+            num_bunches_pri, 
+            num_bunches_sec,
+            p_ranks, 
+            s_ranks );
 
-    Commxx comm_pri;
-    Commxx comm_sec;
-
-    int num_ranks_pri = 0;
-    int num_ranks_sec = 0;
-
-    // in the case of num_bunches=0, both num_ranks_pri/sec would be 0, so
-    // comm_pri/sec are both null communicators 
-    if ( size < num_bunches )
-    {
-        if (num_bunches % size != 0)
-        {
-            throw std::runtime_error(
-                    "Bunch_simulator::create_bunch_train_simulator() "
-                    "the number of bunches must be divisible by the number of ranks" );
-        }
-
-        int bunch_per_rank = num_bunches / size;
-
-        if (num_bunches_pri % bunch_per_rank != 0
-                || num_bunches_sec % bunch_per_rank != 0 )
-        {
-            throw std::runtime_error(
-                    "Bunch_simulator::create_bunch_train_simulator() "
-                    "the number of bunches in primary or secondary train must be "
-                    "divisible by the number of bunches per rank" );
-        }
-
-        num_ranks_pri = num_bunches_pri/bunch_per_rank;
-        num_ranks_sec = num_bunches_sec/bunch_per_rank;
-    }
-    else if ( num_bunches > 0)
-    {
-        if (size % num_bunches != 0)
-        {
-            throw std::runtime_error(
-                    "Bunch_simulator::create_bunch_train_simulator() "
-                    "the number of ranks must be divisible by the number of bunches" );
-        }
-
-        int rank_per_bunch = size / num_bunches;
-
-        num_ranks_pri = rank_per_bunch * num_bunches_pri;
-        num_ranks_sec = rank_per_bunch * num_bunches_sec; 
-    }
-
-    // construct the communicators for the 
-    // primary and secondary trains
-    std::vector<int> p_ranks(num_ranks_pri);
-    std::vector<int> s_ranks(num_ranks_sec);
-
-    for (int r=0; r<num_ranks_pri; ++r) p_ranks[r] = r;
-    comm_pri = comm.group(p_ranks);
-
-    for (int r=0; r<num_ranks_sec; ++r) s_ranks[r] = num_ranks_pri + r;
-    comm_sec = comm.group(s_ranks);
+    auto comm_pri = comm.group(p_ranks);
+    auto comm_sec = comm.group(s_ranks);
 
     return Bunch_simulator( Bunch_train( ref_pri, 
                                          num_bunches_pri, 
