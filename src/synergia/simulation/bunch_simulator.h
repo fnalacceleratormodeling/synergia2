@@ -176,14 +176,14 @@ public:
             int train = 0, int bunch = 0, int period = 1 )
     { 
         int bunch_idx = get_bunch_array_idx(train, bunch);
-        if (bunch_idx != -1)
-        {
-            dt_step_period dt{ train, bunch_idx, name, 
-                trigger_step_period{period, -1} };
-            diags_step_period.push_back(dt);
-            get_bunch(train, bunch_idx)
-                .add_diagnostics(diag, name, filename);
-        }
+        if (bunch_idx == -1) return;
+
+        dt_step_period dt{ train, bunch_idx, name, 
+            trigger_step_period{period, -1} 
+        };
+
+        diags_step_period.push_back(dt);
+        trains[train][bunch_idx].add_diagnostics(diag, name, filename);
     }
 
 #if 0
@@ -251,11 +251,10 @@ public:
     Bunch_train const & operator[](size_t idx) const
     { return trains[idx]; }
 
-    Bunch & get_bunch(size_t train = 0, size_t bunch = 0)
-    { return trains[train][bunch]; }
-
-    Bunch const & get_bunch(size_t train = 0, size_t bunch = 0) const
-    { return trains[train][bunch]; }
+    // retrive the bunch according to its index in the train, 
+    // not the index in the array
+    Bunch      & get_bunch(size_t train = 0, size_t bunch = 0);
+    Bunch const& get_bunch(size_t train = 0, size_t bunch = 0) const;
 
     std::vector<int> get_bunch_ranks(size_t train, size_t bunch) const;
 

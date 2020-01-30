@@ -30,8 +30,14 @@ void Step::create_operations(Lattice const & lattice)
 
 void Step::apply(Bunch_simulator & simulator, Logger & logger) const
 {
+    if (simulator[0].get_bunch_array_size() == 0)
+    {
+        throw std::runtime_error(
+                "Step::apply() unable to proceed. no bunch in the simulator" );
+    }
+
     // time [s] in accelerator frame
-    double ref_beta = simulator.get_bunch(0, 0).get_reference_particle().get_beta();
+    double ref_beta = simulator[0][0].get_reference_particle().get_beta();
     double time = length / (ref_beta * pconstants::c);
 
     for (auto const & op : operators)

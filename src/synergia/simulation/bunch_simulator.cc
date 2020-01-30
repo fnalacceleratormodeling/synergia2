@@ -269,6 +269,22 @@ Bunch_simulator::Bunch_simulator(
 {
 }
 
+Bunch & 
+Bunch_simulator::get_bunch(size_t train, size_t bunch)
+{
+    auto idx = get_bunch_array_idx(train, bunch);
+    if (idx == -1) throw std::runtime_error("bunch not avaialble on the rank");
+    return trains[train][idx];
+}
+
+Bunch const& 
+Bunch_simulator::get_bunch(size_t train, size_t bunch) const
+{
+    auto idx = get_bunch_array_idx(train, bunch);
+    if (idx == -1) throw std::runtime_error("bunch not avaialble on the rank");
+    return trains[train][idx];
+}
+
 std::vector<int> 
 Bunch_simulator::get_bunch_ranks(size_t train, size_t bunch) const
 {
@@ -288,7 +304,7 @@ Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
     {
         if (dt.trigger(turn_num, step_num))
         {
-            get_bunch(dt.train, dt.bunch)
+            trains[dt.train][dt.bunch]
                 .diag_update_and_write(dt.diag_name);
         }
     }
@@ -297,7 +313,7 @@ Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
     {
         if (dt.trigger(turn_num, step_num))
         {
-            get_bunch(dt.train, dt.bunch)
+            trains[dt.train][dt.bunch]
                 .diag_update_and_write(dt.diag_name);
         }
     }
@@ -310,11 +326,10 @@ Bunch_simulator::diag_action_element(Lattice_element const& element)
     {
         if (dt.trigger(element))
         {
-            get_bunch(dt.train, dt.bunch)
+            trains[dt.train][dt.bunch]
                 .diag_update_and_write(dt.diag_name);
         }
     }
-
 }
 
 
