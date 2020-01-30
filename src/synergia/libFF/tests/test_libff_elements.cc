@@ -34,7 +34,7 @@ struct propagator_fixture
     }
 
     void propagate()
-    { propagator.propagate(sim, screen); }
+    { propagator.propagate(sim, screen, 1); }
 
     Bunch& bunch()
     { return sim.get_bunch(); }
