@@ -21,8 +21,8 @@ void check_simulator(Bunch_simulator const& sim,
 
 TEST_CASE("create single bunch", "[Bunch_simulator]")
 {
-    int mpi_size = Commxx().size();
-    int mpi_rank = Commxx().rank();
+    int mpi_size = Commxx::world_size();
+    int mpi_rank = Commxx::world_rank();
 
     const size_t nb_pt = 1;
     const size_t nb_st = 0;
@@ -533,4 +533,49 @@ TEST_CASE("create two bunch trains (4 and 2 bunches)", "[Bunch_simulator]")
         CHECK(false);
     }
 }
+
+TEST_CASE("serialization of two bunch trains (4 and 2 bunches)", "[Bunch_simulator]")
+{
+    int mpi_size = Commxx::world_size();
+    int mpi_rank = Commxx::world_rank();
+
+    const size_t nb_pt = 4;
+    const size_t nb_st = 2;
+
+    const double spacing = 1.0;
+
+    std::string data;
+
+    if (mpi_size == 1 || mpi_size == 3 || mpi_size == 6)
+    {
+        {
+            // save
+            //auto comm = Commxx().split(0);
+            auto comm = Commxx();
+            auto sim = Bunch_simulator::create_two_trains_simulator(
+                    ref, ref, total_num, real_num, nb_pt, nb_st, spacing, spacing, comm );
+
+            data = sim.dump();
+        }
+
+        {
+            // load
+            auto sim = Bunch_simulator::load_from_string(data);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

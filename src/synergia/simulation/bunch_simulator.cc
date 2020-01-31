@@ -160,6 +160,8 @@ Bunch_simulator::construct(
         double spacing_sec,
         Commxx const& comm)
 {
+    auto comm_ptr = std::make_shared<Commxx>(comm);
+
     std::vector<int> p_ranks;
     std::vector<int> s_ranks;
 
@@ -169,8 +171,8 @@ Bunch_simulator::construct(
             p_ranks, 
             s_ranks );
 
-    auto comm_pri = comm.group(p_ranks);
-    auto comm_sec = comm.group(s_ranks);
+    auto comm_pri = comm_ptr->group(p_ranks);
+    auto comm_sec = comm_ptr->group(s_ranks);
 
     return Bunch_simulator( Bunch_train( ref_pri, 
                                          num_bunches_pri, 
@@ -186,7 +188,7 @@ Bunch_simulator::construct(
                                          spacing_sec, 
                                          comm_sec,
                                          1 ),
-                            comm );
+                            comm_ptr );
 
 
 
@@ -282,9 +284,9 @@ Bunch_simulator::construct(
 Bunch_simulator::Bunch_simulator(
         Bunch_train && pt, 
         Bunch_train && st,
-        Commxx const& comm )
+        std::shared_ptr<Commxx> const& comm )
     : trains{std::move(pt), std::move(st)}
-    , comm(comm)
+    , comm(std::move(comm))
     , diags_step_period()
     , diags_step_listed()
     , diags_element()
@@ -328,7 +330,7 @@ Bunch_simulator::get_bunch(size_t train, size_t bunch) const
 std::vector<int> 
 Bunch_simulator::get_bunch_ranks(size_t train, size_t bunch) const
 {
-    int rank_per_bunch = std::ceil( 1.0 * comm.size() / 
+    int rank_per_bunch = std::ceil( 1.0 * comm->size() / 
         (trains[0].get_num_bunches() + trains[1].get_num_bunches()) );
 
     std::vector<int> ranks(rank_per_bunch);

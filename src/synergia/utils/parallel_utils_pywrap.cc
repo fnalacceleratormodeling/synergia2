@@ -37,7 +37,7 @@ PYBIND11_MODULE(parallel_utils, m)
         .def("flush", &Logger::flush, py::return_value_policy::reference_internal)
         ;
 
-    py::class_<Commxx>(m, "Commxx")
+    py::class_<Commxx, std::shared_ptr<Commxx>>(m, "Commxx")
         .def(py::init<>())
         .def( "rank", &Commxx::rank )
         ;

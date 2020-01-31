@@ -109,7 +109,7 @@ private:
     // constructor
     Bunch_simulator( Bunch_train && pt, 
                      Bunch_train && st, 
-                     Commxx const& comm );
+                     std::shared_ptr<Commxx> const& comm );
 
 
     static Bunch_simulator 
@@ -294,8 +294,8 @@ private:
     int curr_turn = 0;   // current progress in turns
     int num_turns = -1;  // total number of turns (-1 no limit)
 
+    std::shared_ptr<Commxx> comm;
     std::array<Bunch_train, 2> trains;
-    Commxx comm;
 
     // diagnostics action trigger conditions
     std::vector<dt_step_period> diags_step_period;
@@ -320,8 +320,8 @@ private:
         ar(CEREAL_NVP(curr_turn));
         ar(CEREAL_NVP(num_turns));
 
-        ar(CEREAL_NVP(trains));
         ar(CEREAL_NVP(comm));
+        ar(CEREAL_NVP(trains));
 
         ar(CEREAL_NVP(diags_step_period));
         ar(CEREAL_NVP(diags_step_listed));

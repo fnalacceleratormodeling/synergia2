@@ -11,10 +11,11 @@ class Bunch_train
 
 private:
 
+    std::shared_ptr<Commxx> comm;
+
     std::vector<Bunch> bunches;
     std::vector<double> spacings;
 
-    Commxx comm;
     int index;
 
     int num_bunches;
@@ -106,9 +107,9 @@ private:
     template<class Archive>
     void serialize(Archive & ar)
     {
+        ar(CEREAL_NVP(comm));
         ar(CEREAL_NVP(bunches));
         ar(CEREAL_NVP(spacings));
-        ar(CEREAL_NVP(comm));
         ar(CEREAL_NVP(index));
         ar(CEREAL_NVP(num_bunches));
         ar(CEREAL_NVP(num_buckets));

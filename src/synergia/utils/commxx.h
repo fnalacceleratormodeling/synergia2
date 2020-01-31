@@ -17,7 +17,7 @@
 enum class comm_type
 { null, world, regular };
 
-class Commxx
+class Commxx : public std::enable_shared_from_this<Commxx>
 {
 
 public:
@@ -25,17 +25,23 @@ public:
     static const Commxx World;
     static const Commxx Null;
 
+    static int world_rank()
+    { int r; MPI_Comm_rank(MPI_COMM_WORLD, &r); return r; }
+
+    static int world_size()
+    { int s; MPI_Comm_size(MPI_COMM_WORLD, &s); return s; }
+
 private:
 
-    std::shared_ptr<MPI_Comm> comm;
-    std::shared_ptr<Commxx> parent_comm;
+    std::shared_ptr<const MPI_Comm> comm;
+    std::shared_ptr<const Commxx> parent_comm;
 
     comm_type type;
     int color, key;
 
 private:
 
-    Commxx(Commxx const& parent, int color, int key);
+    Commxx(std::shared_ptr<const Commxx> const& parent, int color, int key);
     void construct();
 
 public:
@@ -45,6 +51,9 @@ public:
 
     operator MPI_Comm() const
     { if (comm) return *comm; else return MPI_COMM_NULL; }
+
+    /// get communicator type
+    comm_type get_type() const { return type; }
 
     /// Get communicator rank
     int get_rank() const;

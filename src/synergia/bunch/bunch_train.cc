@@ -114,9 +114,9 @@ Bunch_train::Bunch_train(
         double spacing,
         Commxx const & bt_comm,
         int index ) 
-: bunches()
+: comm(std::make_shared<Commxx>(bt_comm))
+, bunches()
 , spacings()
-, comm(bt_comm)
 , index(index)
 , num_bunches(num_bunches)
 , num_buckets(num_bunches)
@@ -126,12 +126,12 @@ Bunch_train::Bunch_train(
         spacings.emplace_back( spacing );
 
     // empty train
-    if (comm.is_null()) return;
+    if (comm->is_null()) return;
     if (num_bunches == 0) return;
 
     // construct bunches
-    int rank = comm.rank();
-    int size = comm.size();
+    int rank = comm->rank();
+    int size = comm->size();
 
     int bunches_per_rank = 0;
     int color = 0;
@@ -166,7 +166,7 @@ Bunch_train::Bunch_train(
         int  b_idx = b + color * bunches_per_rank;
         bunch_idx_map[b_idx] = bunches.size();
 
-        auto bunch_comm = comm.split(color);
+        auto bunch_comm = comm->split(color);
 
         bunches.emplace_back( ref, 
                 num_particles_per_bunch,

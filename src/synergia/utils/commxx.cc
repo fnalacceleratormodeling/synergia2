@@ -135,9 +135,9 @@ void Commxx::construct()
         comm.reset(new MPI_Comm(newcomm), comm_free());
 }
 
-Commxx::Commxx(Commxx const & parent, int color, int key)
+Commxx::Commxx(std::shared_ptr<const Commxx> const& parent, int color, int key)
     : comm()
-    , parent_comm(std::make_shared<Commxx>(parent))
+    , parent_comm(std::move(parent))
     , type(comm_type::regular)
     , color(color)
     , key(key)
@@ -178,19 +178,19 @@ Commxx Commxx::parent() const
 Commxx Commxx::dup() const
 {
     if (is_null()) throw std::runtime_error("dup from a null comm");
-    return Commxx(*this, 0, rank());
+    return Commxx(shared_from_this(), 0, rank());
 }
 
 Commxx Commxx::split(int color) const
 {
     if (is_null()) throw std::runtime_error("split from a null comm");
-    return Commxx(*this, color, rank());
+    return Commxx(shared_from_this(), color, rank());
 }
 
 Commxx Commxx::split(int color, int key) const
 {
     if (is_null()) throw std::runtime_error("split from a null comm");
-    return Commxx(*this, color, key);
+    return Commxx(shared_from_this(), color, key);
 }
 
 Commxx Commxx::divide(int subgroup_size) const
@@ -216,7 +216,7 @@ Commxx Commxx::group(std::vector<int> const & ranks) const
     int color = (std::find(ranks.begin(), ranks.end(), r) != ranks.end())
         ? 0 : MPI_UNDEFINED;
 
-    return Commxx(*this, color, r);
+    return Commxx(shared_from_this(), color, r);
 
 #if 0
     MPI_Group grp;

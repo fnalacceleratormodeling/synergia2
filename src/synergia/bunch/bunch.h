@@ -63,7 +63,7 @@ public:
 
 private:
 
-    Commxx comm;    
+    std::shared_ptr<Commxx> comm;    
 
     // meaning of bounary_param for each boundary condition:
     // open (N/A), periodic (z-period), z-cut (longitudinal_extent),
@@ -224,10 +224,10 @@ public:
     /// number has been changed. Requires comm_sptrunication.
     void update_total_num()
     { 
-        get_bunch_particles(PG::spectator).update_total_num(comm); 
+        get_bunch_particles(PG::spectator).update_total_num(*comm); 
 
         auto & bp = get_bunch_particles(PG::regular);
-        int old_total = bp.update_total_num(comm);
+        int old_total = bp.update_total_num(*comm);
         real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;
     }
 
@@ -299,7 +299,7 @@ public:
     bool is_bucket_index_assigned() const { return bucket_index >= 0; }
 
     /// Get the communicator
-    Commxx const& get_comm() const { return comm; }
+    Commxx const& get_comm() const { return *comm; }
 
     // Diagnostics
     template<class Diag>
@@ -342,7 +342,7 @@ public:
     void inject(Bunch const& bunch);
     
     void read_file(std::string const& filename, ParticleGroup pg = PG::regular)
-    { get_bunch_particles(pg).read_file(filename, comm); }
+    { get_bunch_particles(pg).read_file(filename, *comm); }
 
     void check_pz2_positive()
     {
@@ -400,7 +400,7 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
     if (ndiscarded)
     {
         auto & bp = get_bunch_particles(pg);
-        int old_total = bp.update_total_num(comm);
+        int old_total = bp.update_total_num(*comm);
 
         if (pg == PG::regular)
             real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;

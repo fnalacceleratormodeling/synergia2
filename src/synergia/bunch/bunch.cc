@@ -60,20 +60,20 @@ Bunch::Bunch(
         Reference_particle const& reference_particle, 
         int total_num, 
         double real_num, 
-        Commxx comm,
+        Commxx bunch_comm,
         int total_spectator_num,
         int bunch_index,
         int bucket_index,
         int array_index )
-    : comm(comm)
+    : comm(std::make_shared<Commxx>(bunch_comm))
     , boundary(LB::open)
     , boundary_param(0.0)
     , ref_part(reference_particle)
     , design_ref_part(reference_particle)
     , particle_charge(reference_particle.get_charge())
     , real_num(real_num)
-    , parts{ BunchParticles("main", total_num, comm),
-             BunchParticles("spec", total_spectator_num, comm) }
+    , parts{ BunchParticles("main", total_num, *comm),
+             BunchParticles("spec", total_spectator_num, *comm) }
     , bunch_index(bunch_index)
     , bucket_index(bucket_index)
     , array_index(array_index)
@@ -81,15 +81,15 @@ Bunch::Bunch(
 }
 
 Bunch::Bunch()
-    : comm()
+    : comm(new Commxx())
     , boundary(LB::open)
     , boundary_param(0.0)
     , ref_part()
     , design_ref_part()
     , particle_charge(ref_part.get_charge())
     , real_num(1.0)
-    , parts{ BunchParticles("main", 0, comm), 
-             BunchParticles("spec", 0, comm) }
+    , parts{ BunchParticles("main", 0, *comm), 
+             BunchParticles("spec", 0, *comm) }
     , bunch_index(0)
     , bucket_index(0)
     , array_index(0)
