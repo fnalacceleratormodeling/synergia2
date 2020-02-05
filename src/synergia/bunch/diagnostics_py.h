@@ -53,7 +53,10 @@ private:
 #endif
     }
 
-    void do_write(Hdf5_file& file, bool first_write) override
+    void do_first_write(Hdf5_file& file) override
+    { }
+
+    void do_write(Hdf5_file& file) override
     { }
 
 #if 0

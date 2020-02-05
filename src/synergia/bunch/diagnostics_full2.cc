@@ -40,15 +40,15 @@ void Diagnostics_full2::do_update(Bunch const& bunch)
             emitx, emity, emitz, emitxy, emitxyz);
 }
 
-void Diagnostics_full2::do_write(Hdf5_file & file, bool first_write)
+void Diagnostics_full2::do_first_write(Hdf5_file & file)
+{
+    file.write("charge", ref.get_charge());
+    file.write("mass", ref.get_four_momentum().get_mass());
+}
+
+void Diagnostics_full2::do_write(Hdf5_file & file)
 {
     scoped_simple_timer timer("diag_full2_write");
-
-    if (first_write)
-    {
-        file.write("charge", ref.get_charge());
-        file.write("mass", ref.get_four_momentum().get_mass());
-    }
 
     // write serial
     file.append("s", ref.get_s());

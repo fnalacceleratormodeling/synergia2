@@ -10,7 +10,10 @@ void Diagnostics_loss::do_update(Bunch const& bunch)
 void Diagnostics_loss::do_reduce(Commxx comm, int writer_rank)
 { }
 
-void Diagnostics_loss::do_write(Hdf5_file & file, bool first_write)
+void Diagnostics_loss::do_first_write(Hdf5_file & file)
+{ }
+
+void Diagnostics_loss::do_write(Hdf5_file & file)
 { }
 
 

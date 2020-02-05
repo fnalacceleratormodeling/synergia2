@@ -24,7 +24,8 @@ private:
 
     virtual void do_update(Bunch const&) = 0;
     virtual void do_reduce(Commxx, int) = 0;
-    virtual void do_write(Hdf5_file&, bool) = 0;
+    virtual void do_write(Hdf5_file&) = 0;
+    virtual void do_first_write(Hdf5_file&) = 0;
 
 public:
 
@@ -43,7 +44,10 @@ public:
     { do_reduce(comm, root); }
 
     void write(Hdf5_file & file)
-    { do_write(file, first_write); first_write = false; }
+    { 
+        if(first_write) { do_first_write(file); first_write = false; }
+        do_write(file);
+    }
 
     bool serial() const { return serial_; }
 
@@ -68,7 +72,8 @@ private:
 
     void do_update(Bunch const& bunch) override { }
     void do_reduce(Commxx comm, int writer_rank) override { }
-    void do_write(Hdf5_file & file, bool first_write) override { }
+    void do_first_write(Hdf5_file & file) override { }
+    void do_write(Hdf5_file & file) override { }
 
     friend class cereal::access;
     

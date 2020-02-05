@@ -180,7 +180,7 @@ private:
 
         // particle .h5 file
         std::stringstream ss;
-        ss << "bunch_particles_" << label << "_" << Commxx().rank() << ".h5";
+        ss << "bunch_particles_" << label << "_" << Commxx::world_rank() << ".h5";
         ar(cereal::make_nvp("fname", ss.str()));
 
         // checkout first
