@@ -51,25 +51,25 @@ void Diagnostics_full2::do_write(Hdf5_file & file, bool first_write)
     }
 
     // write serial
-    file.write_serial("s", ref.get_s());
-    file.write_serial("s_n", ref.get_s_n());
-    file.write_serial("repetition", ref.get_repetition());
-    file.write_serial("num_particles", num_particles);
-    file.write_serial("real_num_particles", real_num_particles);
-    file.write_serial("pz", ref.get_momentum());
+    file.append("s", ref.get_s());
+    file.append("s_n", ref.get_s_n());
+    file.append("repetition", ref.get_repetition());
+    file.append("num_particles", num_particles);
+    file.append("real_num_particles", real_num_particles);
+    file.append("pz", ref.get_momentum());
 
-    file.write_serial("mean", mean);
-    file.write_serial("std", std);
-    file.write_serial("min", min);
-    file.write_serial("max", max);
-    file.write_serial("mom2", mom2);
-    file.write_serial("corr", corr);
+    file.append("mean", mean);
+    file.append("std", std);
+    file.append("min", min);
+    file.append("max", max);
+    file.append("mom2", mom2);
+    file.append("corr", corr);
 
-    file.write_serial("emitx", emitx);
-    file.write_serial("emity", emity);
-    file.write_serial("emitz", emitz);
-    file.write_serial("emitxy", emitxy);
-    file.write_serial("emitxyz", emitxyz);
+    file.append("emitx", emitx);
+    file.append("emity", emity);
+    file.append("emitz", emitz);
+    file.append("emitxy", emitxy);
+    file.append("emitxyz", emitxyz);
 }
 
 #if 0

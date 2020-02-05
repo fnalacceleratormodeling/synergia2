@@ -23,6 +23,9 @@ public:
     enum Flag { truncate, read_write, read_only };
     enum Atomic_type { double_type, int_type };
 
+    // TODO: set the type based on cmake config
+    using use_parallel = std::true_type;
+
 private:
 
     std::string file_name;
@@ -66,7 +69,7 @@ public:
     { Hdf5_writer<T>(h5file.hid, name).write(data, len); }
 
     template<typename T>
-    void write_serial(std::string const& name, T const& data)
+    void append(std::string const& name, T const& data)
     { 
         auto w = swriters.find(name);
 
