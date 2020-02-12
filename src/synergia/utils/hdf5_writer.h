@@ -30,7 +30,8 @@ private:
     static std::vector<hsize_t> 
     collect_dims( std::vector<hsize_t> const& dims, 
                   bool collective, 
-                  Commxx const& comm );
+                  Commxx const& comm,
+                  int root_rank );
 
     static void 
     write_impl( Hdf5_handler const& file,
@@ -64,7 +65,8 @@ public:
            std::string const& name, 
            T const& data, 
            bool collective, 
-           Commxx const& comm )
+           Commxx const& comm,
+           int root_rank )
     {
         auto di = syn::extract_data_info(data);
 
@@ -72,7 +74,8 @@ public:
         if (collective && di.dims.size()==0) 
             di.dims = {1};
 
-        auto all_dim0 = collect_dims(di.dims, collective, comm);
+        auto all_dim0 = collect_dims(
+                di.dims, collective, comm, root_rank);
 
         write_impl(file, name, di.ptr, di.dims, 
                 all_dim0, di.atomic_type, comm);
@@ -84,13 +87,15 @@ public:
            std::string const& name,
            T const* data, size_t len, 
            bool collective, 
-           Commxx const& comm )
+           Commxx const& comm,
+           int root_rank )
     {
         auto data_ptr  = data;
         auto data_dims = std::vector<hsize_t>({len});
         auto atomic    = hdf5_atomic_data_type<T>();
 
-        auto all_dim0 = collect_dims(data_dims, collective, comm);
+        auto all_dim0 = collect_dims(
+                data_dims, collective, comm, root_rank);
 
         write_impl(file, name, data_ptr, data_dims, 
                 all_dim0, atomic, comm);
@@ -117,13 +122,11 @@ inline std::vector<hsize_t>
 Hdf5_writer::collect_dims( 
         std::vector<hsize_t> const& dims, 
         bool collective, 
-        Commxx const& comm )
+        Commxx const& comm, 
+        int root_rank )
 {
     const int mpi_size = comm.size();
     const int mpi_rank = comm.rank();
-
-    // who is the master rank
-    const int root_rank = mpi_size - 1;
 
     // parameter check
     if (collective && !dims.size())

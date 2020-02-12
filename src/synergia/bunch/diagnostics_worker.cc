@@ -10,7 +10,7 @@ std::string Diagnostics_worker::type() const
 void Diagnostics_worker::update(Bunch const& bunch)
 { 
     diag->update(bunch); 
-    diag->reduce(bunch.get_comm(), 0);
+    diag->reduce(bunch.get_comm(), writer.get_file().master_rank());
 }
 
 void Diagnostics_worker::write()

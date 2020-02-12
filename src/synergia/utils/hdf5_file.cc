@@ -10,12 +10,13 @@ Hdf5_file::Hdf5_file(
     : comm(std::make_shared<Commxx>(comm))
     , file_name(file_name)
     , h5file()
+    , root_rank(comm.size()-1)
     , is_open(false)
     , current_flag(flag)
 #ifdef USE_PARALLEL_HDF5
     , has_file(true)
 #else
-    , has_file(comm.rank() == 0)
+    , has_file(comm.rank() == root_rank)
 #endif
 {
     // turn off the automatic error printing

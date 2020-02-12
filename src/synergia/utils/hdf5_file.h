@@ -35,6 +35,7 @@ private:
     std::shared_ptr<Commxx> comm;
     std::string file_name;
     Hdf5_handler h5file;
+    int root_rank;
     bool is_open;
     Flag current_flag;
     bool has_file;
@@ -71,6 +72,9 @@ public:
     hid_t get_h5file()
     { return h5file.hid; }
 
+    int master_rank() const
+    { return root_rank; }
+
     // gather on the first dimension. all other dimensions must be of the same extents
     // calling from 4 ranks:
     //   write_collective("ds", pz) -> "ds" : [pz, pz, ...]
@@ -89,11 +93,11 @@ public:
 
     template<typename T>
     void write(std::string const& name, T const& data, bool collective = false)
-    { Hdf5_writer::write(h5file, name, data, collective, *comm); }
+    { Hdf5_writer::write(h5file, name, data, collective, *comm, root_rank); }
 
     template<typename T>
     void write(std::string const & name, T const* data, size_t len, bool collective = false)
-    { Hdf5_writer::write(h5file, name, data, len, collective, *comm); }
+    { Hdf5_writer::write(h5file, name, data, len, collective, *comm, root_rank); }
 
 
     // same as write_single(), except this will do append instead of overwrite
@@ -153,6 +157,7 @@ private:
     {
         ar(CEREAL_NVP(comm));
         ar(CEREAL_NVP(file_name));
+        ar(CEREAL_NVP(root_rank));
         ar(CEREAL_NVP(is_open));
         ar(CEREAL_NVP(current_flag));
 
@@ -168,6 +173,7 @@ private:
     {
         ar(CEREAL_NVP(comm));
         ar(CEREAL_NVP(file_name));
+        ar(CEREAL_NVP(root_rank));
         ar(CEREAL_NVP(is_open));
         ar(CEREAL_NVP(current_flag));
 
