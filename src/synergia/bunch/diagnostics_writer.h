@@ -4,8 +4,9 @@
 #include <memory>
 #include <cereal/types/memory.hpp>
 
+
+class Commxx;
 class Hdf5_file;
-class Bunch;
 
 class Diagnostics_writer
 {
@@ -15,9 +16,6 @@ private:
 
     bool serial;
     int file_count;
-
-    int wrank;
-    int rank;
 
     std::string temp_dir;
     std::string filename;
@@ -33,7 +31,7 @@ public:
             std::string const& filename,
             std::string const& temp_dir,
             bool serial,
-            Bunch const& bunch);
+            Commxx const& comm);
 
     ~Diagnostics_writer();
 
@@ -41,13 +39,11 @@ public:
     Diagnostics_writer(Diagnostics_writer &&) noexcept = default;
 
     Hdf5_file & get_file();
-    int writer_rank() const { return wrank; }
 
     // count for non-serial writer
     int  get_count() const     { return file_count; }
     void set_count(int count)  { file_count = count; }
     void increment_count()     { ++file_count; }
-    bool write_locally() const { return wrank == rank; }
 
     void finish_write();
 
@@ -75,8 +71,6 @@ private:
         ar(CEREAL_NVP(file));
         ar(CEREAL_NVP(serial));
         ar(CEREAL_NVP(file_count));
-        ar(CEREAL_NVP(wrank));
-        ar(CEREAL_NVP(rank));
         ar(CEREAL_NVP(temp_dir));
         ar(CEREAL_NVP(filename));
         ar(CEREAL_NVP(filename_base));

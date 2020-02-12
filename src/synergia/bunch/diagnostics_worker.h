@@ -10,8 +10,6 @@
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/bunch/diagnostics_writer.h"
 
-class Bunch;
-
 class Diagnostics_worker
 {
 
@@ -35,9 +33,9 @@ public:
             DiagCal const& diag,
             std::string const& filename,
             std::string const& local_dir,
-            Bunch const& bunch)
+            Commxx const& comm)
         : diag(std::make_shared<DiagCal>(diag))
-        , writer(filename, local_dir, diag.serial(), bunch)
+        , writer(filename, local_dir, diag.serial(), comm)
     { }
 
     // for registering from python only
@@ -45,9 +43,9 @@ public:
             std::shared_ptr<Diagnostics> const& diag,
             std::string const& filename,
             std::string const& local_dir,
-            Bunch const& bunch)
+            Commxx const& comm)
         : diag(diag)
-        , writer(filename, local_dir, diag->serial(), bunch)
+        , writer(filename, local_dir, diag->serial(), comm)
     { }
 
     std::string type() const;

@@ -187,9 +187,9 @@ private:
         checkout_particles();
 
         // save particle and mask array
-        Hdf5_file file(ss.str(), Hdf5_file::truncate);
-        file.write_array("parts", hparts.data(), hparts.span());
-        file.write_array("masks", hmasks.data(), hmasks.span());
+        //Hdf5_file file(ss.str(), Hdf5_file::truncate);
+        //file.write_array("parts", hparts.data(), hparts.span());
+        //file.write_array("masks", hmasks.data(), hmasks.span());
     }
 
     template<class AR>
@@ -210,9 +210,9 @@ private:
         ar(CEREAL_NVP(fname));
 
         // load the particle data
-        Hdf5_file file(fname, Hdf5_file::read_only);
-        file.read_array("parts", hparts.data());
-        file.read_array("masks", hmasks.data());
+        //Hdf5_file file(fname, Hdf5_file::read_only);
+        //file.read_array("parts", hparts.data());
+        //file.read_array("masks", hmasks.data());
 
         // and check in to the device memory
         checkin_particles();

@@ -85,8 +85,16 @@ endif()
 #LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # hdf5
+set(HDF5_PREFER_PARALLEL true)
 find_package(HDF5)
 list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
+
+if(HDF5_IS_PARALLEL)
+    message("-- Using parallel hdf5")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_PARALLEL_HDF5")
+else(HDF5_IS_PARALLEL)
+    message("-- Using serial hdf5")
+endif()
 
 # chef
 #find_package(CHEF REQUIRED)

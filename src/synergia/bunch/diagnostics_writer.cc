@@ -1,6 +1,5 @@
 
 #include "synergia/bunch/diagnostics_writer.h"
-#include "synergia/bunch/bunch.h"
 #include "synergia/utils/hdf5_file.h"
 
 #pragma message "TODO: replace boost::filesystem here"
@@ -9,12 +8,10 @@ Diagnostics_writer::Diagnostics_writer(
         std::string const& filename,
         std::string const& temp_dir,
         bool serial,
-        Bunch const& bunch)
+        Commxx const& comm )
     : file()
     , serial(serial)
     , file_count(0)
-    , wrank(bunch.get_comm().size()-1)
-    , rank(bunch.get_comm().rank())
     , temp_dir(temp_dir)
     , filename(filename)
     , filename_base()
@@ -33,14 +30,15 @@ Diagnostics_writer::Diagnostics_writer(
         filename_base = filename.substr(0, idx);
         filename_suffix = filename.substr(idx);
     }
+
+    file = std::make_unique<Hdf5_file>(
+            get_filename(true), Hdf5_file::truncate, comm);
 }
 
 Diagnostics_writer::Diagnostics_writer()
     : file()
     , serial(true)
     , file_count(0)
-    , wrank(0)
-    , rank(0)
     , temp_dir()
     , filename()
     , filename_base()
@@ -56,17 +54,8 @@ Diagnostics_writer::~Diagnostics_writer()
 
 Hdf5_file & Diagnostics_writer::get_file()
 {
-    if (write_locally())
-    {
-        open_file();
-        return *file;
-    }
-    else
-    {
-        throw std::runtime_error(
-                "Diagnostics_writer::get_file() "
-                "called on a non-writer rank.");
-    }
+    open_file();
+    return *file;
 }
 
 std::string Diagnostics_writer::get_filename(bool use_temp_dir)

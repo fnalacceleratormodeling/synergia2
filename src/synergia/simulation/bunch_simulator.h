@@ -328,6 +328,25 @@ private:
         ar(CEREAL_NVP(diags_element));
 
         ar(CEREAL_NVP(prop_actions));
+
+        // save/load particles with parallel hdf5
+        if (Hdf5_file::use_parallel::value)
+        {
+            if (AR::is_saving::value)
+            {
+                // save particles
+                std::cout << "parallel save\n";
+            }
+            else
+            {
+                // load particle
+                std::cout << "parallel load\n";
+            }
+        }
+        else
+        {
+            std::cout << "serial save/load\n";
+        }
     }
 };
 

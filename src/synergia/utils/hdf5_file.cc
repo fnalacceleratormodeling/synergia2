@@ -3,11 +3,20 @@
 #include "synergia/utils/hdf5_misc.h"
 //#include <boost/align/aligned_alloc.hpp>
 
-Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag) 
-    : file_name(file_name)
+Hdf5_file::Hdf5_file( 
+        std::string const& file_name, 
+        Flag flag, 
+        Commxx const& comm )
+    : comm(std::make_shared<Commxx>(comm))
+    , file_name(file_name)
     , h5file()
     , is_open(false)
     , current_flag(flag)
+#ifdef USE_PARALLEL_HDF5
+    , has_file(true)
+#else
+    , has_file(comm.rank() == 0)
+#endif
 {
     // turn off the automatic error printing
     H5Eset_auto(H5E_DEFAULT, NULL, NULL);
@@ -18,6 +27,10 @@ Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag)
 
 void Hdf5_file::open(Flag flag)
 {
+    // open file on this rank?
+    if (!has_file) return;
+
+    // already opened
     if (is_open) close();
 
     int attempts = 0;
@@ -27,16 +40,23 @@ void Hdf5_file::open(Flag flag)
     {
         try
         {
+            Hdf5_handler plist_id = H5Pcreate(H5P_FILE_ACCESS);
+
+#ifdef USE_PARALLEL_HDF5
+            MPI_Info info = MPI_INFO_NULL;
+            H5Pset_fapl_mpio(plist_id, *comm, info);
+#endif
+
             if (flag == Hdf5_file::truncate)
             {
                 // create
-                h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+                h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, plist_id);
                 current_flag = Hdf5_file::read_write;
             }
             else
             {
                 // open
-                h5file = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), H5P_DEFAULT);
+                h5file = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), plist_id);
             }
 
             fail = false;
@@ -79,6 +99,7 @@ extern "C" herr_t get_member_names_callback(hid_t group, const char *name,
     return 0;
 }
 
+#if 0
 std::vector<std::string>
 Hdf5_file::get_member_names()
 {
@@ -136,6 +157,7 @@ Hdf5_file::get_dims(std::string const& name)
 
     return retval;
 }
+#endif
 
 
 #if 0

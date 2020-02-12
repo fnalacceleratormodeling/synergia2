@@ -6,7 +6,10 @@
 #include <stdexcept>
 #include <sstream>
 #include <iomanip>
-#include <exception>
+#include <type_traits>
+#include <vector>
+
+#include <Kokkos_Core.hpp>
 
 namespace storage_order
 {
@@ -120,14 +123,37 @@ struct Hdf5_handler
     operator hid_t() const
     { return hid; }
 
+    bool valid() const
+    { return hid != 0; }
+
     hid_t hid;
 };
 
+#if 0
+template<typename T>
+struct hdf5_traits
+{ using value_type = T::value_type; }
+
+template<>
+struct hdf5_traits<int> { using value_type = int; }
+
+template<typename T, int N>
+struct hdf5_traits<Boost::multi_array<T, N>> { using value_type = T; }
+#endif
 
 // The generic (T) version of h5_atomic_data_type is undefined.
 // Only versions with specializations will compile.
 template<typename T>
-inline hid_t hdf5_atomic_data_type();
+inline hid_t hdf5_atomic_data_type()
+{ return hdf5_atomic_data_type<typename T::value_type>(); }
+//{ return hdf5_traits<T>::value_type; }
+
+#if 0
+template<typename T,
+    typename std::enable_if<Kokkos::is_view<T>::value>::type = 0>
+inline hid_t hdf5_atomic_data_type()
+{ return hdf5_atomic_data_type<typename T::value_type>(); }
+#endif
 
 template<>
 inline hid_t hdf5_atomic_data_type<uint8_t>()
@@ -141,6 +167,29 @@ template<>
 inline hid_t hdf5_atomic_data_type<double>()
 { return H5Tcopy(H5T_NATIVE_DOUBLE); }
 
+namespace syn
+{
+    struct data_info_t
+    {
+        void const* ptr;
+        std::vector<hsize_t> dims;
+        hid_t atomic_type;
+    };
+
+    template<class T>
+    std::enable_if_t<std::is_arithmetic<T>::value, data_info_t>
+    extract_data_info(T const& t)
+    { return {&t, {}, hdf5_atomic_data_type<T>()}; }
+
+    template<class T>
+    std::enable_if_t<Kokkos::is_view<T>::value, data_info_t>
+    extract_data_info(T const& t)
+    { 
+        std::vector<hsize_t> dims(T::Rank);
+        for(int i=0; i<T::Rank; ++i) dims[i] = t.extent(i);
+        return {t.data(), dims, hdf5_atomic_data_type<typename T::value_type>()}; 
+    }
+}
 
 
 #endif /* HDF5_MISC_H_ */

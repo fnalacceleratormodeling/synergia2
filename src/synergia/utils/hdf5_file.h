@@ -23,15 +23,21 @@ public:
     enum Flag { truncate, read_write, read_only };
     enum Atomic_type { double_type, int_type };
 
-    // TODO: set the type based on cmake config
+    // set the type based on cmake config
+#ifdef USE_PARALLEL_HDF5
     using use_parallel = std::true_type;
+#else
+    using use_parallel = std::false_type;
+#endif
 
 private:
 
+    std::shared_ptr<Commxx> comm;
     std::string file_name;
     Hdf5_handler h5file;
     bool is_open;
     Flag current_flag;
+    bool has_file;
 
     std::map<std::string, Hdf5_serial_writer> swriters;
 
@@ -46,28 +52,56 @@ private:
 
 public:
 
-    Hdf5_file(std::string const& file_name, Flag flag);
+    Hdf5_file( std::string const& file_name, 
+               Flag flag, 
+               Commxx const& comm = Commxx() );
+
     ~Hdf5_file() { close(); }
 
     void open(Flag flag);
     void close();
     void flush() const;
 
+#if 0
     std::vector<std::string> get_member_names();
     Atomic_type get_atomic_type(std::string const& name);
     std::vector<int > get_dims(std::string const& name);
+#endif
 
     hid_t get_h5file()
     { return h5file.hid; }
 
+    // gather on the first dimension. all other dimensions must be of the same extents
+    // calling from 4 ranks:
+    //   write_collective("ds", pz) -> "ds" : [pz, pz, ...]
+    //   write_collective("part", part[0:1][0:6]) -> "part" : part[0:3][0:6]
     template<typename T>
-    void write(std::string const& name, T const& data)
-    { Hdf5_writer<T>(h5file.hid, name).write(data); }
+    void write_collective(std::string const& name, T const& data)
+    { write(name, data, true); }
+
+    // no gather, only the root rank will execute the write
+    // calling from 4 ranks:
+    //   write_single("ds", pz) -> "ds" : pz
+    //   write_single("part", part[0:1][0:6]) -> "part" : part[0:1][0:6]
+    template<typename T>
+    void write_single(std::string const& name, T const& data)
+    { write(name, data, false); }
 
     template<typename T>
-    void write_array(std::string const & name, T const* data, size_t len)
-    { Hdf5_writer<T>(h5file.hid, name).write(data, len); }
+    void write(std::string const& name, T const& data, bool collective = false)
+    { Hdf5_writer::write(h5file, name, data, collective, *comm); }
 
+    template<typename T>
+    void write(std::string const & name, T const* data, size_t len, bool collective = false)
+    { Hdf5_writer::write(h5file, name, data, len, collective, *comm); }
+
+
+    // same as write_single(), except this will do append instead of overwrite
+    template<typename T>
+    void append_single(std::string const& name, T const& data)
+    { }
+
+    // same as write(), except this will do append instead of overwrite
     template<typename T>
     void append(std::string const& name, T const& data)
     { 
@@ -117,6 +151,7 @@ private:
     template<class Archive>
     void save(Archive & ar) const
     {
+        ar(CEREAL_NVP(comm));
         ar(CEREAL_NVP(file_name));
         ar(CEREAL_NVP(is_open));
         ar(CEREAL_NVP(current_flag));
@@ -131,6 +166,7 @@ private:
     template<class Archive>
     void load(Archive & ar)
     {
+        ar(CEREAL_NVP(comm));
         ar(CEREAL_NVP(file_name));
         ar(CEREAL_NVP(is_open));
         ar(CEREAL_NVP(current_flag));
