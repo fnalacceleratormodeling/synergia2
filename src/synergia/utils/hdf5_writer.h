@@ -15,18 +15,6 @@ private:
 
     Hdf5_writer() { };
 
-    template<class T>
-    static void const* 
-    get_data_ptr(T const& t) { return &t; }
-
-    template<class T>
-    static int 
-    get_data_rank(T const& t) { return 0; }
-
-    template<class T>
-    static std::vector<hsize_t> 
-    get_data_dims(T const& data) { return {1}; }
-
     static std::vector<hsize_t> 
     collect_dims( std::vector<hsize_t> const& dims, 
                   bool collective, 
@@ -66,20 +54,7 @@ public:
            T const& data, 
            bool collective, 
            Commxx const& comm,
-           int root_rank )
-    {
-        auto di = syn::extract_data_info(data);
-
-        // promote the dimensionality if collective write a scaler
-        if (collective && di.dims.size()==0) 
-            di.dims = {1};
-
-        auto all_dim0 = collect_dims(
-                di.dims, collective, comm, root_rank);
-
-        write_impl(file, name, di.ptr, di.dims, 
-                all_dim0, di.atomic_type, comm);
-    }
+           int root_rank );
 
     template<class T>
     static void 
@@ -88,19 +63,50 @@ public:
            T const* data, size_t len, 
            bool collective, 
            Commxx const& comm,
-           int root_rank )
-    {
-        auto data_ptr  = data;
-        auto data_dims = std::vector<hsize_t>({len});
-        auto atomic    = hdf5_atomic_data_type<T>();
-
-        auto all_dim0 = collect_dims(
-                data_dims, collective, comm, root_rank);
-
-        write_impl(file, name, data_ptr, data_dims, 
-                all_dim0, atomic, comm);
-    }
+           int root_rank );
 };
+
+template<class T>
+inline void 
+Hdf5_writer::write( Hdf5_handler const& file, 
+       std::string const& name, 
+       T const& data, 
+       bool collective, 
+       Commxx const& comm,
+       int root_rank )
+{
+    auto di = syn::extract_data_info(data);
+
+    // promote the dimensionality if collective write a scaler
+    if (collective && di.dims.size()==0) 
+        di.dims = {1};
+
+    auto all_dim0 = collect_dims(
+            di.dims, collective, comm, root_rank);
+
+    write_impl(file, name, di.ptr, di.dims, 
+            all_dim0, di.atomic_type, comm);
+}
+
+template<class T>
+inline void 
+Hdf5_writer::write( Hdf5_handler const& file, 
+       std::string const& name,
+       T const* data, size_t len, 
+       bool collective, 
+       Commxx const& comm,
+       int root_rank )
+{
+    auto data_ptr  = data;
+    auto data_dims = std::vector<hsize_t>({len});
+    auto atomic    = hdf5_atomic_data_type<T>();
+
+    auto all_dim0 = collect_dims(
+            data_dims, collective, comm, root_rank);
+
+    write_impl(file, name, data_ptr, data_dims, 
+            all_dim0, atomic, comm);
+}
 
 namespace {
     bool check_nth_dim(std::vector<hsize_t> const& dims, 
