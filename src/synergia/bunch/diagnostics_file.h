@@ -8,7 +8,7 @@
 class Commxx;
 class Hdf5_file;
 
-class Diagnostics_writer
+class Diagnostics_file
 {
 private:
 
@@ -27,16 +27,16 @@ private:
 
 public:
 
-    Diagnostics_writer( 
+    Diagnostics_file( 
             std::string const& filename,
             std::string const& temp_dir,
             bool serial,
             Commxx const& comm);
 
-    ~Diagnostics_writer();
+    ~Diagnostics_file();
 
-    Diagnostics_writer(Diagnostics_writer const&) = delete;
-    Diagnostics_writer(Diagnostics_writer &&) noexcept = default;
+    Diagnostics_file(Diagnostics_file const&) = delete;
+    Diagnostics_file(Diagnostics_file &&) noexcept = default;
 
     Hdf5_file & get_file();
 
@@ -63,7 +63,7 @@ private:
     friend class Diagnostics_worker;
     friend class cereal::access;
 
-    Diagnostics_writer();
+    Diagnostics_file();
 
     template<class AR>
     void serialize(AR & ar)

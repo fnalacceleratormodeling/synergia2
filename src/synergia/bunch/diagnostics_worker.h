@@ -8,7 +8,7 @@
 #include <cereal/types/memory.hpp>
 
 #include "synergia/bunch/diagnostics.h"
-#include "synergia/bunch/diagnostics_writer.h"
+#include "synergia/bunch/diagnostics_file.h"
 
 class Diagnostics_worker
 {
@@ -16,13 +16,13 @@ class Diagnostics_worker
 private:
 
     std::shared_ptr<Diagnostics> diag;
-    Diagnostics_writer writer;
+    Diagnostics_file diag_file;
 
 public:
 
     // default constructor for serialization only
     Diagnostics_worker()
-        : diag(), writer()
+        : diag(), diag_file()
     { }
 
     // construct a diag worker with given type of diag and filename
@@ -35,7 +35,7 @@ public:
             std::string const& local_dir,
             Commxx const& comm)
         : diag(std::make_shared<DiagCal>(diag))
-        , writer(filename, local_dir, diag.serial(), comm)
+        , diag_file(filename, local_dir, diag.serial(), comm)
     { }
 
     // for registering from python only
@@ -45,7 +45,7 @@ public:
             std::string const& local_dir,
             Commxx const& comm)
         : diag(diag)
-        , writer(filename, local_dir, diag->serial(), comm)
+        , diag_file(filename, local_dir, diag->serial(), comm)
     { }
 
     std::string type() const;
@@ -64,7 +64,7 @@ private:
     void serialize(AR & ar)
     {
         ar(CEREAL_NVP(diag));
-        ar(CEREAL_NVP(writer));
+        ar(CEREAL_NVP(diag_file));
     }
 };
 

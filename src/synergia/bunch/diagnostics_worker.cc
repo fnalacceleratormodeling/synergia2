@@ -10,14 +10,15 @@ std::string Diagnostics_worker::type() const
 void Diagnostics_worker::update(Bunch const& bunch)
 { 
     diag->update(bunch); 
-    diag->reduce(bunch.get_comm(), writer.get_file().master_rank());
+    diag->reduce(bunch.get_comm(), 
+            diag_file.get_file().master_rank());
 }
 
 void Diagnostics_worker::write()
 { 
-    writer.open_file();
-    diag->write(writer.get_file()); 
-    writer.finish_write();
+    diag_file.open_file();
+    diag->write(diag_file.get_file()); 
+    diag_file.finish_write();
 }
 
 

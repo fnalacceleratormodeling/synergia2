@@ -1,10 +1,10 @@
 
-#include "synergia/bunch/diagnostics_writer.h"
+#include "synergia/bunch/diagnostics_file.h"
 #include "synergia/utils/hdf5_file.h"
 
 #pragma message "TODO: replace boost::filesystem here"
 
-Diagnostics_writer::Diagnostics_writer(
+Diagnostics_file::Diagnostics_file(
         std::string const& filename,
         std::string const& temp_dir,
         bool serial,
@@ -35,7 +35,7 @@ Diagnostics_writer::Diagnostics_writer(
             get_filename(true), Hdf5_file::truncate, comm);
 }
 
-Diagnostics_writer::Diagnostics_writer()
+Diagnostics_file::Diagnostics_file()
     : file()
     , serial(true)
     , file_count(0)
@@ -47,18 +47,18 @@ Diagnostics_writer::Diagnostics_writer()
 {
 }
 
-Diagnostics_writer::~Diagnostics_writer()
+Diagnostics_file::~Diagnostics_file()
 {
     close_file();
 }
 
-Hdf5_file & Diagnostics_writer::get_file()
+Hdf5_file & Diagnostics_file::get_file()
 {
     open_file();
     return *file;
 }
 
-std::string Diagnostics_writer::get_filename(bool use_temp_dir)
+std::string Diagnostics_file::get_filename(bool use_temp_dir)
 {
     std::stringstream sstream;
 
@@ -88,7 +88,7 @@ std::string Diagnostics_writer::get_filename(bool use_temp_dir)
     return sstream.str();
 }
 
-void Diagnostics_writer::move_file_overwrite_if_exists(
+void Diagnostics_file::move_file_overwrite_if_exists(
         std::string const& src,
         std::string const& dst )
 {
@@ -101,20 +101,20 @@ void Diagnostics_writer::move_file_overwrite_if_exists(
 #endif
 }
 
-void Diagnostics_writer::open_file()
+void Diagnostics_file::open_file()
 {
     if (!file)
         file = std::make_unique<Hdf5_file>(
                 get_filename(true), Hdf5_file::truncate);
 }
 
-void Diagnostics_writer::flush_file()
+void Diagnostics_file::flush_file()
 {
     if (file && (file_count % flush_period == 0))
         file->flush();
 }
 
-void Diagnostics_writer::close_file()
+void Diagnostics_file::close_file()
 {
     if (file)
     {
@@ -131,7 +131,7 @@ void Diagnostics_writer::close_file()
     }
 }
 
-void Diagnostics_writer::finish_write()
+void Diagnostics_file::finish_write()
 {
     if (serial) flush_file();
     else close_file();

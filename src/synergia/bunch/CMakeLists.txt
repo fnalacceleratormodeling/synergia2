@@ -12,7 +12,7 @@ add_library(synergia_bunch
     bunch_train.cc
     core_diagnostics.cc 
     diagnostics_worker.cc 
-    diagnostics_writer.cc 
+    diagnostics_file.cc 
     #diagnostics_basic.cc
     diagnostics_full2.cc 
     diagnostics_full2_host.cc 
