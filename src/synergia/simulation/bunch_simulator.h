@@ -268,6 +268,9 @@ public:
     int total_num_turns() const { return num_turns; }
 
     // serialization helper
+    void save_bunch_particles();
+    void load_bunch_particles();
+
     std::string dump() const
     {
         std::stringstream ss;
@@ -330,22 +333,17 @@ private:
         ar(CEREAL_NVP(prop_actions));
 
         // save/load particles with parallel hdf5
-        if (Hdf5_file::use_parallel::value)
+        if (AR::is_saving::value)
         {
-            if (AR::is_saving::value)
-            {
-                // save particles
-                std::cout << "parallel save\n";
-            }
-            else
-            {
-                // load particle
-                std::cout << "parallel load\n";
-            }
+            // save particles
+            std::cout << "parallel save\n";
+            save_bunch_particles();
         }
         else
         {
-            std::cout << "serial save/load\n";
+            // load particle
+            std::cout << "parallel load\n";
+            load_bunch_particles();
         }
     }
 };

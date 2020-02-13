@@ -451,3 +451,34 @@ Bunch_simulator::set_lattice_reference_particle(Reference_particle const& ref)
         }
     }
 }
+
+namespace 
+{
+    std::vector<Bunch *> 
+    get_bunch_ptrs(std::array<Bunch_train, 2> & trains)
+    {
+        std::vector<Bunch *> bunches;
+
+        for(auto & t : trains)
+            for(auto & b : t.get_bunches())
+                bunches.push_back(&b);
+
+        return bunches;
+    }
+}
+
+void
+Bunch_simulator::save_bunch_particles()
+{
+    Hdf5_file file("bunch_simulator.h5", Hdf5_file::truncate, *comm);
+    auto bunches = get_bunch_ptrs(trains);
+
+    for (int i=0; i<bunches.size(); ++i)
+        bunches[i]->save_particles(file, i);
+}
+
+void
+Bunch_simulator::load_bunch_particles()
+{
+}
+

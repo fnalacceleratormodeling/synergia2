@@ -367,6 +367,8 @@ public:
         ar(*this);
     }
 
+    void save_particles(Hdf5_file & file, int idx) const;
+
 private:
 
     friend class cereal::access;

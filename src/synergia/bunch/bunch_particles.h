@@ -164,6 +164,8 @@ public:
     void check_pz2_positive();
     void print_particle(size_t idx, Logger & logger) const;
 
+    void save_particles(Hdf5_file & file, int idx) const;
+
 private:
 
     friend class cereal::access;
@@ -177,19 +179,6 @@ private:
         ar(CEREAL_NVP(total));
         ar(CEREAL_NVP(parts));
         ar(CEREAL_NVP(masks));
-
-        // particle .h5 file
-        std::stringstream ss;
-        ss << "bunch_particles_" << label << "_" << Commxx::world_rank() << ".h5";
-        ar(cereal::make_nvp("fname", ss.str()));
-
-        // checkout first
-        checkout_particles();
-
-        // save particle and mask array
-        //Hdf5_file file(ss.str(), Hdf5_file::truncate);
-        //file.write_array("parts", hparts.data(), hparts.span());
-        //file.write_array("masks", hmasks.data(), hmasks.span());
     }
 
     template<class AR>
@@ -206,8 +195,8 @@ private:
         hmasks = Kokkos::create_mirror_view(masks);
 
         // load the filename
-        std::string fname;
-        ar(CEREAL_NVP(fname));
+        //std::string fname;
+        //ar(CEREAL_NVP(fname));
 
         // load the particle data
         //Hdf5_file file(fname, Hdf5_file::read_only);

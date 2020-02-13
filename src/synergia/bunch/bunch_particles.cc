@@ -417,6 +417,20 @@ BunchParticles::print_particle(size_t idx, Logger & logger) const
         ;
 }
 
+void
+BunchParticles::save_particles(Hdf5_file & file, int idx) const
+{
+    checkout_particles();
+
+    std::stringstream ss;
+    ss << "bunch_particles_" << label << "_parts_" << idx;
+    file.write(ss.str(), hparts.data(), hparts.span(), true);
+
+    ss.str("");
+    ss << "bunch_particles_" << label << "_masks_" << idx;
+    file.write(ss.str(), hmasks.data(), hmasks.span(), true);
+}
+
 
 
 

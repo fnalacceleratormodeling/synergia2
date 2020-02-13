@@ -265,6 +265,13 @@ Bunch::get_diag(std::string const & name)
     return it->second;
 }
 
+void
+Bunch::save_particles(Hdf5_file & file, int idx) const
+{
+    get_bunch_particles(PG::regular).save_particles(file, idx);
+    get_bunch_particles(PG::spectator).save_particles(file, idx);
+}
+
 #if 0
 template<class Archive>
 void
