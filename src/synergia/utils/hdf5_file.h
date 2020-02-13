@@ -8,6 +8,7 @@
 
 #include "synergia/utils/hdf5_misc.h"
 #include "synergia/utils/hdf5_writer.h"
+#include "synergia/utils/hdf5_reader.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
 #include "synergia/utils/cereal.h"
@@ -117,6 +118,30 @@ public:
         w->second.append(data);
     }
 
+    // read the dataset to all ranks
+    template<typename T>
+    T read(std::string const& name)
+    { return Hdf5_reader::read<T>(h5file, name, *comm, root_rank); }
+
+    // does a collective read on the dataset
+    // rank r will get a container that has the len extent in the first dim
+    template<typename T>
+    T read(std::string const& name, size_t len)
+    { return Hdf5_reader::read<T>(h5file, name, len, *comm, root_rank); }
+
+    // a single read from a 1d dataset into the memory
+    // memory must be larger or the same as the dataset size
+    template<typename T>
+    void read(std::string const& name, T const* data)
+    { Hdf5_reader::read<T>(h5file, name, data, *comm, root_rank); }
+
+    // does a collective read of the named dataset into the raw array
+    template<typename T>
+    void read(std::string const& name, T const* data, size_t len)
+    { Hdf5_reader::read<T>(h5file, name, data, len, *comm, root_rank); }
+
+
+#if 0
     template<typename T>
     T read(std::string const& name)
     {
@@ -143,6 +168,7 @@ public:
 
     template<typename T>
     void read_array(std::string const& name, T * const ptr);
+#endif
 
 private:
 
@@ -185,33 +211,6 @@ private:
         }
     }
 };
-
-
-template<>
-int* Hdf5_file::read<int*>(std::string const& name);
-
-template<>
-double* Hdf5_file::read<double*>(std::string const& name);
-
-template<>
-karray2d Hdf5_file::read<karray2d>(std::string const& name);
-
-template<>
-karray2d_row Hdf5_file::read<karray2d_row>(std::string const& name);
-
-#if 0
-template<>
-MArray1d Hdf5_file::read<MArray1d >(std::string const& name);
-
-template<>
-MArray2d Hdf5_file::read<MArray2d >(std::string const& name);
-
-template<>
-MArray3d Hdf5_file::read<MArray3d >(std::string const& name);
-
-template<>
-MArray1i Hdf5_file::read<MArray1i >(std::string const& name);
-#endif
 
 
 #endif /* HDF5_FILE_H_ */

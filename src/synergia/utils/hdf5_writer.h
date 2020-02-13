@@ -3,8 +3,6 @@
 #include <vector>
 #include <string>
 
-#include "hdf5.h"
-
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_misc.h"
 #include "synergia/utils/multi_array_typedefs.h"

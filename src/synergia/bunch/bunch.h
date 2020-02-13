@@ -367,7 +367,17 @@ public:
         ar(*this);
     }
 
-    void save_particles(Hdf5_file & file, int idx) const;
+    void save_particles(Hdf5_file & file, int idx) const
+    {
+        get_bunch_particles(PG::regular).save_particles(file, idx);
+        get_bunch_particles(PG::spectator).save_particles(file, idx);
+    }
+
+    void load_particles(Hdf5_file & file, int idx)
+    {
+        get_bunch_particles(PG::regular).load_particles(file, idx);
+        get_bunch_particles(PG::spectator).load_particles(file, idx);
+    }
 
 private:
 

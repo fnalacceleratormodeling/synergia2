@@ -165,6 +165,7 @@ public:
     void print_particle(size_t idx, Logger & logger) const;
 
     void save_particles(Hdf5_file & file, int idx) const;
+    void load_particles(Hdf5_file & file, int idx);
 
 private:
 
@@ -193,18 +194,6 @@ private:
         // construct the host array first
         hparts = Kokkos::create_mirror_view(parts);
         hmasks = Kokkos::create_mirror_view(masks);
-
-        // load the filename
-        //std::string fname;
-        //ar(CEREAL_NVP(fname));
-
-        // load the particle data
-        //Hdf5_file file(fname, Hdf5_file::read_only);
-        //file.read_array("parts", hparts.data());
-        //file.read_array("masks", hmasks.data());
-
-        // and check in to the device memory
-        checkin_particles();
     }
 };
 

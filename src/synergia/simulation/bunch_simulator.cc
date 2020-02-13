@@ -480,5 +480,10 @@ Bunch_simulator::save_bunch_particles()
 void
 Bunch_simulator::load_bunch_particles()
 {
+    Hdf5_file file("bunch_simulator.h5", Hdf5_file::read_only, *comm);
+    auto bunches = get_bunch_ptrs(trains);
+
+    for (int i=0; i<bunches.size(); ++i)
+        bunches[i]->load_particles(file, i);
 }
 
