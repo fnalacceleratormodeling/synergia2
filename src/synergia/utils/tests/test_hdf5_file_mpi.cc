@@ -31,6 +31,23 @@ TEST_CASE("hdf5_file_dim_check_array", "[Hdf5_file]")
     else CHECK_NOTHROW(file.write("vi2", vi.data(), vi.size(), false));
 }
 
+TEST_CASE("hdf5_file_dim_check_zero_sized", "[Hdf5_file]")
+{
+    Hdf5_file file("hdf5_file_test_dim_array_zero_sized.h5", Hdf5_file::truncate, Commxx());
+
+    int mpi_rank = Commxx::world_rank();
+    int mpi_size = Commxx::world_size();
+
+    std::vector<int> vi(mpi_rank);
+    std::iota(vi.begin(), vi.end(), mpi_rank * 100);
+
+    CHECK_NOTHROW(file.write("vi", vi.data(), vi.size(), true));
+
+    if (mpi_size > 1) CHECK_THROWS(file.write("vi2", vi.data(), vi.size(), false));
+    else CHECK_NOTHROW(file.write("vi2", vi.data(), vi.size(), false));
+}
+
+
 TEST_CASE("hdf5_file_dim_check_kv_nothrow", "[Hdf5_file]")
 {
     Hdf5_file file("hdf5_file_test_dim_kv_nothrow.h5", Hdf5_file::truncate, Commxx());
@@ -73,6 +90,24 @@ TEST_CASE("hdf5_file_dim_check_kv_2", "[Hdf5_file]")
 
     if( mpi_size > 1) CHECK_THROWS(file.write("arr1", arr1, true));
     else CHECK_NOTHROW(file.write("arr1", arr1, true));
+
+    if( mpi_size > 1) CHECK_THROWS(file.write("arr2", arr1, false));
+    else CHECK_NOTHROW(file.write("arr2", arr1, false));
+}
+
+
+TEST_CASE("hdf5_file_dim_check_kv_3", "[Hdf5_file]")
+{
+    Hdf5_file file("hdf5_file_test_dim_kv_3.h5", Hdf5_file::truncate, Commxx());
+
+    int mpi_rank = Commxx::world_rank();
+    int mpi_size = Commxx::world_size();
+
+    karray2d_row arr1("arr1", mpi_rank, 3);
+    //arr1(2, 1) = 2.0;
+    //arr1(3, 2) = 3.0;
+
+    CHECK_NOTHROW(file.write("arr1", arr1, true));
 
     if( mpi_size > 1) CHECK_THROWS(file.write("arr2", arr1, false));
     else CHECK_NOTHROW(file.write("arr2", arr1, false));
