@@ -216,6 +216,10 @@ Hdf5_writer::write_impl(
     Hdf5_handler dset = H5Dcreate(file, name.c_str(), atomic_type,
             filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
+    // only create the dataset, but do not initiate the write 
+    // if the total size is 0
+    if (dimsf.size() && dimsf[0] == 0) return;
+
     // local dims(counts)
     auto dimsm = data_dims;
     if (dimsm.size()) dimsm[0] = all_dims_0[mpi_rank];
