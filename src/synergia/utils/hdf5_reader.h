@@ -39,7 +39,7 @@ public:
           Commxx const& comm,
           int root_rank )
     {
-        return T();
+        throw std::runtime_error("hdf5_reader::read_1() not implemented");
     }
 
     template<class T>
@@ -50,7 +50,7 @@ public:
           Commxx const& comm,
           int root_rank )
     {
-        return T();
+        throw std::runtime_error("hdf5_reader::read_2() not implemented");
     }
 
     // read 1d array
@@ -62,6 +62,7 @@ public:
           Commxx const& comm,
           int root_rank )
     {
+        throw std::runtime_error("hdf5_reader::read_3() not implemented");
     }
  
     // collective read a 1d array
@@ -74,6 +75,7 @@ public:
           Commxx const& comm,
           int root_rank )
     {
+        throw std::runtime_error("hdf5_reader::read_4() not implemented");
 #if 0
         auto data_ptr = data;
         auto data_dims = std::vector<hsize_t>({len});
