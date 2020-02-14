@@ -66,12 +66,13 @@ public:
 
 template<class T>
 inline void 
-Hdf5_writer::write( Hdf5_handler const& file, 
-       std::string const& name, 
-       T const& data, 
-       bool collective, 
-       Commxx const& comm,
-       int root_rank )
+Hdf5_writer::write( 
+        Hdf5_handler const& file, 
+        std::string const& name, 
+        T const& data, 
+        bool collective, 
+        Commxx const& comm,
+        int root_rank )
 {
     auto di = syn::extract_data_info(data);
 
@@ -88,12 +89,13 @@ Hdf5_writer::write( Hdf5_handler const& file,
 
 template<class T>
 inline void 
-Hdf5_writer::write( Hdf5_handler const& file, 
-       std::string const& name,
-       T const* data, size_t len, 
-       bool collective, 
-       Commxx const& comm,
-       int root_rank )
+Hdf5_writer::write( 
+        Hdf5_handler const& file, 
+        std::string const& name,
+        T const* data, size_t len, 
+        bool collective, 
+        Commxx const& comm,
+        int root_rank )
 {
     auto data_ptr  = data;
     auto data_dims = std::vector<hsize_t>({len});
@@ -107,7 +109,7 @@ Hdf5_writer::write( Hdf5_handler const& file,
 }
 
 namespace {
-    bool check_nth_dim(std::vector<hsize_t> const& dims, 
+    bool same_nth_dim(std::vector<hsize_t> const& dims, 
             size_t dim, size_t ndim, size_t mpi_size)
     {
         assert(mpi_size > 0);
@@ -119,6 +121,13 @@ namespace {
             if (dims[r*ndim + dim] != val) return false;
 
         return true;
+    }
+
+    bool same_data_ranks(std::vector<size_t> const& ranks)
+    {
+        auto it = std::adjacent_find(ranks.begin(), ranks.end(),
+                std::not_equal_to<>());
+        return it == ranks.end();
     }
 }
 
@@ -145,6 +154,18 @@ Hdf5_writer::collect_dims(
     const auto local_dims = dims.size() ? dims : std::vector<hsize_t>{1};
     const auto data_rank = local_dims.size();
 
+    // collect all data_ranks
+    std::vector<size_t> all_ranks(mpi_size);
+    MPI_Allgather(&data_rank, 1, MPI_UINT64_T,
+            all_ranks.data(), 1, MPI_UINT64_T, comm);
+
+    // data rank check -- all data_ranks should be the same
+    if (!same_data_ranks(all_ranks))
+    {
+        throw std::runtime_error(
+                "Hdf5_writer: inconsistent data ranks");
+    }
+
     std::vector<hsize_t> all_dims(mpi_size*data_rank);
     std::vector<hsize_t> all_dim0(mpi_size, 0);
 
@@ -158,9 +179,9 @@ Hdf5_writer::collect_dims(
     size_t d0 = collective ? 1 : 0;
     for (int d=d0; d<data_rank; ++d)
     {
-        if (!check_nth_dim(all_dims, d, data_rank, mpi_size))
+        if (!same_nth_dim(all_dims, d, data_rank, mpi_size))
             throw std::runtime_error(
-                    "Hdf5_writer: inconsisitent data dimensions");
+                    "Hdf5_writer: inconsistent data dimensions");
     }
 
     if (collective)
