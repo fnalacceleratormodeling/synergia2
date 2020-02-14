@@ -132,12 +132,12 @@ public:
     // a single read from a 1d dataset into the memory
     // memory must be larger or the same as the dataset size
     template<typename T>
-    void read(std::string const& name, T const* data)
+    void read(std::string const& name, T * const data)
     { Hdf5_reader::read<T>(h5file, name, data, *comm, root_rank); }
 
     // does a collective read of the named dataset into the raw array
     template<typename T>
-    void read(std::string const& name, T const* data, size_t len)
+    void read(std::string const& name, T * const data, size_t len)
     { Hdf5_reader::read<T>(h5file, name, data, len, *comm, root_rank); }
 
 

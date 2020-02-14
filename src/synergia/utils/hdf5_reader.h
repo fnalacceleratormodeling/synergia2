@@ -58,7 +58,7 @@ public:
     static void
     read( Hdf5_handler const& file,
           std::string const& name,
-          T const* data, 
+          T * data, 
           Commxx const& comm,
           int root_rank )
     {
@@ -70,26 +70,37 @@ public:
     static void
     read( Hdf5_handler const& file,
           std::string const& name,
-          T const* data, 
+          T * data, 
           size_t len,
           Commxx const& comm,
           int root_rank )
     {
-        throw std::runtime_error("hdf5_reader::read_4() not implemented");
-#if 0
         auto data_ptr = data;
         auto data_dims = std::vector<hsize_t>({len});
-        auto atomic = hdf5_atomic_data_type<T>();
+        Hdf5_handler atomic = hdf5_atomic_data_type<T>();
 
-        auto all_dim0 = collective_dims();
+        auto all_dim0 = syn::collect_dims(
+                data_dims, true, comm, root_rank );
 
-        read_impl(file, name, data_ptr, data_dims, all_dim0, atomic, comm);
-#endif
+        verify_and_set_data_dims(
+                file, name, data_dims, all_dim0, atomic,
+                true, comm, root_rank );
+
+        read_impl(file, name, data_ptr, data_dims, 
+                all_dim0, atomic, comm);
     }
 
-    void read_impl()
+    static void 
+    verify_and_set_data_dims(
+            Hdf5_handler const& file,
+            std::string  const& name,
+            std::vector<hsize_t>      & data_dims,
+            std::vector<hsize_t> const& all_dims_0,
+            Hdf5_handler const& atomic_type,
+            bool collective,
+            Commxx const& comm,
+            int root_rank )
     {
-#if 0
         int mpi_size = comm.size();
         int mpi_rank = comm.rank();
 
@@ -103,17 +114,112 @@ public:
         // dim0 of the combined array
         hsize_t dim0 = offsets[mpi_size-1] + all_dims_0[mpi_size-1];
 
-        // dims for the combined array
-        std::vector<hsize_t> dimsf(data_dims);
-        if (dimsf.size()) dimsf[0] = dim0;
+        // get and verify done only on the root_rank
+        if (mpi_rank == root_rank)
+        {
+            if (!file.valid())
+                throw std::runtime_error("invalid file handler");
+
+            Hdf5_handler dset = H5Dopen(file, name.c_str(), H5P_DEFAULT);
+            Hdf5_handler filespace = H5Dget_space(dset);
+
+            // get and check the datatype
+            Hdf5_handler type = H5Dget_type(dset);
+            if (H5Tequal(type, atomic_type) <= 0)
+                throw std::runtime_error("wrong atomic data type");
+
+            // get and check the data rank
+            int rank = H5Sget_simple_extent_ndims(filespace);
+            if (rank < 0) throw Hdf5_exception("error at getting rank");
+
+            if (rank != data_rank) 
+                throw std::runtime_error("Hdf5_reader: wrong rank");
+
+            // get, check, and broadcast the dims for non-scalar
+            if (rank)
+            {
+                std::vector<hsize_t> dims(rank);
+                herr_t res = H5Sget_simple_extent_dims(filespace, dims.data(), NULL);
+                if (res < 0) throw Hdf5_exception("error at getting dims");
+
+                // only the collective read of non-scalar needs the dim check
+                if (collective && dims[0] != dim0)
+                {
+                    throw std::runtime_error(
+                            "Hdf5_reader: combined dim[0] is inconsistent with "
+                            "the dataset from file" );
+
+                }
+
+                // broadcast the dims to all ranks
+                MPI_Bcast(dims.data(), rank, MPI_UINT64_T, root_rank, comm);
+            }
+        }
+        else
+        {
+            if (data_rank)
+            {
+                // listen to the broadcast
+                MPI_Bcast(data_dims.data(), data_rank, MPI_UINT64_T, root_rank, comm);
+            }
+        }
+
+        // this is to make sure only the root_rank gets non-zero read
+        // portion in the single read mode
+        if (collective) data_dims[0] = all_dims_0[mpi_rank];
+    }
+
+    static void 
+    read_impl( 
+            Hdf5_handler const& file,
+            std::string const& name,
+            void * data_ptr,
+            std::vector<hsize_t> const& data_dims,
+            std::vector<hsize_t> const& all_dims_0,
+            Hdf5_handler const& atomic_type,
+            Commxx const& comm )
+    {
+        int mpi_size = comm.size();
+        int mpi_rank = comm.rank();
+
+        // data rank
+        auto data_rank = data_dims.size();
+
+        // offsets for each rank (offsets of dim0 in the combined array)
+        std::vector<hsize_t> offsets(mpi_size, 0);
+        for (int r=0; r<mpi_size-1; ++r) offsets[r+1] = offsets[r] + all_dims_0[r];
 
 #ifdef USE_PARALLEL_HDF5
 
         if (!file.valid())
             throw std::runtime_error("invalid file handler");
-#else
-#endif
 
+        Hdf5_handler dset   = H5Dopen(file, name.c_str(), H5P_DEFAULT);
+        Hdf5_handler fspace = H5Dget_space(dset);
+        Hdf5_handler mspace = H5Screate_simple(data_rank, data_dims.data(), NULL);
+
+        if (data_rank)
+        {
+            auto offset = std::vector<hsize_t>(data_rank, 0);
+            offset[0] = offsets[mpi_rank];
+
+            auto res = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, 
+                    offset.data(), NULL, data_dims.data(), NULL);
+            
+            if (res < 0) throw Hdf5_exception("error at select hyperslab");
+        }
+
+        // collective write
+        Hdf5_handler plist_id = H5Pcreate(H5P_DATASET_XFER);
+        H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE);
+
+        // read
+        auto res = H5Dread(dset, atomic_type, mspace, fspace, plist_id, data_ptr);
+        if (res < 0) throw Hdf5_exception("error read");
+
+#else
+        // TODO: serial hdf5 impl
+        // ....
 #endif
     }
 

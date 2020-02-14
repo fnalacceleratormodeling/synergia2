@@ -30,6 +30,7 @@ add_library(synergia_hdf5_utils
     hdf5_serial_writer.cc
     #hdf5_chunked_array2d_writer.cc 
     hdf5_file.cc
+    hdf5_misc.cc
     )
 target_link_libraries(synergia_hdf5_utils 
     ${HDF5_LIBRARIES} 

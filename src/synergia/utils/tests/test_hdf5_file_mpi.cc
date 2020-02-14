@@ -153,23 +153,39 @@ TEST_CASE("hdf5_file_dim_check_kv_diff_rank", "[Hdf5_file]")
 
 TEST_CASE("hdf5_file", "[Hdf5_file]")
 {
-    Hdf5_file file("hdf5_file_test.h5", Hdf5_file::truncate, Commxx());
+    {
+        Hdf5_file file("hdf5_file_test.h5", Hdf5_file::truncate, Commxx());
 
-    file.write_collective("int", 5);
-    file.write_single("int2", 6);
+        file.write_collective("int", 5);
+        file.write_single("int2", 6);
 
-    int mpi_rank = Commxx::world_rank();
-    std::vector<int> vi(6);
-    for(int i=0; i<vi.size(); ++i) vi[i] = i + mpi_rank * 100;
+        int mpi_rank = Commxx::world_rank();
+        std::vector<int> vi(6);
+        for(int i=0; i<vi.size(); ++i) vi[i] = i + mpi_rank * 100;
 
-    file.write("vi", vi.data(), vi.size(), true);
-    file.write("vi2", vi.data(), vi.size(), false);
+        file.write("vi", vi.data(), vi.size(), true);
+        file.write("vi2", vi.data(), vi.size(), false);
 
-    karray2d_row arr1("arr1", 4, 3);
-    arr1(2, 1) = 2.0;
-    arr1(3, 2) = 3.0;
+        karray2d_row arr1("arr1", 4, 3);
+        arr1(2, 1) = 2.0;
+        arr1(3, 2) = 3.0;
 
-    file.write("arr1", arr1, true);
-    file.write("arr2", arr1, false);
+        file.write("arr1", arr1, true);
+        file.write("arr2", arr1, false);
+    }
+
+    {
+        Hdf5_file file("hdf5_file_test.h5", Hdf5_file::read_only, Commxx());
+
+        int mpi_rank = Commxx::world_rank();
+        int mpi_size = Commxx::world_size();
+
+        int sz = mpi_rank == 0 ? mpi_size*6 : 0;
+
+        std::vector<int> vi(sz, 3);
+        file.read("vi", vi.data(), vi.size());
+        for(int i : vi) std::cout << i << ", ";
+        std::cout << "\n";
+    }
 }
 
