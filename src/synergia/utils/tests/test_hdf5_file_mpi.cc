@@ -6,7 +6,8 @@
 
 TEST_CASE("hdf5_file_dim_check_array_nothrow", "[Hdf5_file]")
 {
-    Hdf5_file file("hdf5_file_test_dim_array_nothrow.h5", Hdf5_file::truncate, Commxx());
+    Hdf5_file file("hdf5_file_test_dim_array_nothrow.h5", 
+            Hdf5_file::truncate, Commxx());
 
     std::vector<int> vi(6);
     std::iota(vi.begin(), vi.end(), Commxx::world_rank() * 100);
@@ -17,7 +18,8 @@ TEST_CASE("hdf5_file_dim_check_array_nothrow", "[Hdf5_file]")
 
 TEST_CASE("hdf5_file_dim_check_array", "[Hdf5_file]")
 {
-    Hdf5_file file("hdf5_file_test_dim_array.h5", Hdf5_file::truncate, Commxx());
+    Hdf5_file file("hdf5_file_test_dim_array.h5", 
+            Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -33,7 +35,8 @@ TEST_CASE("hdf5_file_dim_check_array", "[Hdf5_file]")
 
 TEST_CASE("hdf5_file_dim_check_zero_sized", "[Hdf5_file]")
 {
-    Hdf5_file file("hdf5_file_test_dim_array_zero_sized.h5", Hdf5_file::truncate, Commxx());
+    Hdf5_file file("hdf5_file_test_dim_array_zero_sized.h5", 
+            Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -50,7 +53,8 @@ TEST_CASE("hdf5_file_dim_check_zero_sized", "[Hdf5_file]")
 
 TEST_CASE("hdf5_file_dim_check_kv_nothrow", "[Hdf5_file]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_nothrow.h5", Hdf5_file::truncate, Commxx());
+    Hdf5_file file("hdf5_file_test_dim_kv_nothrow.h5", 
+            Hdf5_file::truncate, Commxx());
 
     karray2d_row arr1("arr1", 4, 3);
     arr1(2, 1) = 2.0;
@@ -62,7 +66,8 @@ TEST_CASE("hdf5_file_dim_check_kv_nothrow", "[Hdf5_file]")
 
 TEST_CASE("hdf5_file_dim_check_kv_1", "[Hdf5_file]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_1.h5", Hdf5_file::truncate, Commxx());
+    Hdf5_file file("hdf5_file_test_dim_kv_1.h5", 
+            Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -79,7 +84,8 @@ TEST_CASE("hdf5_file_dim_check_kv_1", "[Hdf5_file]")
 
 TEST_CASE("hdf5_file_dim_check_kv_2", "[Hdf5_file]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_2.h5", Hdf5_file::truncate, Commxx());
+    Hdf5_file file("hdf5_file_test_dim_kv_2.h5", 
+            Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -95,10 +101,10 @@ TEST_CASE("hdf5_file_dim_check_kv_2", "[Hdf5_file]")
     else CHECK_NOTHROW(file.write("arr2", arr1, false));
 }
 
-
-TEST_CASE("hdf5_file_dim_check_kv_3", "[Hdf5_file]")
+TEST_CASE("hdf5_file_dim_check_kv_zero_dim", "[Hdf5_file]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_3.h5", Hdf5_file::truncate, Commxx());
+    Hdf5_file file("hdf5_file_test_dim_kv_zero_dim.h5", 
+            Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -111,6 +117,38 @@ TEST_CASE("hdf5_file_dim_check_kv_3", "[Hdf5_file]")
 
     if( mpi_size > 1) CHECK_THROWS(file.write("arr2", arr1, false));
     else CHECK_NOTHROW(file.write("arr2", arr1, false));
+}
+
+TEST_CASE("hdf5_file_dim_check_kv_diff_rank", "[Hdf5_file]")
+{
+    Hdf5_file file("hdf5_file_test_dim_kv_diff_rank.h5", 
+            Hdf5_file::truncate, Commxx());
+
+    int mpi_rank = Commxx::world_rank();
+    int mpi_size = Commxx::world_size();
+
+    if (mpi_rank == 0)
+    {
+        karray2d_row arr1("arr1", 4, 3);
+
+        if (mpi_size == 1)
+        {
+            CHECK_NOTHROW(file.write("arr1", arr1, true));
+            CHECK_NOTHROW(file.write("arr2", arr1, false));
+        }
+        else
+        {
+            CHECK_THROWS(file.write("arr1", arr1, true));
+            CHECK_THROWS(file.write("arr2", arr1, false));
+        }
+    }
+    else
+    {
+        karray3d_row arr1("arr1", 4, 3, 2);
+
+        CHECK_THROWS(file.write("arr1", arr1, true));
+        CHECK_THROWS(file.write("arr2", arr1, false));
+    }
 }
 
 TEST_CASE("hdf5_file", "[Hdf5_file]")
