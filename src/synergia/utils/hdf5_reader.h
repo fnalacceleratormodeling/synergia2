@@ -39,7 +39,22 @@ public:
           Commxx const& comm,
           int root_rank )
     {
-        throw std::runtime_error("hdf5_reader::read_1() not implemented");
+        T retval;
+        auto di = syn::extract_data_info(retval);
+
+        auto all_dim0 = syn::collect_dims(
+                di.dims, false, comm, root_rank );
+
+        verify_and_set_data_dims(
+                file, name, di.dims, all_dim0, di.atomic_type,
+                false, comm, root_rank );
+
+        syn::resize_data_obj(retval, di);
+
+        read_impl(file, name, (void*)di.ptr, di.dims, 
+                all_dim0, di.atomic_type, comm);
+
+        return retval;
     }
 
     template<class T>
@@ -143,7 +158,7 @@ public:
                 if (res < 0) throw Hdf5_exception("error at getting dims");
 
                 // only the collective read of non-scalar needs the dim check
-                if (collective && dims[0] != dim0)
+                if (collective && (dims[0] != dim0))
                 {
                     throw std::runtime_error(
                             "Hdf5_reader: combined dim[0] is inconsistent with "
@@ -151,18 +166,13 @@ public:
 
                 }
 
-                // broadcast the dims to all ranks
-                MPI_Bcast(dims.data(), rank, MPI_UINT64_T, root_rank, comm);
+                data_dims = dims;
             }
         }
-        else
-        {
-            if (data_rank)
-            {
-                // listen to the broadcast
-                MPI_Bcast(data_dims.data(), data_rank, MPI_UINT64_T, root_rank, comm);
-            }
-        }
+
+        // broadcast the dims to all ranks
+        if (data_rank)
+            MPI_Bcast(data_dims.data(), data_rank, MPI_UINT64_T, root_rank, comm);
 
         // this is to make sure only the root_rank gets non-zero read
         // portion in the single read mode
@@ -194,6 +204,7 @@ public:
         if (!file.valid())
             throw std::runtime_error("invalid file handler");
 
+
         Hdf5_handler dset   = H5Dopen(file, name.c_str(), H5P_DEFAULT);
         Hdf5_handler fspace = H5Dget_space(dset);
         Hdf5_handler mspace = H5Screate_simple(data_rank, data_dims.data(), NULL);
@@ -216,6 +227,7 @@ public:
         // read
         auto res = H5Dread(dset, atomic_type, mspace, fspace, plist_id, data_ptr);
         if (res < 0) throw Hdf5_exception("error read");
+        //if (res < 0) H5Eprint(H5E_DEFAULT, stdout);
 
 #else
         // TODO: serial hdf5 impl

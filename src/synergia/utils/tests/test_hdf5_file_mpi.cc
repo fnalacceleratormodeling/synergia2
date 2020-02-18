@@ -151,6 +151,56 @@ TEST_CASE("hdf5_file_dim_check_kv_diff_rank", "[Hdf5_file]")
     }
 }
 
+TEST_CASE("hdf5_file_scalar_read", "[Hdf5_file]")
+{
+    {
+        Hdf5_file file("hdf5_file_scalar_read.h5", 
+                Hdf5_file::truncate, Commxx());
+
+        int i = 3;
+        CHECK_NOTHROW(file.write("int", i, false));
+    }
+
+    {
+        Hdf5_file file("hdf5_file_scalar_read.h5", 
+                Hdf5_file::read_only, Commxx());
+
+        //auto i = file.read<int>("int");
+
+        //CHECK(i == 3);
+    }
+}
+
+
+TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
+{
+    {
+        Hdf5_file file("hdf5_file_kv_read.h5", 
+                Hdf5_file::truncate, Commxx());
+
+        karray2d_row arr1("arr1", 4, 3);
+        arr1(1, 0) = 1.0;
+        arr1(2, 1) = 2.0;
+        arr1(3, 2) = 3.0;
+
+        CHECK_NOTHROW(file.write("arr1", arr1, false));
+    }
+
+    {
+        Hdf5_file file("hdf5_file_kv_read.h5", 
+                Hdf5_file::read_only, Commxx());
+
+        auto arr1 = file.read<karray2d_row>("arr1");
+
+        REQUIRE(arr1.extent(0) == 4);
+        REQUIRE(arr1.extent(1) == 3);
+
+        CHECK(arr1(1, 0) == 1.0);
+        CHECK(arr1(2, 1) == 2.0);
+        CHECK(arr1(3, 2) == 3.0);
+    }
+}
+
 TEST_CASE("hdf5_file", "[Hdf5_file]")
 {
     {

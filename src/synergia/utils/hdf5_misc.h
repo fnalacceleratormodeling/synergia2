@@ -176,7 +176,7 @@ namespace syn
     {
         void const* ptr;
         std::vector<hsize_t> dims;
-        hid_t atomic_type;
+        Hdf5_handler atomic_type;
     };
 
     template<class T>
@@ -192,6 +192,35 @@ namespace syn
         for(int i=0; i<T::Rank; ++i) dims[i] = t.extent(i);
         return {t.data(), dims, hdf5_atomic_data_type<typename T::value_type>()}; 
     }
+
+    template<class T>
+    std::enable_if_t<std::is_arithmetic<T>::value, void>
+    resize_data_obj(T& t, data_info_t& di)
+    {
+        if (di.dims.size()) throw std::runtime_error(
+                "resize_data_obj: non-zero rank resizing scalar");
+    }
+
+    template<class T>
+    std::enable_if_t<Kokkos::is_view<T>::value, void>
+    resize_data_obj(T& t, data_info_t& di)
+    { 
+        if (di.dims.size() != T::Rank) throw std::runtime_error(
+                "resize_data_obj: inconsistent data rank");
+
+        switch(di.dims.size())
+        {
+            case 1: Kokkos::resize(t, di.dims[0]); break;
+            case 2: Kokkos::resize(t, di.dims[0], di.dims[1]); break;
+            case 3: Kokkos::resize(t, di.dims[0], di.dims[1], di.dims[2]); break;
+            default: throw std::runtime_error("unsupported dims");
+        }
+
+        di.ptr = t.data();
+    }
+
+
+
 
 
     // collects dims of the data object thats about to be written/read
