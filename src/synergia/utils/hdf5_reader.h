@@ -41,18 +41,16 @@ public:
     {
         T retval;
         auto di = syn::extract_data_info(retval);
-
         auto all_dim0 = syn::collect_dims(
                 di.dims, false, comm, root_rank );
 
         verify_and_set_data_dims(
-                file, name, di.dims, all_dim0, di.atomic_type,
+                file, name, all_dim0, di,
                 false, comm, root_rank );
 
         syn::resize_data_obj(retval, di);
 
-        read_impl(file, name, (void*)di.ptr, di.dims, 
-                all_dim0, di.atomic_type, comm);
+        read_impl(file, name, all_dim0, di, comm);
 
         return retval;
     }
@@ -90,28 +88,25 @@ public:
           Commxx const& comm,
           int root_rank )
     {
-        auto data_ptr = data;
-        auto data_dims = std::vector<hsize_t>({len});
-        Hdf5_handler atomic = hdf5_atomic_data_type<T>();
+        syn::data_info_t di{ 
+            data, {len}, hdf5_atomic_data_type<T>() };
 
         auto all_dim0 = syn::collect_dims(
-                data_dims, true, comm, root_rank );
+                di.dims, true, comm, root_rank );
 
         verify_and_set_data_dims(
-                file, name, data_dims, all_dim0, atomic,
+                file, name, all_dim0, di,
                 true, comm, root_rank );
 
-        read_impl(file, name, data_ptr, data_dims, 
-                all_dim0, atomic, comm);
+        read_impl(file, name, all_dim0, di, comm);
     }
 
     static void 
     verify_and_set_data_dims(
             Hdf5_handler const& file,
             std::string  const& name,
-            std::vector<hsize_t>      & data_dims,
             std::vector<hsize_t> const& all_dims_0,
-            Hdf5_handler const& atomic_type,
+            syn::data_info_t& di,
             bool collective,
             Commxx const& comm,
             int root_rank )
@@ -120,7 +115,7 @@ public:
         int mpi_rank = comm.rank();
 
         // data rank
-        auto data_rank = data_dims.size();
+        auto data_rank = di.dims.size();
 
         // offsets for each rank (offsets of dim0 in the combined array)
         std::vector<hsize_t> offsets(mpi_size, 0);
@@ -140,7 +135,7 @@ public:
 
             // get and check the datatype
             Hdf5_handler type = H5Dget_type(dset);
-            if (H5Tequal(type, atomic_type) <= 0)
+            if (H5Tequal(type, di.atomic_type) <= 0)
                 throw std::runtime_error("wrong atomic data type");
 
             // get and check the data rank
@@ -166,34 +161,32 @@ public:
 
                 }
 
-                data_dims = dims;
+                di.dims = dims;
             }
         }
 
         // broadcast the dims to all ranks
         if (data_rank)
-            MPI_Bcast(data_dims.data(), data_rank, MPI_UINT64_T, root_rank, comm);
+            MPI_Bcast(di.dims.data(), data_rank, MPI_UINT64_T, root_rank, comm);
 
         // this is to make sure only the root_rank gets non-zero read
         // portion in the single read mode
-        if (collective) data_dims[0] = all_dims_0[mpi_rank];
+        if (collective) di.dims[0] = all_dims_0[mpi_rank];
     }
 
     static void 
     read_impl( 
             Hdf5_handler const& file,
             std::string const& name,
-            void * data_ptr,
-            std::vector<hsize_t> const& data_dims,
             std::vector<hsize_t> const& all_dims_0,
-            Hdf5_handler const& atomic_type,
+            syn::data_info_t const& di,
             Commxx const& comm )
     {
         int mpi_size = comm.size();
         int mpi_rank = comm.rank();
 
         // data rank
-        auto data_rank = data_dims.size();
+        auto data_rank = di.dims.size();
 
         // offsets for each rank (offsets of dim0 in the combined array)
         std::vector<hsize_t> offsets(mpi_size, 0);
@@ -207,7 +200,7 @@ public:
 
         Hdf5_handler dset   = H5Dopen(file, name.c_str(), H5P_DEFAULT);
         Hdf5_handler fspace = H5Dget_space(dset);
-        Hdf5_handler mspace = H5Screate_simple(data_rank, data_dims.data(), NULL);
+        Hdf5_handler mspace = H5Screate_simple(data_rank, di.dims.data(), NULL);
 
         if (data_rank)
         {
@@ -215,7 +208,7 @@ public:
             offset[0] = offsets[mpi_rank];
 
             auto res = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, 
-                    offset.data(), NULL, data_dims.data(), NULL);
+                    offset.data(), NULL, di.dims.data(), NULL);
             
             if (res < 0) throw Hdf5_exception("error at select hyperslab");
         }
@@ -225,7 +218,7 @@ public:
         H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE);
 
         // read
-        auto res = H5Dread(dset, atomic_type, mspace, fspace, plist_id, data_ptr);
+        auto res = H5Dread(dset, di.atomic_type, mspace, fspace, plist_id, (void*)di.ptr);
         if (res < 0) throw Hdf5_exception("error read");
         //if (res < 0) H5Eprint(H5E_DEFAULT, stdout);
 
