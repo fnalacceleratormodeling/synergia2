@@ -140,36 +140,6 @@ public:
     void read(std::string const& name, T * const data, size_t len)
     { Hdf5_reader::read<T>(h5file, name, data, len, *comm, root_rank); }
 
-
-#if 0
-    template<typename T>
-    T read(std::string const& name)
-    {
-        T retval;
-
-        Hdf5_handler atomic_type = hdf5_atomic_data_type<T>();
-        Hdf5_handler dataset = H5Dopen2(h5file.hid, name.c_str(), H5P_DEFAULT);
-
-        std::vector<hsize_t > dims(1);
-        dims.at(0) = 1;
-        int data_rank = 0;
-
-        Hdf5_handler dataspace = H5Screate_simple(data_rank, &dims[0], NULL);
-        Hdf5_handler memspace = H5Screate_simple(data_rank, &dims[0], NULL);
-
-        herr_t res = H5Dread(dataset.hid, atomic_type.hid, memspace.hid, 
-                dataspace.hid, H5P_DEFAULT, &retval);
-
-        if (res < 0) 
-            throw Hdf5_exception("Error at reading Dataset " + name + " from HDF5 file");
-
-        return retval;
-    }
-
-    template<typename T>
-    void read_array(std::string const& name, T * const ptr);
-#endif
-
 private:
 
     friend class cereal::access;

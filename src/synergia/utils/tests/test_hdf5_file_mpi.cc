@@ -165,9 +165,9 @@ TEST_CASE("hdf5_file_scalar_read", "[Hdf5_file]")
         Hdf5_file file("hdf5_file_scalar_read.h5", 
                 Hdf5_file::read_only, Commxx());
 
-        //auto i = file.read<int>("int");
+        auto i = file.read<int>("int");
 
-        //CHECK(i == 3);
+        CHECK(i == 3);
     }
 }
 
@@ -199,6 +199,40 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
         CHECK(arr1(2, 1) == 2.0);
         CHECK(arr1(3, 2) == 3.0);
     }
+
+
+#if 0
+    {
+        int mpi_size = Commxx::world_size();
+        int mpi_rank = Commxx::world_rank();
+
+        if (mpi_size <= 4)
+        {
+            Hdf5_file file("hdf5_file_kv_read.h5", 
+                    Hdf5_file::read_only, Commxx());
+
+            std::vector<int> rows;
+
+            switch(mpi_size)
+            {
+                case 1: rows = {4}; break;
+                case 2: rows = {1, 3}; break;
+                case 3: rows = {1, 1, 2}; break;
+                case 4: rows = {1, 1, 0, 2}; break;
+                default: break;
+            }
+
+            auto arr1 = file.read<karray2d_row>("arr1", rows[mpi_rank]);
+
+            REQUIRE(arr1.extent(0) == rows[mpi_rank]);
+            REQUIRE(arr1.extent(1) == 3);
+
+            //CHECK(arr1(1, 0) == 1.0);
+            //CHECK(arr1(2, 1) == 2.0);
+            //CHECK(arr1(3, 2) == 3.0);
+        }
+    }
+#endif
 }
 
 TEST_CASE("hdf5_file", "[Hdf5_file]")
@@ -234,8 +268,6 @@ TEST_CASE("hdf5_file", "[Hdf5_file]")
 
         std::vector<int> vi(sz, 3);
         file.read("vi", vi.data(), vi.size());
-        for(int i : vi) std::cout << i << ", ";
-        std::cout << "\n";
     }
 }
 
