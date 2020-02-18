@@ -197,17 +197,23 @@ public:
         if (!file.valid())
             throw std::runtime_error("invalid file handler");
 
-
         Hdf5_handler dset   = H5Dopen(file, name.c_str(), H5P_DEFAULT);
         Hdf5_handler fspace = H5Dget_space(dset);
         Hdf5_handler mspace = H5Screate_simple(data_rank, di.dims.data(), NULL);
 
         if (data_rank)
         {
+            std::vector<hsize_t> dims(data_rank);
+            auto res = H5Sget_simple_extent_dims(fspace, dims.data(), NULL);
+
+            // do not read if the file data is empty
+            if (dims[0] == 0) return;
+
+            // select the slab
             auto offset = std::vector<hsize_t>(data_rank, 0);
             offset[0] = offsets[mpi_rank];
 
-            auto res = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, 
+            res = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, 
                     offset.data(), NULL, di.dims.data(), NULL);
             
             if (res < 0) throw Hdf5_exception("error at select hyperslab");
