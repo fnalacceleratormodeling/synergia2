@@ -91,7 +91,7 @@ struct Hdf5_handler
         return *this;
     }
 
-    operator hid_t const()
+    operator hid_t () const
     {
         return hid;
     }

@@ -4,9 +4,11 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
 add_library(synergia_foundation four_momentum.cc reference_particle.cc
     distribution.cc multi_diagnostics.cc
     diagnostics_write_helper.cc)
-target_link_libraries(synergia_foundation gsl gslcblas
+target_link_libraries(synergia_foundation 
     synergia_parallel_utils synergia_hdf5_utils synergia_serialization
     lsexpr
+    ${GSL_LIBRARY}
+    ${GSL_CBLAS_LIBRARY}
     ${Boost_SERIALIZATION_LIBRARIES})
 
 add_python_extension(foundation foundation_wrap.cc)

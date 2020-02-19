@@ -10,22 +10,27 @@ set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   # using Clang
-  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evalauted-expression")
+  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evalauted-expression -Wno-register")
   message("Using clang++")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     # using Apples's clang
-    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evaluated-expression")
+    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evaluated-expression -Wno-register")
     message("Using Apple clang++")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # using GCC
-  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
+  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result -Wno-register")
   set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
   message("Using g++")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  # using Intel C++
+  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
+  set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
+  message("Using Intel C++")
 else()
-  message(FATAL_ERROR "I can not tell what compiler is being used.")
+  message(WARNING "I can not tell what compiler is being used. Will proceed with generic settings.")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-register ${COMPILER_SPECIFIC_CXX_FLAGS} -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall ${COMPILER_SPECIFIC_CXX_FLAGS} -Werror")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
 set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
 
@@ -38,6 +43,11 @@ endif()
 # get version number generation right
 if(POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
+endif()
+
+# use <Package>_ROOT variables
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
 endif()
 
 ##
@@ -153,9 +163,14 @@ else()
 endif ()
 
 # hdf5
-find_package(HDF5)
+find_package(HDF5 REQUIRED)
 include_directories(${HDF5_INCLUDE_DIRS})
-message(${HDF5_LIBRARIES})
+message(STATUS "${HDF5_LIBRARIES}")
+
+# gsl
+find_package(GSL REQUIRED)
+include_directories(${GSL_INCLUDE_DIRS})
+message(STATUS "Found GSL at ${GSL_INCLUDE_DIRS}")
 
 # chef
 find_package(CHEF REQUIRED)
