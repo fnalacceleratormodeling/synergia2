@@ -268,8 +268,8 @@ public:
     int total_num_turns() const { return num_turns; }
 
     // serialization helper
-    void save_bunch_particles();
-    void load_bunch_particles();
+    void save_bunch_particles(std::string const& fname) const;
+    void load_bunch_particles(std::string const& fname);
 
     std::string dump() const
     {
@@ -336,14 +336,21 @@ private:
         if (AR::is_saving::value)
         {
             // save particles
-            std::cout << "parallel save\n";
-            save_bunch_particles();
+            std::stringstream ss;
+            ss << "bunch_simulator.h5";
+
+            std::string particle_fname = ss.str();
+            ar(CEREAL_NVP(particle_fname));
+
+            save_bunch_particles(particle_fname);
         }
         else
         {
             // load particle
-            std::cout << "parallel load\n";
-            load_bunch_particles();
+            std::string particle_fname;
+            ar(CEREAL_NVP(particle_fname));
+
+            load_bunch_particles(particle_fname);
         }
     }
 };

@@ -454,10 +454,22 @@ Bunch_simulator::set_lattice_reference_particle(Reference_particle const& ref)
 
 namespace 
 {
-    std::vector<Bunch *> 
-    get_bunch_ptrs(std::array<Bunch_train, 2> & trains)
+    std::vector<Bunch const*> 
+    get_bunch_ptrs(std::array<Bunch_train, 2> const& trains)
     {
-        std::vector<Bunch *> bunches;
+        std::vector<Bunch const*> bunches;
+
+        for(auto const& t : trains)
+            for(auto const& b : t.get_bunches())
+                bunches.push_back(&b);
+
+        return bunches;
+    }
+
+    std::vector<Bunch*> 
+    get_bunch_ptrs(std::array<Bunch_train, 2>& trains)
+    {
+        std::vector<Bunch*> bunches;
 
         for(auto & t : trains)
             for(auto & b : t.get_bunches())
@@ -468,9 +480,9 @@ namespace
 }
 
 void
-Bunch_simulator::save_bunch_particles()
+Bunch_simulator::save_bunch_particles(std::string const& fname) const
 {
-    Hdf5_file file("bunch_simulator.h5", Hdf5_file::truncate, *comm);
+    Hdf5_file file(fname, Hdf5_file::truncate, *comm);
     auto bunches = get_bunch_ptrs(trains);
 
     for (int i=0; i<bunches.size(); ++i)
@@ -478,9 +490,9 @@ Bunch_simulator::save_bunch_particles()
 }
 
 void
-Bunch_simulator::load_bunch_particles()
+Bunch_simulator::load_bunch_particles(std::string const& fname)
 {
-    Hdf5_file file("bunch_simulator.h5", Hdf5_file::read_only, *comm);
+    Hdf5_file file(fname, Hdf5_file::read_only, *comm);
     auto bunches = get_bunch_ptrs(trains);
 
     for (int i=0; i<bunches.size(); ++i)
