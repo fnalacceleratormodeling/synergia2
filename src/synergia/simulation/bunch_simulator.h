@@ -243,6 +243,8 @@ public:
     void set_lattice_reference_particle(Reference_particle const& ref);
 
     // accessors
+    Commxx const& get_comm() const { return *comm; }
+
     std::array<Bunch_train, 2>      & get_trains()       { return trains; }
     std::array<Bunch_train, 2> const& get_trains() const { return trains; }
 

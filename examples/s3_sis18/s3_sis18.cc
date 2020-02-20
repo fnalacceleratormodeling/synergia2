@@ -5,6 +5,7 @@
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/split_operator_stepper.h"
 #include "synergia/simulation/independent_stepper_elements.h"
+#include "synergia/simulation/checkpoint.h"
 
 #include "synergia/bunch/populate.h"
 #include "synergia/bunch/core_diagnostics.h"
@@ -197,7 +198,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     auto & bunch = sim.get_bunch();
 
     // or read from file
-    bunch.read_file("turn_particles_0000_4M.h5");
+    //bunch.read_file("turn_particles_0000_4M.h5");
 
     // statistics before propagate
     print_statistics(bunch, screen);
@@ -217,7 +218,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 #endif
 
     // propagate
-    propagator.propagate(sim, simlog, 1);
+    //propagator.propagate(sim, simlog, 1);
 
     // statistics after propagate
     print_statistics(bunch, screen);
@@ -226,6 +227,8 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // dump
     prop_str = propagator.dump();
     sim_str = sim.dump();
+
+    syn::checkpoint_save(propagator, sim);
 
     return;
 }
@@ -312,13 +315,13 @@ int main(int argc, char ** argv)
     std::string prop_str, sim_str;
     run_and_save(prop_str, sim_str);
 
-    auto d = syn::json::parse(prop_str);
-    std::cout << d["value0"]["stepper_ptr"] << "\n";
+    //auto d = syn::json::parse(prop_str);
+    //std::cout << d["value0"]["stepper_ptr"] << "\n";
 
     //std::cout << prop_str << "\n";
     //std::cout << sim_str << "\n";
 
-    resume_and_save(prop_str, sim_str);
+    //resume_and_save(prop_str, sim_str);
     //resume_and_save(prop_str, sim_str);
 
     Kokkos::finalize();

@@ -27,6 +27,7 @@ add_library(synergia_simulation
     #dense_mapping.cc 
     #calculate_closed_orbit.cc 
     #diagnostics_normal_form.cc
+    checkpoint.cc
     )
 
 target_link_libraries(synergia_simulation 

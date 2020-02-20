@@ -1,5 +1,6 @@
 
 #include "synergia/simulation/propagator.h"
+#include "synergia/simulation/checkpoint.h"
 
 //#include "synergia/utils/simple_timer.h"
 #include "synergia/utils/digits.h"
@@ -654,6 +655,9 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
 
             ++turns_since_checkpoint;
             do_turn_end(sim, turn, logger);
+
+            // checkpoint save
+            //syn::checkpoint_save(*this, sim);
 
 #if 0
             if ((turns_since_checkpoint == checkpoint_period) 
