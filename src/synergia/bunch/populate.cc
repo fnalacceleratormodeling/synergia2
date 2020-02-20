@@ -3,11 +3,17 @@
 #include "populate.h"
 #include "diagnostics.h"
 
+#if !defined(__has_warning) || __has_warning("-Wint-in-bool-context")
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-in-bool-context"
+#endif
+
 #include "Eigen/Eigen"
 #include "Eigen/Cholesky"
+
+#if !defined(__has_warning) || __has_warning("-Wint-in-bool-context")
 #pragma GCC diagnostic pop
+#endif
 
 using namespace Eigen;
 
