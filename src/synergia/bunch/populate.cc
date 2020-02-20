@@ -19,16 +19,15 @@ using mconstants::pi;
 
 namespace {
 bool is_symmetric66(Const_MArray2d_ref &m) {
-  bool symmetric = true;
   const double tolerance = 1.0e-14;
   for (int i = 0; i < 6; ++i) {
     for (int j = i + 1; j < 6; ++j) {
       if (!floating_point_equal(m[i][j], m[j][i], tolerance)) {
-        symmetric = false;
+       return false;
       }
     }
   }
-  return symmetric;
+  return true;
 }
 }
 
