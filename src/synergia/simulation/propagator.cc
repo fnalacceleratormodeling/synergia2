@@ -735,10 +735,6 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
     }
 }
 
-void Propagator::checkpoint(Bunch_simulator const& sim) const
-{
-}
-
 #if 0
 void
 Propagator::checkpoint(Bunch_simulator & sim, Logger & logger, double & t)
