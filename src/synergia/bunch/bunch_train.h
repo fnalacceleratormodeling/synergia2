@@ -113,6 +113,7 @@ private:
         ar(CEREAL_NVP(index));
         ar(CEREAL_NVP(num_bunches));
         ar(CEREAL_NVP(num_buckets));
+        ar(CEREAL_NVP(bunch_idx_map));
         ar(CEREAL_NVP(proc_counts_imped));
         ar(CEREAL_NVP(proc_offsets_imped));
     }
