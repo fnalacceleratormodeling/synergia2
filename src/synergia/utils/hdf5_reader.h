@@ -62,7 +62,30 @@ public:
           Commxx const& comm,
           int root_rank )
     {
-        throw std::runtime_error("hdf5_reader::read_2() not implemented");
+        T retval;
+        auto di = syn::extract_data_info(retval);
+
+        // collective read from an array into a
+        // scalar doesnt make much sense
+        if (di.dims.size()==0) throw std::runtime_error(
+                "hdf5_reader::read() read from an array into a scalar");
+
+        // set the first dim, rests are still 0s
+        di.dims[0] = len;
+
+        // collect
+        auto all_dim0 = syn::collect_dims(
+                di.dims, true, comm, root_rank );
+
+        read_verify_and_set_data_dims(
+                file, name, all_dim0, di,
+                true, comm, root_rank );
+
+        syn::resize_data_obj(retval, di);
+
+        read_impl(file, name, all_dim0, di, comm);
+
+        return retval;
     }
 
     // read 1d array

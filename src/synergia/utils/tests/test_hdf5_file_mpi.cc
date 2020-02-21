@@ -179,7 +179,12 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
                 Hdf5_file::truncate, Commxx());
 
         karray2d_row arr1("arr1", 4, 3);
-        arr1(1, 0) = 1.0;
+        arr1(0, 0) = 10.0;
+        arr1(1, 0) = 11.0;
+        arr1(2, 0) = 12.0;
+        arr1(3, 0) = 13.0;
+
+        arr1(1, 1) = 1.0;
         arr1(2, 1) = 2.0;
         arr1(3, 2) = 3.0;
 
@@ -195,13 +200,12 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
         REQUIRE(arr1.extent(0) == 4);
         REQUIRE(arr1.extent(1) == 3);
 
-        CHECK(arr1(1, 0) == 1.0);
+        CHECK(arr1(1, 1) == 1.0);
         CHECK(arr1(2, 1) == 2.0);
         CHECK(arr1(3, 2) == 3.0);
     }
 
 
-#if 0
     {
         int mpi_size = Commxx::world_size();
         int mpi_rank = Commxx::world_rank();
@@ -227,12 +231,15 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
             REQUIRE(arr1.extent(0) == rows[mpi_rank]);
             REQUIRE(arr1.extent(1) == 3);
 
-            //CHECK(arr1(1, 0) == 1.0);
-            //CHECK(arr1(2, 1) == 2.0);
-            //CHECK(arr1(3, 2) == 3.0);
+            for(int i=0; i<rows[mpi_rank]; ++i)
+            {
+                int off = 0;
+                for(int r=0; r<mpi_rank; ++r) off += rows[r];
+
+                CHECK(arr1(i, 0) == (10.0 + off + i));
+            }
         }
     }
-#endif
 }
 
 TEST_CASE("hdf5_file", "[Hdf5_file]")
