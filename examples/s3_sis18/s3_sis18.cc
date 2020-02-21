@@ -228,6 +228,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     prop_str = propagator.dump();
     sim_str = sim.dump();
 
+    //propagator.print_steps(screen);
     syn::checkpoint_save(propagator, sim);
 
     return;
@@ -241,10 +242,31 @@ void resume_and_save(std::string & prop_str, std::string & sim_str)
     auto propagator = Propagator::load_from_string(prop_str);
     auto sim = Bunch_simulator::load_from_string(sim_str);
 
+    auto & bunch = sim.get_bunch();
+    print_statistics(bunch, screen);
+
+    //propagator.print_steps(screen);
     propagator.propagate(sim, simlog, 1);
 
     prop_str = propagator.dump();
     sim_str = sim.dump();
+}
+
+void checkpoint_resume()
+{
+    Logger screen(0, LV::DEBUG);
+    Logger simlog(0, LV::INFO_STEP);
+
+    auto cp = syn::checkpoint_load();
+
+    Propagator& propagator = cp.first;
+    Bunch_simulator& sim = cp.second;
+
+    auto & bunch = sim.get_bunch();
+    print_statistics(bunch, screen);
+
+    //propagator.print_steps(screen);
+    propagator.propagate(sim, simlog, 1);
 }
 
 
@@ -322,7 +344,8 @@ int main(int argc, char ** argv)
     //std::cout << sim_str << "\n";
 
     //resume_and_save(prop_str, sim_str);
-    //resume_and_save(prop_str, sim_str);
+    checkpoint_resume();
+    //syn::resume();
 
     Kokkos::finalize();
     MPI_Finalize();

@@ -50,11 +50,6 @@ private:
             Bunch_simulator const & simulator, 
             Logger & logger);
 
-#if 0
-	void
-	checkpoint(State & state, Logger & logger, double & t);
-#endif
-
 public:
 
     // given lattice and stepper

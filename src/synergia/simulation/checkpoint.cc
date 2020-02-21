@@ -33,7 +33,6 @@ syn::checkpoint_save( Propagator const& prop,
     // recv string buffer
     int total_len = displs[mpi_size-1] + lens[mpi_size-1];
     std::string sims_str(total_len, ' ');
-    std::cout << "total_size = " << total_len << "\n";
     
     // gather strings
     MPI_Gatherv( sim_str.data(), sim_str.size(), MPI_CHAR,
@@ -55,7 +54,7 @@ syn::checkpoint_save( Propagator const& prop,
             cp["simulator"].push_back(d);
         }
 
-        // write to file
+        // write states to file
         std::ofstream file("cp_state.json");
         if (!file.good()) throw std::runtime_error(
                 "Error at creating checkpointing file");
@@ -64,9 +63,65 @@ syn::checkpoint_save( Propagator const& prop,
 }
 
 std::pair<Propagator, Bunch_simulator>
-syn::checkpoint_resume()
+syn::checkpoint_load()
 {
+    const int root = 0;
+    const int mpi_size = Commxx::world_size();
+    const int mpi_rank = Commxx::world_rank();
+
+    size_t len;
+    std::vector<char> buf;
+
+    if (mpi_rank == root)
+    {
+        // read states from file
+        std::ifstream file("cp_state.json");
+        if (!file.good()) throw std::runtime_error(
+                "Error at openning checkpointing file");
+
+        file.seekg(0, std::ios::end);
+        len = file.tellg();
+
+        // broadcast the buffer length
+        MPI_Bcast(&len, 1, MPI_UINT64_T, root, Commxx::World);
+
+        // read the buffer
+        buf.resize(len);
+        file.seekg(0);
+        file.read(&buf[0], len);
+
+        // broadcast the buffer
+        MPI_Bcast(&buf[0], len, MPI_BYTE, root, Commxx::World);
+    }
+    else
+    {
+        // receive the buffer length
+        MPI_Bcast(&len, 1, MPI_UINT64_T, root, Commxx::World);
+
+        // prepare buffer
+        buf.resize(len);
+
+        // receive the buffer
+        MPI_Bcast(&buf[0], len, MPI_BYTE, root, Commxx::World);
+    }
+
+    // parse the json object
+    auto cp = syn::json::parse(buf.begin(), buf.end());
+
+    // recreate the objects
     return std::make_pair(
-            Propagator::load_from_string(""),
-            Bunch_simulator::load_from_string("") );
+            Propagator::load_from_string(cp["propagator"].dump()),
+            Bunch_simulator::load_from_string(cp["simulator"][mpi_rank].dump()) );
+}
+
+void syn::resume()
+{
+    Logger simlog(0, LoggerV::INFO_STEP);
+
+    auto cp = syn::checkpoint_load();
+
+    Propagator& propagator = cp.first;
+    Bunch_simulator& sim = cp.second;
+
+    propagator.propagate(sim, simlog);
 }
