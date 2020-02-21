@@ -38,10 +38,12 @@ public:
     {
         T retval;
         auto di = syn::extract_data_info(retval);
+
+        // collect dim0
         auto all_dim0 = syn::collect_dims(
                 di.dims, false, comm, root_rank );
 
-        verify_and_set_data_dims(
+        read_verify_and_set_data_dims(
                 file, name, all_dim0, di,
                 false, comm, root_rank );
 
@@ -91,7 +93,7 @@ public:
         auto all_dim0 = syn::collect_dims(
                 di.dims, true, comm, root_rank );
 
-        verify_and_set_data_dims(
+        read_verify_and_set_data_dims(
                 file, name, all_dim0, di,
                 true, comm, root_rank );
 
@@ -99,10 +101,10 @@ public:
     }
 
     static void 
-    verify_and_set_data_dims(
+    read_verify_and_set_data_dims(
             Hdf5_handler const& file,
             std::string  const& name,
-            std::vector<hsize_t> const& all_dims_0,
+            std::vector<hsize_t>& all_dims_0,
             syn::data_info_t& di,
             bool collective,
             Commxx const& comm,
@@ -166,9 +168,25 @@ public:
         if (data_rank)
             MPI_Bcast(di.dims.data(), data_rank, MPI_UINT64_T, root_rank, comm);
 
-        // this is to make sure only the root_rank gets non-zero read
-        // portion in the single read mode
+        // in collective vector read, all_dim0 is init with everyone's read 
+        // size. after read_verify, di.dims is populated with the full array 
+        // shape. so the final set is needed to get a proper array shape for 
+        // each rank
+        //
+        // collective scalar read is prohibited
+        //
+        // in non-collective vector read, all_dim0 is inited with all 0, and
+        // di.dims are set to the dims of the full array. In this case, set the
+        // root rank of all_dims0 to the full dim0, and leave all other ranks 
+        // to 0. Later in read_impl it doesnt need to read the file again in
+        // order to figure out the full array size (so when the size is 0, the
+        // read should be skipped)
+        //
+        // in non-collective scalar read, all_dim0 already init with 1 in the
+        // root rank, and 0 in others. so no need to do any more setups.
+        //
         if (collective) di.dims[0] = all_dims_0[mpi_rank];
+        else if(data_rank) all_dims_0[root_rank] = di.dims[0];
     }
 
     static void 
@@ -189,6 +207,9 @@ public:
         std::vector<hsize_t> offsets(mpi_size, 0);
         for (int r=0; r<mpi_size-1; ++r) offsets[r+1] = offsets[r] + all_dims_0[r];
 
+        // total dim0
+        hsize_t dim0 = offsets[mpi_size-1] + all_dims_0[mpi_size-1];
+
 #ifdef USE_PARALLEL_HDF5
 
         if (!file.valid())
@@ -200,17 +221,14 @@ public:
 
         if (data_rank)
         {
-            std::vector<hsize_t> dims(data_rank);
-            auto res = H5Sget_simple_extent_dims(fspace, dims.data(), NULL);
-
             // do not read if the file data is empty
-            if (dims[0] == 0) return;
+            if (dim0 == 0) return;
 
             // select the slab
             auto offset = std::vector<hsize_t>(data_rank, 0);
             offset[0] = offsets[mpi_rank];
 
-            res = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, 
+            auto res = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, 
                     offset.data(), NULL, di.dims.data(), NULL);
             
             if (res < 0) throw Hdf5_exception("error at select hyperslab");

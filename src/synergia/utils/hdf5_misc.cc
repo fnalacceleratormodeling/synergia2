@@ -40,7 +40,7 @@ syn::collect_dims(
     if (collective && !dims.size())
     {
         throw std::runtime_error(
-                "Hdf5_writer: collective write on a scalar, "
+                "Hdf5_writer: collective read/write on a scalar, "
                 "should have been promoted to 1d array" );
     }
 
