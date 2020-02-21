@@ -53,8 +53,10 @@ public:
     /// Defaults to interpreting elements as Mad8 elements
     Lattice();
 
-    /// Copies of Lattices contain copies of elements
-    Lattice(Lattice const & lattice);
+    /// Copy, move, and assignment of Lattices contain copies of elements
+    Lattice(Lattice const& lattice);
+    Lattice(Lattice && lattice) noexcept;
+    Lattice& operator=(Lattice const& lattice);
 
     /// Construct a Lattice object with a name
     /// Defaults to interpreting elements as Mad8 elements

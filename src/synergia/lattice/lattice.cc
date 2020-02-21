@@ -24,14 +24,37 @@ Lattice::Lattice(std::string const & name)
 {
 }
 
-Lattice::Lattice(Lattice const & lattice) 
-    : name(lattice.name)
-    , reference_particle(lattice.reference_particle)
-    , elements(lattice.elements)
-    , updated(lattice.updated)
+Lattice::Lattice(Lattice const & o) 
+    : name(o.name)
+    , reference_particle(o.reference_particle)
+    , elements(o.elements)
+    , updated(o.updated)
 {
     for (auto & e : elements) e.set_lattice(*this);
 }
+
+Lattice::Lattice(Lattice && o) noexcept
+    : name(std::move(o.name))
+    , reference_particle(std::move(o.reference_particle))
+    , elements(std::move(o.elements))
+    , updated(std::move(o.updated))
+{
+    for (auto & e : elements) e.set_lattice(*this);
+}
+
+Lattice&
+Lattice::operator=(Lattice const& o)
+{
+    name = o.name;
+    reference_particle = o.reference_particle;
+    elements = o.elements;
+    updated = o.updated;
+
+    for (auto & e : elements) e.set_lattice(*this);
+
+    return *this;
+}
+
 
 Lattice::Lattice(Lsexpr const & lsexpr) 
     : name("")
