@@ -11,8 +11,6 @@ class Hdf5_writer
 {
 private:
 
-    Hdf5_writer() { };
-
     static void 
     write_impl( Hdf5_handler const& file,
                 std::string const& name,
@@ -23,6 +21,8 @@ private:
                 Commxx const& comm );
 
 public:
+
+    Hdf5_writer() = delete;
 
     // if collective = false, write out a single value to the file (value from the root
     // rank)

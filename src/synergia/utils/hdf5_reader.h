@@ -7,12 +7,9 @@
 
 class Hdf5_reader
 {
-private:
-
-    Hdf5_reader() { };
-
-
 public:
+
+    Hdf5_reader() = delete;
 
     // if T is a scalar type, raed in a single value
     // if T is kokkos::view, read in the array data
