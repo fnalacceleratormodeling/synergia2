@@ -54,6 +54,22 @@ private:
 
 public:
 
+    // since C++17 the shared_from_this() called from an unmanaged
+    // shared_ptr would throw the bad_weak_ptr exception, instead
+    // of having an undefined behavior. So if we move to C++17 we 
+    // would be able to reduce the constructor to a single one by 
+    // testing if we are able to call the shared_from_this(),
+    //    ...
+    //    try { comm = c.shared_from_this();}
+    //    catch(...) { comm = std::make_shared<const Commxx>(c); }
+    //    ...
+    //
+    // for now two separate constructors are both provided
+    //
+    Hdf5_file( std::string const& file_name, 
+               Flag flag, 
+               std::shared_ptr<Commxx> const& comm );
+
     Hdf5_file( std::string const& file_name, 
                Flag flag, 
                Commxx const& comm = Commxx() );
@@ -156,6 +172,7 @@ private:
         ar(CEREAL_NVP(root_rank));
         ar(CEREAL_NVP(is_open));
         ar(CEREAL_NVP(current_flag));
+        ar(CEREAL_NVP(has_file));
 
         if (is_open)
         {
@@ -172,6 +189,7 @@ private:
         ar(CEREAL_NVP(root_rank));
         ar(CEREAL_NVP(is_open));
         ar(CEREAL_NVP(current_flag));
+        ar(CEREAL_NVP(has_file));
 
         if (is_open)
         {

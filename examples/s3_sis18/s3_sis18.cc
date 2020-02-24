@@ -198,7 +198,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     auto & bunch = sim.get_bunch();
 
     // or read from file
-    //bunch.read_file("turn_particles_0000_4M.h5");
+    bunch.read_file("turn_particles_0000_4M.h5");
 
     // statistics before propagate
     print_statistics(bunch, screen);
@@ -256,6 +256,8 @@ void checkpoint_resume()
 {
     Logger screen(0, LV::DEBUG);
     Logger simlog(0, LV::INFO_STEP);
+
+    screen << "resuming from checkpoint...\n";
 
     auto cp = syn::checkpoint_load();
 

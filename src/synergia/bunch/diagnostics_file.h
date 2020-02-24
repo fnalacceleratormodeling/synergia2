@@ -31,7 +31,7 @@ public:
             std::string const& filename,
             std::string const& temp_dir,
             bool serial,
-            Commxx const& comm);
+            std::shared_ptr<Commxx> const& comm);
 
     ~Diagnostics_file();
 

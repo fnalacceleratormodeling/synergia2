@@ -1,22 +1,44 @@
 #include "hdf5_file.h"
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/hdf5_misc.h"
-//#include <boost/align/aligned_alloc.hpp>
 
 Hdf5_file::Hdf5_file( 
         std::string const& file_name, 
         Flag flag, 
-        Commxx const& comm )
-    : comm(std::make_shared<Commxx>(comm))
+        Commxx const& c )
+    : comm(std::make_shared<Commxx>(c))
     , file_name(file_name)
     , h5file()
-    , root_rank(comm.size()-1)
+    , root_rank(c.size()-1)
     , is_open(false)
     , current_flag(flag)
 #ifdef USE_PARALLEL_HDF5
     , has_file(true)
 #else
-    , has_file(comm.rank() == root_rank)
+    , has_file(c.rank() == root_rank)
+#endif
+{
+    // turn off the automatic error printing
+    H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+
+    // open file
+    open(flag);
+}
+
+Hdf5_file::Hdf5_file( 
+        std::string const& file_name, 
+        Flag flag, 
+        std::shared_ptr<Commxx> const& c )
+    : comm(c)
+    , file_name(file_name)
+    , h5file()
+    , root_rank(c->size()-1)
+    , is_open(false)
+    , current_flag(flag)
+#ifdef USE_PARALLEL_HDF5
+    , has_file(true)
+#else
+    , has_file(c->rank() == root_rank)
 #endif
 {
     // turn off the automatic error printing

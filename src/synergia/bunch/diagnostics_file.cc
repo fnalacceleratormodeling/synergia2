@@ -8,7 +8,7 @@ Diagnostics_file::Diagnostics_file(
         std::string const& filename,
         std::string const& temp_dir,
         bool serial,
-        Commxx const& comm )
+        std::shared_ptr<Commxx> const& comm )
     : file()
     , serial(serial)
     , file_count(0)

@@ -309,7 +309,7 @@ public:
             std::string const& filename,
             std::string const& temp_dir = "")
     { diags.emplace(name, Diagnostics_worker(
-                diag, filename, temp_dir, *comm)); }
+                diag, filename, temp_dir, comm)); }
 
 
     Diagnostics_worker & get_diag(std::string const & name);
@@ -327,13 +327,13 @@ public:
             std::string const& filename, 
             std::string const& temp_dir = "" )
     { diag_aperture.reset( new Diagnostics_worker(
-                Diagnostics_loss(), filename, temp_dir, *comm)); }
+                Diagnostics_loss(), filename, temp_dir, comm)); }
 
     void set_diag_loss_zcut(
             std::string const& filename,
             std::string const& temp_dir = "" )
     { diag_zcut.reset( new Diagnostics_worker(
-                Diagnostics_loss(), filename, temp_dir, *comm)); }
+                Diagnostics_loss(), filename, temp_dir, comm)); }
 
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,

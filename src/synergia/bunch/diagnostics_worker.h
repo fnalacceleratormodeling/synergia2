@@ -33,7 +33,7 @@ public:
             DiagCal const& diag,
             std::string const& filename,
             std::string const& local_dir,
-            Commxx const& comm)
+            std::shared_ptr<Commxx> const& comm)
         : diag(std::make_shared<DiagCal>(diag))
         , diag_file(filename, local_dir, diag.serial(), comm)
     { }
@@ -43,7 +43,7 @@ public:
             std::shared_ptr<Diagnostics> const& diag,
             std::string const& filename,
             std::string const& local_dir,
-            Commxx const& comm)
+            std::shared_ptr<Commxx> const& comm)
         : diag(diag)
         , diag_file(filename, local_dir, diag->serial(), comm)
     { }
