@@ -76,6 +76,13 @@ public:
 
     ~Hdf5_file() { close(); }
 
+    // this is a resource handler, so disable the copy and assignment
+    Hdf5_file(Hdf5_file const&) = delete;
+    Hdf5_file& operator=(Hdf5_file const&) = delete;
+
+    // move is still allowed
+    Hdf5_file(Hdf5_file &&) noexcept = default;
+
     void open(Flag flag);
     void close();
     void flush() const;
