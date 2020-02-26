@@ -242,6 +242,43 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
     }
 }
 
+TEST_CASE("hdf5_file_append", "[Hdf5_file_seq_writer]")
+{
+    {
+        Hdf5_file file("hdf5_file_seq.h5", Hdf5_file::truncate, Commxx());
+
+        file.append_single("int", 5);
+        file.append_single("int", 6);
+        file.append_single("int", 7);
+
+        auto mpi_rank = Commxx::world_rank();
+        auto mpi_size = Commxx::world_size();
+
+        file.append_collective("int2", mpi_rank*10 + 1);
+        file.append_collective("int2", mpi_rank*10 + 2);
+        file.append_collective("int2", mpi_rank*10 + 3);
+
+        karray2d arr2("arr2d", 2, 3);
+        file.append_collective("arr2", arr2);
+
+        karray1d arr("arr", 2);
+        arr[0] = mpi_rank*10 + 0;
+        arr[1] = mpi_rank*10 + 1;
+
+        file.append_collective("arr1", arr);
+
+        arr[0] = mpi_rank*10 + 5;
+        arr[1] = mpi_rank*10 + 6;
+
+        file.append_collective("arr1", arr);
+
+        arr[0] = mpi_rank*10 + 8;
+        arr[1] = mpi_rank*10 + 9;
+
+        file.append_collective("arr1", arr);
+    }
+}
+
 TEST_CASE("hdf5_file", "[Hdf5_file]")
 {
     {

@@ -10,6 +10,7 @@
 #include "synergia/utils/hdf5_writer.h"
 #include "synergia/utils/hdf5_reader.h"
 #include "synergia/utils/hdf5_serial_writer.h"
+#include "synergia/utils/hdf5_seq_writer.h"
 
 #include "synergia/utils/cereal.h"
 #include "synergia/utils/cereal_files.h"
@@ -42,6 +43,7 @@ private:
     bool has_file;
 
     std::map<std::string, Hdf5_serial_writer> swriters;
+    std::map<std::string, Hdf5_seq_writer> seq_writers;
 
     static unsigned int flag_to_h5_flags(Flag flag)
     {
@@ -127,7 +129,31 @@ public:
     // same as write_single(), except this will do append instead of overwrite
     template<typename T>
     void append_single(std::string const& name, T const& data)
-    { }
+    { 
+        auto w = seq_writers.find(name);
+
+        if (w == seq_writers.end()) 
+        {
+            w = seq_writers.emplace(name, 
+                    Hdf5_seq_writer(h5file, name, *comm, root_rank)).first;
+        }
+
+        w->second.append(data, false);
+    }
+
+    template<typename T>
+    void append_collective(std::string const& name, T const& data)
+    { 
+        auto w = seq_writers.find(name);
+
+        if (w == seq_writers.end()) 
+        {
+            w = seq_writers.emplace(name, 
+                    Hdf5_seq_writer(h5file, name, *comm, root_rank)).first;
+        }
+
+        w->second.append(data, true);
+    }
 
     // same as write(), except this will do append instead of overwrite
     template<typename T>

@@ -20,7 +20,13 @@ void Hdf5_serial_writer::do_setup(std::vector<hsize_t> const& data_dims)
         offset[i] = 0;
     }
 
+    // set the last dim (the extensible dim)
+    dims[data_rank] = 1;
     max_dims[data_rank] = H5S_UNLIMITED;
+
+    const size_t good_chunk_size = 8192; // pulled out of air
+    chunk_dims[data_rank] = (data_size < good_chunk_size) 
+        ? good_chunk_size/data_size : 1;
 
     try 
     {
@@ -48,7 +54,6 @@ void Hdf5_serial_writer::do_setup(std::vector<hsize_t> const& data_dims)
 
         size[data_rank] = fdims[data_rank];
         offset[data_rank] = fdims[data_rank];
-        dims[data_rank] = 1;
  
     } 
     catch (Hdf5_exception & e) 
@@ -56,18 +61,12 @@ void Hdf5_serial_writer::do_setup(std::vector<hsize_t> const& data_dims)
         // dataset not exist, create a new one
         size[data_rank] = 0;
         offset[data_rank] = 0;
-        dims[data_rank] = 1;
 
         if (data_size == 0) 
         {
             throw std::runtime_error(
                     "Hdf5_serial_writer: zero data size encountered");
         }
-
-        const size_t good_chunk_size = 8192; // pulled out of air
-
-        chunk_dims[data_rank] = 
-            (data_size < good_chunk_size) ? good_chunk_size/data_size : 1;
 
         Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
         herr_t res = H5Pset_chunk(cparms, data_rank+1, &chunk_dims[0]);
@@ -83,20 +82,24 @@ void Hdf5_serial_writer::do_setup(std::vector<hsize_t> const& data_dims)
 
 void Hdf5_serial_writer::do_append(void* ptr)
 {
+    // create dataspace for current data block (it looks like max_dims can be null)
     Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
-    ++size[data_rank];
 
+    // increment and extend the dataset to the new size (last_dim+1)
+    ++size[data_rank];
     herr_t res = H5Dextend(dataset, &size[0]);
     if (res < 0) throw Hdf5_exception();
 
+    // select the slab to write
     Hdf5_handler filespace = H5Dget_space(dataset);
-
     res = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL, &dims[0], NULL);
     if (res < 0) throw Hdf5_exception();
 
+    // write
     res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, ptr);
     if (res < 0) throw Hdf5_exception();
 
+    // increment the offset
     ++offset[data_rank];
 }
 
