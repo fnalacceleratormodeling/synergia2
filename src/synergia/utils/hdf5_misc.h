@@ -177,13 +177,14 @@ namespace syn
         void const* ptr;
         std::vector<hsize_t> dims;
         Hdf5_handler atomic_type;
-        size_t data_size;
+        size_t atomic_data_size;
+        size_t size;
     };
 
     template<class T>
     std::enable_if_t<std::is_arithmetic<T>::value, data_info_t>
     extract_data_info(T const& t)
-    { return {&t, {}, hdf5_atomic_data_type<T>(), sizeof(T)}; }
+    { return {&t, {}, hdf5_atomic_data_type<T>(), sizeof(T), 1}; }
 
     template<class T>
     std::enable_if_t<Kokkos::is_view<T>::value, data_info_t>
@@ -200,7 +201,7 @@ namespace syn
 
         return { t.data(), dims, 
             hdf5_atomic_data_type<typename T::value_type>(),
-            sizeof(typename T::value_type) * size }; 
+            sizeof(typename T::value_type), size }; 
     }
 
     template<class T>

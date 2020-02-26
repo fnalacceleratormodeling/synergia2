@@ -50,11 +50,9 @@ public:
     {
         auto di = syn::extract_data_info(data);
 
+        // promote the dimension for collective write of a scalar
         if (collective && di.dims.size()==0)
-        {
             di.dims = {1};
-            //throw std::runtime_error("collective append of scalars not allowed");
-        }
 
         // collect data dims
         auto all_dims0 = syn::collect_dims(
@@ -117,9 +115,13 @@ public:
         auto max_fdims = fdims;
         auto chunk_fdims = fdims;
 
+        size_t num_ele = 1;
+        for(int i=1; i<fdims.size(); ++i) num_ele *= fdims[i];
+        auto data_size = di.atomic_data_size * num_ele;
+
         max_fdims[0]   = H5S_UNLIMITED;
-        chunk_fdims[0] = (di.data_size < good_chunk_size)
-                         ? good_chunk_size/di.data_size : 1;
+        chunk_fdims[0] = (data_size < good_chunk_size)
+                         ? good_chunk_size/data_size : 1;
 
         // offset of the slab (nslabs, off0, 0, 0, ... )
         offset = std::vector<hsize_t>(d_rank, 0);
