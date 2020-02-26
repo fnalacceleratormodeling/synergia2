@@ -60,16 +60,17 @@ public:
         auto all_dims0 = syn::collect_dims(
                 di.dims, collective, comm, root);
 
-        // promote the data dim and set the last dim to 1
-        di.dims.resize(di.dims.size() + 1);
-        di.dims.back() = 1;
-
         // offsets for each rank (offsets of dim0 in the combined array)
         std::vector<hsize_t> offsets(mpi_size, 0);
         for (int r=0; r<mpi_size-1; ++r) offsets[r+1] = offsets[r] + all_dims0[r];
 
         // dim0 of the combined array
         hsize_t dim0 = offsets[mpi_size-1] + all_dims0[mpi_size-1];
+
+        // promote the data dim and set the first dim to 1
+        di.dims.resize(di.dims.size() + 1);
+        for(int i=di.dims.size()-1; i>0; --i) di.dims[i] = di.dims[i-1];
+        di.dims[0] = 1;
 
         // setup dataset
         if(!setup) 
@@ -88,9 +89,9 @@ public:
 
     bool verify_dims(syn::data_info_t const& di, hsize_t dim0)
     {
-        if (fdims.size()>1 && dim0!=fdims[0]) return false;
+        if (fdims.size()>1 && dim0!=fdims[1]) return false;
 
-        for (int i=1; i<di.dims.size()-1; ++i)
+        for (int i=2; i<di.dims.size(); ++i)
             if (di.dims[i] != fdims[i]) return false;
 
         return true;
@@ -107,20 +108,20 @@ public:
         auto d_rank = di.dims.size();
 
         // dims of all data in the current file
-        // (size_of_a_slab x num_slabs), or,
-        // (all_dim0 x dim1 x dim2 x ... x num_slabs)
+        // (num_slabs x size_of_a_slab), or,
+        // (num_slabs x all_dim0 x dim1 x dim2 x ...)
         fdims = di.dims;
-        fdims[0] = dim0;
-        fdims.back() = 0;
+        if (fdims.size() > 1) fdims[1] = dim0;
+        fdims[0] = 0;
 
         auto max_fdims = fdims;
         auto chunk_fdims = fdims;
 
-        max_fdims.back()   = H5S_UNLIMITED;
-        chunk_fdims.back() = (di.data_size < good_chunk_size)
-                           ? good_chunk_size/di.data_size : 1;
+        max_fdims[0]   = H5S_UNLIMITED;
+        chunk_fdims[0] = (di.data_size < good_chunk_size)
+                         ? good_chunk_size/di.data_size : 1;
 
-        // offset of the slab (off0, 0, 0, ..., nslabs )
+        // offset of the slab (nslabs, off0, 0, 0, ... )
         offset = std::vector<hsize_t>(d_rank, 0);
 
         try 
@@ -141,14 +142,14 @@ public:
             if (res < 0) throw Hdf5_exception("Error getting dims of the dataspace");
 
             // check the dims of each rank
-            for (int i=0; i<d_rank-1; ++i)
+            for (int i=1; i<d_rank; ++i)
             {
                 if (fdims[i] != file_dims[i]) throw std::runtime_error(
                         "Hdf5_seq_writer::inconsistent data dimensions" );
             }
 
-            fdims.back()   = file_dims.back();
-            offset.back()  = file_dims.back();
+            fdims[0]  = file_dims[0];
+            offset[0] = file_dims[0];
         } 
         catch (Hdf5_exception & e) 
         {
@@ -173,19 +174,19 @@ public:
             std::vector<hsize_t> const& all_dims0 )
     {
         auto dimsm = di.dims;
-        dimsm[0] = all_dims0[mpi_rank];
+        if (dimsm.size() > 1) dimsm[1] = all_dims0[mpi_rank];
 
         // create dataspace for current data block (it looks like max_dims can be null)
         Hdf5_handler mspace = H5Screate_simple(dimsm.size(), dimsm.data(), NULL);
 
         // increment and extend the dataset to the new size (last_dim+1)
-        ++fdims.back();
+        ++fdims[0];
         herr_t res = H5Dset_extent(dataset, fdims.data());
         if (res < 0) throw Hdf5_exception();
 
         // select the slab to write
         Hdf5_handler fspace = H5Dget_space(dataset);
-        if (offset.size() > 1) offset[0] = offsets[mpi_rank];
+        if (offset.size() > 1) offset[1] = offsets[mpi_rank];
 
         res = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, 
                 offset.data(), NULL, dimsm.data(), NULL);
@@ -201,7 +202,7 @@ public:
         if (res < 0) throw Hdf5_exception();
 
         // increment the offset
-        ++offset.back();
+        ++offset[0];
     }
 
 
