@@ -73,7 +73,13 @@ public:
         // setup dataset
         if(!setup) 
         {
+
+#ifdef USE_PARALLEL_HDF5
             setup_dataset(di, offsets, dim0);
+#else
+            if (mpi_rank == root) setup_dataset(di, offsets, dim0);
+#endif
+
             setup = true;
         }
         else
@@ -105,12 +111,19 @@ public:
         // extended data rank
         auto d_rank = di.dims.size();
 
+        // offset of the slab (nslabs, off0, 0, 0, ... )
+        offset = std::vector<hsize_t>(d_rank, 0);
+
         // dims of all data in the current file
         // (num_slabs x size_of_a_slab), or,
         // (num_slabs x all_dim0 x dim1 x dim2 x ...)
         fdims = di.dims;
         if (fdims.size() > 1) fdims[1] = dim0;
         fdims[0] = 0;
+
+        // need to have a valid file handler to proceed
+        if (!file.valid())
+            throw std::runtime_error("invalid file handler");
 
         auto max_fdims = fdims;
         auto chunk_fdims = fdims;
@@ -122,9 +135,6 @@ public:
         max_fdims[0]   = H5S_UNLIMITED;
         chunk_fdims[0] = (data_size < good_chunk_size)
                          ? good_chunk_size/data_size : 1;
-
-        // offset of the slab (nslabs, off0, 0, 0, ... )
-        offset = std::vector<hsize_t>(d_rank, 0);
 
         try 
         {
@@ -175,6 +185,11 @@ public:
             std::vector<hsize_t> const& offsets,
             std::vector<hsize_t> const& all_dims0 )
     {
+#ifdef USE_PARALLEL_HDF5
+
+        if (!file.valid())
+            throw std::runtime_error("invalid file handler");
+
         auto dimsm = di.dims;
         if (dimsm.size() > 1) dimsm[1] = all_dims0[mpi_rank];
 
@@ -205,6 +220,10 @@ public:
 
         // increment the offset
         ++offset[0];
+
+#else
+
+#endif
     }
 
 
