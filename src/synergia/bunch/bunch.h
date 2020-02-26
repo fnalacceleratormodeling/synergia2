@@ -97,7 +97,7 @@ private:
 
 private:
 
-    std::string get_local_particles_serialization_path() const;
+    //std::string get_local_particles_serialization_path() const;
 
 public:
     //!

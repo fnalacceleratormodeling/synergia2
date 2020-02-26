@@ -46,6 +46,7 @@ Bunch::assign_spectator_ids(int local_offset)
 #endif
 
 
+#if 0
 std::string
 Bunch::get_local_particles_serialization_path() const
 {
@@ -55,6 +56,7 @@ Bunch::get_local_particles_serialization_path() const
     sstream << ".h5";
     return get_serialization_path(sstream.str());
 }
+#endif
 
 Bunch::Bunch(
         Reference_particle const& reference_particle, 
