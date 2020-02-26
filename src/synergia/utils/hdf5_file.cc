@@ -2,6 +2,8 @@
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/hdf5_misc.h"
 
+#include <thread>
+
 Hdf5_file::Hdf5_file( 
         std::string const& file_name, 
         Flag flag, 
@@ -93,7 +95,7 @@ void Hdf5_file::open(Flag flag)
             std::cout << "caught hdf5 open file error, attempts number="
                 << attempts << " on rank=" << Commxx().rank() << std::endl;
 
-            sleep(3);
+            std::this_thread::sleep_for(std::chrono::seconds(3));
         }
     }
 

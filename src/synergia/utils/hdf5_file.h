@@ -9,12 +9,9 @@
 #include "synergia/utils/hdf5_misc.h"
 #include "synergia/utils/hdf5_writer.h"
 #include "synergia/utils/hdf5_reader.h"
-#include "synergia/utils/hdf5_serial_writer.h"
 #include "synergia/utils/hdf5_seq_writer.h"
 
 #include "synergia/utils/cereal.h"
-#include "synergia/utils/cereal_files.h"
-
 #include "synergia/utils/commxx.h"
 
 
@@ -42,7 +39,6 @@ private:
     Flag current_flag;
     bool has_file;
 
-    std::map<std::string, Hdf5_serial_writer> swriters;
     std::map<std::string, Hdf5_seq_writer> seq_writers;
 
     static unsigned int flag_to_h5_flags(Flag flag)
@@ -129,42 +125,25 @@ public:
     // same as write_single(), except this will do append instead of overwrite
     template<typename T>
     void append_single(std::string const& name, T const& data)
-    { 
-        auto w = seq_writers.find(name);
-
-        if (w == seq_writers.end()) 
-        {
-            w = seq_writers.emplace(name, 
-                    Hdf5_seq_writer(h5file, name, *comm, root_rank)).first;
-        }
-
-        w->second.append(data, false);
-    }
+    { append(name, data, false); }
 
     template<typename T>
     void append_collective(std::string const& name, T const& data)
-    { 
-        auto w = seq_writers.find(name);
-
-        if (w == seq_writers.end()) 
-        {
-            w = seq_writers.emplace(name, 
-                    Hdf5_seq_writer(h5file, name, *comm, root_rank)).first;
-        }
-
-        w->second.append(data, true);
-    }
+    { append(name, data, true); }
 
     // same as write(), except this will do append instead of overwrite
     template<typename T>
-    void append(std::string const& name, T const& data)
+    void append(std::string const& name, T const& data, bool collective = false)
     { 
-        auto w = swriters.find(name);
+        auto w = seq_writers.find(name);
+        if (w == seq_writers.end()) 
+        {
+            w = seq_writers
+                .emplace(name, Hdf5_seq_writer(h5file, name, *comm, root_rank))
+                .first;
+        }
 
-        if (w == swriters.end()) 
-            w = swriters.emplace(name, Hdf5_serial_writer(h5file.hid, name)).first;
-
-        w->second.append(data);
+        w->second.append(data, collective);
     }
 
     // read the dataset to all ranks
@@ -194,7 +173,8 @@ private:
     friend class cereal::access;
 
     Hdf5_file() 
-    : file_name(), h5file(), is_open(false), current_flag(Hdf5_file::read_only) 
+    : comm(), file_name(), h5file(), root_rank(0), is_open(false)
+    , current_flag(Hdf5_file::read_only), has_file(false)
     { }
 
     template<class Archive>
