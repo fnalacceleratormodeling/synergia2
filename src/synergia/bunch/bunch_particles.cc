@@ -415,7 +415,7 @@ BunchParticles::print_particle(size_t idx, Logger & logger) const
 }
 
 void
-BunchParticles::save_particles(Hdf5_file & file, int idx) const
+BunchParticles::save_checkpoint_particles(Hdf5_file & file, int idx) const
 {
     checkout_particles();
 
@@ -429,7 +429,7 @@ BunchParticles::save_particles(Hdf5_file & file, int idx) const
 }
 
 void
-BunchParticles::load_particles(Hdf5_file & file, int idx)
+BunchParticles::load_checkpoint_particles(Hdf5_file & file, int idx)
 {
     std::stringstream ss;
     ss << "bunch_particles_" << label << "_parts_" << idx;

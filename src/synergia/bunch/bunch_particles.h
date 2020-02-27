@@ -163,8 +163,8 @@ public:
     void check_pz2_positive();
     void print_particle(size_t idx, Logger & logger) const;
 
-    void save_particles(Hdf5_file & file, int idx) const;
-    void load_particles(Hdf5_file & file, int idx);
+    void save_checkpoint_particles(Hdf5_file & file, int idx) const;
+    void load_checkpoint_particles(Hdf5_file & file, int idx);
 
 private:
 

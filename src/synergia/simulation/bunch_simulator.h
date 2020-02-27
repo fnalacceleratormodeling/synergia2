@@ -270,8 +270,8 @@ public:
     int total_num_turns() const { return num_turns; }
 
     // serialization helper
-    void save_bunch_particles(std::string const& fname) const;
-    void load_bunch_particles(std::string const& fname);
+    void save_checkpoint_particles(std::string const& fname) const;
+    void load_checkpoint_particles(std::string const& fname);
 
     std::string dump() const
     {
@@ -344,7 +344,7 @@ private:
             std::string particle_fname = ss.str();
             ar(CEREAL_NVP(particle_fname));
 
-            save_bunch_particles(particle_fname);
+            save_checkpoint_particles(particle_fname);
         }
         else
         {
@@ -352,7 +352,7 @@ private:
             std::string particle_fname;
             ar(CEREAL_NVP(particle_fname));
 
-            load_bunch_particles(particle_fname);
+            load_checkpoint_particles(particle_fname);
         }
     }
 };
