@@ -2,7 +2,6 @@
 #define DIAGNOSTICS_BULK_TRACK_H_
 
 #include "synergia/bunch/diagnostics.h"
-#include "synergia/utils/logger.h"
 
 /// Diagnostics_bulk_track records the phase space coordinates of a multiple
 /// particles.
@@ -11,49 +10,54 @@
 /// the first update is called will also not be tracked.
 class Diagnostics_bulk_track : public Diagnostics
 {
-public:
-
-    constexpr static const char* diag_type = "diagnostics_bulk_track";
-    constexpr static const bool  diag_write_serial = true;
 
 private:
 
     struct Track_status 
     {
-      int index;
-      int particle_id;
+        int index;
+        int particle_id;
 
-      template<class Archive>
-      void serialize(Archive & ar, const unsigned int version);
+        template<class Archive>
+        void serialize(Archive & ar)
+        { ar(index, particle_id); }
     };
 
-    int total_num_tracks, local_num_tracks;
-    int offset, local_offset;
+    int total_num_tracks;
+    int offset;
     bool first_search;
-    bool first_write;
     std::vector<Track_status> diag_track_status;
 
-    std::vector<int> num_tracks;
-    std::vector<int> track_displs;
-
+    // used between update and write
     double s_n;
     int repetition;
     double s;
     double pz;
 
+    double ref_charge;
+    double ref_mass;
+    double ref_pz;
+
     karray2d_row track_coords;
-    karray2d_row all_coords;
 
 private:
 
-    void receive_other_local_coords(std::vector<int > const& local_nums);
-    void send_local_coords();
-
     void do_update(Bunch const& bunch) override;
-    void do_write (Bunch const& bunch) override;
+    void do_reduce(Commxx comm, int writer_rank) override { }
+    void do_first_write(Hdf5_file & file) override;
+    void do_write(Hdf5_file & file) override;
 
-    std::unique_ptr<Diagnostics> do_pilfer() override
-    { return std::make_unique<Diagnostics_bulk_track>(std::move(*this)); }
+    friend class cereal::access;
+
+    template<class AR>
+    void serialize(AR & ar)
+    { 
+        ar(cereal::base_class<Diagnostics>(this));
+        ar(total_num_tracks);
+        ar(offset);
+        ar(first_search);
+        ar(diag_track_status);
+    }
 
 public:
 
@@ -64,15 +68,10 @@ public:
     /// @param num_tracks the number of local particles to track
     /// @param offset id offset for first particle to track
     /// @param local_dir local directory to use for temporary scratch
-    Diagnostics_bulk_track(
-            int num_tracks,
-            int offset,
-            std::string const& filename,
-			std::string const& local_dir = "" );
-
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version);
+    Diagnostics_bulk_track(int num_tracks = 0, int offset = 0);
 
 };
+
+CEREAL_REGISTER_TYPE(Diagnostics_bulk_track)
 
 #endif /* DIAGNOSTICS_BULK_TRACK_H_ */

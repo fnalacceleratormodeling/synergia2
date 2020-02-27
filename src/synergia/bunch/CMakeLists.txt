@@ -20,7 +20,7 @@ add_library(synergia_bunch
     #diagnostics_track.cc
     diagnostics_loss.cc
     #diagnostics_reference_particle.cc 
-    #diagnostics_bulk_track.cc 
+    diagnostics_bulk_track.cc 
     #diagnostics_bulk_spectator_track.cc 
     #diagnostics_phase_space_density.cc
     populate.cc 

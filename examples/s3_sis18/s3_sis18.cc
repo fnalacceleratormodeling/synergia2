@@ -11,7 +11,7 @@
 #include "synergia/bunch/core_diagnostics.h"
 //#include "synergia/bunch/diagnostics_loss.h"
 //#include "synergia/bunch/diagnostics_track.h"
-//#include "synergia/bunch/diagnostics_bulk_track.h"
+#include "synergia/bunch/diagnostics_bulk_track.h"
 #include "synergia/bunch/diagnostics_full2.h"
 
 #include "synergia/lattice/madx_reader.h"
@@ -215,6 +215,9 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 #if 1
     Diagnostics_full2 diag_full2;
     sim.reg_diag_per_turn(diag_full2, "full2", "diag_full2.h5");
+
+    Diagnostics_bulk_track diag_bt(10, 0);
+    sim.reg_diag_per_turn(diag_bt, "bulk_track", "diag_bulk_track.h5");
 #endif
 
     // propagate
@@ -248,6 +251,9 @@ void resume_and_save(std::string & prop_str, std::string & sim_str)
     //propagator.print_steps(screen);
     propagator.propagate(sim, simlog, 1);
 
+    // timer and statistics
+    simple_timer_print(screen);
+
     prop_str = propagator.dump();
     sim_str = sim.dump();
 }
@@ -268,7 +274,10 @@ void checkpoint_resume()
     print_statistics(bunch, screen);
 
     //propagator.print_steps(screen);
-    propagator.propagate(sim, simlog, 1);
+    propagator.propagate(sim, simlog, 2);
+
+    // timer and statistics
+    simple_timer_print(screen);
 }
 
 
