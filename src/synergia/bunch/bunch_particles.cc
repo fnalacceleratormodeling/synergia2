@@ -168,6 +168,10 @@ void BunchParticles::assign_ids(int local_offset, Commxx const& comm)
 karray2d_row
 BunchParticles::get_particles_in_range(int idx, int n) const
 {
+    // index out of range
+    if (idx == particle_index_null || idx < 0 || idx+n > slots)
+        throw std::runtime_error("Bunch::get_particle() index out of range");
+
     karray2d_row_dev p("sub_p", n, 7);
     particle_copier_many pc{parts, p, idx};
     Kokkos::parallel_for(n, pc);

@@ -68,7 +68,6 @@ class BunchParticles
 {
 public:
 
-    constexpr const static int alignment = 4;
     constexpr static const int particle_index_null = -1;
 
 private:
