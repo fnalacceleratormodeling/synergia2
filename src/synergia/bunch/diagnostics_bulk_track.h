@@ -13,20 +13,9 @@ class Diagnostics_bulk_track : public Diagnostics
 
 private:
 
-    struct Track_status 
-    {
-        int index;
-        int particle_id;
-
-        template<class Archive>
-        void serialize(Archive & ar)
-        { ar(index, particle_id); }
-    };
-
-    int total_num_tracks;
-    int offset;
-    bool first_search;
-    std::vector<Track_status> diag_track_status;
+    int total_num_tracks, local_num_tracks;
+    int offset, local_offset;
+    bool setup;
 
     // used between update and write
     double s_n;
@@ -54,9 +43,10 @@ private:
     { 
         ar(cereal::base_class<Diagnostics>(this));
         ar(total_num_tracks);
+        ar(local_num_tracks);
         ar(offset);
-        ar(first_search);
-        ar(diag_track_status);
+        ar(local_offset);
+        ar(setup);
     }
 
 public:

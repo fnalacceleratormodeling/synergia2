@@ -216,7 +216,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     Diagnostics_full2 diag_full2;
     sim.reg_diag_per_turn(diag_full2, "full2", "diag_full2.h5");
 
-    Diagnostics_bulk_track diag_bt(10, 0);
+    Diagnostics_bulk_track diag_bt(1000, 0);
     sim.reg_diag_per_turn(diag_bt, "bulk_track", "diag_bulk_track.h5");
 #endif
 
