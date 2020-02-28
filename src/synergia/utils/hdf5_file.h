@@ -168,6 +168,10 @@ public:
     void read(std::string const& name, T * const data, size_t len) const
     { Hdf5_reader::read<T>(h5file, name, data, len, *comm, root_rank); }
 
+    std::vector<hsize_t>
+    get_dims(std::string const& name) const
+    { return Hdf5_reader::get_dims(h5file, name, *comm, root_rank); }
+
 private:
 
     friend class cereal::access;

@@ -123,6 +123,53 @@ public:
         read_impl(file, name, all_dim0, di, comm);
     }
 
+    static std::vector<hsize_t>
+    get_dims( Hdf5_handler const& file,
+              std::string  const& name,
+              Commxx const& comm,
+              int root_rank )
+    {
+        int mpi_size = comm.size();
+        int mpi_rank = comm.rank();
+
+        int rank = 0;
+        std::vector<hsize_t> dims = {};
+
+        // get and verify done only on the root_rank
+        if (mpi_rank == root_rank)
+        {
+            if (!file.valid())
+                throw std::runtime_error("invalid file handler");
+
+            Hdf5_handler dset = H5Dopen(file, name.c_str(), H5P_DEFAULT);
+            Hdf5_handler filespace = H5Dget_space(dset);
+
+            // get and check the data rank
+            rank = H5Sget_simple_extent_ndims(filespace);
+            if (rank < 0) throw Hdf5_exception("error at getting rank");
+
+            // get, check, and broadcast the dims for non-scalar
+            if (rank)
+            {
+                dims.resize(rank);
+                herr_t res = H5Sget_simple_extent_dims(filespace, dims.data(), NULL);
+                if (res < 0) throw Hdf5_exception("error at getting dims");
+            }
+        }
+
+        // boradcast data rank
+        MPI_Bcast(&rank, 1, MPI_INT, root_rank, comm);
+
+        // broadcast the dims to all ranks
+        if (rank) 
+        {
+            dims.resize(rank);
+            MPI_Bcast(dims.data(), dims.size(), MPI_UINT64_T, root_rank, comm);
+        }
+
+        return dims;
+    }
+
     static void 
     read_verify_and_set_data_dims(
             Hdf5_handler const& file,
