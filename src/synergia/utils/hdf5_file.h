@@ -102,7 +102,7 @@ public:
     //   write_collective("ds", pz) -> "ds" : [pz, pz, ...]
     //   write_collective("part", part[0:1][0:6]) -> "part" : part[0:3][0:6]
     template<typename T>
-    void write_collective(std::string const& name, T const& data)
+    void write_collective(std::string const& name, T const& data) const
     { write(name, data, true); }
 
     // no gather, only the root rank will execute the write
@@ -110,15 +110,15 @@ public:
     //   write_single("ds", pz) -> "ds" : pz
     //   write_single("part", part[0:1][0:6]) -> "part" : part[0:1][0:6]
     template<typename T>
-    void write_single(std::string const& name, T const& data)
+    void write_single(std::string const& name, T const& data) const
     { write(name, data, false); }
 
     template<typename T>
-    void write(std::string const& name, T const& data, bool collective = false)
+    void write(std::string const& name, T const& data, bool collective = false) const
     { Hdf5_writer::write(h5file, name, data, collective, *comm, root_rank); }
 
     template<typename T>
-    void write(std::string const & name, T const* data, size_t len, bool collective = false)
+    void write(std::string const & name, T const* data, size_t len, bool collective = false) const
     { Hdf5_writer::write(h5file, name, data, len, collective, *comm, root_rank); }
 
 
@@ -148,24 +148,24 @@ public:
 
     // read the dataset to all ranks
     template<typename T>
-    T read(std::string const& name)
+    T read(std::string const& name) const
     { return Hdf5_reader::read<T>(h5file, name, *comm, root_rank); }
 
     // does a collective read on the dataset
     // rank r will get a container that has the len extent in the first dim
     template<typename T>
-    T read(std::string const& name, size_t len)
+    T read(std::string const& name, size_t len) const
     { return Hdf5_reader::read<T>(h5file, name, len, *comm, root_rank); }
 
     // a single read from a 1d dataset into the memory
     // memory must be larger or the same as the dataset size
     template<typename T>
-    void read(std::string const& name, T * const data)
+    void read(std::string const& name, T * const data) const
     { Hdf5_reader::read<T>(h5file, name, data, *comm, root_rank); }
 
     // does a collective read of the named dataset into the raw array
     template<typename T>
-    void read(std::string const& name, T * const data, size_t len)
+    void read(std::string const& name, T * const data, size_t len) const
     { Hdf5_reader::read<T>(h5file, name, data, len, *comm, root_rank); }
 
 private:
