@@ -252,11 +252,11 @@ public:
     // particle data -- overhead for the operation should be minimal
     karray2d_row 
     get_particles_in_range(int idx, int num, ParticleGroup pg = PG::regular) const
-    { return get_bunch_particles(pg).get_particles_in_range(idx, num); }
+    { return get_bunch_particles(pg).get_particles_in_range(idx, num).first; }
 
     karray1d_row 
     get_particle(int idx, ParticleGroup pg = PG::regular) const
-    { return get_bunch_particles(pg).get_particle(idx); }
+    { return get_bunch_particles(pg).get_particle(idx).first; }
 
     // find the index of the given particle_id (pid)
     // if last_idx is provided, it does the search form the last_idx first
@@ -341,15 +341,43 @@ public:
     /// of the two bunches differ, the particles will be shifted accordingly.
     void inject(Bunch const& bunch);
     
-    void read_file(std::string const& filename, ParticleGroup pg = PG::regular)
-    { get_bunch_particles(pg).read_file(filename, *comm); }
-
     void check_pz2_positive()
     {
         get_bunch_particles(ParticleGroup::regular).check_pz2_positive();
         get_bunch_particles(ParticleGroup::spectator).check_pz2_positive();
     }
 
+    // read/write particles
+    void read_file_legacy(std::string const& filename)
+    { 
+        Hdf5_file file(filename, Hdf5_file::read_only, comm);
+        get_bunch_particles(PG::regular).read_file_legacy(file, *comm); 
+    }
+
+    void read_file(std::string const& filename)
+    { 
+        Hdf5_file file(filename, Hdf5_file::read_only, comm);
+        get_bunch_particles(PG::regular).read_file(file, *comm); 
+    }
+
+    // num_part = -1 means write all particles
+    void write_file(std::string const& filename,
+            int num_part = -1, int offset = 0,
+            int num_part_spec = 0, int offset_spec = 0 )
+    {
+        Hdf5_file file(filename, Hdf5_file::truncate, comm);
+        write_file(file, num_part, offset, num_part_spec, offset_spec);
+    }
+
+    void write_file(Hdf5_file const& file,
+            int num_part, int offset,
+            int num_part_spec, int offset_spec)
+    {
+        get_bunch_particles(PG::regular).write_file(file, num_part, offset, *comm);
+        get_bunch_particles(PG::spectator).write_file(file, num_part_spec, offset_spec, *comm);
+    }
+
+    // checkpoint state
     std::string dump() const
     {
         std::stringstream ss;
@@ -367,6 +395,7 @@ public:
         ar(*this);
     }
 
+    // checkpoint partiles
     void save_checkpoint_particles(Hdf5_file & file, int idx) const
     {
         get_bunch_particles(PG::regular).save_checkpoint_particles(file, idx);

@@ -74,8 +74,8 @@ Bunch::Bunch(
     , design_ref_part(reference_particle)
     , particle_charge(reference_particle.get_charge())
     , real_num(real_num)
-    , parts{ BunchParticles("main", total_num, *comm),
-             BunchParticles("spec", total_spectator_num, *comm) }
+    , parts{ BunchParticles("particles", total_num, *comm),
+             BunchParticles("spectators", total_spectator_num, *comm) }
     , bunch_index(bunch_index)
     , bucket_index(bucket_index)
     , array_index(array_index)
@@ -90,8 +90,8 @@ Bunch::Bunch()
     , design_ref_part()
     , particle_charge(ref_part.get_charge())
     , real_num(1.0)
-    , parts{ BunchParticles("main", 0, *comm), 
-             BunchParticles("spec", 0, *comm) }
+    , parts{ BunchParticles("particles", 0, *comm), 
+             BunchParticles("spectators", 0, *comm) }
     , bunch_index(0)
     , bucket_index(0)
     , array_index(0)

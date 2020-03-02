@@ -50,6 +50,10 @@ namespace
     {
         ConstParticles src;
         karray2d_row_dev dst;
+
+        ConstParticleMasks s_masks;
+        HostParticleMasks  d_masks;
+
         int idx;
 
         KOKKOS_INLINE_FUNCTION
@@ -62,6 +66,8 @@ namespace
             dst(i, 4) = src(idx+i, 4);
             dst(i, 5) = src(idx+i, 5);
             dst(i, 6) = src(idx+i, 6);
+
+            d_masks(i) = s_masks(idx+i);
         }
     };
 
@@ -69,6 +75,10 @@ namespace
     {
         ConstParticles src;
         karray1d_row_dev dst;
+
+        ConstParticleMasks s_masks;
+        ParticleMasks d_masks;
+
         int idx;
 
         KOKKOS_INLINE_FUNCTION
@@ -81,6 +91,8 @@ namespace
             dst(4) = src(idx+i, 4);
             dst(5) = src(idx+i, 5);
             dst(6) = src(idx+i, 6);
+
+            d_masks(0) = s_masks(idx+i);
         }
     };
 
@@ -139,10 +151,10 @@ BunchParticles::BunchParticles(std::string const& label, int total_num, Commxx c
         num = counts[comm.rank()];
 
         // allocate
-        parts = Particles(Kokkos::view_alloc("parts", Kokkos::AllowPadding), num, 7);
+        parts = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding), num, 7);
         slots = parts.stride(1);
 
-        masks = ParticleMasks("masks", slots);
+        masks = ParticleMasks(label+"_masks", slots);
 
         hparts = Kokkos::create_mirror_view(parts);
         hmasks = Kokkos::create_mirror_view(masks);
@@ -165,7 +177,7 @@ void BunchParticles::assign_ids(int local_offset, Commxx const& comm)
     Kokkos::parallel_for(num, pia);
 }
 
-karray2d_row
+std::pair<karray2d_row, HostParticleMasks> 
 BunchParticles::get_particles_in_range(int idx, int n) const
 {
     // index out of range
@@ -173,15 +185,21 @@ BunchParticles::get_particles_in_range(int idx, int n) const
         throw std::runtime_error("Bunch::get_particle() index out of range");
 
     karray2d_row_dev p("sub_p", n, 7);
-    particle_copier_many pc{parts, p, idx};
+    ParticleMasks pm("masks", n);
+
+    particle_copier_many pc{parts, p, masks, pm, idx};
     Kokkos::parallel_for(n, pc);
 
     karray2d_row hp = create_mirror_view(p);
     Kokkos::deep_copy(hp, p);
-    return hp;
+
+    HostParticleMasks hpm = create_mirror_view(pm);
+    Kokkos::deep_copy(hpm, pm);
+
+    return std::make_pair(hp, hpm);
 }
 
-karray1d_row
+std::pair<karray1d_row, bool>              
 BunchParticles::get_particle(int idx) const
 {
     // index out of range
@@ -189,12 +207,18 @@ BunchParticles::get_particle(int idx) const
         throw std::runtime_error("Bunch::get_particle() index out of range");
 
     karray1d_row_dev p("particle", 7);
-    particle_copier_one pc{parts, p, idx};
+    ParticleMasks pm("mask", 1);
+
+    particle_copier_one pc{parts, p, masks, pm, idx};
     Kokkos::parallel_for(1, pc);
 
     karray1d_row hp = create_mirror_view(p);
     Kokkos::deep_copy(hp, p);
-    return hp;
+
+    HostParticleMasks hpm = create_mirror_view(pm);
+    Kokkos::deep_copy(hpm, pm);
+
+    return std::make_pair(hp, hpm(0));
 }
 
 int
@@ -352,33 +376,6 @@ BunchParticles::set_total_num(int totalnum)
 #endif
 }
 
-void
-BunchParticles::read_file(std::string const & filename, Commxx const& comm)
-{
-    std::vector<int> offsets(comm.size());
-    std::vector<int> counts(comm.size());
-    decompose_1d(comm, total, offsets, counts);
-
-    // size check
-    if (num != counts[comm.rank()]) 
-    {
-        throw std::runtime_error( 
-                " local_num incompatibility when initializing the bunch");
-    }
-
-    // read
-    Hdf5_file file(filename, Hdf5_file::read_only);
-    auto read_particles = file.read<karray2d_row>("particles", num);
-
-    // transpose: read_particles is row major, hparts is col major
-    for (int part = 0; part < num; ++part) 
-        for (int i = 0; i < 7; ++i) 
-            hparts(part, i) = read_particles(part, i);
-
-    // check in to device mem
-    checkin_particles();
-}
-
 void 
 BunchParticles::check_pz2_positive()
 {
@@ -396,6 +393,113 @@ BunchParticles::check_pz2_positive()
             throw std::runtime_error( " check pz2:  pz square cannot be negative!");
         }
     }
+}
+
+void
+BunchParticles::read_file_legacy(Hdf5_file const& file, Commxx const& comm)
+{
+    std::vector<int> offsets(comm.size());
+    std::vector<int> counts(comm.size());
+    decompose_1d(comm, total, offsets, counts);
+
+    // size check
+    if (num != counts[comm.rank()]) 
+    {
+        throw std::runtime_error( 
+                " local_num incompatibility when initializing the bunch");
+    }
+
+    // read
+    auto read_particles = file.read<karray2d_row>("particles", num);
+
+    // transpose: read_particles is row major, hparts is col major
+    for (int part = 0; part < num; ++part) 
+        for (int i = 0; i < 7; ++i) 
+            hparts(part, i) = read_particles(part, i);
+
+    // check in to device mem
+    checkin_particles();
+}
+
+void
+BunchParticles::read_file(Hdf5_file const& file, Commxx const& comm)
+{
+    auto dims = file.get_dims(label);
+
+    if (dims.size() != 2 || dims[1] != 7)
+    {
+        throw std::runtime_error(
+                "BunchParticle::read_file(): wrong data dimensions");
+    }
+
+    int file_total = dims[0];
+    int file_num = decompose_1d_local(comm, file_total);
+
+    // allocate
+    num   = 0;
+    total = 0;
+
+    parts = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding), file_num, 7);
+    slots = parts.stride(1);
+
+    masks = ParticleMasks(label+"_masks", slots);
+
+    hparts = Kokkos::create_mirror_view(parts);
+    hmasks = Kokkos::create_mirror_view(masks);
+
+    // if slots > num, init the masks for that part
+    for(int i=file_num; i<slots; ++i) hmasks(i) = 0;
+
+    // read from file
+    auto read_particles = file.read<karray2d_row>(label, file_num);
+    auto read_masks = file.read<HostParticleMasks>(label+"_masks", file_num);
+
+    // transpose: read_particles is row major, hparts is col major
+    for (int part = 0; part < file_num; ++part) 
+    {
+        for (int i = 0; i < 7; ++i) 
+            hparts(part, i) = read_particles(part, i);
+
+        hmasks(part) = read_masks(part);
+
+        if (hmasks(part)) ++num;
+    }
+
+    // now we have the actual local num, update the total number
+    update_total_num(comm);
+
+    // check in to device mem
+    checkin_particles();
+}
+
+void
+BunchParticles::write_file(Hdf5_file const& file, 
+        int num_part, int offset, Commxx const& comm)
+{
+    int local_num_part = 0;
+    int local_offset = 0;
+
+    if (num_part == -1)
+    {
+        local_num_part = slots;
+        local_offset = 0;
+    }
+    else
+    {
+        local_num_part = decompose_1d_local(comm, num_part);
+        local_offset = decompose_1d_local(comm, offset);
+    }
+
+    if (local_num_part < 0 || local_offset < 0 
+            || local_num_part + local_offset > slots)
+    {
+        throw std::runtime_error(
+                "invalid num_part or offset for BunchParticles::write_file()");
+    }
+
+    auto parts = get_particles_in_range(local_offset, local_num_part);
+    file.write_collective(label, parts.first);
+    file.write_collective(label + "_masks", parts.second);
 }
 
 void 

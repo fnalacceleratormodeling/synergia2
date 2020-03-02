@@ -146,7 +146,10 @@ public:
 
     // read from a hdf5 file. total_num of current bunch must be the same 
     // as the one stored in the particle file
-    void read_file(std::string const& filename, Commxx const& comm);
+    void read_file_legacy(Hdf5_file const& file, Commxx const& comm);
+
+    void read_file (Hdf5_file const& file, Commxx const& comm);
+    void write_file(Hdf5_file const& file, int num_part, int offset, Commxx const& comm);
 
     // update total num across the ranks and returns the old total number
     int update_total_num(Commxx const& comm);
@@ -156,8 +159,13 @@ public:
     int apply_aperture(AP const& ap);
 
     int search_particle(int pid, int last_idx) const;
-    karray1d_row get_particle(int idx) const;
-    karray2d_row get_particles_in_range(int idx, int num) const;
+
+    std::pair<karray1d_row, bool>              
+    get_particle(int idx) const;
+
+    std::pair<karray2d_row, HostParticleMasks> 
+    get_particles_in_range(int idx, int num) const;
+
     karray2d_row get_particles_last_discarded() const;
 
     void check_pz2_positive();
