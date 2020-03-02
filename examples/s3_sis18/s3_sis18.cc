@@ -13,6 +13,7 @@
 //#include "synergia/bunch/diagnostics_track.h"
 #include "synergia/bunch/diagnostics_bulk_track.h"
 #include "synergia/bunch/diagnostics_full2.h"
+#include "synergia/bunch/diagnostics_particles.h"
 
 #include "synergia/lattice/madx_reader.h"
 #include "synergia/utils/lsexpr.h"
@@ -25,6 +26,14 @@ using LV = LoggerV;
 
 void print_statistics(Bunch & bunch, Logger & logger)
 {
+    logger(LV::DEBUG)
+        << "Bunch statistics: "
+        << "local_num = " << bunch.get_local_num()
+        << ", local_slots = " << bunch.get_local_num_slots()
+        << ", total_num = " << bunch.get_total_num()
+        <<"\nMean and std: ";
+
+
     // print particles after propagate
     auto mean = Core_diagnostics::calculate_mean(bunch);
     auto std  = Core_diagnostics::calculate_std(bunch, mean);
@@ -34,6 +43,7 @@ void print_statistics(Bunch & bunch, Logger & logger)
         << std::setprecision(16)
         << std::setiosflags(std::ios::showpos | std::ios::scientific)
         << "\n"
+        //<< "\nmean\tstd\n"
         ;
 
     for (int i=0; i<6; ++i) 
@@ -198,7 +208,9 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     auto & bunch = sim.get_bunch();
 
     // or read from file
-    bunch.read_file("turn_particles_0000_4M.h5");
+    //bunch.read_file_legacy("turn_particles_0000_4M.h5");
+    //bunch.write_file("bunch_particles_4M.h5");
+    bunch.read_file("bunch_particles_4M.h5");
 
     // statistics before propagate
     print_statistics(bunch, screen);
@@ -218,6 +230,9 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 
     Diagnostics_bulk_track diag_bt(1000, 0);
     sim.reg_diag_per_turn(diag_bt, "bulk_track", "diag_bulk_track.h5");
+
+    Diagnostics_particles diag_part;
+    sim.reg_diag_per_turn(diag_part, "particles", "diag_particles.h5");
 #endif
 
     // propagate

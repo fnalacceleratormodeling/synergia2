@@ -6,61 +6,53 @@
 /// Diagnostics_particles dumps the state of particles in a bunch
 class Diagnostics_particles : public Diagnostics
 {
-public:
-    static const char name[];
+
 private:
-    bool have_writers;
-    int min_particle_id, max_particle_id;
 
-    void
-    receive_other_local_particles(
-            std::vector<int> const & local_nums,
-            std::vector<int> const & local_nums_padded,
-            MArray2d_ref local_particles,
-            int min_part_id,
-            int max_part_id,
-            Hdf5_file_sptr file_sptr );
+    Bunch const* bunch_ptr;
 
-    void
-    send_local_particles(
-            int local_num_padded,
-            MArray2d_ref local_particles,
-            Diagnostics_write_helper & helper );
+    int num_part, offset;
+    int num_spec_part, spec_offset;
 
 public:
-    /// Create a Diagnostics_particles object
-    /// @param bunch_sptr the Bunch
-    /// @param filename the base name for file to write to (base names will have
-    ///        a numerical index inserted
-    /// @param min_particle_id the lowest particle id to write (defaults to 0)
-    /// @param max_particle_id the highest particle id to write (0 indicates no limit, hence min,max = 0,0 writes all particles)
-    /// @param local_dir local directory to use for temporary scratch
-    Diagnostics_particles(std::string const& filename, int min_particle_id = 0,
-            int max_particle_id = 0, std::string const& local_dir="");
 
-    // Default constructor for serialization use only
-    Diagnostics_particles();
+    Diagnostics_particles(
+            int num_part = -1, int offset = 0,
+            int num_spec_part = 0, int spec_offset = 0 )
+        : Diagnostics("diagnostics_particles", false)
+        , bunch_ptr(nullptr)
+        , num_part(num_part) , offset(offset)
+        , num_spec_part(num_spec_part), spec_offset(spec_offset)
+    { }
 
-    /// Multiple serial diagnostics can be written to a single file.
-    /// The Diagnostics_particles class is not serial.
-    virtual bool
-    is_serial() const;
+private:
 
-    /// Update the diagnostics
-    virtual void
-    update();
+    void do_reduce(Commxx comm, int writer_rank) override { }
+    void do_first_write(Hdf5_file& file) override { }
 
-    virtual void
-    write();
+    void do_update(Bunch const& bunch) override 
+    { bunch_ptr = &bunch; }
 
-    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
+    void do_write(Hdf5_file& file) override
+    { 
+        assert(bunch_ptr != nullptr);
+        bunch_ptr->write_file(file, num_part, offset, num_spec_part, spec_offset); 
+        bunch_ptr = nullptr;
+    }
 
-    virtual
-    ~Diagnostics_particles();
+    friend class cereal::access;
+
+    template<class AR>
+    void serialize(AR & ar)
+    { 
+        ar(cereal::base_class<Diagnostics>(this)); 
+        ar(num_part);
+        ar(offset);
+        ar(num_spec_part);
+        ar(spec_offset);
+    }
 };
-BOOST_CLASS_EXPORT_KEY(Diagnostics_particles)
-typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr; // syndoc:include
+
+CEREAL_REGISTER_TYPE(Diagnostics_particles);
 
 #endif /* DIAGNOSTICS_PARTICLES_H_ */
