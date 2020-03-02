@@ -363,7 +363,7 @@ public:
     // num_part = -1 means write all particles
     void write_file(std::string const& filename,
             int num_part = -1, int offset = 0,
-            int num_part_spec = 0, int offset_spec = 0 )
+            int num_part_spec = 0, int offset_spec = 0 ) const
     {
         Hdf5_file file(filename, Hdf5_file::truncate, comm);
         write_file(file, num_part, offset, num_part_spec, offset_spec);
@@ -371,7 +371,7 @@ public:
 
     void write_file(Hdf5_file const& file,
             int num_part, int offset,
-            int num_part_spec, int offset_spec)
+            int num_part_spec, int offset_spec) const
     {
         get_bunch_particles(PG::regular).write_file(file, num_part, offset, *comm);
         get_bunch_particles(PG::spectator).write_file(file, num_part_spec, offset_spec, *comm);

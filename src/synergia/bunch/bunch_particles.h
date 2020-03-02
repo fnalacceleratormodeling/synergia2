@@ -149,7 +149,7 @@ public:
     void read_file_legacy(Hdf5_file const& file, Commxx const& comm);
 
     void read_file (Hdf5_file const& file, Commxx const& comm);
-    void write_file(Hdf5_file const& file, int num_part, int offset, Commxx const& comm);
+    void write_file(Hdf5_file const& file, int num_part, int offset, Commxx const& comm) const;
 
     // update total num across the ranks and returns the old total number
     int update_total_num(Commxx const& comm);

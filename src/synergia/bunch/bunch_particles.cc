@@ -474,7 +474,7 @@ BunchParticles::read_file(Hdf5_file const& file, Commxx const& comm)
 
 void
 BunchParticles::write_file(Hdf5_file const& file, 
-        int num_part, int offset, Commxx const& comm)
+        int num_part, int offset, Commxx const& comm) const
 {
     int local_num_part = 0;
     int local_offset = 0;
