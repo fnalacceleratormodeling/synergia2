@@ -7,7 +7,7 @@
 void Diagnostics_loss::do_update(Bunch const& bunch)
 { }
 
-void Diagnostics_loss::do_reduce(Commxx comm, int writer_rank)
+void Diagnostics_loss::do_reduce(Commxx const& comm, int root)
 { }
 
 void Diagnostics_loss::do_first_write(Hdf5_file & file)

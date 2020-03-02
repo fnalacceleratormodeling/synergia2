@@ -27,7 +27,7 @@ public:
 
 private:
 
-    void do_reduce(Commxx comm, int writer_rank) override { }
+    void do_reduce(Commxx const& comm, int root) override { }
     void do_first_write(Hdf5_file& file) override { }
 
     void do_update(Bunch const& bunch) override 
