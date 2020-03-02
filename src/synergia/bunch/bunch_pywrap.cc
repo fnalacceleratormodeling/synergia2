@@ -86,10 +86,9 @@ PYBIND11_MODULE(bunch, m)
                 "array_index"_a = 0 )
 
         .def( "read_file",
-                &Bunch::read_file,
+                &Bunch::read_file_legacy,
                 "Read particle data from file.",
-                "filename"_a, 
-                "particle_group"_a = ParticleGroup::regular )
+                "filename"_a )
 
         .def( "checkout_particles",
                 &Bunch::checkout_particles,
