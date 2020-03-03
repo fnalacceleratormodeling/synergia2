@@ -194,7 +194,9 @@ public:
         hsize_t dim0 = offsets[mpi_size-1] + all_dims_0[mpi_size-1];
 
         // get and verify done only on the root_rank
+#ifndef USE_PARALLEL_HDF5
         if (mpi_rank == root_rank)
+#endif
         {
             if (!file.valid())
                 throw std::runtime_error("invalid file handler");
@@ -234,9 +236,11 @@ public:
             }
         }
 
+#ifndef USE_PARALLEL_HDF5
         // broadcast the dims to all ranks
         if (data_rank)
             MPI_Bcast(di.dims.data(), data_rank, MPI_UINT64_T, root_rank, comm);
+#endif
 
         // in collective vector read, all_dim0 is init with everyone's read 
         // size. after read_verify, di.dims is populated with the full array 
