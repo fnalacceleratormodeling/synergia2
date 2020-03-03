@@ -135,8 +135,10 @@ public:
         int rank = 0;
         std::vector<hsize_t> dims = {};
 
+#ifndef USE_PARALLEL_HDF5
         // get and verify done only on the root_rank
         if (mpi_rank == root_rank)
+#endif
         {
             if (!file.valid())
                 throw std::runtime_error("invalid file handler");
@@ -157,6 +159,7 @@ public:
             }
         }
 
+#ifndef USE_PARALLEL_HDF5
         // boradcast data rank
         MPI_Bcast(&rank, 1, MPI_INT, root_rank, comm);
 
@@ -166,6 +169,7 @@ public:
             dims.resize(rank);
             MPI_Bcast(dims.data(), dims.size(), MPI_UINT64_T, root_rank, comm);
         }
+#endif
 
         return dims;
     }
