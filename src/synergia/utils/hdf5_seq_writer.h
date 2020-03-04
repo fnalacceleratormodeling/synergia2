@@ -6,6 +6,7 @@
 
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_misc.h"
+#include "synergia/utils/hdf5_reader.h"
 #include "synergia/utils/multi_array_typedefs.h"
 
 class Hdf5_seq_writer
@@ -136,7 +137,8 @@ public:
         chunk_fdims[0] = (data_size < good_chunk_size)
                          ? good_chunk_size/data_size : 1;
 
-        try 
+        // are we resuming from an existing file or start new
+        if (Hdf5_reader::has_dataset(file, name))
         {
             // try to open the dataset
             dataset = H5Dopen(file, name.c_str(), H5P_DEFAULT);
@@ -163,7 +165,7 @@ public:
             fdims[0]  = file_dims[0];
             offset[0] = file_dims[0];
         } 
-        catch (Hdf5_exception & e) 
+        else
         {
             // dataset not exist, create a new one
             if (dim0 == 0) throw std::runtime_error( 

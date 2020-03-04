@@ -39,13 +39,26 @@ TEST_CASE("hdf5_append_scalar", "[Hdf5_file_append]")
     }
 
     {
+        Hdf5_file file(fname, Hdf5_file::read_write, Commxx());
+
+        // v1: [3, 4]
+        file.append("v1", 5, false);
+        file.append("v1", 6, false);
+
+        file.append("v3", 3.0, true);
+        file.append("v3", 4.0, true);
+    }
+
+    {
         Hdf5_file file(fname, Hdf5_file::read_only, Commxx());
 
         // v1
         auto v1 = file.read<karray1i_row>("v1");
-        REQUIRE(v1.extent(0) == 2);
+        REQUIRE(v1.extent(0) == 4);
         CHECK(v1(0) == 3);
         CHECK(v1(1) == 4);
+        CHECK(v1(2) == 5);
+        CHECK(v1(3) == 6);
 
         // v2
         auto v2 = file.read<karray1d_row>("v2");
