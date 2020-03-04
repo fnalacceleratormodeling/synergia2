@@ -174,6 +174,10 @@ public:
     get_dims(std::string const& name) const
     { return Hdf5_reader::get_dims(h5file, name, *comm, root_rank); }
 
+    std::vector<std::string>
+    get_dataset_names() const
+    { return Hdf5_reader::get_dataset_names(h5file); }
+
 private:
 
     friend class cereal::access;

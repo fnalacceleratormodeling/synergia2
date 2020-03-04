@@ -327,6 +327,24 @@ public:
 #endif
     }
 
+    static std::vector<std::string>
+    get_dataset_names(Hdf5_handler const& file)
+    {
+        std::vector<std::string> names;
+
+        auto cb = [](hid_t oid, const char* name, 
+                const H5O_info_t *info, void *op) {
+            if (info->type == H5O_TYPE_DATASET)
+                ((std::vector<std::string>*)op)->push_back(name);
+            return 0;
+        };
+
+        auto res = H5Ovisit(file, H5_INDEX_NAME, H5_ITER_NATIVE, 
+                cb, (void*)&names );
+
+        return names;
+    }
+
 };
 
 #endif

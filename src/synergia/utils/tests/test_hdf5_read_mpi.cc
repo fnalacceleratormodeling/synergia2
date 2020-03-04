@@ -67,6 +67,16 @@ TEST_CASE("hdf5_read_get_dims", "[Hdf5_file_read]")
 
     Hdf5_file file(ss.str(), Hdf5_file::read_only, Commxx());
 
+    // names
+    auto names = file.get_dataset_names();
+    REQUIRE(names.size() == 6);
+    CHECK(names[0] == "v1");
+    CHECK(names[1] == "v2");
+    CHECK(names[2] == "v3");
+    CHECK(names[3] == "v4");
+    CHECK(names[4] == "v5");
+    CHECK(names[5] == "v6");
+
     // v1
     auto d1 = file.get_dims("v1");
     CHECK(d1.size() == 0);
