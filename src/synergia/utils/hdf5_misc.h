@@ -105,6 +105,8 @@ struct Hdf5_handler
 
     void close()
     {
+        if (hid == 0) return;
+
         switch(H5Iget_type(hid))
         {
         case H5I_FILE:      H5Fclose(hid); break;
@@ -114,7 +116,7 @@ struct Hdf5_handler
         case H5I_DATASET:   H5Dclose(hid); break;
         case H5I_ATTR:      H5Aclose(hid); break;
         case H5I_GENPROP_LST: H5Pclose(hid); break;
-        default: break;
+        default: throw std::runtime_error("close of unhandled Hdf5 handler type");
         }
 
         hid = 0;
