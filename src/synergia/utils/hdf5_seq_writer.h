@@ -186,7 +186,6 @@ public:
             std::vector<hsize_t> const& all_dims0 )
     {
 #ifdef USE_PARALLEL_HDF5
-
         if (!file.valid())
             throw std::runtime_error("invalid file handler");
 
@@ -220,7 +219,6 @@ public:
 
         // increment the offset
         ++offset[0];
-
 #else
 
 #endif
