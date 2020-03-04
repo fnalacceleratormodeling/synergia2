@@ -104,7 +104,11 @@ void Hdf5_file::open(Flag flag)
 
 void Hdf5_file::close()
 {
-    if (is_open) {
+    if (is_open) 
+    {
+        // delete all seq writers before closing the file,
+        // otherwise reopening the file would cause error
+        seq_writers.clear();
         h5file.close();
         is_open = false;
     }
