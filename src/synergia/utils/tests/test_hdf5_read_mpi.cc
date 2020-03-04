@@ -77,6 +77,15 @@ TEST_CASE("hdf5_read_get_dims", "[Hdf5_file_read]")
     CHECK(names[4] == "v5");
     CHECK(names[5] == "v6");
 
+    // dataset exists
+    CHECK(file.has_dataset("v1"));
+    CHECK(file.has_dataset("v2"));
+    CHECK(file.has_dataset("v3"));
+    CHECK(file.has_dataset("v4"));
+    CHECK(file.has_dataset("v5"));
+    CHECK(file.has_dataset("v6"));
+    CHECK_FALSE(file.has_dataset("vx"));
+
     // v1
     auto d1 = file.get_dims("v1");
     CHECK(d1.size() == 0);

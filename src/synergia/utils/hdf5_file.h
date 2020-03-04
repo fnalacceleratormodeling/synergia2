@@ -178,6 +178,10 @@ public:
     get_dataset_names() const
     { return Hdf5_reader::get_dataset_names(h5file); }
 
+    bool
+    has_dataset(std::string const& name) const
+    { return Hdf5_reader::has_dataset(h5file, name); }
+
 private:
 
     friend class cereal::access;

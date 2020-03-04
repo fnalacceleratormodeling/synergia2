@@ -120,6 +120,7 @@ Hdf5_file::flush() const
     if (is_open) H5Fflush(h5file.hid, H5F_SCOPE_GLOBAL);
 }
 
+#if 0
 extern "C" herr_t get_member_names_callback(hid_t group, const char *name,
                                             const H5L_info_t *info,
                                             void *op_data)
@@ -128,7 +129,6 @@ extern "C" herr_t get_member_names_callback(hid_t group, const char *name,
     return 0;
 }
 
-#if 0
 std::vector<std::string>
 Hdf5_file::get_member_names()
 {

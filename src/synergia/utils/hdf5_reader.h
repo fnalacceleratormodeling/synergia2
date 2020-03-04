@@ -345,6 +345,21 @@ public:
         return names;
     }
 
+    static bool
+    has_dataset(Hdf5_handler const& file, std::string const& name)
+    {
+        // if the name exists
+        if (H5Oexists_by_name(file, name.c_str(), H5P_DEFAULT) <= 0)
+            return false;
+
+        // if it is a dataset
+        H5O_info_t info;
+        auto res = H5Oget_info_by_name(file, name.c_str(), &info, H5P_DEFAULT);
+        if (res < 0) throw std::runtime_error("error when getting obj info");
+
+        return info.type == H5O_TYPE_DATASET;
+    }
+
 };
 
 #endif
