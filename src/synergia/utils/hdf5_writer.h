@@ -14,11 +14,10 @@ private:
     static void 
     write_impl( Hdf5_handler const& file,
                 std::string const& name,
-                void const* data_ptr,
-                std::vector<hsize_t> const& data_dims,
+                syn::data_info_t const& di,
                 std::vector<hsize_t> const& all_dims_0,
-                Hdf5_handler const& atomic_type,
-                Commxx const& comm );
+                Commxx const& comm,
+                int root_rank );
 
 public:
 
@@ -46,77 +45,59 @@ public:
            T const& data, 
            bool collective, 
            Commxx const& comm,
-           int root_rank );
+           int root_rank )
+    {
+        auto di = syn::extract_data_info(data);
+
+        // promote the dimensionality if collective write a scaler
+        if (collective && di.dims.size()==0) 
+            di.dims = {1};
+
+        auto all_dim0 = syn::collect_dims(
+                di.dims, collective, comm, root_rank);
+
+        write_impl(file, name, di, all_dim0, comm, root_rank);
+    }
 
     template<class T>
-    static void 
+    static
+    std::enable_if_t<std::is_arithmetic<T>::value, void>
     write( Hdf5_handler const& file, 
            std::string const& name,
            T const* data, size_t len, 
            bool collective, 
            Commxx const& comm,
-           int root_rank );
+           int root_rank )
+    {
+        syn::data_info_t di { 
+            data, 
+            std::vector<hsize_t>({len}),
+            hdf5_atomic_data_type<T>(), 
+            sizeof(T), 
+            len 
+        };
+
+        auto all_dim0 = syn::collect_dims(
+                di.dims, collective, comm, root_rank);
+
+        write_impl(file, name, di, all_dim0, comm, root_rank);
+    }
 };
-
-template<class T>
-inline void 
-Hdf5_writer::write( 
-        Hdf5_handler const& file, 
-        std::string const& name, 
-        T const& data, 
-        bool collective, 
-        Commxx const& comm,
-        int root_rank )
-{
-    auto di = syn::extract_data_info(data);
-
-    // promote the dimensionality if collective write a scaler
-    if (collective && di.dims.size()==0) 
-        di.dims = {1};
-
-    auto all_dim0 = syn::collect_dims(
-            di.dims, collective, comm, root_rank);
-
-    write_impl(file, name, di.ptr, di.dims, 
-            all_dim0, di.atomic_type, comm);
-}
-
-template<class T>
-inline void 
-Hdf5_writer::write( 
-        Hdf5_handler const& file, 
-        std::string const& name,
-        T const* data, size_t len, 
-        bool collective, 
-        Commxx const& comm,
-        int root_rank )
-{
-    auto data_ptr  = data;
-    auto data_dims = std::vector<hsize_t>({len});
-    auto atomic    = hdf5_atomic_data_type<T>();
-
-    auto all_dim0 = syn::collect_dims(
-            data_dims, collective, comm, root_rank);
-
-    write_impl(file, name, data_ptr, data_dims, 
-            all_dim0, atomic, comm);
-}
 
 inline void 
 Hdf5_writer::write_impl( 
         Hdf5_handler const& file,
         std::string const& name,
-        void const* data_ptr,
-        std::vector<hsize_t> const& data_dims,
+        syn::data_info_t const& di,
         std::vector<hsize_t> const& all_dims_0,
-        Hdf5_handler const& atomic_type,
-        Commxx const& comm )
+        Commxx const& comm,
+        int root_rank )
 {
     int mpi_size = comm.size();
     int mpi_rank = comm.rank();
 
     // data rank
-    auto data_rank = data_dims.size();
+    auto data_rank = di.dims.size();
 
     // offsets for each rank (offsets of dim0 in the combined array)
     std::vector<hsize_t> offsets(mpi_size, 0);
@@ -126,7 +107,7 @@ Hdf5_writer::write_impl(
     hsize_t dim0 = offsets[mpi_size-1] + all_dims_0[mpi_size-1];
 
     // dims for the combined array
-    std::vector<hsize_t> dimsf(data_dims);
+    auto dimsf = di.dims;
     if (dimsf.size()) dimsf[0] = dim0;
 
 #ifdef USE_PARALLEL_HDF5
@@ -136,7 +117,7 @@ Hdf5_writer::write_impl(
 
     // dataset
     Hdf5_handler filespace = H5Screate_simple(data_rank, dimsf.data(), NULL);
-    Hdf5_handler dset = H5Dcreate(file, name.c_str(), atomic_type,
+    Hdf5_handler dset = H5Dcreate(file, name.c_str(), di.atomic_type,
             filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
     // only create the dataset, but do not initiate the write 
@@ -144,7 +125,7 @@ Hdf5_writer::write_impl(
     if (dimsf.size() && dimsf[0] == 0) return;
 
     // local dims(counts)
-    auto dimsm = data_dims;
+    auto dimsm = di.dims;
     if (dimsm.size()) dimsm[0] = all_dims_0[mpi_rank];
 
     // dataspace
@@ -168,55 +149,91 @@ Hdf5_writer::write_impl(
     H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE);
 
     // write
-    herr_t res = H5Dwrite(dset, atomic_type, memspace, filespace2, plist_id, data_ptr);
+    herr_t res = H5Dwrite(dset, di.atomic_type, memspace, filespace2, plist_id, data_ptr);
     if (res < 0) throw Hdf5_exception();
 
 #else
 
-    // TODO:
-#if 0
-    if (comm.rank() == write_rank)
+    if (mpi_rank == root_rank)
     {
         if (!file.valid())
             throw std::runtime_error("invalid file handler");
 
-        Hdf5_handler filespace = H5Screate_simple(data_rank, dimsf, NULL);
-        Hdf5_handler dset = H5Dcreate(file, name.c_str(), atomic_type,
+        // dataset
+        Hdf5_handler filespace = H5Screate_simple(data_rank, dimsf.data(), NULL);
+        Hdf5_handler dset = H5Dcreate(file, name.c_str(), di.atomic_type,
                 filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-        for(r=0; i<comm.size(); ++r)
+        // only create the dataset, but do not initiate the write 
+        // if the total size is 0
+        if (dimsf.size() && dimsf[0] == 0) return;
+
+        // get the filespace
+        Hdf5_handler fspace2 = H5Dget_space(dset);
+
+        // local dims(counts)
+        auto dimsm = di.dims;
+
+        // loop through all ranks, recv and write
+        for(int r=0; r<mpi_size; ++r)
         {
-            dimsm = all_dims[r];
-            offset = all_offsets[r];
+            // local dims(counts)
+            if (dimsm.size()) dimsm[0] = all_dims_0[r];
 
-            if (dimsm == 0) continue;
+            // dataspace
+            Hdf5_handler mspace = H5Screate_simple(data_rank, dimsm.data(), NULL);
 
-            Hdf5_handler memspace = H5Screate_simple(data_rank, dimsm, NULL);
-            H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, dimsm, NULL);
-
-            if (r!= comm.rank())
+            // select hyperslab only for non-scalars
+            if (data_rank)
             {
-                mpi_recv(recv_data, r);
+                auto offset = std::vector<hsize_t>(data_rank, 0);
+                offset[0] = offsets[r];
+
+                herr_t res = H5Sselect_hyperslab(fspace2, H5S_SELECT_SET, 
+                        offset.data(), NULL, dimsm.data(), NULL);
+                
+                if (res < 0) throw Hdf5_exception();
+            }
+
+            if (r == mpi_rank)
+            {
+                // self
+                herr_t res = H5Dwrite(dset, di.atomic_type, mspace, fspace2, H5P_DEFAULT, (void*)di.ptr);
+                if (res < 0) throw Hdf5_exception();
             }
             else
             {
-                recv_data = transpose(data);
+                size_t sz = di.atomic_data_size;
+                for(auto d : dimsm) sz *= d;
+
+                if (sz)
+                {
+                    std::vector<uint8_t> buf(sz);;
+
+                    // mpi recv from rank r
+                    MPI_Status status;
+                    MPI_Recv((void*)buf.data(), buf.size(), MPI_BYTE, r, 0, comm, &status);
+
+                    // write
+                    herr_t res = H5Dwrite(dset, di.atomic_type, mspace, fspace2, 
+                            H5P_DEFAULT, (void*)buf.data());
+
+                    if (res < 0) throw Hdf5_exception();
+                }
             }
-
-            H5Dwrite(dset, atomic, memspace, filespace, default, recv_data);
-
         }
     }
     else
     {
-        if (collective)
-        {
-            data_buf = transpose(data);
-            mpi_send(data_buf, write_rank);
-        }
-    }
-#endif
+        // local dims(counts)
+        auto dimsm = di.dims;
+        if (dimsm.size()) dimsm[0] = all_dims_0[mpi_rank];
 
+        size_t sz = di.atomic_data_size;
+        for(auto d : dimsm) sz *= d;
+
+        if (sz) MPI_Send((void*)di.ptr, sz, MPI_BYTE, root_rank, 0, comm);
+    }
 #endif
 }
 
