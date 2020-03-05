@@ -52,6 +52,156 @@ TEST_CASE("hdf5_append_scalar", "[Hdf5_file_append]")
         REQUIRE(v2.extent(0) == 2);
         CHECK(v2(0) == 3.2);
         CHECK(v2(1) == 4.2);
+
+        // v3
+        auto v3 = file.read<karray2d_row>("v3");
+        REQUIRE(v3.extent(0) == 2);
+        REQUIRE(v3.extent(1) == mpi_size);
+        for(int i=0; i<mpi_size; ++i) 
+        {
+            CHECK(v3(0, i) == 3.0);
+            CHECK(v3(1, i) == 4.0);
+        }
+
+        // v4
+        auto v4 = file.read<karray2d_row>("v4");
+        REQUIRE(v4.extent(0) == 2);
+        REQUIRE(v4.extent(1) == mpi_size);
+        for(int i=0; i<mpi_size; ++i) 
+        {
+            CHECK(v4(0, i) == 10.0 + i);
+            CHECK(v4(1, i) == 20.0 + i);
+        }
+    }
+}
+
+
+TEST_CASE("hdf5_append_kv", "[Hdf5_file_append]")
+{
+    int mpi_rank = Commxx::world_rank();
+    int mpi_size = Commxx::world_size();
+
+    std::stringstream ss;
+    ss << "hdf5_append_kv_" << mpi_size << ".h5";
+    std::string fname = ss.str();
+
+    {
+        Hdf5_file file(fname, Hdf5_file::truncate, Commxx());
+
+        // v1_mem : [1, 2]
+        //          [3, 4]
+        // v1_file: [ [1, 2], [3, 4] ]
+        karray1d_row v1("v", 2);
+        v1(0) = 1.0; 
+        v1(1) = 2.0;
+        file.append("v1", v1, false);
+
+        v1(0) = 3.0; 
+        v1(1) = 4.0;
+        file.append("v1", v1, false);
+
+        // v2_mem : [1, 2]
+        //          [3, 4]
+        // v2_file: [ [1, 2, 1, 2, 1, 2, ... ],
+        //            [3, 4, 3, 4, 3, 4, ... ] ]
+        karray1d_row v2("v", 2);
+        v2(0) = 1.0; 
+        v2(1) = 2.0;
+        file.append("v2", v2, true);
+
+        v2(0) = 3.0; 
+        v2(1) = 4.0;
+        file.append("v2", v2, true);
+
+        // v3_mem:  [[1.1, 1.2], [2.1, 2.2]]
+        //          [[3.1, 3.2], [4.1, 4.2]]
+        // v3_file: [ [[1.1, 1.2], [2.1, 2.2]],
+        //            [[3.1, 3.2], [4.1, 4.2]] ]
+        karray2d_row v3("v", 2, 2);
+        v3(0, 0) = 1.1;
+        v3(0, 1) = 1.2;
+        v3(1, 0) = 2.1;
+        v3(1, 1) = 2.2;
+        file.append("v3", v3, false);
+
+        v3(0, 0) = 3.1;
+        v3(0, 1) = 3.2;
+        v3(1, 0) = 4.1;
+        v3(1, 1) = 4.2;
+        file.append("v3", v3, false);
+
+        // v3_mem:  [[1.1, 1.2], [2.1, 2.2]]
+        //          [[3.1, 3.2], [4.1, 4.2]]
+        // v3_file: [ [[1.1, 1.2], [2.1, 2.2], [1.1, 1.2], [2.1, 2.2], ... ],
+        //            [[3.1, 3.2], [4.1, 4.2], [3.1, 3.2], [4.1, 4.2], ... ] ]
+        karray2d_row v4("v", 2, 2);
+        v4(0, 0) = 1.1;
+        v4(0, 1) = 1.2;
+        v4(1, 0) = 2.1;
+        v4(1, 1) = 2.2;
+        file.append("v4", v4, true);
+
+        v4(0, 0) = 3.1;
+        v4(0, 1) = 3.2;
+        v4(1, 0) = 4.1;
+        v4(1, 1) = 4.2;
+        file.append("v4", v4, true);
+    }
+
+    {
+        Hdf5_file file(fname, Hdf5_file::read_only, Commxx());
+
+        // v1
+        auto v1 = file.read<karray2d_row>("v1");
+        REQUIRE(v1.extent(0) == 2);
+        REQUIRE(v1.extent(1) == 2);
+        CHECK(v1(0, 0) == 1.0);
+        CHECK(v1(0, 1) == 2.0);
+        CHECK(v1(1, 0) == 3.0);
+        CHECK(v1(1, 1) == 4.0);
+
+        // v1
+        auto v2 = file.read<karray2d_row>("v2");
+        REQUIRE(v2.extent(0) == 2);
+        REQUIRE(v2.extent(1) == mpi_size * 2);
+        for(int i=0; i<mpi_size; ++i)
+        {
+            CHECK(v2(0, i*2+0) == 1.0);
+            CHECK(v2(0, i*2+1) == 2.0);
+            CHECK(v2(1, i*2+0) == 3.0);
+            CHECK(v2(1, i*2+1) == 4.0);
+        }
+
+        // v3
+        auto v3 = file.read<karray3d_row>("v3");
+        REQUIRE(v3.extent(0) == 2);
+        REQUIRE(v3.extent(1) == 2);
+        REQUIRE(v3.extent(2) == 2);
+        CHECK(v3(0, 0, 0) == 1.1);
+        CHECK(v3(0, 0, 1) == 1.2);
+        CHECK(v3(0, 1, 0) == 2.1);
+        CHECK(v3(0, 1, 1) == 2.2);
+        CHECK(v3(1, 0, 0) == 3.1);
+        CHECK(v3(1, 0, 1) == 3.2);
+        CHECK(v3(1, 1, 0) == 4.1);
+        CHECK(v3(1, 1, 1) == 4.2);
+
+        // v4
+        auto v4 = file.read<karray3d_row>("v4");
+        REQUIRE(v4.extent(0) == 2);
+        REQUIRE(v4.extent(1) == mpi_size * 2);
+        REQUIRE(v4.extent(2) == 2);
+        for(int i=0; i<mpi_size; ++i)
+        {
+            CHECK(v4(0, i*2+0, 0) == 1.1);
+            CHECK(v4(0, i*2+0, 1) == 1.2);
+            CHECK(v4(0, i*2+1, 0) == 2.1);
+            CHECK(v4(0, i*2+1, 1) == 2.2);
+            CHECK(v4(1, i*2+0, 0) == 3.1);
+            CHECK(v4(1, i*2+0, 1) == 3.2);
+            CHECK(v4(1, i*2+1, 0) == 4.1);
+            CHECK(v4(1, i*2+1, 1) == 4.2);
+        }
     }
 }
 
