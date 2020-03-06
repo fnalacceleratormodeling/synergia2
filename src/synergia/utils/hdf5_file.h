@@ -176,11 +176,11 @@ public:
 
     std::vector<std::string>
     get_dataset_names() const
-    { return Hdf5_reader::get_dataset_names(h5file); }
+    { return Hdf5_reader::get_dataset_names(h5file, *comm, root_rank); }
 
     bool
     has_dataset(std::string const& name) const
-    { return Hdf5_reader::has_dataset(h5file, name); }
+    { return Hdf5_reader::has_dataset(h5file, name, *comm, root_rank); }
 
 private:
 

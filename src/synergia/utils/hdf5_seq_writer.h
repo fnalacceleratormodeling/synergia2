@@ -138,7 +138,7 @@ public:
                          ? good_chunk_size/data_size : 1;
 
         // are we resuming from an existing file or start new
-        if (Hdf5_reader::has_dataset(file, name))
+        if (Hdf5_reader::has_dataset(file, name, comm, root))
         {
             // try to open the dataset
             dataset = H5Dopen(file, name.c_str(), H5P_DEFAULT);
