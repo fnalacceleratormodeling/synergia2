@@ -149,7 +149,7 @@ Hdf5_writer::write_impl(
     H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE);
 
     // write
-    herr_t res = H5Dwrite(dset, di.atomic_type, memspace, filespace2, plist_id, data_ptr);
+    herr_t res = H5Dwrite(dset, di.atomic_type, memspace, filespace2, plist_id, di.ptr);
     if (res < 0) throw Hdf5_exception();
 
 #else
