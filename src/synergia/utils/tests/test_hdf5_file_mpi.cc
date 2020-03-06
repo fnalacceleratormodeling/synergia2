@@ -95,7 +95,6 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
     }
 }
 
-#if 0
 TEST_CASE("hdf5_file_append", "[Hdf5_file_seq_writer]")
 {
     {
@@ -139,7 +138,6 @@ TEST_CASE("hdf5_file_append", "[Hdf5_file_seq_writer]")
         file.append_single("arr3", arr3);
     }
 }
-#endif
 
 TEST_CASE("hdf5_file", "[Hdf5_file]")
 {

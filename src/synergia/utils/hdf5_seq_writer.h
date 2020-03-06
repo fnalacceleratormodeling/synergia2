@@ -74,19 +74,26 @@ public:
         // setup dataset
         if(!setup) 
         {
+            bool has = Hdf5_reader::has_dataset(file, name, comm, root);
 
-#ifdef USE_PARALLEL_HDF5
-            setup_dataset(di, offsets, dim0);
-#else
-            if (mpi_rank == root) setup_dataset(di, offsets, dim0);
+#ifndef USE_PARALLEL_HDF5
+            if (mpi_rank == root)
 #endif
+            {
+                setup_dataset(di, offsets, dim0, has);
+            }
 
             setup = true;
         }
         else
         {
-            if (!verify_dims(di, dim0)) throw std::runtime_error(
-                    "Hdf5_seq_writer: inconsistent dims in consective write");
+#ifndef USE_PARALLEL_HDF5
+            if (mpi_rank == root)
+#endif
+            {
+                if (!verify_dims(di, dim0)) throw std::runtime_error(
+                        "Hdf5_seq_writer: inconsistent dims in consective write");
+            }
         }
 
         do_append(di, offsets, all_dims0);
@@ -94,6 +101,7 @@ public:
 
     bool verify_dims(syn::data_info_t const& di, hsize_t dim0)
     {
+        std::cout << "fdims.size = " << fdims.size() << ", didims.size = " << di.dims.size() << std::endl;
         if (fdims.size()>1 && dim0!=fdims[1]) return false;
 
         for (int i=2; i<di.dims.size(); ++i)
@@ -105,7 +113,8 @@ public:
     void setup_dataset(
             syn::data_info_t& di,
             std::vector<hsize_t> const& offsets,
-            hsize_t dim0 )
+            hsize_t dim0,
+            bool has_dataset )
     {
         const size_t good_chunk_size = 8192; // pulled out of air
 
@@ -138,7 +147,7 @@ public:
                          ? good_chunk_size/data_size : 1;
 
         // are we resuming from an existing file or start new
-        if (Hdf5_reader::has_dataset(file, name, comm, root))
+        if (has_dataset)
         {
             // try to open the dataset
             dataset = H5Dopen(file, name.c_str(), H5P_DEFAULT);
@@ -222,6 +231,81 @@ public:
         // increment the offset
         ++offset[0];
 #else
+
+        if (mpi_rank == root)
+        {
+            if (!file.valid())
+                throw std::runtime_error("invalid file handler");
+
+            // increment and extend the dataset to the new size (last_dim+1)
+            ++fdims[0];
+            herr_t res = H5Dset_extent(dataset, fdims.data());
+            if (res < 0) throw Hdf5_exception();
+
+            // filespace
+            Hdf5_handler fspace = H5Dget_space(dataset);
+
+            // local data
+            auto dimsm = di.dims;
+
+            // loop through ranks, recv and write
+            for(int r=0; r<mpi_size; ++r)
+            {
+                if (dimsm.size()>1) dimsm[1] = all_dims0[r];
+
+                // create dataspace for current data block (it looks like max_dims can be null)
+                Hdf5_handler mspace = H5Screate_simple(dimsm.size(), dimsm.data(), NULL);
+
+                // select the slab to write
+                if (offset.size() > 1) offset[1] = offsets[r];
+
+                res = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, 
+                        offset.data(), NULL, dimsm.data(), NULL);
+
+                if (res < 0) throw Hdf5_exception();
+
+                if (r == root)
+                {
+                    // write
+                    res = H5Dwrite(dataset, di.atomic_type, mspace, fspace, H5P_DEFAULT, di.ptr);
+                    if (res < 0) throw Hdf5_exception();
+                }
+                else
+                {
+                    size_t sz = di.atomic_data_size;
+                    for(auto d : dimsm) sz *= d;
+
+                    if (sz)
+                    {
+                        std::vector<uint8_t> buf(sz);;
+
+                        // mpi recv from rank r
+                        MPI_Status status;
+                        MPI_Recv((void*)buf.data(), buf.size(), MPI_BYTE, r, 0, comm, &status);
+
+                        // write
+                        herr_t res = H5Dwrite(dataset, di.atomic_type, mspace, fspace, 
+                                H5P_DEFAULT, (void*)buf.data());
+
+                        if (res < 0) throw Hdf5_exception();
+                    }
+                }
+            }
+
+            // increment the offset
+            ++offset[0];
+        }
+        else
+        {
+            // local dims(counts)
+            auto dimsm = di.dims;
+            if (dimsm.size()>1) dimsm[1] = all_dims0[mpi_rank];
+
+            size_t sz = di.atomic_data_size;
+            for(auto d : dimsm) sz *= d;
+
+            if (sz) MPI_Send((void*)di.ptr, sz, MPI_BYTE, root, 0, comm);
+        }
 
 #endif
     }
