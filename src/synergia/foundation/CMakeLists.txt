@@ -4,13 +4,13 @@ add_library(synergia_foundation
     reference_particle.cc
     distribution.cc 
     #multi_diagnostics.cc
-    diagnostics_write_helper.cc
+    #diagnostics_write_helper.cc
     )
 
 target_link_libraries(synergia_foundation 
     ${GSL_CONFIG_LIBS}
     synergia_parallel_utils 
-    synergia_hdf5_utils 
+    #synergia_hdf5_utils 
     #synergia_serialization
     lsexpr
     gsl
@@ -30,10 +30,10 @@ endif ()
 install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
     distribution.h
-    diagnostics_write_helper.h
+    #diagnostics_write_helper.h
     four_momentum.h
     math_constants.h
-    multi_diagnostics.h
+    #multi_diagnostics.h
     physical_constants.h
     reference_particle.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/foundation)
