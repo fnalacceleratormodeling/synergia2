@@ -101,7 +101,6 @@ public:
 
     bool verify_dims(syn::data_info_t const& di, hsize_t dim0)
     {
-        std::cout << "fdims.size = " << fdims.size() << ", didims.size = " << di.dims.size() << std::endl;
         if (fdims.size()>1 && dim0!=fdims[1]) return false;
 
         for (int i=2; i<di.dims.size(); ++i)
