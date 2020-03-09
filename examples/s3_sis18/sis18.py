@@ -57,12 +57,21 @@ def run2():
 
     sim.reg_prop_action_step_end(action)
 
+    # diagnostics
     diag_full2 = synergia.bunch.Diagnostics_full2()
     sim.reg_diag_per_turn(diag_full2, "full2", "diag_full_py.h5")
 
+    diag_bt = synergia.bunch.Diagnostics_bulk_track(1000, 0)
+    sim.reg_diag_per_turn(diag_bt, "bulk_tracks", "diag_bt_py.h5")
+
+    diag_part = synergia.bunch.Diagnostics_particles(100)
+    sim.reg_diag_per_turn(diag_part, "particles", "diag_part_py.h5")
+
+    # logger
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO_STEP)
 
+    # propagate
     propagator.propagate(sim, simlog, 1)
 
     print("total steps = ", context.steps)

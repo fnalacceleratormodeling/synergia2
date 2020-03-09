@@ -8,6 +8,8 @@
 #include "synergia/bunch/diagnostics_worker.h"
 #include "synergia/bunch/diagnostics_loss.h"
 #include "synergia/bunch/diagnostics_full2.h"
+#include "synergia/bunch/diagnostics_bulk_track.h"
+#include "synergia/bunch/diagnostics_particles.h"
 
 #include "synergia/bunch/diagnostics_py.h"
 
@@ -205,12 +207,32 @@ PYBIND11_MODULE(bunch, m)
         ;
 
     // Diagnostics_dummy
-    py::class_<Diagnostics_dummy, Diagnostics, std::shared_ptr<Diagnostics_dummy>>(m, "Diagnostics_dummy")
+    py::class_<Diagnostics_dummy, Diagnostics, std::shared_ptr<Diagnostics_dummy>>(
+            m, "Diagnostics_dummy")
         .def( py::init<>() )
         ;
 
-    py::class_<Diagnostics_full2, Diagnostics, std::shared_ptr<Diagnostics_full2>>(m, "Diagnostics_full2")
+    py::class_<Diagnostics_full2, Diagnostics, std::shared_ptr<Diagnostics_full2>>(
+            m, "Diagnostics_full2")
         .def( py::init<>() )
+        ;
+
+    py::class_<Diagnostics_bulk_track, Diagnostics, std::shared_ptr<Diagnostics_bulk_track>>(
+            m, "Diagnostics_bulk_track")
+        .def( py::init<int, int>(),
+                "Construct a Diagnostics_bulk_track object.",
+                "num_tracks"_a = 0,
+                "offset"_a = 0 )
+        ;
+
+    py::class_<Diagnostics_particles, Diagnostics, std::shared_ptr<Diagnostics_particles>>(
+            m, "Diagnostics_particles")
+        .def( py::init<int, int, int, int>(),
+                "Construct a Diagnostics_particles object.",
+                "num_part"_a = -1,
+                "offset"_a = 0,
+                "num_spec_part"_a = 0,
+                "spec_offset"_a = 0 )
         ;
 
 }
