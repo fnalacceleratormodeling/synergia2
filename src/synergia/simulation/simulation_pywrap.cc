@@ -9,6 +9,8 @@
 #include "synergia/simulation/stepper.h"
 #include "synergia/simulation/split_operator_stepper.h"
 
+#include "synergia/simulation/checkpoint.h"
+
 namespace py = pybind11;
 using namespace py::literals;
 
@@ -23,6 +25,16 @@ PYBIND11_MODULE(simulation, m)
             //MPI_Finalize(); 
             Kokkos::finalize(); 
          });
+
+    m.def( "checkpoint_save",
+            &syn::checkpoint_save,
+            "propagator"_a,
+            "bunch_simulator"_a )
+        ;
+
+    m.def( "checkpoint_load",
+            &syn::checkpoint_load )
+        ;
             
     // Propagator
     py::class_<Propagator>(m, "Propagator")
