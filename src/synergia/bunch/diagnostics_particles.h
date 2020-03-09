@@ -18,27 +18,14 @@ public:
 
     Diagnostics_particles(
             int num_part = -1, int offset = 0,
-            int num_spec_part = 0, int spec_offset = 0 )
-        : Diagnostics("diagnostics_particles", false)
-        , bunch_ptr(nullptr)
-        , num_part(num_part) , offset(offset)
-        , num_spec_part(num_spec_part), spec_offset(spec_offset)
-    { }
+            int num_spec_part = 0, int spec_offset = 0 );
 
 private:
 
     void do_reduce(Commxx const& comm, int root) override { }
     void do_first_write(Hdf5_file& file) override { }
-
-    void do_update(Bunch const& bunch) override 
-    { bunch_ptr = &bunch; }
-
-    void do_write(Hdf5_file& file) override
-    { 
-        assert(bunch_ptr != nullptr);
-        bunch_ptr->write_file(file, num_part, offset, num_spec_part, spec_offset); 
-        bunch_ptr = nullptr;
-    }
+    void do_update(Bunch const& bunch) override { bunch_ptr = &bunch; }
+    void do_write(Hdf5_file& file) override;
 
     friend class cereal::access;
 
@@ -53,6 +40,6 @@ private:
     }
 };
 
-CEREAL_REGISTER_TYPE(Diagnostics_particles);
+CEREAL_REGISTER_TYPE(Diagnostics_particles)
 
 #endif /* DIAGNOSTICS_PARTICLES_H_ */
