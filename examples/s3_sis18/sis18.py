@@ -71,14 +71,14 @@ def run2():
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO_STEP)
 
+    # propagate
+    propagator.propagate(sim, simlog, 1)
+
+    print("total steps = ", context.steps)
+    print_statistics(sim.get_bunch())
+
     # save
     synergia.simulation.checkpoint_save(propagator, sim);
-
-    # propagate
-    #propagator.propagate(sim, simlog, 1)
-
-    #print("total steps = ", context.steps)
-    #print_statistics(sim.get_bunch())
 
 def checkpoint_resume():
 
