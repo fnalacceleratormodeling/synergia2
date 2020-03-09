@@ -4,6 +4,7 @@
 #include "synergia/utils/parallel_utils.h"
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/logger.h"
+#include "synergia/utils/simple_timer.h"
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -40,6 +41,9 @@ PYBIND11_MODULE(parallel_utils, m)
     py::class_<Commxx, std::shared_ptr<Commxx>>(m, "Commxx")
         .def(py::init<>())
         .def( "rank", &Commxx::rank )
+        ;
+
+    m.def( "simple_timer_print", &simple_timer_print, "logger"_a )
         ;
 
 }

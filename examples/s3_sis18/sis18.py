@@ -89,8 +89,11 @@ def checkpoint_resume():
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO_STEP)
 
-    propagator.propagate(sim, simlog, 1)
+    screen = synergia.utils.parallel_utils.Logger(0, 
+            synergia.utils.parallel_utils.LoggerV.DEBUG)
 
+    propagator.propagate(sim, simlog, 1)
+    synergia.utils.parallel_utils.simple_timer_print(screen)
 
 def run():
     lsexpr = synergia.utils.pylsexpr.read_lsexpr_file("sis18-6.lsx")
