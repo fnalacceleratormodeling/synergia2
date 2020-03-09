@@ -192,7 +192,7 @@ PYBIND11_MODULE(bunch, m)
                     return py::make_tuple(self.attr("__dict__")); 
                 },
                 [](py::tuple const& t) { 
-                    PyDiagnostics cpp_diag("restored pydiag");
+                    PyDiagnostics cpp_diag("restored pydiag", true);
                     auto py_diag = t[0].cast<py::dict>();
                     return std::make_pair(cpp_diag, py_diag);
                 } ) )
