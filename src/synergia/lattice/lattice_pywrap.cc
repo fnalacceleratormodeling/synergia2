@@ -4,7 +4,10 @@
 #include <pybind11/stl.h>
 
 #include "synergia/utils/container_conversions.h"
-#include "synergia/simulation/propagator.h"
+
+#include "synergia/lattice/lattice_element_slice.h"
+#include "synergia/lattice/lattice_element.h"
+#include "synergia/lattice/lattice.h"
 
 namespace py = pybind11;
 using namespace py::literals;
