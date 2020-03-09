@@ -27,7 +27,7 @@ def create_simulator(ref_part):
             ref_part, 4194394, 2.94e10)
 
     bunch = sim.get_bunch()
-    bunch.read_file("turn_particles_0000_4M.h5")
+    bunch.read_file("bunch_particles_4M.h5")
 
     return sim
 
@@ -56,16 +56,14 @@ def run2():
         context.steps += 1
 
     sim.reg_prop_action_step_end(action)
-    sim.set_turns(0, 1)
 
-    diag_full2 = synergia.bunch.Diagnostics_full2("diag_full.h5")
-    sim.reg_diag_per_turn("full2", diag_full2)
-    #sim.reg_diag_per_turn("full3", synergia.bunch.Diagnostics_full2("diag_full3.h5"))
+    diag_full2 = synergia.bunch.Diagnostics_full2()
+    sim.reg_diag_per_turn(diag_full2, "full2", "diag_full_py.h5")
 
     simlog = synergia.utils.parallel_utils.Logger(0, 
-            synergia.utils.parallel_utils.LoggerV.INFO)
+            synergia.utils.parallel_utils.LoggerV.INFO_STEP)
 
-    propagator.propagate(sim, simlog)
+    propagator.propagate(sim, simlog, 1)
 
     print("total steps = ", context.steps)
     print_statistics(sim.get_bunch())

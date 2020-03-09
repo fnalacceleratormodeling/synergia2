@@ -85,9 +85,14 @@ PYBIND11_MODULE(bunch, m)
                 "bucket_index"_a = 0,
                 "array_index"_a = 0 )
 
-        .def( "read_file",
+        .def( "read_file_legacy",
                 &Bunch::read_file_legacy,
-                "Read particle data from file.",
+                "Read particle data from a lagecy file (produced by Synergia2).",
+                "filename"_a )
+
+        .def( "read_file",
+                &Bunch::read_file,
+                "Read particle data from a file.",
                 "filename"_a )
 
         .def( "checkout_particles",
