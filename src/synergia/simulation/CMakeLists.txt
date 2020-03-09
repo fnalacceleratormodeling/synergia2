@@ -1,3 +1,8 @@
+if(${KOKKOS_ENABLE_CUDA})
+    set_source_files_properties(checkpoint_json.cc PROPERTIES COMPILE_FLAGS --host-only)
+endif()
+
+
 add_library(synergia_simulation 
     operator.cc 
     step.cc 
@@ -28,6 +33,7 @@ add_library(synergia_simulation
     #calculate_closed_orbit.cc 
     #diagnostics_normal_form.cc
     checkpoint.cc
+    checkpoint_json.cc
     )
 
 target_link_libraries(synergia_simulation 

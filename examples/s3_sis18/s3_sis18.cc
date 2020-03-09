@@ -348,7 +348,7 @@ void bs_load()
     std::cout << "1024.2 = " << parts(1024, 2) << "\n";
 }
 
-#include "synergia/utils/json.h"
+//#include "synergia/utils/json.h"
 
 int main(int argc, char ** argv)
 {

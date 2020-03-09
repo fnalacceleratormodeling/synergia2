@@ -1,4 +1,6 @@
 
+#include <cassert>
+
 #include "synergia/utils/hdf5_misc.h"
 #include "synergia/utils/commxx.h"
 

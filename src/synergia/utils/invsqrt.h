@@ -5,7 +5,8 @@
 // we make it available here in preparation for future use
 
 template<typename T >
-    inline T invsqrt(T const& x) { return 1.0 / sqrt(x); }
+KOKKOS_INLINE_FUNCTION
+T invsqrt(T const& x) { return 1.0 / sqrt(x); }
 
 #endif // INVSQRT_H
 

@@ -2,8 +2,22 @@
 
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/bunch_simulator.h"
-#include "synergia/utils/json.h"
 
+
+namespace syn
+{
+    void 
+    checkpoint_save_as_json(
+            std::string const& prop_str,
+            std::string const& sims_str,
+            std::vector<int> const& displs,
+            std::vector<int> const& lens );
+
+    std::pair<std::string, std::string>
+    checkpoint_load_json(
+            std::vector<char> const& buf, 
+            int rank );
+}
 
 
 void 
@@ -41,25 +55,7 @@ syn::checkpoint_save( Propagator const& prop,
 
     // extract each string and parse into a JSON object
     if (mpi_rank == root)
-    {
-        syn::json cp = syn::json::object();
-
-        cp["propagator"] = syn::json::parse(prop_str);
-        cp["simulator"] = syn::json::array();
-
-        for(int i=0; i<mpi_size; ++i)
-        {
-            auto begin = sims_str.begin() + displs[i];
-            auto d = syn::json::parse(begin, begin + lens[i]);
-            cp["simulator"].push_back(d);
-        }
-
-        // write states to file
-        std::ofstream file("cp_state.json");
-        if (!file.good()) throw std::runtime_error(
-                "Error at creating checkpointing file");
-        file << cp;
-    }
+        checkpoint_save_as_json(prop_str, sims_str, displs, lens);
 }
 
 std::pair<Propagator, Bunch_simulator>
@@ -106,12 +102,12 @@ syn::checkpoint_load()
     }
 
     // parse the json object
-    auto cp = syn::json::parse(buf.begin(), buf.end());
+    auto cp = syn::checkpoint_load_json(buf, mpi_rank);
 
     // recreate the objects
     return std::make_pair(
-            Propagator::load_from_string(cp["propagator"].dump()),
-            Bunch_simulator::load_from_string(cp["simulator"][mpi_rank].dump()) );
+            Propagator::load_from_string(cp.first),
+            Bunch_simulator::load_from_string(cp.second) );
 }
 
 void syn::resume()

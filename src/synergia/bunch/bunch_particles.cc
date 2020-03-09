@@ -52,7 +52,7 @@ namespace
         karray2d_row_dev dst;
 
         ConstParticleMasks s_masks;
-        HostParticleMasks  d_masks;
+        ParticleMasks      d_masks;
 
         int idx;
 
