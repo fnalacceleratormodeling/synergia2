@@ -1,6 +1,8 @@
 
 #include <cassert>
 
+#pragma message "HDF5 version checking in Hdf5_reader (changes of H5O interfaces in Hdf5 1.12)"
+
 #include "synergia/utils/hdf5_misc.h"
 #include "synergia/utils/commxx.h"
 

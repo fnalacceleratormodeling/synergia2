@@ -1,8 +1,6 @@
 #ifndef HDF5_FILE_H_
 #define HDF5_FILE_H_
 
-#include "hdf5.h"
-
 #include <string>
 #include <memory>
 

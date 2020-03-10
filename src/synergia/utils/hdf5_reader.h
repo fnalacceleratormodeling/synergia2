@@ -546,15 +546,25 @@ public:
 
 #ifdef USE_PARALLEL_HDF5
 
+    #if H5_VERS_MAJOR==1 && H5_VERS_MINOR < 12
         auto res = H5Ovisit(file, H5_INDEX_NAME, H5_ITER_NATIVE, 
                 cb, (void*)&names );
+    #else
+        auto res = H5Ovisit(file, H5_INDEX_NAME, H5_ITER_NATIVE, 
+                cb, (void*)&names, H5O_INFO_BASIC );
+    #endif
 
 #else
 
         if (comm.rank() == root_rank)
         {
+    #if H5_VERS_MAJOR==1 && H5_VERS_MINOR < 12
             auto res = H5Ovisit(file, H5_INDEX_NAME, H5_ITER_NATIVE, 
                     cb, (void*)&names );
+    #else
+            auto res = H5Ovisit(file, H5_INDEX_NAME, H5_ITER_NATIVE, 
+                    cb, (void*)&names, H5O_INFO_BASIC );
+    #endif
 
             bcast_vec_str_send(names, comm, root_rank);
         }
@@ -582,7 +592,11 @@ public:
             {
                 // and it is a dataset
                 H5O_info_t info;
+    #if H5_VERS_MAJOR==1 && H5_VERS_MINOR < 12
                 auto res = H5Oget_info_by_name(file, name.c_str(), &info, H5P_DEFAULT);
+    #else
+                auto res = H5Oget_info_by_name(file, name.c_str(), &info, H5O_INFO_BASIC, H5P_DEFAULT);
+    #endif
                 if (res < 0) throw std::runtime_error("error when getting obj info");
 
                 has = (info.type == H5O_TYPE_DATASET);
