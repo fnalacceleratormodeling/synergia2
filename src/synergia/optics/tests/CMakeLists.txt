@@ -1,5 +1,5 @@
 add_test(test_one_turn_map_py 
-    ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 
+   ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 
     ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" 
     test_one_turn_map.py)
 
