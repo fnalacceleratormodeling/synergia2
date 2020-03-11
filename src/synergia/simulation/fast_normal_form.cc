@@ -1,14 +1,18 @@
 #include "fast_normal_form.h"
 
-#if !defined(__has_warning) || __has_warning("-Wint-in-bool-context")
+#if defined(__has_warning)
+#if ! __has_warning("-Wint-in-bool-context")
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-in-bool-context"
+#endif
 #endif
 
 #include "Eigen/Eigen"
 
-#if !defined(__has_warning) || __has_warning("-Wint-in-bool-context")
+#if defined(__has_warning)
+#if ! __has_warning("-Wint-in-bool-context")
 #pragma GCC diagnostic pop
+#endif
 #endif
 
 #include "synergia/foundation/physical_constants.h"
