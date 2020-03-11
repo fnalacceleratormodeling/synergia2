@@ -143,8 +143,11 @@ if(SIMPLE_TIMER)
     endif()
 endif()
 
+
 # Additional CXXFLAGS
-string(APPEND ${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS})
+if (EXTRA_CXX_FLAGS)
+    string(APPEND CMAKE_CXX_FLAGS ${EXTRA_CXX_FLAGS})
+endif()
 
 # External libraries generate many warnings
 #add_definitions(-Wall -pedantic -Wno-long-long)

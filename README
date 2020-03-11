@@ -80,4 +80,4 @@ MacOS with apple clang (openmp missing, possible with '-Xpreprocessor -fopenmp -
 cmake /path/to/synergia
 
 MacOS with Python 3 (homebrew):
-cmake -DPYTHON_EXECUTABLE=/usr/local/bin/python3 -DPYTHON_INCLUDE_DIR=/usr/local/Cellar/python/3.7.6_1/Frameworks/Python.framework/Headers/ -DPYTHON_LIB_DIR=/usr/local/Cellar/python/3.7.6_1/lib/
+cmake -DPYTHON_EXECUTABLE=/usr/local/bin/python3
