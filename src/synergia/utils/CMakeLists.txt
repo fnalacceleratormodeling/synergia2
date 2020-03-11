@@ -7,7 +7,7 @@ add_library(synergia_parallel_utils
     base64.cpp
     )
 target_link_libraries(synergia_parallel_utils 
-    #${Boost_SERIALIZATION_LIBRARIES}
+    MPI::MPI_C 
     )
 
 add_library(synergia_test_main STATIC catch_test_main.cc)

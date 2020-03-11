@@ -42,9 +42,12 @@ if (NOT BUILD_PYTHON_BINDINGS)
   message (STATUS "Not building python bindings")
 endif ()
 
-# MPI
-FIND_PACKAGE(MPI REQUIRED C)
+# MPI -- do not build the C++ bindings
+set(MPI_CXX_SKIP_MPICXX TRUE)
+find_package(MPI REQUIRED C CXX)
+set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS ${MPI_CXX_COMPILE_DEFINITIONS})
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
+
 if(${MPI_VERSION} MATCHES "OpenRTE.* 3")
     set(MPI_OVERSUBSCRIBE_FLAG "--oversubscribe")
 else ()
@@ -70,9 +73,9 @@ endif ()
 
 # python
 if (BUILD_PYTHON_BINDINGS)
-    find_package(ConsistentPython)
-    list(APPEND extra_includes ${PYTHON_INCLUDE_DIR})
-    set(IPYTHON_EXECUTABLE "ipython" CACHE PATH "path to optional ipython executable")
+    #find_package(ConsistentPython)
+    #list(APPEND extra_includes ${PYTHON_INCLUDE_DIR})
+    #set(IPYTHON_EXECUTABLE "ipython" CACHE PATH "path to optional ipython executable")
 endif()
 
 # boost

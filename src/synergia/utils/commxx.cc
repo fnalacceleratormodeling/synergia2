@@ -1,5 +1,4 @@
 #include "commxx.h"
-#include "parallel_utils.h"
 #include <stdexcept>
 #include <climits>
 #include <algorithm>
