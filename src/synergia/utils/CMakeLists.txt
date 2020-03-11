@@ -1,20 +1,22 @@
-add_library(synergia_parallel_utils 
+
+set(synergia_parallel_utils_src
     parallel_utils.cc 
     commxx.cc 
-    #commxx_divider.cc 
     logger.cc
     simple_timer.cc
     base64.cpp
     )
-target_link_libraries(synergia_parallel_utils 
-    MPI::MPI_C 
-    )
+
+add_library(synergia_parallel_utils        SHARED ${synergia_parallel_utils_src})
+add_library(synergia_parallel_utils_static STATIC ${synergia_parallel_utils_src})
+
+target_link_libraries(synergia_parallel_utils MPI::MPI_C)
+target_link_libraries(synergia_parallel_utils_static MPI::MPI_C)
 
 add_library(synergia_test_main STATIC catch_test_main.cc)
 target_link_libraries(synergia_test_main kokkos)
 
 add_library(synergia_serialization 
-    #serialization_files.cc
     cereal_files.cc
     )
 
@@ -34,7 +36,6 @@ add_library(synergia_hdf5_utils
     )
 target_link_libraries(synergia_hdf5_utils 
     ${HDF5_LIBRARIES} 
-    #synergia_serialization
     synergia_parallel_utils
     kokkos
     )
@@ -69,13 +70,13 @@ add_library(synergia_distributed_fft
 
 target_link_libraries(synergia_distributed_fft 
     ${FFT_LIB}
-    #synergia_serialization 
     synergia_parallel_utils
     )
 
 add_library(synergia_command_line command_line_arg.cc)
 
-add_library(lsexpr lsexpr.cc)
+add_library(lsexpr SHARED lsexpr.cc)
+add_library(lsexpr_static STATIC lsexpr.cc)
 
 install(TARGETS
     synergia_parallel_utils

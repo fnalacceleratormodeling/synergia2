@@ -1,8 +1,4 @@
 
-# pybind
-add_subdirectory(utils/pybind11)
-
-
 # synergia components
 add_subdirectory(utils)
 add_subdirectory(foundation)
