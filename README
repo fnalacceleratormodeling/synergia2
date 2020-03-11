@@ -7,8 +7,8 @@ Linux:
 
     CC=gcc CXX=g++ \
     cmake -DCMAKE_INSTALL_PREFIX=$LOCAL_ROOT \
-      -DFFTW3_LIBRARY_DIRS:PATH=$LOCAL_ROOT/lib \
-      -DEIGEN3_INCLUDE_DIR:PATH=$LOCAL_ROOT/include/eigen3 \
+      -DFFTW3_LIBRARY_DIRS=$LOCAL_ROOT/lib \
+      -DEIGEN3_INCLUDE_DIR=$LOCAL_ROOT/include/eigen3 \
       -DHDF5_ROOT=$LOCAL_ROOT \
       -DCMAKE_BUILD_TYPE=Release \
       -DKOKKOS_ENABLE_OPENMP=on \
@@ -31,8 +31,8 @@ Power9:
     export LD_LIBRARY_PATH=$LOCAL_ROOT/lib:$LOCAL_ROOT/lib64:/usr/local/gnu8/gcc-8.3.0/lib:/usr/local/gnu8/gcc-8.3.0/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
     CC=/usr/local/gnu8/gcc-8.3.0/bin/gcc CXX=/usr/local/gnu8/gcc-8.3.0/bin/g++ \
-    cmake -DEIGEN3_INCLUDE_DIR:PATH=/data/qlu/local/include/eigen3 \
-      -DFFTW3_LIBRARY_DIRS:PATH=/data/qlu/local/lib \
+    cmake -DEIGEN3_INCLUDE_DIR=/data/qlu/local/include/eigen3 \
+      -DFFTW3_LIBRARY_DIRS=/data/qlu/local/lib \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_PYTHON_BINDINGS=off \
       -DKOKKOS_ENABLE_OPENMP=off \
