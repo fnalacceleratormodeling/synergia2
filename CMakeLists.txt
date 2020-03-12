@@ -45,8 +45,8 @@ option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" On)
 set(BUILD_SHARED_LIBS TRUE)
 
 # find MPI -- do not build the C++ bindings
-set(MPI_CXX_SKIP_MPICXX TRUE)
-find_package(MPI REQUIRED C CXX) # CXX means we need to call C-APIs in C++ code
+set(MPI_CXX_SKIP_MPICXX TRUE CACHE BOOL "disable the MPI2-C++ bindings")
+find_package(MPI REQUIRED COMPONENTS C CXX) # CXX means we need to call C-APIs in C++ code
 list(APPEND extra_includes ${MPI_C_INCLUDE_DIRS})
 set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS ${MPI_CXX_COMPILE_DEFINITIONS})
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
