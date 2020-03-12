@@ -138,8 +138,10 @@ BunchParticles::BunchParticles(std::string const& label, int total_num, Commxx c
     , last_discarded_(0)
     , parts()
     , masks()
+    , discards()
     , hparts(Kokkos::create_mirror_view(parts))
     , hmasks(Kokkos::create_mirror_view(masks))
+    , hdiscards(Kokkos::create_mirror_view(discards))
 {
     if (!comm.is_null() && total) 
     {
@@ -155,9 +157,11 @@ BunchParticles::BunchParticles(std::string const& label, int total_num, Commxx c
         slots = parts.stride(1);
 
         masks = ParticleMasks(label+"_masks", slots);
+        discards = ParticleMasks(label+"_discards", slots);
 
         hparts = Kokkos::create_mirror_view(parts);
         hmasks = Kokkos::create_mirror_view(masks);
+        hdiscards = Kokkos::create_mirror_view(discards);
 
         // id
         assign_ids(offsets[comm.rank()], comm);

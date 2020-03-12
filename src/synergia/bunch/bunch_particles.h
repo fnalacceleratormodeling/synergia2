@@ -121,9 +121,11 @@ public:
 
     Particles parts;
     ParticleMasks masks;
+    ParticleMasks discards;
 
     HostParticles hparts;
     HostParticleMasks hmasks;
+    HostParticleMasks hdiscards;
 
     BunchParticles(std::string const& label, int total_num, Commxx const& comm);
 
@@ -187,6 +189,7 @@ private:
         ar(CEREAL_NVP(total));
         ar(CEREAL_NVP(parts));
         ar(CEREAL_NVP(masks));
+        ar(CEREAL_NVP(discards));
     }
 
     template<class AR>
@@ -197,10 +200,12 @@ private:
         ar(CEREAL_NVP(total));
         ar(CEREAL_NVP(parts));
         ar(CEREAL_NVP(masks));
+        ar(CEREAL_NVP(discards));
 
         // construct the host array first
         hparts = Kokkos::create_mirror_view(parts);
         hmasks = Kokkos::create_mirror_view(masks);
+        hdiscards = Kokkos::create_mirror_view(discards);
     }
 };
 
@@ -215,18 +220,23 @@ namespace bunch_particles_impl
         AP ap;
         ConstParticles parts;
         ParticleMasks masks;
+        ParticleMasks discards;
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i, int& discarded) const
         {
+            discards(i) = 0;
+
             if (masks(i) && ap.discard(parts, i))
             {
+                discards(i) = 1;
                 masks(i) = 0;
                 ++discarded;
             }
         }
     };
 
+#if 0
     using k1d_byte = Kokkos::View<uint8_t*>;
 
     template<class AP>
@@ -310,6 +320,7 @@ namespace bunch_particles_impl
             }
         }
     };
+#endif
 }
 
 
@@ -322,7 +333,7 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     int ndiscarded = 0;
 
     // go through each particle to see which one is been filtered out
-    discard_applier<AP> da{ap, parts, masks};
+    discard_applier<AP> da{ap, parts, masks, discards};
     Kokkos::parallel_reduce(slots, da, ndiscarded);
 
     //std::cout << "      discarded = " << ndiscarded << "\n";
