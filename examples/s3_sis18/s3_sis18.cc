@@ -2,10 +2,11 @@
 #include "synergia/foundation/physical_constants.h"
 
 #include "synergia/simulation/propagator.h"
-#include "synergia/simulation/lattice_simulator.h"
-#include "synergia/simulation/split_operator_stepper.h"
-#include "synergia/simulation/independent_stepper_elements.h"
 #include "synergia/simulation/checkpoint.h"
+#include "synergia/simulation/lattice_simulator.h"
+
+#include "synergia/simulation/split_operator_stepper.h"
+//#include "synergia/simulation/independent_stepper_elements.h"
 
 #include "synergia/bunch/populate.h"
 #include "synergia/bunch/core_diagnostics.h"
@@ -19,6 +20,7 @@
 #include "synergia/utils/lsexpr.h"
 
 #include "synergia/collective/space_charge_2d_open_hockney.h"
+//#include "synergia/collective/dummy_collective_operator.h"
 
 #include "synergia/utils/simple_timer.h"
 
@@ -58,6 +60,7 @@ void print_statistics(Bunch & bunch, Logger & logger)
     logger << "\n";
 }
 
+#if 0
 int run()
 {
     Logger screen(0, LV::DEBUG);
@@ -168,6 +171,7 @@ int run()
 
     return 0;
 }
+#endif
 
 void run_and_save(std::string & prop_str, std::string & sim_str)
 {
@@ -215,28 +219,17 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // statistics before propagate
     print_statistics(bunch, screen);
 
-#if 0
-    // diagnostics
-    Diagnostics_track diag_track(2, "part_2_track.h5");
-    sim.reg_diag_per_turn("track_2", diag_track);
-
-    Diagnostics_bulk_track diag_bulk_track(6, 0, "bulk_track.h5");
-    sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
-#endif
-
-#if 1
     Diagnostics_full2 diag_full2;
     sim.reg_diag_per_turn(diag_full2, "full2", "diag_full2.h5");
 
-    //Diagnostics_bulk_track diag_bt(1000, 0);
-    //sim.reg_diag_per_turn(diag_bt, "bulk_track", "diag_bulk_track.h5");
+    Diagnostics_bulk_track diag_bt(1000, 0);
+    sim.reg_diag_per_turn(diag_bt, "bulk_track", "diag_bulk_track.h5");
 
-    //Diagnostics_particles diag_part(100);
-    //sim.reg_diag_per_turn(diag_part, "particles", "diag_particles.h5");
-#endif
+    Diagnostics_particles diag_part(100);
+    sim.reg_diag_per_turn(diag_part, "particles", "diag_particles.h5");
 
     // propagate
-    //propagator.propagate(sim, simlog, 1);
+    propagator.propagate(sim, simlog, 2);
 
     // statistics after propagate
     print_statistics(bunch, screen);
