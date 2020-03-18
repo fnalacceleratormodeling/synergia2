@@ -17,9 +17,6 @@ private:
     std::vector<Step> 
     apply_impl(Lattice const & lattice) const override;
 
-    std::unique_ptr<Stepper> clone() const override
-    { return std::make_unique<Split_operator_stepper>(*this); }
-
 public:
 
     Split_operator_stepper(
@@ -28,6 +25,9 @@ public:
         : num_steps(num_steps), co_ops(coo.clone())
     { }
 
+    std::unique_ptr<Stepper> clone() const override
+    { return std::make_unique<Split_operator_stepper>(*this); }
+
 private:
 
     friend class cereal::access;
@@ -35,7 +35,7 @@ private:
     template<class Archive>
     void serialize(Archive & ar)
     {
-        ar(cereal::base_class<Stepper>(this));
+        ar(cereal::virtual_base_class<Stepper>(this));
         ar(num_steps);
         ar(co_ops);
     }
