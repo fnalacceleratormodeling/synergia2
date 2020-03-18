@@ -109,7 +109,8 @@ PYBIND11_MODULE(bunch, m)
                 "particle_group"_a = ParticleGroup::regular )
 
         .def( "get_host_particles",
-                py::overload_cast<ParticleGroup>(&Bunch::get_host_particles),
+                (HostParticles (Bunch::*)(ParticleGroup))&Bunch::get_host_particles,
+                //py::overload_cast<ParticleGroup>(&Bunch::get_host_particles),
                 "Get host particles.",
                 "particle_group"_a = ParticleGroup::regular )
 

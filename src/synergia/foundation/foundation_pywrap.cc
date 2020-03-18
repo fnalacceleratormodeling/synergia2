@@ -117,12 +117,14 @@ PYBIND11_MODULE(foundation, m)
                 "four_momentum"_a )
 
         .def( "set_state", 
-                py::overload_cast<std::array<double, 6> const&>(&Reference_particle::set_state),
+                (void (Reference_particle::*)(std::array<double, 6> const&))&Reference_particle::set_state,
+                //py::overload_cast<std::array<double, 6> const&>(&Reference_particle::set_state),
                 "Set the state vector in the reference frame.",
                 "state"_a )
 
         .def( "set_state",
-                py::overload_cast<double, double, double, double, double, double>(&Reference_particle::set_state),
+                (void (Reference_particle::*)(double, double, double, double, double, double))&Reference_particle::set_state,
+                //py::overload_cast<double, double, double, double, double, double>(&Reference_particle::set_state),
                 "Set the state vector in the reference frame.",
                 "x"_a, "xp"_a, "y"_a, "yp"_a, "cdt"_a, "dpop"_a )
 

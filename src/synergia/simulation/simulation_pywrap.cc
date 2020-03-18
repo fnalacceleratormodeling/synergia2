@@ -90,19 +90,22 @@ PYBIND11_MODULE(simulation, m)
 #endif
 
         .def( "get_bunch",
-                py::overload_cast<size_t, size_t>(&Bunch_simulator::get_bunch, py::const_),
+                (Bunch const& (Bunch_simulator::*)(size_t, size_t) const)&Bunch_simulator::get_bunch,
+                //py::overload_cast<size_t, size_t>(&Bunch_simulator::get_bunch, py::const_),
                 py::return_value_policy::reference_internal,
                 "Get the bunch reference from the bunch_simulator.",
                 "train"_a = 0, "bunch"_a = 0 )
 
         .def( "reg_prop_action_step_end",
-                py::overload_cast<action_step_t>(&Bunch_simulator::reg_prop_action_step_end),
+                (void (Bunch_simulator::*)(action_step_t))&Bunch_simulator::reg_prop_action_step_end,
+                //py::overload_cast<action_step_t>(&Bunch_simulator::reg_prop_action_step_end),
                 "Register the step end propagate action (callback)."
                 "\nthe callback should have a signature of (Bunch_simulator, Lattice, turn_num, step_num)",
                 "action"_a )
 
         .def( "reg_prop_action_turn_end",
-                py::overload_cast<action_turn_t>(&Bunch_simulator::reg_prop_action_turn_end),
+                (void (Bunch_simulator::*)(action_turn_t))&Bunch_simulator::reg_prop_action_turn_end,
+                //py::overload_cast<action_turn_t>(&Bunch_simulator::reg_prop_action_turn_end),
                 "Register the turn end propagate action (callback)."
                 "\nthe callback should have a signature of (Bunch_simulator, Lattice, turn_num)",
                 "action"_a )

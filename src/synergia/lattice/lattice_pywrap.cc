@@ -59,12 +59,14 @@ PYBIND11_MODULE(lattice, m)
                 "name"_a )
 
         .def( "get_double_attribute", 
-                py::overload_cast<std::string const&>(&Lattice_element::get_double_attribute, py::const_),
+                (double (Lattice_element::*)(std::string const&) const)&Lattice_element::get_double_attribute,
+                //py::overload_cast<std::string const&>(&Lattice_element::get_double_attribute, py::const_),
                 "Get the value of the named double attribute",
                 "name"_a )
 
         .def( "get_double_attribute", 
-                py::overload_cast<std::string const&, double>(&Lattice_element::get_double_attribute, py::const_),
+                (double (Lattice_element::*)(std::string const&, double) const)&Lattice_element::get_double_attribute,
+                //py::overload_cast<std::string const&, double>(&Lattice_element::get_double_attribute, py::const_),
                 "Get the value of the named double attribute, or return the default",
                 "name"_a, "default"_a )
 
@@ -80,12 +82,14 @@ PYBIND11_MODULE(lattice, m)
                 "name"_a )
 
         .def( "get_string_attribute", 
-                py::overload_cast<std::string const&>(&Lattice_element::get_string_attribute, py::const_),
+                (std::string const& (Lattice_element::*)(std::string const&) const)&Lattice_element::get_string_attribute,
+                //py::overload_cast<std::string const&>(&Lattice_element::get_string_attribute, py::const_),
                 "Get the value of the named double attribute",
                 "name"_a )
 
         .def( "get_string_attribute", 
-                py::overload_cast<std::string const&, std::string const&>(&Lattice_element::get_string_attribute, py::const_),
+                (std::string const& (Lattice_element::*)(std::string const&, std::string const&) const)&Lattice_element::get_string_attribute,
+                //py::overload_cast<std::string const&, std::string const&>(&Lattice_element::get_string_attribute, py::const_),
                 "Get the value of the named string attribute, or return the default",
                 "name"_a, "default"_a )
 
@@ -101,12 +105,14 @@ PYBIND11_MODULE(lattice, m)
                 "name"_a )
 
         .def( "get_vector_attribute", 
-                py::overload_cast<std::string const&>(&Lattice_element::get_vector_attribute, py::const_),
+                (std::vector<double> const& (Lattice_element::*)(std::string const&) const)&Lattice_element::get_vector_attribute,
+                //py::overload_cast<std::string const&>(&Lattice_element::get_vector_attribute, py::const_),
                 "Get the value of the named vector attribute",
                 "name"_a )
 
         .def( "get_vector_attribute", 
-                py::overload_cast<std::string const&, std::vector<double> const&>(&Lattice_element::get_vector_attribute, py::const_),
+                (std::vector<double> const& (Lattice_element::*)(std::string const&, std::vector<double> const&) const)&Lattice_element::get_vector_attribute,
+                //py::overload_cast<std::string const&, std::vector<double> const&>(&Lattice_element::get_vector_attribute, py::const_),
                 "Get the value of the named vector attribute, or return the default",
                 "name"_a, "default"_a )
 
@@ -162,7 +168,8 @@ PYBIND11_MODULE(lattice, m)
                 "Get the lattice reference particle" )
 
         .def( "get_elements",
-                py::overload_cast<>(&Lattice::get_elements),
+                (std::list<Lattice_element>& (Lattice::*)())&Lattice::get_elements,
+                //py::overload_cast<>(&Lattice::get_elements),
                 py::return_value_policy::reference_internal,
                 "Get the list of all lattice elements" )
 
@@ -175,7 +182,8 @@ PYBIND11_MODULE(lattice, m)
                 "Get the total angle in radians subtended by all elements in the lattice" )
 
         .def( "get_elements_const",
-                py::overload_cast<>(&Lattice::get_elements, py::const_),
+                (std::list<Lattice_element> const& (Lattice::*)() const)&Lattice::get_elements,
+                //py::overload_cast<>(&Lattice::get_elements, py::const_),
                 py::return_value_policy::reference_internal,
                 "Get the list of all lattice elements" )
 
