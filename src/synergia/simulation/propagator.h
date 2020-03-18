@@ -3,7 +3,7 @@
 
 #include "synergia/lattice/lattice.h"
 
-#include "synergia/simulation/bunch_simulator.h"
+//#include "synergia/simulation/bunch_simulator.h"
 #include "synergia/simulation/step.h"
 #include "synergia/simulation/stepper.h"
 #include "synergia/simulation/independent_stepper_elements.h"
@@ -11,6 +11,8 @@
 #include "synergia/utils/cereal.h"
 
 #include <cereal/types/memory.hpp>
+
+class Bunch_simulator;
 
 class Propagator
 {

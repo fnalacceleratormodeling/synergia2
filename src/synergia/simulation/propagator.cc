@@ -1,6 +1,7 @@
 
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/checkpoint.h"
+#include "synergia/simulation/bunch_simulator.h"
 
 //#include "synergia/utils/simple_timer.h"
 #include "synergia/utils/digits.h"
