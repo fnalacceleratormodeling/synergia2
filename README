@@ -25,6 +25,21 @@ Enable simple timer profiling:
     cmake -DSIMPLE_TIMER=on
 
 
+Cori - KNL:
+
+    module load cmake
+    module switch craype-haswell craype-mic-knl
+    module load cray-fftw
+    module load python
+    module load gsl
+    module load cray-hdf5
+    module unload craype-hugepage2M
+
+    export CRAYPE_LINK_TYPE=dynamic
+
+    CC=cc CXX=CC cmake -DEIGEN3_INCLUDE_DIR:PATH=~/local/include/eigen3 -DFFTW3_LIBRARY_DIRS:PATH=${FFTW_ROOT}/lib -DKOKKOS_ENABLE_OPENMP=on ../synergia2/
+
+
 Power9:
 
     export PATH=$LOCAL_ROOT/bin:/usr/local/gnu8/gcc-8.3.0/bin:/usr/local/openmpi-4.0.2-gcc-8.3.0/bin:/usr/local/cmake3/3.16.2/bin:/usr/local/cuda/bin:$PATH
