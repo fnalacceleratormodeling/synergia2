@@ -113,6 +113,22 @@ PYBIND11_MODULE(bunch, m)
                 //py::overload_cast<ParticleGroup>(&Bunch::get_host_particles),
                 "Get host particles.",
                 "particle_group"_a = ParticleGroup::regular )
+        
+        .def( "size",
+                &Bunch::size,
+                "Get the number of particles (regular and lost particles)",
+                "particle_group"_a = ParticleGroup::regular )
+
+        .def( "capacity",
+                &Bunch::capacity,
+                "Get the number of all particle slots (regualr, lost, and reserved particles)",
+                "particle_group"_a = ParticleGroup::regular )
+
+        .def( "reserve",
+                &Bunch::reserve,
+                "Reserve the particle slots to the new capcity",
+                "capacity"_a, 
+                "particle_group"_a = ParticleGroup::regular )
 
         .def( "add_diagnostics",
                 []( Bunch& self,

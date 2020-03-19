@@ -66,7 +66,7 @@ adjust_moments( Bunch & bunch,
     dummy << C;
 
     int num_particles = bunch.get_local_num();
-    int num_particles_slots = bunch.get_local_num_slots();
+    int num_particles_slots = bunch.size();
 
     Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>
             rho7(bunch.get_host_particles().data(), num_particles_slots, 7);
@@ -111,8 +111,8 @@ adjust_moments( Bunch & bunch,
     karray1d bunch_mean = Core_diagnostics::calculate_mean(bunch);
     karray2d_row bunch_mom2 = Core_diagnostics::calculate_mom2(bunch, bunch_mean);
 
-    int num_particles = bunch.get_local_num();
-    int num_particles_slots = bunch.get_local_num_slots();
+    int num_particles = bunch.size();
+    int num_particles_slots = bunch.capacity();
 
     //auto strides = bunch.get_particle_strides();
     //int num_particles_slots = strides[1];

@@ -191,13 +191,19 @@ public:
     { return get_bunch_particles(pg).masks; }
 
     int get_total_num(ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).total_num(); }
+    { return get_bunch_particles(pg).num_total(); }
 
-    int get_local_num(ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num(); }
+    int get_local_num(ParticleGroup pg = PG::regular) const
+    { return get_bunch_particles(pg).num_valid(); }
 
-    int get_local_num_slots   (ParticleGroup pg = PG::regular) const 
-    { return get_bunch_particles(pg).local_num_slots(); }
+    int size(ParticleGroup pg = PG::regular) const 
+    { return get_bunch_particles(pg).size(); }
+
+    int capacity(ParticleGroup pg = PG::regular) const 
+    { return get_bunch_particles(pg).capacity(); }
+
+    void reserve(int n, ParticleGroup pg = PG::regular)
+    { get_bunch_particles(pg).reserve(n); }
 
 #if 0
     ///
@@ -228,7 +234,7 @@ public:
 
         auto & bp = get_bunch_particles(PG::regular);
         int old_total = bp.update_total_num(*comm);
-        real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;
+        real_num = old_total ? bp.num_total() * real_num / old_total : 0.0;
     }
 
     // aperture operation
@@ -444,7 +450,7 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
         int old_total = bp.update_total_num(*comm);
 
         if (pg == PG::regular)
-            real_num = old_total ? bp.total_num() * real_num / old_total : 0.0;
+            real_num = old_total ? bp.num_total() * real_num / old_total : 0.0;
     }
 
     // diagnostics

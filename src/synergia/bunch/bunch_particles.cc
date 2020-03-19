@@ -130,12 +130,16 @@ namespace
 }
 
 
-BunchParticles::BunchParticles(std::string const& label, int total_num, Commxx const& comm)
+BunchParticles::BunchParticles( 
+        std::string const& label, 
+        int total, int reserved, 
+        Commxx const& comm)
     : label(label)
-    , num(0)
-    , slots(0)
-    , total(total_num)
-    , last_discarded_(0)
+    , n_valid(0)
+    , n_active(0)
+    , n_reserved(0)
+    , n_total(total)
+    , n_last_discarded(0)
     , parts()
     , masks()
     , discards()
@@ -143,49 +147,78 @@ BunchParticles::BunchParticles(std::string const& label, int total_num, Commxx c
     , hmasks(Kokkos::create_mirror_view(masks))
     , hdiscards(Kokkos::create_mirror_view(discards))
 {
-    if (!comm.is_null() && total) 
+    // minimum reserved
+    if (reserved < total) reserved = total;
+
+    if (!comm.is_null() && reserved) 
     {
-        std::vector<int> offsets(comm.size());
-        std::vector<int> counts(comm.size());
-        decompose_1d(comm, total, offsets, counts);
+        int mpi_size = comm.size();
+        int mpi_rank = comm.rank();
+
+        std::vector<int> offsets_t(mpi_size);
+        std::vector<int> counts_t(mpi_size);
+        decompose_1d(comm, total, offsets_t, counts_t);
+
+        std::vector<int> offsets_r(mpi_size);
+        std::vector<int> counts_r(mpi_size);
+        decompose_1d(comm, reserved, offsets_r, counts_r);
 
         // local_num
-        num = counts[comm.rank()];
+        n_valid    = counts_t[mpi_rank];
+        n_active   = counts_t[mpi_rank];
 
         // allocate
-        parts = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding), num, 7);
-        slots = parts.stride(1);
+        parts = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding),
+                counts_r[mpi_rank], 7);
 
-        masks = ParticleMasks(label+"_masks", slots);
-        discards = ParticleMasks(label+"_discards", slots);
+        // with possible paddings
+        n_reserved = parts.stride(1);
+
+        masks = ParticleMasks(label+"_masks", n_reserved);
+        discards = ParticleMasks(label+"_discards", n_reserved);
 
         hparts = Kokkos::create_mirror_view(parts);
         hmasks = Kokkos::create_mirror_view(masks);
         hdiscards = Kokkos::create_mirror_view(discards);
 
         // id
-        assign_ids(offsets[comm.rank()], comm);
+        assign_ids(offsets_t[mpi_rank], comm);
 
         // valid particles
-        particle_masks_initializer pmi{masks, num};
-        Kokkos::parallel_for(slots, pmi);
+        particle_masks_initializer pmi{masks, n_valid};
+        Kokkos::parallel_for(n_reserved, pmi);
     } 
+}
+
+void BunchParticles::reserve(int n)
+{
+    if (n <= n_reserved) return;
+
+    Kokkos::resize(parts, n, 7);
+    n_reserved = parts.stride(1);
+
+    Kokkos::resize(masks, n_reserved);
+    Kokkos::resize(discards, n_reserved);
+
+    hparts = Kokkos::create_mirror_view(parts);
+    hmasks = Kokkos::create_mirror_view(masks);
+    hdiscards = Kokkos::create_mirror_view(discards);
 }
 
 void BunchParticles::assign_ids(int local_offset, Commxx const& comm)
 {
-    int request_num = (comm.rank() == 0) ? total : 0;
+    int request_num = (comm.rank() == 0) ? n_total : 0;
     int global_offset = Particle_id_offset::get(request_num, comm);
 
     particle_id_assigner pia{parts, local_offset + global_offset};
-    Kokkos::parallel_for(num, pia);
+    Kokkos::parallel_for(n_active, pia);
 }
 
 std::pair<karray2d_row, HostParticleMasks> 
 BunchParticles::get_particles_in_range(int idx, int n) const
 {
     // index out of range
-    if (idx == particle_index_null || idx < 0 || idx+n > slots)
+    if (idx == particle_index_null || idx < 0 || idx+n > n_active)
         throw std::runtime_error("Bunch::get_particle() index out of range");
 
     karray2d_row_dev p("sub_p", n, 7);
@@ -207,7 +240,7 @@ std::pair<karray1d_row, bool>
 BunchParticles::get_particle(int idx) const
 {
     // index out of range
-    if (idx == particle_index_null || idx < 0 || idx > slots)
+    if (idx == particle_index_null || idx < 0 || idx > n_active)
         throw std::runtime_error("Bunch::get_particle() index out of range");
 
     karray1d_row_dev p("particle", 7);
@@ -239,7 +272,7 @@ BunchParticles::search_particle(int pid, int last_idx) const
 
     int idx = particle_index_null;
     particle_finder pf{parts, pid};
-    Kokkos::parallel_reduce(num, pf, idx);
+    Kokkos::parallel_reduce(n_active, pf, idx);
 
     return idx;
 }
@@ -253,6 +286,7 @@ BunchParticles::get_particles_last_discarded() const
 }
 
 
+#if 0
 void
 BunchParticles::set_local_num(int n)
 {
@@ -353,31 +387,14 @@ BunchParticles::expand_local_num(int num, int added_lost)
     if (prev_local_particles) delete prev_local_particles;
 #endif
 }
+#endif
 
 int
 BunchParticles::update_total_num(Commxx const& comm)
 {
-    int old_total_num = total;
-    MPI_Allreduce(&num, &total, 1, MPI_INT, MPI_SUM, comm);
+    int old_total_num = n_total;
+    MPI_Allreduce(&n_valid, &n_total, 1, MPI_INT, MPI_SUM, comm);
     return old_total_num;
-}
-
-void
-BunchParticles::set_total_num(int totalnum)
-{
-#if 0
-    int old_total_num = total_num;
-    total_num = totalnum;
-
-    if (old_total_num != 0) 
-    {
-        real_num = (total_num * real_num) / old_total_num;
-    } 
-    else 
-    {
-        real_num = 0.0;
-    }
-#endif
 }
 
 void 
@@ -385,8 +402,10 @@ BunchParticles::check_pz2_positive()
 {
     checkout_particles();
 
-    for (int p = 0; p < num; ++p) 
+    for (int p = 0; p < n_active; ++p) 
     {
+        if (!hmasks(p)) continue;
+
         double pzop2 = (1. + hparts(p, 5)) * (1. + hparts(p, 5))
             - hparts(p, 1) * hparts(p, 1)
             - hparts(p, 3) * hparts(p, 3);
@@ -402,24 +421,35 @@ BunchParticles::check_pz2_positive()
 void
 BunchParticles::read_file_legacy(Hdf5_file const& file, Commxx const& comm)
 {
-    std::vector<int> offsets(comm.size());
-    std::vector<int> counts(comm.size());
-    decompose_1d(comm, total, offsets, counts);
+    auto dims = file.get_dims("particles");
+    if (dims.size() != 2 || dims[1] != 7)
+    {
+        throw std::runtime_error(
+                "BunchParticle::read_file_legacy(): wrong data dimensions in file");
+    }
+
+    int file_total = dims[0];
+    int file_num = decompose_1d_local(comm, file_total);
 
     // size check
-    if (num != counts[comm.rank()]) 
+    if (n_active != file_num)
     {
         throw std::runtime_error( 
                 " local_num incompatibility when initializing the bunch");
     }
 
     // read
-    auto read_particles = file.read<karray2d_row>("particles", num);
+    auto read_particles = file.read<karray2d_row>("particles", n_active);
 
     // transpose: read_particles is row major, hparts is col major
-    for (int part = 0; part < num; ++part) 
+    for (int part = 0; part < n_active; ++part) 
         for (int i = 0; i < 7; ++i) 
             hparts(part, i) = read_particles(part, i);
+
+    // all particles in the legacy file are valid
+    n_valid = n_active;
+    particle_masks_initializer pmi{masks, n_valid};
+    Kokkos::parallel_for(n_reserved, pmi);
 
     // check in to device mem
     checkin_particles();
@@ -429,30 +459,34 @@ void
 BunchParticles::read_file(Hdf5_file const& file, Commxx const& comm)
 {
     auto dims = file.get_dims(label);
-
     if (dims.size() != 2 || dims[1] != 7)
     {
         throw std::runtime_error(
-                "BunchParticle::read_file(): wrong data dimensions");
+                "BunchParticle::read_file(): wrong data dimensions in file");
     }
 
     int file_total = dims[0];
     int file_num = decompose_1d_local(comm, file_total);
 
-    // allocate
-    num   = 0;
-    total = 0;
+    // allocation if capacity is smaller
+    if (n_reserved < file_num)
+    {
+        parts = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding),
+                file_num, 7);
+        n_reserved = parts.stride(1);
 
-    parts = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding), file_num, 7);
-    slots = parts.stride(1);
+        masks = ParticleMasks(label+"_masks", n_reserved);
+        discards = ParticleMasks(label+"_discards", n_reserved);
 
-    masks = ParticleMasks(label+"_masks", slots);
+        hparts = Kokkos::create_mirror_view(parts);
+        hmasks = Kokkos::create_mirror_view(masks);
+        hdiscards = Kokkos::create_mirror_view(discards);
+    }
 
-    hparts = Kokkos::create_mirror_view(parts);
-    hmasks = Kokkos::create_mirror_view(masks);
-
-    // if slots > num, init the masks for that part
-    for(int i=file_num; i<slots; ++i) hmasks(i) = 0;
+    // reset the pointers
+    n_valid  = 0;
+    n_total  = 0;
+    n_active = file_num;
 
     // read from file
     auto read_particles = file.read<karray2d_row>(label, file_num);
@@ -465,8 +499,7 @@ BunchParticles::read_file(Hdf5_file const& file, Commxx const& comm)
             hparts(part, i) = read_particles(part, i);
 
         hmasks(part) = read_masks(part);
-
-        if (hmasks(part)) ++num;
+        if (hmasks(part)) ++n_valid;
     }
 
     // now we have the actual local num, update the total number
@@ -485,7 +518,7 @@ BunchParticles::write_file(Hdf5_file const& file,
 
     if (num_part == -1)
     {
-        local_num_part = slots;
+        local_num_part = n_active;
         local_offset = 0;
     }
     else
@@ -495,7 +528,7 @@ BunchParticles::write_file(Hdf5_file const& file,
     }
 
     if (local_num_part < 0 || local_offset < 0 
-            || local_num_part + local_offset > slots)
+            || local_num_part + local_offset > n_active)
     {
         throw std::runtime_error(
                 "invalid num_part or offset for BunchParticles::write_file()");

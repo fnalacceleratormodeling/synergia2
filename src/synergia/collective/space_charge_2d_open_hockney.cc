@@ -428,8 +428,8 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     scoped_simple_timer timer("sc2d_local_rho");
 
-    if (bunch.get_local_num_slots() > particle_bin.extent(0))
-        Kokkos::resize(particle_bin, bunch.get_local_num_slots(), 6);
+    if (bunch.size() > particle_bin.extent(0))
+        Kokkos::resize(particle_bin, bunch.size(), 6);
 
     deposit_charge_rectangular_2d_kokkos_scatter_view(rho2,
             doubled_domain, particle_bin, bunch);
@@ -625,7 +625,7 @@ Space_charge_2d_open_hockney::apply_kick(
     alg_kicker kicker(parts, masks, phi2, rho2, particle_bin,
             doubled_domain.get_grid_shape(), factor);
 
-    Kokkos::parallel_for(bunch.get_local_num_slots(), kicker);
+    Kokkos::parallel_for(bunch.size(), kicker);
     Kokkos::fence();
 }
 

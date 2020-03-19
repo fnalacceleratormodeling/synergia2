@@ -75,7 +75,9 @@ private:
     /*
      * Local Particle Array Memory Layout:
      *
-     *   P: particle, I: invalid particle
+     *   P: regular particle, 
+     *   I: invalid (lost) particle
+     *   R: reserved particle
      *
      *    part       mask
      *   +=====+    +=====+
@@ -94,27 +96,45 @@ private:
      *   |  I  |    |  0  |
      *   +-----+    +-----+
      *   |  P  |    |  1  |
+     *   +-----+    +-----+
+     *   |  R  |    |  0  |
+     *   +-----+    +-----+
+     *   |  R  |    |  0  |
+     *   +-----+    +-----+
+     *   |  R  |    |  0  |
+     *   +-----+    +-----+
+     *   |  R  |    |  0  |
      *   +=====+    +=====+ 
      *
-     *   slots = 8   (num of slots)
-     *   num = 5     (num of local particles)
+     *   num_valid    = 5   -- num_valid()
+     *   num_active   = 8   -- size()
+     *   num_reserved = 12  -- capacity()
      *
-     *   when allocating an particle array, the padding flag of the Kokkos::View
-     *   object is turned on. So the 'slots' is the actual array size in the 
-     *   first dimension.
+     *   when allocating an particle array, the padding flag of the 
+     *   Kokkos::View object is turned on. So the 'num_reserved' is 
+     *   the actual array size in the first dimension.
      *
-     *   'num' is the actual number of local particles.
+     *   'num_valid' is the number of remainig local particles in
+     *   the bunch
+     *
+     *   'num_active' is the number of local particles including lost
+     *   ones. This one should be used when looping through the 
+     *   particles array
      *
      */
 
     std::string label;
 
-    int num;
-    int slots;
-    int total;
+    // see the memory layout
+    int n_valid;
+    int n_active;
+    int n_reserved;
+
+    // sum of n_valid on all ranks
+    int n_total; 
 
     // number of particles discarded from the most recent aperture apply.
-    int last_discarded_;
+    int n_last_discarded;
 
 
 public:
@@ -127,31 +147,40 @@ public:
     HostParticleMasks hmasks;
     HostParticleMasks hdiscards;
 
-    BunchParticles(std::string const& label, int total_num, Commxx const& comm);
+public:
 
-    int local_num()         const { return num; }
-    int local_num_slots()   const { return slots; }
-    int total_num()         const { return total; }
-    int last_discarded()    const { return last_discarded_; }
+    // particles array will be allocated to the size of reserved_num
+    // if reserved is less than total, it will be set to the total_num
+    BunchParticles( 
+            std::string const& label, 
+            int total_num, 
+            int reserved_num, 
+            Commxx const& comm );
 
+    int num_valid()          const { return n_valid; }
+    int num_active()         const { return n_active; }
+    int num_reserved()       const { return n_reserved; }
+    int num_total()          const { return n_total; }
+    int num_last_discarded() const { return n_last_discarded; }
+
+    // getters with names more consistent with std containers
+    int size()     const { return n_active; }
+    int capacity() const { return n_reserved; }
+
+    // copy particles/masks between host and device memories
     void checkin_particles() const
     { Kokkos::deep_copy(parts, hparts); Kokkos::deep_copy(masks, hmasks); }
 
     void checkout_particles()  const
     { Kokkos::deep_copy(hparts, parts); Kokkos::deep_copy(hmasks, masks); }
 
-    void assign_ids(int local_offset, Commxx const& comm);
+    // change capacity (can only increase)
+    void reserve(int n);
 
-    void set_local_num(int num);
+#if 0
     void set_total_num(int num);
     void expand_local_num(int num, int added_lost);
-
-    // read from a hdf5 file. total_num of current bunch must be the same 
-    // as the one stored in the particle file
-    void read_file_legacy(Hdf5_file const& file, Commxx const& comm);
-
-    void read_file (Hdf5_file const& file, Commxx const& comm);
-    void write_file(Hdf5_file const& file, int num_part, int offset, Commxx const& comm) const;
+#endif
 
     // update total num across the ranks and returns the old total number
     int update_total_num(Commxx const& comm);
@@ -160,6 +189,7 @@ public:
     template<typename AP>
     int apply_aperture(AP const& ap);
 
+    // search/get particle(s)
     int search_particle(int pid, int last_idx) const;
 
     std::pair<karray1d_row, bool>              
@@ -168,25 +198,39 @@ public:
     std::pair<karray2d_row, HostParticleMasks> 
     get_particles_in_range(int idx, int num) const;
 
-    karray2d_row get_particles_last_discarded() const;
+    karray2d_row 
+    get_particles_last_discarded() const;
 
     void check_pz2_positive();
     void print_particle(size_t idx, Logger & logger) const;
 
+    // read from a hdf5 file. total_num of current bunch must be the same 
+    // as the one stored in the particle file
+    void read_file_legacy(Hdf5_file const& file, Commxx const& comm);
+
+    void read_file (Hdf5_file const& file, Commxx const& comm);
+    void write_file(Hdf5_file const& file, int num_part, int offset, Commxx const& comm) const;
+
+    // checkpoint save/load
     void save_checkpoint_particles(Hdf5_file & file, int idx) const;
     void load_checkpoint_particles(Hdf5_file & file, int idx);
 
 private:
 
+    void assign_ids(int local_offset, Commxx const& comm);
+
+    // serialization
     friend class cereal::access;
 
     template<class AR>
     void save(AR & ar) const
     { 
         ar(CEREAL_NVP(label));
-        ar(CEREAL_NVP(num));
-        ar(CEREAL_NVP(slots));
-        ar(CEREAL_NVP(total));
+        ar(CEREAL_NVP(n_valid));
+        ar(CEREAL_NVP(n_active));
+        ar(CEREAL_NVP(n_reserved));
+        ar(CEREAL_NVP(n_total));
+
         ar(CEREAL_NVP(parts));
         ar(CEREAL_NVP(masks));
         ar(CEREAL_NVP(discards));
@@ -195,9 +239,12 @@ private:
     template<class AR>
     void load(AR & ar)
     { 
-        ar(CEREAL_NVP(num));
-        ar(CEREAL_NVP(slots));
-        ar(CEREAL_NVP(total));
+        ar(CEREAL_NVP(label));
+        ar(CEREAL_NVP(n_valid));
+        ar(CEREAL_NVP(n_active));
+        ar(CEREAL_NVP(n_reserved));
+        ar(CEREAL_NVP(n_total));
+
         ar(CEREAL_NVP(parts));
         ar(CEREAL_NVP(masks));
         ar(CEREAL_NVP(discards));
@@ -334,11 +381,12 @@ inline int BunchParticles::apply_aperture(AP const& ap)
 
     // go through each particle to see which one is been filtered out
     discard_applier<AP> da{ap, parts, masks, discards};
-    Kokkos::parallel_reduce(slots, da, ndiscarded);
+    Kokkos::parallel_reduce(n_active, da, ndiscarded);
 
     //std::cout << "      discarded = " << ndiscarded << "\n";
-    last_discarded_ = ndiscarded;
-    set_local_num(num - ndiscarded);
+    n_last_discarded = ndiscarded;
+    n_valid -= ndiscarded;
+
     return ndiscarded;
 
 #if 0
@@ -357,8 +405,8 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     Kokkos::parallel_for(1, pm);
 
     // adjust the array pointers
-    last_discarded_ = ndiscarded;
-    set_local_num(num - ndiscarded);
+    n_last_discarded = ndiscarded;
+    n_valid -= ndiscarded;
 
     return ndiscarded;
 #endif

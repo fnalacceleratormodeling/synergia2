@@ -30,8 +30,9 @@ void print_statistics(Bunch & bunch, Logger & logger)
 {
     logger(LV::DEBUG)
         << "Bunch statistics: "
-        << "local_num = " << bunch.get_local_num()
-        << ", local_slots = " << bunch.get_local_num_slots()
+        << "num_valid = " << bunch.get_local_num()
+        << ", size = " << bunch.size()
+        << ", capacity = " << bunch.capacity()
         << ", total_num = " << bunch.get_total_num()
         <<"\nMean and std: ";
 
@@ -211,10 +212,34 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // get bunch
     auto & bunch = sim.get_bunch();
 
+#if 0
+    // populate particle data
+    karray1d means("means", 6);
+    for (int i=0; i<6; ++i) means(i) = 0.0;
+
+    karray2d_row covariances("covariances", 6, 6);
+    for (int i=0; i<6; ++i)
+        for (int j=0; j<6; ++j)
+            covariances(i, j) = 0.0;
+
+    covariances(0,0) = 1e-2;
+    covariances(1,1) = 1e-2;
+    covariances(2,2) = 1e-2;
+    covariances(3,3) = 1e-2;
+    covariances(4,4) = 1e-2;
+    covariances(5,5) = 1e-2;
+
+    Random_distribution dist(5, Commxx());
+    populate_6d(dist, bunch, means, covariances);
+#endif
+
+
+#if 1
     // or read from file
     //bunch.read_file_legacy("turn_particles_0000_4M.h5");
     //bunch.write_file("bunch_particles_4M.h5");
     bunch.read_file("bunch_particles_4M.h5");
+#endif
 
     // statistics before propagate
     print_statistics(bunch, screen);

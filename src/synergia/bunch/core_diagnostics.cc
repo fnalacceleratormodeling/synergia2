@@ -184,7 +184,7 @@ Core_diagnostics::calculate_mean(Bunch const & bunch)
 
     auto particles = bunch.get_local_particles();
     auto masks = bunch.get_local_particles_masks();
-    const int npart = bunch.get_local_num_slots();
+    const int npart = bunch.size();
 
     particle_reducer<mean_tag> pr(particles, masks);
     Kokkos::parallel_reduce("cal_mean", npart, pr, mean.data());
@@ -206,7 +206,7 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
 
     auto particles = bunch.get_local_particles();
     auto masks = bunch.get_local_particles_masks();
-    const int npart = bunch.get_local_num_slots();
+    const int npart = bunch.size();
 
     particle_reducer<z_mean_tag> pr(particles, masks);
     Kokkos::parallel_reduce(npart, pr, &mean);
@@ -290,7 +290,7 @@ Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
 
     auto particles = bunch.get_local_particles();
     auto masks = bunch.get_local_particles_masks();
-    const int npart = bunch.get_local_num_slots();
+    const int npart = bunch.size();
 
     particle_reducer<std_tag> pr(particles, masks, mean);
     Kokkos::parallel_reduce(npart, pr, std.data());
@@ -357,7 +357,7 @@ Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
 
     auto particles = bunch.get_local_particles();
     auto masks = bunch.get_local_particles_masks();
-    auto npart = bunch.get_local_num_slots();
+    auto npart = bunch.size();
 
     particle_reducer<mom2_tag> pr(particles, masks, mean);
     Kokkos::parallel_reduce(npart, pr, sum2.data());
@@ -397,7 +397,7 @@ Core_diagnostics::calculate_min(Bunch const& bunch)
 
     auto particles = bunch.get_local_particles();
     auto masks = bunch.get_local_particles_masks();
-    const int npart = bunch.get_local_num_slots();
+    const int npart = bunch.size();
 
     particle_reducer<min_tag> pr(particles, masks);
     Kokkos::parallel_reduce("cal_min", npart, pr, min);
@@ -420,7 +420,7 @@ Core_diagnostics::calculate_max(Bunch const& bunch)
 
     auto particles = bunch.get_local_particles();
     auto masks = bunch.get_local_particles_masks();
-    const int npart = bunch.get_local_num_slots();
+    const int npart = bunch.size();
 
     particle_reducer<max_tag> pr(particles, masks);
     Kokkos::parallel_reduce("cal_max", npart, pr, max);

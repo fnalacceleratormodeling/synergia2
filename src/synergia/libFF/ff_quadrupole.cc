@@ -227,7 +227,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         ref_l.set_state(x, xp, y, yp, 0.0, dpop);
 
         // propagate the bunch particles
-        int num = bunch.get_local_num_slots(ParticleGroup::regular);
+        int num = bunch.size(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
         auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 
@@ -248,7 +248,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double ref_t = get_reference_cdt(length, steps, k, ref_l);
 
         // bunch particles
-        int num = bunch.get_local_num_slots(ParticleGroup::regular);
+        int num = bunch.size(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
         auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 

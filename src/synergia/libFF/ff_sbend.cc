@@ -495,7 +495,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     {
         prop_reference(ref_l, sp);
 
-        int num = bunch.get_local_num_slots(ParticleGroup::regular);
+        int num = bunch.size(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
         auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 
@@ -508,7 +508,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         prop_reference_cf(ref_l, sp);
 
         // propagate bunch regular particles
-        int num = bunch.get_local_num_slots(ParticleGroup::regular);
+        int num = bunch.size(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
         auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 

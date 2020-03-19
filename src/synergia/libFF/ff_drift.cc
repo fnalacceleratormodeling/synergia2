@@ -48,10 +48,10 @@ namespace
     void apply_impl(BunchParticles & bp, 
             double length, double ref_p, double mass, double ref_cdt)
     {
-        if (bp.local_num())
+        if (bp.num_valid())
         {
             PropDrift drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
-            Kokkos::parallel_for(bp.local_num_slots(), drift);
+            Kokkos::parallel_for(bp.size(), drift);
         }
     }
 

@@ -37,8 +37,8 @@ Diagnostics_bulk_track::do_update(Bunch const& bunch)
         local_num_tracks = decompose_1d_local(comm, total_num_tracks);
         local_offset = decompose_1d_local(comm, offset);
 
-        if (local_num_tracks + local_offset > bunch.get_local_num_slots()) 
-            local_num_tracks = bunch.get_local_num_slots() - local_offset;
+        if (local_num_tracks + local_offset > bunch.size()) 
+            local_num_tracks = bunch.size() - local_offset;
 
         setup = true;
     }

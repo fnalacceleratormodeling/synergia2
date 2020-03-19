@@ -194,7 +194,7 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     ref_l.set_state(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, ref_l_dpop);
 
     // bunch particles
-    int num = bunch.get_local_num_slots(ParticleGroup::regular);
+    int num = bunch.size(ParticleGroup::regular);
     auto parts = bunch.get_local_particles(ParticleGroup::regular);
     auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
 

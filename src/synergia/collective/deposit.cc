@@ -354,7 +354,7 @@ deposit_charge_rectangular_2d_kokkos_scatter_view(
 
     auto parts = bunch.get_local_particles();
     auto masks = bunch.get_local_particles_masks();
-    int nparts = bunch.get_local_num_slots();
+    int nparts = bunch.size();
 
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
             * bunch.get_particle_charge() * pconstants::e
