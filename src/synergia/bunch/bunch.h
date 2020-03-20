@@ -203,7 +203,7 @@ public:
     { return get_bunch_particles(pg).capacity(); }
 
     void reserve(int n, ParticleGroup pg = PG::regular)
-    { get_bunch_particles(pg).reserve(n); }
+    { get_bunch_particles(pg).reserve(n, *comm); }
 
 #if 0
     ///

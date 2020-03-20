@@ -209,12 +209,13 @@ BunchParticles::BunchParticles(
     } 
 }
 
-void BunchParticles::reserve(int n)
+void BunchParticles::reserve(int n, Commxx const& comm)
 {
-    if (n <= n_reserved) return;
+    int r = decompose_1d_local(comm, n);
+    if (r <= n_reserved) return;
 
     auto new_parts = Particles(
-            Kokkos::view_alloc(label, Kokkos::AllowPadding), n, 7);
+            Kokkos::view_alloc(label, Kokkos::AllowPadding), r, 7);
     n_reserved = new_parts.stride(1);
 
     raw_particle_copier rpc{parts, new_parts};

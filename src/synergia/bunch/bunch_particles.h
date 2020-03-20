@@ -175,7 +175,7 @@ public:
     { Kokkos::deep_copy(hparts, parts); Kokkos::deep_copy(hmasks, masks); }
 
     // change capacity (can only increase)
-    void reserve(int n);
+    void reserve(int n, Commxx const& comm);
 
 #if 0
     void set_total_num(int num);
