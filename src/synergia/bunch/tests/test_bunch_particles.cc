@@ -74,4 +74,66 @@ TEST_CASE("BunchParticles", "[BunchParticles]")
 
         check_particle_values(bp);
     }
+
+    SECTION("write/read file")
+    {
+        {
+            Hdf5_file file("bp_test.h5", Hdf5_file::truncate, Commxx::World);
+            bp.write_file(file, -1, 0, Commxx::World);
+        }
+
+        SECTION("read into 0 sized bunch particle")
+        {
+            BunchParticles bp2("test", 0, 0, Commxx::World);
+
+            REQUIRE(bp2.size() == 0);
+            REQUIRE(bp2.capacity() >= 0);
+            REQUIRE(bp2.num_valid() == 0);
+
+            Hdf5_file file("bp_test.h5", Hdf5_file::read_only, Commxx::World);
+            bp2.read_file(file, Commxx::World);
+
+            REQUIRE(bp2.size() == np);
+            REQUIRE(bp2.capacity() >= np);
+            REQUIRE(bp2.num_valid() == np - losts.size());
+
+            check_particle_values(bp2);
+        }
+
+        SECTION("read into 0 size but reserved bunch particle")
+        {
+            BunchParticles bp2("test", 0, np+6, Commxx::World);
+
+            REQUIRE(bp2.size() == 0);
+            REQUIRE(bp2.capacity() >= np+6);
+            REQUIRE(bp2.num_valid() == 0);
+
+            Hdf5_file file("bp_test.h5", Hdf5_file::read_only, Commxx::World);
+            bp2.read_file(file, Commxx::World);
+
+            REQUIRE(bp2.size() == np);
+            REQUIRE(bp2.capacity() >= np+6);
+            REQUIRE(bp2.num_valid() == np - losts.size());
+
+            check_particle_values(bp2);
+        }
+
+        SECTION("read into non-zero sized bunch particle")
+        {
+            BunchParticles bp2("test", np+6, -1, Commxx::World);
+
+            REQUIRE(bp2.size() == np+6);
+            REQUIRE(bp2.capacity() >= np+6);
+            REQUIRE(bp2.num_valid() == np+6);
+
+            Hdf5_file file("bp_test.h5", Hdf5_file::read_only, Commxx::World);
+            bp2.read_file(file, Commxx::World);
+
+            REQUIRE(bp2.size() == np);
+            REQUIRE(bp2.capacity() >= np+6);
+            REQUIRE(bp2.num_valid() == np - losts.size());
+
+            check_particle_values(bp2);
+        }
+    }
 }
