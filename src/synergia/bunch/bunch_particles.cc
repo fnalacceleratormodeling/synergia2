@@ -127,6 +127,14 @@ namespace
         { for (int j=0; j<7; ++j) parts(offset+i, j) = 0.0; }
     };
 
+    struct mask_reducer
+    {
+        ConstParticleMasks masks;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i, int& valid) const
+        { if(masks(i)) ++valid; }
+    };
 }
 
 
@@ -389,6 +397,15 @@ BunchParticles::expand_local_num(int num, int added_lost)
 #endif
 }
 #endif
+
+int
+BunchParticles::update_valid_num()
+{
+    int old_valid_num = n_valid;
+    mask_reducer mr{masks};
+    Kokkos::parallel_reduce(n_active, mr, n_valid);
+    return old_valid_num;
+}
 
 int
 BunchParticles::update_total_num(Commxx const& comm)

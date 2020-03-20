@@ -172,7 +172,7 @@ public:
     void checkin_particles() const
     { Kokkos::deep_copy(parts, hparts); Kokkos::deep_copy(masks, hmasks); }
 
-    void checkout_particles()  const
+    void checkout_particles() const
     { Kokkos::deep_copy(hparts, parts); Kokkos::deep_copy(hmasks, masks); }
 
     // change capacity (can only increase)
@@ -182,6 +182,9 @@ public:
     void set_total_num(int num);
     void expand_local_num(int num, int added_lost);
 #endif
+
+    // update the valid num from the masks and return the old valid num
+    int update_valid_num();
 
     // update total num across the ranks and returns the old total number
     int update_total_num(Commxx const& comm);
