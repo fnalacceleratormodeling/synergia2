@@ -46,6 +46,24 @@ namespace
     };
 
     // Kokkos functors
+    struct raw_particle_copier
+    {
+        ConstParticles src;
+        Particles dst;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            dst(i, 0) = src(i, 0);
+            dst(i, 1) = src(i, 1);
+            dst(i, 2) = src(i, 2);
+            dst(i, 3) = src(i, 3);
+            dst(i, 4) = src(i, 4);
+            dst(i, 5) = src(i, 5);
+            dst(i, 6) = src(i, 6);
+        }
+    };
+
     struct particle_copier_many
     {
         ConstParticles src;
@@ -168,7 +186,8 @@ BunchParticles::BunchParticles(
         n_active   = counts_t[mpi_rank];
 
         // allocate
-        parts = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding),
+        parts = Particles(
+                Kokkos::view_alloc(label, Kokkos::AllowPadding), 
                 counts_r[mpi_rank], 7);
 
         // with possible paddings
@@ -194,8 +213,19 @@ void BunchParticles::reserve(int n)
 {
     if (n <= n_reserved) return;
 
+    auto new_parts = Particles(
+            Kokkos::view_alloc(label, Kokkos::AllowPadding), n, 7);
+    n_reserved = new_parts.stride(1);
+
+    raw_particle_copier rpc{parts, new_parts};
+    Kokkos::parallel_for(n_active, rpc);
+
+#if 0
+    // resize does not align the memory 
+    // for the newly allocated view
     Kokkos::resize(parts, n, 7);
     n_reserved = parts.stride(1);
+#endif
 
     Kokkos::resize(masks, n_reserved);
     Kokkos::resize(discards, n_reserved);

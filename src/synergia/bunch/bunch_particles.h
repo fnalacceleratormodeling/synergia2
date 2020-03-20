@@ -107,8 +107,8 @@ private:
      *   +=====+    +=====+ 
      *
      *   num_valid    = 5   -- num_valid()
-     *   num_active   = 8   -- size()
-     *   num_reserved = 12  -- capacity()
+     *   num_active   = 8   -- num_active() / size()
+     *   num_reserved = 12  -- num_reserved() / capacity()
      *
      *   when allocating an particle array, the padding flag of the 
      *   Kokkos::View object is turned on. So the 'num_reserved' is 
