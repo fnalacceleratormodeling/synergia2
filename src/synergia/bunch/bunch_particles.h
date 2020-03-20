@@ -37,9 +37,10 @@ namespace cereal
     {
         std::string label;
         int slots;
-
         ar(label, slots);
-        p = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding), slots, 7);
+
+        auto alloc = Kokkos::view_alloc(label, Kokkos::AllowPadding);
+        p = Particles(alloc, slots);
 
         if (p.stride(1) != slots)
             throw std::runtime_error("inconsistent padding while loading particles");
@@ -49,7 +50,7 @@ namespace cereal
     template<class AR>
     void save(AR & ar, ParticleMasks const& p)
     {
-        ar(p.label(), p.dimension(0));
+        ar(p.label(), p.extent(0));
     }
 
     template<class AR>

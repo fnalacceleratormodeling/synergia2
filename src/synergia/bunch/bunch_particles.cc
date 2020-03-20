@@ -186,9 +186,8 @@ BunchParticles::BunchParticles(
         n_active   = counts_t[mpi_rank];
 
         // allocate
-        parts = Particles(
-                Kokkos::view_alloc(label, Kokkos::AllowPadding), 
-                counts_r[mpi_rank], 7);
+        auto alloc = Kokkos::view_alloc(label, Kokkos::AllowPadding);
+        parts = Particles(alloc, counts_r[mpi_rank]);
 
         // with possible paddings
         n_reserved = parts.stride(1);
@@ -214,8 +213,8 @@ void BunchParticles::reserve(int n, Commxx const& comm)
     int r = decompose_1d_local(comm, n);
     if (r <= n_reserved) return;
 
-    auto new_parts = Particles(
-            Kokkos::view_alloc(label, Kokkos::AllowPadding), r, 7);
+    auto alloc = Kokkos::view_alloc(label, Kokkos::AllowPadding);
+    auto new_parts = Particles(alloc, r);
     n_reserved = new_parts.stride(1);
 
     raw_particle_copier rpc{parts, new_parts};
@@ -502,8 +501,8 @@ BunchParticles::read_file(Hdf5_file const& file, Commxx const& comm)
     // allocation if capacity is smaller
     if (n_reserved < file_num)
     {
-        parts = Particles(Kokkos::view_alloc(label, Kokkos::AllowPadding),
-                file_num, 7);
+        auto alloc = Kokkos::view_alloc(label, Kokkos::AllowPadding);
+        parts = Particles(alloc, file_num);
         n_reserved = parts.stride(1);
 
         masks = ParticleMasks(label+"_masks", n_reserved);

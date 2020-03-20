@@ -212,6 +212,9 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // get bunch
     auto & bunch = sim.get_bunch();
 
+    // reserve particle slots
+    bunch.reserve(6000000);
+
 #if 0
     // populate particle data
     karray1d means("means", 6);

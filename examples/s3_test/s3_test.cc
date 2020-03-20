@@ -153,7 +153,7 @@ void print_layout_props(T const& a)
         << "dim: " << a.extent(0) << ", " << a.extent(1)
         << ", stride: " << a.stride(0) << ", " << a.stride(1)
         << ", size = " << a.size()
-        << ", cap = " << a.capacity()
+        << ", cap = " << a.span()
         << "\n";
 }
 

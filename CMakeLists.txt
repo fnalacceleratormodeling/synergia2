@@ -44,7 +44,7 @@ option(SIMPLE_TIMER "use the simple timer 2 profiling" Off)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" On)
 
 # only build the shared lib
-set(BUILD_SHARED_LIBS TRUE)
+option(BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 
 # find MPI -- do not build the C++ bindings
 set(MPI_CXX_SKIP_MPICXX TRUE CACHE BOOL "disable the MPI2-C++ bindings")
