@@ -58,6 +58,43 @@ Bunch::get_local_particles_serialization_path() const
 }
 #endif
 
+
+namespace
+{
+    struct particle_injector
+    {
+        Particles dst;
+        ConstParticles src;
+
+        karray1d_dev ref_st_diff;
+        karray1d_dev tgt_st;
+        karray1d_dev inj_st;
+
+        int off;
+        double pdiff;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            // space-like coordinates
+            dst(off+i, 0) = src(i, 0) + ref_st_diff(0);
+            dst(off+i, 2) = src(i, 2) + ref_st_diff(2);
+            dst(off+i, 4) = src(i, 4) + ref_st_diff(4);
+
+            // npx and npy coordinates are scaled with p_ref which can be different
+            // for different bunches
+            dst(off+i, 1) = pdiff * (src(i, 1) - inj_st(1)) + tgt_st(1);
+            dst(off+i, 3) = pdiff * (src(i, 3) - inj_st(3)) + tgt_st(3);
+
+            // ndp coordinate is delta-p scaled with pref
+            dst(off+i, 5) = pdiff * (1.0 + src(i, 5) - inj_st(5)) + tgt_st(5) - 1.0;
+
+            // particle id
+            dst(off+i, 6) = src(i, 6);
+        }
+    };
+}
+
 Bunch::Bunch(
         Reference_particle const& reference_particle, 
         int total_num, 
@@ -99,9 +136,105 @@ Bunch::Bunch()
 }
 
 void
-Bunch::inject(Bunch const& bunch)
+Bunch::inject_impl(
+        ParticleGroup pg, 
+        Bunch const& o,
+        karray1d_dev ref_st_diff,
+        karray1d_dev tgt_st,
+        karray1d_dev inj_st,
+        double pdiff )
 {
-    throw std::runtime_error("Bunch::inject not implemented");
+    // empty bunch
+    if (!o.size(pg)) return;
+
+    // expand the particle array
+    reserve_local(size(pg) + o.size(pg), pg);
+
+    // get particles
+    auto p = get_local_particles(pg);
+    auto op = o.get_local_particles(pg);
+
+    particle_injector pi{ p, op,
+        ref_st_diff, tgt_st, inj_st, 
+        size(pg), pdiff
+    };
+
+    Kokkos::parallel_for(o.size(pg), pi);
+}
+
+void
+Bunch::inject(Bunch const& o)
+{
+    const double weight_tolerance = 1.0e-14;
+    const double particle_tolerance = 1.0e-14;
+
+    auto const& ref = ref_part;
+    auto const& oref = o.ref_part;
+
+    // The charge and mass of the bunch particles must match
+    if (particle_charge != o.particle_charge) 
+    {
+        throw std::runtime_error(
+                "Bunch.inject: bunch particle charges do not match.");
+    }
+
+    if (std::abs(ref.get_mass()/oref.get_mass() - 1.0) > particle_tolerance) 
+    {
+        throw std::runtime_error(
+                "Bunch:inject: bunch particle masses do not match.");
+    }
+
+    // total num for regualr particles
+    int total_num = parts[0].num_total();
+
+    // can only check particle weight if total_num is nonzero
+    if (total_num != 0) 
+    {
+        double wgt1 = real_num/total_num;
+        double wgt2 = o.get_real_num()/o.get_total_num();
+
+        if (std::abs(wgt1/wgt2 - 1.0) > weight_tolerance) 
+        {
+            throw std::runtime_error(
+                "Bunch.inject: macroparticle weight of injected bunch does not match.");
+        }
+    }
+
+    // prepare
+    double target_momentum = ref.get_momentum();
+    double injected_momentum = oref.get_momentum();
+    double pdiff = injected_momentum / target_momentum;
+
+    karray1d_dev ref_st_diff("", 6);
+    karray1d_dev tgt_st("", 6);
+    karray1d_dev inj_st("", 6);
+
+    auto h_ref_st_diff = Kokkos::create_mirror_view(ref_st_diff);
+    auto h_tgt_st      = Kokkos::create_mirror_view(tgt_st);
+    auto h_inj_st      = Kokkos::create_mirror_view(inj_st);
+
+    for (int i = 0; i < 6; ++i) 
+    {
+        h_tgt_st(i) = ref.get_state()[i];
+        h_inj_st(i) = oref.get_state()[i];
+        h_ref_st_diff(i) = h_inj_st(i) - h_tgt_st(i);
+    }
+
+    Kokkos::deep_copy(ref_st_diff, h_ref_st_diff);
+    Kokkos::deep_copy(tgt_st, h_tgt_st);
+    Kokkos::deep_copy(inj_st, h_inj_st);
+
+    // regular
+    inject_impl(PG::regular, o, ref_st_diff, tgt_st, inj_st, pdiff);
+
+    // spectator
+    inject_impl(PG::spectator, o, ref_st_diff, tgt_st, inj_st, pdiff);
+
+    // update total number, for both real and spectator particles
+    int old_total = update_total_num();
+
+    // target bunch is empty.  Set the weights from the injected bunch
+    if (old_total == 0) real_num = o.get_real_num();
 
 #if 0
     const double weight_tolerance = 1.0e-14;

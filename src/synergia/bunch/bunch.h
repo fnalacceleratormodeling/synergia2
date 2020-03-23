@@ -99,6 +99,14 @@ private:
 
     //std::string get_local_particles_serialization_path() const;
 
+    void inject_impl(
+            ParticleGroup pg, 
+            Bunch const& o,
+            karray1d_dev ref_st_diff,
+            karray1d_dev tgt_st,
+            karray1d_dev inj_st,
+            double pdiff );
+
 public:
     //!
     //! Constructor:
@@ -205,6 +213,9 @@ public:
     void reserve(int n, ParticleGroup pg = PG::regular)
     { get_bunch_particles(pg).reserve(n, *comm); }
 
+    void reserve_local(int n, ParticleGroup pg = PG::regular)
+    { get_bunch_particles(pg).reserve_local(n); }
+
 #if 0
     ///
     /// Reduce (set) the number of particles on this processor. The number
@@ -228,13 +239,15 @@ public:
     ///
     /// Update the total number and real number of particles after the local
     /// number has been changed. Requires comm_sptrunication.
-    void update_total_num()
+    int update_total_num()
     { 
         get_bunch_particles(PG::spectator).update_total_num(*comm); 
 
         auto & bp = get_bunch_particles(PG::regular);
         int old_total = bp.update_total_num(*comm);
         real_num = old_total ? bp.num_total() * real_num / old_total : 0.0;
+
+        return old_total;
     }
 
     // aperture operation

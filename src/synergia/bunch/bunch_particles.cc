@@ -201,9 +201,14 @@ BunchParticles::BunchParticles(
 void BunchParticles::reserve(int n, Commxx const& comm)
 {
     int r = decompose_1d_local(comm, n);
+    reserve_local(r);
+}
+
+void BunchParticles::reserve_local(int r)
+{
     if (r <= n_reserved) return;
 
-    Kokkos::resize(Kokkos::AllowPadding, parts, n);
+    Kokkos::resize(Kokkos::AllowPadding, parts, r);
     n_reserved = parts.stride(1);
 
     Kokkos::resize(masks, n_reserved);
