@@ -8,6 +8,7 @@
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/lattice.h"
+#include "synergia/lattice/madx_reader.h"
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -198,6 +199,19 @@ PYBIND11_MODULE(lattice, m)
                 "name"_a, "value"_a, "increment_revision"_a = true )
 
         .def( "__repr__", &Lattice::as_string )
+        ;
+
+
+    using madx_reader_get_lattice_1 = Lattice (MadX_reader::*)(std::string const&, std::string const&);
+
+    // MadX_reader
+    py::class_<MadX_reader>(m, "MadX_reader")
+        .def( py::init<>(), "Construct a MadX_reader" )
+        .def( "get_lattice",
+                (madx_reader_get_lattice_1)&MadX_reader::get_lattice,
+                "Parse and get the named lattice",
+                "line_name"_a,
+                "filename"_a )
         ;
 }
 
