@@ -106,7 +106,8 @@ class Options:
         setattr(self, option, self.get(option))
 
     def get(self, option):
-        if self.dict.has_key(option):
+        if option in self.dict:
+        #if self.dict.has_key(option):
             return self.dict[option].get()
         else:
             for suboption in self.suboptions:
@@ -114,7 +115,8 @@ class Options:
                     return suboption.get(option)
 
     def set(self, option, value):
-        if self.dict.has_key(option):
+        if option in self.dict:
+        #if self.dict.has_key(option):
             self.dict[option].set(value)
             setattr(self, option, self.get(option))
         else:
@@ -131,7 +133,8 @@ class Options:
         '''Returns true if option present.
         
         :param option: Name of option.'''
-        if self.dict.has_key(option):
+        if option in self.dict:
+        #if self.dict.has_key(option):
             return 1
         else:
             for suboption in self.suboptions:
@@ -166,7 +169,7 @@ class Options:
                 if self.has_option(name):
                     self.set(name, getattr(overrides, name))
                 else:
-                    print "warning: override", name, "not found in existing options"
+                    print("warning: override {} not found in existing options".format(err))
 
     def _underlined_text(self, text):
         return text + '\n' + ''.ljust(len(text),'-')
@@ -245,7 +248,7 @@ class Options:
         for suboption in self.suboptions:
             suboption.usage()
         print
-        print self._underlined_text("%s options:" % self.name)
+        print(self._underlined_text("%s options:" % self.name))
         all_options = self.options(include_suboptions=0)
         all_options.sort()
         opt_strs = []
@@ -258,7 +261,7 @@ class Options:
             wrapper = textwrap.TextWrapper(subsequent_indent = "".ljust(opt_len))
             for (opt_str, desc_str) in zip(opt_strs,desc_strs):
                 for line in wrapper.wrap(opt_str.ljust(opt_len) +  desc_str):
-                    print line
+                    print(line)
 
     def rst_usage(self):
         '''Print usage message to stdout as a ReST table'''
@@ -286,14 +289,14 @@ class Options:
             words.append('type'.ljust(type_len))
             words.append('default'.ljust(default_len))
             words.append('description'.ljust(description_len))
-            print self._underoverequals_words(words)
+            print(self._underoverequals_words(words))
             for (name, type, default, description) in \
                 zip(names, types, defaults, descriptions):
-                print name.ljust(name_len),
-                print type.ljust(type_len),
-                print default.ljust(default_len),
-                print description.ljust(description_len)
-            print self._justequals_words(words)
+                print(name.ljust(name_len)),
+                print(type.ljust(type_len)),
+                print(default.ljust(default_len)),
+                print(description.ljust(description_len))
+            print(self._justequals_words(words))
 
     def parse_argv(self, argv):
         '''Parse command-line arguments from argv'''
@@ -305,7 +308,7 @@ class Options:
             if len(pair) < 2:
                 self.usage_error(arg)
             if self.has_option(pair[0]):
-		first = pair.pop(0)
+                first = pair.pop(0)
                 self.set(first, string.join(pair, "="))
             else:
                 self.usage_error(arg)
@@ -338,6 +341,6 @@ if __name__ == "__main__":
 
     stupid.parse_argv(sys.argv)
     for option in stupid.options():
-        print option, stupid.get(option)
-    print "stupid.fred =", stupid.fred
-    print "stupid.really_stupid.bugs =", stupid.really_stupid.bugs
+        print(option, stupid.get(option))
+    print("stupid.fred = {}".format(stupid.fred))
+    print("stupid.really_stupid.bugs = {}".format(stupid.really_stupid.bugs))
