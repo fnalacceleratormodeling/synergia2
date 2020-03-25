@@ -5,7 +5,7 @@
 
 #include "four_momentum.h"
 #include "reference_particle.h"
-//#include "distribution.h"
+#include "distribution.h"
 //#include "synergia/utils/numpy_multi_ref_converter.h"
 //#include "synergia/utils/comm_converter.h"
 #include "math_constants.h"
@@ -18,6 +18,28 @@ using namespace py::literals;
 
 PYBIND11_MODULE(foundation, m)
 {
+    auto pc = m.def_submodule("pconstants");
+    pc.attr("pdg_year")        = pconstants::pdg_year;
+    pc.attr("mp")              = pconstants::mp;
+    pc.attr("proton_mass")     = pconstants::proton_mass;
+    pc.attr("me")              = pconstants::me;
+    pc.attr("electron_mass")   = pconstants::electron_mass;
+    pc.attr("mmu")             = pconstants::mmu;
+    pc.attr("muon_mass")       = pconstants::muon_mass;
+    pc.attr("e")               = pconstants::e;
+    pc.attr("c")               = pconstants::c;
+    pc.attr("mu0")             = pconstants::mu0;
+    pc.attr("epsilon0")        = pconstants::epsilon0;
+    pc.attr("re")              = pconstants::re;
+    pc.attr("rp")              = pconstants::rp;
+    pc.attr("rmu")             = pconstants::rmu;
+    pc.attr("proton_charge")   = pconstants::proton_charge;
+    pc.attr("antiproton_charge") = pconstants::antiproton_charge;
+    pc.attr("electron_charge") = pconstants::electron_charge;
+    pc.attr("positron_charge") = pconstants::positron_charge;
+    pc.attr("muon_charge")     = pconstants::muon_charge;
+    pc.attr("antimuon_charge") = pconstants::antimuon_charge;
+ 
     // Four_momentum
     py::class_<Four_momentum>(m, "Four_momentum")
         .def( py::init<double>(),
@@ -206,6 +228,14 @@ PYBIND11_MODULE(foundation, m)
                 "\n\tparam: reference_particle another Reference_particle"
                 "\n\tparam: tolerance fractional accuracy",
                 "reference_particle"_a, "tolerance"_a )
+        ;
+
+    py::class_<Distribution>(m, "Distribution")
+        ;
+
+    py::class_<Random_distribution, Distribution>(m, "Random_distribution")
+        .def( py::init<unsigned long int, Commxx const&>(),
+                "seed"_a, "comm"_a )
         ;
 
 #if 0
