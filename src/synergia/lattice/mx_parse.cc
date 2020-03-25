@@ -650,7 +650,7 @@ struct synergia::madx_tree_parser
         >> (
              ( -char_('-') >> -( int_ >> '*' ) >> line_member ) 
                                  [phx::bind(&ins_seq_member, _val, _1, _2, _3)]
-           % ','
+           % (-lit(',')) // allows the ',' in the line_seq to be optional
            ) 
         >> lit(')')
         ;
