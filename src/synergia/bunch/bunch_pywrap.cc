@@ -5,12 +5,14 @@
 
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/core_diagnostics.h"
+#include "synergia/bunch/populate.h"
 
 #include "synergia/bunch/diagnostics_worker.h"
 #include "synergia/bunch/diagnostics_loss.h"
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/bunch/diagnostics_bulk_track.h"
 #include "synergia/bunch/diagnostics_particles.h"
+
 
 #include "synergia/bunch/diagnostics_py.h"
 
@@ -98,6 +100,10 @@ PYBIND11_MODULE(bunch, m)
                 "Read particle data from a file.",
                 "filename"_a )
 
+        .def( "get_comm",
+                &Bunch::get_comm,
+                "Get the communicator" )
+
         .def( "checkout_particles",
                 &Bunch::checkout_particles,
                 "Copy the particle array from device memory to host memory.",
@@ -162,6 +168,9 @@ PYBIND11_MODULE(bunch, m)
                 &Bunch::diag_update_and_write,
                 "Performs the update and write on the named diagnostics.",
                 "name"_a )
+
+        .def ( "inject",
+                &Bunch::inject )
 
         .def( "dump",
                 &Bunch::dump,
@@ -252,6 +261,40 @@ PYBIND11_MODULE(bunch, m)
                 "num_spec_part"_a = 0,
                 "spec_offset"_a = 0 )
         ;
+
+    // populate
+    m.def( "populate_6d", populate_6d );
+
+    m.def( "populate_6d_truncated", 
+            []( Distribution& dist, 
+                Bunch& bunch,
+                py::buffer p_means,
+                py::buffer p_covars,
+                py::buffer p_limits ) {
+
+                    using ka1d_unmanaged = Kokkos::View<double*, 
+                        Kokkos::HostSpace, 
+                        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                    using ka2d_unmanaged = Kokkos::View<double**, 
+                        Kokkos::LayoutRight, 
+                        Kokkos::HostSpace, 
+                        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                    py::buffer_info pm_info = p_means.request();
+                    py::buffer_info pl_info = p_limits.request();
+                    py::buffer_info pc_info = p_covars.request();
+
+                    ka1d_unmanaged means((double*)pm_info.ptr, pm_info.shape[0]);
+                    ka1d_unmanaged limits((double*)pl_info.ptr, pl_info.shape[0]);
+
+                    ka2d_unmanaged covars((double*)pc_info.ptr, 
+                            pc_info.shape[0], pc_info.shape[1]);
+
+                    populate_6d_truncated(dist, bunch, means, covars, limits);
+              } )
+        ;
+
 
 }
 
