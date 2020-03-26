@@ -30,6 +30,14 @@ PYBIND11_MODULE(lattice, m)
         .value("quadrupole", element_type::quadrupole)
         .value("multipole",  element_type::multipole)
         .value("rfcavity",   element_type::rfcavity)
+        .value("hkicker",    element_type::hkicker)
+        .value("vkicker",    element_type::vkicker)
+        .value("sextupole",  element_type::sextupole)
+        .value("octupole",   element_type::octupole)
+        .value("monitor",    element_type::monitor)
+        .value("marker",     element_type::marker)
+        .value("instrument", element_type::instrument)
+        .value("rcollimator",element_type::rcollimator)
         ;
 
     // Lattice_element
@@ -52,6 +60,9 @@ PYBIND11_MODULE(lattice, m)
         .def( "get_name", 
                 &Lattice_element::get_name, 
                 "Returns lattice element name" )
+
+        .def( "get_length",
+                &Lattice_element::get_length )
 
         // double attribute
         .def( "has_double_attribute", 
@@ -122,6 +133,12 @@ PYBIND11_MODULE(lattice, m)
                 "Set the value of the named vector attribute",
                 "name"_a, "value"_a, "increment_revision"_a = true )
 
+        .def( "get_string_attributes",
+                &Lattice_element::get_string_attributes )
+
+        .def( "get_double_attributes",
+                &Lattice_element::get_double_attributes )
+
         // print
         .def( "print_", 
                 &Lattice_element::print,
@@ -159,6 +176,10 @@ PYBIND11_MODULE(lattice, m)
         .def( py::init<std::string const&>(), "Construct an empty latttice", "name"_a )
         .def( py::init<Lsexpr const&>(), "Construct from the Lsexpr representation", "lsexpr"_a )
 
+        .def( "get_name",
+                &Lattice::get_name,
+                "Get the lattice name" )
+
         .def( "append",
                 &Lattice::append,
                 "Append a lattice element to the lattice",
@@ -167,6 +188,9 @@ PYBIND11_MODULE(lattice, m)
         .def( "get_reference_particle",
                 &Lattice::get_reference_particle,
                 "Get the lattice reference particle" )
+
+        .def( "set_reference_particle",
+                &Lattice::set_reference_particle )
 
         .def( "get_elements",
                 (std::list<Lattice_element>& (Lattice::*)())&Lattice::get_elements,
