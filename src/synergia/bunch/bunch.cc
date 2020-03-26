@@ -59,42 +59,6 @@ Bunch::get_local_particles_serialization_path() const
 #endif
 
 
-namespace
-{
-    struct particle_injector
-    {
-        Particles dst;
-        ConstParticles src;
-
-        karray1d_dev ref_st_diff;
-        karray1d_dev tgt_st;
-        karray1d_dev inj_st;
-
-        int off;
-        double pdiff;
-
-        KOKKOS_INLINE_FUNCTION
-        void operator() (const int i) const
-        {
-            // space-like coordinates
-            dst(off+i, 0) = src(i, 0) + ref_st_diff(0);
-            dst(off+i, 2) = src(i, 2) + ref_st_diff(2);
-            dst(off+i, 4) = src(i, 4) + ref_st_diff(4);
-
-            // npx and npy coordinates are scaled with p_ref which can be different
-            // for different bunches
-            dst(off+i, 1) = pdiff * (src(i, 1) - inj_st(1)) + tgt_st(1);
-            dst(off+i, 3) = pdiff * (src(i, 3) - inj_st(3)) + tgt_st(3);
-
-            // ndp coordinate is delta-p scaled with pref
-            dst(off+i, 5) = pdiff * (1.0 + src(i, 5) - inj_st(5)) + tgt_st(5) - 1.0;
-
-            // particle id
-            dst(off+i, 6) = src(i, 6);
-        }
-    };
-}
-
 Bunch::Bunch(
         Reference_particle const& reference_particle, 
         int total_num, 
@@ -133,33 +97,6 @@ Bunch::Bunch()
     , bucket_index(0)
     , array_index(0)
 {
-}
-
-void
-Bunch::inject_impl(
-        ParticleGroup pg, 
-        Bunch const& o,
-        karray1d_dev ref_st_diff,
-        karray1d_dev tgt_st,
-        karray1d_dev inj_st,
-        double pdiff )
-{
-    // empty bunch
-    if (!o.size(pg)) return;
-
-    // expand the particle array
-    reserve_local(size(pg) + o.size(pg), pg);
-
-    // get particles
-    auto p = get_local_particles(pg);
-    auto op = o.get_local_particles(pg);
-
-    particle_injector pi{ p, op,
-        ref_st_diff, tgt_st, inj_st, 
-        size(pg), pdiff
-    };
-
-    Kokkos::parallel_for(o.size(pg), pi);
 }
 
 void
@@ -225,10 +162,14 @@ Bunch::inject(Bunch const& o)
     Kokkos::deep_copy(inj_st, h_inj_st);
 
     // regular
-    inject_impl(PG::regular, o, ref_st_diff, tgt_st, inj_st, pdiff);
+    get_bunch_particles(PG::regular).inject(
+            o.get_bunch_particles(PG::regular),
+            ref_st_diff, tgt_st, inj_st, pdiff );
 
     // spectator
-    inject_impl(PG::spectator, o, ref_st_diff, tgt_st, inj_st, pdiff);
+    get_bunch_particles(PG::spectator).inject(
+            o.get_bunch_particles(PG::spectator),
+            ref_st_diff, tgt_st, inj_st, pdiff );
 
     // update total number, for both real and spectator particles
     int old_total = update_total_num();

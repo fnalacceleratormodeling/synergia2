@@ -135,7 +135,47 @@ namespace
         void operator() (const int i, int& valid) const
         { if(masks(i)) ++valid; }
     };
+
+    struct particle_injector
+    {
+        Particles dst;
+        ParticleMasks dst_masks;
+
+        ConstParticles src;
+        ConstParticleMasks src_masks;
+
+        karray1d_dev ref_st_diff;
+        karray1d_dev tgt_st;
+        karray1d_dev inj_st;
+
+        int off;
+        double pdiff;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            // space-like coordinates
+            dst(off+i, 0) = src(i, 0);// + ref_st_diff(0);
+            dst(off+i, 2) = src(i, 2);// + ref_st_diff(2);
+            dst(off+i, 4) = src(i, 4);// + ref_st_diff(4);
+
+            // npx and npy coordinates are scaled with p_ref which can be different
+            // for different bunches
+            dst(off+i, 1) = pdiff * (src(i, 1) - inj_st(1)) + tgt_st(1);
+            dst(off+i, 3) = pdiff * (src(i, 3) - inj_st(3)) + tgt_st(3);
+
+            // ndp coordinate is delta-p scaled with pref
+            dst(off+i, 5) = pdiff * (1.0 + src(i, 5) - inj_st(5)) + tgt_st(5) - 1.0;
+
+            // particle id
+            dst(off+i, 6) = src(i, 6);
+
+            dst_masks(off+i) = src_masks(i);
+        }
+    };
 }
+
+
 
 
 BunchParticles::BunchParticles( 
@@ -227,6 +267,35 @@ void BunchParticles::assign_ids(int local_offset, Commxx const& comm)
     particle_id_assigner pia{parts, local_offset + global_offset};
     Kokkos::parallel_for(n_active, pia);
 }
+
+void BunchParticles::inject( 
+        BunchParticles const& o,
+        karray1d_dev const& ref_st_diff,
+        karray1d_dev const& tgt_st,
+        karray1d_dev const& inj_st,
+        double pdiff )
+{
+    // no nothing for empty inj bunch
+    if (!o.n_active) return;
+
+    // expand the particle array
+    reserve_local(n_active + o.n_active);
+
+    // inject
+    particle_injector pi{ 
+        parts, masks,
+        o.parts, o.masks,
+        ref_st_diff, tgt_st, inj_st, 
+        n_active, pdiff
+    };
+
+    Kokkos::parallel_for(o.n_active, pi);
+
+    // update number of particles
+    n_active += o.n_active;
+    n_valid += o.n_valid;
+}
+
 
 std::pair<karray2d_row, HostParticleMasks> 
 BunchParticles::get_particles_in_range(int idx, int n) const

@@ -99,14 +99,6 @@ private:
 
     //std::string get_local_particles_serialization_path() const;
 
-    void inject_impl(
-            ParticleGroup pg, 
-            Bunch const& o,
-            karray1d_dev ref_st_diff,
-            karray1d_dev tgt_st,
-            karray1d_dev inj_st,
-            double pdiff );
-
 public:
     //!
     //! Constructor:

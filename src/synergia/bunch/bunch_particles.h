@@ -183,6 +183,13 @@ public:
     // n is the new local capacity
     void reserve_local(int n);
 
+    // inject with 
+    void inject(BunchParticles const& o,
+            karray1d_dev const& ref_st_diff,
+            karray1d_dev const& tgt_st,
+            karray1d_dev const& inj_st,
+            double pdiff );
+
 #if 0
     void set_total_num(int num);
     void expand_local_num(int num, int added_lost);
