@@ -20,17 +20,34 @@ enum class element_type
     quadrupole,
     multipole,
     rfcavity,
+
+    hkicker,
+    vkicker,
+    sextupole,
+    octupole,
+    monitor,
+    marker,
+    instrument,
+    rcollimator,
 };
 
 namespace element_type_name
 {
-    constexpr char const * generic    = "generic";
-    constexpr char const * drift      = "drift";
-    constexpr char const * rbend      = "rbend";
-    constexpr char const * sbend      = "sbend";
-    constexpr char const * quadrupole = "quadrupole";
-    constexpr char const * multipole  = "multipole";
-    constexpr char const * rfcavity   = "rfcavity";
+    constexpr char const* generic    = "generic";
+    constexpr char const* drift      = "drift";
+    constexpr char const* rbend      = "rbend";
+    constexpr char const* sbend      = "sbend";
+    constexpr char const* quadrupole = "quadrupole";
+    constexpr char const* multipole  = "multipole";
+    constexpr char const* rfcavity   = "rfcavity";
+    constexpr char const* hkicker    = "hkicker";
+    constexpr char const* vkicker    = "vkicker";
+    constexpr char const* monitor    = "monitor";
+    constexpr char const* sextupole  = "sextupole";
+    constexpr char const* octupole   = "octupole";
+    constexpr char const* marker     = "marker";
+    constexpr char const* instrument = "instrument";
+    constexpr char const* rcollimator= "rcollimator";
 }
 
 class Lattice;
@@ -254,7 +271,15 @@ public:
     /// The Python version of the function is named "print_".
     void
     print() const;
-    
+
+    std::map<std::string, double> const&
+    get_double_attributes() const
+    { return double_attributes; }
+
+    std::map<std::string, std::string> const&
+    get_string_attributes() const
+    { return string_attributes; }
+
 private:
 
     friend class Lattice;

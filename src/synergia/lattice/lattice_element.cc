@@ -18,6 +18,14 @@ namespace
         { element_type_name::quadrupole, element_type::quadrupole},
         { element_type_name::multipole,  element_type::multipole},
         { element_type_name::rfcavity,   element_type::rfcavity},
+        { element_type_name::hkicker,    element_type::hkicker},
+        { element_type_name::vkicker,    element_type::vkicker},
+        { element_type_name::monitor,    element_type::monitor},
+        { element_type_name::sextupole,  element_type::sextupole},
+        { element_type_name::octupole,   element_type::octupole},
+        { element_type_name::marker,     element_type::marker},
+        { element_type_name::instrument, element_type::instrument},
+        { element_type_name::rcollimator,element_type::rcollimator},
     };
 
     element_type find_type(std::string const & stype)
