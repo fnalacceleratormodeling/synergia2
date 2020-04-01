@@ -223,6 +223,13 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_closed_orbit_overloads01,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(register_closed_orbit_overloads01,
             Lattice_simulator::register_closed_orbit, 0, 1)
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_fast_normal_form_overloads01,
+                Lattice_simulator::get_fast_normal_form, 0, 1)
+
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_fnf_overloads23,
+        xml_save<Fast_normal_form >, 2, 3)
+
 
 void (Bunch_train_simulator::*bts_add_per_turn1)(int, Diagnostics_sptr, int)
                             = &Bunch_train_simulator::add_per_turn;
@@ -330,6 +337,7 @@ BOOST_PYTHON_MODULE(simulation)
             .def("write_to_file", &Fast_mapping::write_to_file)
             ;
     class_<Fast_normal_form >("Fast_normal_form", init<normalFormSage &  >())
+        .def(init<>())
         .def("get_stationary_actions", &Fast_normal_form::get_stationary_actions)
         .def("convert_to_normal_form", &Fast_normal_form::convert_to_normal_form)
         .def("convert_from_normal_form", &Fast_normal_form::convert_from_normal_form)
@@ -496,6 +504,8 @@ BOOST_PYTHON_MODULE(simulation)
       .def("get_linear_one_turn_map", &Lattice_simulator::get_linear_one_turn_map,
 			    get_linear_one_turn_map_overloads01())
       .def("check_linear_normal_form", &Lattice_simulator::check_linear_normal_form)
+      .def("get_fast_normal_form", &Lattice_simulator::get_fast_normal_form,
+                get_fast_normal_form_overloads01())
       .def("convert_normal_to_xyz", &Lattice_simulator::convert_normal_to_xyz)
       .def("convert_xyz_to_normal", &Lattice_simulator::convert_xyz_to_normal)
       .def("get_stationary_actions", &Lattice_simulator::get_stationary_actions)
@@ -505,6 +515,11 @@ BOOST_PYTHON_MODULE(simulation)
 //         .def("print_dispersion_closedOrbit", &Lattice_simulator::print_dispersion_closedOrbit)
         .def("print_lattice_functions", &Lattice_simulator::print_lattice_functions)
         ;
+
+    def("xml_save_fnf", xml_save<Fast_normal_form >,
+            xml_save_fnf_overloads23());
+    def("xml_load_fnf", xml_load<Fast_normal_form > );
+
 
 // The two signatures for populate_6d_stationary_gaussian_truncated both have five arguments.
 // For python wrapping, call them by different names.

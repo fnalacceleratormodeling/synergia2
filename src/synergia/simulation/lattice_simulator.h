@@ -9,6 +9,7 @@
 #include "synergia/simulation/operation_extractor.h"
 #include "synergia/simulation/aperture_operation_extractor.h"
 #include "synergia/simulation/step.h"
+#include "synergia/simulation/fast_normal_form.h"
 #include <physics_toolkit/LattFuncSage.h>
 #include <physics_toolkit/EdwardsTengSage.h>
 #include <physics_toolkit/LBSage.h>
@@ -265,6 +266,8 @@ public:
     is_ring();
     Normal_form_sage_sptr
     get_normal_form_sptr(bool sliced=true);
+    Fast_normal_form
+    get_fast_normal_form(bool sliced=true);
     MArray2d
     get_linear_one_turn_map(bool sliced=true);
     void
