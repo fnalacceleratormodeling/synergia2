@@ -331,7 +331,7 @@ template<>
         if (res < 0) throw Hdf5_exception();
 
         int storage_order = Hdf5_writer<MArray2d>::c_storage_order;
-        try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception e) { }
+        try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception& e) { }
 
         MArray2d retval = (storage_order == Hdf5_writer<MArray2d >::c_storage_order) ?  
             MArray2d(boost::extents[dims[0]][dims[1]], boost::c_storage_order()) :
@@ -367,7 +367,7 @@ template<>
         if (res < 0) throw Hdf5_exception();
 
         int storage_order = Hdf5_writer<MArray3d>::c_storage_order;
-        try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception e) { } 
+        try { storage_order = read<int>(name + "_storage_order"); } catch (Hdf5_exception& e) { } 
 
         MArray3d retval = (storage_order == Hdf5_writer<MArray3d >::c_storage_order) ?  
             MArray3d(boost::extents[dims[0]][dims[1]][dims[2]], boost::c_storage_order()) :

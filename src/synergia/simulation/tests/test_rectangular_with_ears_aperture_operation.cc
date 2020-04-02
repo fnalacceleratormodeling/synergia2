@@ -35,7 +35,7 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
         Rectangular_with_ears_aperture_operation rectangular_with_ears_aperture_operation(
                 slice_sptr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);
@@ -47,7 +47,7 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
         Rectangular_with_ears_aperture_operation rectangular_with_ears_aperture_operation(
                 slice_sptr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);
@@ -59,7 +59,7 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
         Rectangular_with_ears_aperture_operation rectangular_with_ears_aperture_operation(
                 slice_sptr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);
@@ -71,7 +71,7 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
         Rectangular_with_ears_aperture_operation rectangular_with_ears_aperture_operation(
                 slice_sptr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(!caught);

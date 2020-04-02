@@ -48,7 +48,7 @@ class Fast_normal_form
     
   public:
     Fast_normal_form(normalFormSage & nf);
-    Fast_normal_form();
+    Fast_normal_form() = default;
     
     CFast_mapping_sptr
     get_map_f_sptr( int index) const;
@@ -75,8 +75,6 @@ class Fast_normal_form
    template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
-        
-     ~Fast_normal_form();     
 };
 
 

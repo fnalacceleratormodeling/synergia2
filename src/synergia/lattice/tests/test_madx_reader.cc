@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(get_line_names_bad)
     try {
         std::vector < std::string > line_names(madx_reader.get_line_names());
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);

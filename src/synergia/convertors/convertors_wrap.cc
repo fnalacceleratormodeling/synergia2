@@ -5,6 +5,7 @@
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
 #include "synergia/utils/multi_array_serialization.h"
+#include "synergia/utils/portable_import_array.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/container_conversions.h"
@@ -22,6 +23,7 @@ get1d()
 
 using namespace boost::python;
 
+
 BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_array1d_overloads23,
         xml_save<MArray1d >, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_array2d_overloads23,
@@ -29,7 +31,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_array2d_overloads23,
 
 BOOST_PYTHON_MODULE(convertors)
 {
-    import_array();
+    portable_import_array();
     if (import_mpi4py() < 0) {
         return;
     }

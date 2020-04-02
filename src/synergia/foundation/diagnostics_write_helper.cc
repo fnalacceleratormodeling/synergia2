@@ -67,12 +67,12 @@ Diagnostics_write_helper::Diagnostics_write_helper(
         std::string const & filename_appendix,
         int writer_rank ) 
     : filename(filename)
-    , filename_appendix(filename_appendix)
     , local_dir(local_dir)
     , serial(serial)
     , commxx_sptr(commxx_sptr)
     , have_file(false)
     , count(0) 
+    , filename_appendix(filename_appendix)
 {
 	if (writer_rank == default_rank) {
 		this->writer_rank = commxx_sptr->get_size() - 1;

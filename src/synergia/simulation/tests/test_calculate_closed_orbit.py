@@ -32,7 +32,7 @@ def test_calculate_closed_orbit():
         raise RuntimeError("didn't find kicker")
 
     closed_orbit = synergia.simulation.calculate_closed_orbit(lattice)
-    print "closed_orbit: ", closed_orbit
+    print("closed_orbit: ", closed_orbit)
 
     stepper = synergia.simulation.Independent_stepper(lattice, 1, 1)
 

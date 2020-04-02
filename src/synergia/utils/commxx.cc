@@ -200,7 +200,7 @@ Commxx::~Commxx()
     if (((ranks.size() > 0) || per_host) && has_this_rank_) {
         int error = MPI_Comm_free(&comm);
         if (error != MPI_SUCCESS) {
-            throw std::runtime_error("MPI error in Commxx(MPI_Comm_free)");
+          std::cout << "MPI error in Commxx(MPI_Comm_free)\n";
         }
     }
 }

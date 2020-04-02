@@ -395,18 +395,17 @@ deposit_charge_rectangular_zyx_omp_interleaved(Rectangular_grid & rho_grid, Bunc
     {
         // decl. for private variables
         int n, i, c_idx, x, y, z;
-        int tid, nthreads, seg;
+        int tid, nthreads;
         double scaled_location;
         double w, ox, oy, oz;
       
-        int * p;
         double * ws0;
         double * ws1;
 
         // count
         #pragma omp parallel for \
             shared( pi, po ) \
-            private(n, c_idx, p, ix, iy, iz, offx, offy, offz, scaled_location)
+            private(n, c_idx, ix, iy, iz, offx, offy, offz, scaled_location)
         for(n=0; n<npart; ++n )
         {
             scaled_location = (parts[n][0] - lx) / cx - 0.5;
@@ -462,7 +461,7 @@ deposit_charge_rectangular_zyx_omp_interleaved(Rectangular_grid & rho_grid, Bunc
         // deposit to cells
         #pragma omp parallel \
             shared( rho, pi, po, pc, count, pll  ) \
-            private(x, y, z, ox, oy, oz, n, i, c_idx, w, ws0, ws1, tid, nthreads, seg) 
+            private(x, y, z, ox, oy, oz, n, i, c_idx, w, ws0, ws1, tid, nthreads) 
         {
           tid = omp_get_thread_num();
           nthreads = omp_get_num_threads();
@@ -778,15 +777,15 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
 
     if (zero_first) 
     {
-        for (unsigned int i = 0; i < g0; ++i)         // x
+        for (int i = 0; i < g0; ++i)         // x
         {  
-            for (unsigned int j = 0; j < g1; ++j)     // y
+            for (int j = 0; j < g1; ++j)     // y
             {
                 rho_2dc[i][j] = 0.0;
             }
         }
 
-        for (unsigned int k = 0; k < g2; ++k)         // z
+        for (int k = 0; k < g2; ++k)         // z
         {
             rho_1d[k] = 0.0;
         }

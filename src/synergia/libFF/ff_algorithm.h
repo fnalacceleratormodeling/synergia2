@@ -683,8 +683,6 @@ public:
         double sn = sin(dtheta);
         double cs = cos(dtheta);
 
-        double xi = x;
-        double yi = y;
         double xpi = xp;
         double ypi = yp;
 
@@ -754,7 +752,6 @@ public:
         (double x, double & xp, double y, double & yp, double dpop,
          double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
     {
-        const double small_radius = 1.0e-10;
         double r = sqrt( x * x + y * y );
 
         // no kick at r = 0.0

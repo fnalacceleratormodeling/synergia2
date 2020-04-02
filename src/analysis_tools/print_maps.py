@@ -14,9 +14,9 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synprintmaps <filename> <lattice> [option1] ... [optionn]"
-    print "available options are:"
-    print "    no options yet!"
+    print("usage: synprintmaps <filename> <lattice> [option1] ... [optionn]")
+    print("available options are:")
+    print("    no options yet!")
     sys.exit(0)
 
 def print_maps(options):
@@ -36,18 +36,18 @@ def print_maps(options):
             if operator.get_type() == 'independent':
                 io = synergia.simulation.as_independent_operator(operator)
                 slices = io.get_slices()
-                print "%s:" % slices[0].get_lattice_element().get_name()
+                print("%s:" % slices[0].get_lattice_element().get_name())
                 if len(slices) > 1:
-                    raise RuntimeError, "found multiple slices in an independent operator"
+                    raise RuntimeError("found multiple slices in an independent operator")
                 for operation in io.get_operations():
                     if operation.get_type() == 'fast_mapping':
                         fmo = synergia.simulation.as_fast_mapping_operation(operation)
                         dense_mapping = synergia.simulation.Dense_mapping(fmo.get_fast_mapping())
-                        print "order 0:"
-                        print dense_mapping.get_constant_term()
-                        print "order 1:"
-                        print dense_mapping.get_linear_term()
-                        print
+                        print("order 0:")
+                        print(dense_mapping.get_constant_term())
+                        print("order 1:")
+                        print(dense_mapping.get_linear_term())
+                        print()
 
 def handle_args(args):
     if len(args) < 2:

@@ -6,7 +6,6 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
-const double tolerance = 1.0e-11;
 
 const double mass = 100.0;
 const double total_energy = 125.0;
@@ -14,7 +13,6 @@ const int total_num = 9;
 const double real_num = 2.0e12;
 const int turns = 17;
 const double turn_length = 246.8;
-const double partial_s = 123.4;
 
 void
 dummy_populate(Bunch &bunch, int offset = 0)

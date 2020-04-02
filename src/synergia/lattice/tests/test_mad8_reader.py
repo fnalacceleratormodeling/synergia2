@@ -33,7 +33,7 @@ def test_get_lines1():
     caught = False
     try:
         lines = reader.get_lines()
-    except RuntimeError, e:
+    except RuntimeError as e:
         caught = True
     assert caught
 
@@ -52,7 +52,7 @@ def test_get_lattice_element1():
     caught = False
     try:
         drift = reader.get_lattice_element("o")
-    except RuntimeError, e:
+    except RuntimeError as e:
         caught = True
     assert caught
 
@@ -67,7 +67,7 @@ def test_get_lattice1():
     caught = False
     try:
         reader.get_lattice("fodo")
-    except RuntimeError, e:
+    except RuntimeError as e:
         caught = True
     assert caught
 

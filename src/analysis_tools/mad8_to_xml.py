@@ -3,9 +3,9 @@ import sys
 import synergia
 
 if len(sys.argv) != 4:
-    print "usage:",
-    print "synmad8toxml <mad8 file> <line name> <xml file>"
-    print "    Reads line <line name> from <mad8 file> and writes to <xml file>."
+    print("usage:", end=' ')
+    print("synmad8toxml <mad8 file> <line name> <xml file>")
+    print("    Reads line <line name> from <mad8 file> and writes to <xml file>.")
     sys.exit(1)
 
 mad8_file = sys.argv[1]
@@ -14,8 +14,8 @@ xml_file = sys.argv[3]
 
 reader = synergia.lattice.Mad8_reader()
 reader.parse(mad8_file)
-print "found lines:", reader.get_lines()
+print("found lines:", reader.get_lines())
 lattice = reader.get_lattice(line, enable_cache_read=False,
                              enable_cache_write=False)
 synergia.lattice.xml_save_lattice(lattice, xml_file)
-print "wrote", line, "to", xml_file
+print("wrote", line, "to", xml_file)

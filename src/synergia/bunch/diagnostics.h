@@ -26,6 +26,9 @@ public:
 
     Diagnostics(std::string const& name, std::string const& filename, std::string const& local_dir="");
 
+    Diagnostics(Diagnostics const&) = delete;
+    Diagnostics& operator=(Diagnostics const&) = delete;
+
     // Default constructor for serialization use only
     Diagnostics();
 
@@ -82,11 +85,7 @@ public:
 
     /// Update the diagnostics and write them to the file
     virtual void
-    update_and_write()
-    {
-        update();
-        write();
-    }
+    update_and_write();
 
     template<class Archive>
         void

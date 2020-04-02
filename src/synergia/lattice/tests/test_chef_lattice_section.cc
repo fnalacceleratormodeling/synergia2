@@ -57,7 +57,7 @@ BOOST_FIXTURE_TEST_CASE(extend_invalid1, Chef_lattice_sptr_fixture)
     try {
         chef_lattice_section.extend(chef_lattice_section4);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);
@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_CASE(extend_invalid2, Chef_lattice_sptr_fixture)
     try {
         chef_lattice_section.extend(3, 4);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);

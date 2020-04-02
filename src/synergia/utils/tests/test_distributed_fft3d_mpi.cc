@@ -165,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(transform_bad_in_offset, Fixture)
     try {
         distributed_fft3d.transform(rarray, carray);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -188,7 +188,7 @@ BOOST_FIXTURE_TEST_CASE(transform_bad_out_offset, Fixture)
     try {
         distributed_fft3d.transform(rarray, carray);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -211,7 +211,7 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_bad_in_offset, Fixture)
     try {
         distributed_fft3d.inv_transform(carray, rarray);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -234,7 +234,7 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_bad_out_offset, Fixture)
     try {
         distributed_fft3d.inv_transform(carray, rarray);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 

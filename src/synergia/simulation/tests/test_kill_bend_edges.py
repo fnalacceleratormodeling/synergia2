@@ -61,7 +61,7 @@ def test_bend_with_edges():
     lattice.append(zd)
     lattice.set_reference_particle(create_reference_particle(momentum))
     particles = run_bend(lattice)
-    print particles[0,:]
+    print(particles[0,:])
     assert abs(particles[0, 3]) > 1.0e-10
 
 def test_bend_no_edges():
@@ -82,11 +82,11 @@ def test_bend_no_edges():
     
     lattice.set_reference_particle(create_reference_particle(momentum))
     particles = run_bend(lattice)
-    print particles[0,:]
+    print(particles[0,:])
     assert abs(particles[0,3]) < 1.0e-10
 if __name__ == "__main__":
-    print "test with edges"
+    print("test with edges")
     test_bend_with_edges()
-    print
-    print "test no nedges"
+    print()
+    print("test no nedges")
     test_bend_no_edges()

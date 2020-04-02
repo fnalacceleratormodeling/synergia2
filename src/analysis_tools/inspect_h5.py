@@ -4,12 +4,12 @@ import sys
 from synergia.utils import Hdf5_file
 
 def usage(error=False):
-    print "usage:"
-    print "     syninspecth5 <hdf5_file>"
-    print "     " + "    to list members"
-    print "or"
-    print "     syninspecth5 <hdf5_file> <member>"
-    print "     " + "      to display member"
+    print("usage:")
+    print("     syninspecth5 <hdf5_file>")
+    print("     " + "    to list members")
+    print("or")
+    print("     syninspecth5 <hdf5_file> <member>")
+    print("     " + "      to display member")
     if error:
         retval = 1
     else:
@@ -20,7 +20,7 @@ def print_entries(filename):
     f = Hdf5_file(filename, Hdf5_file.read_only)
     for entry in  f.get_member_names():
         if entry[0] != '_':
-            print entry
+            print(entry)
 
 def hdf5_read_any(hdf5_file, member):
     try:
@@ -49,11 +49,11 @@ def hdf5_read_any(hdf5_file, member):
 def print_entry(filename, entry):
     f = Hdf5_file(filename, Hdf5_file.read_only)
     value = hdf5_read_any(f, entry)
-    print entry,
+    print(entry, end=' ')
     if hasattr(value,"shape"):
-        print "shape =", value.shape,
-    print
-    print value
+        print("shape =", value.shape, end=' ')
+    print()
+    print(value)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

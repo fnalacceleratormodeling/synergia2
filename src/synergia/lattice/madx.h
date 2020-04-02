@@ -142,12 +142,12 @@ private:
   struct seq_element
   {
     seq_element(std::string const & label_, double at_, std::string const & from_)
-      : label(label_), at(at_), from_str(from_) { }
+      : label(label_), from_str(from_), at(at_) { }
 
     std::string label;
     std::string from_str;
-    double      at;
-    double      from;
+    double      at = 0.0;
+    double      from = 0.0;
   };
 
   typedef std::vector<seq_element> seq_ele_v_t;

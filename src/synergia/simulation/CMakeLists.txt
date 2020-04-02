@@ -13,12 +13,10 @@ add_library(synergia_simulation operator.cc step.cc stepper.cc
 target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
     synergia_lattice synergia_libFF ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
 
-if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(simulation simulation_wrap.cc)
-    target_link_libraries(simulation synergia_foundation synergia_bunch
+add_python_extension(simulation simulation_wrap.cc)
+target_link_libraries(simulation synergia_foundation synergia_bunch
         synergia_lattice synergia_simulation
         ${CHEF_LIBS} ${Boost_LIBRARIES})
-endif ()
 
 install(TARGETS synergia_simulation DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
@@ -51,14 +49,13 @@ install(FILES
     dense_mapping.h
     calculate_closed_orbit.h
     diagnostics_normal_form.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/simulation)
-if (BUILD_PYTHON_BINDINGS)
-    install(FILES
+    DESTINATION include/synergia/simulation)
+
+install(FILES
         __init__.py
-        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
-    install(TARGETS
+        DESTINATION lib/synergia/simulation)
+install(TARGETS
         simulation
-        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
-endif ()
+        DESTINATION lib/synergia/simulation)
 
 add_subdirectory(tests)

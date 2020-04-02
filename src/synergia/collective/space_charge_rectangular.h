@@ -27,11 +27,11 @@ private:
     bool have_domain;
     /// the spc communicator is constructed  on a subset of bunch communicator ranks, with an optimal size
     /// usually proportional to the number of processors of a node
-    /// Example: consider  a bunch comunicator of size 128 and a spc comm optimal size =32 (good for the tev fermilab  cluster)
-    /// when equally_spread=false, the spc comunicator will be on ranks [0,31]. ranks [32,127] do not have a spc comunicator
+    /// Example: consider  a bunch communicator of size 128 and a spc comm optimal size =32 (good for the tev fermilab  cluster)
+    /// when equally_spread=false, the spc communicator will be on ranks [0,31]. ranks [32,127] do not have a spc communicator
     /// -------------------------  the fourier transforms are done on the [0,31] ranks, and the rest of ranks wait doing nothing
-    /// when equally_spread=true, there will be four spc comunicators, on ranks [0,31],[32,63],[64,95] and [96,127]
-    ///------------------------- the fourier transforms are repeated independently on all spc comunicators     
+    /// when equally_spread=true, there will be four spc communicators, on ranks [0,31],[32,63],[64,95] and [96,127]
+    ///------------------------- the fourier transforms are repeated independently on all spc communicators
     bool equally_spread;
     Diagnostics_space_charge_rectangulars diagnostics_list;
     bool have_diagnostics;

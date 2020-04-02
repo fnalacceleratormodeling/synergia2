@@ -412,7 +412,7 @@ BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_no_construct, Fodo_fixture)
     try {
         BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);
@@ -727,7 +727,7 @@ BOOST_FIXTURE_TEST_CASE(get_lattice_element, Fodo_fixture)
             BOOST_CHECK_EQUAL(lattice_element.get_name(),
                     (*it)->Name());
         }
-        catch (std::runtime_error) {
+        catch (std::runtime_error&) {
             BOOST_CHECK_EQUAL((*it)->Name(),
                     Chef_lattice::internal_marker_name);
             BOOST_CHECK_EQUAL((*it)->Type(),
@@ -751,7 +751,7 @@ BOOST_FIXTURE_TEST_CASE(get_lattice_element_slice, Fodo_fixture)
                     chef_lattice.get_lattice_element_slice(*it));
             // jfa: Not sure how to test this.
         }
-        catch (std::runtime_error) {
+        catch (std::runtime_error&) {
             BOOST_CHECK_EQUAL((*it)->Name(),
                     Chef_lattice::internal_marker_name);
             BOOST_CHECK_EQUAL((*it)->Type(),

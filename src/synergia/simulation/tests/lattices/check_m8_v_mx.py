@@ -17,7 +17,7 @@ testfiles = [
 
 def test_file_outputs():
     for nm in testfiles:
-        print "checking ", nm
+        print("checking ", nm)
         m8p = np.load("m8"+nm+".npy")
         mxp = np.load(nm+".npy")
         assert(m8p.shape[0] == 32)
@@ -25,5 +25,5 @@ def test_file_outputs():
         numpart = mxp.shape[0]
         for p in range(numpart):
             for j in range(4):
-                print "    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, m8p[p,j], mxp[p,j])
+                print("    particle:  [%d, %d] %.14g <-> %.14g"%(p,j, m8p[p,j], mxp[p,j]))
                 assert_almost_equal(m8p[p, j], mxp[p, j], 12)

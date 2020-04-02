@@ -183,7 +183,7 @@ BOOST_FIXTURE_TEST_CASE(transform_padded_shape0, Fixture)
     try {
         distributed_fft2d.transform(src_array, dest_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -201,7 +201,7 @@ BOOST_FIXTURE_TEST_CASE(transform_bad_in_shape, Fixture)
     try {
         distributed_fft2d.transform(src_array, dest_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE(transform_padded_out_shape0, Fixture)
     try {
         distributed_fft2d.transform(src_array, dest_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -238,7 +238,7 @@ BOOST_FIXTURE_TEST_CASE(transform_bad_out_shape, Fixture)
     try {
         distributed_fft2d.transform(src_array, dest_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -257,7 +257,7 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_padded_in_shape0, Fixture)
     try {
         distributed_fft2d.inv_transform(dest_array, src_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -275,7 +275,7 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_bad_in_shape, Fixture)
     try {
         distributed_fft2d.inv_transform(dest_array, src_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -294,7 +294,7 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_padded_out_shape0, Fixture)
     try {
         distributed_fft2d.inv_transform(dest_array, src_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 
@@ -312,7 +312,7 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_bad_out_shape, Fixture)
     try {
         distributed_fft2d.inv_transform(dest_array, src_array);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
 

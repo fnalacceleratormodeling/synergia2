@@ -6,10 +6,10 @@ import os
 import numpy as np
 
 madxoutput = sys.argv[1]
-print "reading file: ", madxoutput
+print("reading file: ", madxoutput)
 
 basename = os.path.splitext(madxoutput)[0]
-print "writing numpy data to ", basename+".npy"
+print("writing numpy data to ", basename+".npy")
 
 f = open(madxoutput)
 lines = f.readlines()

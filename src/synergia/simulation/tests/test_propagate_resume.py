@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from nose.tools import *
 import synergia
 from synergia.utils import Hdf5_file
@@ -94,12 +95,12 @@ def check_full2(file, turns, num_particles):
     bad = False
     h5 = Hdf5_file(file, Hdf5_file.read_only)
     if h5.get_dims("num_particles")[0] != turns:
-        print "check_full2: wrong size of num_particles, ", h5.get_dims("num_particles")[0], "!=", turns
+        print("check_full2: wrong size of num_particles, ", h5.get_dims("num_particles")[0], "!=", turns)
         bad = True
     if h5.get_dims("mean")[1] != turns:
-        print "check_full2: wrong size of mean array: ", h5.get_dims("mean"), "!=", (6,turns)
+        print("check_full2: wrong size of mean array: ", h5.get_dims("mean"), "!=", (6,turns))
     if h5.read_array1i('num_particles')[-1] != num_particles:
-        print "check_full2: wrong number of macro_particles, ", h5.get_dims("num_particles")[-1], " != ", num_particles
+        print("check_full2: wrong number of macro_particles, ", h5.get_dims("num_particles")[-1], " != ", num_particles)
         bad = True
     return bad
 
@@ -107,10 +108,10 @@ def check_tracks(file, turns, particles):
     bad = False
     h5 = Hdf5_file(file, Hdf5_file.read_only)
     if h5.get_dims("track_coords")[0] != particles:
-        print "check_tracks: wrong number of particles: ", h5.get_dims("track_coords")[0], "!=", particles
+        print("check_tracks: wrong number of particles: ", h5.get_dims("track_coords")[0], "!=", particles)
         bad = True
     if h5.get_dims("track_coords")[2] != turns:
-        print "check_tracks: wrong number of turns: ", h5.get_dims("track_coords")[2], "!=", turns
+        print("check_tracks: wrong number of turns: ", h5.get_dims("track_coords")[2], "!=", turns)
         bad = True
     return bad
 
@@ -120,7 +121,7 @@ def check_particles(file, turn0, turn1, particles):
         filename = file+"_%04d.h5"%i
         h5 = Hdf5_file(filename, Hdf5_file.read_only)
         if h5.get_dims("particles")[0] != particles:
-            print "check_particles: file ", filename, " wrong number of particles ", h5.get_dims("particles")[0], "!=", particles
+            print("check_particles: file ", filename, " wrong number of particles ", h5.get_dims("particles")[0], "!=", particles)
             bad = True
     return bad
 
@@ -162,11 +163,11 @@ if __name__ == "__main__":
     logger = synergia.utils.Logger(0)
     if opts.propagate:
         if test_propagate():
-            raise RuntimeError, "test_propagate() failed"
+            raise RuntimeError("test_propagate() failed")
         else:
-            print >>logger, "test_propagate() passed"
+            print("test_propagate() passed", file=logger)
     if opts.resume:
         if test_resume():
-            raise RuntimeError, "test_resume() failed"
+            raise RuntimeError("test_resume() failed")
         else:
-            print >>logger, "test_resume() passed"
+            print("test_resume() passed", file=logger)

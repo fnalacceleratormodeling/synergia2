@@ -1,51 +1,153 @@
-project(SYNERGIA2)
-if (CMAKE_VERSION VERSION_GREATER 3.0.0)
-    set(CMAKE_CXX_STANDARD 98)
-else ()
-    add_compile_options(-std=c++98)
-endif ()
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+project(SYNERGIA2 VERSION 2.0.90 LANGUAGES CXX C)
 
-set(SYNERGIA2_VERSION_MAJOR 2018) # year
-set(SYNERGIA2_VERSION_MINOR 02)   # month
-set(SYNERGIA2_VERSION_PATCH 20)   # day
-set(SYNERGIA2_VERSION_TWEAK 00)   # sub-day counter
-set(SYNERGIA2_VERSION
-    "${SYNERGIA2_VERSION_MAJOR}.${SYNERGIA2_VERSION_MINOR}.${SYNERGIA2_VERSION_PATCH}.${SYNERGIA2_VERSION_TWEAK}")
-set(SYNERGIA_MAJOR_VERSION 3)
-set(SYNERGIA_MINOR_VERSION 1)
-set(SYNERGIA_SUBMINOR_VERSION 00)
-
-
-cmake_minimum_required(VERSION 2.8)
 enable_testing()
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  # using Clang
+  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evalauted-expression -Wno-register")
+  message("Using clang++")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    # using Apples's clang
+    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evaluated-expression -Wno-register")
+    message("Using Apple clang++")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  # using GCC
+  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result -Wno-register")
+  set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
+  message("Using g++")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  # using Intel C++
+  set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
+  set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
+  message("Using Intel C++")
+else()
+  message(WARNING "I can not tell what compiler is being used. Will proceed with generic settings.")
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall ${COMPILER_SPECIFIC_CXX_FLAGS} -Werror")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
+
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # needed to avoid warnings about rpath policy on Mac OSX
-# no known difference between "OLD" and "NEW" policies for us
 if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
 
-include(SmartIncludeDirectories)
-set(extra_includes)
+# get version number generation right
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif()
 
-# Set defaults for building python bindings (build bindings by default).
-if (NOT DEFINED BUILD_PYTHON_BINDINGS)
-  if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
-    set (BUILD_PYTHON_BINDINGS $ENV{BUILD_PYTHON_BINDINGS})
-  else ()
-    set (BUILD_PYTHON_BINDINGS TRUE)
-  endif ()
-endif ()
+# use <Package>_ROOT variables
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
 
-if (NOT BUILD_PYTHON_BINDINGS)
-  message (STATUS "Not building python bindings")
-endif ()
+##
+# Find necessary packages
+##
+
+# python
+if (USE_PYTHON_3)
+  message(STATUS "Trying to find python 3")
+  message(STATUS "A failure here is not fatal... we'll try differently later")
+  set(Python_ADDITIONAL_VERSIONS "3")
+  find_package(Python3 COMPONENTS Interpreter Development)
+  if (Python3_FOUND)
+    message(STATUS "We found Python 3")
+    message(STATUS "Python3_LIBRARIES: ${Python3_LIBRARIES}")
+    set(MY_PYTHON_LIBRARY ${Python3_LIBRARIES})
+    set(MY_PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+    set(MY_PYTHON_INCLUDE_DIRECTORY ${Python3_INCLUDE_DIRS})
+    set(MY_PYTHON_VERSION_MAJOR ${Python3_VERSION_MAJOR})
+    set(MY_PYTHON_VERSION_MINOR ${Python3_VERSION_MINOR})
+    # If we could use cmake v3.12 or newer, this is simple:
+    #find_package(Python3 COMPONENTS Interpreter Development)
+  endif()
+else()
+  message(STATUS "Trying to find python 2")
+  message(STATUS "A failure here is not fatal... we'll try differently later")
+  set(Python_ADDTIONAL_VERSIONS "2")
+  find_package(Python2 COMPONENTS Interpreter Development)
+  if (Python2_FOUND)
+    set(MY_PYTHON_LIBRARY ${Python2_LIBRARIES})
+    set(MY_PYTHON_EXECUTABLE ${Python2_EXECUTABLE})
+    set(MY_PYTHON_INCLUDE_DIRECTORY ${Python2_INCLUDE_DIRS})
+    set(MY_PYTHON_VERSION_MAJOR ${Python2_VERSION_MAJOR})
+    set(MY_PYTHON_VERSION_MINOR ${Python2_VERSION_MINOR})
+    # If we could use cmake v3.12 or newer, this is simple:
+    #find_package(Python3 COMPONENTS Interpreter Development)
+  endif()
+endif()
+
+# If we could use cmake v3.12 or newer, this would not be needed.
+if (NOT MY_PYTHON_LIBRARY)
+  find_package(PythonInterp REQUIRED)
+  find_package(PythonLibs REQUIRED)
+  set(MY_PYTHON_LIBRARY ${PYTHON_LIBRARIES})
+  set(MY_PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})
+  set(MY_PYTHON_INCLUDE_DIRECTORY ${PYTHON_INCLUDE_DIRS})
+  set(MY_PYTHON_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
+  set(MY_PYTHON_VERSION_MINOR ${PYTHON_VERSION_MINOR})
+endif()
+include_directories(${MY_PYTHON_INCLUDE_DIR})
+
+message(STATUS "Done looking for Python")
+message(STATUS "MY_PYTHON_VERSION_MAJOR is: ${MY_PYTHON_VERSION_MAJOR}")
+message(STATUS "MY_PYTHON_VERSION_MINOR is: ${MY_PYTHON_VERSION_MINOR}")
+
+include(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
+
+# boost
+set(Boost_NO_BOOST_CMAKE ON) # Do *not* use CMake support from Boost.
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREAD ON)
+find_package(Boost
+             REQUIRED
+             COMPONENTS regex unit_test_framework serialization system filesystem)
+set(first_boost_libraries ${Boost_LIBRARIES})
+set(first_boost_library_dirs ${Boost_LIBRARY_DIRS})
+
+if (USE_PYTHON_3)
+    set(pstem python3 python35 python36 python37)
+else()
+    set(pstem python python27)
+endif()
+
+# Go through all relevant possible choices of boost library name, stopping
+# when we find one that works.
+foreach (plib ${pstem})
+    find_package(Boost QUIET COMPONENTS ${plib})
+    if (Boost_LIBRARIES)
+      string(TOUPPER "${plib}" MY_PYLIB)
+      set(MY_BOOST_PYTHON_LIBRARY "${Boost_${MY_PYLIB}_LIBRARY}")
+      break()
+    endif()
+endforeach()
+set(Boost_LIBRARIES ${first_boost_libraries} ${Boost_LIBRARIES})
+set(Boost_LIBRARY_DIRS ${first_boost_library_dirs} ${Boost_LIBRARY_DIRS})
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+
+message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
+message(STATUS "Boost_LIBRARIES    = ${Boost_LIBRARIES}")
+message(STATUS "Boost_SERIALIZATION_LIBRARY = ${Boost_SERIALIZATION_LIBRARY}")
+message(STATUS "MY_BOOST_PYTHON_LIBRARY = ${MY_BOOST_PYTHON_LIBRARY}")
 
 # MPI
-FIND_PACKAGE(MPI REQUIRED CXX)
-execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
-if(${MPI_VERSION} MATCHES "OpenRTE.* 3")
+find_package(MPI REQUIRED CXX)
+execute_process(COMMAND ${MPIEXEC_EXECUTABLE} --version OUTPUT_VARIABLE MPI_VERSION)
+message(STATUS "MPIEXEC_EXECUTABLE is ${MPIEXEC_EXECUTABLE}")
+if(${MPI_VERSION} MATCHES "OpenRTE.* ")
     set(MPI_OVERSUBSCRIBE_FLAG "--oversubscribe")
 else ()
     set(MPI_OVERSUBSCRIBE_FLAG "")
@@ -68,53 +170,45 @@ if (OPENMP_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif ()
 
-# python
-if (BUILD_PYTHON_BINDINGS)
-    find_package(ConsistentPython)
-    list(APPEND extra_includes ${PYTHON_INCLUDE_DIR})
-    set(IPYTHON_EXECUTABLE "ipython" CACHE PATH "path to optional ipython executable")
-endif()
-
-# boost
-SET(Boost_USE_STATIC_LIBS OFF)
-SET(Boost_USE_MULTITHREAD ON)
-SET(Boost_NO_BOOST_CMAKE ON)
-FIND_PACKAGE(Boost COMPONENTS python27 regex unit_test_framework serialization filesystem system REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
-
 # hdf5
-find_package(HDF5)
-list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
+find_package(HDF5 REQUIRED)
+include_directories(${HDF5_INCLUDE_DIRS})
+message(STATUS "${HDF5_LIBRARIES}")
+
+# gsl
+find_package(GSL REQUIRED)
+include_directories(${GSL_INCLUDE_DIRS})
+message(STATUS "Found GSL at ${GSL_INCLUDE_DIRS}")
 
 # chef
 find_package(CHEF REQUIRED)
-list(APPEND extra_includes ${CHEF_INCLUDE_DIR})
-LINK_DIRECTORIES(${CHEF_LIB_DIR})
+include_directories(${CHEF_INCLUDE_DIR})
+link_directories(${CHEF_LIB_DIR})
 
 # numpy
 find_package(NUMPY REQUIRED)
 include_directories(${NUMPY_INCLUDE_DIR})
 
-if (BUILD_PYTHON_BINDINGS)
-    # mpi4py
-    find_package(MPI4PY REQUIRED)
-    list(APPEND extra_includes ${MPI4PY_INCLUDE_DIR})
-endif()
+# mpi4py
+find_package(MPI4PY REQUIRED)
+include_directories(${MPI4PY_INCLUDE_DIR})
 
 # misc
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
-INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
-list(APPEND extra_includes ${GSL_INCLUDE_DIR})
 
 # Eigen3
 find_package(Eigen3 REQUIRED)
-list(APPEND extra_includes ${EIGEN3_INCLUDE_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR})
+#list(APPEND extra_includes ${EIGEN3_INCLUDE_DIR})
 
 # fftw3 (and, possibly, fftw2)
 find_package(FFTW3 REQUIRED)
+message(STATUS "FFTW3 was found")
+message(STATUS "FFTW3_FOUND: ${FFTW3_FOUND}")
+message(STATUS "FFTW3_MPI_LIBRARIES: ${FFTW3_MPI_LIBRARIES}")
 if(FFTW3_MPI_FOUND)
-    list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
+    include_directories(${FFTW3_INCLUDE_DIR})
+    #list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
     if(OPENMP_FOUND)
         set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
     else(OPENMP_FOUND)
@@ -130,7 +224,8 @@ else(FFTW3_MPI_FOUND)
     if(NOT FFTW2_MPI_FOUND)
         message(FATAL_ERROR "Synergia requires either FFTW2 or FFT3 compiled with MPI support.")
     endif(NOT FFTW2_MPI_FOUND)
-    list(APPEND extra_includes ${FFTW2_INCLUDE_DIR})
+    include_directories(${FFTW2_INCLUDE_DIR})
+    #list(APPEND extra_includes ${FFTW2_INCLUDE_DIR})
     set(PARALLEL_FFTW_LIBRARIES ${FFTW2_MPI_LIBRARIES} ${FFTW2_LIBRARIES})
     add_definitions(-DUSE_FFTW2)
     if(NOT PARALLEL_FFTW_FOUND)
@@ -186,7 +281,9 @@ if(USE_SIMPLE_TIMER)
         message("-- Simple timer memory profiling enabled")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER_MEM")
     endif(USE_SIMPLE_TIMER_MEM)
-endif(USE_SIMPLE_TIMER)
+else()
+  message(STATUS "Simple time profiling not enabled")
+endif()
 
 # Additional CXXFLAGS
 if(EXTRA_CXX_FLAGS)
@@ -231,9 +328,9 @@ endif ()
 # We should probably warn someone trying to build static libraries along with
 #  the python bindings since it won't work with python.
 # The python bindings will still be build shared.
-if ( (NOT BUILD_SHARED_LIBS) AND BUILD_PYTHON_BINDINGS )
+if ( (NOT BUILD_SHARED_LIBS))
   message(WARNING "Static library build selected, ignored for python bindings")
-endif ()
+endif()
 
 function(add_test_executable name)
 #  add_executable(${name} EXCLUDE_FROM_ALL ${ARGN})
@@ -264,7 +361,7 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-smart_include_directories("${extra_includes}")
+#smart_include_directories("${extra_includes}")
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(archived-applications)

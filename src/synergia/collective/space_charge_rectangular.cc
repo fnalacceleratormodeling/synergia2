@@ -12,8 +12,16 @@ using pconstants::epsilon0;
 
 Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
 			std::vector<int > const & grid_shape, bool equally_spread):
-Collective_operator("space_charge_rectangular"), pipe_size(pipe_size), 
-grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), equally_spread(equally_spread), have_domain(false),
+Collective_operator("space_charge_rectangular"),
+pipe_size(pipe_size),
+grid_shape(grid_shape),
+domain_sptr(),
+comm_f_sptr(comm_f_sptr),
+fftw_helper_sptr(),
+have_fftw_helper(),
+have_domain(false),
+equally_spread(equally_spread),
+diagnostics_list(),
 have_diagnostics(false)//,fftw_helper_sptr(),domain_sptr()
 {
 
@@ -626,8 +634,8 @@ Space_charge_rectangular::apply_kick(Bunch & bunch, Rectangular_grid const& En, 
 {
   
  //AM: kicks  in the z_lab frame 
- //Delta p_x&=& F_x \Delta t&=& - q \frac{1}{\gamma^2} \frac{\partial \Phi'}{\partial x} \Delta t=q \frac{1}{\beta \gamma^2} E_{grid~x} \Delta t\\
- //Delta E &= & q E_z \Delta s&=& q \frac{1}{\gamma^2 \beta} \frac{\partial \Phi'}{\partial ct} \beta c\Delta t=-q \frac{c}{\beta \gamma^2 }E_{grid~z} \Delta t\\
+ //Delta p_x&=& F_x \Delta t&=& - q \frac{1}{\gamma^2} \frac{\partial \Phi'}{\partial x} \Delta t=q \frac{1}{\beta \gamma^2} E_{grid~x} \Delta t
+ //Delta E &= & q E_z \Delta s&=& q \frac{1}{\gamma^2 \beta} \frac{\partial \Phi'}{\partial ct} \beta c\Delta t=-q \frac{c}{\beta \gamma^2 }E_{grid~z} \Delta t
  // 1/beta factor in E_grid from charge deposition on (x,y,cdt) coordinates grid 
 
  
@@ -728,8 +736,10 @@ Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, 
 void
 Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger)
 { 
-    double t,t1;
-   // t = simple_timer_current();   
+   // t = simple_timer_current();
+
+    double t = 0.0;
+    double t1 = 0.0;
     bunch.convert_to_state(Bunch::fixed_z_lab);
     set_domain(bunch);
     Rectangular_grid_sptr rho_sptr(get_charge_density(bunch)); // [C/m^3], [Q/DxDyD(ct)] in z_lab frame
@@ -758,9 +768,9 @@ Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, in
             do_diagnostics(*(Efield[component]),component, time_step,step, bunch);
             apply_kick(bunch, *(Efield[component]), time_step, component);  
         }
-    }      
-    
-     t = simple_timer_show(t, "sc_apply: 3x apply_kick and get En");
-     t1 = simple_timer_show(t1, "sc_aplly total");
+    }
+
+    t = simple_timer_show(t, "sc_apply: 3x apply_kick and get En");
+    t1 = simple_timer_show(t1, "sc_aplly total");
 }
 

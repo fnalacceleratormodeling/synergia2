@@ -36,7 +36,7 @@ BOOST_FIXTURE_TEST_CASE(construct3, Bunches_fixture)
     try {
         Bunch_train bunch_train(bunches, separations);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);

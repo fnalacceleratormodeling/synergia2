@@ -20,10 +20,9 @@ add_library(synergia_bunch
     period.cc)
 target_link_libraries(synergia_bunch synergia_parallel_utils synergia_distributed_fft
     synergia_hdf5_utils synergia_foundation synergia_serialization)
-if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(bunch bunch_wrap.cc)
-    target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
-endif ()
+
+add_python_extension(bunch bunch_wrap.cc)
+target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
 
 install(TARGETS synergia_bunch DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
@@ -38,18 +37,18 @@ install(FILES
     diagnostics_bulk_spectator_track.h
     diagnostics_phase_space_density.h
     diagnostics_particles.h
+    diagnostics_apertures_loss.h
     fixed_t_z_converter.h
     populate.h
     analysis.h
     period.h
-    DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/bunch)
-if (BUILD_PYTHON_BINDINGS)
-    install(FILES
+    DESTINATION include/synergia/bunch)
+
+install(FILES
         __init__.py
-        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
-    install(TARGETS
+        DESTINATION lib/synergia/bunch)
+install(TARGETS
         bunch
-        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
-endif ()
+        DESTINATION lib/synergia/bunch)
 
 add_subdirectory(tests)

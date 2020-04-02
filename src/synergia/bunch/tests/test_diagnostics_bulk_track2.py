@@ -219,7 +219,7 @@ def test_tracks_lost_particles_with_offset():
     # make list of particle IDs selected with offset and track count
     pids = []
     for k in range(size):
-        pids.extend(range(starts[k], starts[k]+counts[k]))
+        pids.extend(list(range(starts[k], starts[k]+counts[k])))
 
     # now filling local particle array for all particles
     for pnum in range(local_num):

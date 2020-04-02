@@ -1,6 +1,7 @@
-#ifndef PERIOD_H_
-#define PERIOD_H_
-#include "synergia/lattice/diagnostics_apertures_loss.h"
+#ifndef PERIOD_H
+#define PERIOD_H
+
+#include "synergia/bunch/diagnostics_apertures_loss.h"
 #include "synergia/bunch/bunch.h"
 void apply_longitudinal_periodicity (Bunch & bunch, double length); 
 void apply_longitudinal_bucket_barrier(Bunch & bunch, double length);

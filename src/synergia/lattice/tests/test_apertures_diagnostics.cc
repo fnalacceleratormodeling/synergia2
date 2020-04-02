@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/lattice/diagnostics_apertures_loss.h"
+#include "synergia/bunch/diagnostics_apertures_loss.h"
 #include "synergia/lattice/lattice.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/foundation/physical_constants.h"
@@ -74,10 +74,6 @@ struct Fixture_bunch
         BOOST_TEST_MESSAGE("setup bunch_lattice_fixture");
     }
 
-
-    
-    
-    
     ~Fixture_bunch()
     {
         BOOST_TEST_MESSAGE("teardown bunch_lattice_fixture");
@@ -85,9 +81,9 @@ struct Fixture_bunch
 
     Lattice_sptr lattice_sptr;
     Lattice_element f, o, d;
+    Commxx_sptr comm_sptr;
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx_sptr comm_sptr;
     Bunch bunch;
     unsigned long int seed;
     Random_distribution distribution;

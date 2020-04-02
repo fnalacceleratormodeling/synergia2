@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(set_gamma_invalid)
     try {
         four_momentum.set_gamma(too_small);
     }
-    catch (std::range_error) {
+    catch (std::range_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(set_beta_invalid)
     try {
         four_momentum.set_beta(too_large);
     }
-    catch (std::range_error) {
+    catch (std::range_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(set_beta_invalid2)
     try {
         four_momentum.set_beta(too_small);
     }
-    catch (std::range_error) {
+    catch (std::range_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);

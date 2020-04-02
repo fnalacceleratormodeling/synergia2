@@ -164,7 +164,7 @@ main () {
     get_prefix "$@"
     set_paths "$@"
     try_path_flags "$@"
-    PYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}"
+    PYTHON_EXECUTABLE="${MY_PYTHON_EXECUTABLE}"
     if [ x"$1" = x"--ipython" ]; then
         PYTHON_EXECUTABLE="${IPYTHON_EXECUTABLE}"
         shift
@@ -174,3 +174,4 @@ main () {
 }
 
 main "$@"
+

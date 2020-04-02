@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(construct_bad_period)
                 need_state_conversion, periodic_z, z_period, grid_entire_period,
                 n_sigma);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);
@@ -230,7 +230,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
     try {
         space_charge.set_fixed_domain(bad0_domain_sptr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);
@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
     try {
         space_charge.set_fixed_domain(bad1_domain_sptr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);
@@ -264,7 +264,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
     try {
         space_charge.set_fixed_domain(bad2_domain_sptr);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);
@@ -572,7 +572,7 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
         Distributed_rectangular_grid_sptr G2(
                 space_charge.get_green_fn2_pointlike());
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error&) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);

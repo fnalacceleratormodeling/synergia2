@@ -213,7 +213,7 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     double factor = unit_conversion * q * delta_t * p_scale * E_conversion;
 
     // set longitudinal density depending on the longitudinal flag
-    double line_charge_density;
+    double line_charge_density = 0;
     if (longitudinal_distribution == longitudinal_uniform) {
        // use the length in the bunch frame
         line_charge_density = q_total / bunch.get_z_period_length() ;

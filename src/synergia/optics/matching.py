@@ -3,7 +3,7 @@
 import sys
 import numpy
 
-from one_turn_map import linear_one_turn_map
+from .one_turn_map import linear_one_turn_map
 from mpi4py import MPI
 from synergia.bunch import Bunch, populate_6d, populate_6d_truncated, populate_transverse_gaussian, populate_transverse_KV_GaussLong, populate_two_particles
 from synergia.foundation import Random_distribution, pconstants
@@ -20,8 +20,8 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
     evects = []
     for i in range(0, 6):
         evects.append(evect_matrix[:, i])
-    F = range(0, 3)
-    remaining = range(5, -1, -1)
+    F = list(range(0, 3))
+    remaining = list(range(5, -1, -1))
     for i in range(0, 3):
         # find complex conjugate among remaining eigenvectors
         first = remaining.pop()
@@ -33,7 +33,7 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
                 best = numpy.max(abs(sum.imag))
                 conj = item
         if conj == -1:
-            raise RuntimeError, "failed to find a conjugate pair in _get_correlation_matrix"
+            raise RuntimeError("failed to find a conjugate pair in _get_correlation_matrix")
         remaining.remove(conj)
         tmp = numpy.outer(evects[first],
             numpy.conjugate(evects[first]))
@@ -79,8 +79,8 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
     return C
 
 def  print_matched_parameters(C,beta,bunch_index):
-     print "One Turn correlation matrix for bunch ", bunch_index," : "
-     print numpy.array2string(C, precision=3)
+     print("One Turn correlation matrix for bunch ", bunch_index," : ")
+     print(numpy.array2string(C, precision=3))
 
      gamma=1./numpy.sqrt(1.-beta*beta)
      pz = gamma * beta *pconstants.mp
@@ -95,42 +95,42 @@ def  print_matched_parameters(C,beta,bunch_index):
      emity=sqrt(C[2,2]*C[3,3]-C[2,3]*C[3,2])/units[2]/units[3]
      emitz=sqrt(C[4,4]*C[5,5]-C[4,5]*C[5,4])/units[4]/units[5]
 
-     print "************ BEAM MATCHED PARAMETERS, BUNCH ",bunch_index," *****************"
-     print "*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad (synergia units)=", emitx/pz/pi, " pi*meters*rad"
-     print "*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad (synergia units)=", emity/pz/pi, " pi*meters*rad"
-     print "*    emitz=", emitz, " meters*GeV/c =", emitz*1.e9/(pconstants.c), " eV*s =" , emitz*beta*beta*energy/pz, " meters*GeV =", emitz/pz/beta, " [cdt*dp/p] (synergia units)"
-     print " "
-     print "*    90%emitx=",  4.605*pi*emitx/pz,"  meters*rad =", 4.605*emitx/pz, " pi*meters*rad"
-     print "*    90%emity=",  4.605*pi*emity/pz, " meters*rad =", 4.605*emity/pz, " pi*meters*rad"
-     print "*    90%emitz=",  4.605*pi*emitz*1.e9/(pconstants.c), " eV*s"
-     print " "
-     print " "
-     print "*    95%emitx=",  5.991*pi*emitx/pz,"  meters*rad =", 5.991*emitx/pz, " pi*meters*rad"
-     print "*    95%emity=",  5.991*pi*emity/pz, " meters*rad =", 5.991*emity/pz, " pi*meters*rad"
-     print "*    95%emitz=",  5.991*pi*emitz*1.e9/(pconstants.c), " eV*s"
-     print " "
-     print "*    Normalized emitx=",  emitx*gamma*beta/pz, " meters*rad =", emitx*gamma*beta/pz/pi, " pi*meters*rad"
-     print "*    Normalized emity=",  emity*gamma*beta/pz, " meters*rad =", emity*gamma*beta/pz/pi, " pi*meters*rad"
-     print " "
-     print "*    Normalized 90%emitx=",  4.605*pi*emitx*gamma*beta/pz,"  meters*rad =", 4.605*emitx*gamma*beta/pz, " pi*meters*rad"
-     print "*    Normalized 90%emity=",  4.605*pi*emity*gamma*beta/pz, " meters*rad =", 4.605*emity*gamma*beta/pz, " pi*meters*rad"
-     print " "
-     print "*    Normalized 95%emitx=",  5.991*pi*emitx*gamma*beta/pz,"  meters*rad =", 5.991*emitx*gamma*beta/pz, " pi*meters*rad"
-     print "*    Normalized 95%emity=",  5.991*pi*emity*gamma*beta/pz, " meters*rad =", 5.991*emity*gamma*beta/pz, " pi*meters*rad"
-     print " "
-     print "*    xrms=",sqrt(C[0,0])/units[0] , " meters"
-     print "*    yrms=",sqrt(C[2,2])/units[2], " meters"
-     print "*    zrms=",sqrt(C[4,4])/units[4] , " meters=", 1e9*sqrt(C[4,4])/units[4]/pconstants.c/beta," ns  "
+     print("************ BEAM MATCHED PARAMETERS, BUNCH ",bunch_index," *****************")
+     print("*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad (synergia units)=", emitx/pz/pi, " pi*meters*rad")
+     print("*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad (synergia units)=", emity/pz/pi, " pi*meters*rad")
+     print("*    emitz=", emitz, " meters*GeV/c =", emitz*1.e9/(pconstants.c), " eV*s =" , emitz*beta*beta*energy/pz, " meters*GeV =", emitz/pz/beta, " [cdt*dp/p] (synergia units)")
+     print(" ")
+     print("*    90%emitx=",  4.605*pi*emitx/pz,"  meters*rad =", 4.605*emitx/pz, " pi*meters*rad")
+     print("*    90%emity=",  4.605*pi*emity/pz, " meters*rad =", 4.605*emity/pz, " pi*meters*rad")
+     print("*    90%emitz=",  4.605*pi*emitz*1.e9/(pconstants.c), " eV*s")
+     print(" ")
+     print(" ")
+     print("*    95%emitx=",  5.991*pi*emitx/pz,"  meters*rad =", 5.991*emitx/pz, " pi*meters*rad")
+     print("*    95%emity=",  5.991*pi*emity/pz, " meters*rad =", 5.991*emity/pz, " pi*meters*rad")
+     print("*    95%emitz=",  5.991*pi*emitz*1.e9/(pconstants.c), " eV*s")
+     print(" ")
+     print("*    Normalized emitx=",  emitx*gamma*beta/pz, " meters*rad =", emitx*gamma*beta/pz/pi, " pi*meters*rad")
+     print("*    Normalized emity=",  emity*gamma*beta/pz, " meters*rad =", emity*gamma*beta/pz/pi, " pi*meters*rad")
+     print(" ")
+     print("*    Normalized 90%emitx=",  4.605*pi*emitx*gamma*beta/pz,"  meters*rad =", 4.605*emitx*gamma*beta/pz, " pi*meters*rad")
+     print("*    Normalized 90%emity=",  4.605*pi*emity*gamma*beta/pz, " meters*rad =", 4.605*emity*gamma*beta/pz, " pi*meters*rad")
+     print(" ")
+     print("*    Normalized 95%emitx=",  5.991*pi*emitx*gamma*beta/pz,"  meters*rad =", 5.991*emitx*gamma*beta/pz, " pi*meters*rad")
+     print("*    Normalized 95%emity=",  5.991*pi*emity*gamma*beta/pz, " meters*rad =", 5.991*emity*gamma*beta/pz, " pi*meters*rad")
+     print(" ")
+     print("*    xrms=",sqrt(C[0,0])/units[0] , " meters")
+     print("*    yrms=",sqrt(C[2,2])/units[2], " meters")
+     print("*    zrms=",sqrt(C[4,4])/units[4] , " meters=", 1e9*sqrt(C[4,4])/units[4]/pconstants.c/beta," ns  ")
     # ,=2.*pi*sqrt(C[4,4])/units[4]/beam_parameters.get_z_length(), " rad
-     print "*    pxrms=",sqrt(C[1,1])/units[1] , " GeV/c,    dpx/p=",sqrt(C[1,1])
-     print "*    pyrms=",sqrt(C[3,3])/units[3] , " GeV/c,    dpy/p=",sqrt(C[3,3])
-     print "*    pzrms=",sqrt(C[5,5])/units[5] , " GeV/c,    dpz/p=",sqrt(C[5,5])
-     print "*    Erms=",sqrt(C[5,5])*beta*beta*energy, " GeV,  deoe=",sqrt(C[5,5])*beta*beta
+     print("*    pxrms=",sqrt(C[1,1])/units[1] , " GeV/c,    dpx/p=",sqrt(C[1,1]))
+     print("*    pyrms=",sqrt(C[3,3])/units[3] , " GeV/c,    dpy/p=",sqrt(C[3,3]))
+     print("*    pzrms=",sqrt(C[5,5])/units[5] , " GeV/c,    dpz/p=",sqrt(C[5,5]))
+     print("*    Erms=",sqrt(C[5,5])*beta*beta*energy, " GeV,  deoe=",sqrt(C[5,5])*beta*beta)
     #print ""
     #print "*    bucket length=",beam_parameters.get_z_length(),  " meters =",1e9*beam_parameters.get_z_length()/synergia.PH_MKS_c/beta," ns"
-     print "*    pz=",pz, "  GeV/c"
-     print "*    total energy=",energy,"GeV,   kinetic energy=", energy-pconstants.mp,"GeV"
-     print "****************************************************"
+     print("*    pz=",pz, "  GeV/c")
+     print("*    total energy=",energy,"GeV,   kinetic energy=", energy-pconstants.mp,"GeV")
+     print("****************************************************")
 
 
 
@@ -142,7 +142,7 @@ def get_alpha_beta(map):
     cos_mu = (mxx + mxpxp) / 2.0
     try:
         mu = acos(cos_mu)
-    except ValueError, e:
+    except ValueError as e:
         sys.stderr.write('failed to take the acos of %g\n' % cos_mu)
         raise RuntimeError("get_alpha_beta: unstable map:\n" +
                            numpy.array2string(map) + '\n')
@@ -206,9 +206,9 @@ def  get_tunes(mymap):
 
     l,v = numpy.linalg.eig(mymap)
     if Commxx().get_rank()==0:
-      print "eigenvalues of one turn map: ", l
-      print "absolute values of eigenvalues (should all be 1): ", abs(l)
-      print "fractional tunes from eigenvalues: ", numpy.log(l).imag/(2.0*numpy.pi)
+      print("eigenvalues of one turn map: ", l)
+      print("absolute values of eigenvalues (should all be 1): ", abs(l))
+      print("fractional tunes from eigenvalues: ", numpy.log(l).imag/(2.0*numpy.pi))
 
     return (tune_x,tune_y, tune_z)
 
@@ -279,7 +279,7 @@ def get_matched_bunch_transverse_parameters(lattice_simulator,
     map = lattice_simulator.get_linear_one_turn_map()
     alpha, beta = get_alpha_beta(map)
     sigma4, r4 = match_transverse_twiss_emittance([emit_x, emit_y], alpha, beta)
-    sigma = range(0, 6)
+    sigma = list(range(0, 6))
     sigma[0:4] = sigma4
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
     p = lattice_simulator.get_lattice().get_reference_particle().get_momentum()

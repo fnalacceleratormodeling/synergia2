@@ -9,6 +9,8 @@ add_test(NAME test_beamline_element_dynamics_libff COMMAND ${MPIEXEC} ${MPIEXEC_
 add_test_executable(test_libff_drift test_libff_drift.cc)
 target_link_libraries(test_libff_drift synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_drift COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_drift>)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/fodo.madx
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_libff_elens test_libff_elens.cc)
 target_link_libraries(test_libff_elens synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -25,6 +27,8 @@ add_test(NAME test_libff_on_chef COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<
 add_test_executable(test_libff_on_iota test_libff_on_iota.cc)
 target_link_libraries(test_libff_on_iota synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_on_iota COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_on_iota>)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/iota_nll.madx
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_libff_kicker_on_chef test_libff_kicker_on_chef.cc)
 target_link_libraries(test_libff_kicker_on_chef synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -33,10 +37,14 @@ add_test(NAME test_libff_kicker_on_chef COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLA
 add_test_executable(test_libff_rfcavities test_libff_rfcavities.cc)
 target_link_libraries(test_libff_rfcavities synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_libff_rfcavities COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_libff_rfcavities>)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/foborodobo128.madx
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices/)
 
 add_test_executable(test_sis18 test_sis18.cc)
 target_link_libraries(test_sis18 synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_sis18 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_sis18>)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/sis18-6.madx
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_libff_acceleration test_libff_acceleration.cc)
 target_link_libraries(test_libff_acceleration synergia_lattice synergia_simulation synergia_libFF ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -47,13 +55,34 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_mad8_multipoles.py
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test(NAME test_libff_madx_multipoles_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_madx_multipoles.py)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_madx_multipoles.py
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_madx_multipoles.py    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/mpole_k1.seq      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/mpole_k1s.seq     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/mpole_k1_tilt.seq DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/mpole_k1.lat      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/mpole_k1_tilt.lat DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/mpole_k1.npy      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/mpole_k1s.npy     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/mpole_k1_tilt.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/m8mpole_k1.npy    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/m8mpole_k1_tilt.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/cfsbend_sext.seq  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/cfsbend_sext.npy  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
 
 add_test(NAME test_nllensff_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_nllens.py)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_nllens.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_nllens.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/nllens_channel.seq  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/track_nllensone.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
 
 add_test(NAME test_madx_misc_elementsff_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_misc_mx_elements.py)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_misc_mx_elements.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_misc_mx_elements.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/misc_elements.seq DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/m_base_quad.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/m_skew_quad.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/m_tilt_quad.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices/seq_bend_edge.npy DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lattices)

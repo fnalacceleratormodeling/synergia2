@@ -517,11 +517,11 @@ BOOST_AUTO_TEST_CASE(elens_kick2)
     Lattice_sptr lattice_sptr(reader.get_lattice_sptr("channel"));
     // extract the parameters of the electron lens for later calculation
     Lattice_elements lelems(lattice_sptr->get_elements());
-    double current;
-    double eenergy;
-    double radius;
-    double longrms;
-    double len;
+    double current = 0;
+    double eenergy = 0;
+    double radius = 0;
+    double longrms = 0;
+    double len = 0;
     for (Lattice_elements::const_iterator lit=lelems.begin(); lit!= lelems.end(); ++lit) {
         if ((*lit)->get_type() == "elens") {
             current = (*lit)->get_double_attribute("current");

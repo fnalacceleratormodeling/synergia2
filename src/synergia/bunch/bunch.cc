@@ -804,7 +804,7 @@ void do_sort(double * t, size_t rows, size_t cols, size_t cols_padded, size_t or
     // c++ 11
     // unsigned int ind=0;
     //generate(index.begin(),index.end(), [&]() { return ind++; });
-    for(int i=0; i<cols; ++i) {
+    for(size_t i=0; i<cols; ++i) {
         index[i] = i;
     }
     semi_global_start_pos = ord_col*cols_padded;

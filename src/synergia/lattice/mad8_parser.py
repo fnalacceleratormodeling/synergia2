@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import division
+
 from pyparsing import Word, alphas, ParseException, Literal, CaselessLiteral, \
 Combine, Optional, nums, Or, Forward, ZeroOrMore, StringEnd, alphanums, \
 restOfLine, empty, delimitedList, LineEnd, Group, QuotedString, dblQuotedString, \
@@ -35,7 +35,7 @@ class Printable:
                 val = getattr(self, name)
                 str_val = None
                 if hasattr(self, '_enum_types'):
-                    if self._enum_types.has_key(name):
+                    if name in self._enum_types:
                         str_val = self._enum_to_string(self._enum_types[name], val)
                 if not str_val:
                     str_val = str(val)
@@ -193,7 +193,7 @@ class Expression_parser:
             ops = []
             for i in range(0, self.functions[op.value][1]):
                 ops.append(self.evaluate_stack(s, variables, labels, constants))
-            return apply(self.functions[op.value][0], ops)
+            return self.functions[op.value][0](*ops)
         elif op.type == Stack_type.ident:
             if op.value in constants:
                 return constants[op.value]
@@ -201,28 +201,26 @@ class Expression_parser:
                 return variables[op.value]
             else:
                 if self.uninitialized_exception:
-                    raise ParseException, 'variable "%s" unitialized' % op.value
+                    raise ParseException('variable "%s" unitialized' % op.value)
                 if self.uninitialized_warn:
-                    print \
-                     'warning: variable "%s" uninitialized, treating as 0.0' \
-                     % op.value
+                    print( 'warning: variable "%s" uninitialized, treating as 0.0' \
+                     % op.value)
                 return 0.0
         elif op.type == Stack_type.str:
             return op.value
         elif op.type == Stack_type.subscript_ident:
             retval = None
-            if labels.has_key(op.value.ident):
+            if op.value.ident in labels:
                 attributes = labels[op.value.ident].attributes
-                if attributes.has_key(op.value.subscript):
+                if op.value.subscript in attributes:
                     retval = attributes[op.value.subscript]
             if retval == None:
-                raise RuntimeError, "Unknown subscript %s[%s]" % \
-                    (op.value.ident, op.value.subscript)
+                raise RuntimeError
             return retval
         elif op.type == Stack_type.range:
             retval = op.value
         else:
-            raise RuntimeError, "Unhandled expression stack item %s" % op
+            raise RuntimeError("Unhandled expression stack item %s" % op)
 
     def reset(self):
         self.stack = []
@@ -383,7 +381,7 @@ if __name__ == '__main__':
     filename = sys.argv[1]
     mp = Mad8_parser()
     mp.parse(open(filename, 'r').read())
-    print "variables =", mp.variables
-    print "labels =", mp.labels
-    print "lines =", mp.lines
-    print "commands =", mp.commands
+    print("variables =", mp.variables)
+    print("labels =", mp.labels)
+    print("lines =", mp.lines)
+    print("commands =", mp.commands)

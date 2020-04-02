@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(construct2_negative_left)
         Lattice_element_slice lattice_element_slice(lattice_element_sptr, left,
                 right);
     }
-    catch (std::range_error) {
+    catch (std::range_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(construct2_beyond_right)
         Lattice_element_slice lattice_element_slice(lattice_element_sptr, left,
                 right);
     }
-    catch (std::range_error) {
+    catch (std::range_error&) {
         caught = true;
     }
     BOOST_CHECK(caught);

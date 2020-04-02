@@ -154,7 +154,7 @@ Space_charge_2d_kv::apply(Bunch & bunch, double delta_t,
             (gamma*gamma*gamma*beta);
     // set longitudinal density depending on the longitudinal flag
     double total_q = bunch.get_real_num()*bunch.get_particle_charge();
-    double line_charge_density;
+    double line_charge_density = 0;
     if (longitudinal_distribution == longitudinal_uniform) {
         // if longitudinally uniform, set the length based on sqrt(12)*sigma_z
         // because you might not necessarily have a periodic bunch with a

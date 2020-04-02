@@ -8,7 +8,7 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 #include "bunch_sptr_fixture.h"
 
-const double tolerance = 1.0e-11;
+const double tolerance = 1e-14;
 
 BOOST_FIXTURE_TEST_CASE(construct, Bunch_sptr_fixture)
 {
@@ -161,8 +161,6 @@ BOOST_FIXTURE_TEST_CASE(write_min_max, Bunch_sptr_fixture)
     // check last file
     if (comm_sptr->get_rank() == 0)
     {
-        int ranks = comm_sptr->get_size();
-
         Hdf5_file file = Hdf5_file("diagnostics_particles_mpi_35_0000.h5", Hdf5_file::read_only);
         MArray2d parts = file.read<MArray2d>("particles");
 

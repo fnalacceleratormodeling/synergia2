@@ -1,6 +1,6 @@
 # /usr/bin/env python
 
-from __future__ import division
+
 
 import sys
 import re
@@ -178,8 +178,8 @@ def evaluateStack(s):
     op1 = evaluateStack(s)
     try:
         retval = opn[op](op1, op2)
-    except TypeError,e:
-        print "Evaluate failed on %s %s %s" %(op1, op,op2)
+    except TypeError as e:
+        print("Evaluate failed on %s %s %s" %(op1, op,op2))
         sys.exit(1)
     return retval
   elif op in constants:
@@ -189,13 +189,13 @@ def evaluateStack(s):
     return fn[op]( evaluateStack( s ) )
   elif re.search('^[a-zA-Z][a-zA-Z0-9_. ]*$', op):
     name = op.lower()
-    if variables.has_key(name):
+    if name in variables:
       return variables[name]
     else:
 #      print "warning: undefined variable:",name
       return name
   elif re.search('^[-+]?[0-9]+$', op):
-    return long(op)
+    return int(op)
   else:
     return float(op)
 
@@ -207,14 +207,14 @@ if __name__ == "__main__":
         if not re.search('^[^!]*&',line):
             try:
                 L = pattern.parseString(combined_line)
-            except ParseException, err:
-                print err.line
-                print " " * (err.column - 1) + "^"
-                print err
+            except ParseException as err:
+                print(err.line)
+                print(" " * (err.column - 1) + "^")
+                print(err)
                 sys.exit(1)
             combined_line = ""
 
-    print variables
-    print lines
-    print elements
-    print commands
+    print(variables)
+    print(lines)
+    print(elements)
+    print(commands)

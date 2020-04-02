@@ -1,1 +1,1 @@
-from three_bump import *
+from .three_bump import *

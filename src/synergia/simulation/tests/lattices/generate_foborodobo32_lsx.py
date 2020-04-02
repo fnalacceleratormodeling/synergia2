@@ -8,7 +8,7 @@ def map2twiss(csmap):
     asinmu = 0.5*(csmap[0,0]-csmap[1,1])
 
     if abs(cosmu) > 1.0:
-        raise RuntimeError, "map is unstable"
+        raise RuntimeError("map is unstable")
 
     mu =np.arccos(cosmu)
 
@@ -42,7 +42,7 @@ harmno = 128
 freq = harmno * beta * synergia.foundation.pconstants.c/lattice_length * 1.0e-6
 rfwavelen = lattice_length/harmno
 
-print "rf frequency: ", freq
+print("rf frequency: ", freq)
 
 synergia.utils.write_lsexpr_file(lattice.as_lsexpr(), "foborodobo32_lattice.lsx")
 
@@ -54,11 +54,11 @@ map = synergia.optics.one_turn_map.linear_one_turn_map(lattice_simulator)
 [ay, by, qy] = map2twiss(map[2:4, 2:4])
 [az, bz, qz] = map2twiss(map[4:6,4:6])
 
-print "Lattice parameters (assuming uncoupled map)"
-print "alpha_x: ", ax, " alpha_y: ", ay
-print "beta_x: ", bx, " beta_y: ", by
-print "q_x: ", qx, " q_y: ", qy
-print "beta_z: ", bz
+print("Lattice parameters (assuming uncoupled map)")
+print("alpha_x: ", ax, " alpha_y: ", ay)
+print("beta_x: ", bx, " beta_y: ", by)
+print("q_x: ", qx, " q_y: ", qy)
+print("beta_z: ", bz)
 
-print "one turn map"
-print np.array2string(map, max_line_width=300,precision=16)
+print("one turn map")
+print(np.array2string(map, max_line_width=300,precision=16))

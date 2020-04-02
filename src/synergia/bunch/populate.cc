@@ -3,8 +3,24 @@
 #include "populate.h"
 #include "diagnostics.h"
 
+#if defined(__has_warning)
+#if !__has_warning("-Wint-in-bool-context")
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-in-bool-context"
+#endif
+#endif
+
 #include "Eigen/Eigen"
 #include "Eigen/Cholesky"
+
+#if defined(__has_warning)
+#if !__has_warning("-Wint-in-bool-context")
+#pragma GCC diagnostic pop
+#endif
+#endif
+
+#include <stdexcept>
+#include "synergia/utils/simple_timer.h"
 
 using namespace Eigen;
 
@@ -16,16 +32,15 @@ using mconstants::pi;
 
 namespace {
 bool is_symmetric66(Const_MArray2d_ref &m) {
-  bool symmetric = true;
   const double tolerance = 1.0e-14;
   for (int i = 0; i < 6; ++i) {
     for (int j = i + 1; j < 6; ++j) {
       if (!floating_point_equal(m[i][j], m[j][i], tolerance)) {
-        symmetric = false;
+       return false;
       }
     }
   }
-  return symmetric;
+  return true;
 }
 }
 
@@ -326,9 +341,7 @@ populate_longitudinal_uniform(Distribution &dist, Bunch &bunch,   double length)
 {
     double half_length=0.5*length/bunch.get_reference_particle().get_beta();
     MArray2d_ref particles(bunch.get_local_particles());
-    int num_part = particles.shape()[0];
     dist.fill_uniform(particles[boost::indices[range()][Bunch::cdt]], -half_length, half_length);
-    
 }
 
 void
@@ -441,7 +454,7 @@ get_correlation_matrix(Const_MArray2d_ref one_turn_map, double arms, double brms
        remaining.pop_back();
         double best = 1.0e30;
        int conj = -1;
-       for (int item=0;item<remaining.size();item++){           
+       for (std::size_t item=0;item<remaining.size();item++){           
            VectorXcd sum=evect_matrix.col(first)+evect_matrix.col(remaining[item]);    
            if (sum.imag().cwiseAbs().maxCoeff()<best){
               best=sum.imag().cwiseAbs().maxCoeff();

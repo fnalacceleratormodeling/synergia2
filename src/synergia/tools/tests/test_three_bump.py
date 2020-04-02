@@ -14,7 +14,7 @@ from nose.tools import *
 #  just a little tester for the class
 def test_three_bump():
     lattice = synergia.lattice.MadX_reader().get_lattice("model", "lattices/foborodobo128.madx")
-    print "read lattice: ", len(lattice.get_elements()), " elements, length = ", lattice.get_length()
+    print("read lattice: ", len(lattice.get_elements()), " elements, length = ", lattice.get_length())
     hcorr_names = ('hc1', 'hc2', 'hc3')
     vcorr_names = ('vc1', 'vc2', 'vc3')
     three_bump = synergia.tools.Three_bump(lattice, 'm1', 'm2', hcorr_names, vcorr_names, 'm3', False)
@@ -23,7 +23,7 @@ def test_three_bump():
     target_x = 0.001
     target_y = -0.0005
     bump_settings = three_bump.set_bump((target_x, target_y))
-    print "bump_settings: ", bump_settings[0], bump_settings[1], bump_settings[2], bump_settings[3], bump_settings[4], bump_settings[5]
+    print("bump_settings: ", bump_settings[0], bump_settings[1], bump_settings[2], bump_settings[3], bump_settings[4], bump_settings[5])
 
     # propagate the whole lattice now
     comm = synergia.utils.Commxx()
