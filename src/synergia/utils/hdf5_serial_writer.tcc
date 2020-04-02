@@ -15,14 +15,14 @@ template<typename T>
         offset.resize(data_rank + 1);
 
         for (int i = 0; i < data_rank; ++i) {
-            dims[i] = data_dims.at(i);
-            max_dims[i] = data_dims.at(i);
-            size[i] = data_dims.at(i);
-            chunk_dims[i] = data_dims.at(i);
-            offset[i] = 0;
+            dims[i+1] = data_dims.at(i);
+            max_dims[i+1] = data_dims.at(i);
+            size[i+1] = data_dims.at(i);
+            chunk_dims[i+1] = data_dims.at(i);
+            offset[i+1] = 0;
         }
 
-        max_dims[data_rank] = H5S_UNLIMITED;
+        max_dims[0] = H5S_UNLIMITED;
 
         if (resume) {
             dataset = H5Dopen(file_sptr->get_h5file(), name.c_str(), H5P_DEFAULT);
@@ -37,21 +37,22 @@ template<typename T>
             herr_t res = H5Sget_simple_extent_dims(dataspace, &dims[0], NULL);
             if (res < 0) throw Hdf5_exception();
 
-            size[data_rank] = dims[data_rank];
-            offset[data_rank] = dims[data_rank];
-            dims[data_rank] = 1;
+            size[0] = dims[0];
+            offset[0] = dims[0];
+            dims[0] = 1;
         } else {
-            size[data_rank] = 0;
-            offset[data_rank] = 0;
-            dims[data_rank] = 1;
+            size[0] = 0;
+            offset[0] = 0;
+            dims[0] = 1;
+
             if (data_size == 0) {
                 throw std::runtime_error("Hdf5_serial_writer: zero data size encountered");
             }
             const size_t good_chunk_size = 8192; // pulled out of air
             if (data_size < good_chunk_size) {
-                chunk_dims[data_rank] = good_chunk_size/data_size;
+                chunk_dims[0] = good_chunk_size/data_size;
             } else {
-                chunk_dims[data_rank] = 1;
+                chunk_dims[0] = 1;
             }
 
             Hdf5_handler cparms = H5Pcreate(H5P_DATASET_CREATE);
@@ -114,7 +115,7 @@ template<typename T>
         }
 
         Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
-        ++size[data_rank];
+        ++size[0];
 
         herr_t res = H5Dextend(dataset, &size[0]);
         if (res < 0) throw Hdf5_exception();
@@ -127,7 +128,7 @@ template<typename T>
         res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, &data);
         if (res < 0) throw Hdf5_exception();
 
-        ++offset[data_rank];
+        ++offset[0];
     }
 
 template<>

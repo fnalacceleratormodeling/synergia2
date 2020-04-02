@@ -8,6 +8,7 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/libFF/ff_element_map.h"
 #include "synergia/simulation/calculate_closed_orbit.h"
+#include "synergia/simulation/fast_normal_form.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
@@ -1190,6 +1191,15 @@ Lattice_simulator::get_normal_form_sptr(bool sliced)
         return normal_form_sage_sptr;
     }
 }
+
+// Derive and return a Fast_normal_form object corresponding to the normal form calculated
+//   for the current lattice
+Fast_normal_form
+Lattice_simulator::get_fast_normal_form(bool sliced)
+{
+    return (Fast_normal_form(*get_normal_form_sptr(sliced)));
+}
+
 
 // checkLinearNormalForm
 // check the linear part of the normal form calculation
