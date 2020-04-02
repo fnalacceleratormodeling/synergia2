@@ -59,7 +59,7 @@ template<>
         }
 
         Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
-        ++size[data_rank];
+        ++size[0];
 
         herr_t res = H5Dextend(dataset, &size[0]);
         if (res < 0) throw Hdf5_exception();
@@ -72,7 +72,7 @@ template<>
         res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
         if (res < 0) throw Hdf5_exception();
 
-        ++offset[data_rank];
+        ++offset[0];
     }
 
 template<>
@@ -89,7 +89,7 @@ template<>
         }
 
         Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
-        ++size[data_rank];
+        ++size[0];
 
         herr_t res = H5Dextend(dataset, &size[0]);
         if (res < 0) throw Hdf5_exception();
@@ -102,7 +102,7 @@ template<>
         res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
         if (res < 0) throw Hdf5_exception();
 
-        ++offset[data_rank];
+        ++offset[0];
     }
 
 template<>
@@ -119,7 +119,7 @@ template<>
         }
 
         Hdf5_handler dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
-        ++size[data_rank];
+        ++size[0];
 
         herr_t res = H5Dextend(dataset, &size[0]);
         if (res < 0) throw Hdf5_exception();
@@ -132,5 +132,5 @@ template<>
         res = H5Dwrite(dataset, atomic_type, dataspace, filespace, H5P_DEFAULT, data.origin());
         if (res < 0) throw Hdf5_exception();
 
-        ++offset[data_rank];
+        ++offset[0];
     }
