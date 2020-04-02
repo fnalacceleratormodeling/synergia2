@@ -97,7 +97,7 @@ def check_full2(file, turns, num_particles):
     if h5.get_dims("num_particles")[0] != turns:
         print("check_full2: wrong size of num_particles, ", h5.get_dims("num_particles")[0], "!=", turns)
         bad = True
-    if h5.get_dims("mean")[1] != turns:
+    if h5.get_dims("mean")[0] != turns:
         print("check_full2: wrong size of mean array: ", h5.get_dims("mean"), "!=", (6,turns))
     if h5.read_array1i('num_particles')[-1] != num_particles:
         print("check_full2: wrong number of macro_particles, ", h5.get_dims("num_particles")[-1], " != ", num_particles)
@@ -107,10 +107,10 @@ def check_full2(file, turns, num_particles):
 def check_tracks(file, turns, particles):
     bad = False
     h5 = Hdf5_file(file, Hdf5_file.read_only)
-    if h5.get_dims("track_coords")[0] != particles:
+    if h5.get_dims("track_coords")[1] != particles:
         print("check_tracks: wrong number of particles: ", h5.get_dims("track_coords")[0], "!=", particles)
         bad = True
-    if h5.get_dims("track_coords")[2] != turns:
+    if h5.get_dims("track_coords")[0] != turns:
         print("check_tracks: wrong number of turns: ", h5.get_dims("track_coords")[2], "!=", turns)
         bad = True
     return bad

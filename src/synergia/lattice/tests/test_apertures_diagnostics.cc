@@ -189,14 +189,14 @@ BOOST_FIXTURE_TEST_CASE(update_diagnostics, Fixture_bunch)
          BOOST_CHECK_EQUAL(read_bi.size(), 5);
          BOOST_CHECK_EQUAL(read_s.size(), 5);
          BOOST_CHECK_EQUAL(read_sn.size(), 5);
-         BOOST_CHECK_EQUAL(read_cc.shape()[0], 7);
-         BOOST_CHECK_EQUAL(read_cc.shape()[1], 5);
+         BOOST_CHECK_EQUAL(read_cc.shape()[0], 5);
+         BOOST_CHECK_EQUAL(read_cc.shape()[1], 7);
          BOOST_CHECK_CLOSE(read_cc[0][0],1.2, tolerance1 );
-         BOOST_CHECK_CLOSE(read_cc[1][0],2.2, tolerance1 );
-         BOOST_CHECK_CLOSE(read_cc[2][0],3.2, tolerance1 );
-         BOOST_CHECK_CLOSE(read_cc[5][0],6.2, tolerance1 ); 
-         BOOST_CHECK_CLOSE(read_cc[4][1],-5.2, tolerance1 ); 
-         BOOST_CHECK_CLOSE(read_cc[0][4],-10.2, tolerance1 ); 
+         BOOST_CHECK_CLOSE(read_cc[0][1],2.2, tolerance1 );
+         BOOST_CHECK_CLOSE(read_cc[0][2],3.2, tolerance1 );
+         BOOST_CHECK_CLOSE(read_cc[0][5],6.2, tolerance1 ); 
+         BOOST_CHECK_CLOSE(read_cc[1][4],-5.2, tolerance1 ); 
+         BOOST_CHECK_CLOSE(read_cc[4][0],-10.2, tolerance1 ); 
          BOOST_CHECK_CLOSE(read_s[0],100.10, tolerance1 ); 
          BOOST_CHECK_CLOSE(read_sn[1],8.4, tolerance1 ); 
          BOOST_CHECK_EQUAL(read_bi[4],30); 
@@ -245,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE(zcut, Fixture_bunch)
          BOOST_CHECK_EQUAL(nloss,ini_bch_num-bunch_sptr->get_total_num());
          for (int p=0;p<nloss;++p){
             BOOST_CHECK_EQUAL(read_bi[p],12);
-            BOOST_CHECK(fabs(read_cc[4][p])>=0.5*length/beta);
+            BOOST_CHECK(fabs(read_cc[p][4])>=0.5*length/beta);
          }             
       }     
 }
