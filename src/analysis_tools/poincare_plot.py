@@ -92,8 +92,8 @@ def handle_args(args):
     return options
 
 def single_plot(options, particle_coords, trk):
-    x = particle_coords[coords[options.coords[0]], :]
-    y = particle_coords[coords[options.coords[1]], :]
+    x = particle_coords[:, coords[options.coords[0]]]
+    y = particle_coords[:, coords[options.coords[1]]]
     plot2d(x, y, options, trk)
 
 def do_plots(options):
@@ -106,19 +106,20 @@ def do_plots(options):
             single_plot(options, particle_coords, 0)
         elif "track_coords" in f.get_member_names():
             track_coords = f.read_array3d("track_coords")
+            nturns = track_coords.shape[0]
+            ntracks = track_coords.shape[1]
             mass = f.read_double('mass')
-            p_ref = f.read_array1d('pz')
+            p_ref = f.read_array1d('pz').reshape(nturns,1)
+            print "p_ref.shape: ", p_ref.shape
             f.close()
-            ntracks = track_coords.shape[0]
-            nturns = track_coords.shape[2]
             for trk in options.indices:
-                particle_coords = track_coords[trk,0:6,:]
-                #print "particle_coords.shape: ", particle_coords.shape
-                pz = p_ref * (1.0 + track_coords[trk, 5, :]).reshape(1,nturns)
+                particle_coords = track_coords[:,trk,0:6]
+                print "particle_coords.shape: ", particle_coords.shape
+                pz = p_ref * (1.0 + track_coords[:, trk, 5]).reshape(nturns,1)
                 #print "pz.shape: ", pz.shape
-                energy = numpy.sqrt(pz*pz + mass**2).reshape(1,nturns)
+                energy = numpy.sqrt(pz*pz + mass**2)
                 #print "energy.shape: ", energy.shape
-                particle_coords = numpy.vstack((particle_coords,pz,energy))
+                particle_coords = numpy.hstack((particle_coords,pz,energy))
                 #print "particle_coords.shape: ", particle_coords.shape
                 single_plot(options, particle_coords, trk)
 

@@ -109,18 +109,20 @@ def get_particle_coords(h5, options):
         particle_coords.append(h5.get("coords"))
     else:
         all_coords = h5.get("track_coords")
-        nturns = all_coords.shape[2]
+        nturns = all_coords.shape[0]
         if options.indices[0] is not None:
             indices = options.indices
         else:
             print("using default track index 0")
             indices = [0]
     mass = h5.get('mass')[()]
-    p_ref = h5.get("pz")[()]
+    p_ref = h5.get("pz")[()].reshape((nturns, 1))
     for index in indices:
-        pz = p_ref * (1.0 + all_coords[index, 5, :]).reshape(1,nturns)
-        energy = numpy.sqrt(pz*pz + mass**2).reshape(1,nturns)
-        particle_coords.append(numpy.vstack((all_coords[index,:,:], pz, energy)))
+        #pz = p_ref * (1.0 + all_coords[:, index, 5])
+        dpop = all_coords[:, index, 5].reshape((nturns,1))
+        pz = p_ref * (1.0 + dpop)
+        energy = numpy.sqrt(pz*pz + mass**2)
+        particle_coords.append(numpy.hstack((all_coords[:, index,:], pz, energy)))
     return particle_coords
 
 def do_plots(options):
@@ -135,7 +137,7 @@ def do_plots(options):
         for coord in options.coords:
             #x = f.read_array1d("s")
             x = h5.get("s")
-            y = particle_coords[coords[coord],:]
+            y = particle_coords[:,coords[coord]]
             if not options.oneplot:
                 pyplot.subplot(rows, cols, plot_index)
             plot2d(x, y, coord, index)
