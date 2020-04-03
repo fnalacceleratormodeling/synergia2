@@ -48,7 +48,8 @@ template<typename ValueType, int Dimension>
             using namespace boost::python;
             try {
                 shape_t shape;
-                get_shape(object(handle< > (borrowed(obj))), shape);
+                bool f_order = false;
+                get_shape(object(handle< > (borrowed(obj))), shape, f_order);
                 if (multi_array_ref_t::dimensionality != shape.size()) return 0;
             }
             catch (...) {
@@ -73,9 +74,17 @@ template<typename ValueType, int Dimension>
             //new placement
             object py_obj(handle< > (borrowed(obj)));
             shape_t shape;
-            get_shape(py_obj, shape);
-            new (memory_chunk) multi_array_ref_t(
-                    reinterpret_cast<ValueType* > (PyArray_DATA((PyArrayObject *)obj)), shape);
+            bool f_order = false;
+            get_shape(py_obj, shape, f_order);
+
+            if (f_order) {
+                new (memory_chunk) multi_array_ref_t(
+                        reinterpret_cast<ValueType* > (PyArray_DATA((PyArrayObject *)obj)), shape, boost::fortran_storage_order());
+            } else {
+                new (memory_chunk) multi_array_ref_t(
+                        reinterpret_cast<ValueType* > (PyArray_DATA((PyArrayObject *)obj)), shape, boost::c_storage_order());
+            }
+
             data->convertible = memory_chunk;
         }
 
@@ -112,9 +121,13 @@ template<typename ValueType, int Dimension>
     protected:
         static
         void
-        get_shape(boost::python::object obj, shape_t & shape)
+        get_shape(boost::python::object obj, shape_t & shape, bool & f_order)
         {
             using namespace boost::python;
+
+            object py_flags = obj.attr("flags");
+            f_order = extract<bool>(py_flags["F_CONTIGUOUS"]);
+
             shape.clear();
             object py_shape = obj.attr("shape");
             const std::size_t N = len(py_shape);
@@ -163,7 +176,8 @@ template<typename ValueType, int Dimension>
             using namespace boost::python;
             try {
                 shape_t shape;
-                get_shape(object(handle< > (borrowed(obj))), shape);
+                bool f_order = false;
+                get_shape(object(handle< > (borrowed(obj))), shape, f_order);
                 if (const_multi_array_ref_t::dimensionality != shape.size()) return 0;
             }
             catch (...) {
@@ -188,9 +202,17 @@ template<typename ValueType, int Dimension>
             //new placement
             object py_obj(handle< > (borrowed(obj)));
             shape_t shape;
-            get_shape(py_obj, shape);
-            new (memory_chunk) const_multi_array_ref_t(
-                    reinterpret_cast<ValueType* > (PyArray_DATA((PyArrayObject *)obj)), shape);
+            bool f_order = false;
+            get_shape(py_obj, shape, f_order);
+
+            if (f_order) {
+                new (memory_chunk) const_multi_array_ref_t(
+                        reinterpret_cast<ValueType* > (PyArray_DATA((PyArrayObject *)obj)), shape, boost::fortran_storage_order());
+            } else {
+                new (memory_chunk) const_multi_array_ref_t(
+                        reinterpret_cast<ValueType* > (PyArray_DATA((PyArrayObject *)obj)), shape, boost::c_storage_order());
+            }
+
             data->convertible = memory_chunk;
         }
 
@@ -227,9 +249,13 @@ template<typename ValueType, int Dimension>
     protected:
         static
         void
-        get_shape(boost::python::object obj, shape_t & shape)
+        get_shape(boost::python::object obj, shape_t & shape, bool & f_order)
         {
             using namespace boost::python;
+
+            object py_flags = obj.attr("flags");
+            f_order = extract<bool>(py_flags["F_CONTIGUOUS"]);
+
             shape.clear();
             object py_shape = obj.attr("shape");
             const std::size_t N = len(py_shape);
