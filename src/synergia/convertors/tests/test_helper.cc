@@ -94,7 +94,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(test_helper)
 {
-    import_array();
+    import_array1();
 
     numpy_multi_array_converter<double, 1 >::register_to_python();
     numpy_multi_array_converter<double, 2 >::register_to_python();
