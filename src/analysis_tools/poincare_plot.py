@@ -110,11 +110,9 @@ def do_plots(options):
             ntracks = track_coords.shape[1]
             mass = f.read_double('mass')
             p_ref = f.read_array1d('pz').reshape(nturns,1)
-            print "p_ref.shape: ", p_ref.shape
             f.close()
             for trk in options.indices:
                 particle_coords = track_coords[:,trk,0:6]
-                print "particle_coords.shape: ", particle_coords.shape
                 pz = p_ref * (1.0 + track_coords[:, trk, 5]).reshape(nturns,1)
                 #print "pz.shape: ", pz.shape
                 energy = numpy.sqrt(pz*pz + mass**2)
