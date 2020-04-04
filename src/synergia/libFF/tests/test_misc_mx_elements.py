@@ -111,9 +111,9 @@ def run_a_misc_element(elem_name, places=13):
     numpart = bunch.get_local_num()
     assert(numpart == 32)
     for p in range(numpart):
-        print "    particle ", p
+        print("    particle ", p)
         for j in range(4):
-            print "        coordinate ", j
+            print("        coordinate ", j)
             assert_almost_equal(lp[p, j], m8p[p, j], places)
     
 def test_base_quad():
