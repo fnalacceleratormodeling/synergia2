@@ -350,7 +350,7 @@ add_dependencies(check test-exes)
 set(INCLUDE_INSTALL_DIR include/ CACHE PATH "include install directory")
 set(LIB_INSTALL_DIR lib/ CACHE PATH "library install directory")
 set(BIN_INSTALL_DIR bin/ CACHE PATH "executable install directory")
-set(PYTHON_INSTALL_DIR "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/"
+set(PYTHON_INSTALL_DIR "lib/python${MY_PYTHON_VERSION_MAJOR}.${MY_PYTHON_VERSION_MINOR}/site-packages/"
     CACHE PATH "python install directory")
 
 set(SYNERGIA_EXTRA_LIBRARY_PATHS "" CACHE STRING "additional library paths for synergia executable")
