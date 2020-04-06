@@ -139,12 +139,14 @@ struct propagator_fixture
 ELEMENT_FIXTURE(hkicker);
 ELEMENT_FIXTURE(vkicker);
 ELEMENT_FIXTURE(kicker);
+ELEMENT_FIXTURE(kicker_tilt);
 
 ELEMENT_FIXTURE_STEPS(kicker2, 2);
 
 ELEMENT_FIXTURE(long_hkicker);
 ELEMENT_FIXTURE(long_vkicker);
 ELEMENT_FIXTURE(long_kicker);
+ELEMENT_FIXTURE(long_kicker_tilt);
 
 ELEMENT_FIXTURE(long_hkicker_simple);
 ELEMENT_FIXTURE(long_vkicker_simple);
@@ -240,6 +242,40 @@ BOOST_FIXTURE_TEST_CASE( test_kicker, kicker_fixture )
 
     std::cout << std::setprecision(16);
     std::cout << "\nkicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_kicker_tilt, kicker_tilt_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nkicker_tilt\n";
 
     propagate_chef();
     propagate_ff();
@@ -415,6 +451,40 @@ BOOST_FIXTURE_TEST_CASE( test_long_kicker, long_kicker_fixture )
 
     std::cout << std::setprecision(16);
     std::cout << "\nlong_kicker\n";
+
+    propagate_chef();
+    propagate_ff();
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    element_check(pff, pcf, long_kicker_tolerance);
+    BOOST_CHECK(true);
+}
+
+BOOST_FIXTURE_TEST_CASE( test_long_kicker_tilt, long_kicker_tilt_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.1;
+    pcf[0][1] = 0.1;
+    pcf[0][2] = 0.1;
+    pcf[0][3] = 0.1;
+    pcf[0][4] = 0.1;
+    pcf[0][5] = 0.1;
+
+    pff[0][0] = 0.1;
+    pff[0][1] = 0.1;
+    pff[0][2] = 0.1;
+    pff[0][3] = 0.1;
+    pff[0][4] = 0.1;
+    pff[0][5] = 0.1;
+
+    std::cout << std::setprecision(16);
+    std::cout << "\nlong_kicker_tilt\n";
 
     propagate_chef();
     propagate_ff();

@@ -119,9 +119,13 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double length = slice.get_right() - slice.get_left();
 
     // hk and vk are the hk/vk under lattice reference momentum
-    double  l = slice.get_lattice_element().get_double_attribute("l", 0.0);
-    double hk = slice.get_lattice_element().get_double_attribute("hkick");
-    double vk = slice.get_lattice_element().get_double_attribute("vkick");
+    double   l = slice.get_lattice_element().get_double_attribute("l", 0.0);
+    double hk0 = slice.get_lattice_element().get_double_attribute("hkick");
+    double vk0 = slice.get_lattice_element().get_double_attribute("vkick");
+
+    double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
+    double hk = cos(tilt)*hk0 - sin(tilt)*vk0;
+    double vk = sin(tilt)*hk0 + cos(tilt)*vk0;
 
     Reference_particle       & ref_lattice = bunch.get_design_reference_particle();
     Reference_particle const & ref_bunch   = bunch.get_reference_particle();
