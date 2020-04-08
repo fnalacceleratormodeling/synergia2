@@ -184,10 +184,10 @@ public:
     ConstHostParticles get_host_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).hparts; }
 
-    ParticleMasks      get_local_particles_masks(ParticleGroup pg = PG::regular)
+    ParticleMasks      get_local_particle_masks(ParticleGroup pg = PG::regular)
     { return get_bunch_particles(pg).masks; }
 
-    ConstParticleMasks get_local_particles_masks(ParticleGroup pg = PG::regular) const
+    ConstParticleMasks get_local_particle_masks(ParticleGroup pg = PG::regular) const
     { return get_bunch_particles(pg).masks; }
 
     int get_total_num(ParticleGroup pg = PG::regular) const 

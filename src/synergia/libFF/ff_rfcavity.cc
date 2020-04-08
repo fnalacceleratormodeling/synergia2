@@ -196,7 +196,7 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     // bunch particles
     int num = bunch.size(ParticleGroup::regular);
     auto parts = bunch.get_local_particles(ParticleGroup::regular);
-    auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
+    auto masks = bunch.get_local_particle_masks(ParticleGroup::regular);
 
     PropRFCavity rfcavity{parts, masks, rp};
     Kokkos::parallel_for(num, rfcavity);

@@ -183,7 +183,7 @@ Core_diagnostics::calculate_mean(Bunch const & bunch)
     karray1d mean("mean", 6);
 
     auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particles_masks();
+    auto masks = bunch.get_local_particle_masks();
     const int npart = bunch.size();
 
     particle_reducer<mean_tag> pr(particles, masks);
@@ -205,7 +205,7 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
     double mean = 0;
 
     auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particles_masks();
+    auto masks = bunch.get_local_particle_masks();
     const int npart = bunch.size();
 
     particle_reducer<z_mean_tag> pr(particles, masks);
@@ -289,7 +289,7 @@ Core_diagnostics::calculate_std(Bunch const & bunch, karray1d const & mean)
     karray1d std("std", 6);
 
     auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particles_masks();
+    auto masks = bunch.get_local_particle_masks();
     const int npart = bunch.size();
 
     particle_reducer<std_tag> pr(particles, masks, mean);
@@ -356,7 +356,7 @@ Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
     karray2d_row sum2("sum2", 6, 6);
 
     auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particles_masks();
+    auto masks = bunch.get_local_particle_masks();
     auto npart = bunch.size();
 
     particle_reducer<mom2_tag> pr(particles, masks, mean);
@@ -396,7 +396,7 @@ Core_diagnostics::calculate_min(Bunch const& bunch)
     min(0) = 1e100; min(1) = 1e100; min(2) = 1e100;
 
     auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particles_masks();
+    auto masks = bunch.get_local_particle_masks();
     const int npart = bunch.size();
 
     particle_reducer<min_tag> pr(particles, masks);
@@ -419,7 +419,7 @@ Core_diagnostics::calculate_max(Bunch const& bunch)
     max(0) = -1e100; max(1) = -1e100; max(2) = -1e100;
 
     auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particles_masks();
+    auto masks = bunch.get_local_particle_masks();
     const int npart = bunch.size();
 
     particle_reducer<max_tag> pr(particles, masks);

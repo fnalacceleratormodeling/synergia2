@@ -497,7 +497,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         int num = bunch.size(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
-        auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
+        auto masks = bunch.get_local_particle_masks(ParticleGroup::regular);
 
         PropSbend sbend(parts, masks, sp);
         Kokkos::parallel_for(num, sbend);
@@ -510,7 +510,7 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // propagate bunch regular particles
         int num = bunch.size(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
-        auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
+        auto masks = bunch.get_local_particle_masks(ParticleGroup::regular);
 
         PropSbendCF sbend(parts, masks, sp);
         Kokkos::parallel_for(num, sbend);

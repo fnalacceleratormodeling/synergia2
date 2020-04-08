@@ -229,7 +229,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // propagate the bunch particles
         int num = bunch.size(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
-        auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
+        auto masks = bunch.get_local_particle_masks(ParticleGroup::regular);
 
         PropQuadThin pqt{parts, masks, {k[0], k[1]}, xoff, yoff};
         Kokkos::parallel_for(num, pqt);
@@ -250,7 +250,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         // bunch particles
         int num = bunch.size(ParticleGroup::regular);
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
-        auto masks = bunch.get_local_particles_masks(ParticleGroup::regular);
+        auto masks = bunch.get_local_particle_masks(ParticleGroup::regular);
 
         PropQuad pq(parts, masks, steps, xoff, yoff, ref_p, ref_m, ref_t, length, k[0], k[1]);
         Kokkos::parallel_for(num, pq);

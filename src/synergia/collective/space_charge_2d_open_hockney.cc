@@ -620,7 +620,7 @@ Space_charge_2d_open_hockney::apply_kick(
                     / (gamma * beta);
 
     auto parts = bunch.get_local_particles();
-    auto masks = bunch.get_local_particles_masks();
+    auto masks = bunch.get_local_particle_masks();
 
     alg_kicker kicker(parts, masks, phi2, rho2, particle_bin,
             doubled_domain.get_grid_shape(), factor);
