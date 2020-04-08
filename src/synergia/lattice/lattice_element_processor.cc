@@ -16,6 +16,10 @@ Lattice_element_processor::process(Lattice_element const & element)
     case element_type::quadrupole: quadrupole(e); break;
     case element_type::multipole:  multipole(e); break;
     case element_type::rfcavity:   rfcavity(e); break;
+
+    case element_type::hkicker:    hkicker(e); break;
+    case element_type::vkicker:    vkicker(e); break;
+    case element_type::kicker:     kicker(e); break;
     default: break;
     }
 
@@ -75,6 +79,51 @@ void Lattice_element_processor::multipole(Lattice_element & e)
     e.set_default_double_attribute("tilt", 0.0);
     //e.set_default_vector_attribute("knl", std::vector<double >(0));
     //e.set_default_vector_attribute("ksl", std::vector<double >(0));
+}
+
+void Lattice_element_processor::hkicker(Lattice_element& e)
+{
+    double hk = 0.0;
+
+    if (e.has_double_attribute("kick"))
+        hk = e.get_double_attribute("kick");
+    else if (e.has_double_attribute("hkick"))
+        hk = e.get_double_attribute("hkick");
+
+    // defaults
+    e.set_default_double_attribute("l", 0.0);
+    e.set_default_double_attribute("tilt", 0.0);
+
+    // forced
+    e.set_double_attribute("hkick", hk);
+    e.set_double_attribute("vkick", 0.0);
+}
+
+void Lattice_element_processor::vkicker(Lattice_element& e)
+{
+    double vk = 0.0;
+
+    if (e.has_double_attribute("kick"))
+        vk = e.get_double_attribute("kick");
+    else if (e.has_double_attribute("vkick"))
+        vk = e.get_double_attribute("vkick");
+
+    // defaults
+    e.set_default_double_attribute("l", 0.0);
+    e.set_default_double_attribute("tilt", 0.0);
+
+    // forced
+    e.set_double_attribute("hkick", 0.0);
+    e.set_double_attribute("vkick", vk);
+}
+
+void Lattice_element_processor::kicker(Lattice_element& e)
+{
+    // default
+    e.set_default_double_attribute("l", 0.0);
+    e.set_default_double_attribute("hkick", 0.0);
+    e.set_default_double_attribute("vkick", 0.0);
+    e.set_default_double_attribute("tilt", 0.0);
 }
 
 void Lattice_element_processor::rfcavity(Lattice_element & e)

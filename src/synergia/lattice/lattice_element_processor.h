@@ -32,6 +32,9 @@ private:
     static void multipole(Lattice_element & element);
     static void rfcavity(Lattice_element & element);
 
+    static void hkicker(Lattice_element & element);
+    static void vkicker(Lattice_element & element);
+    static void kicker(Lattice_element & element);
 };
 
 #endif
