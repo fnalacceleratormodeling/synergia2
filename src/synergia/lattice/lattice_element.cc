@@ -20,6 +20,7 @@ namespace
         { element_type_name::rfcavity,   element_type::rfcavity},
         { element_type_name::hkicker,    element_type::hkicker},
         { element_type_name::vkicker,    element_type::vkicker},
+        { element_type_name::kicker,     element_type::kicker},
         { element_type_name::monitor,    element_type::monitor},
         { element_type_name::sextupole,  element_type::sextupole},
         { element_type_name::octupole,   element_type::octupole},

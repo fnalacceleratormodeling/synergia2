@@ -23,6 +23,8 @@ enum class element_type
 
     hkicker,
     vkicker,
+    kicker,
+
     sextupole,
     octupole,
     monitor,
@@ -42,6 +44,7 @@ namespace element_type_name
     constexpr char const* rfcavity   = "rfcavity";
     constexpr char const* hkicker    = "hkicker";
     constexpr char const* vkicker    = "vkicker";
+    constexpr char const* kicker     = "kicker";
     constexpr char const* monitor    = "monitor";
     constexpr char const* sextupole  = "sextupole";
     constexpr char const* octupole   = "octupole";
