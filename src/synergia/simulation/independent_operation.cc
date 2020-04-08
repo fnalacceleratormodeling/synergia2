@@ -7,6 +7,8 @@
 #include "synergia/libFF/ff_rfcavity.h"
 #include "synergia/libFF/ff_multipole.h"
 
+#include "synergia/libFF/ff_hkicker.h"
+
 namespace
 {
     std::unique_ptr<FF_element> make_ff_element(element_type t)
@@ -18,7 +20,22 @@ namespace
         case element_type::quadrupole: return std::make_unique<FF_quadrupole>();
         case element_type::rfcavity:   return std::make_unique<FF_rfcavity>();
         case element_type::multipole:  return std::make_unique<FF_multipole>();
-        default: throw std::runtime_error("unhandled element type");
+
+        //case element_type::rbend:      return std::make_unique<FF_drift>();
+        case element_type::hkicker:    return std::make_unique<FF_hkicker>();
+        case element_type::vkicker:    return std::make_unique<FF_hkicker>();
+        case element_type::kicker:     return std::make_unique<FF_hkicker>();
+
+        case element_type::monitor:    return std::make_unique<FF_drift>();
+        case element_type::sextupole:  return std::make_unique<FF_drift>();
+        case element_type::octupole:   return std::make_unique<FF_drift>();
+        case element_type::marker:     return std::make_unique<FF_drift>();
+        case element_type::instrument: return std::make_unique<FF_drift>();
+        case element_type::rcollimator:return std::make_unique<FF_drift>();
+
+        default:
+            throw std::runtime_error(
+                    "unhandled element type " + std::to_string((int)t));
         }
     }
 }
