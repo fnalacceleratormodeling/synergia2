@@ -8,6 +8,9 @@
 
 class JetParticle;
 
+inline bool close_to_zero(double v)
+{ return fabs(v) < 1e-13; }
+
 class FF_element
 {
 public:
@@ -65,9 +68,6 @@ protected:
 
     int steps;
     int order;
-
-    bool close_to_zero(double v)
-    { return fabs(v) < 1e-13; }
 };
 
 #endif // FF_ELEMENT_H
