@@ -1,8 +1,6 @@
 #include "ff_drift.h"
 
 #include "synergia/libFF/ff_algorithm.h"
-//#include "synergia/lattice/chef_utils.h"
-//#include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/simple_timer.h"
 
