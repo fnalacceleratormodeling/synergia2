@@ -46,9 +46,9 @@ install(FILES
 
 install(FILES
         __init__.py
-        DESTINATION lib/synergia/bunch)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
 install(TARGETS
         bunch
-        DESTINATION lib/synergia/bunch)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
 
 add_subdirectory(tests)
