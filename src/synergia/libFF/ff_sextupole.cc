@@ -169,7 +169,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     // strength
     double k[2];
-    k[0] = slice.get_lattice_element().get_double_attribute("k2");
+    k[0] = slice.get_lattice_element().get_double_attribute("k2", 0.0);
     k[1] = slice.get_lattice_element().get_double_attribute("k2s", 0.0);
 
     // tilting
