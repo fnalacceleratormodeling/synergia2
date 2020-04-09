@@ -6,6 +6,7 @@
 #include "synergia/libFF/ff_quadrupole.h"
 #include "synergia/libFF/ff_rfcavity.h"
 #include "synergia/libFF/ff_multipole.h"
+#include "synergia/libFF/ff_sextupole.h"
 
 #include "synergia/libFF/ff_hkicker.h"
 
@@ -27,7 +28,7 @@ namespace
         case element_type::kicker:     return std::make_unique<FF_hkicker>();
 
         case element_type::monitor:    return std::make_unique<FF_drift>();
-        case element_type::sextupole:  return std::make_unique<FF_drift>();
+        case element_type::sextupole:  return std::make_unique<FF_sextupole>();
         case element_type::octupole:   return std::make_unique<FF_drift>();
         case element_type::marker:     return std::make_unique<FF_drift>();
         case element_type::instrument: return std::make_unique<FF_drift>();

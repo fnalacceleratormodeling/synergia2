@@ -5,7 +5,7 @@ add_library(synergia_libFF
     #ff_rbend.cc
     ff_multipole.cc
     ff_quadrupole.cc
-    #ff_sextupole.cc
+    ff_sextupole.cc
     #ff_octupole.cc
     ff_rfcavity.cc
     #ff_kicker.cc
