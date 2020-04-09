@@ -2,21 +2,7 @@
 add_executable(test_libff_elements test_libff_elements.cc)
 target_link_libraries(test_libff_elements synergia_simulation synergia_libFF kokkos)
 add_test(NAME test_libff_elements COMMAND test_libff_elements)
-
-add_custom_command(OUTPUT fodo.madx
-    COMMAND ${CMAKE_COMMAND} -E copy 
-        ${CMAKE_CURRENT_SOURCE_DIR}/fodo.madx 
-        ${CMAKE_CURRENT_BINARY_DIR}/fodo.madx
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fodo.madx
-    COMMENT "Copying lattice file for test_libff_elements"
-    )
-
-add_custom_target(test_libff_elements_lattice ALL
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/fodo.madx
-    )
-
-add_dependencies(test_libff_elements test_libff_elements_lattice)
-
+copy_file(fodo.madx test_libff_elements)
 
 
 if (FALSE)
