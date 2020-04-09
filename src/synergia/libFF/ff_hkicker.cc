@@ -18,7 +18,7 @@ namespace
             if(m(i)) 
             {
                 FF_algorithm::thin_kicker_unit(p(i, 1), b_hk); 
-                //FF_algorithm::thin_kicker_unit(p(i, 3), b_vk); 
+                FF_algorithm::thin_kicker_unit(p(i, 3), b_vk); 
             }
         }
     };
@@ -42,7 +42,7 @@ namespace
                 );
 
                 FF_algorithm::thin_kicker_unit(p(i, 1), b_hk); 
-                //FF_algorithm::thin_kicker_unit(p(i, 3), b_vk); 
+                FF_algorithm::thin_kicker_unit(p(i, 3), b_vk); 
 
                 FF_algorithm::drift_unit(
                         p(i, 0), p(i, 1), p(i, 2), 
