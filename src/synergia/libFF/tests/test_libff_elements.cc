@@ -1,4 +1,3 @@
-#define CATCH_CONFIG_RUNNER
 #include "synergia/utils/catch.hpp"
 
 #include "synergia/lattice/madx_reader.h"
@@ -12,209 +11,166 @@ struct propagator_fixture
     Logger screen;
     Lattice lattice;
     Propagator propagator;
-    Bunch_simulator sim;
+    std::unique_ptr<Bunch_simulator> sim;
 
     propagator_fixture(std::string const& seq)
         : screen(0, LoggerV::INFO_TURN)
         , lattice(MadX_reader().get_lattice(seq, "fodo.madx"))
         , propagator(lattice, Independent_stepper_elements(1))
-        , sim( Bunch_simulator::create_single_bunch_simulator(
-                    lattice.get_reference_particle(), 1, 1e09, Commxx()) )
+        , sim()
     {
         auto ref = lattice.get_reference_particle();
         auto fm = ref.get_four_momentum();
-        fm.set_momentum(fm.get_momentum()*0.95);
+        fm.set_momentum(fm.get_momentum()*0.25);
         //fm.set_momentum(3.0);
         ref.set_four_momentum(fm);
 
-        //sim = Bunch_simulator::create_single_bunch_simulator(ref, 1, 1e09, Commxx());
+        sim = std::make_unique<Bunch_simulator>(
+                Bunch_simulator::create_single_bunch_simulator(
+                    ref, 1, 1e09, Commxx()));
+
+        //sim = Bunch_simulator::create_single_bunch_simulator(
+        //        ref, 1, 1e09, Commxx());
 
         // propagate options (start turn, num turns)
         // sim.set_turns(0, 1);
     }
 
     void propagate()
-    { propagator.propagate(sim, screen, 1); }
+    { propagator.propagate(*sim, screen, 1); }
 
     Bunch& bunch()
-    { return sim.get_bunch(); }
+    { return sim->get_bunch(); }
 };
 
+void propagate_libff(std::string const& seq)
+{
+    std::cout << "libff propagate " << seq << "\n";
+
+    propagator_fixture pf(seq);
+    auto & b = pf.bunch();
+
+    b.checkout_particles();
+    auto parts = b.get_host_particles();
+    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
+    b.checkin_particles();
+
+    pf.propagate();
+
+    b.checkout_particles();
+    parts = b.get_host_particles();
+    std::cout << std::setprecision(16);
+    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
+    std::cout << "\n";
+}
 
 
 TEST_CASE("sbend", "[libFF][Elements]")
 {
     CHECK( true );
-
-    propagator_fixture pf("seq_sbend");
-    auto & b = pf.bunch();
-
-    b.checkout_particles();
-    auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
-    b.checkin_particles();
-
-    pf.propagate();
-
-    b.checkout_particles();
-    parts = b.get_host_particles();
-    std::cout << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
-    std::cout << "\n";
+    propagate_libff("seq_sbend");
 }
 
 TEST_CASE("sbend cf", "[libFF][Elements]")
 {
     CHECK( true );
-
-    propagator_fixture pf("seq_cfsbend");
-    auto & b = pf.bunch();
-
-    b.checkout_particles();
-    auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
-    b.checkin_particles();
-
-    pf.propagate();
-
-    b.checkout_particles();
-    parts = b.get_host_particles();
-    std::cout << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
-    std::cout << "\n";
+    propagate_libff("seq_cfsbend");
 }
 
 TEST_CASE("sbend cf 2", "[libFF][Elements]")
 {
     CHECK( true );
-
-    propagator_fixture pf("seq_cfsbend2");
-    auto & b = pf.bunch();
-
-    b.checkout_particles();
-    auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
-    b.checkin_particles();
-
-    pf.propagate();
-
-    b.checkout_particles();
-    parts = b.get_host_particles();
-    std::cout << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
-    std::cout << "\n";
+    propagate_libff("seq_cfsbend2");
 }
 
 TEST_CASE("rfcavity", "[libFF][Elements]")
 {
     CHECK( true );
-
-    propagator_fixture pf("seq_rfc");
-    auto & b = pf.bunch();
-
-    b.checkout_particles();
-    auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
-    b.checkin_particles();
-
-    pf.propagate();
-
-    b.checkout_particles();
-    parts = b.get_host_particles();
-    std::cout << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
-    std::cout << "\n";
+    propagate_libff("seq_rfc");
 }
 
-#if 1
 TEST_CASE("thin multipole 1 -- mad8 format", "[libFF][Elements]")
 {
     CHECK( true );
-
-    propagator_fixture pf("seq_mp1");
-    auto & b = pf.bunch();
-
-    b.checkout_particles();
-    auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
-    b.checkin_particles();
-
-    pf.propagate();
-
-    b.checkout_particles();
-    parts = b.get_host_particles();
-    std::cout << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
-    std::cout << "\n";
+    propagate_libff("seq_mp1");
 }
 
 TEST_CASE("thin multipole 2 -- mad8 format with tilts", "[libFF][Elements]")
 {
     CHECK( true );
-
-    propagator_fixture pf("seq_mp2");
-    auto & b = pf.bunch();
-
-    b.checkout_particles();
-    auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
-    b.checkin_particles();
-
-    pf.propagate();
-
-    b.checkout_particles();
-    parts = b.get_host_particles();
-    std::cout << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
-    std::cout << "\n";
+    propagate_libff("seq_mp2");
 }
-#endif
-
 
 TEST_CASE("thin multipole 3 -- madx format", "[libFF][Elements]")
 {
     CHECK( true );
-
-    propagator_fixture pf("seq_mp3");
-    auto & b = pf.bunch();
-
-    b.checkout_particles();
-    auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
-    b.checkin_particles();
-
-    pf.propagate();
-
-    b.checkout_particles();
-    parts = b.get_host_particles();
-    std::cout << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
-    std::cout << "\n";
+    propagate_libff("seq_mp3");
 }
 
 
 TEST_CASE("thin multipole 4 -- madx format with tilts", "[libFF][Elements]")
 {
     CHECK( true );
+    propagate_libff("seq_mp4");
+}
 
-    propagator_fixture pf("seq_mp4");
-    auto & b = pf.bunch();
+TEST_CASE("hkicker", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_hkicker");
+}
 
-    b.checkout_particles();
-    auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.1;
-    b.checkin_particles();
+TEST_CASE("vkicker", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_vkicker");
+}
 
-    pf.propagate();
+TEST_CASE("kicker", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_kicker");
+}
 
-    b.checkout_particles();
-    parts = b.get_host_particles();
-    std::cout << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
-    std::cout << "\n";
+TEST_CASE("long hkicker", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_long_hkicker");
+}
+
+TEST_CASE("long hkicker simple", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_long_hkicker_simple");
+}
+
+TEST_CASE("long vkicker", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_long_vkicker");
+}
+
+TEST_CASE("long vkicker simple", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_long_vkicker_simple");
+}
+
+TEST_CASE("long kicker", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_long_kicker");
+}
+
+TEST_CASE("long kicker simple", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_long_kicker_simple");
 }
 
 
+
+#if 0
 int main(int argc, char** argv)
 {
     MPI_Init(&argc, &argv);
@@ -228,3 +184,4 @@ int main(int argc, char** argv)
     return result;
 }
 
+#endif
