@@ -135,6 +135,7 @@ namespace
 
         ref.set_state_xp(xp);
         ref.set_state_yp(yp);
+        ref.set_state_cdt(0.0);
     }
 
     // non zero length
