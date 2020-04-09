@@ -849,19 +849,22 @@ namespace FF_algorithm
                                T & y, T & yp,
                                T & cdt, T const & dpop,
                                double pref, double m, double step_ref_cdt,
-                               double step_length, double * step_strength,
+                               double step_length, double const* step_strength,
                                int steps, double c )
         {
             double substep_ref_cdt = step_ref_cdt / 3.0;
 
-            yoshida_element<T, kf, n-1, components>::integral( x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
-                                         step_length, step_strength, steps, c * x1(n) );
+            yoshida_element<T, kf, n-1, components>::integral( 
+                    x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
+                    step_length, step_strength, steps, c * x1(n) );
 
-            yoshida_element<T, kf, n-1, components>::integral( x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
-                                         step_length, step_strength, steps, c * x0(n) );
+            yoshida_element<T, kf, n-1, components>::integral( 
+                    x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
+                    step_length, step_strength, steps, c * x0(n) );
 
-            yoshida_element<T, kf, n-1, components>::integral( x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
-                                         step_length, step_strength, steps, c * x1(n) );
+            yoshida_element<T, kf, n-1, components>::integral( 
+                    x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
+                    step_length, step_strength, steps, c * x1(n) );
         }
 
         static double x1(int nn)
@@ -882,7 +885,7 @@ namespace FF_algorithm
                                T & y, T & yp,
                                T & cdt, T const & dpop,
                                double pref, double m, double step_ref_cdt,
-                               double step_length, double * step_strength,
+                               double step_length, double const* step_strength,
                                int steps, double c )
         {
             double substep_ref_cdt = step_ref_cdt / 2.0;
@@ -891,11 +894,13 @@ namespace FF_algorithm
             for (int i = 0; i < components * 2; ++i)
                 kl[i] = step_strength[i] * c;
 
-            drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
+            drift_unit( x, xp, y, yp, cdt, dpop, 
+                    0.5 * c * step_length, pref, m, substep_ref_cdt );
 
             kf( x, xp, y, yp, kl );
 
-            drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
+            drift_unit( x, xp, y, yp, cdt, dpop, 
+                    0.5 * c * step_length, pref, m, substep_ref_cdt );
         }
     };
 
@@ -937,17 +942,19 @@ namespace FF_algorithm
         int components >
     KOKKOS_INLINE_FUNCTION
     void yoshida( T & x, T & xp,
-                                T & y, T & yp,
-                                T & cdt, T const & dpop,
-                                double pref, double m, double step_ref_cdt,
-                                double step_length, double * step_strength, int steps )
+                  T & y, T & yp,
+                  T & cdt, T const & dpop,
+                  double pref, double m, double step_ref_cdt,
+                  double step_length, double const* step_strength, 
+                  int steps )
     {
         const int n = (order - 2) / 2;
 
         for(int i = 0; i < steps; ++i)
         {
-            yoshida_element<T, kf, n, components>::integral( x, xp, y, yp, cdt, dpop, pref, m, step_ref_cdt,
-                                                   step_length, step_strength, steps, 1.0 );
+            yoshida_element<T, kf, n, components>::integral( 
+                    x, xp, y, yp, cdt, dpop, pref, m, step_ref_cdt,
+                    step_length, step_strength, steps, 1.0 );
         }
     }
 
@@ -961,22 +968,24 @@ namespace FF_algorithm
         int components >
     KOKKOS_INLINE_FUNCTION
     void yoshida2(T & x, T & xp,
-                                T & y, T & yp,
-                                T & cdt, T const& dpop,
-                                double reference_momentum,
-                                double m, double substep_reference_cdt,
-                                double step_length, double * step_strength,
-                                int steps)
+                  T & y, T & yp,
+                  T & cdt, T const& dpop,
+                  double reference_momentum,
+                  double m, double substep_reference_cdt,
+                  double step_length, double const* step_strength,
+                  int steps)
     {
         for(int i = 0; i < steps; ++i)
         {
-            drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
-                       m, substep_reference_cdt);
+            drift_unit(x, xp, y, yp, cdt, dpop, 
+                    0.5 * step_length, reference_momentum, 
+                    m, substep_reference_cdt);
 
             kf( x, xp, y, yp, step_strength );
 
-            drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
-                       m, substep_reference_cdt);
+            drift_unit(x, xp, y, yp, cdt, dpop, 
+                    0.5 * step_length, reference_momentum, 
+                    m, substep_reference_cdt);
         }
     }
 
@@ -987,12 +996,12 @@ namespace FF_algorithm
         int components >
     KOKKOS_INLINE_FUNCTION
     void yoshida4(T & x, T & xp,
-                                T & y, T & yp,
-                                T & cdt, T const& dpop,
-                                double reference_momentum,
-                                double m, double step_reference_cdt,
-                                double step_length, double * step_strength,
-                                int steps)
+                  T & y, T & yp,
+                  T & cdt, T const& dpop,
+                  double reference_momentum,
+                  double m, double step_reference_cdt,
+                  double step_length, double const* step_strength,
+                  int steps)
     {
         // see yoshida4.py for formulas
         const double c1 = 0.675603595979828817023843904487;
@@ -1052,12 +1061,12 @@ namespace FF_algorithm
         int components >
     KOKKOS_INLINE_FUNCTION
     void yoshida6(T & x, T & xp,
-                                T & y, T & yp,
-                                T & cdt, T const& dpop,
-                                double reference_momentum,
-                                double m, double step_reference_cdt,
-                                double step_length, double const * step_strength,
-                                int steps)
+                  T & y, T & yp,
+                  T & cdt, T const& dpop,
+                  double reference_momentum,
+                  double m, double step_reference_cdt,
+                  double step_length, double const * step_strength,
+                  int steps)
     {
         // see yoshida4.py for formulas
         const double c1 = 0.79361246386112147294625603763;
@@ -1166,13 +1175,13 @@ namespace FF_algorithm
         int components >
     KOKKOS_INLINE_FUNCTION
     void bend_yoshida4(T & x, T & xp,
-                                T & y, T & yp,
-                                T & cdt, T const& dpop,
-                                double reference_momentum,
-                                double m, double step_reference_cdt,
-                                double step_angle, double * step_strength,
-                                double r0, double bend_strength,
-                                int steps)
+                       T & y, T & yp,
+                       T & cdt, T const& dpop,
+                       double reference_momentum,
+                       double m, double step_reference_cdt,
+                       double step_angle, double const* step_strength,
+                       double r0, double bend_strength,
+                       int steps)
     {
 #if 0
         // see yoshida4.py for formulas
