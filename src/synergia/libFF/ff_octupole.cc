@@ -1,93 +1,132 @@
 #include "ff_octupole.h"
 #include "ff_algorithm.h"
-#include "synergia/lattice/chef_utils.h"
 
-FF_octupole::FF_octupole()
+
+namespace
 {
-
-}
-
-double FF_octupole::get_reference_cdt(double length, double * k, Reference_particle &reference_particle) 
-{
-    if (length == 0) 
+    struct thin_kicker
     {
-        reference_particle.set_state_cdt(0.0);
-        return 0.0;
-    } 
-    else 
+        Particles p;
+        ParticleMasks m;
+
+        double const* k;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { 
+            if(m(i)) 
+            {
+                FF_algorithm::thin_octupole_unit(
+                        p(i, 0), p(i, 1), p(i, 2), p(i, 3), k); 
+            }
+        }
+    };
+
+    struct yoshida_kicker
     {
-        double reference_momentum = reference_particle.get_momentum();
-        double m = reference_particle.get_mass();
-        double step_length = length/steps;
-        double step_strength[2] = { k[0]*step_length, k[1]*step_length };
+        Particles p;
+        ParticleMasks m;
 
-        double x(reference_particle.get_state()[Bunch::x]);
-        double xp(reference_particle.get_state()[Bunch::xp]);
-        double y(reference_particle.get_state()[Bunch::y]);
-        double yp(reference_particle.get_state()[Bunch::yp]);
-        double cdt(0.0);
-        double dpop(reference_particle.get_state()[Bunch::dpop]);
+        double pref, mass, step_ref_cdt, step_len;
+        double const* step_str;
+        int steps;
 
-        FF_algorithm::yoshida<double, FF_algorithm::thin_octupole_unit<double>, 4, 1 >
-                ( x, xp, y, yp, cdt, dpop,
-                  reference_momentum, m,
-                  0.0,
-                  step_length, step_strength, steps );
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { 
+            if(m(i)) 
+            {
+                FF_algorithm::yoshida<double, 
+                    FF_algorithm::thin_octupole_unit<double>, 4, 1>(
+                            p(i, 0), p(i, 1), p(i, 2),
+                            p(i, 3), p(i, 4), p(i, 5),
+                            pref, mass, step_ref_cdt,
+                            step_len, step_str, steps );
+            }
+        }
+    };
 
-        // propagate and update the lattice reference particle state
-        reference_particle.set_state(x, xp, y, yp, cdt, dpop);
+    void apply_thin_kick(Bunch& bunch, ParticleGroup pg, 
+            double const* k)
+    {
+        if(!bunch.get_local_num(pg)) return;
 
+        auto parts = bunch.get_local_particles(pg);
+        auto masks = bunch.get_local_particle_masks(pg);
+
+        thin_kicker tk{parts, masks, k};
+        Kokkos::parallel_for(bunch.size(pg), tk);
+    }
+
+    void apply_yoshida_kick(Bunch& bunch, ParticleGroup pg,
+            double pref, double mass, double step_ref_cdt,
+            double step_len, double const* step_str, int steps)
+    {
+        if(!bunch.get_local_num(pg)) return;
+
+        auto parts = bunch.get_local_particles(pg);
+        auto masks = bunch.get_local_particle_masks(pg);
+
+        yoshida_kicker yk{ parts, masks,
+            pref, mass, step_ref_cdt, 
+            step_len, step_str, steps 
+        };
+
+        Kokkos::parallel_for(bunch.size(pg), yk);
+    }
+
+    void get_reference_cdt_zero(Reference_particle& ref, 
+            double const* k)
+    {
+        // propagate the bunch design reference particle
+        double x  = ref.get_state()[Bunch::x];
+        double xp = ref.get_state()[Bunch::xp];
+        double y  = ref.get_state()[Bunch::y];
+        double yp = ref.get_state()[Bunch::yp];
+
+        FF_algorithm::thin_octupole_unit(x, xp, y, yp, k);
+
+        ref.set_state_xp(xp);
+        ref.set_state_yp(yp);
+        ref.set_state_cdt(0.0);
+    }
+
+    // non zero length
+    double get_reference_cdt_yoshida(Reference_particle& ref, 
+            double len, double const* k, int steps)
+    {
+        double pref = ref.get_momentum();
+        double mass = ref.get_mass();
+        double cdt = 0.0;
+
+        auto  st = ref.get_state();
+
+        // steps comes from base class, set in apply method
+        double step_len = len / steps;
+
+        // for >0 length, hk,vk is the strength/length of the kick
+        double step_str[2] = { k[0]*step_len, k[1]*step_len };
+
+        // propagate
+        FF_algorithm::yoshida<double, 
+            FF_algorithm::thin_octupole_unit<double>, 4, 1>( 
+                    st[0], st[1], st[2], 
+                    st[3], cdt, st[5],
+                    pref, mass, 0.0,
+                    step_len, step_str, steps );
+
+        st[4] = cdt;
+        ref.set_state(st);
         return cdt;
     }
+
 }
+
 
 void FF_octupole::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
-    throw std::runtime_error("Propagate JetParticle through a octupole element is yet to be implemented");
-
-#if 0
-    double length = slice.get_right() - slice.get_left();
-
-    double k[2];
-    k[0] = slice.get_lattice_element().get_double_attribute("k3");
-    k[1] = slice.get_lattice_element().get_double_attribute("k3s", 0.0);
-
-    typedef PropagatorTraits<JetParticle>::State_t State_t;
-    typedef PropagatorTraits<JetParticle>::Component_t Component_t;
-
-    State_t& state = jet_particle.State();
-
-    Component_t & x(state[Chef::x]);
-    Component_t & xp(state[Chef::xp]);
-    Component_t & y(state[Chef::y]);
-    Component_t & yp(state[Chef::yp]);
-    Component_t & cdt(state[Chef::cdt]);
-    Component_t & dpop(state[Chef::dpop]);
-
-    double reference_momentum = jet_particle.ReferenceMomentum();
-    double m = jet_particle.Mass();
-
-    Particle chef_particle(jet_particle);
-    Reference_particle reference_particle(
-                chef_particle_to_reference_particle(chef_particle));
-    double reference_cdt = get_reference_cdt(length, k, reference_particle);
-    double step_reference_cdt = reference_cdt/steps;
-    double step_length = length/steps;
-    double step_strength[2] = { k[0]*step_length, k[1]*step_length };
-    double kl[2] = { k[0]*length, k[1]*length };
-
-    if (length == 0.0) {
-        FF_algorithm::thin_octupole_unit(x, xp, y, yp, kl);
-    } else {
-        FF_algorithm::yoshida<TJet<double>, FF_algorithm::thin_octupole_unit<TJet<double> >, 4, 1 >
-                ( x, xp, y, yp, cdt, dpop,
-                  reference_momentum, m,
-                  step_reference_cdt,
-                  step_length, step_strength, steps );
-    }
-    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
-               reference_cdt);
-#endif
+    throw std::runtime_error(
+            "Propagate JetParticle through a octupole element is yet to be implemented");
 }
 
 void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
@@ -95,7 +134,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double length = slice.get_right() - slice.get_left();
 
     double k[2];
-    k[0] = slice.get_lattice_element().get_double_attribute("k3");
+    k[0] = slice.get_lattice_element().get_double_attribute("k3", 0.0);
     k[1] = slice.get_lattice_element().get_double_attribute("k3s", 0.0);
 
     // tilting
@@ -113,13 +152,45 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
     double brho_l = ref_l.get_momentum() / ref_l.get_charge();  // GV/c
-    double brho_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
+    double brho_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]) 
+                                         / ref_l.get_charge();  // GV/c
 
     double scale = brho_l / brho_b;
 
     k[0] *= scale;
     k[1] *= scale;
 
+    if ( close_to_zero(length) )
+    {
+        get_reference_cdt_zero(ref_l, k);
+
+        apply_thin_kick(bunch, ParticleGroup::regular, k);
+        apply_thin_kick(bunch, ParticleGroup::spectator, k);
+    }
+    else
+    {
+        double pref = bunch.get_reference_particle().get_momentum();
+        double mass = bunch.get_mass();
+
+        double ref_cdt = get_reference_cdt_yoshida(ref_l, length, k, steps);
+
+        double step_ref_cdt = ref_cdt / steps;
+        double step_len = length / steps;
+        double step_str[2] = { k[0]*step_len, k[1]*step_len };
+
+        // propagate
+        apply_yoshida_kick(bunch, ParticleGroup::regular,
+                pref, mass, step_ref_cdt, step_len, step_str, steps);
+
+        apply_yoshida_kick(bunch, ParticleGroup::spectator,
+                pref, mass, step_ref_cdt, step_len, step_str, steps);
+
+        // trajectory
+        bunch.get_reference_particle().increment_trajectory(length);
+    }
+
+
+#if 0
     int local_num = bunch.get_local_num();
     int local_s_num = bunch.get_local_spectator_num();
 
@@ -235,6 +306,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         bunch.get_reference_particle().increment_trajectory(length);
     }
+#endif
 }
 
 template<class Archive>

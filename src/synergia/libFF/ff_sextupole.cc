@@ -121,42 +121,6 @@ namespace
 
 }
 
-
-#if 0
-double FF_sextupole::get_reference_cdt(double length, double * k, Reference_particle &reference_particle) 
-{
-    if (length == 0) 
-    {
-        reference_particle.set_state_cdt(0.0);
-        return 0.0;
-    } 
-    else 
-    {
-        double reference_momentum = reference_particle.get_momentum();
-        double m = reference_particle.get_mass();
-        double step_length = length/steps;
-        double step_strength[2] = { k[0]*step_length, k[1]*step_length };
-
-        double x(reference_particle.get_state()[Bunch::x]);
-        double xp(reference_particle.get_state()[Bunch::xp]);
-        double y(reference_particle.get_state()[Bunch::y]);
-        double yp(reference_particle.get_state()[Bunch::yp]);
-        double cdt(0.0);
-        double dpop(reference_particle.get_state()[Bunch::dpop]);
-
-        FF_algorithm::yoshida<double, FF_algorithm::thin_sextupole_unit<double>, 4, 1 >
-                ( x, xp, y, yp, cdt, dpop,
-                  reference_momentum, m,
-                  0.0,
-                  step_length, step_strength, steps );
-
-        reference_particle.set_state(x, xp, y, yp, cdt, dpop);
-
-        return cdt;
-    }
-}
-#endif
-
 void FF_sextupole::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
     throw std::runtime_error(
