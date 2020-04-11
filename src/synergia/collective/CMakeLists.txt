@@ -36,9 +36,9 @@ install(FILES
 
 install(FILES
         __init__.py
-        DESTINATION lib/synergia/collective)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/collective)
 install(TARGETS
         collective
-        DESTINATION lib/synergia/collective)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/collective)
 
 add_subdirectory(tests)

@@ -53,9 +53,9 @@ install(FILES
 
 install(FILES
         __init__.py
-        DESTINATION lib/synergia/simulation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
 install(TARGETS
         simulation
-        DESTINATION lib/synergia/simulation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
 
 add_subdirectory(tests)

@@ -51,10 +51,10 @@ install(FILES
         mad8_parser.py
         mad8_reader.py
         simplify.py
-        DESTINATION lib/synergia/lattice)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/lattice)
 install(TARGETS
         lattice
-        DESTINATION lib/synergia/lattice)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/lattice)
 
 
 add_subdirectory(tests)

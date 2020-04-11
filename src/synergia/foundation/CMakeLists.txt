@@ -27,9 +27,9 @@ install(FILES
 
 install(FILES
         __init__.py
-        DESTINATION lib/synergia/foundation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/foundation)
 install(TARGETS
         foundation
-        DESTINATION lib/synergia/foundation)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/foundation)
 
 add_subdirectory(tests)

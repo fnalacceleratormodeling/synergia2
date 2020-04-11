@@ -83,10 +83,10 @@ install(FILES
 
 install(FILES
        __init__.py
-        DESTINATION lib/synergia/utils)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 install(TARGETS
         parallel_utils
         pylsexpr
-        DESTINATION lib/synergia/utils)
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 
 add_subdirectory(tests)
