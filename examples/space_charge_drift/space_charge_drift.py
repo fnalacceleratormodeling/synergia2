@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 # space charge drift test
 
 import sys
@@ -142,7 +142,7 @@ drift = synergia.lattice.Lattice_element("drift", "drift")
 drift.set_double_attribute("l", opts.driftlength)
 lattice.append(drift)
 
-print >>logger, "Lattice length: ", lattice.get_length()
+print("Lattice length: ", lattice.get_length(), file=logger)
 
 #########################
 # create the reference particle
@@ -150,16 +150,16 @@ reference_particle = synergia.foundation.Reference_particle(1, mp, opts.ke+mp)
 beta = reference_particle.get_beta()
 gamma = reference_particle.get_gamma()
 lattice.set_reference_particle(reference_particle)
-print >>logger,"Beam energy: ", reference_particle.get_total_energy()
-print >>logger,"Beam momentum: ", reference_particle.get_momentum()
-print >>logger,"Beam gamma: ", reference_particle.get_gamma()
-print >>logger,"Beam beta: ", reference_particle.get_beta()
+print("Beam energy: ", reference_particle.get_total_energy(), file=logger)
+print("Beam momentum: ", reference_particle.get_momentum(), file=logger)
+print("Beam gamma: ", reference_particle.get_gamma(), file=logger)
+print("Beam beta: ", reference_particle.get_beta(), file=logger)
 
 #########################
 # emittance from requested normalized emittance
 emit = opts.nemit/(beta*gamma)
-print >>logger,"Beam normalized emittance: ", opts.nemit
-print >>logger,"Beam geometric emittance: ", emit
+print("Beam normalized emittance: ", opts.nemit, file=logger)
+print("Beam geometric emittance: ", emit, file=logger)
 #########################
 # calculations towards generating the bunch
 #
@@ -168,9 +168,9 @@ current = opts.current
 real_particles = current*opts.blen/(e * beta * c)
 #real_particles = opts.real_particles
 #current = opts.real_particles * e * beta * c/opts.blen
-print >>logger,"Bunch length: ", opts.blen
-print >>logger,"Beam current: ", current
-print >>logger,"Beam bunch charge [e]: ", real_particles
+print("Bunch length: ", opts.blen, file=logger)
+print("Beam current: ", current, file=logger)
+print("Beam bunch charge [e]: ", real_particles, file=logger)
 commxx = synergia.utils.Commxx()
 bunch = synergia.bunch.Bunch(reference_particle, opts.macroparticles, real_particles, commxx)
 dist = synergia.foundation.Random_distribution(opts.seed, commxx)
@@ -187,10 +187,10 @@ stds = diag_full2.get_std()
 mom2 = diag_full2.get_mom2()
 emitx = diag_full2.get_emitx()
 emity = diag_full2.get_emity()
-print >>logger,"Bunch initial means: ", means
-print >>logger,"Bunch initial stds: ", stds
-print >>logger,"Bunch initial emitx: ", emitx
-print >>logger,"Bunch initial emity: ", emity
+print("Bunch initial means: ", means, file=logger)
+print("Bunch initial stds: ", stds, file=logger)
+print("Bunch initial emitx: ", emitx, file=logger)
+print("Bunch initial emity: ", emity, file=logger)
 
 # dump bunch particles
 diag_particles = synergia.bunch.Diagnostics_particles("kv_particles.h5")
@@ -204,17 +204,17 @@ bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("particles.h5"
 if opts.solver == "2d-openhockney":
     grid = [opts.gridx, opts.gridy, opts.gridz]
     coll_operator = synergia.collective.Space_charge_2d_open_hockney(commxx, grid)
-    print >>logger,"Space charge using 2d open hockney, grid: ", grid
+    print("Space charge using 2d open hockney, grid: ", grid, file=logger)
 elif opts.solver == "2d-kv":
-    print >>logger,"Space charge using 2d KV"
+    print("Space charge using 2d KV", file=logger)
     coll_operator = synergia.collective.Space_charge_2d_kv()
     if opts.centered:
-        print >>logger,"Field assumed centered on beamline axis"
+        print("Field assumed centered on beamline axis", file=logger)
     else:
-        print >>logger,"Field assumed centered on bunch centroid"
+        print("Field assumed centered on bunch centroid", file=logger)
     coll_operator.set_strictly_centered(opts.centered)
 else:
-    raise RuntimeError, "Unknown solver: %s"%opts.solver
+    raise(RuntimeError, "Unknown solver: %s"%opts.solver)
 
 stepper = synergia.simulation.Split_operator_stepper(lattice, 1, coll_operator, opts.steps)
 
@@ -224,8 +224,8 @@ propagator.propagate(bunch_simulator, opts.turns, 0, opts.verbosity)
 
 final_means = synergia.bunch.Core_diagnostics().calculate_mean(bunch)
 final_stds = synergia.bunch.Core_diagnostics().calculate_std(bunch, means)
-print >>logger,"Bunch final means: ", final_means
-print >>logger,"Bunch final stds: ", final_stds
+print("Bunch final means: ", final_means, file=logger)
+print("Bunch final stds: ", final_stds, file=logger)
 
 del propagator
 del stepper
@@ -241,7 +241,7 @@ calc_expansion = calculate_expansion(current, reference_particle, r0, rp0, emit,
 scipy.save("calc_expansion", calc_expansion)
 
 fractional_diff = (final_stds[0] - calc_expansion[-1,1])/final_stds[0]
-print >>logger,"Fraction difference at end of channel (synergia - envelope)/synergia: ",  fractional_diff
+print("Fraction difference at end of channel (synergia - envelope)/synergia: ",  fractional_diff, file=logger)
 
 if opts.plot and commxx.get_rank() == 0:
     import matplotlib.pyplot as plt
