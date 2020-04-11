@@ -253,7 +253,7 @@ class Job_manager:
             # edit the absolute resumedir path into the resumedir= argument
             foundresumedir = False
             for argidx in range(len(self.argv)):
-                splitarg = "=".split(self.argv[argidx])
+                splitarg = self.argv[argidx].split("=")
                 if len(splitarg) > 1:
                     if splitarg[0] == "resumedir":
                         foundresumedir = True
@@ -277,7 +277,7 @@ class Job_manager:
         retval = ""
         for arg in args:
             argout = arg
-            splitarg = "=".split(arg)
+            splitarg = arg.split("=")
             if len(splitarg) > 1:
                 if splitarg[0] in strip:
                     argout = None
@@ -596,7 +596,7 @@ class Job_manager:
         header.write('struct ' + classname + '\n')
         header.write('{\n')
         header.write('    ' + classname + '(int argc, char **argv);\n')
-        for optname in list(self.opts.dict.keys()):
+        for optname in self.opts.dict:
             opt = self.opts.dict[optname]
             header.write('    ' + cxx_typename(opt.val_type) + ' ' + optname + ';\n')
         header.write('};\n')
@@ -611,7 +611,7 @@ class Job_manager:
         source.write('\n')
         source.write(classname + '::' + classname + '(int argc, char **argv) :\n')
         count = 0
-        for optname in list(self.opts.dict.keys()):
+        for optname in self.opts.dict:
             if (count > 0):
                 source.write(',\n')
             source.write('    ' + optname + '(' + \
@@ -623,7 +623,7 @@ class Job_manager:
         source.write('        Command_line_arg arg(argv[i]);\n')
         source.write('        if (arg.is_equal_pair()) {\n')
         count = 0
-        for optname in list(self.opts.dict.keys()):
+        for optname in self.opts.dict:
             opt = self.opts.dict[optname]
             if (count > 0):
                 source.write(' else ')
