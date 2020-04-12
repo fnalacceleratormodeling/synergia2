@@ -21,7 +21,8 @@ struct propagator_fixture
     {
         auto ref = lattice.get_reference_particle();
         auto fm = ref.get_four_momentum();
-        fm.set_momentum(fm.get_momentum()*0.25);
+        //fm.set_momentum(fm.get_momentum()*0.25);
+        fm.set_momentum(fm.get_momentum()*0.95);
         //fm.set_momentum(3.0);
         ref.set_four_momentum(fm);
 
@@ -41,6 +42,9 @@ struct propagator_fixture
 
     Bunch& bunch()
     { return sim->get_bunch(); }
+
+    void print_lattice()
+    { Logger l(0, LoggerV::DEBUG); lattice.print(l); }
 };
 
 void propagate_libff(std::string const& seq)
@@ -48,6 +52,7 @@ void propagate_libff(std::string const& seq)
     std::cout << "libff propagate " << seq << "\n";
 
     propagator_fixture pf(seq);
+    pf.print_lattice();
     auto & b = pf.bunch();
 
     b.checkout_particles();
@@ -81,6 +86,30 @@ TEST_CASE("sbend cf 2", "[libFF][Elements]")
 {
     CHECK( true );
     propagate_libff("seq_cfsbend2");
+}
+
+TEST_CASE("octupole", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_octupole");
+}
+
+TEST_CASE("octupole with tilt", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_octupole2");
+}
+
+TEST_CASE("sextupole", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_sextupole");
+}
+
+TEST_CASE("sextupole with tilt", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_sextupole2");
 }
 
 TEST_CASE("rfcavity", "[libFF][Elements]")

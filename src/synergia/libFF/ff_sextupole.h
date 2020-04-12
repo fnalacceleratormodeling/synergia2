@@ -6,7 +6,7 @@
 class FF_sextupole : public FF_element
 {
 public:
-    FF_sextupole() { steps = 1; };
+    FF_sextupole() { /*steps = 1;*/ };
 
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);

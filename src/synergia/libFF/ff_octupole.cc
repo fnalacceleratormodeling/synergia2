@@ -138,7 +138,7 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[1] = slice.get_lattice_element().get_double_attribute("k3s", 0.0);
 
     // tilting
-    double tilt = slice.get_lattice_element().get_double_attribute("tilt");
+    double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
     if (tilt != 0.0)
     {
         std::complex<double> ck2(k[0], -k[1]);
@@ -307,37 +307,5 @@ void FF_octupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         bunch.get_reference_particle().increment_trajectory(length);
     }
 #endif
-}
-
-template<class Archive>
-    void
-    FF_octupole::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(FF_element);
-    }
-
-template
-void
-FF_octupole::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_octupole::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_octupole::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-FF_octupole::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-FF_octupole::~FF_octupole()
-{
-
 }
 
