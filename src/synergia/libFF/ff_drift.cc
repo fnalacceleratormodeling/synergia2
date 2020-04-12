@@ -95,6 +95,9 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
     const double  length = slice.get_right() - slice.get_left();
     const double    mass = bunch.get_mass();
 
+    // zero-length drift does nothing
+    if (close_to_zero(length)) return;
+
     Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
 
