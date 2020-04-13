@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import sys
 #from synergia.utils import Hdf5_file
 import numpy
