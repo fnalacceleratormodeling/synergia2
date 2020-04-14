@@ -200,7 +200,8 @@ smart_include_directories("${extra_includes}")
 
 # kokkos
 add_subdirectory(src/synergia/utils/kokkos)
-include_directories(${Kokkos_INCLUDE_DIRS_RET})
+include_directories(src/synergia/utils/kokkos/core/src)
+include_directories(${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos)
 
 add_subdirectory(src)
 add_subdirectory(examples)

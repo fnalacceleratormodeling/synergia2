@@ -3,7 +3,7 @@
 
 #include <Kokkos_Core.hpp>
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef Kokkos_ENABLE_CUDA
 
   #include "synergia/utils/distributed_fft2d_cuda.h"
 

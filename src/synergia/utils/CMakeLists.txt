@@ -56,7 +56,7 @@ if (BUILD_PYTHON_BINDINGS)
     copy_file(__init__.py parallel_utils)
 endif ()
 
-if(${KOKKOS_ENABLE_CUDA})
+if(${Kokkos_ENABLE_CUDA})
     set(FFT_SRC distributed_fft2d_cuda.cc)
     set(FFT_LIB cufft)
 else()

@@ -1,4 +1,4 @@
-if(${KOKKOS_ENABLE_CUDA})
+if(${Kokkos_ENABLE_CUDA})
     set_source_files_properties(checkpoint_json.cc PROPERTIES COMPILE_FLAGS --host-only)
 endif()
 

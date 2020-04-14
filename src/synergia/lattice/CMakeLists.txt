@@ -5,7 +5,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_reader.py
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/simplify.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-if(${KOKKOS_ENABLE_CUDA})
+if(${Kokkos_ENABLE_CUDA})
     set_source_files_properties(mx_parse.cc PROPERTIES COMPILE_FLAGS --host-only)
     set_source_files_properties(mx_tree.cc PROPERTIES COMPILE_FLAGS --host-only)
     set_source_files_properties(madx.cc PROPERTIES COMPILE_FLAGS --host-only)
