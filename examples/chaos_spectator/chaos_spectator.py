@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import sys, os
 import numpy as np
 import matplotlib.pyplot as plt
 import synergia
 
-import tables
+import h5py
 
 # The first part of this script reads a lattice containing a FODO cell with
 # a sextupole.  It propagates a bunch of particles.  Imagine that you would
@@ -16,7 +16,7 @@ import tables
 
 lattice = synergia.lattice.MadX_reader().get_lattice("model", "henon.madx")
 
-print lattice.as_string()
+print(lattice.as_string())
 
 map_order = 1
 
@@ -28,9 +28,8 @@ commxx = synergia.utils.Commxx()
 bunch = synergia.bunch.Bunch(lattice.get_reference_particle(),
                              macro_particles, 6, real_particles, commxx)
 
-
 lp = bunch.get_local_particles()
-print "lp.shape: ", lp.shape
+print("lp.shape: ", lp.shape)
 lsp = bunch.get_local_spectator_particles()
 
 for i in range(lp.shape[0]):
@@ -87,23 +86,23 @@ def le(t1, t2):
         letrk[i] = -np.log(tdiff(t1[i,:], t2[i,:])/w0)
     return letrk
 
-h5 = tables.open_file("spectracks.h5")
+h5 = h5py.File("spectracks.h5")
 
-tracks = h5.root.track_coords.read()
+tracks = h5.get("track_coords")
 
 plt.figure()
 plt.title("x vs. px")
-plt.plot(tracks[0,0,:], tracks[0,1,:], '.', label="particle 1", ms=1)
-plt.plot(tracks[2,0,:], tracks[2,1,:], '.', label="particle 2", ms=1)
-plt.plot(tracks[4,0,:], tracks[4,1,:], '.', label="particle 3", ms=1)
+plt.plot(tracks[:, 0,0], tracks[:, 0,1], '.', label="particle 1", ms=1)
+plt.plot(tracks[:,2,0], tracks[:,2,1], '.', label="particle 2", ms=1)
+plt.plot(tracks[:,4,0], tracks[:,4,1], '.', label="particle 3", ms=1)
 plt.xlabel("x")
 plt.ylabel("px")
 plt.tight_layout()
 plt.legend(loc='best')
 
-le01 = le(tracks[0, 0:6, :].transpose(), tracks[1, 0:6, :].transpose())
-le23 = le(tracks[2, 0:6, :].transpose(), tracks[3, 0:6, :].transpose())
-le45 = le(tracks[4, 0:6, :].transpose(), tracks[5, 0:6, :].transpose())
+le01 = le(tracks[:, 0, 0:6], tracks[:, 1, 0:6])
+le23 = le(tracks[:, 2, 0:6], tracks[:, 3, 0:6])
+le45 = le(tracks[:, 4, 0:6], tracks[:, 5, 0:6])
 
 plt.figure()
 plt.title(r'$-\ln \frac{\| w(t) \|}{\| w(0) \|}$')
