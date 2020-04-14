@@ -845,6 +845,7 @@ namespace FF_algorithm
         int components >
     struct yoshida_element
     {
+        KOKKOS_INLINE_FUNCTION
         static void integral ( T & x, T & xp,
                                T & y, T & yp,
                                T & cdt, T const & dpop,
@@ -867,9 +868,11 @@ namespace FF_algorithm
                     step_length, step_strength, steps, c * x1(n) );
         }
 
+        KOKKOS_INLINE_FUNCTION
         static double x1(int nn)
         { return 1.0 / (2.0 - std::pow(2.0, 1.0/(2*nn+1))); }
 
+        KOKKOS_INLINE_FUNCTION
         static double x0(int nn)
         { return 1.0 - 2.0 * x1(nn); }
     };
@@ -881,6 +884,7 @@ namespace FF_algorithm
         int components >
     struct yoshida_element < T, kf, 0, components >
     {
+        KOKKOS_INLINE_FUNCTION
         static void integral ( T & x, T & xp,
                                T & y, T & yp,
                                T & cdt, T const & dpop,
@@ -910,8 +914,10 @@ namespace FF_algorithm
         typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
+    KOKKOS_INLINE_FUNCTION
     struct yoshida_element < T, kf, 0, components >
     {
+        KOKKOS_INLINE_FUNCTION
         static void integral ( T & x, T & xp,
                                T & y, T & yp,
                                T & cdt, T const & dpop,
