@@ -81,12 +81,13 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     std::vector<double> tn;
 
     // extract attributes
-    if ( slice.get_lattice_element().has_vector_attribute("knl") )
+    if ( slice.get_lattice_element().has_vector_attribute("knl") 
+            || slice.get_lattice_element().has_vector_attribute("ksl") )
     {
         // it is in Mad X format
         std::vector<double> k0(1, 0.0);
 
-        knl = slice.get_lattice_element().get_vector_attribute("knl");
+        knl = slice.get_lattice_element().get_vector_attribute("knl", k0);
         ksl = slice.get_lattice_element().get_vector_attribute("ksl", k0);
 
         if (knl.size() > ksl.size()) ksl.resize(knl.size(), 0.0);
