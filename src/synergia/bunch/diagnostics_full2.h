@@ -47,11 +47,8 @@ private:
     Hdf5_serial_writer<double>* writer_emitxy = nullptr;
     Hdf5_serial_writer<double>* writer_emitxyz = nullptr;
     
-    virtual void
-    update_full2();
-
-    virtual void
-    update_emittances();
+    virtual void update_full2();
+    virtual void update_emittances();
 
 public:
     /// Create a Diagnostics_full2 object
@@ -62,6 +59,9 @@ public:
 
     // Default constructor for serialization use only
     Diagnostics_full2();
+
+    Diagnostics_full2(Diagnostics_full2 const&) = delete;
+    Diagnostics_full2& operator=(Diagnostics_full2 const&) = delete;
 
     virtual void
     init_writers(Hdf5_file_sptr file_sptr);

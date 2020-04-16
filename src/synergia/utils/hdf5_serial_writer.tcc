@@ -143,7 +143,3 @@ template<>
     void
     Hdf5_serial_writer<MArray3d_ref >::append(MArray3d_ref & data);
 
-template<typename T>
-    Hdf5_serial_writer<T >::~Hdf5_serial_writer()
-    {
-    }

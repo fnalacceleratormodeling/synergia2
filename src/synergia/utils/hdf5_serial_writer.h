@@ -55,7 +55,6 @@ template<typename T>
                 have_setup = false;
             }
         BOOST_SERIALIZATION_SPLIT_MEMBER()
-        ~Hdf5_serial_writer();
     };
 
 #include "synergia/utils/hdf5_serial_writer.tcc"
