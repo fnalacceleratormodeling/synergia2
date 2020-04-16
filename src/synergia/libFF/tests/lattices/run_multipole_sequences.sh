@@ -8,6 +8,8 @@ for s in $seqs
 do
     cp $s.seq mpole1.seq
     madx madx_track_multipole.madx
-    python convert_madx_tracks_to_np.py madx_track_multipole.txtone
-    mv madx_track_multipole.npy $s.npy
+    mv madx_track_multipole.txtone madx_$s.out
+    rm mpole1.seq
+    #python convert_madx_tracks_to_np.py madx_track_multipole.txtone
+    #mv madx_track_multipole.npy $s.npy
 done

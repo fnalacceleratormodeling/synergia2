@@ -8,6 +8,17 @@ target_link_libraries(test_libff_elements
 add_test(NAME test_libff_elements COMMAND test_libff_elements)
 copy_file(fodo.madx test_libff_elements)
 
+add_executable(test_madx_multipoles test_madx_multipoles.cc)
+target_link_libraries(test_madx_multipoles
+    synergia_simulation 
+    synergia_libFF 
+    synergia_test_main
+    kokkos)
+add_test(NAME test_madx_multipoles COMMAND test_madx_multipoles)
+
+add_subdirectory(lattices)
+
+
 
 if (FALSE)
 
