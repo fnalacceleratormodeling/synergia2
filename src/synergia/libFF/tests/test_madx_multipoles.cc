@@ -156,27 +156,60 @@ void propagate_libff(std::string const& seq)
     auto madx = read_madx_output(seq);
 
     // check
+    const double tolerance = 1e-15;
     for(int p=0; p<16; ++p)
     {
-        CHECK(parts(p, 0) == Approx(madx(p, 0)));
-        CHECK(parts(p, 1) == Approx(madx(p, 1)));
-        CHECK(parts(p, 2) == Approx(madx(p, 2)));
-        CHECK(parts(p, 3) == Approx(madx(p, 3)));
-        CHECK(parts(p, 4) == Approx(madx(p, 4)));
-        CHECK(parts(p, 5) == Approx(madx(p, 5)));
+        CHECK(parts(p, 0) == Approx(madx(p, 0)).margin(tolerance));
+        CHECK(parts(p, 1) == Approx(madx(p, 1)).margin(tolerance));
+        CHECK(parts(p, 2) == Approx(madx(p, 2)).margin(tolerance));
+        CHECK(parts(p, 3) == Approx(madx(p, 3)).margin(tolerance));
+        CHECK(parts(p, 4) == Approx(madx(p, 4)).margin(tolerance));
+        CHECK(parts(p, 5) == Approx(madx(p, 5)).margin(tolerance));
     }
 }
 
-
 TEST_CASE("mpole_k1", "[libFF][Elements]")
-{
-    CHECK( true );
-    propagate_libff("mpole_k1");
-}
+{ propagate_libff("mpole_k1"); }
+
+TEST_CASE("mpole_k1_tilt", "[libFF][Elements]")
+{ propagate_libff("mpole_k1_tilt"); }
 
 TEST_CASE("mpole_k1s", "[libFF][Elements]")
-{
-    CHECK( true );
-    propagate_libff("mpole_k1s");
-}
+{ propagate_libff("mpole_k1s"); }
+
+TEST_CASE("mpole_k2", "[libFF][Elements]")
+{ propagate_libff("mpole_k2"); }
+
+TEST_CASE("mpole_k2_tilt", "[libFF][Elements]")
+{ propagate_libff("mpole_k2_tilt"); }
+
+TEST_CASE("mpole_k2s", "[libFF][Elements]")
+{ propagate_libff("mpole_k2s"); }
+
+TEST_CASE("mpole_k3", "[libFF][Elements]")
+{ propagate_libff("mpole_k3"); }
+
+TEST_CASE("mpole_k3_tilt", "[libFF][Elements]")
+{ propagate_libff("mpole_k3_tilt"); }
+
+TEST_CASE("mpole_k3s", "[libFF][Elements]")
+{ propagate_libff("mpole_k3s"); }
+
+TEST_CASE("mpole_k4", "[libFF][Elements]")
+{ propagate_libff("mpole_k4"); }
+
+TEST_CASE("mpole_k4_tilt", "[libFF][Elements]")
+{ propagate_libff("mpole_k4_tilt"); }
+
+TEST_CASE("mpole_k4s", "[libFF][Elements]")
+{ propagate_libff("mpole_k4s"); }
+
+TEST_CASE("mpole_k5", "[libFF][Elements]")
+{ propagate_libff("mpole_k5"); }
+
+TEST_CASE("mpole_k5_tilt", "[libFF][Elements]")
+{ propagate_libff("mpole_k5_tilt"); }
+
+TEST_CASE("mpole_k5s", "[libFF][Elements]")
+{ propagate_libff("mpole_k5s"); }
 
