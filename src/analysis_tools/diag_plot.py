@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import sys
 from matplotlib import pyplot
 #from synergia.utils import Hdf5_file
@@ -155,9 +155,9 @@ def do_plot(inputfile, options, plotparams, multiple_files):
         if (params.y_index1 == None) and (params.y_index2 == None):
             y = ymaster
         elif (params.y_index2 == None):
-            y = ymaster[params.y_index1, :]
+            y = ymaster[:, params.y_index1]
         else:
-            y = ymaster[params.y_index1, params.y_index2, :]
+            y = ymaster[:, params.y_index1, params.y_index2]
         if not options.oneplot:
             pyplot.subplot(rows, cols, plot_index)
         extra_label = None
