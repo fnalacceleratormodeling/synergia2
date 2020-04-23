@@ -16,6 +16,15 @@ target_link_libraries(test_madx_multipoles
     kokkos)
 add_test(NAME test_madx_multipoles COMMAND test_madx_multipoles)
 
+add_executable(test_madx_elements test_madx_elements.cc)
+target_link_libraries(test_madx_elements
+    synergia_simulation 
+    synergia_libFF 
+    synergia_test_main
+    kokkos)
+add_test(NAME test_madx_elements COMMAND test_madx_elements)
+
+
 add_subdirectory(lattices)
 
 

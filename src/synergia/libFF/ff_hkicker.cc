@@ -2,7 +2,9 @@
 #include "ff_algorithm.h"
 #include "synergia/utils/simple_timer.h"
 
+#include "ff_patterned_propagator.h"
 
+#if 0
 namespace
 {
     struct thin_kicker
@@ -196,6 +198,7 @@ namespace
         return cdt;
     }
 }
+#endif
 
 void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
@@ -233,19 +236,24 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double scale = plattice/pbunch;
 
     // kick strength is defined as momentum change/reference momentum
-    //double b_k = k * ( ref_bunch.get_charge() / ref_lattice.get_charge() ) * scale;
     double b_hk = hk * ( ref_bunch.get_charge() / ref_lattice.get_charge() ) * scale;
     double b_vk = vk * ( ref_bunch.get_charge() / ref_lattice.get_charge() ) * scale;
+
+    double k[2] = {hk, vk};
+    double sk[2] = {b_hk, b_vk};
+
+    using pp = FF_patterned_propagator<double, 1,
+          FF_algorithm::thin_kicker_unit<double>>;
 
     if ( close_to_zero(length) )
     {
         // the reference time is calculated with the design reference 
         // particle which is relative to the p-lattice.
         // also update the reference particle
-        get_reference_cdt_zero(ref_lattice, hk, vk);
+        pp::get_reference_cdt_zero(ref_lattice, k);
 
-        apply_thin_kick(bunch, ParticleGroup::regular, b_hk, b_vk);
-        apply_thin_kick(bunch, ParticleGroup::spectator, b_hk, b_vk);
+        pp::apply_thin_kick(bunch, ParticleGroup::regular, sk);
+        pp::apply_thin_kick(bunch, ParticleGroup::spectator, sk);
     }
     else
     {
@@ -257,8 +265,16 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         bool simple = fabs(simple_d) > 1e-16;
 
         // strength per unit length
+#if 0
         double hk_pul = hk / l;
         double vk_pul = vk / l;
+#endif
+
+        k[0] = k[0]/l;
+        k[1] = k[1]/l;
+
+        sk[0] = sk[0]/l;
+        sk[1] = sk[1]/l;
 
         double pref = bunch.get_reference_particle().get_momentum();
         double mass = bunch.get_mass();
@@ -266,14 +282,14 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         if (simple)
         {
             // use un-scaled k_pul
-            double ref_cdt = get_reference_cdt_simple(
-                    ref_lattice, length, hk_pul, vk_pul);
+            double ref_cdt = pp::get_reference_cdt_simple(
+                    ref_lattice, length, k);
 
-            apply_simple_kick(bunch, ParticleGroup::regular, 
-                    length, pref, mass, ref_cdt, b_hk, b_vk);
+            pp::apply_simple_kick(bunch, ParticleGroup::regular, 
+                    pref, mass, ref_cdt, length, sk);
 
-            apply_simple_kick(bunch, ParticleGroup::spectator, 
-                    length, pref, mass, ref_cdt, b_hk, b_vk);
+            pp::apply_simple_kick(bunch, ParticleGroup::spectator, 
+                    pref, mass, ref_cdt, length, sk);
         }
         else
         {
@@ -283,336 +299,26 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 .get_double_attribute("yoshida_steps", 4.0);
 
             // use un-scaled k_pul
-            double ref_cdt = get_reference_cdt_yoshida(
-                    ref_lattice, length, hk_pul, vk_pul, steps);
+            double ref_cdt = pp::get_reference_cdt_yoshida(
+                    ref_lattice, length, k, steps, true);
 
+#if 0
             double b_hk_pul = b_hk / l;
             double b_vk_pul = b_vk / l;
 
             double step_ref_cdt = ref_cdt / steps;
             double step_len = length / steps;
             double step_str[2] = { b_hk_pul * step_len, b_vk_pul * step_len };
-
-            apply_yoshida_kick(bunch, ParticleGroup::regular,
-                    pref, mass, step_ref_cdt, step_len, step_str, steps);
-
-            apply_yoshida_kick(bunch, ParticleGroup::spectator,
-                    pref, mass, step_ref_cdt, step_len, step_str, steps);
-
-        }
-
-        bunch.get_reference_particle().increment_trajectory(length);
-    }
-
-#if 0
-
-    int local_num = bunch.get_local_num();
-    int local_s_num = bunch.get_local_spectator_num();
-
-    MArray2d_ref particles = bunch.get_local_particles();
-    MArray2d_ref s_particles = bunch.get_local_spectator_particles();
-
-    const int gsvsize = GSVector::size();
-
-    double * RESTRICT xa;
-    double * RESTRICT xpa;
-    double * RESTRICT ya;
-    double * RESTRICT ypa;
-    double * RESTRICT cdta;
-    double * RESTRICT dpopa;
-
-    if ( close_to_zero(length) )
-    {
-        // the reference time is calculated with the design reference particle which
-        // relative to plattice.
-        // also update the reference particle
-        double reference_cdt = get_reference_cdt(0.0, k, ref_lattice, false);
-
-        // real particles
-        {
-            bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-            const int num_blocks = local_num / gsvsize;
-            const int block_last = num_blocks * gsvsize;
-
-            #pragma omp parallel for
-            for (int part = 0; part < block_last; part += gsvsize)
-            {
-                GSVector xp(&xpa[part]);
-                FF_algorithm::thin_kicker_unit(xp, b_k);
-                xp.store(&xpa[part]);
-            }
-
-            for (int part = block_last; part < local_num; ++part)
-            {
-                double xp(xpa[part]);
-                FF_algorithm::thin_kicker_unit(xp, b_k);
-                xpa[part] = xp;
-            }
-        }
-
-        // spectator particles
-        {
-            bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-            const int num_blocks = local_s_num / gsvsize;
-            const int block_last = num_blocks * gsvsize;
-
-            #pragma omp parallel for
-            for (int part = 0; part < block_last; part += gsvsize)
-            {
-                GSVector xp(&xpa[part]);
-                FF_algorithm::thin_kicker_unit(xp, b_k);
-                xp.store(&xpa[part]);
-            }
-
-            for (int part = block_last; part < local_s_num; ++part)
-            {
-                double xp(xpa[part]);
-                FF_algorithm::thin_kicker_unit(xp, b_k);
-                xpa[part] = xp;
-            }
-        }
-    }
-    else
-    {
-        // yoshida steps
-        steps = (int)slice.get_lattice_element().get_double_attribute("yoshida_steps", 4.0);
-
-        // simple drift-kick-drift scheme
-        double simple_d = slice.get_lattice_element().get_double_attribute("simple", 0.0);
-        bool simple = fabs(simple_d) > 1e-16;
-
-        // strength per unit length
-        double k_pul = k / l;
-
-        double pref = bunch.get_reference_particle().get_momentum();
-        double m = bunch.get_mass();
-        double reference_cdt = get_reference_cdt(length, k_pul, ref_lattice, simple);
-
-        if (simple)
-        {
-            // real particles
-            {
-                bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-                const int num_blocks = local_num / gsvsize;
-                const int block_last = num_blocks * gsvsize;
-
-                #pragma omp parallel for
-                for (int part = 0; part < block_last; part += gsvsize)
-                {
-                    GSVector x(&xa[part]);
-                    GSVector xp(&xpa[part]);
-                    GSVector y(&ya[part]);
-                    GSVector yp(&ypa[part]);
-                    GSVector cdt(&cdta[part]);
-                    GSVector dpop(&dpopa[part]);
-
-                    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-                    FF_algorithm::thin_kicker_unit(xp, b_k);
-                    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-
-                    x.store(&xa[part]);
-                    xp.store(&xpa[part]);
-                    y.store(&ya[part]);
-                    yp.store(&ypa[part]);
-                    cdt.store(&cdta[part]);
-                    dpop.store(&dpopa[part]);
-                }
-
-                for (int part = block_last; part < local_num; ++part)
-                {
-                    double x(xa[part]);
-                    double xp(xpa[part]);
-                    double y(ya[part]);
-                    double yp(ypa[part]);
-                    double cdt(cdta[part]);
-                    double dpop(dpopa[part]);
-
-                    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-                    FF_algorithm::thin_kicker_unit(xp, b_k);
-                    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-
-                    xa[part] = x;
-                    xpa[part] = xp;
-                    ya[part] = y;
-                    ypa[part] = yp;
-                    cdta[part] = cdt;
-                    dpopa[part] = dpop;
-                }
-            }
- 
-            // spectator particles
-            {
-                bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-                const int num_blocks = local_s_num / gsvsize;
-                const int block_last = num_blocks * gsvsize;
-
-                #pragma omp parallel for
-                for (int part = 0; part < block_last; part += gsvsize)
-                {
-                    GSVector x(&xa[part]);
-                    GSVector xp(&xpa[part]);
-                    GSVector y(&ya[part]);
-                    GSVector yp(&ypa[part]);
-                    GSVector cdt(&cdta[part]);
-                    GSVector dpop(&dpopa[part]);
-
-                    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-                    FF_algorithm::thin_kicker_unit(xp, b_k);
-                    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-
-                    x.store(&xa[part]);
-                    xp.store(&xpa[part]);
-                    y.store(&ya[part]);
-                    yp.store(&ypa[part]);
-                    cdt.store(&cdta[part]);
-                    dpop.store(&dpopa[part]);
-                }
-
-                for (int part = block_last; part < local_s_num; ++part)
-                {
-                    double x(xa[part]);
-                    double xp(xpa[part]);
-                    double y(ya[part]);
-                    double yp(ypa[part]);
-                    double cdt(cdta[part]);
-                    double dpop(dpopa[part]);
-
-                    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-                    FF_algorithm::thin_kicker_unit(xp, b_k);
-                    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-
-                    xa[part] = x;
-                    xpa[part] = xp;
-                    ya[part] = y;
-                    ypa[part] = yp;
-                    cdta[part] = cdt;
-                    dpopa[part] = dpop;
-                }
-            }
-
-        }
-        else
-        {
-            double b_k_pul = b_k / l;
-
-            double step_reference_cdt = reference_cdt / steps;
-            double step_length = length / steps;
-            double step_strength[2] = { b_k_pul * step_length, 0.0 };
-
-            // real particles
-            {
-                bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-                const int num_blocks = local_num / gsvsize;
-                const int block_last = num_blocks * gsvsize;
-
-                #pragma omp parallel for
-                for (int part = 0; part < block_last; part += gsvsize)
-                {
-                    GSVector x(&xa[part]);
-                    GSVector xp(&xpa[part]);
-                    GSVector y(&ya[part]);
-                    GSVector yp(&ypa[part]);
-                    GSVector cdt(&cdta[part]);
-                    GSVector dpop(&dpopa[part]);
-
-                    FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_kicker_unit<GSVector>, 1>
-                        ( x, xp, y, yp, cdt, dpop,
-                          pref, m, step_reference_cdt,
-                          step_length, step_strength, steps );
-
-                    x.store(&xa[part]);
-                    xp.store(&xpa[part]);
-                    y.store(&ya[part]);
-                    yp.store(&ypa[part]);
-                    cdt.store(&cdta[part]);
-                    dpop.store(&dpopa[part]);
-                }
-
-                for (int part = block_last; part < local_num; ++part)
-                {
-                    double x(xa[part]);
-                    double xp(xpa[part]);
-                    double y(ya[part]);
-                    double yp(ypa[part]);
-                    double cdt(cdta[part]);
-                    double dpop(dpopa[part]);
-
-                    FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
-                        ( x, xp, y, yp, cdt, dpop,
-                          pref, m, step_reference_cdt,
-                          step_length, step_strength, steps );
-
-                    xa[part] = x;
-                    xpa[part] = xp;
-                    ya[part] = y;
-                    ypa[part] = yp;
-                    cdta[part] = cdt;
-                    dpopa[part] = dpop;
-                }
-
-            }
-
-            // spectator particles
-            {
-                bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-
-                const int num_blocks = local_s_num / gsvsize;
-                const int block_last = num_blocks * gsvsize;
-
-                #pragma omp parallel for
-                for (int part = 0; part < block_last; part += gsvsize)
-                {
-                    GSVector x(&xa[part]);
-                    GSVector xp(&xpa[part]);
-                    GSVector y(&ya[part]);
-                    GSVector yp(&ypa[part]);
-                    GSVector cdt(&cdta[part]);
-                    GSVector dpop(&dpopa[part]);
-
-                    FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_kicker_unit<GSVector>, 1>
-                        ( x, xp, y, yp, cdt, dpop,
-                          pref, m, step_reference_cdt,
-                          step_length, step_strength, steps );
-
-                    x.store(&xa[part]);
-                    xp.store(&xpa[part]);
-                    y.store(&ya[part]);
-                    yp.store(&ypa[part]);
-                    cdt.store(&cdta[part]);
-                    dpop.store(&dpopa[part]);
-                }
-
-                for (int part = block_last; part < local_s_num; ++part)
-                {
-                    double x(xa[part]);
-                    double xp(xpa[part]);
-                    double y(ya[part]);
-                    double yp(ypa[part]);
-                    double cdt(cdta[part]);
-                    double dpop(dpopa[part]);
-
-                    FF_algorithm::yoshida6<double, FF_algorithm::thin_kicker_unit<double>, 1>
-                        ( x, xp, y, yp, cdt, dpop,
-                          pref, m, step_reference_cdt,
-                          step_length, step_strength, steps );
-
-                    xa[part] = x;
-                    xpa[part] = xp;
-                    ya[part] = y;
-                    ypa[part] = yp;
-                    cdta[part] = cdt;
-                    dpopa[part] = dpop;
-                }
-            }
-        }
-
-        bunch.get_reference_particle().increment_trajectory(length);
-    }
 #endif
+
+            pp::apply_yoshida_kick(bunch, ParticleGroup::regular,
+                    pref, mass, ref_cdt, length, sk, steps);
+
+            pp::apply_yoshida_kick(bunch, ParticleGroup::spectator,
+                    pref, mass, ref_cdt, length, sk, steps);
+        }
+
+        bunch.get_reference_particle().increment_trajectory(length);
+    }
 }
 
