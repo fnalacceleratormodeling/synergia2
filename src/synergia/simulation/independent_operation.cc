@@ -9,7 +9,7 @@
 #include "synergia/libFF/ff_sextupole.h"
 #include "synergia/libFF/ff_octupole.h"
 
-#include "synergia/libFF/ff_hkicker.h"
+#include "synergia/libFF/ff_kicker.h"
 
 namespace
 {
@@ -24,9 +24,9 @@ namespace
         case element_type::multipole:  return std::make_unique<FF_multipole>();
 
         //case element_type::rbend:      return std::make_unique<FF_drift>();
-        case element_type::hkicker:    return std::make_unique<FF_hkicker>();
-        case element_type::vkicker:    return std::make_unique<FF_hkicker>();
-        case element_type::kicker:     return std::make_unique<FF_hkicker>();
+        case element_type::hkicker:    return std::make_unique<FF_kicker>();
+        case element_type::vkicker:    return std::make_unique<FF_kicker>();
+        case element_type::kicker:     return std::make_unique<FF_kicker>();
 
         case element_type::monitor:    return std::make_unique<FF_drift>();
         case element_type::sextupole:  return std::make_unique<FF_sextupole>();

@@ -80,20 +80,22 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     std::vector<double> ksl;
     std::vector<double> tn;
 
+    auto const& element = slice.get_lattice_element();
+
     // extract attributes
-    if ( slice.get_lattice_element().has_vector_attribute("knl") 
-            || slice.get_lattice_element().has_vector_attribute("ksl") )
+    if ( element.has_vector_attribute("knl") 
+            || element.has_vector_attribute("ksl") )
     {
         // it is in Mad X format
         std::vector<double> k0(1, 0.0);
 
-        knl = slice.get_lattice_element().get_vector_attribute("knl", k0);
-        ksl = slice.get_lattice_element().get_vector_attribute("ksl", k0);
+        knl = element.get_vector_attribute("knl", k0);
+        ksl = element.get_vector_attribute("ksl", k0);
 
         if (knl.size() > ksl.size()) ksl.resize(knl.size(), 0.0);
         else if (knl.size() < ksl.size()) knl.resize(ksl.size(), 0.0);
 
-        double tilt = slice.get_lattice_element().get_double_attribute("tilt", 0.0);
+        double tilt = element.get_double_attribute("tilt", 0.0);
         tn.resize(knl.size(), tilt);
     }
     else
@@ -107,8 +109,8 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             skn[1] = '0' + i;
             stn[1] = '0' + i;
 
-            knl.push_back( slice.get_lattice_element().get_double_attribute(skn, 0.0) );
-             tn.push_back( slice.get_lattice_element().get_double_attribute(stn, 0.0) );
+            knl.push_back( element.get_double_attribute(skn, 0.0) );
+             tn.push_back( element.get_double_attribute(stn, 0.0) );
         }
 
         int tail = knl.size()-1;
