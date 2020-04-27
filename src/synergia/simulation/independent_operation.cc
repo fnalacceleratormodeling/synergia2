@@ -8,9 +8,9 @@
 #include "synergia/libFF/ff_multipole.h"
 #include "synergia/libFF/ff_sextupole.h"
 #include "synergia/libFF/ff_octupole.h"
-#include "synergia/libFF/ff_nllens.h"
-
 #include "synergia/libFF/ff_kicker.h"
+#include "synergia/libFF/ff_nllens.h"
+#include "synergia/libFF/ff_solenoid.h"
 
 namespace
 {
@@ -37,6 +37,7 @@ namespace
         case element_type::rcollimator:return std::make_unique<FF_drift>();
 
         case element_type::nllens:     return std::make_unique<FF_nllens>();
+        case element_type::solenoid:   return std::make_unique<FF_solenoid>();
 
         default:
             throw std::runtime_error(

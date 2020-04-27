@@ -257,6 +257,9 @@ TEST_CASE("vkicker_long", "[libFF][Elements]")
 TEST_CASE("rfc", "[libFF][Elements]")
 { propagate_libff("rfc"); }
 
+TEST_CASE("solenoid", "[libFF][Elements]")
+{ propagate_libff("solenoid"); }
+
 
 
 

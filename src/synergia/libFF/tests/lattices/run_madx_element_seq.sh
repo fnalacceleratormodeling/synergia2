@@ -2,7 +2,7 @@
 
 set -e
 
-seqs="quad drift rfc sext sext_long oct oct_long
+seqs="quad drift rfc sext sext_long oct oct_long solenoid
       kicker hkicker vkicker kicker_long hkicker_long vkicker_long"
 
 for s in $seqs

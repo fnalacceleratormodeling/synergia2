@@ -28,6 +28,7 @@ namespace
         { element_type_name::instrument, element_type::instrument},
         { element_type_name::rcollimator,element_type::rcollimator},
         { element_type_name::nllens,     element_type::nllens},
+        { element_type_name::solenoid,   element_type::solenoid},
     };
 
     element_type find_type(std::string const & stype)

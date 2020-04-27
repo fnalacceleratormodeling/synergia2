@@ -1,71 +1,119 @@
 #include "ff_solenoid.h"
-#include "synergia/lattice/chef_utils.h"
-#include "synergia/utils/gsvector.h"
-#include "synergia/utils/logger.h"
+#include "ff_drift.h"
+#include "synergia/libFF/ff_algorithm.h"
 
-FF_solenoid::FF_solenoid()
+
+namespace
 {
-}
-
-double FF_solenoid::get_reference_cdt_drift(double length, Reference_particle & reference_particle)
-{
-    double x(reference_particle.get_state()[Bunch::x]);
-    double xp(reference_particle.get_state()[Bunch::xp]);
-    double y(reference_particle.get_state()[Bunch::y]);
-    double yp(reference_particle.get_state()[Bunch::yp]);
-    double cdt(0.0);
-    double dpop(reference_particle.get_state()[Bunch::dpop]);
-
-    double reference_momentum = reference_particle.get_momentum()*(1+dpop);
-    double m = reference_particle.get_mass();
-
-    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
-
-    // propagate and update the bunch design reference particle state
-    reference_particle.set_state(x, xp, y, yp, cdt, dpop);
-
-    return cdt;
-}
-
-double FF_solenoid::get_reference_cdt_solenoid(double length, Reference_particle & reference_particle,
-        bool in_edge, bool out_edge, double ks, double kse, double ksl)
-{
-    double x(reference_particle.get_state()[Bunch::x]);
-    double xp(reference_particle.get_state()[Bunch::xp]);
-    double y(reference_particle.get_state()[Bunch::y]);
-    double yp(reference_particle.get_state()[Bunch::yp]);
-    double cdt(0.0);
-    double dpop(reference_particle.get_state()[Bunch::dpop]);
-
-    double ref_p = reference_particle.get_momentum()*(1+dpop);
-    double mass  = reference_particle.get_mass();
-
-    // in edge
-    if (in_edge)
+    template<void(KF)(double const&, double&, double const&, double&, double)>
+    struct solenoid_edge_kicker
     {
-        FF_algorithm::solenoid_in_edge_kick(x, xp, y, yp, kse);
+        Particles p;
+        ParticleMasks m;
+
+        double kse;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { if (m(i)) KF(p(i,0), p(i,1), p(i,2), p(i,3), kse); }
+    };
+
+    template<void(KF)(double const&, double&, double const&, double&, double)>
+    void apply_edge_kick(Bunch& bunch, ParticleGroup pg, double kse)
+    {
+        if(!bunch.get_local_num(pg)) return;
+
+        auto parts = bunch.get_local_particles(pg);
+        auto masks = bunch.get_local_particle_masks(pg);
+
+        solenoid_edge_kicker<KF> sk{parts, masks, kse};
+        Kokkos::parallel_for(bunch.size(pg), sk);
     }
 
-    // body
-    FF_algorithm::solenoid_unit( x, xp, y, yp, cdt, dpop,
-            ksl, ks, length, ref_p, mass, 0.0);
-
-    // out edge
-    if (out_edge)
+    struct solenoid_unit_kicker
     {
-        FF_algorithm::solenoid_out_edge_kick(x, xp, y, yp, kse);
+        Particles p;
+        ParticleMasks m;
+
+        double ksl;
+        double ks;
+        double length;
+        double ref_p;
+        double mass;
+        double ref_cdt;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { 
+            if (m(i)) 
+                FF_algorithm::solenoid_unit(
+                        p(i,0), p(i,1), p(i,2), 
+                        p(i,3), p(i,4), p(i,5),
+                        ksl, ks, length, ref_p, mass, ref_cdt); 
+        }
+    };
+
+    void apply_solenoid_unit(Bunch& bunch, ParticleGroup pg,
+            double ksl, double ks, double length, double ref_p,
+            double mass, double ref_cdt)
+    {
+        if(!bunch.get_local_num(pg)) return;
+
+        auto parts = bunch.get_local_particles(pg);
+        auto masks = bunch.get_local_particle_masks(pg);
+
+        solenoid_unit_kicker sk{
+            parts, masks, ksl, ks, length, 
+            ref_p, mass, ref_cdt
+        };
+
+        Kokkos::parallel_for(bunch.size(pg), sk);
     }
 
-    // propagate and update the bunch design reference particle state
-    reference_particle.set_state(x, xp, y, yp, cdt, dpop);
 
-    return cdt;
+    double get_reference_cdt_solenoid(
+            double length, Reference_particle & reference_particle,
+            bool in_edge, bool out_edge, double ks, double kse, double ksl)
+    {
+        double x(reference_particle.get_state()[Bunch::x]);
+        double xp(reference_particle.get_state()[Bunch::xp]);
+        double y(reference_particle.get_state()[Bunch::y]);
+        double yp(reference_particle.get_state()[Bunch::yp]);
+        double cdt(0.0);
+        double dpop(reference_particle.get_state()[Bunch::dpop]);
+
+        double ref_p = reference_particle.get_momentum()*(1+dpop);
+        double mass  = reference_particle.get_mass();
+
+        // in edge
+        if (in_edge)
+        {
+            FF_algorithm::solenoid_in_edge_kick(x, xp, y, yp, kse);
+        }
+
+        // body
+        FF_algorithm::solenoid_unit( x, xp, y, yp, cdt, dpop,
+                ksl, ks, length, ref_p, mass, 0.0);
+
+        // out edge
+        if (out_edge)
+        {
+            FF_algorithm::solenoid_out_edge_kick(x, xp, y, yp, kse);
+        }
+
+        // propagate and update the bunch design reference particle state
+        reference_particle.set_state(x, xp, y, yp, cdt, dpop);
+
+        return cdt;
+    }
 }
+
 
 
 void FF_solenoid::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
-    throw std::runtime_error("Propagate JetParticle through a solenoid element is yet to be implemented");
+    throw std::runtime_error(
+            "Propagate JetParticle through a solenoid element is yet to be implemented");
 }
 
 void FF_solenoid::apply(Lattice_element_slice const& slice, Bunch& bunch)
@@ -82,214 +130,62 @@ void FF_solenoid::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     Reference_particle       & ref_l = bunch.get_design_reference_particle();
     Reference_particle const & ref_b = bunch.get_reference_particle();
-    const double   ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
+    const double ref_p = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
-    double * RESTRICT xa, * RESTRICT xpa;
-    double * RESTRICT ya, * RESTRICT ypa;
-    double * RESTRICT cdta, * RESTRICT dpopa;
-
+    // if ks=0 it is effectively a drift
     if (fabs(ks) < 1e-12)
     {
-        // reference cdt
-        const double ref_cdt = get_reference_cdt_drift(length, ref_l);
+        FF_drift drift;
+        drift.apply(slice, bunch);
 
-        // this is a drift
-        // bunch particles
-        {
-            bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-            const int local_num = bunch.get_local_num();
-
-            const int gsvsize = GSVector::size();
-            const int num_blocks = local_num / gsvsize;
-            const int block_last = num_blocks * gsvsize;
-
-            #pragma omp parallel for
-            for (int part = 0; part < block_last; part += gsvsize)
-            {
-                GSVector x(&xa[part]);
-                GSVector xp(&xpa[part]);
-                GSVector y(&ya[part]);
-                GSVector yp(&ypa[part]);
-                GSVector cdt(&cdta[part]);
-                GSVector dpop(&dpopa[part]);
-
-                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
-
-                x.store(&xa[part]);
-                y.store(&ya[part]);
-                cdt.store(&cdta[part]);
-            }
-
-            for (int part = block_last; part < local_num; ++part)
-            {
-                double x(xa[part]);
-                double xp(xpa[part]);
-                double y(ya[part]);
-                double yp(ypa[part]);
-                double cdt(cdta[part]);
-                double dpop(dpopa[part]);
-
-                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
-
-                xa[part] = x;
-                ya[part] = y;
-                cdta[part] = cdt;
-            }
-        }
-
-        // bunch spectator particles
-        {
-            bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-            const int local_num = bunch.get_local_spectator_num();
-
-            const int gsvsize = GSVector::size();
-            const int num_blocks = local_num / gsvsize;
-            const int block_last = num_blocks * gsvsize;
-
-            #pragma omp parallel for
-            for (int part = 0; part < block_last; part += gsvsize)
-            {
-                GSVector x(&xa[part]);
-                GSVector xp(&xpa[part]);
-                GSVector y(&ya[part]);
-                GSVector yp(&ypa[part]);
-                GSVector cdt(&cdta[part]);
-                GSVector dpop(&dpopa[part]);
-
-                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
-
-                x.store(&xa[part]);
-                y.store(&ya[part]);
-                cdt.store(&cdta[part]);
-            }
-
-            for (int part = block_last; part < local_num; ++part)
-            {
-                double x(xa[part]);
-                double xp(xpa[part]);
-                double y(ya[part]);
-                double yp(ypa[part]);
-                double cdt(cdta[part]);
-                double dpop(dpopa[part]);
-
-                FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, ref_p, mass, ref_cdt);
-
-                xa[part] = x;
-                ya[part] = y;
-                cdta[part] = cdt;
-            }
-        }
+        return;
     }
-    else
+
+    // scaling
+    double brho_l = ref_l.get_momentum() 
+        * (1.0 + ref_l.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
+
+    double brho_b = ref_b.get_momentum() 
+        * (1.0 + ref_b.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
+
+    double scale = brho_l / brho_b;
+
+            ks = ks * scale;
+    double ksl = ks * length;
+    double kse = ks * 0.5;
+
+    // reference cdt
+    const double ref_cdt = get_reference_cdt_solenoid(length, ref_l, 
+            has_in_edge, has_out_edge, ks, kse, ksl);
+
+    // in-edge
+    if (has_in_edge)
     {
-        // scaling
-        double brho_l = ref_l.get_momentum() * (1.0 + ref_l.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
-        double brho_b = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]) / ref_l.get_charge();  // GV/c
+        apply_edge_kick<FF_algorithm::solenoid_in_edge_kick>(
+                bunch, ParticleGroup::regular, kse);
 
-        double scale = brho_l / brho_b;
-
-                ks = ks * scale;
-        double ksl = ks * length;
-        double kse = ks * 0.5;
-
-        // reference cdt
-        const double ref_cdt = get_reference_cdt_solenoid(length, ref_l, 
-                has_in_edge, has_out_edge, ks, kse, ksl);
-
-        // bunch particles
-        {
-            bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-            const int local_num = bunch.get_local_num();
-
-            const int gsvsize = GSVector::size();
-            const int num_blocks = local_num / gsvsize;
-            const int block_last = num_blocks * gsvsize;
-
-            #pragma omp parallel for
-            for (int part = 0; part < local_num; ++part)
-            {
-                // in edge
-                if (has_in_edge)
-                {
-                    FF_algorithm::solenoid_in_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
-                }
-
-                // body
-                FF_algorithm::solenoid_unit(
-                        xa[part], xpa[part], ya[part], ypa[part], cdta[part], dpopa[part],
-                        ksl, ks, length, ref_p, mass, ref_cdt );
-
-                // out edge
-                if (has_out_edge)
-                {
-                    FF_algorithm::solenoid_out_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
-                }
-            }
-        }
-
-        // bunch spectator particles
-        {
-            bunch.set_spectator_arrays(xa, xpa, ya, ypa, cdta, dpopa);
-            const int local_num = bunch.get_local_spectator_num();
-
-            const int gsvsize = GSVector::size();
-            const int num_blocks = local_num / gsvsize;
-            const int block_last = num_blocks * gsvsize;
-
-            #pragma omp parallel for
-            for (int part = 0; part < local_num; ++part)
-            {
-                // in edge
-                if (has_in_edge)
-                {
-                    FF_algorithm::solenoid_in_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
-                }
-
-                // body
-                FF_algorithm::solenoid_unit(
-                        xa[part], xpa[part], ya[part], ypa[part], cdta[part], dpopa[part],
-                        ksl, ks, length, ref_p, mass, ref_cdt );
-
-                // out edge
-                if (has_out_edge)
-                {
-                    FF_algorithm::solenoid_out_edge_kick(xa[part], xpa[part], ya[part], ypa[part], kse);
-                }
-            }
-        }
+        apply_edge_kick<FF_algorithm::solenoid_in_edge_kick>(
+                bunch, ParticleGroup::spectator, kse);
     }
 
+    // body
+    apply_solenoid_unit(bunch, ParticleGroup::regular,
+            ksl, ks, length, ref_p, mass, ref_cdt);
+
+    apply_solenoid_unit(bunch, ParticleGroup::spectator,
+            ksl, ks, length, ref_p, mass, ref_cdt);
+
+    // out-edge
+    if (has_out_edge)
+    {
+        apply_edge_kick<FF_algorithm::solenoid_out_edge_kick>(
+                bunch, ParticleGroup::regular, kse);
+
+        apply_edge_kick<FF_algorithm::solenoid_out_edge_kick>(
+                bunch, ParticleGroup::spectator, kse);
+    }
+
+    // trajectory
     bunch.get_reference_particle().increment_trajectory(length);
 }
 
-template<class Archive>
-    void
-    FF_solenoid::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(FF_element);
-    }
-
-template
-void
-FF_solenoid::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_solenoid::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_solenoid::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-FF_solenoid::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-FF_solenoid::~FF_solenoid()
-{
-
-}

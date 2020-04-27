@@ -53,6 +53,7 @@ copy_file(l_vkicker.seq test_madx_elements)
 copy_file(l_kicker_long.seq test_madx_elements)
 copy_file(l_hkicker_long.seq test_madx_elements)
 copy_file(l_vkicker_long.seq test_madx_elements)
+copy_file(l_solenoid.seq test_madx_elements)
 
 copy_file(madx_drift.out test_madx_elements)
 copy_file(madx_rfc.out test_madx_elements)
@@ -67,4 +68,5 @@ copy_file(madx_vkicker.out test_madx_elements)
 copy_file(madx_kicker_long.out test_madx_elements)
 copy_file(madx_hkicker_long.out test_madx_elements)
 copy_file(madx_vkicker_long.out test_madx_elements)
+copy_file(madx_solenoid.out test_madx_elements)
 
