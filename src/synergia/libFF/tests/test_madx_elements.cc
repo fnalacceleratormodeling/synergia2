@@ -108,6 +108,7 @@ void propagate_libff(std::string const& seq)
     double de = 0.05;
     double xp = 0.01;
     double yp = 0.015;
+    double cdt = -0.01;
 
     //double dp = sqrt(1+de*de+2*de*sqrt(p0*p0+m*m)/p0) - 1.0;
     double dp = de_to_dp(de);
@@ -119,24 +120,28 @@ void propagate_libff(std::string const& seq)
     parts( 0, 2) = 0.0;
     parts( 0, 1) = xp;
     parts( 0, 3) = yp;
+    parts( 0, 4) = cdt;
     parts( 0, 5) = dp;
 
     parts( 1, 0) = offset*s3o2;
     parts( 1, 2) = offset*0.5;
     parts( 1, 1) = xp;
     parts( 1, 3) = yp;
+    parts( 1, 4) = cdt;
     parts( 1, 5) = dp;
 
     parts( 2, 0) = offset*s2o2;
     parts( 2, 2) = offset*s2o2;
     parts( 2, 1) = xp;
     parts( 2, 3) = yp;
+    parts( 2, 4) = cdt;
     parts( 2, 5) = dp;
 
     parts( 3, 0) = offset*0.5;
     parts( 3, 2) = offset*s3o2;
     parts( 3, 1) = xp;
     parts( 3, 3) = yp;
+    parts( 3, 4) = cdt;
     parts( 3, 5) = dp;
 
     parts( 4, 0) = 0.0;
@@ -193,8 +198,9 @@ void propagate_libff(std::string const& seq)
     {
 #if 1
         std::cout << std::setprecision(16);
-        for(int i=0; i<6; ++i)
+        for(int i=0; i<5; ++i)
             std::cout << parts(p, i) << "\t" << madx(p, i) << "\n";
+        std::cout << parts(p, 5) << "\t" << de_to_dp(madx(p, 5)) << "\n";
         std::cout << "\n";
 #endif
 
@@ -209,7 +215,6 @@ void propagate_libff(std::string const& seq)
     }
 }
 
-#if 1
 TEST_CASE("quad", "[libFF][Elements]")
 { propagate_libff("quad"); }
 
@@ -218,22 +223,16 @@ TEST_CASE("drift", "[libFF][Elements]")
 
 TEST_CASE("sextupole", "[libFF][Elements]")
 { propagate_libff("sext"); }
-#endif
 
 TEST_CASE("octupole", "[libFF][Elements]")
 { propagate_libff("oct"); }
 
-#if 1
 TEST_CASE("sextupole_long", "[libFF][Elements]")
 { propagate_libff("sext_long"); }
-#endif
 
-#if 1
 TEST_CASE("octupole_long", "[libFF][Elements]")
 { propagate_libff("oct_long"); }
-#endif
 
-#if 1
 TEST_CASE("kicker", "[libFF][Elements]")
 { propagate_libff("kicker"); }
 
@@ -251,9 +250,9 @@ TEST_CASE("hkicker_long", "[libFF][Elements]")
 
 TEST_CASE("vkicker_long", "[libFF][Elements]")
 { propagate_libff("vkicker_long"); }
-#endif
 
-
+TEST_CASE("rfc", "[libFF][Elements]")
+{ propagate_libff("rfc"); }
 
 
 

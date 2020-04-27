@@ -41,6 +41,7 @@ copy_file(madx_mpole_k5s.out test_madx_multipoles)
 
 
 copy_file(l_drift.seq test_madx_elements)
+copy_file(l_rfc.seq test_madx_elements)
 copy_file(l_quad.seq test_madx_elements)
 copy_file(l_sext.seq test_madx_elements)
 copy_file(l_oct.seq test_madx_elements)
@@ -54,6 +55,7 @@ copy_file(l_hkicker_long.seq test_madx_elements)
 copy_file(l_vkicker_long.seq test_madx_elements)
 
 copy_file(madx_drift.out test_madx_elements)
+copy_file(madx_rfc.out test_madx_elements)
 copy_file(madx_quad.out test_madx_elements)
 copy_file(madx_sext.out test_madx_elements)
 copy_file(madx_oct.out test_madx_elements)
