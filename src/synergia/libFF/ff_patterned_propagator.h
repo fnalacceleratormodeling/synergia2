@@ -67,7 +67,7 @@ struct FF_patterned_propagator
         { 
             if(m(i)) 
             {
-                FF_algorithm::yoshida<double, KF, 6, COMP>( 
+                FF_algorithm::yoshida6<double, KF, COMP>( 
                         p(i, 0), p(i, 1), p(i, 2),
                         p(i, 3), p(i, 4), p(i, 5),
                         pref, mass, step_ref_cdt,
