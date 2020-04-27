@@ -93,13 +93,19 @@ void FF_kicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         else
         {
             // yoshida steps
-            steps = (int)slice
-                .get_lattice_element()
-                .get_double_attribute("yoshida_steps", 4.0);
+            int steps = (int)elem.get_double_attribute(
+                    "yoshida_steps", 4.0);
+
+            // use drift for reference particle:
+            // MadX uses drift for reference particle if a closed
+            // orbit is not found. libFF also gives an option of
+            // using the drift, but mostly for testing purposes
+            int use_drift = (int)elem.get_double_attribute(
+                    "cdt_use_drift", 0.0);
 
             // use un-scaled k_pul
             double ref_cdt = pp::get_reference_cdt_yoshida(
-                    ref_lattice, length, k, steps, true);
+                    ref_lattice, length, k, steps, use_drift);
 
             pp::apply_yoshida_kick(bunch, ParticleGroup::regular,
                     pref, mass, ref_cdt, length, sk, steps);

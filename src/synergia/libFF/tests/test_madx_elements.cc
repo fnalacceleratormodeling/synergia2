@@ -36,6 +36,9 @@ struct propagator_fixture
         // set refpart to lattice
         lattice.set_reference_particle(ref_l);
 
+        // cdt use drift (to agree with MadX)
+        lattice.set_all_double_attribute("cdt_use_drift", 1.0);
+
         // propagator
         propagator = std::make_unique<Propagator>(
                 lattice, Independent_stepper_elements(1) );
