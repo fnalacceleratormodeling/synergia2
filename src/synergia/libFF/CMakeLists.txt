@@ -14,7 +14,7 @@ add_library(synergia_libFF
     #ff_marker.cc
     #ff_constfoc.cc
     #ff_element_map.cc
-    #ff_nllens.cc
+    ff_nllens.cc
     #ff_dipedge.cc
     #ff_solenoid.cc
     #ff_elens.cc

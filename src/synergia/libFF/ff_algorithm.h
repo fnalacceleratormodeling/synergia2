@@ -9,6 +9,7 @@
 //#include "basic_toolkit/PhysicsConstants.h"
 #include "synergia/utils/invsqrt.h"
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/foundation/math_constants.h"
 
 #include <Kokkos_Core.hpp>
 
@@ -674,9 +675,11 @@ namespace FF_algorithm
 
     KOKKOS_INLINE_FUNCTION
     void nllens_unit
-        (double x, double y, double & xp, double & yp, double icnll, double kick)
+        (double const& x, double & xp, double const& y, double & yp, double const* k)
     {
-#if 0
+        const double icnll = k[0];
+        const double kick = k[1];
+
         double xbar = x * icnll;
         double ybar = y * icnll;
 
@@ -692,7 +695,21 @@ namespace FF_algorithm
 
         Kokkos::complex<double> zeta(xbar, ybar);
         Kokkos::complex<double> croot = sqrt(c_1 - zeta*zeta);
-        Kokkos::complex<double> carcsin = -c_i * log(c_i * zeta + croot);
+
+        // Kokkos::complex doesnt provide the log() method, so we
+        // need to calculate the following manually:
+        // Kokkos::complex<double> carcsin = -c_i * log(c_i * zeta + croot);
+
+        // convert co to polar form
+        Kokkos::complex<double> co = c_i * zeta + croot;
+        double a = co.real();
+        double b = co.imag();
+        double r = sqrt(a*a + b*b);
+        double theta = (a>0) ? atan(b/a) : atan(b/a) + mconstants::pi;
+        Kokkos::complex<double> logco(log(r), theta);
+        Kokkos::complex<double> carcsin = -c_i * logco;
+
+        // keep working on the rest
         Kokkos::complex<double> dF = zeta/(croot*croot) + carcsin/(croot*croot*croot);
 
         double dpx = kick * dF.real();
@@ -700,7 +717,6 @@ namespace FF_algorithm
 
         xp += dpx;
         yp += dpy;
-#endif
     }
 
     template <typename T>
