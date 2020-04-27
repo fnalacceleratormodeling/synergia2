@@ -31,6 +31,8 @@ enum class element_type
     marker,
     instrument,
     rcollimator,
+
+    nllens,
 };
 
 namespace element_type_name
@@ -51,6 +53,7 @@ namespace element_type_name
     constexpr char const* marker     = "marker";
     constexpr char const* instrument = "instrument";
     constexpr char const* rcollimator= "rcollimator";
+    constexpr char const* nllens     = "nllens";
 }
 
 class Lattice;

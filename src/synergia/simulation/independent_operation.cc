@@ -8,6 +8,7 @@
 #include "synergia/libFF/ff_multipole.h"
 #include "synergia/libFF/ff_sextupole.h"
 #include "synergia/libFF/ff_octupole.h"
+#include "synergia/libFF/ff_nllens.h"
 
 #include "synergia/libFF/ff_kicker.h"
 
@@ -34,6 +35,8 @@ namespace
         case element_type::marker:     return std::make_unique<FF_drift>();
         case element_type::instrument: return std::make_unique<FF_drift>();
         case element_type::rcollimator:return std::make_unique<FF_drift>();
+
+        case element_type::nllens:     return std::make_unique<FF_nllens>();
 
         default:
             throw std::runtime_error(
