@@ -5,7 +5,7 @@ target_link_libraries(test_libff_elements
     synergia_libFF 
     synergia_test_main
     kokkos)
-add_test(NAME test_libff_elements COMMAND test_libff_elements)
+add_mpi_test(test_libff_elements 1)
 copy_file(fodo.madx test_libff_elements)
 
 add_executable(test_madx_multipoles test_madx_multipoles.cc)
@@ -14,7 +14,7 @@ target_link_libraries(test_madx_multipoles
     synergia_libFF 
     synergia_test_main
     kokkos)
-add_test(NAME test_madx_multipoles COMMAND test_madx_multipoles)
+add_mpi_test(test_madx_multipoles 1)
 
 add_executable(test_madx_elements test_madx_elements.cc)
 target_link_libraries(test_madx_elements
@@ -22,7 +22,7 @@ target_link_libraries(test_madx_elements
     synergia_libFF 
     synergia_test_main
     kokkos)
-add_test(NAME test_madx_elements COMMAND test_madx_elements)
+add_mpi_test(test_madx_elements 1)
 
 
 add_subdirectory(lattices)
