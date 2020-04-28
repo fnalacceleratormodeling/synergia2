@@ -12,7 +12,12 @@ struct FF_patterned_propagator
         Particles p;
         ParticleMasks m;
 
-        double const* k;
+        double k[COMP*2];
+
+        thin_kicker(Particles p, ParticleMasks m, 
+                double const* str)
+        : p(p), m(m)
+        { for(int i=0; i<COMP*2; ++i) k[i] = str[i]; }
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
@@ -28,7 +33,14 @@ struct FF_patterned_propagator
         ParticleMasks m;
 
         double pref, mass, ref_cdt, len;
-        double const* k;
+        double k[COMP*2];
+
+        simple_kicker(Particles p, ParticleMasks m, 
+                double pref, double mass, double ref_cdt, double len,
+                double const* str)
+        : p(p), m(m), pref(pref), mass(mass)
+        , ref_cdt(ref_cdt), len(len)
+        { for(int i=0; i<COMP*2; ++i) k[i] = str[i]; }
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
@@ -59,8 +71,17 @@ struct FF_patterned_propagator
         ParticleMasks m;
 
         double pref, mass, step_ref_cdt, step_len;
-        double const* step_str;
+        double step_k[COMP*2];
         int steps;
+
+        yoshida_kicker(Particles p, ParticleMasks m, 
+                double pref, double mass, double step_ref_cdt, 
+                double step_len, double const* step_str, int steps)
+        : p(p), m(m), pref(pref), mass(mass)
+        , step_ref_cdt(step_ref_cdt), step_len(step_len)
+        , steps(steps)
+        { for(int i=0; i<COMP*2; ++i) step_k[i] = step_str[i]; }
+
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
@@ -71,7 +92,7 @@ struct FF_patterned_propagator
                         p(i, 0), p(i, 1), p(i, 2),
                         p(i, 3), p(i, 4), p(i, 5),
                         pref, mass, step_ref_cdt,
-                        step_len, step_str, steps );
+                        step_len, step_k, steps );
             }
         }
     };
@@ -84,7 +105,7 @@ struct FF_patterned_propagator
         auto parts = bunch.get_local_particles(pg);
         auto masks = bunch.get_local_particle_masks(pg);
 
-        thin_kicker tk{parts, masks, k};
+        thin_kicker tk(parts, masks, k);
         Kokkos::parallel_for(bunch.size(pg), tk);
     }
 
@@ -97,9 +118,9 @@ struct FF_patterned_propagator
         auto parts = bunch.get_local_particles(pg);
         auto masks = bunch.get_local_particle_masks(pg);
 
-        simple_kicker sk{ parts, masks, 
+        simple_kicker sk( parts, masks, 
             pref, mass, ref_cdt, len, k
-        };
+        );
 
         Kokkos::parallel_for(bunch.size(pg), sk);
     }
@@ -119,10 +140,10 @@ struct FF_patterned_propagator
         double step_str[2*COMP];
         for(int i=0; i<2*COMP; ++i) step_str[i] = str[i]*step_len;
 
-        yoshida_kicker yk{ parts, masks,
+        yoshida_kicker yk( parts, masks,
             pref, mass, step_ref_cdt, 
             step_len, step_str, steps 
-        };
+        );
 
         Kokkos::parallel_for(bunch.size(pg), yk);
     }
