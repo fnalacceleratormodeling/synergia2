@@ -10,6 +10,8 @@ const auto losts = {3, 5};
 
 void init_particle_values(BunchParticles& bp)
 {
+    bp.checkout_particles();
+
     for(int i=0; i<np; ++i)
         for(int j=0; j<6; ++j)
             bp.hparts(i, j) = i+j*0.1;
