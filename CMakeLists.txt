@@ -42,6 +42,7 @@ set(extra_includes)
 # options
 option(SIMPLE_TIMER "use the simple timer 2 profiling" Off)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" On)
+option(ALLOW_PADDING "add paddings to the particle array for memory alignment" On)
 
 # only build the shared lib
 option(BUILD_SHARED_LIBS "Build shared libraries" TRUE)
@@ -145,6 +146,13 @@ if(SIMPLE_TIMER)
     endif()
 endif()
 
+# allow padding
+if(ALLOW_PADDING)
+    message(STATUS "Particle array padding enabled")
+else()
+    message(STATUS "Particle array padding disabled")
+    add_definitions(-DNO_PADDING)
+endif()
 
 # Additional CXXFLAGS
 if (EXTRA_CXX_FLAGS)
