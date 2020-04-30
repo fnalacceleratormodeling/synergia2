@@ -14,7 +14,7 @@ target_link_libraries(synergia_parallel_utils MPI::MPI_C)
 target_link_libraries(synergia_parallel_utils_static MPI::MPI_C)
 
 add_library(synergia_test_main STATIC catch_test_main.cc)
-target_link_libraries(synergia_test_main kokkos)
+target_link_libraries(synergia_test_main kokkos MPI::MPI_C)
 
 add_library(synergia_serialization 
     cereal_files.cc
