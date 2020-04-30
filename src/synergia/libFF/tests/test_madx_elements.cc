@@ -201,9 +201,25 @@ void propagate_libff(std::string const& seq)
     {
 #if 1
         std::cout << std::setprecision(16);
-        for(int i=0; i<5; ++i)
-            std::cout << parts(p, i) << "\t" << madx(p, i) << "\n";
-        std::cout << parts(p, 5) << "\t" << de_to_dp(madx(p, 5)) << "\n";
+        std::cout << std::scientific;
+
+        std::cout << "libFF\tMadX\tmargin\n";
+
+        for(int i=0; i<4; ++i)
+        {
+            std::cout << parts(p, i) << "\t" 
+                << madx(p, i) << "\t"
+                << fabs(parts(p, i) - madx(p, i)) << "\n";
+        }
+
+        std::cout << parts(p, 4) << "\t" 
+                  << -madx(p, 4) << "\t"
+                  << fabs(parts(p, 4) + madx(p, 4)) << "\n";
+
+        std::cout << parts(p, 5) << "\t" 
+                  << de_to_dp(madx(p, 5)) << "\t"
+                  << fabs(parts(p, 5) - de_to_dp(madx(p, 5))) << "\n";
+
         std::cout << "\n";
 #endif
 
