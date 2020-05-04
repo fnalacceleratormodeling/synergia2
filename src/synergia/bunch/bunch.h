@@ -446,17 +446,12 @@ private:
 template<typename AP>
 inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
 { 
+    // Particles might get lost here. The update of total particle number is
+    // performed at the end of each independent operator on a per-bunch basis.
+    // So there will be a short period of time the total_num isnt consistent
+    // with the sum of all local_num. It should be OK since the total_num is
+    // only important to the space charge solvers
     int ndiscarded = get_bunch_particles(pg).apply_aperture(ap); 
-
-    // update total number and real number
-    if (ndiscarded)
-    {
-        auto & bp = get_bunch_particles(pg);
-        int old_total = bp.update_total_num(*comm);
-
-        if (pg == PG::regular)
-            real_num = old_total ? bp.num_total() * real_num / old_total : 0.0;
-    }
 
     // diagnostics
     if (ndiscarded && diag_aperture)

@@ -428,6 +428,9 @@ Independent_operator::apply_impl(
 
                 simulator.diag_action_operation(*opn);
             }
+
+            // update per-bunch per-independent-operator
+            bunch.update_total_num();
         }
     }
 
