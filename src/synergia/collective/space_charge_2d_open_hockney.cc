@@ -513,9 +513,12 @@ Space_charge_2d_open_hockney::get_local_force2()
     Kokkos::parallel_for(nx*dg[1], alg);
     Kokkos::fence();
 
-    // zero phi2 first
-    alg_zeroer az{phi2};
-    Kokkos::parallel_for(dg[0]*dg[1]*2, az);
+    // zero phi2 when using multiple ranks
+    if (comm.size() > 1)
+    {
+        alg_zeroer az{phi2};
+        Kokkos::parallel_for(dg[0]*dg[1]*2, az);
+    }
 
     // inv fft
     fft.inv_transform(phi2hat, phi2);
