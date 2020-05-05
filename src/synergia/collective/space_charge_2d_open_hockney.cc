@@ -149,6 +149,14 @@ namespace
     }
 #endif
 
+    struct alg_zeroer
+    {
+        karray1d_dev arr;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { arr(i) = 0.0; }
+    };
 
     struct alg_g2_pointlike
     {
@@ -505,6 +513,11 @@ Space_charge_2d_open_hockney::get_local_force2()
     Kokkos::parallel_for(nx*dg[1], alg);
     Kokkos::fence();
 
+    // zero phi2 first
+    alg_zeroer az{phi2};
+    Kokkos::parallel_for(dg[0]*dg[1]*2, az);
+
+    // inv fft
     fft.inv_transform(phi2hat, phi2);
 }
 
