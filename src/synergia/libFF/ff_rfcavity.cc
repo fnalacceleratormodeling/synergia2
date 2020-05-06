@@ -138,7 +138,8 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double ref_l_xp   = ref_l.get_state()[Bunch::xp];
     double ref_l_y    = ref_l.get_state()[Bunch::y];
     double ref_l_yp   = ref_l.get_state()[Bunch::yp];
-    double ref_l_cdt  = 0.0;
+    double ref_l_cdt1 = 0.0;
+    double ref_l_cdt2 = 0.0;
     double ref_l_dpop = ref_l.get_state()[Bunch::dpop];
 
     double ref_l_p = ref_l.get_momentum();
@@ -147,24 +148,24 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double new_ref_l_p = FF_algorithm::thin_rfcavity_pnew(ref_l_p, ref_l_m, str, phi_s);
 
     // first half drift
-    FF_algorithm::drift_unit(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop,
+    FF_algorithm::drift_unit(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt1, ref_l_dpop,
             0.5 * length, ref_l_p, ref_l_m, 0.0);
 
     // do not give it the new_ref_l_p because the xp and yp dont get scaled, the momentum 
     // of the lattice reference particle remains unchanged, only the dpop of the state
     // has been changed
-    FF_algorithm::thin_rfcavity_unit(ref_l_xp, ref_l_yp, ref_l_cdt, ref_l_dpop,
+    FF_algorithm::thin_rfcavity_unit(ref_l_xp, ref_l_yp, 0.0, ref_l_dpop,
             w_rf, str, phi_s, ref_l_m, ref_l_p, ref_l_p, mhp, nh);
 
     // second half drift
-    FF_algorithm::drift_unit(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop,
+    FF_algorithm::drift_unit(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt2, ref_l_dpop,
             0.5 * length, ref_l_p, ref_l_m, 0.0);
 
-    // save the state
-    ref_l.set_state(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop);
-
     // and finally the reference time
-    double reference_cdt = ref_l_cdt;
+    double reference_cdt = ref_l_cdt1 + ref_l_cdt2;
+
+    // save the state
+    ref_l.set_state(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, reference_cdt, ref_l_dpop);
 
     // bunch particles
     {
@@ -179,13 +180,13 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double dpop(particles[part][Bunch::dpop]);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
-                    0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
+                    0.5 * length, reference_momentum, m, ref_l_cdt1);
 
             FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop,
                     w_rf, str, phi_s, m, reference_momentum, new_ref_p, mhp, nh);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
-                    0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
+                    0.5 * length, reference_momentum, m, ref_l_cdt2);
 
             particles[part][Bunch::x]    = x;
             particles[part][Bunch::xp]   = xp;
@@ -209,13 +210,13 @@ void FF_rfcavity::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double dpop(s_particles[part][Bunch::dpop]);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
-                    0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
+                    0.5 * length, reference_momentum, m, ref_l_cdt1);
 
             FF_algorithm::thin_rfcavity_unit(xp, yp, cdt, dpop,
                     w_rf, str, phi_s, m, reference_momentum, new_ref_p, mhp, nh);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop,
-                    0.5 * length, reference_momentum, m, 0.5 * reference_cdt);
+                    0.5 * length, reference_momentum, m, ref_l_cdt2);
 
             s_particles[part][Bunch::x]    = x;
             s_particles[part][Bunch::xp]   = xp;
