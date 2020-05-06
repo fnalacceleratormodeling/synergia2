@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 import os
 import numpy as np
@@ -14,7 +15,7 @@ def map2twiss(csmap):
     asinmu = 0.5*(csmap[0,0]-csmap[1,1])
 
     if abs(cosmu) > 1.0:
-        raise RuntimeError, "map is unstable"
+        raise RuntimeError("map is unstable")
 
     mu =np.arccos(cosmu)
 
@@ -48,13 +49,12 @@ def print_bunch_stats(bunch, fo):
 
     means = synergia.bunch.Core_diagnostics().calculate_mean(bunch)
     stds = synergia.bunch.Core_diagnostics().calculate_std(bunch, means)
-    print >>fo, "%20s   %20s   %20s"%("coord","mean","rms")
-    print >>fo, "%20s   %20s   %20s"%("====================",
+    print("%20s   %20s   %20s"%("coord","mean","rms"), file=fo)
+    print("%20s   %20s   %20s"%("====================",
                                       "====================",
-                                      "====================")
+                                      "===================="), file=fo)
     for i in range(6):
-        print >>fo, "%20s   %20.12e   %20.12e"%(coord_names[i], means[i], stds[i]\
-)
+        print("%20s   %20.12e   %20.12e"%(coord_names[i], means[i], stds[i]), file=fo)
 
 
 ################################################################################
@@ -83,13 +83,13 @@ momentum = refpart.get_momentum()
 gamma = refpart.get_gamma()
 beta = refpart.get_beta()
 
-print >>logger, "energy: ", energy
-print >>logger, "momentum: ", momentum
-print >>logger, "gamma: ", gamma
-print >>logger, "beta: ", beta
+print("energy: ", energy, file=logger)
+print("momentum: ", momentum, file=logger)
+print("gamma: ", gamma, file=logger)
+print("beta: ", beta, file=logger)
 
 length = lattice.get_length()
-print >>logger, "lattice length: ", length
+print("lattice length: ", length, file=logger)
 
 # set RF parameters. The RF voltage and phase (lag) are set to give a
 # synchrotron tune and a stable bucket.
@@ -99,18 +99,18 @@ freq = harmon * beta * synergia.foundation.pconstants.c/length
 rf_volt = opts.rf_volt
 rf_lag = opts.lag
 
-print >>logger, "RF frequency: ", freq, " Hz"
-print >>logger, "RF voltage: ", rf_volt, " MV"
+print("RF frequency: ", freq, " Hz", file=logger)
+print("RF voltage: ", rf_volt, " MV", file=logger)
 
 for elem in lattice.get_elements():
     if elem.get_type() == "rfcavity":
         elem.set_double_attribute("volt", rf_volt)
         elem.set_double_attribute("lag", rf_lag)
         elem.set_double_attribute("freq", freq*1.0e-6)
-        print >>logger, "rfcavity: ", elem.print_()
+        print("rfcavity: ", elem.print_(), file=logger)
 
 f = open("foborodobo32_lattice.out", "w")
-print >>f, lattice.as_string()
+print(lattice.as_string(), file=f)
 f.close()
 
 # the lattice_simulator object lets us do some computations for
@@ -119,40 +119,40 @@ lattice_simulator = synergia.simulation.Lattice_simulator(lattice, 1)
 
 myrank = 0
 map = lattice_simulator.get_linear_one_turn_map()
-print >>logger, "one turn map from synergia2.5 infrastructure"
-print >>logger, np.array2string(map, max_line_width=200)
+print("one turn map from synergia2.5 infrastructure", file=logger)
+print(np.array2string(map, max_line_width=200), file=logger)
 
 [l, v] = np.linalg.eig(map)
 
-#print "l: ", l
-#print "v: ", v
+#print( "l: ", l)
+#print( "v: ", v)
 
-print >>logger, "eigenvalues: "
+print("eigenvalues: ", file=logger)
 for z in l:
-    print >>logger, "|z|: ", abs(z), " z: ", z, " tune: ", np.log(z).imag/(2.0*np.pi)
+    print("|z|: ", abs(z), " z: ", z, " tune: ", np.log(z).imag/(2.0*np.pi), file=logger)
 
 [ax, bx, qx] = map2twiss(map[0:2,0:2])
 [ay, by, qy] = map2twiss(map[2:4, 2:4])
 [az, bz, qz] = map2twiss(map[4:6,4:6])
 
-print >>logger, "Lattice parameters (assuming uncoupled map)"
-print >>logger, "alpha_x: ", ax, " alpha_y: ", ay
-print >>logger, "beta_x: ", bx, " beta_y: ", by
-print >>logger, "q_x: ", qx, " q_y: ", qy
-print >>logger, "q_z: ", qz, " beta_z: ", bz
+print("Lattice parameters (assuming uncoupled map)", file=logger)
+print("alpha_x: ", ax, " alpha_y: ", ay, file=logger)
+print("beta_x: ", bx, " beta_y: ", by, file=logger)
+print("q_x: ", qx, " q_y: ", qy, file=logger)
+print("q_z: ", qz, " beta_z: ", bz, file=logger)
 
 
 #lattice_simulator.print_lattice_functions()
 
 alpha_c = lattice_simulator.get_momentum_compaction()
 slip_factor = alpha_c - 1/gamma**2
-print >>logger, "alpha_c: ", alpha_c, ", slip_factor: ", slip_factor
+print("alpha_c: ", alpha_c, ", slip_factor: ", slip_factor, file=logger)
 
 f_quads, d_quads = get_fd_quads(lattice)
-print "len(f_quads): ", len(f_quads), " len(d_quads): ", len(d_quads)
+print("len(f_quads): ", len(f_quads), " len(d_quads): ", len(d_quads), file=logger)
 
 (orig_xtune, orig_ytune) = lattice_simulator.get_both_tunes()
-print >>logger, "Original base tunes, x: ", orig_xtune, " y: ", orig_ytune
+print("Original base tunes, x: ", orig_xtune, " y: ", orig_ytune, file=logger)
 
 # adjust tunes if requested by the xtune and/or the ytune parameter using
 # the list of focussing or defocussing quadruples as adjusters.
@@ -170,41 +170,41 @@ if opts.xtune or opts.ytune:
         target_ytune = orig_ytune
 
 if do_adjust_tunes:
-    print >>logger, "adjusting tunes, x: ", opts.xtune," y: ", opts.ytune
+    print("adjusting tunes, x: ", opts.xtune," y: ", opts.ytune, file=logger)
     lattice_simulator.adjust_tunes(target_xtune, target_ytune, f_quads, d_quads, 1.0e-6, 1)
 
 hchrom = lattice_simulator.get_horizontal_chromaticity()
 vchrom = lattice_simulator.get_vertical_chromaticity()
 
-print >>logger, "horizontal chromaticity: %.16g"%hchrom
-print >>logger, "vertical chromaticity: %.16g"%vchrom
+print("horizontal chromaticity: %.16g"%hchrom, file=logger)
+print("vertical chromaticity: %.16g"%vchrom, file=logger)
 
 chef_beamline = lattice_simulator.get_chef_lattice().get_beamline()
 f = open("foborodobo32_beamline.out","w")
-print >>f, synergia.lattice.chef_beamline_as_string(chef_beamline)
+print(synergia.lattice.chef_beamline_as_string(chef_beamline), file=f)
 f.close()
 
 stdx = opts.stdx
 stdy = opts.stdy
 stdz = opts.stdz
 
-print >>logger, "stdx: ", stdx
-print >>logger, "stdy: ", stdy
-print >>logger, "stdz: ", stdz
+print("stdx: ", stdx, file=logger)
+print("stdy: ", stdy, file=logger)
+print("stdz: ", stdz, file=logger)
 
 macro_particles = opts.macro_particles
 real_particles = opts.real_particles
-print >>logger, "macro_particles: ", macro_particles
-print >>logger, "real_particles: ", real_particles
+print("macro_particles: ", macro_particles, file=logger)
+print("real_particles: ", real_particles, file=logger)
 
 comm = synergia.utils.Commxx()
 
 # generate a 6D matched bunch using either normal forms or a 6D moments procedure
 if opts.matching == "6dmoments":
-    print >>logger, "Matching with 6d moments"
+    print("Matching with 6d moments", file=logger)
     bunch = synergia.optics.generate_matched_bunch(lattice_simulator, stdx, stdy, stdz, real_particles, macro_particles, rms_index=[0,2,4], periodic=False)
 else:
-    print >>logger, "Matching with normal form"
+    print("Matching with normal form", file=logger)
     actions = lattice_simulator.get_stationary_actions(stdx, stdy, stdz/beta)
     bunch = synergia.bunch.Bunch(refpart, macro_particles, real_particles, comm)
     seed = opts.seed
@@ -229,7 +229,7 @@ G=2.0
 Bf=0.3
 laslett = opts.real_particles*F*G*synergia.foundation.pconstants.rp/(np.pi*beta**2*gamma**3*emit_x*Bf)
 
-print >>logger, "Laslett tune shift: ", laslett
+print("Laslett tune shift: ", laslett, file=logger)
 
 bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
 
@@ -237,13 +237,13 @@ bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
 
 bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2("full2.h5"))
 if opts.particles:
-    print >>logger, "saving particles"
+    print("saving particles", file=logger)
     # save_particles option=n, 0: don't save, non-zero: save n particles
     # particles_period=n option, save particles every n turns
     if opts.save_particles:
         bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("particles.h5", 0, opts.save_particles), opts.particles_period)
 if opts.tracks:
-    print >>logger, "saving ", opts.tracks, " particle tracks"
+    print("saving ", opts.tracks, " particle tracks", file=logger)
     bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_bulk_track("tracks.h5", opts.tracks))
 
 
@@ -251,46 +251,46 @@ if opts.tracks:
 
 steppertype = opts.stepper
 if opts.spacecharge and steppertype != "splitoperator":
-    print >>logger, "changing stepper to splitoperator because spacecharge is ON"
+    print("changing stepper to splitoperator because spacecharge is ON", file=logger)
     steppertype = "splitoperator"
 
 if opts.spacecharge is None:
     spacecharge = None
-    print >>logger, "space charge is OFF"
+    print("space charge is OFF", file=logger)
 elif ((opts.spacecharge == "off") or (opts.spacecharge == "0")):
     spacecharge = None
-    print >>logger, "space charge is OFF"
+    print("space charge is OFF", file=logger)
 elif opts.spacecharge == "2d-bassetti-erskine":
-    print >>logger, "space charge 2d-bassetti-erskine is ON"
+    print("space charge 2d-bassetti-erskine is ON", file=logger)
     coll_operator = synergia.collective.Space_charge_2d_bassetti_erskine()
     coll_operator.set_longitudinal(0)
 elif opts.spacecharge == "2d-openhockney":
-    print >>logger, "space charge 2d-openhockney is ON"
+    print("space charge 2d-openhockney is ON", file=logger)
     # openhockney space charge requires a communicator for collective effects
     coll_comm = synergia.utils.Commxx(True)
-    print >>logger, "space charge grid: ", opts.gridx, opts.gridy, opts.gridz
+    print("space charge grid: ", opts.gridx, opts.gridy, opts.gridz, file=logger)
     grid = [opts.gridx, opts.gridy, opts.gridz]
     coll_operator = synergia.collective.Space_charge_2d_open_hockney(coll_comm, grid)
 elif opts.spacecharge == "3d-openhockney":
-    print >>logger, "space charge 3d-openhockney is ON"
+    print("space charge 3d-openhockney is ON", file=logger)
     coll_comm = synergia.utils.Commxx(True)
-    print >>logger, "space charge grid: ", opts.gridx, opts.gridy, opts.gridz
+    print("space charge grid: ", opts.gridx, opts.gridy, opts.gridz, file=logger)
     grid = [opts.gridx, opts.gridy, opts.gridz]
     coll_operator = synergia.collective.Space_charge_3d_open_hockney(coll_comm, grid)
 else:
-    raise RuntimeError, "unknown space charge operator"
+    raise RuntimeError("unknown space charge operator")
 
 
 if steppertype == "independent":
-    print >>logger, "using independent stepper ", opts.steps, " steps/turn"
+    print("using independent stepper ", opts.steps, " steps/turn", file=logger)
 elif steppertype == "elements":
-    print >>logger, "using steps by element ", opts.steps, " steps/element"
+    print("using steps by element ", opts.steps, " steps/element", file=logger)
 elif steppertype == "splitoperator":
-    print >>logger, "using split operator stepper ", opts.steps, " steps/turn"
+    print("using split operator stepper ", opts.steps, " steps/turn", file=logger)
 else:
-    raise  RuntimeError, "unknown stepper type: %s"%steppertype
+    raise  RuntimeError("unknown stepper type: %s"%steppertype)
 
-print "rank ", comm.get_rank(), " propagating bunch with ", bunch.get_local_num(), " particles"
+print(comm.get_rank(), " propagating bunch with ", bunch.get_local_num(), " particles", file=logger)
 
 
 if steppertype == "independent":
