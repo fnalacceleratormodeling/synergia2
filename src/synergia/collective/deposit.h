@@ -23,6 +23,13 @@ deposit_charge_rectangular_2d_kokkos_scatter_view(
         karray2d_dev & particle_bin, 
         Bunch const & bunch );
 
+void
+deposit_charge_rectangular_zyx_kokkos_scatter_view(
+        karray1d_dev& rho_dev,
+        Rectangular_grid_domain& domain,
+        std::array<int, 3> const& dims,
+        Bunch const& bunch );
+
 
 
 
