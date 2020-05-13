@@ -1,15 +1,62 @@
 #ifndef SPACE_CHARGE_3D_OPEN_HOCKNEY_H_
 #define SPACE_CHARGE_3D_OPEN_HOCKNEY_H_
+
 #include "synergia/simulation/operator.h"
-#include "synergia/simulation/step.h"
-#include "synergia/bunch/bunch.h"
-#include "synergia/collective/rectangular_grid_domain.h"
+#include "synergia/simulation/collective_operator_options.h"
+
 #include "synergia/collective/rectangular_grid.h"
-#include "synergia/collective/distributed_rectangular_grid.h"
-#include "synergia/utils/commxx.h"
-#include "synergia/utils/commxx_divider.h"
+#include "synergia/collective/rectangular_grid_domain.h"
+
 #include "synergia/utils/distributed_fft3d.h"
-#include "synergia/collective/diagnostics_space_charge.h"
+
+
+struct Space_charge_3d_open_hockney_options : public CO_options
+{
+    std::array<int, 3> shape;
+    std::array<int, 3> doubled_shape;
+
+    bool periodic_z;
+    double z_period;
+    bool grid_entire_period;
+    double n_sigma;
+    bool domain_fixed;
+
+    int comm_group_size;
+
+    Space_charge_3d_open_hockney_options(
+            int gridx = 32, int gridy = 32, int gridz = 64)
+        : shape{gridx, gridy, gridz}
+        , doubled_shape{gridx*2, gridy*2, gridz*2}
+        , periodic_z(false)
+        , z_period(0.0)
+        , grid_entire_period(false)
+        , n_sigma(8.0)
+        , domain_fixed(false)
+        , comm_group_size(4)
+    { }
+
+    CO_options * clone() const override
+    { return new Space_charge_3d_open_hockney_options(*this); }
+
+    Collective_operator * create_operator() const override;
+
+    template<class Archive>
+    void serialize(Archive & ar)
+    { 
+        ar(cereal::base_class<CO_options>(this));
+        ar(shape);
+        ar(doubled_shape);
+        ar(periodic_z);
+        ar(z_period);
+        ar(grid_entire_period);
+        ar(n_sigma);
+        ar(comm_group_size);
+    }
+};
+
+CEREAL_REGISTER_TYPE(Space_charge_3d_open_hockney_options)
+
+
 
 /// Note: internal grid is stored in [z][y][x] order, but
 /// grid shape expects [x][y][z] order.
@@ -28,7 +75,65 @@ public:
     {
         gatherv_bcast = 1, allgatherv = 2, e_field_allreduce = 3
     };
+
 private:
+
+    const Space_charge_3d_open_hockney_options options;
+
+    Rectangular_grid_domain domain;
+    Rectangular_grid_domain doubled_domain;
+
+    Distributed_fft3d fft;
+    Commxx comm;
+
+    karray1d_dev rho2;
+    karray1d_dev phi2;
+    karray1d_dev g2;
+
+    karray1d_dev rho2hat;
+    karray1d_dev phi2hat;
+    karray1d_dev g2hat;
+
+    karray1d_hst h_rho2;
+    karray1d_hst h_phi2;
+
+private:
+
+    void apply_impl( Bunch_simulator & simulator, 
+                double time_step, 
+                Logger & logger);
+
+    void apply_bunch( Bunch & bunch, 
+                double time_step, 
+                Logger & logger);
+
+    void setup_communication(
+            Commxx const & bunch_comm);
+
+    void construct_workspaces(
+            std::array<int, 3> const& s);
+
+    void update_domain(
+            Bunch const & bunch);
+
+    void get_local_charge_density(
+            Bunch const& bunch);
+
+    void get_global_charge_density(
+            Bunch const & bunch );
+
+    void get_green_fn2_pointlike();
+
+    void get_local_force2();
+
+public:
+
+    Space_charge_3d_open_hockney(
+            Space_charge_3d_open_hockney_options const & ops);
+
+#if 0
+private:
+
     std::vector<int > grid_shape, doubled_grid_shape, padded_grid_shape;
     Rectangular_grid_domain_sptr domain_sptr, doubled_domain_sptr;
     bool periodic_z;
@@ -57,7 +162,9 @@ private:
     constructor_common(std::vector<int > const& grid_shape);
     void
     set_doubled_domain();
+
 public:
+
     Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
             bool longitudinal_kicks = true, bool periodic_z = false,
             double z_period = 0.0, bool grid_entire_period = false,
@@ -177,18 +284,13 @@ public:
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger);
-    template<class Archive>
-        void
-        save(Archive & ar, const unsigned int version) const;
-    template<class Archive>
-        void
-        load(Archive & ar, const unsigned int version);
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
-    virtual
-    ~Space_charge_3d_open_hockney();
+#endif
 };
-BOOST_CLASS_EXPORT_KEY(Space_charge_3d_open_hockney)
 
-typedef boost::shared_ptr<Space_charge_3d_open_hockney > Space_charge_3d_open_hockney_sptr; // syndoc:include
+
+inline Collective_operator * 
+Space_charge_3d_open_hockney_options::create_operator() const
+{ return new Space_charge_3d_open_hockney(*this); }
+
 
 #endif /* SPACE_CHARGE_3D_OPEN_HOCKNEY_H_ */

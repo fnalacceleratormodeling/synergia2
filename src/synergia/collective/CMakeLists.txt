@@ -4,7 +4,7 @@ add_library(synergia_collective
     #distributed_rectangular_grid.cc 
     #fftw_rectangular_helper.cc 
     deposit.cc 
-    #space_charge_3d_open_hockney.cc
+    space_charge_3d_open_hockney.cc
     space_charge_2d_open_hockney.cc 
     #space_charge_2d_bassetti_erskine.cc
     #space_charge_2d_kv.cc

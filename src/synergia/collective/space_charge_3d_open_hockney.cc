@@ -1,14 +1,652 @@
 #include "space_charge_3d_open_hockney.h"
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/math_constants.h"
-using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"
-using pconstants::epsilon0;
 #include "deposit.h"
-#include "interpolate_rectangular_zyx.h"
-#include "synergia/utils/multi_array_offsets.h"
+
 #include "synergia/utils/simple_timer.h"
 
+using mconstants::pi;
+using pconstants::epsilon0;
+
+namespace
+{
+    void
+    print_grid( Logger & logger, 
+                karray1d_dev const & grid, 
+                int x0, int x1, 
+                int y0, int y1,
+                int z0, int z1,
+                int gx, int gy, int gz,
+                int off = 0 )
+    {
+        karray1d hgrid = Kokkos::create_mirror_view(grid);
+        Kokkos::deep_copy(hgrid, grid);
+
+        double sum = 0;
+
+        int dim = grid.extent(0);
+        for(int i=0; i<dim; ++i) 
+        {
+            sum += hgrid(i);
+        }
+
+#if 0
+        for(int x=0; x<gx; ++x)
+            for(int y=0; y<gy; ++y)
+                sum += hgrid((x*gy + y)*2 + off);
+#endif
+        
+        logger 
+            //<< std::resetiosflags(std::ios::fixed)
+            //<< std::setiosflags(std::ios::showpos | std::ios::scientific)
+            << std::setprecision(16) << std::scientific;
+
+        logger << "      " << grid.label() << ".sum = " << sum << "\n";
+
+        for (int z=z0; z<z1; ++z)
+        {
+            logger << "        " << z << ", ";
+
+            for (int y=y0; y<y1; ++y)
+            {
+                logger << y << ", " << x0 << " | ";
+
+                for (int x=x0; x<x1; ++x)
+                {
+                    logger << hgrid(z*gx*gy + y*gx + x) << ", ";
+                }
+
+                logger << "\n";
+            }
+        }
+    }
+
+
+    double
+    get_smallest_non_tiny( double val, 
+                           double other1, 
+                           double other2, 
+                           double tiny )
+    {
+        double retval;
+        if (val > tiny) 
+        {
+            retval = val;
+        } 
+        else 
+        {
+            if ((other1 > tiny) && (other2 > tiny)) 
+            {
+                retval = std::min(other1, other2);
+            } 
+            else 
+            {
+                retval = std::max(other1, other2);
+            }
+        }
+
+        return retval;
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    int fast_int_floor_kokkos(const double x)
+    {
+        int ix = static_cast<int>(x);
+        return x > 0.0 ? ix : ((x - ix == 0) ? ix : ix - 1);
+    }
+
+
+#if 0
+    inline std::complex<double >
+    interpolate_rectangular_2d(double * bin, bool periodic_z,
+            MArray2dc_ref const& a, MArray1d_ref const& b)
+    {
+        // bi-linear interpolation
+        int ix, iy, iz;
+        double offx, offy, offz;
+        ix = fast_int_floor(bin[0]);
+        iy = fast_int_floor(bin[2]);
+        iz = fast_int_floor(bin[4]);
+
+        offx = bin[1];
+        offy = bin[3];
+        offz = bin[5];
+
+        std::vector<int > grid_shape(3);
+        grid_shape[0] = a.shape()[0];
+        grid_shape[1] = a.shape()[1];
+        grid_shape[2] = b.shape()[0];
+
+        std::complex<double > val;
+        if ( (grid_shape[2] == 1) 
+                && ( (ix >= 0) 
+                    && (ix < grid_shape[0] - 1) 
+                    && (iy >= 0) 
+                    && (iy < grid_shape[1] - 1) ) 
+                && ( periodic_z 
+                    || ( (iz >= 0) && (iz <= grid_shape[2]) ) ) ) 
+        {
+            double line_density = b[0];
+            val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
+                    + offx * (1.0 - offy) * a[ix + 1][iy]
+                    + (1.0 - offx) * offy * a[ix][iy + 1]
+                    + offx * offy * a[ix + 1][iy + 1]);
+        } 
+        else if ( (grid_shape[2] > 1) 
+                && ( (ix >= 0) 
+                    && (ix < grid_shape[0] - 1) 
+                    && (iy >= 0) 
+                    && (iy < grid_shape[1] - 1) ) 
+                && ( periodic_z 
+                    || ( (iz >= 0) && (iz < grid_shape[2] - 1) ) ) ) 
+        {
+            double line_density = (1.0 - offz) * b[iz] + offz * b[iz + 1];
+            val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
+                    + offx * (1.0 - offy) * a[ix + 1][iy]
+                    + (1.0 - offx) * offy * a[ix][iy + 1]
+                    + offx * offy * a[ix + 1][iy + 1]);
+        }
+
+        return val;
+    }
+#endif
+
+    struct alg_zeroer
+    {
+        karray1d_dev arr;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { arr(i) = 0.0; }
+    };
+
+
+
+    // G000 is naively infinite. In the correct approach, it should be
+    // the value which gives the proper integral when convolved with the
+    // charge density. Even assuming a constant charge density, the proper
+    // value for G000 cannot be computed in closed form. Fortunately,
+    // the solver results are insensitive to the exact value of G000.
+    // I make the following argument: G000 should be greater than any of
+    // the neighboring values of G. The form
+    //    G000 = coeff/min(hx,hy,hz),
+    // with
+    //    coeff > 1
+    // satisfies the criterion. An empirical study (see the 3d_open_hockney.py
+    // script in docs/devel/solvers) gives coeff = 2.8.
+    //
+    // const double coeff = 2.8;
+    // double G000 = coeff / std::min(hx, std::min(hy, hz));
+
+    // In the following loops we use mirroring for ix and iy, and iz.
+    // Note that the doubling algorithm is not quite symmetric. For
+    // example, the doubled grid for 4 points in 1d looks like
+    //    0 1 2 3 4 3 2 1
+    //
+    // gx is not the original grid shape in x, instead it is
+    //    gx = shape[0] + 1
+    // because of the asymmetric in the mirroring
+
+    struct alg_g2_pointlike
+    {
+        const double epsilon = 0.01;
+
+        karray1d_dev g2;
+        int gx, gy;
+        int dgx, dgy, dgz;
+        int padded_dgx;
+        double hx, hy, hz;
+
+        double igxgy;
+        double igx;
+
+        double G000;
+
+        alg_g2_pointlike(
+                karray1d_dev const & g2,
+                std::array<int, 3> const & g,
+                std::array<int, 3> const & dg,
+                std::array<double, 3> const & h ) 
+            : g2(g2)
+            , gx(g[0]+1), gy(g[1]+1)
+            , dgx(dg[0]), dgy(dg[1]), dgz(dg[2])
+            , padded_dgx(Distributed_fft3d::get_padded_shape_real(dgx))
+            , hx(h[0]), hy(h[1]), hz(h[2])
+            , igxgy(1.0/(gx*gy))
+            , igx(1.0/gx)
+            , G000(2.8/std::min(hx, std::min(hy, hz)))
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            int iz = i * igxgy;
+            int iy = (i - iz*gx*gy) * igx;
+            int ix = i - iz*gx*gy - iy*gx;
+
+            double dx, dy, dz;
+
+            dx = ix * hx;
+            dy = iy * hy;
+            dz = iz * hz;
+
+            double G;
+
+            if (ix==0 && iy==0 && iz==0) G = G000;
+            else G = 1.0 / sqrt(dx*dx + dy*dy + dz*dz);
+
+#if 0
+            if (periodic_z)
+            {
+                for (int image = -num_images; image <= num_images; ++image)
+                {
+                    if (image != 0)
+                    {
+                        double dz_img = dz + image * z_period;
+                        const double tiny = 1.0e-9;
+
+                        if (ix==0 && iy==0 && (std::abs(dz_img) < tiny)) G+=G000;
+                        else G += 1.0/sqrt(dx*dx + dy*dy + dz_img*dz_img);
+                    }
+                }
+            }
+#endif
+
+            int mix, miy, miz;
+
+            mix = dgx - ix;
+            if (mix == dgx) mix = 0;
+
+            miy = dgy - iy;
+            if (miy == dgy) miy = 0;
+
+            miz = dgz - iz;
+            if (miz == dgz) miz = 0;
+
+            g2(iz*padded_dgx*dgy +  iy*padded_dgx +  ix) = G;
+            g2(iz*padded_dgx*dgy + miy*padded_dgx +  ix) = G;
+            g2(iz*padded_dgx*dgy +  iy*padded_dgx + mix) = G;
+            g2(iz*padded_dgx*dgy + miy*padded_dgx + mix) = G;
+
+            g2(miz*padded_dgx*dgy +  iy*padded_dgx +  ix) = G;
+            g2(miz*padded_dgx*dgy + miy*padded_dgx +  ix) = G;
+            g2(miz*padded_dgx*dgy +  iy*padded_dgx + mix) = G;
+            g2(miz*padded_dgx*dgy + miy*padded_dgx + mix) = G;
+        }
+    };
+
+    struct alg_cplx_multiplier
+    {
+        karray1d_dev prod;
+        karray1d_dev m1, m2;
+
+        alg_cplx_multiplier(
+                karray1d_dev const & prod,
+                karray1d_dev const & m1,
+                karray1d_dev const & m2 )
+            : prod(prod), m1(m1), m2(m2)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            const int real = i*2;
+            const int imag = i*2 + 1;
+
+            prod[real] = m1[real]*m2[real] - m1[imag]*m2[imag];
+            prod[imag] = m1[real]*m2[imag] + m1[imag]*m2[real];
+        }
+    };
+
+    struct alg_kicker
+    {
+        Particles p;
+        ConstParticleMasks masks;
+
+        karray1d_dev fn;
+        karray1d_dev rho;
+        karray2d_dev bin;
+
+        int gx, gy, gz;
+        double factor;
+
+        alg_kicker(
+                Particles p,
+                ConstParticleMasks masks,
+                karray1d_dev const & fn,
+                karray1d_dev const & rho,
+                karray2d_dev const & bin,
+                std::array<int, 3> const & g,
+                double factor )
+            : p(p), masks(masks)
+            , fn(fn), rho(rho), bin(bin)
+            , gx(g[0]), gy(g[1]), gz(g[2])
+            , factor(factor)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            if (masks(i))
+            {
+                int ix = fast_int_floor_kokkos(bin(i, 0));
+                int iy = fast_int_floor_kokkos(bin(i, 2));
+                int iz = fast_int_floor_kokkos(bin(i, 4));
+
+                double ox = bin(i, 1);
+                double oy = bin(i, 3);
+                double oz = bin(i, 5);
+
+                double aox = 1.0 - ox;
+                double aoy = 1.0 - oy;
+                double aoz = 1.0 - oz;
+
+                int zbase = gx*gy*2;
+
+                if ( ( ix>=0 && ix<gx-1 ) && 
+                     ( iy>=0 && iy<gy-1 ) && 
+                     ( /*periodic_z ||*/ (iz>=0 && iz<gz-1) ) ) 
+                {
+                    double line_density = aoz * rho(zbase+iz) + oz * rho(zbase+iz+1);
+
+                    double vx = line_density * (
+                              aox * aoy * fn( ((ix  )*gy + (iy  ))*2 )
+                            +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 )
+                            + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 )
+                            +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 ) );
+
+                    double vy = line_density * (
+                              aox * aoy * fn( ((ix  )*gy + (iy  ))*2 + 1 )
+                            +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 + 1 )
+                            + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 + 1 )
+                            +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 + 1 ) );
+
+                    p(i, 1) += factor * vx;
+                    p(i, 3) += factor * vy;
+                }
+            }
+        }
+    };
+}
+
+
+Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
+        Space_charge_3d_open_hockney_options const & ops)
+    : Collective_operator("sc_2d_open_hockney", 1.0)
+    , options(ops)
+    , domain(ops.shape, {1.0, 1.0, 1.0})
+    , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
+    , fft()
+    , comm(Commxx::Null)
+{
+    //fft.construct(options.doubled_shape, comm);
+}
+
+
+
+void 
+Space_charge_3d_open_hockney::apply_impl(
+            Bunch_simulator & simulator, 
+            double time_step, 
+            Logger & logger)
+{
+    logger << "    Space charge 3d open hockney\n";
+
+    scoped_simple_timer timer("sc3d_total");
+    apply_bunch(simulator[0][0], time_step, logger);
+}
+
+void
+Space_charge_3d_open_hockney::apply_bunch(
+            Bunch & bunch, 
+            double time_step, 
+            Logger & logger)
+{
+    Logger l(0);
+
+    auto parts = bunch.get_local_particles();
+    auto masks = bunch.get_local_particle_masks();
+
+    int num = 0;
+    double sum = 0;
+
+    for(int i=0; i<bunch.size(); ++i)
+    {
+        if (masks(i))
+        {
+            ++num;
+            for(int j=0; j<6; ++j) sum += parts(i,j);
+        }
+    }
+
+    l << std::setprecision(16);
+    l << "part num = " << num << ", sum = " << sum << "\n";
+
+
+
+
+
+
+    setup_communication(bunch.get_comm());
+
+    update_domain(bunch);
+
+    get_local_charge_density(bunch); // [C/m^3]
+    get_global_charge_density(bunch);
+
+    get_green_fn2_pointlike();
+
+    get_local_force2();
+    //get_global_force2();
+    //auto fn_norm = get_normalization_force(bunch);
+    //apply_kick(bunch, fn_norm, time_step);
+
+    std::cout << "sc3d done\n";
+    exit(0);
+}
+
+void
+Space_charge_3d_open_hockney::setup_communication(
+        Commxx const & bunch_comm)
+{
+    scoped_simple_timer timer("sc3d_comm");
+
+    if (comm.is_null()) 
+    {
+        scoped_simple_timer t2("sc3d_comm_comm");
+        comm = bunch_comm.divide(options.comm_group_size);
+    }
+
+    if (options.doubled_shape != fft.get_shape()) 
+    {
+        scoped_simple_timer t3("sc3d_comm_fft");
+        fft.construct(options.doubled_shape, comm);
+        construct_workspaces(options.doubled_shape);
+    }
+}
+
+void
+Space_charge_3d_open_hockney::construct_workspaces(
+        std::array<int, 3> const& s)
+{
+    int lower = fft.get_lower();
+    int upper = fft.get_upper();
+    int nz = upper - lower;
+
+    int nx_real = fft.padded_nx_real();
+    int nx_cplx = fft.padded_nx_cplx();
+
+    rho2 = karray1d_dev("rho2", nx_real * s[1] * s[2]);
+      g2 = karray1d_dev(  "g2", nx_real * s[1] * s[2]);
+    phi2 = karray1d_dev("phi2", nx_real * s[1] * s[2]);
+
+    h_rho2 = Kokkos::create_mirror_view(rho2);
+    h_phi2 = Kokkos::create_mirror_view(phi2);
+
+    rho2hat = karray1d_dev("rho2hat", nx_cplx * s[1] * nz * 2);
+      g2hat = karray1d_dev(  "g2hat", nx_cplx * s[1] * nz * 2);
+    phi2hat = karray1d_dev("phi2hat", nx_cplx * s[1] * nz * 2);
+}
+
+void
+Space_charge_3d_open_hockney::update_domain(Bunch const & bunch)
+{
+    scoped_simple_timer timer("sc3d_domain");
+
+    // do nothing for fixed domain
+    if (options.domain_fixed) return;
+
+    auto mean = Core_diagnostics::calculate_mean(bunch);
+    auto std  = Core_diagnostics::calculate_std(bunch, mean);
+
+    const double tiny = 1.0e-10;
+
+    const auto ix = Bunch::x;
+    const auto iy = Bunch::y;
+    const auto iz = Bunch::z;
+
+    if ( (std[ix] < tiny) && (std[iy] < tiny) && (std[iz] < tiny) ) 
+    {
+        throw std::runtime_error(
+                "Space_charge_3d_open_hockney_eigen::update_domain: "
+                "all three spatial dimensions have neglible extent");
+    }
+
+    std::array<double, 3> offset { 
+        mean[ix], 
+        mean[iy], 
+        mean[iz] };
+
+    std::array<double, 3> size { 
+        options.n_sigma * get_smallest_non_tiny(std[0], std[2], std[4], tiny),
+        options.n_sigma * get_smallest_non_tiny(std[2], std[0], std[4], tiny),
+        options.n_sigma * get_smallest_non_tiny(std[4], std[0], std[2], tiny) };
+
+    if (options.grid_entire_period)
+    {
+        offset[2] = 0.0;
+        size[2] = options.z_period;
+    }
+
+    std::array<double, 3> doubled_size { 
+        size[0] * 2.0, 
+        size[1] * 2.0, 
+        size[2] * 2.0 };
+
+    domain = Rectangular_grid_domain(
+            options.shape, size, offset, false);
+
+    doubled_domain = Rectangular_grid_domain(
+            options.doubled_shape, doubled_size, offset, false);
+}
+
+void
+Space_charge_3d_open_hockney::get_local_charge_density(
+        Bunch const& bunch)
+{
+    scoped_simple_timer timer("sc3d_local_rho");
+
+    auto dg = doubled_domain.get_grid_shape();
+    dg[0] = Distributed_fft3d::get_padded_shape_real(dg[0]);
+
+    deposit_charge_rectangular_zyx_kokkos_scatter_view(rho2,
+            domain, dg, bunch);
+}
+
+void
+Space_charge_3d_open_hockney::get_global_charge_density(
+        Bunch const & bunch )
+{
+    // do nothing if the bunch occupis a single rank
+    if (bunch.get_comm().size() == 1) return;
+
+    scoped_simple_timer timer("sc3d_global_rho");
+
+    auto dg = doubled_domain.get_grid_shape();
+
+    simple_timer_start("sc3d_global_rho_copy");
+    Kokkos::deep_copy(h_rho2, rho2);
+    simple_timer_stop("sc3d_global_rho_copy");
+
+    simple_timer_start("sc3d_global_rho_reduce");
+    int err = MPI_Allreduce( MPI_IN_PLACE,
+                             (void*)h_rho2.data(), 
+                             h_rho2.extent(0),
+                             MPI_DOUBLE, 
+                             MPI_SUM, 
+                             bunch.get_comm() );
+    simple_timer_stop("sc3d_global_rho_reduce");
+
+    if (err != MPI_SUCCESS)
+    {
+        throw std::runtime_error( 
+                "MPI error in Space_charge_3d_open_hockney"
+                "(MPI_Allreduce in get_global_charge_density)" );
+    }
+
+    simple_timer_start("sc3d_global_rho_copy");
+    Kokkos::deep_copy(rho2, h_rho2);
+    simple_timer_stop("sc3d_global_rho_copy");
+}
+
+void
+Space_charge_3d_open_hockney::get_green_fn2_pointlike()
+{
+    scoped_simple_timer timer("sc3d_green_fn2");
+
+    auto  g = domain.get_grid_shape();
+    auto  h = doubled_domain.get_cell_size();
+    auto dg = doubled_domain.get_grid_shape();
+
+    // calculation is performed on grid (gx+1, gy+1, gz+1)
+    // rest of the doubled domain will be filled with mirrors
+    alg_g2_pointlike alg(g2, g, dg, h);
+    Kokkos::parallel_for((g[0]+1)*(g[1]+1)*(g[2]+1), alg);
+    Kokkos::fence();
+}
+
+void
+Space_charge_3d_open_hockney::get_local_force2()
+{
+    scoped_simple_timer timer("sc3d_local_f");
+
+    Logger l(0);
+
+    auto dg = doubled_domain.get_grid_shape();
+
+    int lower = fft.get_lower();
+    int upper = fft.get_upper();
+    int nx = upper - lower;
+
+    int padded_gx = fft.padded_nx_real();
+    print_grid(l, g2, 16, 20, 16, 17, 32, 33, padded_gx, dg[1], dg[2]);
+
+    fft.transform(rho2, rho2hat);
+    fft.transform(  g2,   g2hat);
+
+    alg_cplx_multiplier alg(phi2hat, rho2hat, g2hat);
+    Kokkos::parallel_for(nx*dg[1], alg);
+    Kokkos::fence();
+
+    // zero phi2 when using multiple ranks
+    if (comm.size() > 1)
+    {
+        alg_zeroer az{phi2};
+        Kokkos::parallel_for(dg[0]*dg[1]*2, az);
+    }
+
+    // inv fft
+    fft.inv_transform(phi2hat, phi2);
+}
+
+
+
+
+ 
+
+
+#if 0
 void
 Space_charge_3d_open_hockney::setup_communication(
         Commxx_sptr const& bunch_comm_sptr)
@@ -1295,78 +1933,5 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         }
     }
 }
-
-template<class Archive>
-    void
-    Space_charge_3d_open_hockney::save(Archive & ar,
-            const unsigned int version) const
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-        ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
-        & BOOST_SERIALIZATION_NVP(commxx_divider_sptr)
-        & BOOST_SERIALIZATION_NVP(grid_shape)
-        & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
-        & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
-        & BOOST_SERIALIZATION_NVP(periodic_z)
-        & BOOST_SERIALIZATION_NVP(z_period)
-        & BOOST_SERIALIZATION_NVP(grid_entire_period)
-        & BOOST_SERIALIZATION_NVP(n_sigma)
-        & BOOST_SERIALIZATION_NVP(domain_fixed)
-        & BOOST_SERIALIZATION_NVP(have_domains)
-        & BOOST_SERIALIZATION_NVP(green_fn_type)
-        & BOOST_SERIALIZATION_NVP(charge_density_comm)
-        & BOOST_SERIALIZATION_NVP(e_field_comm)
-        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
-        &  BOOST_SERIALIZATION_NVP(diagnostics_list)
-        &  BOOST_SERIALIZATION_NVP(kick_scale);
-    }
-template<class Archive>
-    void
-    Space_charge_3d_open_hockney::load(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-        ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
-        & BOOST_SERIALIZATION_NVP(commxx_divider_sptr)
-        & BOOST_SERIALIZATION_NVP(grid_shape)
-        & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
-        & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
-        & BOOST_SERIALIZATION_NVP(periodic_z)
-        & BOOST_SERIALIZATION_NVP(z_period)
-        & BOOST_SERIALIZATION_NVP(grid_entire_period)
-        & BOOST_SERIALIZATION_NVP(n_sigma)
-        & BOOST_SERIALIZATION_NVP(domain_fixed)
-        & BOOST_SERIALIZATION_NVP(have_domains)
-        & BOOST_SERIALIZATION_NVP(green_fn_type)
-        & BOOST_SERIALIZATION_NVP(charge_density_comm)
-        & BOOST_SERIALIZATION_NVP(e_field_comm)
-        &  BOOST_SERIALIZATION_NVP(have_diagnostics)
-        &  BOOST_SERIALIZATION_NVP(diagnostics_list)
-        &  BOOST_SERIALIZATION_NVP(kick_scale);
-        if (comm2_sptr) {
-            setup_derived_communication();
-        }
-    }
-
-template
-void
-Space_charge_3d_open_hockney::save<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version) const;
-template
-void
-Space_charge_3d_open_hockney::save<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void
-Space_charge_3d_open_hockney::load<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-template
-void
-Space_charge_3d_open_hockney::load<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
-{
-}
-BOOST_CLASS_EXPORT_IMPLEMENT(Space_charge_3d_open_hockney)
+#endif
 
