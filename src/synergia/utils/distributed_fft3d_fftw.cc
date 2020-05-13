@@ -1,3 +1,168 @@
+#include <cstring>
+#include <stdexcept>
+#include "distributed_fft3d_fftw.h"
+
+Distributed_fft3d::Distributed_fft3d()
+    : shape()
+    , comm(MPI_COMM_NULL)
+    , plan(nullptr)
+    , inv_plan(nullptr)
+    , data(nullptr)
+    , workspace(nullptr)
+    , lower(0)
+    , nz(0)
+{
+    fftw_mpi_init();
+}
+
+void 
+Distributed_fft3d::construct(
+        std::array<int, 3> const & new_shape, 
+        MPI_Comm new_comm)
+{
+    if (data || workspace)
+    {
+        fftw_destroy_plan(plan);
+        fftw_destroy_plan(inv_plan);
+        fftw_free(data);
+        fftw_free(workspace);
+    }
+
+    plan = nullptr;
+    inv_plan = nullptr;
+    data = nullptr;
+    workspace = nullptr;
+
+    if (new_comm == MPI_COMM_NULL) 
+    {
+        comm = MPI_COMM_NULL;
+        return;
+    }
+
+    int comm_size;
+    MPI_Comm_size(new_comm, &comm_size);
+
+    if (comm_size > new_shape[2]) 
+    {
+        throw std::runtime_error( 
+                "Distributed_fft3d: (number of processors) must be "
+                "<= shape[2]");
+    }
+
+    shape = new_shape;
+    comm = new_comm;
+
+    int padded_cplx_s0 = get_padded_shape_cplx(shape[0]);
+    int padded_real_s0 = get_padded_shape_real(shape[0]);
+
+    ptrdiff_t local_n, local_start;
+    ptrdiff_t fftw_local_size = fftw_mpi_local_size_3d(
+            shape[2], shape[1], shape[0], comm,
+            &local_n, &local_start);
+
+    int local_size_real = local_n * shape[1] * padded_real_s0;
+    int local_size_cplx = local_n * shape[1] * padded_cplx_s0;
+
+#if 0
+    // MEDIUM HACK. fftw often (always?) returns a local size that is
+    // impossibly small. Adjust to the smallest possible size.
+    if (fftw_local_size < local_size_real)
+        fftw_local_size = local_size_real;
+#endif
+
+    data = (double*) fftw_malloc(sizeof(double) * local_size_real);
+    workspace = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * local_size_cplx);
+
+    plan = fftw_mpi_plan_dft_r2c_3d( 
+            shape[2], shape[1], shape[0], 
+            data, workspace,
+            comm, FFTW_ESTIMATE );
+
+    inv_plan = fftw_mpi_plan_dft_c2r_3d(
+            shape[2], shape[1], shape[0], 
+            workspace, data,
+            comm, FFTW_ESTIMATE );
+
+    lower = local_start;
+    nz = local_n;
+}
+
+
+void
+Distributed_fft3d::transform(
+        karray1d_dev & in, 
+        karray1d_dev & out)
+{
+    if (!data || !workspace)
+        throw std::runtime_error(
+                "Distributed_fft3d::transform() uninitialized" );
+
+    if (nz) 
+    {
+        int plane = padded_nx_real() * shape[1]; // padded_nx * ny
+        memcpy( (void*)data, (void*)&in(lower*plane), 
+                nz * plane * sizeof(double) );
+    }
+
+    fftw_execute(plan);
+
+    if (nz) 
+    {
+        int plane = padded_nx_cplx() * shape[1]; // padded_nx * ny
+        memcpy( (void*)&out(0), (void*)(workspace), 
+                nz * plane * sizeof(double) * 2 );
+    }
+}
+
+void
+Distributed_fft3d::inv_transform(
+        karray1d_dev & in, 
+        karray1d_dev & out)
+{
+    if (!data || !workspace)
+        throw std::runtime_error(
+                "Distributed_fft3d::transform() uninitialized" );
+
+    if (nz) 
+    {
+        int plane = padded_nx_cplx() * shape[1]; // padded_nx * ny
+        memcpy( (void*)workspace, (void*)&in(0),
+                nz * plane * sizeof(double) * 2 );
+    }
+
+    fftw_execute(inv_plan);
+
+    if (nz) 
+    {
+        int plane = padded_nx_real() * shape[1]; // padded_nx * ny
+        memcpy( (void*)&out(lower*plane), (void*)data, 
+                nz * plane * sizeof(double) );
+    }
+}
+
+double
+Distributed_fft3d::get_roundtrip_normalization() const
+{
+    return 1.0 / (shape[0] * shape[1] );
+}
+
+Distributed_fft3d::~Distributed_fft3d()
+{
+    if (data || workspace)
+    {
+        fftw_destroy_plan(plan);
+        fftw_destroy_plan(inv_plan);
+        fftw_free(data);
+        fftw_free(workspace);
+    }
+
+    //fftw_mpi_cleanup();
+}
+
+
+
+#if 0
+
 #include <iostream>
 #include <cstring>
 #include <stdexcept>
@@ -422,3 +587,5 @@ Distributed_fft3d::~Distributed_fft3d()
     fftw_free(workspace);
 #endif //USE_FFTW2
 }
+
+#endif
