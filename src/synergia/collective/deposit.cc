@@ -502,13 +502,6 @@ deposit_charge_rectangular_zyx_kokkos_scatter_view(
             * bunch.get_particle_charge() * pconstants::e
             / (h[0] * h[1] * h[2]);
 
-    std::cout << "charge = " << bunch.get_particle_charge() << "\n";
-    std::cout << "e = " << pconstants::e << "\n";
-    std::cout << "real = " << bunch.get_real_num() << "\n";
-    std::cout << "total = " << bunch.get_total_num() << "\n";
-    std::cout << "h = " << h[0] << ", " << h[1] << ", " << h[2] << "\n";
-
-
     if (rho_dev.extent(0) < g[0]*g[1]*g[2])
         throw std::runtime_error(
                 "insufficient size for rho in deposit charge");
