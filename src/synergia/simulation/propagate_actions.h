@@ -41,13 +41,14 @@ public:
                    int bunch_num);  
    
 
-                    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version)
-        {
-        }
+    template<class Archive>
+    void
+    serialize(Archive & ar, const unsigned int version)
+    {
+    }
+
     virtual
-    ~Propagate_actions();
+    ~Propagate_actions() = default;
 };
 
 typedef boost::shared_ptr<Propagate_actions > Propagate_actions_sptr; // syndoc:include
