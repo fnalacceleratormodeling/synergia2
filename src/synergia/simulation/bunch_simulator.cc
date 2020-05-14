@@ -107,6 +107,3 @@ void
 Bunch_simulator::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
-Bunch_simulator::~Bunch_simulator()
-{
-}
