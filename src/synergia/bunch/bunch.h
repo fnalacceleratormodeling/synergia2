@@ -39,12 +39,12 @@ public:
     static const int dpop = 5;
     static const int id = 6;
 private:
-    double longitudinal_extent;    
+    double longitudinal_extent;
     bool z_periodic;
     bool longitudinal_aperture;
     Reference_particle reference_particle;
     int particle_charge;
-    MArray2d *local_particles;
+    MArray2d *local_particles = nullptr;
     int local_num, total_num;
     double real_num;
     int bucket_index;
@@ -77,8 +77,6 @@ public:
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx_sptr comm_sptr);
  
-
-            
             
      ///// Obsolete, please replace the following constructor with the previous one followed by 
      /////set_particle_charge(particle_charge)    
@@ -95,7 +93,7 @@ public:
     
     
     /// Default constructor for serialization use only
-    Bunch();
+    Bunch() = default;
 
     //!
     //! Copy constructor
@@ -104,6 +102,8 @@ public:
     //! Assignment constructor
     Bunch &
     operator=(Bunch const& bunch);
+
+    ~Bunch();
 
     ///
     /// Set the particle charge
@@ -282,9 +282,6 @@ public:
         void
         load(Archive & ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-
-    virtual
-    ~Bunch();
 };
 
 typedef boost::shared_ptr<Bunch > Bunch_sptr; // syndoc:include // syndoc:include

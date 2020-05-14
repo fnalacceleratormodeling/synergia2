@@ -135,6 +135,7 @@ Bunch::construct(int total_num, double real_num)
                 comm_sptr->get_size());
         decompose_1d(*comm_sptr, total_num, offsets, counts);
         local_num = counts[comm_sptr->get_rank()];
+        delete local_particles; // protect against a second call to construct
         local_particles = new MArray2d(boost::extents[local_num][7]);
         assign_ids(offsets[comm_sptr->get_rank()]);
     } else {
@@ -159,11 +160,6 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
 // {
 //     construct(particle_charge, total_num, real_num);
 // }
-
-
-Bunch::Bunch()
-{
-}
 
 
 Bunch::Bunch(Bunch const& bunch) :
@@ -198,8 +194,9 @@ Bunch::operator=(Bunch const& bunch)
         total_num = bunch.total_num;
         real_num = bunch.real_num;
         local_num = bunch.local_num;
-	    bucket_index=bunch.bucket_index;
+	      bucket_index=bunch.bucket_index;
         bucket_index_assigned= bunch.bucket_index_assigned;
+        delete local_particles;
         local_particles = new MArray2d(*(bunch.local_particles));
         state = bunch.state;
         longitudinal_extent=bunch.longitudinal_extent;
