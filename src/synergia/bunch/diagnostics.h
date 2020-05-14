@@ -16,9 +16,9 @@ private:
     std::string filename;
     std::string local_dir;
     Bunch_sptr bunch_sptr;
-    bool have_bunch_;
-    Diagnostics_write_helper * write_helper_ptr;
-    bool have_write_helper_;
+    bool have_bunch_ = false;
+    Diagnostics_write_helper * write_helper_ptr = nullptr;
+    bool have_write_helper_ = false;
 
 public:
 

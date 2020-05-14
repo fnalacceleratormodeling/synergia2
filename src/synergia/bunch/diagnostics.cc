@@ -12,7 +12,7 @@ using namespace Eigen;
 Diagnostics ::Diagnostics(std::string const& name, std::string const& filename,
         std::string const& local_dir) :
         name(name), filename(filename), local_dir(local_dir), have_bunch_(
-                false), write_helper_ptr(0), have_write_helper_(0)
+                false), write_helper_ptr(0), have_write_helper_(false)
 {
 }
 
