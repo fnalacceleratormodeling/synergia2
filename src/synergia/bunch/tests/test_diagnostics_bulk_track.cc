@@ -74,7 +74,7 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
 {
-    Diagnostics_bulk_track diagnostics("dummy.h5", 0);
+    Diagnostics_bulk_track diagnostics("dummy_write_track_sin.h5", 0);
     diagnostics.set_bunch_sptr(bunch_sptr);
     double length = 0.1;
     for (int i = 0; i < 200; ++i) {
