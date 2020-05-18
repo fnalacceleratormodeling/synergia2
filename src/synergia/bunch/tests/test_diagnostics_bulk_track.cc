@@ -66,7 +66,7 @@ BOOST_FIXTURE_TEST_CASE(is_serial, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
-    Diagnostics_bulk_track diagnostics("dummy.h5", 0);
+    Diagnostics_bulk_track diagnostics("dummy.h5", 1);
     diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
     diagnostics.write();
@@ -74,10 +74,11 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
 {
-    Diagnostics_bulk_track diagnostics("dummy_write_track_sin.h5", 0);
+    constexpr int num_tracks = 200;
+    Diagnostics_bulk_track diagnostics("dummy_write_track_sin.h5", num_tracks);
     diagnostics.set_bunch_sptr(bunch_sptr);
     double length = 0.1;
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < num_tracks; ++i) {
         bunch_sptr->get_reference_particle().increment_trajectory(length);
         bunch_sptr->get_local_particles()[0][Bunch::x] = sin(
                 bunch_sptr->get_reference_particle().get_s());
@@ -90,7 +91,7 @@ BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(serialize_, Fixture)
 {
-    Diagnostics_bulk_track diagnostics("dummy.h5", 0);
+    Diagnostics_bulk_track diagnostics("dummy.h5", 1);
     diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
     diagnostics.write();

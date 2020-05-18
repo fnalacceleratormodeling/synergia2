@@ -71,6 +71,8 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_track.py
 add_test_executable(test_diagnostics_bulk_track test_diagnostics_bulk_track.cc)
 target_link_libraries(test_diagnostics_bulk_track synergia_bunch
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_diagnostics_bulk_track COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_bulk_track>)
+
 add_test(NAME test_diagnostics_bulk_track_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_bulk_track.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_bulk_track.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
