@@ -8,7 +8,7 @@
 Distributed_fft2d::Distributed_fft2d(std::vector<int > const & shape,
         Commxx_sptr comm_sptr, int planner_flags,
         std::string const& wisdom_filename) :
-        uppers(0), lengths(0), lengths_1d(0), shape(shape), comm_sptr(comm_sptr)
+        uppers(), lengths(), lengths_1d(), shape(shape), comm_sptr(comm_sptr)
 {
     if (comm_sptr->get_size() / 2 >= shape[0] / 2) {
         throw std::runtime_error(
@@ -110,27 +110,27 @@ Distributed_fft2d::get_upper() const
 void
 Distributed_fft2d::calculate_uppers_lengths()
 {
-    if (uppers.empty()) {
-        int size = comm_sptr->get_size();
-        uppers.resize(size);
-        lengths.resize(size);
-        lengths_1d.resize(size);
-        if (size == 1) {
-            uppers[0] = upper;
-        } else {
-            MPI_Allgather((void*) (&upper), 1, MPI_INT, (void*) (&uppers[0]),
+  if (!uppers.empty()) return;
+
+  int size = comm_sptr->get_size();
+  uppers.resize(size);
+  lengths.resize(size);
+  lengths_1d.resize(size);
+  if (size == 1) {
+    uppers[0] = upper;
+  } else {
+    MPI_Allgather(&upper, 1, MPI_INT, uppers.data(),
                     1, MPI_INT, comm_sptr->get());
-        }
-        lengths[0] = uppers[0] * shape[1];
-        lengths_1d[0] = shape[2];
-        for (int i = 1; i < size; ++i) {
-            if (uppers[i] == 0) {
+  }
+  lengths[0] = uppers[0] * shape[1];
+  lengths_1d[0] = shape[2];
+  for (int i = 1; i < size; ++i) {
+    if (uppers[i] == 0) {
                 uppers[i] = uppers[i - 1];
-            }
-            lengths[i] = (uppers[i] - uppers[i - 1]) * shape[1];
-            lengths_1d[i] = shape[2];
-        }
     }
+    lengths[i] = (uppers[i] - uppers[i - 1]) * shape[1];
+    lengths_1d[i] = shape[2];
+  }
 }
 
 std::vector<int > const&
