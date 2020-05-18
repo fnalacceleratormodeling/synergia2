@@ -20,20 +20,19 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const int shape0 = 16;
 const int shape1 = 8;
+const int shape2 = 2;
 
 struct Shape_struct
 {
     Shape_struct() :
-        shape(2)
+        shape(3)
     {
         shape[0] = shape0;
         shape[1] = shape1;
+        shape[2] = shape2;
     }
-    ~Shape_struct()
-    {
 
-    }
-    std::vector<int > shape;
+    std::vector<int> shape;
 };
 
 struct Fixture
@@ -43,11 +42,9 @@ struct Fixture
         distributed_fft2d(shape, commxx_sptr)
     {
     }
-    ~Fixture()
-    {
-    }
+
     Shape_struct shape_struct;
-    std::vector<int > shape;
+    std::vector<int> shape;
     Commxx_sptr commxx_sptr;
     Distributed_fft2d distributed_fft2d;
 };
@@ -55,15 +52,13 @@ struct Fixture
 struct Shape_struct2
 {
     Shape_struct2() :
-        shape(2)
+        shape(3)
     {
       shape[0] = 16;
       shape[1] = 8;
+      shape[2] = 2;
     }
-    ~Shape_struct2()
-    {
 
-    }
     std::vector<int > shape;
 };
 
@@ -72,13 +67,9 @@ struct Fixture2
     Fixture2() :
         shape(shape_struct2.shape), commxx_sptr(new Commxx()),
         distributed_fft2d(shape, commxx_sptr)
-    {
-    }
-    ~Fixture2()
-    {
-    }
+    { }
     Shape_struct2 shape_struct2;
-    std::vector<int > shape;
+    std::vector<int> shape;
     Commxx_sptr commxx_sptr;
     Distributed_fft2d distributed_fft2d;
 };
