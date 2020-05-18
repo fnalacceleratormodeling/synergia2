@@ -887,11 +887,11 @@ Lattice_simulator::register_closed_orbit(bool sliced)
        
         if ((*ce_it)->Type()==std::string("thinrfcavity")){          
            double  freq=boost::dynamic_pointer_cast<thinrfcavity>(*ce_it)->getRadialFrequency()/(2*mconstants::pi);         
-           (*le_it)->set_double_attribute("freq",freq);
+           (*le_it)->set_double_attribute("freq",freq*1.0e-6);
         }
         else if ((*ce_it)->Type()==std::string("rfcavity")){
            double  freq=boost::dynamic_pointer_cast<rfcavity>(*ce_it)->getRadialFrequency()/(2*mconstants::pi);         
-           (*le_it)->set_double_attribute("freq",freq);
+           (*le_it)->set_double_attribute("freq",freq*1.0e-6);
           
         }        
             
