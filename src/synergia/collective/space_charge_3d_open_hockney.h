@@ -97,15 +97,21 @@ private:
     karray1d_hst h_rho2;
     karray1d_hst h_phi2;
 
+    karray1d_dev enx;
+    karray1d_dev eny;
+    karray1d_dev enz;
+
 private:
 
-    void apply_impl( Bunch_simulator & simulator, 
-                double time_step, 
-                Logger & logger);
+    void apply_impl( 
+            Bunch_simulator & simulator, 
+            double time_step, 
+            Logger & logger);
 
-    void apply_bunch( Bunch & bunch, 
-                double time_step, 
-                Logger & logger);
+    void apply_bunch( 
+            Bunch & bunch, 
+            double time_step, 
+            Logger & logger);
 
     void setup_communication(
             Commxx const & bunch_comm);
@@ -122,9 +128,18 @@ private:
     void get_global_charge_density(
             Bunch const & bunch );
 
-    void get_green_fn2_pointlike();
+    void apply_kick(
+            Bunch & bunch,
+            double fn_norm,
+            double time_step );
 
-    void get_local_force2();
+    void get_green_fn2_pointlike();
+    void get_local_phi2();
+    void get_global_phi2();
+
+    void get_force();
+
+    double get_normalization_force();
 
 public:
 
