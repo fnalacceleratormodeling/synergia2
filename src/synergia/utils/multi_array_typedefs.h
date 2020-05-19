@@ -2,6 +2,8 @@
 #define MULTI_ARRAY_TYPEDEFS_H_
 
 #include <complex>
+#include <iostream>
+
 #include "boost/multi_array.hpp"
 #include "boost/shared_array.hpp"
 
@@ -11,24 +13,22 @@ typedef boost::multi_array_types::extent_range extent_range;
 template<typename T, size_t N_dims>
     struct Raw_multi_array
     {
-        boost::const_multi_array_ref<T, N_dims > * dummy;
         typedef typename boost::const_multi_array_ref<T, N_dims >::storage_order_type storage_order_type;
+
+        boost::const_multi_array_ref<T, N_dims > * dummy;
         boost::shared_array<T > p;
         boost::multi_array_ref<T, N_dims > m;
-        template<class ExtentList>
-            explicit
-            Raw_multi_array(const ExtentList& extents,
-                    const storage_order_type& store = boost::c_storage_order()) :
-                    dummy(
-                            new boost::const_multi_array_ref<T, N_dims >(
-                                    static_cast<T* >(0L), extents, store)), p(
-                            new T[dummy->num_elements()]), m(p.get(), extents)
-            {
-                delete dummy;
-            }
-        ~Raw_multi_array()
-        {
-        }
+
+        template <class ExtentList>
+        explicit
+        Raw_multi_array(const ExtentList& extents,
+                        const storage_order_type& store = boost::c_storage_order()) :
+           dummy(new boost::const_multi_array_ref<T, N_dims>(nullptr, extents, store)),
+           p(new T[dummy->num_elements()]),
+           m(p.get(), extents)
+           {
+             delete dummy;
+           }
     };
 
 typedef boost::multi_array<double, 1 > MArray1d; // syndoc:include
