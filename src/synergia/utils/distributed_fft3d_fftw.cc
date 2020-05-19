@@ -13,6 +13,12 @@ Distributed_fft3d::Distributed_fft3d()
     , nz(0)
 {
     fftw_mpi_init();
+
+#if 0
+    fftw_init_threads();
+    fftw_mpi_init();
+    fftw_plan_with_nthreads(1);
+#endif
 }
 
 void 
@@ -97,21 +103,18 @@ Distributed_fft3d::transform(
         throw std::runtime_error(
                 "Distributed_fft3d::transform() uninitialized" );
 
-    if (nz) 
-    {
-        int plane = padded_nx_real() * shape[1]; // padded_nx * ny
-        memcpy( (void*)data, (void*)&in(lower*plane), 
-                nz * plane * sizeof(double) );
-    }
+    // plane size = padded_nx * ny
+    int plane_real = padded_nx_real() * shape[1]; // padded_nx * ny
+    int plane_cplx = padded_nx_cplx() * shape[1]; // padded_nx * ny
+
+    memcpy( (void*)data, (void*)&in(lower*plane_real), 
+            nz * plane_real * sizeof(double) );
 
     fftw_execute(plan);
 
-    if (nz) 
-    {
-        int plane = padded_nx_cplx() * shape[1]; // padded_nx * ny
-        memcpy( (void*)&out(0), (void*)(workspace), 
-                nz * plane * sizeof(double) * 2 );
-    }
+    memcpy( (void*)&out(0), (void*)(workspace), 
+            nz * plane_cplx * sizeof(double) * 2 );
+
 }
 
 void
@@ -123,27 +126,23 @@ Distributed_fft3d::inv_transform(
         throw std::runtime_error(
                 "Distributed_fft3d::transform() uninitialized" );
 
-    if (nz) 
-    {
-        int plane = padded_nx_cplx() * shape[1]; // padded_nx * ny
-        memcpy( (void*)workspace, (void*)&in(0),
-                nz * plane * sizeof(double) * 2 );
-    }
+    // plane size = padded_nx * ny
+    int plane_real = padded_nx_real() * shape[1];
+    int plane_cplx = padded_nx_cplx() * shape[1];
+
+    memcpy( (void*)workspace, (void*)&in(0),
+            nz * plane_cplx * sizeof(double) * 2 );
 
     fftw_execute(inv_plan);
 
-    if (nz) 
-    {
-        int plane = padded_nx_real() * shape[1]; // padded_nx * ny
-        memcpy( (void*)&out(lower*plane), (void*)data, 
-                nz * plane * sizeof(double) );
-    }
+    memcpy( (void*)&out(lower*plane_real), (void*)data, 
+            nz * plane_real * sizeof(double) );
 }
 
 double
 Distributed_fft3d::get_roundtrip_normalization() const
 {
-    return 1.0 / (shape[0] * shape[1] );
+    return 1.0 / (shape[0] * shape[1] * shape[2]);
 }
 
 Distributed_fft3d::~Distributed_fft3d()
