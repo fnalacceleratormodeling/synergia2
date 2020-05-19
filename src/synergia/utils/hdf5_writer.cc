@@ -51,20 +51,20 @@ template<>
     const void *
     Hdf5_writer<MArray1d_ref >::get_data_ptr(MArray1d_ref const& data)
     {
-        return data.origin();
+        return data.data();
     }
 
 template<>
     const void *
     Hdf5_writer<MArray2d_ref >::get_data_ptr(MArray2d_ref const& data)
     {
-        return data.origin();
+        return data.data();
     }
 template<>
     const void *
     Hdf5_writer<MArray3d_ref >::get_data_ptr(MArray3d_ref const& data)
     {
-        return data.origin();
+        return data.data();
     }
 
 template<>
@@ -118,19 +118,19 @@ template<>
     const void *
     Hdf5_writer<MArray1d >::get_data_ptr(MArray1d const& data)
     {
-        return data.origin();
+        return data.data();
     }
 
 template<>
     const void *
     Hdf5_writer<MArray2d >::get_data_ptr(MArray2d const& data)
     {
-        return data.origin();
+        return data.data();
     }
 template<>
     const void *
     Hdf5_writer<MArray3d >::get_data_ptr(MArray3d const& data)
     {
-        return data.origin();
+        return data.data();
     }
 
