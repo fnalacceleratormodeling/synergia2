@@ -21,13 +21,13 @@ template<typename T>
 
         void
         update_dims(T const& data);
+
         const void *
         get_data_ptr(T const& data);
     public:
         Hdf5_writer(hid_t file_ptr, std::string const& name);
         void
         write(T const & data);
-        ~Hdf5_writer();
     };
 
 #include "synergia/utils/hdf5_writer.tcc"
