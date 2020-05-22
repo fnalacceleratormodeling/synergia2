@@ -27,7 +27,7 @@ template<typename T, size_t N_dims>
                         const storage_order_type& store = boost::c_storage_order()) :
            dummy(new boost::const_multi_array_ref<T, N_dims>(nullptr, extents, store)),
            p(new T[dummy->num_elements()]),
-           m(p.get(), extents)
+           m(p.get(), extents, store)
            {
              delete dummy;
            }
