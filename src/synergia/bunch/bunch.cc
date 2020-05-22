@@ -239,6 +239,8 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_num_slots   = local_num_padded;
 
         // allocate
+        delete storage;
+        delete local_particles; // protect against a second call to construct
         storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
         local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
 
@@ -267,6 +269,8 @@ Bunch::construct(int total_num, double real_num, int total_s_num)
         local_s_num_slots   = local_s_num_padded;
 
         // allocate
+        delete s_storage;
+        delete local_s_particles; // protect against a second call to construct
         s_storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_s_num_slots * 7 * sizeof(double));
         local_s_particles = new MArray2d_ref(s_storage, boost::extents[local_s_num_slots][7], boost::fortran_storage_order());
 
@@ -329,11 +333,11 @@ Bunch::Bunch(
 
     , real_num(real_num)
 
-    , storage(NULL)
-    , s_storage(NULL)
+    , storage(nullptr)
+    , s_storage(nullptr)
 
-    , local_particles(NULL)
-    , local_s_particles(NULL)
+    , local_particles(nullptr)
+    , local_s_particles(nullptr)
 
     , bucket_index(0)
     , bucket_index_assigned(false)
@@ -374,11 +378,11 @@ Bunch::Bunch(
 
     , real_num(real_num)
 
-    , storage(NULL)
-    , s_storage(NULL)
+    , storage(nullptr)
+    , s_storage(nullptr)
 
-    , local_particles(NULL)
-    , local_s_particles(NULL)
+    , local_particles(nullptr)
+    , local_s_particles(nullptr)
 
     , bucket_index(0)
     , bucket_index_assigned(false)
@@ -392,7 +396,7 @@ Bunch::Bunch(
     construct(total_num, real_num, total_spectator_num);
 }
 
-Bunch::Bunch() 
+Bunch::Bunch()
     : boundary(lb_open)
     , boundary_param(0.0)
     , reference_particle()
@@ -412,13 +416,13 @@ Bunch::Bunch()
     , total_num(0)
     , total_s_num(0)
 
-    , real_num(0)
+    , real_num(1.0)
 
-    , storage(NULL)
-    , s_storage(NULL)
+    , storage(nullptr)
+    , s_storage(nullptr)
 
-    , local_particles(NULL)
-    , local_s_particles(NULL)
+    , local_particles(nullptr)
+    , local_s_particles(nullptr)
 
     , bucket_index(0)
     , bucket_index_assigned(false)
@@ -427,10 +431,9 @@ Bunch::Bunch()
     , state()
     , comm_sptr()
     , default_converter()
-    , converter_ptr(NULL)
+    , converter_ptr(&default_converter)
 {
 }
-
 
 Bunch::Bunch(Bunch const& bunch) 
     : boundary(bunch.boundary)

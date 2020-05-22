@@ -18,7 +18,7 @@ Diagnostics ::Diagnostics(
     , local_dir(local_dir)
     , have_bunch_(false)
     , write_helper_ptr(0)
-    , have_write_helper_(0)
+    , have_write_helper_(false)
     , extra_writers()
 {
 }

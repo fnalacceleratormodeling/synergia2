@@ -1,3 +1,4 @@
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize-address-use-after-scope")
 link_directories(${SYNERGIA2_BINARY_DIR}/src/synergia/utils)
 add_subdirectory(synergia)
 add_subdirectory(frontend)

@@ -1,6 +1,7 @@
 #ifndef MX_PARSING_TREE_H
 #define MX_PARSING_TREE_H
 
+#include <algorithm>
 #include <string>
 #include <vector>
 

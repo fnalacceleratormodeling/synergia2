@@ -106,11 +106,11 @@ private:
 
     double real_num;
 
-    double * storage;
-    double * s_storage;
+    double * storage = nullptr;
+    double * s_storage = nullptr;
 
-    MArray2d_ref *local_particles;
-    MArray2d_ref *local_s_particles;
+    MArray2d_ref *local_particles = nullptr;
+    MArray2d_ref *local_s_particles = nullptr;
 
     int bucket_index;
     bool bucket_index_assigned;
@@ -173,6 +173,8 @@ public:
     //! Assignment constructor
     Bunch &
     operator=(Bunch const& bunch);
+
+    ~Bunch();
 
     ///
     /// Set the particle charge
@@ -454,9 +456,6 @@ public:
         load(Archive & ar, const unsigned int version);
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-
-    virtual
-    ~Bunch();
 };
 
 typedef boost::shared_ptr<Bunch > Bunch_sptr; // syndoc:include // syndoc:include

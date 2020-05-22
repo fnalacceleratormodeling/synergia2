@@ -15,6 +15,7 @@ add_library(synergia_bunch
     diagnostics_bulk_track.cc 
     diagnostics_bulk_spectator_track.cc 
     diagnostics_phase_space_density.cc
+    diagnostics_apertures_loss.cc
     populate.cc 
     analysis.cc 
     period.cc)

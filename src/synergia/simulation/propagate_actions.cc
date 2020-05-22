@@ -54,10 +54,3 @@ Propagate_actions::operator_begin_action(Stepper & stepper, Step & step, Operato
 {
 }  
 
-
-
-
-
-Propagate_actions::~Propagate_actions()
-{
-}

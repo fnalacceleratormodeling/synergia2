@@ -23,6 +23,7 @@ template<typename T>
         write_storage_order(T const& data);
         void
         update_dims(T const& data);
+
         const void *
         get_data_ptr(T const& data);
     public:
@@ -33,7 +34,6 @@ template<typename T>
         write(T const & data);
         void
         write(T const * data, size_t len);
-        ~Hdf5_writer();
     };
 
 #include "synergia/utils/hdf5_writer.tcc"

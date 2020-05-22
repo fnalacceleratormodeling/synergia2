@@ -80,11 +80,6 @@ template<typename T>
         if (res < 0) throw Hdf5_exception();
     }
 
-template<typename T>
-    Hdf5_writer<T >::~Hdf5_writer()
-    {
-    }
-
 template<>
     Hdf5_writer<MArray1d_ref >::Hdf5_writer(hid_t file_ptr,
             std::string const& name);

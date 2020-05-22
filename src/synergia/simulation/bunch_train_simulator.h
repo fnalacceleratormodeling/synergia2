@@ -36,7 +36,6 @@ public:
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
-    ~Bunch_train_simulator();
 };
 
 #endif /* BUNCH_TRAIN_SIMULATOR_H_ */

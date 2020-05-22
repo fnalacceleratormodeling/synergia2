@@ -2,6 +2,7 @@
 #include "madx.h"
 #include "mx_expr.h"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <stdexcept>

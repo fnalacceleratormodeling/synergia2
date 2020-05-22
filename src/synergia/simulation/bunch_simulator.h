@@ -40,6 +40,5 @@ public:
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
-    ~Bunch_simulator();
 };
 #endif /* BUNCH_SIMULATOR_H_ */
