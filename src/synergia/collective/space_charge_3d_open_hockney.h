@@ -19,6 +19,7 @@ struct Space_charge_3d_open_hockney_options : public CO_options
     double z_period;
     bool grid_entire_period;
     double n_sigma;
+    double kick_scale;
     bool domain_fixed;
 
     int comm_group_size;
@@ -31,6 +32,7 @@ struct Space_charge_3d_open_hockney_options : public CO_options
         , z_period(0.0)
         , grid_entire_period(false)
         , n_sigma(8.0)
+        , kick_scale(1.0)
         , domain_fixed(false)
         , comm_group_size(4)
     { }

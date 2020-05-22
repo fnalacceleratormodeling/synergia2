@@ -96,61 +96,15 @@ namespace
         return x > 0.0 ? ix : ((x - ix == 0) ? ix : ix - 1);
     }
 
-
-#if 0
-    inline std::complex<double >
-    interpolate_rectangular_2d(double * bin, bool periodic_z,
-            MArray2dc_ref const& a, MArray1d_ref const& b)
+    KOKKOS_INLINE_FUNCTION
+    void get_leftmost_indices_offset(
+            double pos, double left, double inv_cell_size,
+            int & idx, double & off )
     {
-        // bi-linear interpolation
-        int ix, iy, iz;
-        double offx, offy, offz;
-        ix = fast_int_floor(bin[0]);
-        iy = fast_int_floor(bin[2]);
-        iz = fast_int_floor(bin[4]);
-
-        offx = bin[1];
-        offy = bin[3];
-        offz = bin[5];
-
-        std::vector<int > grid_shape(3);
-        grid_shape[0] = a.shape()[0];
-        grid_shape[1] = a.shape()[1];
-        grid_shape[2] = b.shape()[0];
-
-        std::complex<double > val;
-        if ( (grid_shape[2] == 1) 
-                && ( (ix >= 0) 
-                    && (ix < grid_shape[0] - 1) 
-                    && (iy >= 0) 
-                    && (iy < grid_shape[1] - 1) ) 
-                && ( periodic_z 
-                    || ( (iz >= 0) && (iz <= grid_shape[2]) ) ) ) 
-        {
-            double line_density = b[0];
-            val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
-                    + offx * (1.0 - offy) * a[ix + 1][iy]
-                    + (1.0 - offx) * offy * a[ix][iy + 1]
-                    + offx * offy * a[ix + 1][iy + 1]);
-        } 
-        else if ( (grid_shape[2] > 1) 
-                && ( (ix >= 0) 
-                    && (ix < grid_shape[0] - 1) 
-                    && (iy >= 0) 
-                    && (iy < grid_shape[1] - 1) ) 
-                && ( periodic_z 
-                    || ( (iz >= 0) && (iz < grid_shape[2] - 1) ) ) ) 
-        {
-            double line_density = (1.0 - offz) * b[iz] + offz * b[iz + 1];
-            val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
-                    + offx * (1.0 - offy) * a[ix + 1][iy]
-                    + (1.0 - offx) * offy * a[ix][iy + 1]
-                    + offx * offy * a[ix + 1][iy + 1]);
-        }
-
-        return val;
+        double scaled_location = (pos - left) * inv_cell_size - 0.5;
+        idx = fast_int_floor_kokkos(scaled_location);
+        off = scaled_location - idx;
     }
-#endif
 
     struct alg_zeroer
     {
@@ -160,7 +114,6 @@ namespace
         void operator() (const int i) const
         { arr(i) = 0.0; }
     };
-
 
 
     // G000 is naively infinite. In the correct approach, it should be
@@ -384,28 +337,36 @@ namespace
 
     struct alg_kicker
     {
-        Particles p;
+        Particles parts;
         ConstParticleMasks masks;
 
-        karray1d_dev fn;
-        karray1d_dev rho;
-        karray2d_dev bin;
+        karray1d_dev enx;
+        karray1d_dev eny;
+        karray1d_dev enz;
 
         int gx, gy, gz;
-        double factor;
+        double ihx, ihy, ihz;
+        double lx, ly, lz;
+        double factor, pref, m;
 
         alg_kicker(
-                Particles p,
+                Particles parts,
                 ConstParticleMasks masks,
-                karray1d_dev const & fn,
-                karray1d_dev const & rho,
-                karray2d_dev const & bin,
-                std::array<int, 3> const & g,
-                double factor )
-            : p(p), masks(masks)
-            , fn(fn), rho(rho), bin(bin)
+                karray1d_dev const& enx,
+                karray1d_dev const& eny,
+                karray1d_dev const& enz,
+                std::array<int,    3> const& g,
+                std::array<double, 3> const& h,
+                std::array<double, 3> const& l,
+                double factor,
+                double pref,
+                double m )
+            : parts(parts), masks(masks)
+            , enx(enx), eny(eny), enz(enz)
             , gx(g[0]), gy(g[1]), gz(g[2])
-            , factor(factor)
+            , ihx(1.0/h[0]), ihy(1.0/h[1]), ihz(1.0/h[2])
+            , lx(l[0]), ly(l[1]), lz(l[2])
+            , factor(factor), pref(pref), m(m)
         { }
 
         KOKKOS_INLINE_FUNCTION
@@ -413,40 +374,73 @@ namespace
         {
             if (masks(i))
             {
-                int ix = fast_int_floor_kokkos(bin(i, 0));
-                int iy = fast_int_floor_kokkos(bin(i, 2));
-                int iz = fast_int_floor_kokkos(bin(i, 4));
+                int ix, iy, iz;
+                double ox, oy, oz;
 
-                double ox = bin(i, 1);
-                double oy = bin(i, 3);
-                double oz = bin(i, 5);
+                get_leftmost_indices_offset(parts(i, 0), lx, ihx, ix, ox);
+                get_leftmost_indices_offset(parts(i, 2), ly, ihy, iy, oy);
+                get_leftmost_indices_offset(parts(i, 4), lz, ihz, iz, oz);
 
                 double aox = 1.0 - ox;
                 double aoy = 1.0 - oy;
                 double aoz = 1.0 - oz;
 
-                int zbase = gx*gy*2;
-
-                if ( ( ix>=0 && ix<gx-1 ) && 
-                     ( iy>=0 && iy<gy-1 ) && 
-                     ( /*periodic_z ||*/ (iz>=0 && iz<gz-1) ) ) 
+                if ( (ix>=0 && ix<gx-1) && 
+                     (iy>=0 && iy<gy-1) && 
+                     ((iz>=0 && iz<gz-1) /* || periodic_z */) ) 
                 {
-                    double line_density = aoz * rho(zbase+iz) + oz * rho(zbase+iz+1);
+                    double val = 0;
+                    int base = 0;
 
-                    double vx = line_density * (
-                              aox * aoy * fn( ((ix  )*gy + (iy  ))*2 )
-                            +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 )
-                            + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 )
-                            +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 ) );
+                    // enz
+                    base = iz*gx*gy + iy*gx + ix;
+                    val  = aoz * aoy * aox * enz(base);      // z, y, x
+                    val += aoz * aoy *  ox * enz(base+1);    // z, y, x+1
+                    val += aoz *  oy * aox * enz(base+gx);   // z, y+1, x
+                    val += aoz *  oy *  ox * enz(base+gx+1); // z, y+1, x+1
 
-                    double vy = line_density * (
-                              aox * aoy * fn( ((ix  )*gy + (iy  ))*2 + 1 )
-                            +  ox * aoy * fn( ((ix+1)*gy + (iy  ))*2 + 1 )
-                            + aox *  oy * fn( ((ix  )*gy + (iy+1))*2 + 1 )
-                            +  ox *  oy * fn( ((ix+1)*gy + (iy+1))*2 + 1 ) );
+                    base = (iz+1)*gx*gy + iy*gx + ix;
+                    val += oz * aoy * aox * enz(base);       // z+1, y, x
+                    val += oz * aoy *  ox * enz(base+1);     // z+1, y, x+1
+                    val += oz *  oy * aox * enz(base+gx);    // z+1, y+1, x
+                    val += oz *  oy *  ox * enz(base+gx+1);  // z+1, y+1, x+1
 
-                    p(i, 1) += factor * vx;
-                    p(i, 3) += factor * vy;
+                    double p = pref + parts(i, 5) * pref;
+                    double Eoc_i = std::sqrt(p*p+m*m);
+                    double Eoc_f = Eoc_i + factor * (-pref) * val;
+                    double dpop = (std::sqrt(Eoc_f*Eoc_f-m*m) - std::sqrt(Eoc_i*Eoc_i-m*m))/pref;
+
+                    parts(i, 5) += dpop;
+
+                    // eny
+                    base = iz*gx*gy + iy*gx + ix;
+                    val  = aoz * aoy * aox * eny(base);      // z, y, x
+                    val += aoz * aoy *  ox * eny(base+1);    // z, y, x+1
+                    val += aoz *  oy * aox * eny(base+gx);   // z, y+1, x
+                    val += aoz *  oy *  ox * eny(base+gx+1); // z, y+1, x+1
+
+                    base = (iz+1)*gx*gy + iy*gx + ix;
+                    val += oz * aoy * aox * eny(base);       // z+1, y, x
+                    val += oz * aoy *  ox * eny(base+1);     // z+1, y, x+1
+                    val += oz *  oy * aox * eny(base+gx);    // z+1, y+1, x
+                    val += oz *  oy *  ox * eny(base+gx+1);  // z+1, y+1, x+1
+
+                    parts(i, 3) += factor * val;
+
+                    // enx
+                    base = iz*gx*gy + iy*gx + ix;
+                    val  = aoz * aoy * aox * enx(base);      // z, y, x
+                    val += aoz * aoy *  ox * enx(base+1);    // z, y, x+1
+                    val += aoz *  oy * aox * enx(base+gx);   // z, y+1, x
+                    val += aoz *  oy *  ox * enx(base+gx+1); // z, y+1, x+1
+
+                    base = (iz+1)*gx*gy + iy*gx + ix;
+                    val += oz * aoy * aox * enx(base);       // z+1, y, x
+                    val += oz * aoy *  ox * enx(base+1);     // z+1, y, x+1
+                    val += oz *  oy * aox * enx(base+gx);    // z+1, y+1, x
+                    val += oz *  oy *  ox * enx(base+gx+1);  // z+1, y+1, x+1
+
+                    parts(i, 1) += factor * val;
                 }
             }
         }
@@ -486,31 +480,6 @@ Space_charge_3d_open_hockney::apply_bunch(
             double time_step, 
             Logger & logger)
 {
-    Logger l(0);
-
-    auto parts = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
-
-    int num = 0;
-    double sum = 0;
-
-    for(int i=0; i<bunch.size(); ++i)
-    {
-        if (masks(i))
-        {
-            ++num;
-            for(int j=0; j<6; ++j) sum += parts(i,j);
-        }
-    }
-
-    l << std::setprecision(16);
-    l << "      part num = " << num << ", sum = " << sum << "\n";
-
-
-
-
-
-
     setup_communication(bunch.get_comm());
 
     update_domain(bunch);
@@ -527,10 +496,6 @@ Space_charge_3d_open_hockney::apply_bunch(
 
     get_force();
     apply_kick(bunch, fn_norm, time_step);
-
-    std::cout << "norm = " << fn_norm << "\n";
-    std::cout << "sc3d done\n";
-    exit(0);
 }
 
 void
@@ -704,8 +669,6 @@ Space_charge_3d_open_hockney::get_local_phi2()
 {
     scoped_simple_timer timer("sc3d_local_f");
 
-    Logger l(0);
-
     auto dg = doubled_domain.get_grid_shape();
 
     int lower = fft.get_lower();
@@ -718,17 +681,9 @@ Space_charge_3d_open_hockney::get_local_phi2()
     int padded_gx_real = fft.padded_nx_real();
     int padded_gx_cplx = fft.padded_nx_cplx();
 
-    std::cout << "real shape = " << padded_gx_real << ", " << dg[1] << ", " << dg[2] << "\n";
-    std::cout << "cplx shape = " << padded_gx_cplx << ", " << dg[1] << ", " << dg[2] << "\n";
-
-    print_grid(l, rho2, 16, 20, 16, 17, 32, 33, padded_gx_real, dg[1], dg[2]);
-    print_grid(l, rho2hat, 16, 20, 16, 17, 32, 33, padded_gx_cplx*2, dg[1], dg[2]);
-
     alg_cplx_multiplier alg(phi2hat, rho2hat, g2hat);
     Kokkos::parallel_for(nz*dg[1]*padded_gx_cplx, alg);
     Kokkos::fence();
-
-    print_grid(l, phi2hat, 16, 20, 16, 17, 32, 33, padded_gx_cplx*2, dg[1], nz);
 
     // zero phi2 when using multiple ranks
     if (comm.size() > 1)
@@ -739,8 +694,6 @@ Space_charge_3d_open_hockney::get_local_phi2()
 
     // inv fft
     fft.inv_transform(phi2hat, phi2);
-
-    print_grid(l, phi2, 16, 20, 16, 17, 32, 33, padded_gx_real, dg[1], dg[2]);
 }
 
 void
@@ -803,7 +756,6 @@ Space_charge_3d_open_hockney::get_normalization_force()
 void
 Space_charge_3d_open_hockney::get_force()
 {
-
     auto  g = domain.get_grid_shape();
     auto  h = doubled_domain.get_cell_size();
     auto dg = doubled_domain.get_grid_shape();
@@ -813,12 +765,6 @@ Space_charge_3d_open_hockney::get_force()
     alg_force_extractor alg(phi2, enx, eny, enz, g, dg, h);
     Kokkos::parallel_for(g[0]*g[1]*g[2], alg);
     Kokkos::fence();
-
-    Logger l(0);
-    print_grid(l, enx, 0, 4, 16, 17, 32, 33, g[0], g[1], g[2]);
-    print_grid(l, eny, 0, 4, 16, 17, 32, 33, g[0], g[1], g[2]);
-    print_grid(l, enz, 0, 4, 16, 17, 32, 33, g[0], g[1], g[2]);
-
 }
 
 
@@ -830,57 +776,31 @@ Space_charge_3d_open_hockney::apply_kick(
 {
     scoped_simple_timer timer("sc3d_kick");
 
-    // EGS ported AM changes for kicks in lab frame from 3D solver
-    // AM: kicks are done in the z_lab frame
-    // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
-    // delta_t_beam: [s] in beam frame
-    //  See chapter 11, jackson electrodynamics, for field transformation 
-    //  from bunch frame (BF) to the lab frame (LF). Keep in mind that 
-    //  \vec{B}_BF=0.
-    //  Ex_LF=gamma*Ex_BF, Ey_LF=gamma*Ey_BF, Ez_LF=Ez_BF
-    //  Bx_LF=gamma*beta*Ey_BF, By_LF=-gamma*beta*Ex_BF, Bz_LF=Bz_BF=0
-    //  Transverse Lorentz force in the lab frame: 
-    //        Fx_LF = q*(Ex_L-beta_z*By_LF)
-    //              = q*gamma*(1-beta*beta_z)*Ex_BF
-    //  Longitudinal Lorentz force in the lab frame:
-    //        Fz = q*(Ez_LF+beta_x*By_LF-beta_y*Bx_LF)
-    //           = q*(Ez_BF-gamma*beta*(beta_x*Ex_BF+beta_y*Ey_BF ))
-    // In order to get a conservative approximation!:
-    // The following approximations are done: beta_z=beta, beta_x=beta_y=0, 
-    // thus suppresing the particles' movement relative to the reference 
-    // particle. The same approximation was employed when the field in 
-    // the bunch frame was calculated.
-    // Thus: Fx_LF=q*Ex_BF/gamma, Fz=q*Ez_BF
+    auto ref = bunch.get_reference_particle();
 
-    double delta_t_beam = time_step / bunch.get_reference_particle().get_gamma();
+    double q = bunch.get_particle_charge() * pconstants::e;
+    double m = bunch.get_mass();
 
-    // unit_conversion: [N] = [kg m/s^2] to [Gev/c]
-    double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
+    double gamma = ref.get_gamma();
+    double beta  = ref.get_beta();
+    double pref  = ref.get_momentum();
 
-    // scaled p = p/p_ref
-    double gamma = bunch.get_reference_particle().get_gamma();
-    double beta = bunch.get_reference_particle().get_beta();
-    double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
-
-    // gamma*beta factor introduced here when we are no longer going to 
-    // the t_bunch frame. That factor was introduced in the fixed_z_lab 
-    // to fixed_t_bunch conversion.  Physically, gamma factor comes from 
-    // the lorentz expansion longitudinally in the bunch frame and beta 
-    // comes because the stored coordinate is c*dt whereas the actual
-    // domain is beta*c*dt.
-    double factor = unit_conversion * delta_t_beam * fn_norm * p_scale 
-                    / (gamma * beta);
+    double unit_conversion = pconstants::c / (1e9 * pconstants::e);
+    double factor = options.kick_scale * unit_conversion * q * time_step * fn_norm 
+        / (pref * gamma * gamma * beta);
 
     auto parts = bunch.get_local_particles();
     auto masks = bunch.get_local_particle_masks();
 
-#if 0
-    alg_kicker kicker(parts, masks, phi2, rho2, particle_bin,
-            doubled_domain.get_grid_shape(), factor);
+    auto g = domain.get_grid_shape();
+    auto h = domain.get_cell_size();
+    auto l = domain.get_left();
+
+    alg_kicker kicker(parts, masks, enx, eny, enz,
+            g, h, l, factor, pref, m);
 
     Kokkos::parallel_for(bunch.size(), kicker);
     Kokkos::fence();
-#endif
 }
 
 
