@@ -8,12 +8,13 @@
 //#include "synergia/bunch/diagnostics_bulk_track.h"
 #include "synergia/lattice/madx_reader.h"
 
-#include "synergia/collective/space_charge_2d_open_hockney.h"
+#include "synergia/collective/space_charge_3d_open_hockney.h"
 
 
 int run()
 {
-    Logger screen(0, LoggerV::INFO_TURN);
+    //Logger screen(0, LoggerV::INFO_TURN);
+    Logger screen(0, LoggerV::DEBUG);
 
 #if 0
     // Lattice
@@ -41,10 +42,10 @@ int run()
     auto lattice = reader.get_lattice("oqo", "fodo.madx");
     auto const & ref = lattice.get_reference_particle();
 
-    lattice.print(screen);
+    //lattice.print(screen);
 
     // space charge
-    Space_charge_2d_open_hockney_options sc_ops(32, 32, 128);
+    Space_charge_3d_open_hockney_options sc_ops(32, 32, 64);
     sc_ops.comm_group_size = 1;
 
     // stepper
@@ -56,7 +57,8 @@ int run()
 
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
-            lattice.get_reference_particle(), 1024 * 1024 * 1, 1e13,
+            //lattice.get_reference_particle(), 1024 * 1024 * 1, 1e13,
+            lattice.get_reference_particle(), 4194394, 1e13,
             Commxx() );
 
     screen << "reference momentum = " << ref.get_momentum() << " GeV\n";
@@ -66,10 +68,11 @@ int run()
     auto local_num = bunch.get_local_num();
     auto hparts = bunch.get_host_particles();
 
+#if 0
     karray1d means("means", 6);
     for (int i=0; i<6; ++i) means(i) = 0.0;
 
-    karray2d covariances("covariances", 6, 6);
+    karray2d_row covariances("covariances", 6, 6);
     for (int i=0; i<6; ++i)
         for (int j=0; j<6; ++j)
             covariances(i, j) = 0.0;
@@ -82,7 +85,14 @@ int run()
     covariances(5,5) = 1e-6;
 
     Random_distribution dist(5, Commxx());
-    //populate_6d(dist, bunch, means, covariances);
+    populate_6d(dist, bunch, means, covariances);
+#endif
+
+    //bunch.read_file("bunch_particles_4M.h5");
+    bunch.read_file_legacy("turn_particles_0000_4M.h5");
+
+
+
 
     bunch.checkout_particles();
 
@@ -95,6 +105,12 @@ int run()
 
     for (int p=0; p<4; ++p) bunch.print_particle(p, screen);
     screen << "\n";
+
+    Logger l(0);
+    Space_charge_3d_open_hockney sc(sc_ops);
+    sc.apply(sim, 1.0, l);
+    return 0;
+
 
 #if 0
     // diagnostics
@@ -211,7 +227,7 @@ int main(int argc, char ** argv)
     MPI_Init(&argc, &argv);
     Kokkos::initialize(argc, argv);
 
-    layout_test();
+    //layout_test();
     run();
 
     Kokkos::finalize();
