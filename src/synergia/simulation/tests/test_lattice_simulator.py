@@ -222,3 +222,70 @@ def test_register_closed_orbit():
     lattice_simulator.update()
     assert_almost_equal(expected_rf_freq,lattice_simulator.get_rf_frequency())
 
+def test_tune_linear_lattice():
+    lattice_length = 474.204
+    kenergy = 0.4
+    harmon = 84
+    mp = synergia.foundation.pconstants.mp
+    
+    lattice = synergia.lattice.Lattice("foo", synergia.lattice.MadX_adaptor_map())
+    refpart = synergia.foundation.Reference_particle(1, mp, mp+kenergy)
+
+    lattice.set_reference_particle(refpart)
+
+    zdrift = synergia.lattice.Lattice_element("drift", "zdrift")
+    zdrift.set_double_attribute("l", 0.0)
+
+    rfc = synergia.lattice.Lattice_element("rfcavity", "rfc")
+    rfc.set_double_attribute("l", 0.0)
+    rfc.set_double_attribute("volt", 0.05)
+    rfc.set_double_attribute("harmon", harmon)
+    rfc.set_double_attribute("lag", 0.0)
+    
+    wdrift = synergia.lattice.Lattice_element("drift", "wdrift")
+    wdrift.set_double_attribute("l", lattice_length)
+
+    lattice.append(zdrift)
+    lattice.append(rfc)
+    lattice.append(wdrift)
+
+    stepper = synergia.simulation.Independent_stepper(lattice, 1, 1)
+
+    stepper.get_lattice_simulator().tune_linear_lattice()
+
+    # frequency should be h*beta*c/L
+    freq_should_be = 1.0e-6 * harmon * refpart.get_beta() * synergia.foundation.pconstants.c/lattice_length
+
+    assert_not_equal(freq_should_be*1.1, lattice.get_elements()[1].get_double_attribute("freq"))
+    assert_almost_equal(freq_should_be, lattice.get_elements()[1].get_double_attribute("freq"))
+
+def test_tune_circular_lattice():
+    lattice = synergia.lattice.Lattice(synergia.utils.read_lsexpr_file("lattices/foborodobo32.lsx"))
+    
+    refpart = lattice.get_reference_particle()
+
+    stepper = synergia.simulation.Independent_stepper(lattice, 1, 1)
+
+    stepper.get_lattice_simulator().tune_circular_lattice(1.0e-7)
+
+    lattice_length = lattice.get_length()
+    
+    harmon = None
+    freq = None
+    rfccount = 0
+    for elem in lattice.get_elements():
+        if elem.get_type() == "rfcavity":
+            rfccount = rfccount + 1
+            if elem.has_double_attribute("harmon"):
+                harmon = elem.get_double_attribute("harmon")
+            if elem.has_double_attribute("freq"):
+                freq = elem.get_double_attribute("freq")
+    assert(harmon)
+    assert(freq)
+
+    # frequency should be h*beta*c/L
+    freq_should_be = 1.0e-6 * harmon * refpart.get_beta() * synergia.foundation.pconstants.c/lattice_length
+
+    assert_not_equal(freq_should_be*1.1, freq)
+    assert_almost_equal(freq_should_be, freq)
+
