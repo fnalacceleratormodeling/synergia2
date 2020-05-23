@@ -127,7 +127,7 @@ def get_particle_coords(h5, options):
 
 def do_plots(options):
     #f = Hdf5_file(options.inputfile, Hdf5_file.read_only)
-    h5 = h5py.File(options.inputfile)
+    h5 = h5py.File(options.inputfile, 'r')
     rows, cols = get_layout(len(options.coords))
     pyplot.figure().canvas.set_window_title('Synergia Track Viewer')
     #all_particle_coords = get_particle_coords(f, options)

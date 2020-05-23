@@ -159,7 +159,7 @@ def handle_args(args):
 
 def do_plots(options):
     c = 299792458.0
-    h5 = h5py.File(options.inputfile)
+    h5 = h5py.File(options.inputfile, 'r')
     #f = Hdf5_file(options.inputfile, 'r')
     particles = h5.get('particles')
     npart = particles.shape[0]
