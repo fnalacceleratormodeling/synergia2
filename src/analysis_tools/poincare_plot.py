@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import sys
-from synergia.utils import Hdf5_file
+#from synergia.utils import Hdf5_file
 import numpy
 from matplotlib import pyplot
+import h5py
 
 def plot2d(x, y, options, trk):
     if options.legend:
@@ -99,28 +100,38 @@ def single_plot(options, particle_coords, trk):
 def do_plots(options):
     pyplot.figure().canvas.set_window_title('Synergia Poincare Plot')
     for filename in options.inputfiles:
-        f = Hdf5_file(filename, Hdf5_file.read_only)
-        if "coords" in f.get_member_names():
-            particle_coords = f.read_array2d("coords")
+        #f = Hdf5_file(filename, Hdf5_file.read_only)
+        f = h5py.File(filename, 'r')
+        if "coords" in f.keys():
+            particle_coords = f.get("coords")
             f.close()
             single_plot(options, particle_coords, 0)
-        elif "track_coords" in f.get_member_names():
-            track_coords = f.read_array3d("track_coords")
+        elif "track_coords" in f.keys():
+            track_coords = f.get("track_coords")[()]
+            #print('track_coords.shape: ', track_coords.shape)
             nturns = track_coords.shape[0]
             ntracks = track_coords.shape[1]
-            mass = f.read_double('mass')
-            p_ref = f.read_array1d('pz').reshape(nturns,1)
-            print "p_ref.shape: ", p_ref.shape
+            mass = f.get('mass')[()]
+            p_ref = f.get('pz')[()]
+            #print("p_ref.shape: ", p_ref.shape)
             f.close()
             for trk in options.indices:
                 particle_coords = track_coords[:,trk,0:6]
-                print "particle_coords.shape: ", particle_coords.shape
-                pz = p_ref * (1.0 + track_coords[:, trk, 5]).reshape(nturns,1)
-                #print "pz.shape: ", pz.shape
-                energy = numpy.sqrt(pz*pz + mass**2)
-                #print "energy.shape: ", energy.shape
-                particle_coords = numpy.hstack((particle_coords,pz,energy))
-                #print "particle_coords.shape: ", particle_coords.shape
+                nentries = particle_coords.shape[0]
+                #print("particle_coords.shape: ", particle_coords.shape)
+                #print("track_coords[:, trk, 5].shape: ", track_coords[:, trk, 5].shape)
+                #print("p_ref.shape: ", p_ref.shape)
+                pz = (p_ref * (1.0 + track_coords[:, trk, 5])).reshape(nentries,1)
+                #print("pz.shape: ", pz.shape)
+                energy = numpy.sqrt(pz*pz + mass**2).reshape(nentries,1)
+                #print("energy.shape: ", energy.shape)
+                #print("particle_coords.shape: ", particle_coords.shape)
+                stackup = (particle_coords,pz,energy)
+                #print("what is being stacked")
+                #for a in stackup:
+                #    print(a.shape)
+                particle_coords = numpy.hstack(stackup)
+                #print("particle_coords.shape: ", particle_coords.shape)
                 single_plot(options, particle_coords, trk)
 
     pyplot.xlabel(options.coords[0])
