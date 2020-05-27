@@ -233,19 +233,21 @@ namespace
     {
         karray1d_dev prod;
         karray1d_dev m1, m2;
+        int off;
 
         alg_cplx_multiplier(
                 karray1d_dev const & prod,
                 karray1d_dev const & m1,
-                karray1d_dev const & m2 )
-            : prod(prod), m1(m1), m2(m2)
+                karray1d_dev const & m2,
+                int offset )
+            : prod(prod), m1(m1), m2(m2), off(offset)
         { }
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
-            const int real = i*2;
-            const int imag = i*2 + 1;
+            const int real = (off+i)*2;
+            const int imag = (off+i)*2 + 1;
 
             prod[real] = m1[real]*m2[real] - m1[imag]*m2[imag];
             prod[imag] = m1[real]*m2[imag] + m1[imag]*m2[real];
@@ -673,7 +675,6 @@ Space_charge_3d_open_hockney::get_local_phi2()
 
     int lower = fft.get_lower();
     int upper = fft.get_upper();
-    int nz = upper - lower;
 
     fft.transform(rho2, rho2);
     Kokkos::fence();
@@ -681,19 +682,21 @@ Space_charge_3d_open_hockney::get_local_phi2()
     fft.transform(  g2,   g2);
     Kokkos::fence();
 
-    int padded_gx_real = fft.padded_nx_real();
-    int padded_gx_cplx = fft.padded_nx_cplx();
-
-    alg_cplx_multiplier alg(phi2, rho2, g2);
-    Kokkos::parallel_for(nz*dg[1]*padded_gx_cplx, alg);
-    Kokkos::fence();
-
     // zero phi2 when using multiple ranks
     if (comm.size() > 1)
     {
+        int padded_gx_real = fft.padded_nx_real();
         alg_zeroer az{phi2};
         Kokkos::parallel_for(padded_gx_real*dg[0]*dg[1], az);
     }
+
+    int padded_gx_cplx = fft.padded_nx_cplx();
+    int offset = lower*padded_gx_cplx*dg[1];
+    int nz = upper - lower;
+
+    alg_cplx_multiplier alg(phi2, rho2, g2, offset);
+    Kokkos::parallel_for(nz*dg[1]*padded_gx_cplx, alg);
+    Kokkos::fence();
 
     // inv fft
     fft.inv_transform(phi2, phi2);

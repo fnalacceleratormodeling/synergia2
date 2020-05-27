@@ -112,7 +112,7 @@ Distributed_fft3d::transform(
 
     fftw_execute(plan);
 
-    memcpy( (void*)&out(0), (void*)(workspace), 
+    memcpy( (void*)&out(lower*plane_cplx*2), (void*)(workspace), 
             nz * plane_cplx * sizeof(double) * 2 );
 
 }
@@ -130,7 +130,7 @@ Distributed_fft3d::inv_transform(
     int plane_real = padded_nx_real() * shape[1];
     int plane_cplx = padded_nx_cplx() * shape[1];
 
-    memcpy( (void*)workspace, (void*)&in(0),
+    memcpy( (void*)workspace, (void*)&in(lower*plane_cplx*2),
             nz * plane_cplx * sizeof(double) * 2 );
 
     fftw_execute(inv_plan);
