@@ -546,13 +546,15 @@ BunchParticles::read_file_legacy(Hdf5_file const& file, Commxx const& comm)
         for (int i = 0; i < 7; ++i) 
             hparts(part, i) = read_particles(part, i);
 
+    // check in to device mem
+    checkin_particles();
+
     // all particles in the legacy file are valid
+    // do the init after checkin because masks_initializer is performed
+    // on the device memory
     n_valid = n_active;
     particle_masks_initializer pmi{masks, n_valid};
     Kokkos::parallel_for(n_reserved, pmi);
-
-    // check in to device mem
-    checkin_particles();
 }
 
 void
