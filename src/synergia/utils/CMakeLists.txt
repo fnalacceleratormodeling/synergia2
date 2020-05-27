@@ -57,13 +57,14 @@ if (BUILD_PYTHON_BINDINGS)
 endif ()
 
 if(${Kokkos_ENABLE_CUDA})
-    set(FFT_SRC distributed_fft2d_cuda.cc)
+    set(FFT_SRC 
+        distributed_fft2d_cuda.cc
+        distributed_fft3d_cuda.cc)
     set(FFT_LIB cufft)
 else()
     set(FFT_SRC 
         distributed_fft2d_fftw.cc
-        distributed_fft3d_fftw.cc
-        )
+        distributed_fft3d_fftw.cc)
     set(FFT_LIB ${PARALLEL_FFTW_LIBRARIES})
 endif()
 
