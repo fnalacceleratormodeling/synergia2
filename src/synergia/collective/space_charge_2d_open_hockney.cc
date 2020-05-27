@@ -506,10 +506,10 @@ Space_charge_2d_open_hockney::get_local_force2()
     int upper = fft.get_upper();
     int nx = upper - lower;
 
-    fft.transform(rho2, rho2hat);
-    fft.transform(  g2,   g2hat);
+    fft.transform(rho2, rho2);
+    fft.transform(  g2,   g2);
 
-    alg_cplx_multiplier alg(phi2hat, rho2hat, g2hat);
+    alg_cplx_multiplier alg(phi2, rho2, g2);
     Kokkos::parallel_for(nx*dg[1], alg);
     Kokkos::fence();
 
@@ -521,7 +521,7 @@ Space_charge_2d_open_hockney::get_local_force2()
     }
 
     // inv fft
-    fft.inv_transform(phi2hat, phi2);
+    fft.inv_transform(phi2, phi2);
 }
 
 void

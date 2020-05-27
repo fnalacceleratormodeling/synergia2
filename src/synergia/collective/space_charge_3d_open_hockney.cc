@@ -675,13 +675,16 @@ Space_charge_3d_open_hockney::get_local_phi2()
     int upper = fft.get_upper();
     int nz = upper - lower;
 
-    fft.transform(rho2, rho2hat);
-    fft.transform(  g2,   g2hat);
+    fft.transform(rho2, rho2);
+    Kokkos::fence();
+
+    fft.transform(  g2,   g2);
+    Kokkos::fence();
 
     int padded_gx_real = fft.padded_nx_real();
     int padded_gx_cplx = fft.padded_nx_cplx();
 
-    alg_cplx_multiplier alg(phi2hat, rho2hat, g2hat);
+    alg_cplx_multiplier alg(phi2, rho2, g2);
     Kokkos::parallel_for(nz*dg[1]*padded_gx_cplx, alg);
     Kokkos::fence();
 
@@ -693,7 +696,8 @@ Space_charge_3d_open_hockney::get_local_phi2()
     }
 
     // inv fft
-    fft.inv_transform(phi2hat, phi2);
+    fft.inv_transform(phi2, phi2);
+    Kokkos::fence();
 }
 
 void
