@@ -77,49 +77,37 @@ void Distributed_fft2d::construct(std::array<int, 3> const & new_shape, MPI_Comm
 
 
 void
-Distributed_fft2d::transform(karray1d_dev & in, karray1d_dev & out)
+Distributed_fft2d::transform(
+        karray1d_dev & in, 
+        karray1d_dev & out)
 {
     if (!data || !workspace)
         throw std::runtime_error("Distributed_fft2d::transform() uninitialized" );
 
-    if (nx) 
-    {
-        memcpy( (void*)data, 
-                (void*)&in(lower*shape[1]*2),
-                nx * shape[1] * sizeof(double) * 2);
-    }
+    memcpy( (void*)data, (void*)&in(lower*shape[1]*2),
+            nx * shape[1] * sizeof(double) * 2);
 
     fftw_execute(plan);
 
-    if (nx) 
-    {
-        memcpy( (void*)&out(0),
-                (void*)(workspace), 
-                nx * shape[1] * sizeof(double) * 2);
-    }
+    memcpy( (void*)&out(lower*shape[1]*2), (void*)(workspace), 
+            nx * shape[1] * sizeof(double) * 2);
 }
 
 void
-Distributed_fft2d::inv_transform(karray1d_dev & in, karray1d_dev & out)
+Distributed_fft2d::inv_transform(
+        karray1d_dev & in, 
+        karray1d_dev & out)
 {
     if (!data || !workspace)
         throw std::runtime_error("Distributed_fft2d::transform() uninitialized" );
 
-    if (nx) 
-    {
-        memcpy( (void*)workspace, 
-                (void*)&in(0),
-                nx * shape[1] * sizeof(double) * 2);
-    }
+    memcpy( (void*)workspace, (void*)&in(lower*shape[1]*2),
+            nx * shape[1] * sizeof(double) * 2);
 
     fftw_execute(inv_plan);
 
-    if (nx) 
-    {
-        memcpy( (void*)&out(lower*shape[1]*2),
-                (void*)data,
-                nx * shape[1] * sizeof(double) * 2);
-    }
+    memcpy( (void*)&out(lower*shape[1]*2), (void*)data,
+            nx * shape[1] * sizeof(double) * 2);
 }
 
 double

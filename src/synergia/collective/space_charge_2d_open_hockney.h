@@ -83,9 +83,11 @@ private:
     karray1d_dev phi2;
     karray1d_dev g2;
 
+#if 0
     karray1d_dev rho2hat;
     karray1d_dev phi2hat;
     karray1d_dev g2hat;
+#endif
 
     karray1d_hst h_rho2;
     karray1d_hst h_phi2;

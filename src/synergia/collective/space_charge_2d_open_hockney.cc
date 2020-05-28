@@ -210,19 +210,21 @@ namespace
     {
         karray1d_dev prod;
         karray1d_dev m1, m2;
+        int off;
 
         alg_cplx_multiplier(
                 karray1d_dev const & prod,
                 karray1d_dev const & m1,
-                karray1d_dev const & m2 )
-            : prod(prod), m1(m1), m2(m2)
+                karray1d_dev const & m2,
+                int offset)
+            : prod(prod), m1(m1), m2(m2), off(offset)
         { }
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
-            const int real = i*2;
-            const int imag = i*2 + 1;
+            const int real = (off+i)*2;
+            const int imag = (off+i)*2 + 1;
 
             prod[real] = m1[real]*m2[real] - m1[imag]*m2[imag];
             prod[imag] = m1[real]*m2[imag] + m1[imag]*m2[real];
@@ -382,9 +384,11 @@ Space_charge_2d_open_hockney::construct_workspaces(std::array<int, 3> const& s)
     h_rho2 = Kokkos::create_mirror_view(rho2);
     h_phi2 = Kokkos::create_mirror_view(phi2);
 
+#if 0
     rho2hat = karray1d_dev("rho2hat", nx * s[1] * 2);
       g2hat = karray1d_dev(  "g2hat", nx * s[1] * 2);
     phi2hat = karray1d_dev("phi2hat", nx * s[1] * 2);
+#endif
 }
  
 void
@@ -502,15 +506,11 @@ Space_charge_2d_open_hockney::get_local_force2()
 
     auto dg = doubled_domain.get_grid_shape();
 
-    int lower = fft.get_lower();
-    int upper = fft.get_upper();
-    int nx = upper - lower;
-
+    // FFT
     fft.transform(rho2, rho2);
-    fft.transform(  g2,   g2);
+    Kokkos::fence();
 
-    alg_cplx_multiplier alg(phi2, rho2, g2);
-    Kokkos::parallel_for(nx*dg[1], alg);
+    fft.transform(  g2,   g2);
     Kokkos::fence();
 
     // zero phi2 when using multiple ranks
@@ -520,8 +520,18 @@ Space_charge_2d_open_hockney::get_local_force2()
         Kokkos::parallel_for(dg[0]*dg[1]*2, az);
     }
 
+    int lower = fft.get_lower();
+    int upper = fft.get_upper();
+    int nx = upper - lower;
+    int offset = lower * dg[1];
+
+    alg_cplx_multiplier alg(phi2, rho2, g2, offset);
+    Kokkos::parallel_for(nx*dg[1], alg);
+    Kokkos::fence();
+
     // inv fft
     fft.inv_transform(phi2, phi2);
+    Kokkos::fence();
 }
 
 void

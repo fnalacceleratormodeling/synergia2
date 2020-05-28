@@ -539,9 +539,11 @@ Space_charge_3d_open_hockney::construct_workspaces(
     h_rho2 = Kokkos::create_mirror_view(rho2);
     h_phi2 = Kokkos::create_mirror_view(phi2);
 
+#if 0
     rho2hat = karray1d_dev("rho2hat", nx_cplx * s[1] * nz * 2);
       g2hat = karray1d_dev(  "g2hat", nx_cplx * s[1] * nz * 2);
     phi2hat = karray1d_dev("phi2hat", nx_cplx * s[1] * nz * 2);
+#endif
 
     // En is in the original domain
     enx = karray1d_dev("enx", s[0] * s[1] * s[2] / 8);
@@ -673,9 +675,7 @@ Space_charge_3d_open_hockney::get_local_phi2()
 
     auto dg = doubled_domain.get_grid_shape();
 
-    int lower = fft.get_lower();
-    int upper = fft.get_upper();
-
+    // FFT
     fft.transform(rho2, rho2);
     Kokkos::fence();
 
@@ -689,6 +689,9 @@ Space_charge_3d_open_hockney::get_local_phi2()
         alg_zeroer az{phi2};
         Kokkos::parallel_for(padded_gx_real*dg[0]*dg[1], az);
     }
+
+    int lower = fft.get_lower();
+    int upper = fft.get_upper();
 
     int padded_gx_cplx = fft.padded_nx_cplx();
     int offset = lower*padded_gx_cplx*dg[1];
