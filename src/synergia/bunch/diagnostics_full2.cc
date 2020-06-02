@@ -93,22 +93,15 @@ Diagnostics_full2::update_emittances()
     emitxyz = std::sqrt(eliminate_small_negative(mom2_matrix.determinant()));
 }
 
+// Note: most data members have default initializers; only those
+// lacking a default are initialized here.
 Diagnostics_full2::Diagnostics_full2(std::string const& filename,
-        std::string const& local_dir) :
-        Diagnostics_full2::Diagnostics(Diagnostics_full2::name, filename,
-                local_dir), have_writers(false), writer_s_n(0), writer_repetition(
-                0), writer_s(0), writer_num_particles(0), writer_real_num_particles(
-                0), writer_pz(0), mean(boost::extents[6]), writer_mean(0), std(
-                boost::extents[6]), writer_std(0), min(boost::extents[3]), writer_min(
-                0), max(boost::extents[3]), writer_max(0), mom2(
-                boost::extents[6][6]), writer_mom2(0), corr(
-                boost::extents[6][6]), writer_corr(0), writer_emitx(0), writer_emity(
-                0), writer_emitz(0), writer_emitxy(0), writer_emitxyz(0)
-
+                                     std::string const& local_dir) :
+    Diagnostics_full2::Diagnostics(Diagnostics_full2::name, filename, local_dir)
 {
 }
 
-Diagnostics_full2::Diagnostics_full2() : have_writers(false)
+Diagnostics_full2::Diagnostics_full2()
 {
 }
 
@@ -239,38 +232,35 @@ Diagnostics_full2::get_emitxyz() const
     return emitxyz;
 }
 
+template <typename T> using h5sr = Hdf5_serial_writer<T>;
+
 void
 Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
 {
-    if (!have_writers) {
-        Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
-        int chg = get_bunch().get_reference_particle().get_charge();
-        file_sptr->write(chg, "charge");
-        double pmass = fourp.get_mass();
-        file_sptr->write(pmass, "mass");
-        writer_s_n = new Hdf5_serial_writer<double > (file_sptr, "s_n");
-        writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
-                "repetition");
-        writer_s = new Hdf5_serial_writer<double > (file_sptr,
-                "s");
-        writer_num_particles = new Hdf5_serial_writer<int > (file_sptr,
-                "num_particles");
-        writer_real_num_particles = new Hdf5_serial_writer<double > (file_sptr,
-                "real_num_particles");
-        writer_pz = new Hdf5_serial_writer<double > (file_sptr,"pz");
-        writer_mean = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "mean");
-        writer_std = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "std");
-        writer_min = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "min");
-        writer_max = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "max");
-        writer_mom2 = new Hdf5_serial_writer<MArray2d_ref > (file_sptr, "mom2");
-        writer_corr = new Hdf5_serial_writer<MArray2d_ref > (file_sptr, "corr");
-        writer_emitx = new Hdf5_serial_writer<double > (file_sptr, "emitx");
-        writer_emity = new Hdf5_serial_writer<double > (file_sptr, "emity");
-        writer_emitz = new Hdf5_serial_writer<double > (file_sptr, "emitz");
-        writer_emitxy = new Hdf5_serial_writer<double > (file_sptr, "emitxy");
-        writer_emitxyz = new Hdf5_serial_writer<double > (file_sptr, "emitxyz");
-        have_writers = true;
-    }
+  if (have_writers) return;
+  Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
+  int chg = get_bunch().get_reference_particle().get_charge();
+  file_sptr->write(chg, "charge");
+  double pmass = fourp.get_mass();
+  file_sptr->write(pmass, "mass");
+  writer_s_n = new h5sr<double> (file_sptr, "s_n");
+  writer_repetition = new h5sr<int> (file_sptr, "repetition");
+  writer_s = new h5sr<double > (file_sptr, "s");
+  writer_num_particles = new h5sr<int> (file_sptr, "num_particles");
+  writer_real_num_particles = new h5sr<double > (file_sptr, "real_num_particles");
+  writer_pz = new h5sr<double> (file_sptr,"pz");
+  writer_mean = new h5sr<MArray1d_ref> (file_sptr, "mean");
+  writer_std = new h5sr<MArray1d_ref> (file_sptr, "std");
+  writer_min = new h5sr<MArray1d_ref> (file_sptr, "min");
+  writer_max = new h5sr<MArray1d_ref> (file_sptr, "max");
+  writer_mom2 = new h5sr<MArray2d_ref> (file_sptr, "mom2");
+  writer_corr = new h5sr<MArray2d_ref> (file_sptr, "corr");
+  writer_emitx = new h5sr<double> (file_sptr, "emitx");
+  writer_emity = new h5sr<double> (file_sptr, "emity");
+  writer_emitz = new h5sr<double> (file_sptr, "emitz");
+  writer_emitxy = new h5sr<double> (file_sptr, "emitxy");
+  writer_emitxyz = new h5sr<double> (file_sptr, "emitxyz");
+  have_writers = true;
 }
 
 void
@@ -278,25 +268,25 @@ Diagnostics_full2::write()
 {
     if (get_bunch().get_comm().has_this_rank()){
       if (get_write_helper().write_locally()) {
-	  init_writers(get_write_helper().get_hdf5_file_sptr());
-	  writer_s_n->append(s_n);
-	  writer_repetition->append(repetition);
-	  writer_s->append(s);
-	  writer_num_particles->append(num_particles);
-	  writer_real_num_particles->append(real_num_particles);
-      writer_pz->append(pz);
-      writer_mean->append(mean);
-	  writer_std->append(std);
-	  writer_min->append(min);
-	  writer_max->append(max);
-	  writer_mom2->append(mom2);
-	  writer_corr->append(corr);
-	  writer_emitx->append(emitx);
-	  writer_emity->append(emity);
-	  writer_emitz->append(emitz);
-	  writer_emitxy->append(emitxy);
-	  writer_emitxyz->append(emitxyz);
-	  get_write_helper().finish_write();
+         init_writers(get_write_helper().get_hdf5_file_sptr());
+         writer_s_n->append(s_n);
+         writer_repetition->append(repetition);
+         writer_s->append(s);
+         writer_num_particles->append(num_particles);
+         writer_real_num_particles->append(real_num_particles);
+         writer_pz->append(pz);
+         writer_mean->append(mean);
+         writer_std->append(std);
+         writer_min->append(min);
+         writer_max->append(max);
+         writer_mom2->append(mom2);
+         writer_corr->append(corr);
+         writer_emitx->append(emitx);
+         writer_emity->append(emity);
+         writer_emitz->append(emitz);
+	       writer_emitxy->append(emitxy);
+	       writer_emitxyz->append(emitxyz);
+	       get_write_helper().finish_write();
       }
     }
 }
@@ -368,24 +358,24 @@ Diagnostics_full2::serialize<boost::archive::xml_iarchive >(
 
 Diagnostics_full2::~Diagnostics_full2()
 {
-    if (have_writers) {
-        delete writer_emitxyz;
-        delete writer_emitxy;
-        delete writer_emitz;
-        delete writer_emity;
-        delete writer_emitx;
-        delete writer_corr;
-        delete writer_mom2;
-        delete writer_max;
-        delete writer_min;
-        delete writer_std;
-        delete writer_mean;
-        delete writer_pz;
-        delete writer_real_num_particles;
-        delete writer_num_particles;
-        delete writer_s;
-        delete writer_repetition;
-        delete writer_s_n;
-    }
+  if (!have_writers) return;
+   delete writer_emitxyz;
+   delete writer_emitxy;
+   delete writer_emitz;
+   delete writer_emity;
+   delete writer_emitx;
+   delete writer_corr;
+   delete writer_mom2;
+   delete writer_max;
+   delete writer_min;
+   delete writer_std;
+   delete writer_mean;
+   delete writer_pz;
+   delete writer_real_num_particles;
+   delete writer_num_particles;
+   delete writer_s;
+   delete writer_repetition;
+   delete writer_s_n;
+   have_writers = false; // MFP: bughunt for undefined behavior
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_full2)

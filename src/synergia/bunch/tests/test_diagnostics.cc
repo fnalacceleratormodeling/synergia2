@@ -143,21 +143,6 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 }
 // test_note: We are not (yet) testing the content of the output file.
 
-// n.b. no test for update because it is called internally for other tests.
-// this test works, but the nearly identical test serialize_full2 fails.  why?
-BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
-{
-    {
-        Diagnostics_basic diagnostics("dummy.h5");
-        diagnostics.set_bunch_sptr(bunch_sptr);
-        diagnostics.update();
-        diagnostics.write();
-        xml_save(diagnostics, "diagnostics_basic.xml");
-    }
-
-    Diagnostics_basic loaded;
-    xml_load(loaded, "diagnostics_basic.xml");
-}
 
 BOOST_FIXTURE_TEST_CASE(construct_full2, Fixture)
 {
@@ -292,28 +277,44 @@ BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
 // }
 // this test fails.  All I do is instantiate a Diagnostics_full2 object and destroy
 // it.  The failure occurs in the destructor for the hdf5_writers.
+
+// n.b. no test for update because it is called internally for other tests.
+// this test works, but the nearly identical test serialize_full2 fails.  why?
+BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
+{
+    {
+        Diagnostics_basic diagnostics("dummy.h5");
+        diagnostics.set_bunch_sptr(bunch_sptr);
+        diagnostics.update();
+        diagnostics.write();
+        xml_save(diagnostics, "diagnostics_basic.xml");
+    }
+
+    Diagnostics_basic loaded;
+    xml_load(loaded, "diagnostics_basic.xml");
+}
 BOOST_FIXTURE_TEST_CASE(serialize_full2, Fixture)
 {
 	{
-    	std::cout << "egs: before create diagnostics_full2 dummy_full2.h5" << std::endl; std::cout.flush();
-        Diagnostics_full2 diagnostics("dummy_full2.h5");
-    	std::cout << "egs: before setbunch" << std::endl; std::cout.flush();
-        diagnostics.set_bunch_sptr(bunch_sptr);
-    	std::cout << "egs: before update()" << std::endl; std::cout.flush();
-        diagnostics.update();
-    	std::cout << "egs: before write()" << std::endl; std::cout.flush();
-        diagnostics.write();
-    	std::cout << "egs: before xml_save(full2.xml)" << std::endl; std::cout.flush();
-        xml_save(diagnostics, "full2.xml");
-    	std::cout << "egs: before create diagnostics_full2 dummy_full2.h5" << std::endl; std::cout.flush();
-    }
-    std::cout << "egs: wrote full2.xml" << std::endl; std::cout.flush();
-    Diagnostics_full2 loaded;
-    std::cout << "egs: created loaded" << std::endl; std::cout.flush();
-    std::cout << "egs: have_writers: " << loaded.get_have_writers() << std::endl; std::cout.flush();
-    std::cout << "egs: have_write_helper: " << loaded.have_write_helper() << std::endl; std::cout.flush();
+    std::cout << "egs: before create diagnostics_full2 dummy_full2.h5" << std::endl; std::cout.flush();
+    Diagnostics_full2 diagnostics("dummy_full2.h5");
+    std::cout << "egs: before setbunch" << std::endl; std::cout.flush();
+    diagnostics.set_bunch_sptr(bunch_sptr);
+    std::cout << "egs: before update()" << std::endl; std::cout.flush();
+    diagnostics.update();
+    std::cout << "egs: before write()" << std::endl; std::cout.flush();
+    diagnostics.write();
+    std::cout << "egs: before xml_save(full2.xml)" << std::endl; std::cout.flush();
+    xml_save(diagnostics, "full2.xml");
+    std::cout << "egs: before create diagnostics_full2 dummy_full2.h5" << std::endl; std::cout.flush();
+  }
+  std::cout << "egs: wrote full2.xml" << std::endl; std::cout.flush();
+  Diagnostics_full2 loaded;
+  std::cout << "egs: created loaded" << std::endl; std::cout.flush();
+  std::cout << "egs: have_writers: " << loaded.get_have_writers() << std::endl; std::cout.flush();
+  std::cout << "egs: have_write_helper: " << loaded.have_write_helper() << std::endl; std::cout.flush();
 
-    xml_load(loaded, "full2.xml");
+  xml_load(loaded, "full2.xml");
 }
 
 // test_note: We are not (yet) testing the content of the output file.

@@ -2,6 +2,7 @@
 #define DIAGNOSTICS_FULL2_H_
 
 #include "synergia/bunch/diagnostics.h"
+#include "boost/multi_array.hpp"
 
 /// Diagnostics_full2 provides the full set of statistical
 /// quantities to be calculated for a Bunch up to the second moments.
@@ -10,36 +11,45 @@ class Diagnostics_full2 : public Diagnostics
 public:
     static const char name[];
 private:
-    bool have_writers;
-    double s_n;
-    Hdf5_serial_writer<double > * writer_s_n;
-    int repetition;
-    Hdf5_serial_writer<int > * writer_repetition;
-    double s;
-    Hdf5_serial_writer<double > * writer_s;
-    int num_particles;
-    Hdf5_serial_writer<int > * writer_num_particles;
-    double real_num_particles;
-    Hdf5_serial_writer<double > * writer_real_num_particles;
-    double pz;
-    Hdf5_serial_writer<double > * writer_pz;
-    MArray1d mean;
-    Hdf5_serial_writer<MArray1d_ref > * writer_mean;
-    MArray1d std;
-    Hdf5_serial_writer<MArray1d_ref > * writer_std;
-    MArray1d min;
-    Hdf5_serial_writer<MArray1d_ref > * writer_min;
-    MArray1d max;
-    Hdf5_serial_writer<MArray1d_ref > * writer_max;
-    MArray2d mom2;
-    Hdf5_serial_writer<MArray2d_ref > * writer_mom2;
-    MArray2d corr;
-    Hdf5_serial_writer<MArray2d_ref > * writer_corr;
-    double emitx, emity, emitz, emitxy, emitxyz;
-    Hdf5_serial_writer<double > *writer_emitx, *writer_emity, *writer_emitz,
-            *writer_emitxy, *writer_emitxyz;
+    bool have_writers = false;
+    double s_n = 0.0;
+    Hdf5_serial_writer<double > * writer_s_n = nullptr;
+    int repetition = 0;
+    Hdf5_serial_writer<int > * writer_repetition = nullptr;
+    double s = 0.0;
+    Hdf5_serial_writer<double > * writer_s = nullptr;
+    int num_particles = 0;
+    Hdf5_serial_writer<int > * writer_num_particles = nullptr;
+    double real_num_particles = 0.0;
+    Hdf5_serial_writer<double > * writer_real_num_particles = nullptr;
+    double pz = 0.0;
+    Hdf5_serial_writer<double > * writer_pz = nullptr;
+    MArray1d mean {boost::extents[6]};
+    Hdf5_serial_writer<MArray1d_ref > * writer_mean = nullptr;
+    MArray1d std {boost::extents[6]};
+    Hdf5_serial_writer<MArray1d_ref > * writer_std = nullptr;
+    MArray1d min {boost::extents[3]};
+    Hdf5_serial_writer<MArray1d_ref > * writer_min = nullptr;
+    MArray1d max {boost::extents[3]};
+    Hdf5_serial_writer<MArray1d_ref > * writer_max = nullptr;
+    MArray2d mom2 {boost::extents[6][6]};
+    Hdf5_serial_writer<MArray2d_ref > * writer_mom2 = nullptr;
+    MArray2d corr {boost::extents[6][6]};
+    Hdf5_serial_writer<MArray2d_ref > * writer_corr = nullptr;
+    double emitx = 0.0;
+    double emity = 0.0;
+    double emitz = 0.0;
+    double emitxy = 0.0;
+    double emitxyz = 0.0;
+    Hdf5_serial_writer<double >* writer_emitx = nullptr;
+    Hdf5_serial_writer<double>* writer_emity = nullptr;
+    Hdf5_serial_writer<double>* writer_emitz = nullptr;
+    Hdf5_serial_writer<double>* writer_emitxy = nullptr;
+    Hdf5_serial_writer<double>* writer_emitxyz = nullptr;
+    
     virtual void
     update_full2();
+
     virtual void
     update_emittances();
 
