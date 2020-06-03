@@ -487,8 +487,8 @@ class Job_manager:
         for sub in job_mgr_opts.options():
             subs[sub] = job_mgr_opts.get(sub)
         subs["numproc"] = self.opts.get("numproc")
-        numnode = (self.opts.get("numproc") + self.opts.get("procspernode") - 1) / \
-                  self.opts.get("procspernode")
+        numnode = int((self.opts.get("numproc") + self.opts.get("procspernode") - 1) / \
+                  self.opts.get("procspernode"))
         subs["procspernode"] = self.opts.get("procspernode")
         subs["numnode"] = numnode
         subs["synergia2dir"] = self.synergia_dir
