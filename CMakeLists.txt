@@ -211,6 +211,14 @@ add_subdirectory(src/synergia/utils/kokkos)
 include_directories(src/synergia/utils/kokkos/core/src)
 include_directories(${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos)
 
+if(${Kokkos_ENABLE_CUDA})
+    add_definitions(-DKokkos_ENABLE_CUDA)
+endif()
+
+if(${Kokkos_ENABLE_OPENMP})
+    add_definitions(-DKokkos_ENABLE_OPENMP)
+endif()
+
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(archived-applications)
