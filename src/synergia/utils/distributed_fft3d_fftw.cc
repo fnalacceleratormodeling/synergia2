@@ -1,5 +1,6 @@
 #include <cstring>
 #include <stdexcept>
+#include <omp.h>
 #include "distributed_fft3d_fftw.h"
 
 Distributed_fft3d::Distributed_fft3d()
@@ -12,13 +13,9 @@ Distributed_fft3d::Distributed_fft3d()
     , lower(0)
     , nz(0)
 {
-    fftw_mpi_init();
-
-#if 0
     fftw_init_threads();
     fftw_mpi_init();
-    fftw_plan_with_nthreads(1);
-#endif
+    fftw_plan_with_nthreads(omp_get_max_threads());
 }
 
 void 
