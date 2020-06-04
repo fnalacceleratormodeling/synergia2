@@ -315,9 +315,26 @@ Propagator::do_step(
         << simulator[0][0].get_reference_particle().get_s_n() 
 
         << ", time = " << std::fixed << std::setprecision(3) 
-        << t_step1 - t_step0 << "s\n";
-       
-    logger(LoggerV::INFO_OPR) << "\n";
+        << t_step1 - t_step0 << "s, macroparticles = ";
+
+    for(auto const& train : simulator.get_trains())
+    {
+        logger << "(";
+
+        for(auto const& bunch : train.get_bunches())
+        {
+            logger << bunch.get_total_num();
+            if (bunch.get_array_index() != train.get_bunch_array_size()-1) 
+                logger << ", ";
+        }
+
+        logger << ")";
+        if (train.get_index() == 0) logger << " / ";
+    }
+
+    logger << "\n";
+
+    logger(LoggerV::INFO_OPR) << "\n\n";
 
 #if 0
     double t_step0 = MPI_Wtime();
