@@ -374,6 +374,9 @@ namespace deposit_impl
             }
         }
     };
+
+
+
 }
 
 
@@ -479,7 +482,7 @@ deposit_charge_rectangular_2d_kokkos_scatter_view(
 }
 
 void 
-deposit_charge_rectangular_zyx_kokkos_scatter_view(
+deposit_charge_rectangular_3d_kokkos_scatter_view(
         karray1d_dev & rho_dev,
         Rectangular_grid_domain & domain,
         std::array<int, 3> const& dims,
@@ -492,7 +495,7 @@ deposit_charge_rectangular_zyx_kokkos_scatter_view(
     auto l = domain.get_left();
 
     // g[0] (nx) needs to be padded to (2*(g[0]/2+1))
-    int padded_gx = Distributed_fft3d::get_padded_shape_real(g[0]);
+    // int padded_gx = Distributed_fft3d::get_padded_shape_real(g[0]);
 
     auto parts = bunch.get_local_particles();
     auto masks = bunch.get_local_particle_masks();
@@ -521,6 +524,169 @@ deposit_charge_rectangular_zyx_kokkos_scatter_view(
 
     Kokkos::fence();
 }
+
+#ifdef Kokkos_ENABLE_OPENMP
+void
+deposit_charge_rectangular_3d_omp_reduce( 
+        karray1d_dev & rho_dev,
+        Rectangular_grid_domain & domain,
+        std::array<int, 3> const& dims,
+        Bunch const & bunch )
+{
+    using namespace deposit_impl;
+
+    auto g = domain.get_grid_shape();
+    auto h = domain.get_cell_size();
+    auto l = domain.get_left();
+
+    auto parts = bunch.get_local_particles();
+    auto masks = bunch.get_local_particle_masks();
+    int  npart = bunch.size();
+
+    double w0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1] * h[2]);
+
+    if (rho_dev.extent(0) < g[0]*g[1]*g[2])
+        throw std::runtime_error(
+                "insufficient size for rho in deposit charge");
+
+    // zero first
+    rho_zeroer rz{rho_dev};
+    Kokkos::parallel_for(rho_dev.extent(0), rz);
+    Kokkos::fence();
+
+    int gx = g[0];
+    int gy = g[1];
+    int gz = g[2];
+
+    int dx = dims[0];
+    int dy = dims[1];
+    int dz = dims[2];
+
+    int nc  = gx * gy * gz; // num of cells
+
+    static int nt = 0;
+    static int ncc = 0;
+    static double * rl = 0;
+
+    if( nt==0 )
+    {
+        #pragma omp parallel
+        { nt = omp_get_num_threads(); }
+
+        ncc = nc;
+
+        rl = new double[nt*nc];  // nt copies of +1 cells
+    }
+
+    if( nc!=ncc )
+    {
+        // bunch geometry has been changed
+        delete [] rl;
+
+        ncc = nc;
+
+        rl = new double[nt*nc];  // nt copies of +1 cells
+    }
+
+    double lx = l[0];
+    double ly = l[1];
+    double lz = l[2];
+
+    double ihx = 1.0/h[0];
+    double ihy = 1.0/h[1];
+    double ihz = 1.0/h[2];
+
+    #pragma omp parallel shared(npart, parts, masks, lx, ly, lz, ihx, ihy, ihz, w0, gx, gy, gz, dx, dy, dz, rl, nc, rho_dev)
+    {
+        int nt = omp_get_num_threads();
+        int it = omp_get_thread_num();
+
+        int np = npart;
+        int le = npart / nt;
+        int ps = it * le;
+        int pe = (it == nt-1) ? np : (it+1)*le;
+
+        // zero the worksheet
+        std::memset(rl + it*nc, 0, sizeof(double)*nc);
+
+        double ox, oy, oz, w;
+        int    ix, iy, iz;
+
+        for(int n=ps; n<pe; ++n)
+        {
+            if (!masks(n)) continue;
+
+            get_leftmost_indices_offset(parts(n, 0), lx, ihx, ix, ox);
+            get_leftmost_indices_offset(parts(n, 2), ly, ihy, iy, oy);
+            get_leftmost_indices_offset(parts(n, 4), lz, ihz, iz, oz);
+
+            int base = it*nc + iz*gx*gy;
+
+            if( ingrid(ix  , iy  , iz, gx, gy, gz) ) 
+                //rl[(base + (iy  )*gx + ix  )*nt+it] += w0*(1-ox)*(1-oy)*(1-oz);
+                rl[(base + (iy  )*gx + ix  )] += w0*(1-ox)*(1-oy)*(1-oz);
+
+            if( ingrid(ix+1, iy  , iz, gx, gy, gz) ) 
+                //rl[(base + (iy  )*gx + ix+1)*nt+it] += w0*(  ox)*(1-oy)*(1-oz);
+                rl[(base + (iy  )*gx + ix+1)] += w0*(  ox)*(1-oy)*(1-oz);
+
+            if( ingrid(ix  , iy+1, iz, gx, gy, gz) ) 
+                //rl[(base + (iy+1)*gx + ix  )*nt+it] += w0*(1-ox)*(  oy)*(1-oz);
+                rl[(base + (iy+1)*gx + ix  )] += w0*(1-ox)*(  oy)*(1-oz);
+
+            if( ingrid(ix+1, iy+1, iz, gx, gy, gz) ) 
+                //rl[(base + (iy+1)*gx + ix+1)*nt+it] += w0*(  ox)*(  oy)*(1-oz);
+                rl[(base + (iy+1)*gx + ix+1)] += w0*(  ox)*(  oy)*(1-oz);
+
+            base = it*nc + (iz+1)*gx*gy;
+
+            if( ingrid(ix  , iy  , iz+1, gx, gy, gz) ) 
+                //rl[(base + (iy  )*gx + ix  )*nt+it] += w0*(1-ox)*(1-oy)*(oz);
+                rl[(base + (iy  )*gx + ix  )] += w0*(1-ox)*(1-oy)*(oz);
+
+            if( ingrid(ix+1, iy  , iz+1, gx, gy, gz) ) 
+                //rl[(base + (iy  )*gx + ix+1)*nt+it] += w0*(  ox)*(1-oy)*(oz);
+                rl[(base + (iy  )*gx + ix+1)] += w0*(  ox)*(1-oy)*(oz);
+
+            if( ingrid(ix  , iy+1, iz+1, gx, gy, gz) ) 
+                //rl[(base + (iy+1)*gx + ix  )*nt+it] += w0*(1-ox)*(  oy)*(oz); 
+                rl[(base + (iy+1)*gx + ix  )] += w0*(1-ox)*(  oy)*(oz); 
+
+            if( ingrid(ix+1, iy+1, iz+1, gx, gy, gz) ) 
+                //rl[(base + (iy+1)*gx + ix+1)*nt+it] += w0*(  ox)*(  oy)*(oz); 
+                rl[(base + (iy+1)*gx + ix+1)] += w0*(  ox)*(  oy)*(oz); 
+        }
+
+        #pragma omp barrier
+
+        // reduction
+        le = gz/nt;
+        ps = it*le;
+        pe = (it == nt-1) ? gz : (ps + le);
+
+        for(int z=ps; z<pe; ++z)
+        {
+            for(int y=0; y<gy; ++y)
+            {
+                for(int x=0; x<gx; ++x)
+                {
+                    w = 0.0;
+                    for(int n=0; n<nt; ++n) 
+                        //w += rl[(z*gx*gy + y*gx + x)*nt+n];
+                        w += rl[n*nc + (z*gx*gy + y*gx + x)];
+
+                    rho_dev(z*dx*dy + y*dx +x) = w;
+                }
+            }
+        }
+
+        #pragma omp barrier
+
+    } //  end of #pragma parallel
+}
+#endif  // Kokkos_ENABLE_OPENMP
 
 
 

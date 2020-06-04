@@ -1,3 +1,4 @@
+
 #include "space_charge_3d_open_hockney.h"
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/math_constants.h"
@@ -28,7 +29,7 @@ namespace
         int dim = grid.extent(0);
         for(int i=0; i<dim; ++i) 
         {
-            sum += hgrid(i);
+            sum += fabs(hgrid(i));
         }
 
 #if 0
@@ -37,11 +38,7 @@ namespace
                 sum += hgrid((x*gy + y)*2 + off);
 #endif
         
-        logger 
-            //<< std::resetiosflags(std::ios::fixed)
-            //<< std::setiosflags(std::ios::showpos | std::ios::scientific)
-            << std::setprecision(12) << std::scientific;
-
+        logger << std::setprecision(12) << std::scientific;
         logger << "      " << grid.label() << ".sum = " << sum << "\n";
 
         for (int z=z0; z<z1; ++z)
@@ -54,7 +51,8 @@ namespace
 
                 for (int x=x0; x<x1; ++x)
                 {
-                    logger << hgrid(z*gx*gy + y*gx + x) << ", ";
+                    logger << std::setprecision(12) 
+                        << hgrid(z*gx*gy + y*gx + x) << ", ";
                 }
 
                 logger << "\n";
@@ -62,6 +60,38 @@ namespace
         }
     }
 
+    void print_statistics(Bunch & bunch, Logger & logger)
+    {
+
+        logger
+            << "Bunch statistics: "
+            << "num_valid = " << bunch.get_local_num()
+            << ", size = " << bunch.size()
+            << ", capacity = " << bunch.capacity()
+            << ", total_num = " << bunch.get_total_num()
+            <<"\nMean and std: ";
+
+
+        // print particles after propagate
+        auto mean = Core_diagnostics::calculate_mean(bunch);
+        auto std  = Core_diagnostics::calculate_std(bunch, mean);
+
+        logger
+            << std::setprecision(16)
+            << std::showpos << std::scientific
+            << "\n"
+            //<< "\nmean\tstd\n"
+            ;
+
+        for (int i=0; i<6; ++i) 
+            logger << mean[i] << ", " << std[i] << "\n";
+
+        logger << "\n";
+
+        for (int p=0; p<4; ++p) bunch.print_particle(p, logger);
+
+        logger << "\n";
+    }
 
     double
     get_smallest_non_tiny( double val, 
@@ -452,7 +482,7 @@ namespace
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         Space_charge_3d_open_hockney_options const & ops)
-    : Collective_operator("sc_2d_open_hockney", 1.0)
+    : Collective_operator("sc_3d_open_hockney", 1.0)
     , options(ops)
     , domain(ops.shape, {1.0, 1.0, 1.0})
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
@@ -612,8 +642,13 @@ Space_charge_3d_open_hockney::get_local_charge_density(
     auto dg = doubled_domain.get_grid_shape();
     dg[0] = Distributed_fft3d::get_padded_shape_real(dg[0]);
 
-    deposit_charge_rectangular_zyx_kokkos_scatter_view(rho2,
+#ifdef Kokkos_ENABLE_OPENMP
+    deposit_charge_rectangular_3d_omp_reduce(rho2,
             domain, dg, bunch);
+#else
+    deposit_charge_rectangular_3d_kokkos_scatter_view(rho2,
+            domain, dg, bunch);
+#endif
 }
 
 void
@@ -660,6 +695,9 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     auto  g = domain.get_grid_shape();
     auto  h = doubled_domain.get_cell_size();
     auto dg = doubled_domain.get_grid_shape();
+
+    alg_zeroer az{g2};
+    Kokkos::parallel_for(g2.extent(0), az);
 
     // calculation is performed on grid (gx+1, gy+1, gz+1)
     // rest of the doubled domain will be filled with mirrors
