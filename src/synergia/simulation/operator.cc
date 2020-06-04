@@ -386,9 +386,12 @@ Independent_operator::create_operations_impl(
         extract_independent_operations(extractor_type, lattice, group, operations);
     }
 
-    // only the finite aperture will be attached to an independent operator by default
+    // always attach a finite aperture and a circular aperture by default
     operations.emplace_back(
             extract_aperture_operation(Finite_aperture::type, slices.back()));
+
+    operations.emplace_back(
+            extract_aperture_operation(Circular_aperture::type, slices.back()));
 
 #if 0
     have_operations = true;
