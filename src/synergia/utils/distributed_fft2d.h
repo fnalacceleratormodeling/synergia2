@@ -1,5 +1,5 @@
-#ifndef DISTRIBUTED_FFT2D
-#define DISTRIBUTED_FFT2D
+#ifndef DISTRIBUTED_FFT2D_H
+#define DISTRIBUTED_FFT2D_H
 
 #include <Kokkos_Core.hpp>
 

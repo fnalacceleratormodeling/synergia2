@@ -1,5 +1,5 @@
-#ifndef DISTRIBUTED_FFT2D_H_
-#define DISTRIBUTED_FFT2D_H_
+#ifndef DISTRIBUTED_FFT2D_CUDA_H_
+#define DISTRIBUTED_FFT2D_CUDA_H_
 
 #include <vector>
 #include <string>
