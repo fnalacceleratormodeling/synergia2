@@ -114,7 +114,6 @@ Distributed_fft3d::transform(
 
     memcpy( (void*)&out(lower*plane_cplx*2), (void*)(workspace), 
             nz * plane_cplx * sizeof(double) * 2 );
-
 }
 
 void
