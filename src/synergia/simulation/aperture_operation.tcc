@@ -101,6 +101,27 @@ template<typename T>
             discarded_s += discard_s_count[i];
         }
 
+        // write loss particles
+        if (write_loss && discarded)
+        {
+            MArray1d coords(boost::extents[7]);
+
+            for(int i=0; i<npart; ++i)
+            {
+                if (discard[i])
+                {
+                    coords[0] = particles[i][0];
+                    coords[1] = particles[i][1];
+                    coords[2] = particles[i][2];
+                    coords[3] = particles[i][3];
+                    coords[4] = particles[i][4];
+                    coords[5] = particles[i][5];
+                    coords[6] = particles[i][6];
+                    diagnostics_sptr->update( b_index, repetition, s,s_n, coords );
+                }
+            }
+        }
+
         // arrange the particle array
         {
             // move all the discarded particles to the tail
@@ -112,7 +133,7 @@ template<typename T>
                 while (!discard[head] && head<tail) ++head;
                 if (head >= tail) break;
 
-                while ( discard[tail] && tail>head) --tail;
+                while (discard[tail] && tail>head) --tail;
                 if (head >= tail) break;
 
                 double p0 = particles[head][0];
