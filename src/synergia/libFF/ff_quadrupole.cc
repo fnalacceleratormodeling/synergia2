@@ -90,6 +90,8 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
 
 void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
+    double t = simple_timer_current();
+
     // length
     double length = slice.get_right() - slice.get_left();
 
@@ -451,6 +453,8 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         bunch.get_reference_particle().increment_trajectory(length);
     }
+
+    t = simple_timer_show(t, "libff-quad");
 }
 
 template<class Archive>

@@ -166,6 +166,8 @@ void FF_sbend::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
+    double t = simple_timer_current();
+
     double      a = slice.get_lattice_element().get_double_attribute("angle");
     double      l = slice.get_lattice_element().get_double_attribute("l");
     double length = slice.get_right() - slice.get_left();
@@ -654,6 +656,8 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     bunch.get_reference_particle().increment_trajectory(length);
+
+    t = simple_timer_show(t, "libff-sbend");
 }
 
 template<class Archive>

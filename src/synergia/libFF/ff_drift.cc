@@ -60,6 +60,8 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
+    double t = simple_timer_current();
+
     const double  length = slice.get_right() - slice.get_left();
     const double    mass = bunch.get_mass();
 
@@ -161,6 +163,8 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
             cdta[part] = cdt;
         }
     }
+
+    t = simple_timer_show(t, "libff-drift");
 }
 
 template<class Archive>

@@ -1,3 +1,7 @@
+#ifndef UTILS_SIMPLE_TIMER_H
+#define UTILS_SIMPLE_TIMER_H
+
+
 #include "mpi.h"
 #include <iostream>
 #include <iomanip>
@@ -58,3 +62,6 @@ simple_timer_show(double t0, const char * label)
     return 0.0;
 #endif // USE_SIMPLE_TIMER
 }
+
+
+#endif

@@ -7,6 +7,8 @@
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/lattice.h"
 
+#include "synergia/utils/simple_timer.h"
+
 class FF_element
 {
 public:
