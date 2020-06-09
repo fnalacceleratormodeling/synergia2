@@ -55,6 +55,6 @@ try:
     propagator.propagate(bunch_simulator, opts.turns, opts.max_turns, 
                          opts.verbosity)
 
-except Exception, e:
+except Exception as e:
     sys.stderr.write(str(e) + '\n')
     MPI.COMM_WORLD.Abort(777)
