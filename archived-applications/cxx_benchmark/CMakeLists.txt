@@ -6,3 +6,5 @@ target_link_libraries(benchmark2d synergia_simulation synergia_collective synerg
 
 add_executable(sis18 s3_sis18.cc)
 target_link_libraries(sis18 synergia_simulation synergia_collective)
+
+copy_file(sis18-6.lsx sis18)
