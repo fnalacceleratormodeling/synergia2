@@ -527,6 +527,175 @@ deposit_charge_rectangular_3d_kokkos_scatter_view(
 
 #ifdef Kokkos_ENABLE_OPENMP
 void
+deposit_charge_rectangular_2d_omp_reduce( 
+        karray1d_dev & rho_dev,
+        Rectangular_grid_domain & domain,
+        karray2d_dev & bin, 
+        Bunch const & bunch )
+{
+    using namespace deposit_impl;
+
+    auto g = domain.get_grid_shape();
+    auto h = domain.get_cell_size();
+    auto l = domain.get_left();
+
+    auto parts = bunch.get_local_particles();
+    auto masks = bunch.get_local_particle_masks();
+    int  npart = bunch.size();
+
+    double w0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1]);
+
+    if (rho_dev.extent(0) != g[0]*g[1]*2 + g[2])
+        throw std::runtime_error(
+                "insufficient size for rho in deposit charge");
+
+    // zero first
+    rho_zeroer rz{rho_dev};
+    Kokkos::parallel_for(rho_dev.extent(0), rz);
+    Kokkos::fence();
+
+    int gx = g[0];
+    int gy = g[1];
+    int gz = g[2];
+
+    int nc  = gx*gy + gz; // num of cells
+
+    static int nt = 0;
+    static int ncc = 0;
+    static double * rl = 0;
+
+    if( nt==0 )
+    {
+        #pragma omp parallel
+        { nt = omp_get_num_threads(); }
+
+        ncc = nc;
+
+        rl = new double[nt*nc];  // nt copies of +1 cells
+    }
+
+    if( nc!=ncc )
+    {
+        // bunch geometry has been changed
+        delete [] rl;
+
+        ncc = nc;
+
+        rl = new double[nt*nc];  // nt copies of +1 cells
+    }
+
+    double lx = l[0];
+    double ly = l[1];
+    double lz = l[2];
+
+    double ihx = 1.0/h[0];
+    double ihy = 1.0/h[1];
+    double ihz = 1.0/h[2];
+
+    #pragma omp parallel shared(npart, parts, masks, bin, lx, ly, lz, ihx, ihy, ihz, w0, gx, gy, gz, rl, nc, rho_dev)
+    {
+        int nt = omp_get_num_threads();
+        int it = omp_get_thread_num();
+
+        int np = npart;
+        int le = npart / nt;
+        int ps = it * le;
+        int pe = (it == nt-1) ? np : (it+1)*le;
+
+        // zero the worksheet
+        std::memset(rl + it*nc, 0, sizeof(double)*nc);
+
+        double ox, oy, oz, w;
+        int    ix, iy, iz;
+
+        for(int n=ps; n<pe; ++n)
+        {
+            if (!masks(n)) continue;
+
+            get_leftmost_indices_offset(parts(n, 0), lx, ihx, ix, ox);
+            get_leftmost_indices_offset(parts(n, 2), ly, ihy, iy, oy);
+            get_leftmost_indices_offset(parts(n, 4), lz, ihz, iz, oz);
+
+            bin(n, 0) = ix;
+            bin(n, 1) = ox;
+            bin(n, 2) = iy;
+            bin(n, 3) = oy;
+            bin(n, 4) = iz;
+            bin(n, 5) = oz;
+
+            int base = it*nc;
+
+            int cellz1 = iz;
+            int cellz2 = cellz1 + 1;
+
+            if( cellz1>=0 && cellz1<gz ) 
+                rl[base + gx*gy + cellz1] += (1.0-oz)*ihz;
+
+            if( cellz2>=0 && cellz2<gz ) 
+                rl[base + gx*gy + cellz2] += oz*ihz;
+
+            if( ix<0 || ix>gx-1 || iy<0 || iy>gy-1 ) continue;
+
+            int cellx1 = ix;
+            int cellx2 = ix + 1;
+            int celly1 = iy;
+            int celly2 = iy + 1;
+
+            double aox, aoy;
+            aox = 1. - ox;
+            aoy = 1. - oy;
+
+            rl[base + cellx1*gy + celly1] += w0 * aox * aoy;
+            rl[base + cellx1*gy + celly2] += w0 * aox *  oy;
+            rl[base + cellx2*gy + celly1] += w0 *  ox * aoy;
+            rl[base + cellx2*gy + celly2] += w0 *  ox *  oy;
+        }
+
+        #pragma omp barrier
+
+        // reduction
+        le = gy/nt;
+        ps = it*le;
+        pe = (it == nt-1) ? gy : (ps + le);
+
+        for(int y=ps; y<pe; ++y)
+        {
+            for(int x=0; x<gx; ++x)
+            {
+                w = 0.0;
+
+                for(int n=0; n<nt; ++n) 
+                    w += rl[n*nc + (x*gy + y)];
+
+                rho_dev((x*gy + y) * 2) = w;
+            }
+        }
+
+        #pragma omp barrier
+
+        le = gz/nt;
+        ps = it*le;
+        pe = (it == nt-1) ? gz : (ps + le);
+
+        for(int z=ps; z<pe; ++z)
+        {
+            w = 0.0;
+
+            for(int n=0; n<nt; ++n) 
+                w += rl[n*nc + gx*gy + z];
+
+            rho_dev(gx*gy*2 + z) = w;
+        }
+
+        #pragma omp barrier
+
+    } //  end of #pragma parallel
+}
+
+
+void
 deposit_charge_rectangular_3d_omp_reduce( 
         karray1d_dev & rho_dev,
         Rectangular_grid_domain & domain,

@@ -32,6 +32,13 @@ deposit_charge_rectangular_3d_kokkos_scatter_view(
 
 #ifdef Kokkos_ENABLE_OPENMP
 void
+deposit_charge_rectangular_2d_omp_reduce( 
+        karray1d_dev & rho_dev,
+        Rectangular_grid_domain & domain,
+        karray2d_dev & bin, 
+        Bunch const & bunch );
+
+void
 deposit_charge_rectangular_3d_omp_reduce(
         karray1d_dev& rho_dev,
         Rectangular_grid_domain& domain,
