@@ -1,0 +1,964 @@
+{name: machine, type: Mad8, 
+ reference_particle: 
+     {four_momentum: 
+         {mass: 0.938272046, gamma: 1.012199999147}, charge: 1}, 
+ elements: 
+     {{type: drift, name: dr1, 
+     double_attributes: 
+         {circular_aperture_radius: 0.5, l: 0.645}, 
+     string_attributes: 
+         {extractor_type: chef_propagate, type: drif}, 
+     ancestors: 
+         {machine, cellcav1}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: drift, name: dr3a, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.793}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: rfcavity, name: mycav, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, harmon: 1, l: 2.998, lag: 0, volt: 7.6267125e-05}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: drift, name: dr3b, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 3.0480117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav1}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k2l: 0.2}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {machine}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: drift, name: dr3c, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.795}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: rfcavity, name: mycav, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, harmon: 1, l: 2.998, lag: 0, volt: 7.6267125e-05}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: drift, name: dr3d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 3.0460117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cellcav2}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr1, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.645}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr2, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.97}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: sbend, name: rb, 
+      double_attributes: 
+          {angle: 0.261799387799149, circular_aperture_radius: 0.5, e1: 0.127409035395586, e2: 0.127409035395586, hgap: 0.035, l: 2.61799387799149}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: b1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr3, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 6.8390117}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs1f, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.312772473555676, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd1}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr4, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.6}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs2d, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: -0.496941362347139, l: 1.04}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd2}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr5, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.7098}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: quadrupole, name: qs3t, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, k1: 0.62221964, l: 0.4804}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: qd3}, 
+      ancestors: 
+          {machine, cell}}, 
+      {type: drift, name: dr6, 
+      double_attributes: 
+          {circular_aperture_radius: 0.5, l: 0.4998}, 
+      string_attributes: 
+          {extractor_type: chef_propagate, type: drif}, 
+      ancestors: 
+          {machine, cell}}}}
