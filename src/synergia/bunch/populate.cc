@@ -336,6 +336,7 @@ populate_longitudinal_boxcar(Distribution &dist, Bunch &bunch,   Const_MArray2d_
 
 }
 
+// length is [m] in physical space
 void
 populate_longitudinal_uniform(Distribution &dist, Bunch &bunch,   double length)
 {
