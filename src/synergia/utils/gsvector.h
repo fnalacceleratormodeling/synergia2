@@ -2,16 +2,14 @@
 #ifndef GSVECTOR_H_
 #define GSVECTOR_H_
 
-#include <boost/core/enable_if.hpp>
-#include <boost/type_traits/is_same.hpp>
-
-
-#if 0
+#if 1
 #undef GSV_SSE
 #undef GSV_AVX
 #undef GSV_V4D
 #undef GSV_MIC
 #endif
+
+#define GSV_SSE
 
 
 // helper
@@ -197,9 +195,9 @@ class vector4double;
 //#include <immintrin.h>
 
 #if defined(GSV_SSE)
-  #include "vectorclass.h"
+  #include "vectorclass/vectorclass.h"
 #elif defined(GSV_AVX)
-  #include "vectorclass.h"
+  #include "vectorclass/vectorclass.h"
 #elif defined(GSV_QPX)
   #include <mass_simd.h>
 #endif
@@ -208,26 +206,26 @@ namespace detail
 {
     // specialization of helper class
     template <class T>
-    struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec2d > >::type>
+    struct VectorHelper<T, typename std::enable_if<std::is_same<T, Vec2d>::value>::type>
     { 
         static const size_t size() { return 2; }
         static T ld(const double *p) { T t; t.load_a(p); return t; }
-        static T st(double * p, const T & v) { v.store_a(p); }
+        static void st(double * p, const T & v) { v.store_a(p); }
     };
 
     template <class T>
-    struct VectorHelper<T, typename boost::enable_if<boost::is_same<T, Vec4d > >::type>
+    struct VectorHelper<T, typename std::enable_if<std::is_same<T, Vec4d>::value>::type>
     { 
         static const size_t size() { return 4; }
         static T ld(const double *p) { T t; t.load_a(p); return t; }
-        static T st(double * p, const T & v) { v.store_a(p); }
+        static void st(double * p, const T & v) { v.store_a(p); }
     };
 }
 
 
 // operations
 template <typename E1, typename E2, class T>
-struct VecAdd<E1, E2, T, typename boost::enable_if<boost::is_same<T, vector4double> >::type>
+struct VecAdd<E1, E2, T, typename std::enable_if<std::is_same<T, vector4double>::value>::type>
  : public VecExpr<VecAdd<E1, E2, T>, T>
 {
     E1 const & _u; E2 const & _v;
@@ -236,7 +234,7 @@ struct VecAdd<E1, E2, T, typename boost::enable_if<boost::is_same<T, vector4doub
 };
 
 // stream operator
-template <class T, typename boost::enable_if<boost::is_same<T, double> >::type>
+template <class T, typename std::enable_if<std::is_same<T, double>::value>::type>
 inline std::ostream & operator << (std::ostream & out, Vec<T> & v)
 {
     out << "(" << v.data << ")";
