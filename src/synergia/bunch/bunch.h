@@ -247,6 +247,11 @@ public:
     // by the aperture, returns the number of particles discarded
     template<typename AP>
     int apply_aperture(AP const& ap, ParticleGroup pg = PG::regular);
+
+    // retrieve the array holding lost particles from last aperture operation
+    karray2d_row
+    get_particles_last_discarded(ParticleGroup pg = PG::regular) const
+    { return get_bunch_particles(pg).get_particles_last_discarded(); }
   
     // checkout (deep_copy) the entire particle array from device
     // memory to the host memory for user to access the latest
@@ -455,11 +460,7 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
 
     // diagnostics
     if (ndiscarded && diag_aperture)
-    {
-        auto discarded = get_bunch_particles(pg).get_particles_last_discarded();
-        //diag_aperture->update(*this, discarded);
-        //diag_aperture->write(*this);
-    }
+        diag_aperture->update_and_write(*this);
 
     return ndiscarded;
 }

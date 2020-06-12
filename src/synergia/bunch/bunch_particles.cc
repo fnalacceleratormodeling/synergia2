@@ -173,6 +173,42 @@ namespace
             dst_masks(off+i) = src_masks(i);
         }
     };
+
+    struct discarded_particle_mover
+    {
+        Kokkos::View<int*> counter;
+
+        ConstParticles   parts;
+        ParticleMasks    discards;
+        karray2d_row_dev discarded_parts;
+
+        discarded_particle_mover(
+                ConstParticles   const& parts,
+                ParticleMasks    const& discards,
+                karray2d_row_dev const& discarded_parts )
+            : counter("counter", 1)
+            , parts(parts)
+            , discards(discards)
+            , discarded_parts(discarded_parts)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            if (discards(i))
+            {
+                int pos = Kokkos::atomic_fetch_add(counter.data(), 1);
+
+                discarded_parts(pos, 0) = parts(i, 0);
+                discarded_parts(pos, 1) = parts(i, 1);
+                discarded_parts(pos, 2) = parts(i, 2);
+                discarded_parts(pos, 3) = parts(i, 3);
+                discarded_parts(pos, 4) = parts(i, 4);
+                discarded_parts(pos, 5) = parts(i, 5);
+                discarded_parts(pos, 6) = parts(i, 6);
+            }
+        }
+    };
 }
 
 
@@ -371,9 +407,14 @@ BunchParticles::search_particle(int pid, int last_idx) const
 karray2d_row
 BunchParticles::get_particles_last_discarded() const
 { 
-    // TODO: need a better way to handle this
-    // return get_particles_in_range(local_num_padded(), last_discarded()); 
-    throw std::runtime_error("get_particles_last_discarded() not implemented");
+    karray2d_row_dev discarded("discarded", n_last_discarded, 7);
+    karray2d_row hdiscarded = Kokkos::create_mirror_view(discarded);
+
+    discarded_particle_mover dpm(parts, discards, discarded);
+    Kokkos::parallel_for(n_active, dpm);
+
+    Kokkos::deep_copy(hdiscarded, discarded);
+    return hdiscarded;
 }
 
 

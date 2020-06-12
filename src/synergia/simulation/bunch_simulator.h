@@ -187,16 +187,16 @@ public:
         trains[train][bunch_idx].add_diagnostics(diag, name, filename);
     }
 
-#if 0
     // diag loss
     void reg_diag_loss_aperture(
-            Diagnostics_loss & diag, int train = 0, int bunch = 0 )
-    { get_bunch(train, bunch).set_diag_loss_aperture(diag); }
+            std::string const& filename, int train = 0, int bunch = 0 )
+    { get_bunch(train, bunch).set_diag_loss_aperture(filename); }
 
     void reg_diag_loss_zcut(
-            Diagnostics_loss & diag, int train = 0, int bunch = 0 )
-    { get_bunch(train, bunch).set_diag_loss_zcut(diag); }
+            std::string const& filename, int train = 0, int bunch = 0 )
+    { get_bunch(train, bunch).set_diag_loss_zcut(filename); }
 
+#if 0
     // diag per element
     void reg_diag_element(
             std::string const& name, Diagnostics & diag, 
