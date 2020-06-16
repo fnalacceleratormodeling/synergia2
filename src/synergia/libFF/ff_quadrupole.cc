@@ -2,7 +2,7 @@
 
 #include "synergia/libFF/ff_algorithm.h"
 //#include "synergia/lattice/chef_utils.h"
-//#include "synergia/utils/gsvector.h"
+#include "synergia/utils/gsvector.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/simple_timer.h"
 
@@ -75,6 +75,79 @@ namespace
 
                 p(i, 0) += xoff;
                 p(i, 2) += yoff;
+            }
+        }
+    };
+
+    struct PropQuadSimd
+    {
+        Particles p;
+        ConstParticleMasks masks;
+        int steps;
+        GSVector xoff, yoff;
+        double ref_p, ref_m, step_ref_t, step_l, step_k[2];
+        const int gsvsize;
+
+
+        PropQuadSimd( Particles const& p, 
+                  ConstParticleMasks const& masks,
+                  int steps,
+                  double xoff,
+                  double yoff,
+                  double ref_p, 
+                  double ref_m, 
+                  double ref_t, 
+                  double length,
+                  double k0,
+                  double k1 )
+            : p(p)
+            , masks(masks)
+            , steps(steps)
+            , xoff(xoff)
+            , yoff(yoff)
+            , ref_p(ref_p)
+            , ref_m(ref_m)
+            , step_ref_t(ref_t/steps)
+            , step_l(length/steps) 
+            , step_k{k0*step_l, k1*step_l}
+            , gsvsize(GSVector::size())
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int idx) const
+        {
+            int i = idx * gsvsize;
+
+            int m = 0;
+            for(int x=i; x<i+gsvsize; ++x) m |= masks(x);
+
+            if (m)
+            {
+                GSVector p0(&p(i, 0));
+                GSVector p1(&p(i, 1));
+                GSVector p2(&p(i, 2));
+                GSVector p3(&p(i, 3));
+                GSVector p4(&p(i, 4));
+                GSVector p5(&p(i, 5));
+
+                p0 -= xoff;
+                p2 -= yoff;
+
+                FF_algorithm::yoshida6<GSVector, 
+                    FF_algorithm::thin_quadrupole_unit<GSVector>, 1>(
+                            p0, p1, p2, p3, p4, p5,
+                            ref_p, ref_m, step_ref_t, 
+                            step_l, step_k, steps );
+
+                p0 += xoff;
+                p2 += yoff;
+
+                p0.store(&p(i,0));
+                p1.store(&p(i,1));
+                p2.store(&p(i,2));
+                p3.store(&p(i,3));
+                p4.store(&p(i,4));
+                p5.store(&p(i,5));
             }
         }
     };
@@ -252,11 +325,77 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
         auto masks = bunch.get_local_particle_masks(ParticleGroup::regular);
 
+#if 0
         PropQuad pq(parts, masks, steps, xoff, yoff, ref_p, ref_m, ref_t, length, k[0], k[1]);
         Kokkos::parallel_for(num, pq);
 
         // TODO: spectator particles
         // ...
+#endif
+
+#if 1
+        PropQuadSimd pq(parts, masks, steps, xoff, yoff, ref_p, ref_m, ref_t, length, k[0], k[1]);
+
+        int loop = num / GSVector::size();
+        Kokkos::parallel_for(loop, pq);
+
+        // TODO: spectator particles
+        // ...
+#endif
+
+#if 0
+        double * RESTRICT xa, * RESTRICT xpa;
+        double * RESTRICT ya, * RESTRICT ypa;
+        double * RESTRICT cdta, * RESTRICT dpopa;
+
+        xa = &parts(0,0);
+        xpa = &parts(0,1);
+        ya = &parts(0,2);
+        ypa = &parts(0,3);
+        cdta = &parts(0,4);
+        dpopa = &parts(0,5);
+
+        const int gsvsize = GSVector::size();
+
+        const int num_blocks = num / gsvsize;
+        const int block_last = num_blocks * gsvsize;
+        double step_k[2] = {k[0]*length/steps, k[1]*length/steps};
+
+        const GSVector vxoff = xoff;
+        const GSVector vyoff = yoff;
+
+        #pragma omp parallel for simd
+        for (int part = 0; part < block_last; part += gsvsize)
+        {
+            GSVector    x(   &xa[part]);
+            GSVector   xp(  &xpa[part]);
+            GSVector    y(   &ya[part]);
+            GSVector   yp(  &ypa[part]);
+            GSVector  cdt( &cdta[part]);
+            GSVector dpop(&dpopa[part]);
+
+            x -= vxoff;
+            y -= vyoff;
+
+            FF_algorithm::yoshida6<GSVector, 
+                FF_algorithm::thin_quadrupole_unit<GSVector>, 1 > ( 
+                        x, xp, y, yp, cdt, dpop, 
+                        //xa[part], xpa[part], ya[part], ypa[part], cdta[part], dpopa[part], 
+                        ref_p, ref_m, 
+                        ref_t/steps, length/steps, 
+                        step_k, steps );
+
+            x += vxoff;
+            y += vyoff;
+
+               x.store(&xa[part]);
+              xp.store(&xpa[part]);
+               y.store(&ya[part]);
+              yp.store(&ypa[part]);
+             cdt.store(&cdta[part]);
+            dpop.store(&dpopa[part]);
+        }
+#endif
 
         // advance the ref_part
         bunch.get_reference_particle().increment_trajectory(length);
