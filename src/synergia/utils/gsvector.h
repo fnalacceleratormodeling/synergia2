@@ -9,8 +9,15 @@
 #undef GSV_MIC
 #endif
 
-#define GSV_SSE
+#define GSV_AVX
 
+// no simd when build for CUDA
+#ifdef Kokkos_ENABLE_CUDA
+  #undef GSV_SSE
+  #undef GSV_AVX
+  #undef GSV_V4D
+  #undef GSV_MIC
+#endif
 
 // helper
 namespace detail
@@ -18,9 +25,9 @@ namespace detail
     template <class T, class E = void>
     struct VectorHelper
     { 
-        static const size_t size() { return 1; }
+        static constexpr size_t size() { return 1; }
         static T ld(const double *p) { return *p; } 
-        static T st(double * p, const T & v) { *p = v; }
+        static void st(double * p, const T & v) { *p = v; }
     };
 }
 
@@ -52,7 +59,7 @@ struct Vec : public VecExpr<Vec<T>, T>
     Vec(const double   d) : data( d ) { }
     Vec(const double * p) : data( detail::VectorHelper<T>::ld(p) ) { }
 
-    void load (const double *p) { detail::VectorHelper<T>::ld(p); }
+    void load (const double *p) { data = detail::VectorHelper<T>::ld(p); }
     void store(double *p) const { detail::VectorHelper<T>::st(p, data); }
 
     T & cal()       { return data; }
@@ -208,7 +215,7 @@ namespace detail
     template <class T>
     struct VectorHelper<T, typename std::enable_if<std::is_same<T, Vec2d>::value>::type>
     { 
-        static const size_t size() { return 2; }
+        static constexpr size_t size() { return 2; }
         static T ld(const double *p) { T t; t.load_a(p); return t; }
         static void st(double * p, const T & v) { v.store_a(p); }
     };
@@ -216,7 +223,7 @@ namespace detail
     template <class T>
     struct VectorHelper<T, typename std::enable_if<std::is_same<T, Vec4d>::value>::type>
     { 
-        static const size_t size() { return 4; }
+        static constexpr size_t size() { return 4; }
         static T ld(const double *p) { T t; t.load_a(p); return t; }
         static void st(double * p, const T & v) { v.store_a(p); }
     };
