@@ -15,6 +15,16 @@
 
 namespace FF_algorithm
 {
+    KOKKOS_INLINE_FUNCTION
+    constexpr double quiet_nan()
+    {
+#ifdef Kokkos_ENABLE_CUDA
+        return nan(NULL);
+#else
+        return std::numeric_limits<double>::quiet_NaN();
+#endif
+    }
+
     // exact solution for drift spaces
     template <typename T>
     KOKKOS_INLINE_FUNCTION
@@ -685,8 +695,8 @@ namespace FF_algorithm
 
         if (ybar == 0 && fabs(xbar) >= 1.0)
         {
-            xp = std::numeric_limits<double>::quiet_NaN();
-            yp = std::numeric_limits<double>::quiet_NaN();
+            xp = quiet_nan();
+            yp = quiet_nan();
             return;
         }
 
