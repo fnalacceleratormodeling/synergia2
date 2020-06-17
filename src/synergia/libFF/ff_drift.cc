@@ -86,7 +86,7 @@ namespace
         if (bp.num_valid())
         {
             PropDriftSimd drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
-            Kokkos::parallel_for(bp.size(), drift);
+            Kokkos::parallel_for(bp.size()/GSVector::size(), drift);
         }
     }
 
