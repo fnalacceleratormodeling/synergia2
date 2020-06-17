@@ -26,7 +26,7 @@ namespace detail
     struct VectorHelper
     { 
         KOKKOS_INLINE_FUNCTION
-        static constexpr size_t size() { return 1; }
+        static constexpr int size() { return 1; }
 
         KOKKOS_INLINE_FUNCTION
         static T ld(const double *p) { return *p; } 
@@ -62,7 +62,8 @@ struct Vec : public VecExpr<Vec<T>, T>
 {
     T data;
 
-    static constexpr size_t size() { return detail::VectorHelper<T>::size(); }
+    KOKKOS_INLINE_FUNCTION
+    static constexpr int size() { return detail::VectorHelper<T>::size(); }
 
     KOKKOS_INLINE_FUNCTION
     Vec(const double   d) : data( d ) { }
@@ -265,16 +266,26 @@ namespace detail
     template <class T>
     struct VectorHelper<T, typename std::enable_if<std::is_same<T, Vec2d>::value>::type>
     { 
-        static constexpr size_t size() { return 2; }
+        KOKKOS_INLINE_FUNCTION
+        static constexpr int size() { return 2; }
+
+        KOKKOS_INLINE_FUNCTION
         static T ld(const double *p) { T t; t.load_a(p); return t; }
+
+        KOKKOS_INLINE_FUNCTION
         static void st(double * p, const T & v) { v.store_a(p); }
     };
 
     template <class T>
     struct VectorHelper<T, typename std::enable_if<std::is_same<T, Vec4d>::value>::type>
     { 
-        static constexpr size_t size() { return 4; }
+        KOKKOS_INLINE_FUNCTION
+        static constexpr int size() { return 4; }
+
+        KOKKOS_INLINE_FUNCTION
         static T ld(const double *p) { T t; t.load_a(p); return t; }
+
+        KOKKOS_INLINE_FUNCTION
         static void st(double * p, const T & v) { v.store_a(p); }
     };
 }
