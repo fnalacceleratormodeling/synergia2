@@ -144,7 +144,6 @@ namespace
                 p2.store(&p(i,2));
                 p3.store(&p(i,3));
                 p4.store(&p(i,4));
-                p5.store(&p(i,5));
             }
         }
     };

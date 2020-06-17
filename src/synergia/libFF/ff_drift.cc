@@ -1,5 +1,6 @@
 #include "ff_drift.h"
 
+#include "synergia/utils/gsvector.h"
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/simple_timer.h"
@@ -23,6 +24,42 @@ namespace
                         l, ref_p, m, ref_t);
         }
     };
+
+    struct PropDriftSimd
+    {
+        Particles p;
+        ConstParticleMasks masks;
+
+        double l, ref_p, m, ref_t;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int idx) const
+        {
+            int i = idx * GSVector::size();
+
+            int m = 0;
+            for(int x=i; x<i+GSVector::size(); ++x) m |= masks(x);
+
+            if (m)
+            {
+                GSVector p0(&p(i, 0));
+                GSVector p1(&p(i, 1));
+                GSVector p2(&p(i, 2));
+                GSVector p3(&p(i, 3));
+                GSVector p4(&p(i, 4));
+                GSVector p5(&p(i, 5));
+
+                FF_algorithm::drift_unit(
+                        p0, p1, p2, p3, p4, p5,
+                        l, ref_p, m, ref_t);
+
+                p0.store(&p(i, 0));
+                p2.store(&p(i, 2));
+                p4.store(&p(i, 4));
+            }
+        }
+    };
+
 
     double get_reference_cdt(double length, Reference_particle & ref)
     {
@@ -48,7 +85,7 @@ namespace
     {
         if (bp.num_valid())
         {
-            PropDrift drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
+            PropDriftSimd drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
             Kokkos::parallel_for(bp.size(), drift);
         }
     }
