@@ -86,8 +86,6 @@ namespace
         int steps;
         GSVector xoff, yoff;
         double ref_p, ref_m, step_ref_t, step_l, step_k[2];
-        const int gsvsize;
-
 
         PropQuadSimd( Particles const& p, 
                   ConstParticleMasks const& masks,
@@ -110,16 +108,15 @@ namespace
             , step_ref_t(ref_t/steps)
             , step_l(length/steps) 
             , step_k{k0*step_l, k1*step_l}
-            , gsvsize(GSVector::size())
         { }
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int idx) const
         {
-            int i = idx * gsvsize;
+            int i = idx * GSVector::size();
 
             int m = 0;
-            for(int x=i; x<i+gsvsize; ++x) m |= masks(x);
+            for(int x=i; x<i+GSVector::size(); ++x) m |= masks(x);
 
             if (m)
             {
@@ -341,60 +338,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         // TODO: spectator particles
         // ...
-#endif
-
-#if 0
-        double * RESTRICT xa, * RESTRICT xpa;
-        double * RESTRICT ya, * RESTRICT ypa;
-        double * RESTRICT cdta, * RESTRICT dpopa;
-
-        xa = &parts(0,0);
-        xpa = &parts(0,1);
-        ya = &parts(0,2);
-        ypa = &parts(0,3);
-        cdta = &parts(0,4);
-        dpopa = &parts(0,5);
-
-        const int gsvsize = GSVector::size();
-
-        const int num_blocks = num / gsvsize;
-        const int block_last = num_blocks * gsvsize;
-        double step_k[2] = {k[0]*length/steps, k[1]*length/steps};
-
-        const GSVector vxoff = xoff;
-        const GSVector vyoff = yoff;
-
-        #pragma omp parallel for simd
-        for (int part = 0; part < block_last; part += gsvsize)
-        {
-            GSVector    x(   &xa[part]);
-            GSVector   xp(  &xpa[part]);
-            GSVector    y(   &ya[part]);
-            GSVector   yp(  &ypa[part]);
-            GSVector  cdt( &cdta[part]);
-            GSVector dpop(&dpopa[part]);
-
-            x -= vxoff;
-            y -= vyoff;
-
-            FF_algorithm::yoshida6<GSVector, 
-                FF_algorithm::thin_quadrupole_unit<GSVector>, 1 > ( 
-                        x, xp, y, yp, cdt, dpop, 
-                        //xa[part], xpa[part], ya[part], ypa[part], cdta[part], dpopa[part], 
-                        ref_p, ref_m, 
-                        ref_t/steps, length/steps, 
-                        step_k, steps );
-
-            x += vxoff;
-            y += vyoff;
-
-               x.store(&xa[part]);
-              xp.store(&xpa[part]);
-               y.store(&ya[part]);
-              yp.store(&ypa[part]);
-             cdt.store(&cdta[part]);
-            dpop.store(&dpopa[part]);
-        }
 #endif
 
         // advance the ref_part
