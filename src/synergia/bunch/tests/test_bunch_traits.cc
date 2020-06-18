@@ -21,7 +21,8 @@ struct TinyBunch
     //std::unique_ptr<int> pi;
 };
 
-static_assert(std::is_move_constructible<TinyBunch>::value);
+static_assert(std::is_move_constructible<TinyBunch>::value, 
+        "TinyBunch isn't move constructible");
 
 TEST_CASE("Bunch traits", "[Bunch]")
 {
