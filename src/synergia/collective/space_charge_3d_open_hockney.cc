@@ -657,7 +657,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
 
     #pragma omp parallel for default(none), \
         private( x, y, z, G, mix, miy, rr ), \
-        shared( gx, gy, gz, dgx, dgy, dgz, hx, hy, hz, G000, lower, upper, G2 )
+        shared( gx, gy, gz, dgx, dgy, dgz, hx, hy, hz, G000, lower, upper, G2, epsz )
     for (int iz = lower; iz < upper; ++iz) {
         z = (iz>gz) ? (dgz-iz)*hz : iz*hz;
 
