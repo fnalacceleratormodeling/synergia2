@@ -117,6 +117,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     bunch->set_bucket_index(0);
 
     const std::string bunchdatafile = "turn_particles_0000.h5";
+    //const std::string bunchdatafile = "/data/egstern/sis18_bigstep_generate4M.00/turn_particles_0000.h5";
     if (myrank == 0) {
         std::cout << "Reading bunch data from file: " << bunchdatafile << "...";
     }
