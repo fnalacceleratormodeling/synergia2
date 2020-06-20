@@ -114,7 +114,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     Bunch_sptr bunch(new Bunch(ref, 4194394, 2.94e10, comm));
     bunch->set_bucket_index(0);
 
-    const std::string bunchdatafile = "/data/egstern/sis18_bigstep_generate4M.00/turn_particles_0000.h5";
+    const std::string bunchdatafile = "/home/egstern/syn2-devel-pre3/build/synergia2/archived-applications/cxx_benchmark/turn_particles4M.h5";
     if (myrank == 0) {
         std::cout << "Reading bunch data from file: " << bunchdatafile << "...";
     }
