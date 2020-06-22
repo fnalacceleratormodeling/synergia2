@@ -1,12 +1,14 @@
 /****************************  vectorf256e.h   *******************************
 * Author:        Agner Fog
 * Date created:  2012-05-30
-* Last modified: 2014-10-22
-* Version:       1.16
-* Project:       vector classes
+* Last modified: 2019-08-01
+* Version:       1.40.00
+* Project:       vector class library
 * Description:
-* Header file defining 256-bit floating point vector classes as interface
-* to intrinsic functions. Emulated for processors without AVX instruction set.
+* Header file defining 256-bit floating point vector classes
+* Emulated for processors without AVX instruction set.
+*
+* Instructions: see vcl_manual.pdf
 *
 * The following vector classes are defined here:
 * Vec8f     Vector of 8 single precision floating point numbers
@@ -14,26 +16,33 @@
 * Vec4d     Vector of 4 double precision floating point numbers
 * Vec4db    Vector of 4 Booleans for use with Vec4d
 *
-* For detailed instructions, see VectorClass.pdf
+* Each vector object is represented internally in the CPU as two 128-bit registers.
+* This header file defines operators and functions for these vectors.
 *
-* (c) Copyright 2012 - 2014 GNU General Public License http://www.gnu.org/licenses
+* (c) Copyright 2012-2019 Agner Fog.
+* Apache License version 2.0 or later.
 *****************************************************************************/
 
 // check combination of header files
+#ifndef VECTORCLASS_H
+#include "vectorclass.h"
+#endif
+
+#if VECTORCLASS_H > 19999
+#error Incompatible versions of vector class library mixed
+#endif
+
+#ifndef VECTORF256E_H
+#define VECTORF256E_H  1
+
 #ifdef VECTORF256_H
-#if    VECTORF256_H != 1
 #error Two different versions of vectorf256.h included
 #endif
-#else
-#define VECTORF256_H  1
 
-#if defined (VECTORI256_H) &&  VECTORI256_H >= 2
-#error wrong combination of header files. Use vectorf256.h instead of vectorf256e.h if you have AVX2
+
+#ifdef VCL_NAMESPACE
+namespace VCL_NAMESPACE {
 #endif
-
-
-#include "vectorf128.h"  // Define 128-bit vectors
-
 
 /*****************************************************************************
 *
@@ -142,12 +151,17 @@ public:
     Vec8fb(Vec256fe const & x) {
         y0 = x.get_low();  y1 = x.get_high();
     }
+    // Constructor to broadcast scalar value:
+    Vec8fb(bool b) {
+        y0 = y1 = Vec4fb(b);
+    }
     // Assignment operator to convert from type Vec256fe
     Vec8fb & operator = (Vec256fe const & x) {
         y0 = x.get_low();  y1 = x.get_high();
         return *this;
     }
-#ifdef VECTORI256_H  // 256 bit integer vectors are available
+#if defined (VECTORI256_H) || defined (VECTORI256E_H)  // 256 bit integer vectors are available
+// -- #ifdef VECTORI256_H  // 256 bit integer vectors are available
     // Constructor to convert from type Vec8ib used as Boolean for integer vectors
     Vec8fb(Vec8ib const & x) {
         y0 = _mm_castsi128_ps(Vec8i(x).get_low());
@@ -159,19 +173,11 @@ public:
         y1 = _mm_castsi128_ps(Vec8i(x).get_high());
         return *this;
     }
-    // Constructor to broadcast the same value into all elements:
-    Vec8fb(bool b) {
-        y1 = y0 = Vec4fb(b);
-    }
     // Assignment operator to broadcast scalar value:
     Vec8fb & operator = (bool b) {
         y0 = y1 = Vec4fb(b);
         return *this;
     }
-private: // Prevent constructing from int, etc.
-    Vec8fb(int b);
-    Vec8fb & operator = (int x);
-public:
     // Type cast operator to convert to type Vec8ib used as Boolean for integer vectors
     operator Vec8ib() const {
         return Vec8i(_mm_castps_si128(y0), _mm_castps_si128(y1));
@@ -179,8 +185,8 @@ public:
 #endif // VECTORI256_H
     // Member function to change a single element in vector
     // Note: This function is inefficient. Use load function if changing more than one element
-    Vec8fb const & insert(uint32_t index, bool value) {
-        if (index < 4) {
+    Vec8fb const & insert(int index, bool value) {
+        if ((uint32_t)index < 4) {
             y0 = Vec4fb(y0).insert(index, value);
         }
         else {
@@ -190,8 +196,8 @@ public:
     }
     // Member function extract a single element from vector
     // Note: This function is inefficient. Use store function if extracting more than one element
-    bool extract(uint32_t index) const {
-        if (index < 4) {
+    bool extract(int index) const {
+        if ((uint32_t)index < 4) {
             return Vec4fb(y0).extract(index);
         }
         else {
@@ -199,7 +205,7 @@ public:
         }
     }
     // Extract a single element. Operator [] can only read an element, not write.
-    bool operator [] (uint32_t index) const {
+    bool operator [] (int index) const {
         return extract(index);
     }
     // Member functions to split into two Vec4fb:
@@ -209,9 +215,21 @@ public:
     Vec4fb get_high() const {
         return y1;
     }
+    // Member function to change a bitfield to a boolean vector
+    Vec8fb & load_bits(uint8_t a) {
+        y0 = Vec4fb().load_bits(a);
+        y1 = Vec4fb().load_bits(uint8_t(a>>4u));
+        return *this;
+    } 
     static int size () {
         return 8;
     }
+    static int elementtype() {
+        return 3;
+    }
+private: // Prevent constructing from int, etc.
+    Vec8fb(int b);
+    Vec8fb & operator = (int x);
 };
 
 
@@ -264,6 +282,16 @@ static inline Vec8fb & operator ^= (Vec8fb & a, Vec8fb const & b) {
 // vector operator ~ : bitwise not
 static inline Vec8fb operator ~ (Vec8fb const & a) {
     return Vec8fb(~a.get_low(), ~a.get_high());
+}
+
+// vector operator == : xnor
+static inline Vec8fb operator == (Vec8fb const & a, Vec8fb const & b) {
+    return Vec8fb(Vec8fb(a) ^ Vec8fb(~b));
+}
+
+// vector operator != : xor
+static inline Vec8fb operator != (Vec8fb const & a, Vec8fb const & b) {
+    return Vec8fb(a ^ b);
 }
 
 // vector operator ! : logical not
@@ -324,12 +352,18 @@ public:
     Vec4db(Vec256de const & x) {
         y0 = x.get_low();  y1 = x.get_high();
     }
+    // Constructor to broadcast scalar value:
+    Vec4db(bool b) {
+        y0 = y1 = Vec2db(b);
+    }
     // Assignment operator to convert from type Vec256de
     Vec4db & operator = (Vec256de const & x) {
         y0 = x.get_low();  y1 = x.get_high();
         return *this;
     }
-#ifdef VECTORI256_H  // 256 bit integer vectors are available
+#if defined (VECTORI256_H) || defined (VECTORI256E_H)  // 256 bit integer vectors are available
+
+// --#ifdef VECTORI256_H  // 256 bit integer vectors are available
     // Constructor to convert from type Vec4qb used as Boolean for integer vectors
     Vec4db(Vec4qb const & x) {
         y0 = _mm_castsi128_pd(Vec4q(x).get_low());
@@ -341,28 +375,21 @@ public:
         y1 = _mm_castsi128_pd(Vec4q(x).get_high());
         return *this;
     }
-    // Constructor to broadcast the same value into all elements:
-    Vec4db(bool b) {
-        y1 = y0 = Vec2db(b);
-    }
     // Assignment operator to broadcast scalar value:
     Vec4db & operator = (bool b) {
         y0 = y1 = Vec2db(b);
         return *this;
     }
-private: // Prevent constructing from int, etc.
-    Vec4db(int b);
-    Vec4db & operator = (int x);
-public:
     // Type cast operator to convert to type Vec4qb used as Boolean for integer vectors
     operator Vec4qb() const {
         return Vec4q(_mm_castpd_si128(y0), _mm_castpd_si128(y1));
     }
 #endif // VECTORI256_H
+
     // Member function to change a single element in vector
     // Note: This function is inefficient. Use load function if changing more than one element
-    Vec4db const & insert(uint32_t index, bool value) {
-        if (index < 2) {
+    Vec4db const & insert(int index, bool value) {
+        if ((uint32_t)index < 2) {
             y0 = Vec2db(y0).insert(index, value);
         }
         else {
@@ -372,8 +399,8 @@ public:
     }
     // Member function extract a single element from vector
     // Note: This function is inefficient. Use store function if extracting more than one element
-    bool extract(uint32_t index) const {
-        if (index < 2) {
+    bool extract(int index) const {
+        if ((uint32_t)index < 2) {
             return Vec2db(y0).extract(index);
         }
         else {
@@ -381,7 +408,7 @@ public:
         }
     }
     // Extract a single element. Operator [] can only read an element, not write.
-    bool operator [] (uint32_t index) const {
+    bool operator [] (int index) const {
         return extract(index);
     }
     // Member functions to split into two Vec4fb:
@@ -391,9 +418,21 @@ public:
     Vec2db get_high() const {
         return y1;
     }
+    // Member function to change a bitfield to a boolean vector
+    Vec4db & load_bits(uint8_t a) {
+        y0 = Vec2db().load_bits(a);
+        y1 = Vec2db().load_bits(uint8_t(a>>2u));
+        return *this;
+    }
     static int size () {
         return 4;
     }
+    static int elementtype() {
+        return 3;
+    }
+private: // Prevent constructing from int, etc.
+    Vec4db(int b);
+    Vec4db & operator = (int x);
 };
 
 
@@ -446,6 +485,16 @@ static inline Vec4db & operator ^= (Vec4db & a, Vec4db const & b) {
 // vector operator ~ : bitwise not
 static inline Vec4db operator ~ (Vec4db const & a) {
     return Vec4db(~a.get_low(), ~a.get_high());
+}
+
+// vector operator == : xnor
+static inline Vec4db operator == (Vec4db const & a, Vec4db const & b) {
+    return Vec4db(Vec4db(a) ^ Vec4db(~b));
+}
+
+// vector operator != : xor
+static inline Vec4db operator != (Vec4db const & a, Vec4db const & b) {
+    return Vec4db(a ^ b);
 }
 
 // vector operator ! : logical not
@@ -577,8 +626,8 @@ public:
     }
     // Member function to change a single element in vector
     // Note: This function is inefficient. Use load function if changing more than one element
-    Vec8f const & insert(uint32_t index, float value) {
-        if (index < 4) {
+    Vec8f const & insert(int index, float value) {
+        if ((uint32_t)index < 4) {
             y0 = Vec4f(y0).insert(index, value);
         }
         else {
@@ -588,8 +637,8 @@ public:
     }
     // Member function extract a single element from vector
     // Note: This function is inefficient. Use store function if extracting more than one element
-    float extract(uint32_t index) const {
-        if (index < 4) {
+    float extract(int index) const {
+        if ((uint32_t)index < 4) {
             return Vec4f(y0).extract(index);
         }
         else {
@@ -598,7 +647,7 @@ public:
     }
     // Extract a single element. Use store function if extracting more than one element.
     // Operator [] can only read an element, not write.
-    float operator [] (uint32_t index) const {
+    float operator [] (int index) const {
         return extract(index);
     }
     // Member functions to split into two Vec4f:
@@ -611,6 +660,9 @@ public:
     static int size () {
         return 8;
     }
+    static int elementtype() {
+        return 16;
+    } 
 };
 
 
@@ -825,9 +877,19 @@ static inline Vec8f if_add (Vec8fb const & f, Vec8f const & a, Vec8f const & b) 
     return a + (Vec8f(f) & b);
 }
 
+// Conditional sub: For all vector elements i: result[i] = f[i] ? (a[i] - b[i]) : a[i]
+static inline Vec8f if_sub (Vec8fb const & f, Vec8f const & a, Vec8f const & b) {
+    return a - (Vec8f(f) & b);
+}
+
 // Conditional multiply: For all vector elements i: result[i] = f[i] ? (a[i] * b[i]) : a[i]
 static inline Vec8f if_mul (Vec8fb const & f, Vec8f const & a, Vec8f const & b) {
     return a * select(f, b, 1.f);
+}
+
+// Conditional divide: For all vector elements i: result[i] = f[i] ? (a[i] / b[i]) : a[i]
+static inline Vec8f if_div (Vec8fb const & f, Vec8f const & a, Vec8f const & b) {
+    return a / select(f, b, 1.f);
 }
 
 
@@ -848,6 +910,16 @@ static inline Vec8f min(Vec8f const & a, Vec8f const & b) {
     return Vec8f(min(a.get_low(),b.get_low()), min(a.get_high(),b.get_high()));
 }
 
+// same as max, NAN-safe
+static inline Vec8f maximum(Vec8f const & a, Vec8f const & b) {
+    return Vec8f(maximum(a.get_low(),b.get_low()), maximum(a.get_high(),b.get_high()));
+}
+
+// same as min, NAN-safe
+static inline Vec8f minimum(Vec8f const & a, Vec8f const & b) {
+    return Vec8f(minimum(a.get_low(),b.get_low()), minimum(a.get_high(),b.get_high()));
+} 
+
 // function abs: absolute value
 // Removes sign bit, even for -0.0f, -INF and -NAN
 static inline Vec8f abs(Vec8f const & a) {
@@ -865,30 +937,26 @@ static inline Vec8f square(Vec8f const & a) {
 }
 
 // pow(Vec8f, int):
-template <typename TT> static Vec8f pow(Vec8f const & a, TT n);
+template <typename TT> static Vec8f pow(Vec8f const & a, TT const & n);
 
 // Raise floating point numbers to integer power n
 template <>
-inline Vec8f pow<int>(Vec8f const & x0, int n) {
+inline Vec8f pow<int>(Vec8f const & x0, int const & n) {
     return pow_template_i<Vec8f>(x0, n);
 }
 
 // allow conversion from unsigned int
 template <>
-inline Vec8f pow<uint32_t>(Vec8f const & x0, uint32_t n) {
+inline Vec8f pow<uint32_t>(Vec8f const & x0, uint32_t const & n) {
     return pow_template_i<Vec8f>(x0, (int)n);
 }
 
 
 // Raise floating point numbers to integer power n, where n is a compile-time constant
-template <int n>
-static inline Vec8f pow_n(Vec8f const & a) {
-    return Vec8f(pow_n<n>(a.get_low()), pow_n<n>(a.get_high()));
-}
-
+// implement as function pow(vector, const_int)
 template <int n>
 static inline Vec8f pow(Vec8f const & a, Const_int_t<n>) {
-    return pow_n<n>(a);
+    return pow_n<Vec8f, n>(a);
 }
 
 
@@ -912,20 +980,27 @@ static inline Vec8f ceil(Vec8f const & a) {
     return Vec8f(ceil(a.get_low()), ceil(a.get_high()));
 }
 
-#ifdef VECTORI256_H  // 256 bit integer vectors are available
-// function round_to_int: round to nearest integer (even). (result as integer vector)
-static inline Vec8i round_to_int(Vec8f const & a) {
-    // Note: assume MXCSR control register is set to rounding
+#if defined (VECTORI256_H) || defined (VECTORI256E_H)  // 256 bit integer vectors are available
+// function roundi: round to nearest integer (even). (result as integer vector)
+static inline Vec8i roundi(Vec8f const & a) {
     return Vec8i(round_to_int(a.get_low()), round_to_int(a.get_high()));
 }
+static inline Vec8i round_to_int(Vec8f const & a) {return roundi(a);} // deprecated
 
-// function truncate_to_int: round towards zero. (result as integer vector)
-static inline Vec8i truncate_to_int(Vec8f const & a) {
-    return Vec8i(truncate_to_int(a.get_low()), truncate_to_int(a.get_high()));
+
+// function truncatei: round towards zero. (result as integer vector)
+static inline Vec8i truncatei(Vec8f const & a) {
+    return Vec8i(truncatei(a.get_low()), truncatei(a.get_high()));
 }
+static inline Vec8i truncate_to_int(Vec8f const & a) {return truncatei(a);} // deprecated
 
 // function to_float: convert integer vector to float vector
 static inline Vec8f to_float(Vec8i const & a) {
+    return Vec8f(to_float(a.get_low()), to_float(a.get_high()));
+}
+
+// function to_float: convert unsigned integer vector to float vector
+static inline Vec8f to_float(Vec8ui const & a) {
     return Vec8f(to_float(a.get_low()), to_float(a.get_high()));
 }
 #endif // VECTORI256_H 
@@ -970,23 +1045,14 @@ static inline Vec8f mul_sub_x(Vec8f const & a, Vec8f const & b, Vec8f const & c)
 
 // Math functions using fast bit manipulation
 
-#ifdef VECTORI256_H  // 256 bit integer vectors are available
+#if defined(VECTORI256_H) ||  defined(VECTORI256E_H)  // 256 bit integer vectors are available
 // Extract the exponent as an integer
 // exponent(a) = floor(log2(abs(a)));
 // exponent(1.0f) = 0, exponent(0.0f) = -127, exponent(INF) = +128, exponent(NAN) = +128
 static inline Vec8i exponent(Vec8f const & a) {
     return Vec8i(exponent(a.get_low()), exponent(a.get_high()));
 }
-#endif
 
-// Extract the fraction part of a floating point number
-// a = 2^exponent(a) * fraction(a), except for a = 0
-// fraction(1.0f) = 1.0f, fraction(5.0f) = 1.25f 
-static inline Vec8f fraction(Vec8f const & a) {
-    return Vec8f(fraction(a.get_low()), fraction(a.get_high()));
-}
-
-#ifdef VECTORI256_H  // 256 bit integer vectors are available
 // Fast calculation of pow(2,n) with n integer
 // n  =    0 gives 1.0f
 // n >=  128 gives +INF
@@ -996,8 +1062,14 @@ static inline Vec8f exp2(Vec8i const & a) {
     return Vec8f(exp2(a.get_low()), exp2(a.get_high()));
 }
 //static Vec8f exp2(Vec8f const & x); // defined in vectormath_exp.h
-#endif // VECTORI256_H
+#endif
 
+// Extract the fraction part of a floating point number
+// a = 2^exponent(a) * fraction(a), except for a = 0
+// fraction(1.0f) = 1.0f, fraction(5.0f) = 1.25f 
+static inline Vec8f fraction(Vec8f const & a) {
+    return Vec8f(fraction(a.get_low()), fraction(a.get_high()));
+}
 
 
 // Categorization functions
@@ -1167,8 +1239,8 @@ public:
     }    
     // Member function to change a single element in vector
     // Note: This function is inefficient. Use load function if changing more than one element
-    Vec4d const & insert(uint32_t index, double value) {
-        if (index < 2) {
+    Vec4d const & insert(int index, double value) {
+        if ((uint32_t)index < 2) {
             y0 = Vec2d(y0).insert(index, value);
         }
         else {
@@ -1178,8 +1250,8 @@ public:
     }
     // Member function extract a single element from vector
     // Note: This function is inefficient. Use store function if extracting more than one element
-    double extract(uint32_t index) const {
-        if (index < 2) {
+    double extract(int index) const {
+        if ((uint32_t)index < 2) {
             return Vec2d(y0).extract(index);
         }
         else {
@@ -1188,7 +1260,7 @@ public:
     }
     // Extract a single element. Use store function if extracting more than one element.
     // Operator [] can only read an element, not write.
-    double operator [] (uint32_t index) const {
+    double operator [] (int index) const {
         return extract(index);
     }
     // Member functions to split into two Vec2d:
@@ -1199,8 +1271,11 @@ public:
         return y1;
     }
     static int size () {
-        return 2;
+        return 4;
     }
+    static int elementtype() {
+        return 17;
+    } 
 };
 
 
@@ -1417,10 +1492,21 @@ static inline Vec4d if_add (Vec4db const & f, Vec4d const & a, Vec4d const & b) 
     return a + (Vec4d(f) & b);
 }
 
+// Conditional sub: For all vector elements i: result[i] = f[i] ? (a[i] - b[i]) : a[i]
+static inline Vec4d if_sub (Vec4db const & f, Vec4d const & a, Vec4d const & b) {
+    return a - (Vec4d(f) & b);
+}
+
 // Conditional multiply: For all vector elements i: result[i] = f[i] ? (a[i] * b[i]) : a[i]
 static inline Vec4d if_mul (Vec4db const & f, Vec4d const & a, Vec4d const & b) {
     return a * select(f, b, 1.f);
 }
+
+// Conditional divide: For all vector elements i: result[i] = f[i] ? (a[i] / b[i]) : a[i]
+static inline Vec4d if_div (Vec4db const & f, Vec4d const & a, Vec4d const & b) {
+    return a / select(f, b, 1.);
+}
+
 
 // General arithmetic functions, etc.
 
@@ -1438,6 +1524,16 @@ static inline Vec4d max(Vec4d const & a, Vec4d const & b) {
 static inline Vec4d min(Vec4d const & a, Vec4d const & b) {
     return Vec4d(min(a.get_low(),b.get_low()), min(a.get_high(),b.get_high()));
 }
+
+// same as max, NAN-safe
+static inline Vec4d maximum(Vec4d const & a, Vec4d const & b) {
+    return Vec4d(maximum(a.get_low(),b.get_low()), maximum(a.get_high(),b.get_high()));
+}
+
+// same as min, NAN-safe
+static inline Vec4d minimum(Vec4d const & a, Vec4d const & b) {
+    return Vec4d(minimum(a.get_low(),b.get_low()), minimum(a.get_high(),b.get_high()));
+} 
 
 // function abs: absolute value
 // Removes sign bit, even for -0.0f, -INF and -NAN
@@ -1457,30 +1553,25 @@ static inline Vec4d square(Vec4d const & a) {
 
 // pow(Vec4d, int):
 // Raise floating point numbers to integer power n
-template <typename TT> static Vec4d pow(Vec4d const & a, TT n);
+template <typename TT> static Vec4d pow(Vec4d const & a, TT const & n);
 
 // Raise floating point numbers to integer power n
 template <>
-inline Vec4d pow<int>(Vec4d const & x0, int n) {
+inline Vec4d pow<int>(Vec4d const & x0, int const & n) {
     return pow_template_i<Vec4d>(x0, n);
 }
 
 // allow conversion from unsigned int
 template <>
-inline Vec4d pow<uint32_t>(Vec4d const & x0, uint32_t n) {
+inline Vec4d pow<uint32_t>(Vec4d const & x0, uint32_t const & n) {
     return pow_template_i<Vec4d>(x0, (int)n);
 }
 
-
 // Raise floating point numbers to integer power n, where n is a compile-time constant
-template <int n>
-static inline Vec4d pow_n(Vec4d const & a) {
-    return Vec4d(pow_n<n>(a.get_low()), pow_n<n>(a.get_high()));
-}
-
+// implement as function pow(vector, const_int)
 template <int n>
 static inline Vec4d pow(Vec4d const & a, Const_int_t<n>) {
-    return pow_n<n>(a);
+    return pow_n<Vec4d, n>(a);
 }
 
 
@@ -1504,42 +1595,33 @@ static inline Vec4d ceil(Vec4d const & a) {
     return Vec4d(ceil(a.get_low()), ceil(a.get_high()));
 }
 
-// function round_to_int: round to nearest integer (even). (result as integer vector)
-static inline Vec4i round_to_int(Vec4d const & a) {
-    // Note: assume MXCSR control register is set to rounding
-    return round_to_int(a.get_low(), a.get_high());
+// function round_to_int32: round to nearest integer (even). (result as integer vector)
+static inline Vec4i round_to_int32(Vec4d const & a) {
+    return round_to_int32(a.get_low(), a.get_high());
 }
+static inline Vec4i round_to_int(Vec4d const & a) {return round_to_int32(a);} // deprecated
 
-// function truncate_to_int: round towards zero. (result as integer vector)
-static inline Vec4i truncate_to_int(Vec4d const & a) {
-    return truncate_to_int(a.get_low(), a.get_high());
+// function truncate_to_int32: round towards zero. (result as integer vector)
+static inline Vec4i truncate_to_int32(Vec4d const & a) {
+    return truncate_to_int32(a.get_low(), a.get_high());
 }
+static inline Vec4i truncate_to_int(Vec4d const & a) {return truncate_to_int32(a);} // deprecated
 
-#ifdef VECTORI256_H  // 256 bit integer vectors are available
+#if defined(VECTORI256_H) || defined(VECTORI256E_H)  // 256 bit integer vectors are available
 
-// function truncate_to_int64: round towards zero. (inefficient)
-static inline Vec4q truncate_to_int64(Vec4d const & a) {
+// function truncatei: round towards zero. (inefficient)
+static inline Vec4q truncatei(Vec4d const & a) {
     double aa[4];
     a.store(aa);
     return Vec4q(int64_t(aa[0]), int64_t(aa[1]), int64_t(aa[2]), int64_t(aa[3]));
 }
+static inline Vec4q truncate_to_int64(Vec4d const & a) {return truncatei(a);} // deprecated
 
-// function truncate_to_int64_limited: round towards zero.
-// result as 64-bit integer vector, but with limited range
-static inline Vec4q truncate_to_int64_limited(Vec4d const & a) {
-    return Vec4q(truncate_to_int64_limited(a.get_low()), truncate_to_int64_limited(a.get_high()));
-}
-
-// function round_to_int64: round to nearest or even. (inefficient)
-static inline Vec4q round_to_int64(Vec4d const & a) {
+// function roundi: round to nearest or even. (inefficient)
+static inline Vec4q roundi(Vec4d const & a) {
     return truncate_to_int64(round(a));
 }
-
-// function round_to_int64_limited: round to nearest integer
-// result as 64-bit integer vector, but with limited range
-static inline Vec4q round_to_int64_limited(Vec4d const & a) {
-    return Vec4q(round_to_int64_limited(a.get_low()), round_to_int64_limited(a.get_high()));
-}
+static inline Vec4q round_to_int64(Vec4d const & a) {return roundi(a);} // deprecated
 
 // function to_double: convert integer vector elements to double vector (inefficient)
 static inline Vec4d to_double(Vec4q const & a) {
@@ -1548,13 +1630,15 @@ static inline Vec4d to_double(Vec4q const & a) {
     return Vec4d(double(aa[0]), double(aa[1]), double(aa[2]), double(aa[3]));
 }
 
-// function to_double_limited: convert integer vector elements to double vector
-// limited to abs(x) < 2^31
-static inline Vec4d to_double_limited(Vec4q const & x) {
-    return Vec4d(to_double_limited(x.get_low()),to_double_limited(x.get_high()));
-}
+// function to_double: convert unsigned integer vector elements to double vector (inefficient)
+static inline Vec4d to_double(Vec4uq const & a) {
+    uint64_t aa[4];
+    a.store(aa);
+    return Vec4d(double(aa[0]), double(aa[1]), double(aa[2]), double(aa[3]));
+} 
 
 #endif  // VECTORI256_H
+
 
 // function to_double: convert integer vector to double vector
 static inline Vec4d to_double(Vec4i const & a) {
@@ -1603,7 +1687,7 @@ static inline Vec4d mul_sub_x(Vec4d const & a, Vec4d const & b, Vec4d const & c)
 
 // Math functions using fast bit manipulation
 
-#ifdef VECTORI256_H  // 256 bit integer vectors are available, AVX2
+#if defined(VECTORI256_H) || defined(VECTORI256E_H)  // 256 bit integer vectors are available, AVX2
 // Extract the exponent as an integer
 // exponent(a) = floor(log2(abs(a)));
 // exponent(1.0) = 0, exponent(0.0) = -1023, exponent(INF) = +1024, exponent(NAN) = +1024
@@ -1755,7 +1839,7 @@ static inline Vec256de reinterpret_d (Vec256de const & x) {
 * Example:
 * Vec4d a(10., 11., 12., 13.);    // a is (10, 11, 12, 13)
 * Vec4d b;
-* b = permute4d<1,0,-1,3>(a);     // b is (11, 10,  0, 13)
+* b = permute4<1,0,-1,3>(a);     // b is (11, 10,  0, 13)
 *
 *
 * The blend function can mix elements from two different vectors and
@@ -1772,14 +1856,14 @@ static inline Vec256de reinterpret_d (Vec256de const & x) {
 * Vec4d a(10., 11., 12., 13.);    // a is (10, 11, 12, 13)
 * Vec4d b(20., 21., 22., 23.);    // a is (20, 21, 22, 23)
 * Vec4d c;
-* c = blend4d<4,3,7,-1> (a,b);    // c is (20, 13, 23,  0)
+* c = blend4<4,3,7,-1> (a,b);    // c is (20, 13, 23,  0)
 *****************************************************************************/
 
 // permute vector Vec4d
 template <int i0, int i1, int i2, int i3>
-static inline Vec4d permute4d(Vec4d const & a) {
-    return Vec4d(blend2d<i0,i1> (a.get_low(), a.get_high()), 
-           blend2d<i2,i3> (a.get_low(), a.get_high()));
+static inline Vec4d permute4(Vec4d const & a) {
+    return Vec4d(blend2<i0,i1> (a.get_low(), a.get_high()), 
+           blend2<i2,i3> (a.get_low(), a.get_high()));
 }
 
 // helper function used below
@@ -1794,13 +1878,14 @@ static inline Vec2d select4(Vec4d const & a, Vec4d const & b) {
         return b.get_low();
     case 3:
         return b.get_high();
+    default:;
     }
     return _mm_setzero_pd();
 }
 
 // blend vectors Vec4d
 template <int i0, int i1, int i2, int i3>
-static inline Vec4d blend4d(Vec4d const & a, Vec4d const & b) {
+static inline Vec4d blend4(Vec4d const & a, Vec4d const & b) {
     const int j0 = i0 >= 0 ? i0/2 : i0;
     const int j1 = i1 >= 0 ? i1/2 : i1;
     const int j2 = i2 >= 0 ? i2/2 : i2;
@@ -1809,17 +1894,17 @@ static inline Vec4d blend4d(Vec4d const & a, Vec4d const & b) {
 
     if (j0 == j1 || i0 < 0 || i1 < 0) {  // both from same
         const int k0 = j0 >= 0 ? j0 : j1;
-        x0 = permute2d<i0 & -7, i1 & -7> (select4<k0> (a,b));
+        x0 = permute2<i0 & -7, i1 & -7> (select4<k0> (a,b));
     }
     else {
-        x0 = blend2d<i0 & -7, (i1 & -7) | 2> (select4<j0>(a,b), select4<j1>(a,b));
+        x0 = blend2<i0 & -7, (i1 & -7) | 2> (select4<j0>(a,b), select4<j1>(a,b));
     }
     if (j2 == j3 || i2 < 0 || i3 < 0) {  // both from same
         const int k1 = j2 >= 0 ? j2 : j3;
-        x1 = permute2d<i2 & -7, i3 & -7> (select4<k1> (a,b));
+        x1 = permute2<i2 & -7, i3 & -7> (select4<k1> (a,b));
     }
     else {
-        x1 = blend2d<i2 & -7, (i3 & -7) | 2> (select4<j2>(a,b), select4<j3>(a,b));
+        x1 = blend2<i2 & -7, (i3 & -7) | 2> (select4<j2>(a,b), select4<j3>(a,b));
     }
     return Vec4d(x0,x1);
 }
@@ -1832,9 +1917,9 @@ static inline Vec4d blend4d(Vec4d const & a, Vec4d const & b) {
 
 // permute vector Vec8f
 template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7>
-static inline Vec8f permute8f(Vec8f const & a) {
-    return Vec8f(blend4f<i0,i1,i2,i3> (a.get_low(), a.get_high()), 
-                 blend4f<i4,i5,i6,i7> (a.get_low(), a.get_high()));
+static inline Vec8f permute8(Vec8f const & a) {
+    return Vec8f(blend4<i0,i1,i2,i3> (a.get_low(), a.get_high()), 
+                 blend4<i4,i5,i6,i7> (a.get_low(), a.get_high()));
 }
 
 // helper function used below
@@ -1849,13 +1934,14 @@ static inline Vec4f select4(Vec8f const & a, Vec8f const & b) {
         return b.get_low();
     case 3:
         return b.get_high();
+    default:;
     }
     return _mm_setzero_ps();
 }
 
 // blend vectors Vec8f
 template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7>
-static inline Vec8f blend8f(Vec8f const & a, Vec8f const & b) {
+static inline Vec8f blend8(Vec8f const & a, Vec8f const & b) {
     const int j0 = i0 >= 0 ? i0/4 : i0;
     const int j1 = i1 >= 0 ? i1/4 : i1;
     const int j2 = i2 >= 0 ? i2/4 : i2;
@@ -1882,7 +1968,7 @@ static inline Vec8f blend8f(Vec8f const & a, Vec8f const & b) {
     }
     else if (((m1 ^ r0*0x4444) & 0xCCCC & mz) == 0) { 
         // i0 - i3 all from same source
-        x0 = permute4f<i0 & -13, i1 & -13, i2 & -13, i3 & -13> (select4<r0> (a,b));
+        x0 = permute4<i0 & -13, i1 & -13, i2 & -13, i3 & -13> (select4<r0> (a,b));
     }
     else if ((j2 < 0 || j2 == r0 || j2 == s0) && (j3 < 0 || j3 == r0 || j3 == s0)) { 
         // i0 - i3 all from two sources
@@ -1890,13 +1976,13 @@ static inline Vec8f blend8f(Vec8f const & a, Vec8f const & b) {
         const int k1 = (i1 >= 0 ? i1 & 3 : i1) | (j1 == s0 ? 4 : 0);
         const int k2 = (i2 >= 0 ? i2 & 3 : i2) | (j2 == s0 ? 4 : 0);
         const int k3 = (i3 >= 0 ? i3 & 3 : i3) | (j3 == s0 ? 4 : 0);
-        x0 = blend4f<k0,k1,k2,k3> (select4<r0>(a,b), select4<s0>(a,b));
+        x0 = blend4<k0,k1,k2,k3> (select4<r0>(a,b), select4<s0>(a,b));
     }
     else {
         // i0 - i3 from three or four different sources
-        x0 = blend4f<0,1,6,7> (
-             blend4f<i0 & -13, (i1 & -13) | 4, -0x100, -0x100> (select4<j0>(a,b), select4<j1>(a,b)),
-             blend4f<-0x100, -0x100, i2 & -13, (i3 & -13) | 4> (select4<j2>(a,b), select4<j3>(a,b)));
+        x0 = blend4<0,1,6,7> (
+             blend4<i0 & -13, (i1 & -13) | 4, -0x100, -0x100> (select4<j0>(a,b), select4<j1>(a,b)),
+             blend4<-0x100, -0x100, i2 & -13, (i3 & -13) | 4> (select4<j2>(a,b), select4<j3>(a,b)));
     }
 
     if (r1 < 0) {
@@ -1904,7 +1990,7 @@ static inline Vec8f blend8f(Vec8f const & a, Vec8f const & b) {
     }
     else if (((m1 ^ r1*0x44440000u) & 0xCCCC0000 & mz) == 0) { 
         // i4 - i7 all from same source
-        x1 = permute4f<i4 & -13, i5 & -13, i6 & -13, i7 & -13> (select4<r1> (a,b));
+        x1 = permute4<i4 & -13, i5 & -13, i6 & -13, i7 & -13> (select4<r1> (a,b));
     }
     else if ((j6 < 0 || j6 == r1 || j6 == s1) && (j7 < 0 || j7 == r1 || j7 == s1)) { 
         // i4 - i7 all from two sources
@@ -1912,17 +1998,24 @@ static inline Vec8f blend8f(Vec8f const & a, Vec8f const & b) {
         const int k5 = (i5 >= 0 ? i5 & 3 : i5) | (j5 == s1 ? 4 : 0);
         const int k6 = (i6 >= 0 ? i6 & 3 : i6) | (j6 == s1 ? 4 : 0);
         const int k7 = (i7 >= 0 ? i7 & 3 : i7) | (j7 == s1 ? 4 : 0);
-        x1 = blend4f<k4,k5,k6,k7> (select4<r1>(a,b), select4<s1>(a,b));
+        x1 = blend4<k4,k5,k6,k7> (select4<r1>(a,b), select4<s1>(a,b));
     }
     else {
         // i4 - i7 from three or four different sources
-        x1 = blend4f<0,1,6,7> (
-             blend4f<i4 & -13, (i5 & -13) | 4, -0x100, -0x100> (select4<j4>(a,b), select4<j5>(a,b)),
-             blend4f<-0x100, -0x100, i6 & -13, (i7 & -13) | 4> (select4<j6>(a,b), select4<j7>(a,b)));
+        x1 = blend4<0,1,6,7> (
+             blend4<i4 & -13, (i5 & -13) | 4, -0x100, -0x100> (select4<j4>(a,b), select4<j5>(a,b)),
+             blend4<-0x100, -0x100, i6 & -13, (i7 & -13) | 4> (select4<j6>(a,b), select4<j7>(a,b)));
     }
 
     return Vec8f(x0,x1);
 }
+
+// Support names prior to version 1.40 (now deprecated)
+#define permute4d  permute4
+#define permute8f  permute8
+#define blend4d    blend4
+#define blend8f    blend8
+
 
 /*****************************************************************************
 *
@@ -1951,7 +2044,7 @@ static inline Vec8f blend8f(Vec8f const & a, Vec8f const & b) {
 *
 *****************************************************************************/
 
-#ifdef VECTORI256_H  // Vec8i and Vec4q must be defined
+#if defined (VECTORI256_H) ||  defined (VECTORI256E_H)  // Vec8i and Vec4q must be defined
 
 static inline Vec8f lookup8(Vec8i const & index, Vec8f const & table) {
     Vec4f  r0 = lookup8(index.get_low() , table.get_low(), table.get_high());
@@ -2017,6 +2110,86 @@ static inline Vec4d lookup(Vec4q const & index, double const * table) {
 
 /*****************************************************************************
 *
+*          Gather functions with fixed indexes
+*
+*****************************************************************************/
+// Load elements from array a with indices i0, i1, i2, i3, ..
+template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7>
+static inline Vec8f gather8f(void const * a) {
+    return reinterpret_f(gather8i<i0, i1, i2, i3, i4, i5, i6, i7>(a));
+}
+
+// Load elements from array a with indices i0, i1, i2, i3
+template <int i0, int i1, int i2, int i3>
+static inline Vec4d gather4d(void const * a) {
+    return reinterpret_d(gather4q<i0, i1, i2, i3>(a));
+}
+
+
+/*****************************************************************************
+*
+*          Vector scatter functions
+*
+******************************************************************************
+*
+* These functions write the elements of a vector to arbitrary positions in an
+* array in memory. Each vector element is written to an array position 
+* determined by an index. An element is not written if the corresponding
+* index is out of range.
+* The indexes can be specified as constant template parameters or as an
+* integer vector.
+* 
+* The scatter functions are useful if the data are distributed in a sparce
+* manner into the array. If the array is dense then it is more efficient
+* to permute the data into the right positions and then write the whole
+* permuted vector into the array.
+*
+* Example:
+* Vec8d a(10,11,12,13,14,15,16,17);
+* double b[16] = {0};
+* scatter<0,2,14,10,1,-1,5,9>(a,b); 
+* // Now, b = {10,14,11,0,0,16,0,0,0,17,13,0,0,0,12,0}
+*
+*****************************************************************************/
+
+template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7>
+static inline void scatter(Vec8f const & data, float * array) {
+    const int index[8] = {i0,i1,i2,i3,i4,i5,i6,i7};
+    for (int i = 0; i < 8; i++) {
+        if (index[i] >= 0) array[index[i]] = data[i];
+    }
+}
+
+template <int i0, int i1, int i2, int i3>
+static inline void scatter(Vec4d const & data, double * array) {
+    const int index[4] = {i0,i1,i2,i3};
+    for (int i = 0; i < 4; i++) {
+        if (index[i] >= 0) array[index[i]] = data[i];
+    }
+}
+
+// scatter functions with variable indexes
+
+static inline void scatter(Vec8i const & index, uint32_t limit, Vec8f const & data, float * destination) {
+    for (int i = 0; i < 8; i++) {
+        if (uint32_t(index[i]) < limit) destination[index[i]] = data[i];
+    }
+}
+
+static inline void scatter(Vec4q const & index, uint32_t limit, Vec4d const & data, double * destination) {
+    for (int i = 0; i < 4; i++) {
+        if (uint64_t(index[i]) < uint64_t(limit)) destination[index[i]] = data[i];
+    }
+} 
+
+static inline void scatter(Vec4i const & index, uint32_t limit, Vec4d const & data, double * destination) {
+    for (int i = 0; i < 4; i++) {
+        if (uint32_t(index[i]) < limit) destination[index[i]] = data[i];
+    }
+} 
+
+/*****************************************************************************
+*
 *          Horizontal scan functions
 *
 *****************************************************************************/
@@ -2024,20 +2197,20 @@ static inline Vec4d lookup(Vec4q const & index, double const * table) {
 // Get index to the first element that is true. Return -1 if all are false
 
 static inline int horizontal_find_first(Vec8fb const & x) {
-    return horizontal_find_first(Vec8ib(x));
+    return horizontal_find_first(Vec8ib(reinterpret_i(x)));
 }
 
 static inline int horizontal_find_first(Vec4db const & x) {
-    return horizontal_find_first(Vec4qb(x));
+    return horizontal_find_first(Vec4qb(reinterpret_i(x)));
 } 
 
 // Count the number of elements that are true
 static inline uint32_t horizontal_count(Vec8fb const & x) {
-    return horizontal_count(Vec8ib(x));
+    return horizontal_count(Vec8ib(reinterpret_i(x)));
 }
 
 static inline uint32_t horizontal_count(Vec4db const & x) {
-    return horizontal_count(Vec4qb(x));
+    return horizontal_count(Vec4qb(reinterpret_i(x)));
 }
 
 /*****************************************************************************
@@ -2048,22 +2221,28 @@ static inline uint32_t horizontal_count(Vec4db const & x) {
 
 // to_bits: convert boolean vector to integer bitfield
 static inline uint8_t to_bits(Vec8fb const & x) {
-    return to_bits(Vec8ib(x));
+    return to_bits(Vec8ib(reinterpret_i(x)));
 }
 
 // to_Vec8fb: convert integer bitfield to boolean vector
+// DEPRECATED. REPLACED BY load_bits
 static inline Vec8fb to_Vec8fb(uint8_t x) {
-    return Vec8fb(to_Vec8ib(x));
+    return Vec8fb().load_bits(x);
 }
 
 // to_bits: convert boolean vector to integer bitfield
 static inline uint8_t to_bits(Vec4db const & x) {
-    return to_bits(Vec4qb(x));
+    return to_bits(Vec4qb(reinterpret_i(x)));
 }
 
 // to_Vec4db: convert integer bitfield to boolean vector
+// DEPRECATED. REPLACED BY load_bits
 static inline Vec4db to_Vec4db(uint8_t x) {
-    return Vec4db(to_Vec4qb(x));
+    return Vec4db().load_bits(x);
 }
 
-#endif // VECTORF256_H
+#ifdef VCL_NAMESPACE
+}
+#endif
+
+#endif // VECTORF256E_H

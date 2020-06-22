@@ -1,16 +1,14 @@
 /****************************  vectori512.h   *******************************
 * Author:        Agner Fog
 * Date created:  2014-07-23
-* Last modified: 2014-10-16
-* Version:       1.16
-* Project:       vector classes
+* Last modified: 2019-08-01
+* Version:       1.40.00
+* Project:       vector class library
 * Description:
-* Header file defining integer vector classes as interface to intrinsic 
-* functions in x86 microprocessors with AVX512 and later instruction sets.
+* Header file defining 512-bit integer vector classes for 32 and 64 bit integers.
+* For x86 microprocessors with AVX512F and later instruction sets.
 *
-* Instructions:
-* Use Gnu, Intel or Microsoft C++ compiler. Compile for the desired 
-* instruction set, which must be at least AVX512. 
+* Instructions: see vcl_manual.pdf
 *
 * The following vector classes are defined here:
 * Vec16i    Vector of  16  32-bit signed   integers
@@ -19,45 +17,48 @@
 * Vec8q     Vector of   8  64-bit signed   integers
 * Vec8uq    Vector of   8  64-bit unsigned integers
 * Vec8qb    Vector of   8  Booleans for use with Vec8q and Vec8uq
+* Other 512-bit integer vectors are defined in Vectori512s.h
 *
 * Each vector object is represented internally in the CPU as a 512-bit register.
 * This header file defines operators and functions for these vectors.
 *
-* For detailed instructions, see VectorClass.pdf
-*
-* (c) Copyright 2014 GNU General Public License http://www.gnu.org/licenses
+* (c) Copyright 2012-2019 Agner Fog.
+* Apache License version 2.0 or later.
 *****************************************************************************/
 
+#ifndef VECTORCLASS_H
+#include "vectorclass.h"
+#endif
+
+#if VECTORCLASS_H > 19999
+#error Incompatible versions of vector class library mixed
+#endif
+
+#ifndef VECTORI512_H
+#define VECTORI512_H  1
+
 // check combination of header files
-#if defined (VECTORI512_H)
-#if    VECTORI512_H != 2
+#ifdef VECTORI512E_H
 #error Two different versions of vectori512.h included
 #endif
-#else
-#define VECTORI512_H  2
 
-#ifdef VECTORF512_H
-#error Please put header file vectori512.h before vectorf512.h
+
+#ifdef VCL_NAMESPACE
+namespace VCL_NAMESPACE {
 #endif
 
-
-#if INSTRSET < 9   // AVX512 required
-#error Wrong instruction set for vectori512.h, AVX512 required or use vectori512e.h
-#endif
-
-#include "vectori256.h"
-
-
-// Bug fix for missing intrinsics:
+// Bug fix for missing intrinsics: !
 // _mm512_cmpgt_epu32_mask, _mm512_cmpgt_epu64_mask
 // all typecast intrinsics
-// Fix expected in GCC version 4.9.2 but not seen yet https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61878
+// Fix expected in GCC version 4.9.3 or 5.0. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61878
 
 // questionable
-// _mm512_mask_mov_epi32 check select(). Doc at https://software.intel.com/en-us/node/513888 is wrong. Bug report filed
+// _mm512_mask_mov_epi32 check select(). 
+// Doc at https://software.intel.com/en-us/node/513888 is wrong. Bug report filed
+// Doc at https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference-intrinsics-for-integer-move-operations is still wrong. Filed another bug report 2019
 
 
-#if defined (GCC_VERSION) && GCC_VERSION < 41102 && !defined(__INTEL_COMPILER) && !defined(__clang__)
+#if defined (GCC_VERSION) && GCC_VERSION < 50000 && !defined(__INTEL_COMPILER) && !defined(__clang__)
 
 static inline  __m512i _mm512_castsi256_si512(__m256i x) {
     union {
@@ -114,6 +115,15 @@ static inline __m512i constant16i() {
     } u = {{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15}};
     return u.zmm;
 }
+template <uint32_t i0, uint32_t i1, uint32_t i2, uint32_t i3, uint32_t i4, uint32_t i5, uint32_t i6, uint32_t i7, 
+    uint32_t i8, uint32_t i9, uint32_t i10, uint32_t i11, uint32_t i12, uint32_t i13, uint32_t i14, uint32_t i15>
+    static inline __m512i constant16ui() {
+    static const union {
+        uint32_t i[16];
+        __m512i zmm;
+    } u = {{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15}};
+    return u.zmm;
+}
 
 
 /*****************************************************************************
@@ -136,16 +146,16 @@ public:
     // Constructor to build from all elements:
     Vec16b(bool b0, bool b1, bool b2, bool b3, bool b4, bool b5, bool b6, bool b7, 
     bool b8, bool b9, bool b10, bool b11, bool b12, bool b13, bool b14, bool b15) {
-        m16 = uint16_t(b0 | b1<<1 | b2<<2 | b3<<3 | b4<<4 | b5<<5 | b6<<6 | b7<<7 |
-              b8<<8 | b9<<9 | b10<<10 | b11<<11 | b12<<12 | b13<<13 | b14<<14 | b15<<15);
+        m16 = uint16_t(
+			(uint16_t)b0 | (uint16_t)b1<<1 | (uint16_t)b2<<2 | (uint16_t)b3<<3 | 
+			(uint16_t)b4<<4 | (uint16_t)b5<<5 | (uint16_t)b6<<6 | (uint16_t)b7<<7 |
+			(uint16_t)b8<<8 | (uint16_t)b9<<9 | (uint16_t)b10<<10 | (uint16_t)b11<<11 | 
+			(uint16_t)b12<<12 | (uint16_t)b13<<13 | (uint16_t)b14<<14 | (uint16_t)b15<<15);
     }
     // Constructor to broadcast single value:
     Vec16b(bool b) {
         m16 = __mmask16(-int16_t(b));
     }
-private: // Prevent constructing from int, etc.
-    Vec16b(int b);
-public:
     // Constructor to make from two halves
     Vec16b (Vec8ib const & x0, Vec8ib const & x1) {
         // = Vec16i(x0,x1) != 0;  (not defined yet)
@@ -162,65 +172,74 @@ public:
         m16 = Vec16b(b);
         return *this;
     }
-private: // Prevent assigning int because of ambiguity
-    Vec16b & operator = (int x);
-public:
     // Type cast operator to convert to __mmask16 used in intrinsics
     operator __mmask16() const {
         return m16;
     }
     // split into two halves
     Vec8ib get_low() const {
-        return to_Vec8ib((uint8_t)m16);
+        return Vec8ib().load_bits(uint8_t(m16));
     }
     Vec8ib get_high() const {
-        return to_Vec8ib((uint16_t)m16 >> 8);
+        return Vec8ib().load_bits(uint8_t((uint16_t)m16 >> 8u));
     }
     // Member function to change a single element in vector
-    // Note: This function is inefficient. Use load function if changing more than one element
-    Vec16b const & insert(uint32_t index, bool value) {
+    Vec16b const & insert(int index, bool value) {
         m16 = __mmask16(((uint16_t)m16 & ~(1 << index)) | (int)value << index);
         return *this;
     }
     // Member function extract a single element from vector
-    bool extract(uint32_t index) const {
+    bool extract(int index) const {
         return ((uint32_t)m16 >> index) & 1;
     }
     // Extract a single element. Operator [] can only read an element, not write.
-    bool operator [] (uint32_t index) const {
+    bool operator [] (int index) const {
         return extract(index);
     }
-    static int size () {
+    // Member function to change a bitfield to a boolean vector
+    Vec16b & load_bits(uint16_t a) {
+        m16 = __mmask16(a);
+        return *this;
+    }
+    // Number of elements
+    static int size() {
         return 16;
     }
+    // Type of elements
+    static int elementtype() {
+        return 2;
+    }
+private: // Prevent constructing from int, etc.
+    Vec16b(int b);
+    Vec16b & operator = (int x);
 };
 
 // Define operators for this class
 
-// vector operator & : bitwise and
+// vector operator & : and
 static inline Vec16b operator & (Vec16b a, Vec16b b) {
-    return _mm512_kand(a, b);
+    return _mm512_kand(__mmask16(a), __mmask16(b));
 }
 static inline Vec16b operator && (Vec16b a, Vec16b b) {
     return a & b;
 }
 
-// vector operator | : bitwise or
+// vector operator | : or
 static inline Vec16b operator | (Vec16b a, Vec16b b) {
-    return _mm512_kor(a, b);
+    return _mm512_kor(__mmask16(a), __mmask16(b));
 }
 static inline Vec16b operator || (Vec16b a, Vec16b b) {
     return a | b;
 }
 
-// vector operator ^ : bitwise xor
+// vector operator ^ : xor
 static inline Vec16b operator ^ (Vec16b a, Vec16b b) {
-    return _mm512_kxor(a, b);
+    return _mm512_kxor(__mmask16(a), __mmask16(b));
 }
 
-// vector operator ~ : bitwise not
+// vector operator ~ : not
 static inline Vec16b operator ~ (Vec16b a) {
-    return _mm512_knot(a);
+    return _mm512_knot(__mmask16(a));
 }
 
 // vector operator ! : element not
@@ -228,19 +247,19 @@ static inline Vec16b operator ! (Vec16b a) {
     return ~a;
 }
 
-// vector operator &= : bitwise and
+// vector operator &= : and
 static inline Vec16b & operator &= (Vec16b & a, Vec16b b) {
     a = a & b;
     return a;
 }
 
-// vector operator |= : bitwise or
+// vector operator |= : or
 static inline Vec16b & operator |= (Vec16b & a, Vec16b b) {
     a = a | b;
     return a;
 }
 
-// vector operator ^= : bitwise xor
+// vector operator ^= : xor
 static inline Vec16b & operator ^= (Vec16b & a, Vec16b b) {
     a = a ^ b;
     return a;
@@ -294,9 +313,6 @@ public:
     }
     // Constructor to broadcast single value:
     Vec16ib(bool b) : Vec16b(b) {}
-private: // Prevent constructing from int, etc.
-    Vec16ib(int b);
-public:
     // Constructor to make from two halves
     Vec16ib (Vec8ib const & x0, Vec8ib const & x1) {
         m16 = Vec16b(x0, x1);
@@ -311,14 +327,14 @@ public:
         m16 = Vec16b(b);
         return *this;
     }
-private: // Prevent assigning int because of ambiguity
+private: // Prevent constructing from int, etc.
+    Vec16ib(int b);
     Vec16ib & operator = (int x);
-public:
 };
 
 // Define operators for Vec16ib
 
-// vector operator & : bitwise and
+// vector operator & : and
 static inline Vec16ib operator & (Vec16ib a, Vec16ib b) {
     return Vec16b(a) & Vec16b(b);
 }
@@ -326,7 +342,7 @@ static inline Vec16ib operator && (Vec16ib a, Vec16ib b) {
     return a & b;
 }
 
-// vector operator | : bitwise or
+// vector operator | : or
 static inline Vec16ib operator | (Vec16ib a, Vec16ib b) {
     return Vec16b(a) | Vec16b(b);
 }
@@ -334,34 +350,44 @@ static inline Vec16ib operator || (Vec16ib a, Vec16ib b) {
     return a | b;
 }
 
-// vector operator ^ : bitwise xor
+// vector operator ^ : xor
 static inline Vec16ib operator ^ (Vec16ib a, Vec16ib b) {
     return Vec16b(a) ^ Vec16b(b);
 }
 
-// vector operator ~ : bitwise not
+// vector operator == : xnor
+static inline Vec16ib operator == (Vec16ib const & a, Vec16ib const & b) {
+    return _mm512_kxnor(__mmask16(a), __mmask16(b));
+}
+
+// vector operator != : xor
+static inline Vec16ib operator != (Vec16ib const & a, Vec16ib const & b) {
+    return Vec16ib(a ^ b);
+}
+
+// vector operator ~ : not
 static inline Vec16ib operator ~ (Vec16ib a) {
     return ~Vec16b(a);
 }
 
-// vector operator ! : element not
+// vector operator ! : not
 static inline Vec16ib operator ! (Vec16ib a) {
     return ~a;
 }
 
-// vector operator &= : bitwise and
+// vector operator &= : and
 static inline Vec16ib & operator &= (Vec16ib & a, Vec16ib b) {
     a = a & b;
     return a;
 }
 
-// vector operator |= : bitwise or
+// vector operator |= : or
 static inline Vec16ib & operator |= (Vec16ib & a, Vec16ib b) {
     a = a | b;
     return a;
 }
 
-// vector operator ^= : bitwise xor
+// vector operator ^= : xor
 static inline Vec16ib & operator ^= (Vec16ib & a, Vec16ib b) {
     a = a ^ b;
     return a;
@@ -384,41 +410,74 @@ public:
     // Default constructor:
     Vec8b () {
     }
-    // Constructor to convert from type __mmask8 used in intrinsics:
-    Vec8b (__mmask8 x) {
+    // Constructor to convert from type __mmask16 used in intrinsics:
+    Vec8b (__mmask16 x) {
         m16 = x;
     }
     // Constructor to build from all elements:
     Vec8b(bool b0, bool b1, bool b2, bool b3, bool b4, bool b5, bool b6, bool b7) {
-        m16 = uint16_t(b0 | b1<<1 | b2<<2 | b3<<3 | b4<<4 | b5<<5 | b6<<6 | b7<<7);
+        m16 = uint16_t((uint16_t)b0 | (uint16_t)b1<<1 | (uint16_t)b2<<2 | (uint16_t)b3<<3 | 
+			(uint16_t)b4<<4 | (uint16_t)b5<<5 | (uint16_t)b6<<6 | (uint16_t)b7<<7);
     }
     Vec8b (Vec16b const & x) {
-        m16 = __mmask8(x);
+        m16 = __mmask16(x);
     }
     // Constructor to broadcast single value:
     Vec8b(bool b) {
-        m16 = __mmask8(-int8_t(b));
+        m16 = __mmask16(-int8_t(b));
     }
-    // Assignment operator to convert from type __mmask8 used in intrinsics:
-    Vec8b & operator = (__mmask8 x) {
+    // Assignment operator to convert from type __mmask16 used in intrinsics:
+    Vec8b & operator = (__mmask16 x) {
         m16 = x;
         return *this;
     }
+	// Type cast operator to convert to __mmask8 used in intrinsics
+	operator __mmask8() const {
+		return (__mmask8)m16;
+	}
+    // split into two halves
+    Vec4qb get_low() const {
+        return Vec4qb(Vec4q(_mm512_castsi512_si256(_mm512_maskz_set1_epi64(__mmask8(m16), -1LL))));
+    }
+    Vec4qb get_high() const {
+        return Vec8b(__mmask16(m16 >> 4)).get_low();
+    }
+    // Member function to change a bitfield to a boolean vector
+    Vec8b & load_bits(uint8_t a) {
+        m16 = __mmask16(uint16_t(a));
+        return *this;
+    }
+    static int size() {
+        return 8;
+    }
+    static int elementtype() {
+        return 2;
+    } 
 private: // Prevent constructing from int etc. because of ambiguity
     Vec8b(int b);
     Vec8b & operator = (int x);
-public:
-    // split into two halves
-    Vec4qb get_low() const {
-        return Vec4qb(Vec4q(_mm512_castsi512_si256(_mm512_maskz_set1_epi64(__mmask16(m16), -1LL))));
-    }
-    Vec4qb get_high() const {
-        return Vec8b(__mmask8(m16 >> 4)).get_low();
-    }
-    static int size () {
-        return 8;
-    }
 };
+
+/*****************************************************************************
+*
+*          Functions for boolean vectors
+*
+*****************************************************************************/
+
+// function andnot: a & ~ b
+static inline Vec8b andnot (Vec8b a, Vec8b b) {
+    return _mm512_kandn(b, a);
+}
+
+// horizontal_and. Returns true if all bits are 1
+static inline bool horizontal_and (Vec8b const & a) {
+    return (uint8_t)(__mmask16)a == 0xFF;
+}
+
+// horizontal_or. Returns true if at least one bit is 1
+static inline bool horizontal_or (Vec8b const & a) {
+    return (uint8_t)(__mmask16)a != 0;
+}
 
 
 /*****************************************************************************
@@ -441,10 +500,14 @@ public:
     }
     // Constructor to convert from type __mmask8 used in intrinsics:
     Vec8qb (__mmask8 x) {
+        m16 = (__mmask16)x;
+    }
+    // Constructor to convert from type __mmask16 used in intrinsics:
+    Vec8qb (__mmask16 x) {
         m16 = x;
     }
-    // Assignment operator to convert from type __mmask8 used in intrinsics:
-    Vec8qb & operator = (__mmask8 x) {
+    // Assignment operator to convert from type __mmask16 used in intrinsics:
+    Vec8qb & operator = (__mmask16 x) {
         m16 = x;
         return *this;
     }
@@ -469,7 +532,7 @@ public:
 
 // Define operators for Vec8qb
 
-// vector operator & : bitwise and
+// vector operator & : and
 static inline Vec8qb operator & (Vec8qb a, Vec8qb b) {
     return Vec16b(a) & Vec16b(b);
 }
@@ -477,7 +540,7 @@ static inline Vec8qb operator && (Vec8qb a, Vec8qb b) {
     return a & b;
 }
 
-// vector operator | : bitwise or
+// vector operator | : or
 static inline Vec8qb operator | (Vec8qb a, Vec8qb b) {
     return Vec16b(a) | Vec16b(b);
 }
@@ -485,34 +548,44 @@ static inline Vec8qb operator || (Vec8qb a, Vec8qb b) {
     return a | b;
 }
 
-// vector operator ^ : bitwise xor
+// vector operator ^ : xor
 static inline Vec8qb operator ^ (Vec8qb a, Vec8qb b) {
     return Vec16b(a) ^ Vec16b(b);
 }
 
-// vector operator ~ : bitwise not
+// vector operator == : xnor
+static inline Vec8qb operator == (Vec8qb const & a, Vec8qb const & b) {
+    return _mm512_kxnor(a, b);
+}
+
+// vector operator != : xor
+static inline Vec8qb operator != (Vec8qb const & a, Vec8qb const & b) {
+    return Vec8qb(a ^ b);
+}
+
+// vector operator ~ : not
 static inline Vec8qb operator ~ (Vec8qb a) {
     return ~Vec16b(a);
 }
 
-// vector operator ! : element not
+// vector operator ! : not
 static inline Vec8qb operator ! (Vec8qb a) {
     return ~a;
 }
 
-// vector operator &= : bitwise and
+// vector operator &= : and
 static inline Vec8qb & operator &= (Vec8qb & a, Vec8qb b) {
     a = a & b;
     return a;
 }
 
-// vector operator |= : bitwise or
+// vector operator |= : or
 static inline Vec8qb & operator |= (Vec8qb & a, Vec8qb b) {
     a = a | b;
     return a;
 }
 
-// vector operator ^= : bitwise xor
+// vector operator ^= : xor
 static inline Vec8qb & operator ^= (Vec8qb & a, Vec8qb b) {
     a = a ^ b;
     return a;
@@ -581,8 +654,8 @@ public:
         _mm512_store_si512(p, zmm);
     }
     // Member function to change a single bit, mainly for test purposes
-    // Note: This function is inefficient. Use load function if changing more than one bit
-    Vec512b const & set_bit(uint32_t index, int value) {
+    // DEPRECATED
+    Vec512b const & set_bit(int index, int value) {
         static uint64_t m[16] = {0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0};
         int wi = (index >> 6) & 7;               // qword index
         int bi = index & 0x3F;                   // bit index within qword w
@@ -598,8 +671,8 @@ public:
         return *this;
     }
     // Member function to get a single bit, mainly for test purposes
-    // Note: This function is inefficient. Use store function if reading more than one bit
-    int get_bit(uint32_t index) const {
+    // DEPRECATED
+    int get_bit(int index) const {
         union {
             __m512i z;
             uint8_t i[64];
@@ -616,8 +689,11 @@ public:
     Vec256b get_high() const {
         return _mm512_extracti64x4_epi64(zmm,1);
     }
-    static int size () {
+    static int size() {
         return 512;
+    }
+    static int elementtype() {
+        return 1;
     }
 };
 
@@ -686,16 +762,16 @@ class Vec16i: public Vec512b {
 public:
     // Default constructor:
     Vec16i() {
-    };
+    }
     // Constructor to broadcast the same value into all elements:
     Vec16i(int i) {
         zmm = _mm512_set1_epi32(i);
-    };
+    }
     // Constructor to build from all elements:
     Vec16i(int32_t i0, int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5, int32_t i6, int32_t i7,
         int32_t i8, int32_t i9, int32_t i10, int32_t i11, int32_t i12, int32_t i13, int32_t i14, int32_t i15) {
         zmm = _mm512_setr_epi32(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15);
-    };
+    }
     // Constructor to build from two Vec8i:
     Vec16i(Vec8i const & a0, Vec8i const & a1) {
         zmm = _mm512_inserti64x4(_mm512_castsi256_si512(a0), a1, 1);
@@ -703,16 +779,20 @@ public:
     // Constructor to convert from type __m512i used in intrinsics:
     Vec16i(__m512i const & x) {
         zmm = x;
-    };
+    }
     // Assignment operator to convert from type __m512i used in intrinsics:
     Vec16i & operator = (__m512i const & x) {
         zmm = x;
         return *this;
-    };
+    }
+    // Constructor to convert from type Vec512b used in emulation:
+    Vec16i(Vec512b const & x) {
+        zmm = x;
+    }
     // Type cast operator to convert to __m512i used in intrinsics
     operator __m512i() const {
         return zmm;
-    };
+    }
     // Member function to load from array (unaligned)
     Vec16i & load(void const * p) {
         zmm = _mm512_loadu_si512(p);
@@ -725,32 +805,37 @@ public:
     }
     // Partial load. Load n elements and set the rest to 0
     Vec16i & load_partial(int n, void const * p) {
-        zmm = _mm512_maskz_loadu_epi32(__mmask16((1 << n) - 1), p);
+        zmm = _mm512_maskz_loadu_epi32(__mmask16((1u << n) - 1), p);
         return *this;
     }
     // Partial store. Store n elements
     void store_partial(int n, void * p) const {
-        _mm512_mask_storeu_epi32(p, __mmask16((1 << n) - 1), zmm);
+        _mm512_mask_storeu_epi32(p, __mmask16((1u << n) - 1), zmm);
     }
     // cut off vector to n elements. The last 16-n elements are set to zero
     Vec16i & cutoff(int n) {
-        zmm = _mm512_maskz_mov_epi32(__mmask16((1 << n) - 1), zmm);
+        zmm = _mm512_maskz_mov_epi32(__mmask16((1u << n) - 1), zmm);
         return *this;
     }
     // Member function to change a single element in vector
-    Vec16i const & insert(uint32_t index, int32_t value) {
-        zmm = _mm512_mask_set1_epi32(zmm, __mmask16(1 << index), value);
+    Vec16i const & insert(int index, int32_t value) {
+        zmm = _mm512_mask_set1_epi32(zmm, __mmask16(1u << index), value);
         return *this;
-    };
+    }
     // Member function extract a single element from vector
-    int32_t extract(uint32_t index) const {
+    int32_t extract(int index) const {
+#if INSTRSET >= 10
+        __m512i x = _mm512_maskz_compress_epi32(__mmask16(1u << index), zmm);
+        return _mm_cvtsi128_si32(_mm512_castsi512_si128(x));        
+#else 
         int32_t a[16];
         store(a);
         return a[index & 15];
+#endif
     }
     // Extract a single element. Use store function if extracting more than one element.
     // Operator [] can only read an element, not write.
-    int32_t operator [] (uint32_t index) const {
+    int32_t operator [] (int index) const {
         return extract(index);
     }
     // Member functions to split into two Vec8i:
@@ -762,6 +847,9 @@ public:
     }
     static int size () {
         return 16;
+    }
+    static int elementtype() {
+        return 8;
     }
 };
 
@@ -940,6 +1028,16 @@ static inline Vec16i if_add (Vec16ib const & f, Vec16i const & a, Vec16i const &
     return _mm512_mask_add_epi32(a, f, a, b);
 }
 
+// Conditional sub: For all vector elements i: result[i] = f[i] ? (a[i] - b[i]) : a[i]
+static inline Vec16i if_sub (Vec16ib const & f, Vec16i const & a, Vec16i const & b) {
+    return _mm512_mask_sub_epi32(a, f, a, b);
+}
+
+// Conditional mul: For all vector elements i: result[i] = f[i] ? (a[i] * b[i]) : a[i]
+static inline Vec16i if_mul (Vec16ib const & f, Vec16i const & a, Vec16i const & b) {
+    return _mm512_mask_mullo_epi32(a, f, a, b);
+}
+
 // Horizontal add: Calculates the sum of all vector elements.
 // Overflow will wrap around
 static inline int32_t horizontal_add (Vec16i const & a) {
@@ -1017,16 +1115,17 @@ class Vec16ui : public Vec16i {
 public:
     // Default constructor:
     Vec16ui() {
-    };
+    }
     // Constructor to broadcast the same value into all elements:
     Vec16ui(uint32_t i) {
-        zmm = _mm512_set1_epi32(i);
-    };
+        zmm = _mm512_set1_epi32((int32_t)i);
+    }
     // Constructor to build from all elements:
     Vec16ui(uint32_t i0, uint32_t i1, uint32_t i2, uint32_t i3, uint32_t i4, uint32_t i5, uint32_t i6, uint32_t i7, 
         uint32_t i8, uint32_t i9, uint32_t i10, uint32_t i11, uint32_t i12, uint32_t i13, uint32_t i14, uint32_t i15) {
-        zmm = _mm512_setr_epi32(i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15);
-    };
+        zmm = _mm512_setr_epi32((int32_t)i0, (int32_t)i1, (int32_t)i2, (int32_t)i3, (int32_t)i4, (int32_t)i5, (int32_t)i6, (int32_t)i7, 
+            (int32_t)i8, (int32_t)i9, (int32_t)i10, (int32_t)i11, (int32_t)i12, (int32_t)i13, (int32_t)i14, (int32_t)i15);
+    }
     // Constructor to build from two Vec8ui:
     Vec16ui(Vec8ui const & a0, Vec8ui const & a1) {
         zmm = Vec16i(Vec8i(a0), Vec8i(a1));
@@ -1034,12 +1133,12 @@ public:
     // Constructor to convert from type __m512i used in intrinsics:
     Vec16ui(__m512i const & x) {
         zmm = x;
-    };
+    }
     // Assignment operator to convert from type __m512i used in intrinsics:
     Vec16ui & operator = (__m512i const & x) {
         zmm = x;
         return *this;
-    };
+    }
     // Member function to load from array (unaligned)
     Vec16ui & load(void const * p) {
         Vec16i::load(p);
@@ -1051,18 +1150,17 @@ public:
         return *this;
     }
     // Member function to change a single element in vector
-    // Note: This function is inefficient. Use load function if changing more than one element
-    Vec16ui const & insert(uint32_t index, uint32_t value) {
-        Vec16i::insert(index, value);
+    Vec16ui const & insert(int index, uint32_t value) {
+        Vec16i::insert(index, (int32_t)value);
         return *this;
     }
     // Member function extract a single element from vector
-    uint32_t extract(uint32_t index) const {
-        return Vec16i::extract(index);
+    uint32_t extract(int index) const {
+        return (uint32_t)Vec16i::extract(index);
     }
     // Extract a single element. Use store function if extracting more than one element.
     // Operator [] can only read an element, not write.
-    uint32_t operator [] (uint32_t index) const {
+    uint32_t operator [] (int index) const {
         return extract(index);
     }
     // Member functions to split into two Vec4ui:
@@ -1071,6 +1169,9 @@ public:
     }
     Vec8ui get_high() const {
         return Vec8ui(Vec16i::get_high());
+    }
+    static int elementtype() {
+        return 9;
     }
 };
 
@@ -1096,10 +1197,8 @@ static inline Vec16ui operator * (Vec16ui const & a, Vec16ui const & b) {
 
 // vector operator >> : shift right logical all elements
 static inline Vec16ui operator >> (Vec16ui const & a, uint32_t b) {
-    return _mm512_srl_epi32(a, _mm_cvtsi32_si128(b)); 
+    return _mm512_srl_epi32(a, _mm_cvtsi32_si128((int32_t)b)); 
 }
-
-// vector operator >> : shift right logical all elements
 static inline Vec16ui operator >> (Vec16ui const & a, int32_t b) {
     return a >> (uint32_t)b;
 }
@@ -1180,10 +1279,20 @@ static inline Vec16ui if_add (Vec16ib const & f, Vec16ui const & a, Vec16ui cons
     return Vec16ui(if_add(f, Vec16i(a), Vec16i(b)));
 }
 
+// Conditional sub: For all vector elements i: result[i] = f[i] ? (a[i] - b[i]) : a[i]
+static inline Vec16ui if_sub (Vec16ib const & f, Vec16ui const & a, Vec16ui const & b) {
+    return Vec16ui(if_sub(f, Vec16i(a), Vec16i(b)));
+}
+
+// Conditional mul: For all vector elements i: result[i] = f[i] ? (a[i] * b[i]) : a[i]
+static inline Vec16ui if_mul (Vec16ib const & f, Vec16ui const & a, Vec16ui const & b) {
+    return Vec16ui(if_mul(f, Vec16i(a), Vec16i(b)));
+}
+
 // Horizontal add: Calculates the sum of all vector elements.
 // Overflow will wrap around
 static inline uint32_t horizontal_add (Vec16ui const & a) {
-    return horizontal_add((Vec16i)a);
+    return (uint32_t)horizontal_add((Vec16i)a);
 }
 
 // horizontal_add_x: Horizontal add extended: Calculates the sum of all vector elements. Defined later in this file
@@ -1260,34 +1369,37 @@ public:
     }
     // Partial load. Load n elements and set the rest to 0
     Vec8q & load_partial(int n, void const * p) {
-        zmm = _mm512_maskz_loadu_epi64(__mmask8((1 << n) - 1), p);
+        zmm = _mm512_maskz_loadu_epi64(__mmask16((1 << n) - 1), p);
         return *this;
     }
     // Partial store. Store n elements
     void store_partial(int n, void * p) const {
-        _mm512_mask_storeu_epi64(p, __mmask8((1 << n) - 1), zmm);
+        _mm512_mask_storeu_epi64(p, __mmask16((1 << n) - 1), zmm);
     }
     // cut off vector to n elements. The last 8-n elements are set to zero
     Vec8q & cutoff(int n) {
-        zmm = _mm512_maskz_mov_epi64(__mmask8((1 << n) - 1), zmm);
+        zmm = _mm512_maskz_mov_epi64(__mmask16((1 << n) - 1), zmm);
         return *this;
     }
     // Member function to change a single element in vector
-    // Note: This function is inefficient. Use load function if changing more than one element
-    Vec8q const & insert(uint32_t index, int64_t value) {
-        zmm = _mm512_mask_set1_epi64(zmm, __mmask8(1 << index), value);
-        // zmm = _mm512_mask_blend_epi64(__mmask8(1 << index), zmm, _mm512_set1_epi64(value));
+    Vec8q const & insert(int index, int64_t value) {
+        zmm = _mm512_mask_set1_epi64(zmm, __mmask16(1 << index), value);
         return *this;
     }
     // Member function extract a single element from vector
-    int64_t extract(uint32_t index) const {
+    int64_t extract(int index) const {
+#if INSTRSET >= 10
+        __m512i x = _mm512_maskz_compress_epi64(__mmask8(1u << index), zmm);
+        return _emulate_movq(_mm512_castsi512_si128(x));        
+#else 
         int64_t a[8];
         store (a);
         return a[index & 7];
+#endif
     }
     // Extract a single element. Use store function if extracting more than one element.
     // Operator [] can only read an element, not write.
-    int64_t operator [] (uint32_t index) const {
+    int64_t operator [] (int index) const {
         return extract(index);
     }
     // Member functions to split into two Vec2q:
@@ -1299,6 +1411,9 @@ public:
     }
     static int size () {
         return 8;
+    }
+    static int elementtype() {
+        return 10;
     }
 };
 
@@ -1360,10 +1475,22 @@ static inline Vec8q & operator -- (Vec8q & a) {
 
 // vector operator * : multiply element by element
 static inline Vec8q operator * (Vec8q const & a, Vec8q const & b) {
-#if defined (GCC_VERSION) && GCC_VERSION < 41100 && !defined(__INTEL_COMPILER) && !defined(__clang__)
-    return Vec8q(a.get_low() * b.get_low(), a.get_high() * b.get_high());  // _mm512_mullox_epi64 missing in gcc 4.10.
+#if INSTRSET >= 10  // __AVX512DQ__
+    return _mm512_mullo_epi64(a, b);
+#elif defined (__INTEL_COMPILER)
+    return _mm512_mullox_epi64(a, b);                      // _mm512_mullox_epi64 missing in gcc
 #else
-    return _mm512_mullox_epi64(a, b);
+    // instruction does not exist. Split into 32-bit multiplies
+    //__m512i ahigh = _mm512_shuffle_epi32(a, 0xB1);       // swap H<->L
+    __m512i ahigh   = _mm512_srli_epi64(a, 32);            // high 32 bits of each a
+    __m512i bhigh   = _mm512_srli_epi64(b, 32);            // high 32 bits of each b
+    __m512i prodahb = _mm512_mul_epu32(ahigh, b);          // ahigh*b
+    __m512i prodbha = _mm512_mul_epu32(bhigh, a);          // bhigh*a
+    __m512i prodhl  = _mm512_add_epi64(prodahb, prodbha);  // sum of high*low products
+    __m512i prodhi  = _mm512_slli_epi64(prodhl, 32);       // same, shifted high
+    __m512i prodll  = _mm512_mul_epu32(a, b);              // alow*blow = 64 bit unsigned products
+    __m512i prod    = _mm512_add_epi64(prodll, prodhi);    // low*low+(high*low)<<32
+    return  prod;
 #endif
 }
 
@@ -1397,17 +1524,17 @@ static inline Vec8q & operator >>= (Vec8q & a, int32_t b) {
 
 // vector operator == : returns true for elements for which a == b
 static inline Vec8qb operator == (Vec8q const & a, Vec8q const & b) {
-    return _mm512_cmpeq_epi64_mask(a, b);
+    return Vec8qb(_mm512_cmpeq_epi64_mask(a, b));
 }
 
 // vector operator != : returns true for elements for which a != b
 static inline Vec8qb operator != (Vec8q const & a, Vec8q const & b) {
-    return _mm512_cmpneq_epi64_mask(a, b);
+    return Vec8qb(_mm512_cmpneq_epi64_mask(a, b));
 }
   
 // vector operator < : returns true for elements for which a < b
 static inline Vec8qb operator < (Vec8q const & a, Vec8q const & b) {
-    return _mm512_cmplt_epi64_mask(a, b);
+    return Vec8qb(_mm512_cmplt_epi64_mask(a, b));
 }
 
 // vector operator > : returns true for elements for which a > b
@@ -1417,7 +1544,7 @@ static inline Vec8qb operator > (Vec8q const & a, Vec8q const & b) {
 
 // vector operator >= : returns true for elements for which a >= b (signed)
 static inline Vec8qb operator >= (Vec8q const & a, Vec8q const & b) {
-    return _mm512_cmpge_epi64_mask(a, b);
+    return Vec8qb(_mm512_cmpge_epi64_mask(a, b));
 }
 
 // vector operator <= : returns true for elements for which a <= b (signed)
@@ -1476,6 +1603,20 @@ static inline Vec8q if_add (Vec8qb const & f, Vec8q const & a, Vec8q const & b) 
     return _mm512_mask_add_epi64(a, f, a, b);
 }
 
+// Conditional sub: For all vector elements i: result[i] = f[i] ? (a[i] - b[i]) : a[i]
+static inline Vec8q if_sub (Vec8qb const & f, Vec8q const & a, Vec8q const & b) {
+    return _mm512_mask_sub_epi64(a, f, a, b);
+}
+
+// Conditional mul: For all vector elements i: result[i] = f[i] ? (a[i] * b[i]) : a[i]
+static inline Vec8q if_mul (Vec8qb const & f, Vec8q const & a, Vec8q const & b) {
+#if INSTRSET >= 10
+    return _mm512_mask_mullo_epi64(a, f, a, b);  // AVX512DQ
+#else
+    return select(f, a*b, a);
+#endif
+}
+
 // Horizontal add: Calculates the sum of all vector elements.
 // Overflow will wrap around
 static inline int64_t horizontal_add (Vec8q const & a) {
@@ -1499,7 +1640,7 @@ static inline int64_t horizontal_add_x (Vec16i const & x) {
 static inline uint64_t horizontal_add_x (Vec16ui const & x) {
     Vec8q a = _mm512_cvtepu32_epi64(x.get_low());
     Vec8q b = _mm512_cvtepu32_epi64(x.get_high());
-    return horizontal_add(a+b);
+    return (uint64_t)horizontal_add(a+b);
 }
 
 // function max: a > b ? a : b
@@ -1542,7 +1683,7 @@ public:
     }
     // Constructor to broadcast the same value into all elements:
     Vec8uq(uint64_t i) {
-        zmm = Vec8q(i);
+        zmm = Vec8q((int64_t)i);
     }
     // Constructor to convert from Vec8q:
     Vec8uq(Vec8q const & x) {
@@ -1554,7 +1695,7 @@ public:
     }
     // Constructor to build from all elements:
     Vec8uq(uint64_t i0, uint64_t i1, uint64_t i2, uint64_t i3, uint64_t i4, uint64_t i5, uint64_t i6, uint64_t i7) {
-        zmm = Vec8q(i0, i1, i2, i3, i4, i5, i6, i7);
+        zmm = Vec8q((int64_t)i0, (int64_t)i1, (int64_t)i2, (int64_t)i3, (int64_t)i4, (int64_t)i5, (int64_t)i6, (int64_t)i7);
     }
     // Constructor to build from two Vec4uq:
     Vec8uq(Vec4uq const & a0, Vec4uq const & a1) {
@@ -1581,18 +1722,17 @@ public:
         return *this;
     }
     // Member function to change a single element in vector
-    // Note: This function is inefficient. Use load function if changing more than one element
-    Vec8uq const & insert(uint32_t index, uint64_t value) {
-        Vec8q::insert(index, value);
+    Vec8uq const & insert(int index, uint64_t value) {
+        Vec8q::insert(index, (int64_t)value);
         return *this;
     }
     // Member function extract a single element from vector
-    uint64_t extract(uint32_t index) const {
-        return Vec8q::extract(index);
+    uint64_t extract(int index) const {
+        return (uint64_t)Vec8q::extract(index);
     }
     // Extract a single element. Use store function if extracting more than one element.
     // Operator [] can only read an element, not write.
-    uint64_t operator [] (uint32_t index) const {
+    uint64_t operator [] (int index) const {
         return extract(index);
     }
     // Member functions to split into two Vec2uq:
@@ -1601,6 +1741,9 @@ public:
     }
     Vec4uq get_high() const {
         return Vec4uq(Vec8q::get_high());
+    }
+    static int elementtype() {
+        return 10;
     }
 };
 
@@ -1623,10 +1766,8 @@ static inline Vec8uq operator * (Vec8uq const & a, Vec8uq const & b) {
 
 // vector operator >> : shift right logical all elements
 static inline Vec8uq operator >> (Vec8uq const & a, uint32_t b) {
-    return _mm512_srl_epi64(a,_mm_cvtsi32_si128(b)); 
+    return _mm512_srl_epi64(a,_mm_cvtsi32_si128((int32_t)b)); 
 }
-
-// vector operator >> : shift right logical all elements
 static inline Vec8uq operator >> (Vec8uq const & a, int32_t b) {
     return a >> (uint32_t)b;
 }
@@ -1701,10 +1842,24 @@ static inline Vec8uq if_add (Vec8qb const & f, Vec8uq const & a, Vec8uq const & 
     return _mm512_mask_add_epi64(a, f, a, b);
 }
 
+// Conditional sub: For all vector elements i: result[i] = f[i] ? (a[i] - b[i]) : a[i]
+static inline Vec8uq if_sub (Vec8qb const & f, Vec8uq const & a, Vec8uq const & b) {
+    return _mm512_mask_sub_epi64(a, f, a, b);
+}
+
+// Conditional mul: For all vector elements i: result[i] = f[i] ? (a[i] * b[i]) : a[i]
+static inline Vec8uq if_mul (Vec8qb const & f, Vec8uq const & a, Vec8uq const & b) {
+#if INSTRSET >= 10
+    return _mm512_mask_mullo_epi64(a, f, a, b);  // AVX512DQ
+#else
+    return select(f, a*b, a);
+#endif
+}
+
 // Horizontal add: Calculates the sum of all vector elements.
 // Overflow will wrap around
 static inline uint64_t horizontal_add (Vec8uq const & a) {
-    return horizontal_add(Vec8q(a));
+    return (uint64_t)horizontal_add(Vec8q(a));
 }
 
 // function max: a > b ? a : b
@@ -1734,7 +1889,7 @@ static inline Vec8uq min(Vec8uq const & a, Vec8uq const & b) {
 * Example:
 * Vec8q a(10,11,12,13,14,15,16,17);      // a is (10,11,12,13,14,15,16,17)
 * Vec8q b;
-* b = permute8q<0,2,7,7,-1,-1,1,1>(a);   // b is (10,12,17,17, 0, 0,11,11)
+* b = permute8<0,2,7,7,-1,-1,1,1>(a);   // b is (10,12,17,17, 0, 0,11,11)
 *
 * A lot of the code here is metaprogramming aiming to find the instructions
 * that best fit the template parameters and instruction set. The metacode
@@ -1745,7 +1900,7 @@ static inline Vec8uq min(Vec8uq const & a, Vec8uq const & b) {
 // Permute vector of 8 64-bit integers.
 // Index -1 gives 0, index -256 means don't care.
 template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7>
-static inline Vec8q permute8q(Vec8q const & a) {
+static inline Vec8q permute8(Vec8q const & a) {
 
     // Combine indexes into a single bitfield, with 4 bits for each
     const int m1 = (i0&7) | (i1&7)<<4 | (i2&7)<< 8 | (i3&7)<<12 | (i4&7)<<16 | (i5&7)<<20 | (i6&7)<<24 | (i7&7)<<28;
@@ -1761,7 +1916,7 @@ static inline Vec8q permute8q(Vec8q const & a) {
     if (mz == 0) return  _mm512_setzero_epi32();
 
     // mask for elements not zeroed
-    const __mmask8  z = __mmask8((i0>=0)<<0 | (i1>=0)<<1 | (i2>=0)<<2 | (i3>=0)<<3 | (i4>=0)<<4 | (i5>=0)<<5 | (i6>=0)<<6 | (i7>=0)<<7);
+    const __mmask16  z = __mmask16((i0>=0)<<0 | (i1>=0)<<1 | (i2>=0)<<2 | (i3>=0)<<3 | (i4>=0)<<4 | (i5>=0)<<5 | (i6>=0)<<6 | (i7>=0)<<7);
     // same with 2 bits for each element
     const __mmask16 zz = __mmask16((i0>=0?3:0) | (i1>=0?0xC:0) | (i2>=0?0x30:0) | (i3>=0?0xC0:0) | (i4>=0?0x300:0) | (i5>=0?0xC00:0) | (i6>=0?0x3000:0) | (i7>=0?0xC000:0));
 
@@ -1807,24 +1962,23 @@ static inline Vec8q permute8q(Vec8q const & a) {
     const __m512i pmask = constant16i<i0&7, 0, i1&7, 0, i2&7, 0, i3&7, 0, i4&7, 0, i5&7, 0, i6&7, 0, i7&7, 0>();
     if (dozero) {
         // full permute and zeroing
-        // Documentation is inconsistent. which order of the operands is correct?
         return _mm512_maskz_permutexvar_epi64(z, pmask, a);
     }
-    else {    
+    else {
         return _mm512_permutexvar_epi64(pmask, a);
     }
 }
 
 template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7>
-static inline Vec8uq permute8uq(Vec8uq const & a) {
-    return Vec8uq (permute8q<i0,i1,i2,i3,i4,i5,i6,i7> (a));
+static inline Vec8uq permute8(Vec8uq const & a) {
+    return Vec8uq (permute8<i0,i1,i2,i3,i4,i5,i6,i7> (Vec8q(a)));
 }
 
 
 // Permute vector of 16 32-bit integers.
 // Index -1 gives 0, index -256 means don't care.
 template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14, int i15>
-static inline Vec16i permute16i(Vec16i const & a) {
+static inline Vec16i permute16(Vec16i const & a) {
 
     // Combine indexes into a single bitfield, with 4 bits for each
     const uint64_t m1 = (i0&15) | (i1&15)<<4 | (i2&15)<< 8 | (i3&15)<<12 | (i4&15)<<16 | (i5&15)<<20 | (i6&15)<<24 | (i7&15LL)<<28   // 15LL avoids sign extension of (int32_t | int64_t)
@@ -1849,7 +2003,6 @@ static inline Vec16i permute16i(Vec16i const & a) {
     if (((m1 ^ 0xFEDCBA9876543210) & mz) == 0) {
         // no shuffling
         if (dozero) {
-            // zero some elements
             return _mm512_maskz_mov_epi32(z, a);
         }
         return a;                                 // do nothing
@@ -1897,9 +2050,15 @@ static inline Vec16i permute16i(Vec16i const & a) {
 
 
 template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14, int i15>
-static inline Vec16ui permute16ui(Vec16ui const & a) {
-    return Vec16ui (permute16i<i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15> (a));
+static inline Vec16ui permute4(Vec16ui const & a) {
+    return Vec16ui (permute16<i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15> (Vec16i(a)));
 }
+
+// Support names prior to version 1.40 (now deprecated)
+#define permute8q   permute8
+#define permute8uq  permute8
+#define permute16i  permute16
+#define permute16ui permute16
 
 
 /*****************************************************************************
@@ -1922,7 +2081,7 @@ static inline Vec16ui permute16ui(Vec16ui const & a) {
 * Vec8q a(100,101,102,103,104,105,106,107); // a is (100, 101, 102, 103, 104, 105, 106, 107)
 * Vec8q b(200,201,202,203,204,205,206,207); // b is (200, 201, 202, 203, 204, 205, 206, 207)
 * Vec8q c;
-* c = blend8q<1,0,9,8,7,-1,15,15> (a,b);    // c is (101, 100, 201, 200, 107,   0, 207, 207)
+* c = blend8<1,0,9,8,7,-1,15,15> (a,b);    // c is (101, 100, 201, 200, 107,   0, 207, 207)
 *
 * A lot of the code here is metaprogramming aiming to find the instructions
 * that best fit the template parameters and instruction set. The metacode
@@ -1932,37 +2091,37 @@ static inline Vec16ui permute16ui(Vec16ui const & a) {
 
 
 template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7> 
-static inline Vec8q blend8q(Vec8q const & a, Vec8q const & b) {  
+static inline Vec8q blend8(Vec8q const & a, Vec8q const & b) {  
 
     // Combine indexes into a single bitfield, with 4 bits for each
     const int m1 = (i0&0xF) | (i1&0xF)<<4 | (i2&0xF)<< 8 | (i3&0xF)<<12 | (i4&0xF)<<16 | (i5&0xF)<<20 | (i6&0xF)<<24 | (i7&0xF)<<28;
 
     // Mask to zero out negative indexes
     const int mz = (i0<0?0:0xF) | (i1<0?0:0xF0) | (i2<0?0:0xF00) | (i3<0?0:0xF000) | (i4<0?0:0xF0000) | (i5<0?0:0xF00000) | (i6<0?0:0xF000000) | (i7<0?0:0xF0000000);
-    const int m2 = m1 & mz;
+    //const int m2 = m1 & mz;
 
     // zeroing needed
     const bool dozero = ((i0|i1|i2|i3|i4|i5|i6|i7) & 0x80) != 0;
 
     // mask for elements not zeroed
-    const __mmask8 z = __mmask8((i0>=0)<<0 | (i1>=0)<<1 | (i2>=0)<<2 | (i3>=0)<<3 | (i4>=0)<<4 | (i5>=0)<<5 | (i6>=0)<<6 | (i7>=0)<<7);
+    const __mmask16 z = __mmask16((i0>=0)<<0 | (i1>=0)<<1 | (i2>=0)<<2 | (i3>=0)<<3 | (i4>=0)<<4 | (i5>=0)<<5 | (i6>=0)<<6 | (i7>=0)<<7);
 
     // special case: all zero
     if (mz == 0) return  _mm512_setzero_epi32();
 
     // special case: all from a
     if ((m1 & 0x88888888 & mz) == 0) {
-        return permute8q <i0, i1, i2, i3, i4, i5, i6, i7> (a);
+        return permute8 <i0, i1, i2, i3, i4, i5, i6, i7> (a);
     }
 
     // special case: all from b
     if ((~m1 & 0x88888888 & mz) == 0) {
-        return permute8q <i0^8, i1^8, i2^8, i3^8, i4^8, i5^8, i6^8, i7^8> (b);
+        return permute8 <i0^8, i1^8, i2^8, i3^8, i4^8, i5^8, i6^8, i7^8> (b);
     }
 
     // special case: blend without permute
     if (((m1 ^ 0x76543210) & 0x77777777 & mz) == 0) {
-        __mmask8 blendmask = __mmask8((i0&8)>>3 | (i1&8)>>2 | (i2&8)>>1 | (i3&8)>>0 | (i4&8)<<1 | (i5&8)<<2 | (i6&8)<<3 | (i7&8)<<4 );
+        __mmask16 blendmask = __mmask16((i0&8)>>3 | (i1&8)>>2 | (i2&8)>>1 | (i3&8)>>0 | (i4&8)<<1 | (i5&8)<<2 | (i6&8)<<3 | (i7&8)<<4 );
         __m512i t = _mm512_mask_blend_epi64(blendmask, a, b);
         if (dozero) {
             t = _mm512_maskz_mov_epi64(z, t);
@@ -1984,7 +2143,7 @@ static inline Vec8q blend8q(Vec8q const & a, Vec8q const & b) {
             // This code generates two instructions instead of one, but we are avoiding the slow lane-crossing instruction,
             // and we are saving 64 bytes of data cache.
             // 1. Permute a, zero elements not from a (using _mm512_maskz_shuffle_epi32)
-            __m512i ta = permute8q< (maz&0xF)?i0&7:-1, (maz&0xF0)?i1&7:-1, (maz&0xF00)?i2&7:-1, (maz&0xF000)?i3&7:-1, 
+            __m512i ta = permute8< (maz&0xF)?i0&7:-1, (maz&0xF0)?i1&7:-1, (maz&0xF00)?i2&7:-1, (maz&0xF000)?i3&7:-1, 
                 (maz&0xF0000)?i4&7:-1, (maz&0xF00000)?i5&7:-1, (maz&0xF000000)?i6&7:-1, (maz&0xF0000000)?i7&7:-1> (a);
             // write mask for elements from b
             const __mmask16 sb = ((mbz&0xF)?3:0) | ((mbz&0xF0)?0xC:0) | ((mbz&0xF00)?0x30:0) | ((mbz&0xF000)?0xC0:0) | ((mbz&0xF0000)?0x300:0) | ((mbz&0xF00000)?0xC00:0) | ((mbz&0xF000000)?0x3000:0) | ((mbz&0xF0000000)?0xC000:0);
@@ -2006,14 +2165,14 @@ static inline Vec8q blend8q(Vec8q const & a, Vec8q const & b) {
 }
 
 template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7> 
-static inline Vec8uq blend8uq(Vec8uq const & a, Vec8uq const & b) {
-    return Vec8uq( blend8q<i0,i1,i2,i3,i4,i5,i6,i7> (a,b));
+static inline Vec8uq blend8(Vec8uq const & a, Vec8uq const & b) {
+    return Vec8uq( blend8<i0,i1,i2,i3,i4,i5,i6,i7> (Vec8q(a),Vec8q(b)));
 }
 
 
 template <int i0,  int i1,  int i2,  int i3,  int i4,  int i5,  int i6,  int i7, 
           int i8,  int i9,  int i10, int i11, int i12, int i13, int i14, int i15 > 
-static inline Vec16i blend16i(Vec16i const & a, Vec16i const & b) {  
+static inline Vec16i blend16(Vec16i const & a, Vec16i const & b) {  
 
     // Combine indexes into a single bitfield, with 4 bits for each indicating shuffle, but not source
     const uint64_t m1 = (i0&0xF) | (i1&0xF)<<4 | (i2&0xF)<<8 | (i3&0xF)<<12 | (i4&0xF)<<16 | (i5&0xF)<<20 | (i6&0xF)<<24 | (i7&0xFLL)<<28
@@ -2022,7 +2181,7 @@ static inline Vec16i blend16i(Vec16i const & a, Vec16i const & b) {
     // Mask to zero out negative indexes
     const uint64_t mz = (i0<0?0:0xF) | (i1<0?0:0xF0) | (i2<0?0:0xF00) | (i3<0?0:0xF000) | (i4<0?0:0xF0000) | (i5<0?0:0xF00000) | (i6<0?0:0xF000000) | (i7<0?0:0xF0000000ULL)
         | (i8<0?0:0xF00000000) | (i9<0?0:0xF000000000) | (i10<0?0:0xF0000000000) | (i11<0?0:0xF00000000000) | (i12<0?0:0xF000000000000) | (i13<0?0:0xF0000000000000) | (i14<0?0:0xF00000000000000) | (i15<0?0:0xF000000000000000);
-    const uint64_t m2 = m1 & mz;
+    //const uint64_t m2 = m1 & mz;
 
     // collect bit 4 of each index = select source
     const uint64_t ms = ((i0&16)?0xF:0) | ((i1&16)?0xF0:0) | ((i2&16)?0xF00:0) | ((i3&16)?0xF000:0) | ((i4&16)?0xF0000:0) | ((i5&16)?0xF00000:0) | ((i6&16)?0xF000000:0) | ((i7&16)?0xF0000000ULL:0)
@@ -2040,12 +2199,12 @@ static inline Vec16i blend16i(Vec16i const & a, Vec16i const & b) {
 
     // special case: all from a
     if ((ms & mz) == 0) {
-        return permute16i<i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15> (a);
+        return permute16<i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15> (a);
     }
 
     // special case: all from b
     if ((~ms & mz) == 0) {
-        return permute16i<i0^16,i1^16,i2^16,i3^16,i4^16,i5^16,i6^16,i7^16,i8^16,i9^16,i10^16,i11^16,i12^16,i13^16,i14^16,i15^16 > (b);
+        return permute16<i0^16,i1^16,i2^16,i3^16,i4^16,i5^16,i6^16,i7^16,i8^16,i9^16,i10^16,i11^16,i12^16,i13^16,i14^16,i15^16 > (b);
     }
 
     // special case: blend without permute
@@ -2075,7 +2234,7 @@ static inline Vec16i blend16i(Vec16i const & a, Vec16i const & b) {
             // This code generates two instructions instead of one, but we are avoiding the slow lane-crossing instruction,
             // and we are saving 64 bytes of data cache.
             // 1. Permute a, zero elements not from a (using _mm512_maskz_shuffle_epi32)
-            __m512i ta = permute16i< (maz&0xF)?i0&15:-1, (maz&0xF0)?i1&15:-1, (maz&0xF00)?i2&15:-1, (maz&0xF000)?i3&15:-1, 
+            __m512i ta = permute16< (maz&0xF)?i0&15:-1, (maz&0xF0)?i1&15:-1, (maz&0xF00)?i2&15:-1, (maz&0xF000)?i3&15:-1, 
                 (maz&0xF0000)?i4&15:-1, (maz&0xF00000)?i5&15:-1, (maz&0xF000000)?i6&15:-1, (maz&0xF0000000)?i7&15:-1,
                 (maz&0xF00000000)?i8&15:-1, (maz&0xF000000000)?i9&15:-1, (maz&0xF0000000000)?i10&15:-1, (maz&0xF00000000000)?i11&15:-1, 
                 (maz&0xF000000000000)?i12&15:-1, (maz&0xF0000000000000)?i13&15:-1, (maz&0xF00000000000000)?i14&15:-1, (maz&0xF000000000000000)?i15&15:-1> (a);
@@ -2103,9 +2262,15 @@ static inline Vec16i blend16i(Vec16i const & a, Vec16i const & b) {
 
 template <int i0,  int i1,  int i2,  int i3,  int i4,  int i5,  int i6,  int i7, 
           int i8,  int i9,  int i10, int i11, int i12, int i13, int i14, int i15 > 
-static inline Vec16ui blend16ui(Vec16ui const & a, Vec16ui const & b) {
-    return Vec16ui( blend16i<i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15> (Vec16i(a),Vec16i(b)));
+static inline Vec16ui blend16(Vec16ui const & a, Vec16ui const & b) {
+    return Vec16ui( blend16<i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15> (Vec16i(a),Vec16i(b)));
 }
+
+// Support names prior to version 1.40 (now deprecated)
+#define blend8q   blend8
+#define blend8uq  blend8
+#define blend16i  blend16
+#define blend16ui blend16
 
 
 /*****************************************************************************
@@ -2130,13 +2295,22 @@ static inline Vec16ui blend16ui(Vec16ui const & a, Vec16ui const & b) {
 * Example:
 * Vec8q a(2,0,0,6,4,3,5,0);                 // index a is (  2,   0,   0,   6,   4,   3,   5,   0)
 * Vec8q b(100,101,102,103,104,105,106,107); // table b is (100, 101, 102, 103, 104, 105, 106, 107)
-* Vec8q c;
-* c = lookup8 (a,b);                        // c is       (102, 100, 100, 106, 104, 103, 105, 100)
+* Vec8q c = lookup8 (a,b);                  // c is       (102, 100, 100, 106, 104, 103, 105, 100)
 *
 *****************************************************************************/
 
 static inline Vec16i lookup16(Vec16i const & index, Vec16i const & table) {
     return _mm512_permutexvar_epi32(index, table);
+}
+
+static inline Vec16i lookup32(Vec16i const & index, Vec16i const & table1, Vec16i const & table2) {
+    return _mm512_permutex2var_epi32(table1, index, table2);
+}
+
+static inline Vec16i lookup64(Vec16i const & index, Vec16i const & table1, Vec16i const & table2, Vec16i const & table3, Vec16i const & table4) {
+    Vec16i d12 = _mm512_permutex2var_epi32(table1, index, table2);
+    Vec16i d34 = _mm512_permutex2var_epi32(table3, index, table4);
+    return select((index >> 5) != 0, d34, d12);
 }
 
 template <int n>
@@ -2242,12 +2416,12 @@ static inline Vec16i gather16i(void const * a) {
         if (imax > 15) {
             // make sure we don't read past the end of the array
             Vec16i b = Vec16i().load((int32_t const *)a + imax-15);
-            return permute16i<i0-imax+15, i1-imax+15, i2-imax+15, i3-imax+15, i4-imax+15, i5-imax+15, i6-imax+15, i7-imax+15,
+            return permute16<i0-imax+15, i1-imax+15, i2-imax+15, i3-imax+15, i4-imax+15, i5-imax+15, i6-imax+15, i7-imax+15,
                 i8-imax+15, i9-imax+15, i10-imax+15, i11-imax+15, i12-imax+15, i13-imax+15, i14-imax+15, i15-imax+15> (b);
         }
         else {
             Vec16i b = Vec16i().load((int32_t const *)a + imin);
-            return permute16i<i0-imin, i1-imin, i2-imin, i3-imin, i4-imin, i5-imin, i6-imin, i7-imin,
+            return permute16<i0-imin, i1-imin, i2-imin, i3-imin, i4-imin, i5-imin, i6-imin, i7-imin,
                 i8-imin, i9-imin, i10-imin, i11-imin, i12-imin, i13-imin, i14-imin, i15-imin> (b);
         }
     }
@@ -2274,7 +2448,7 @@ static inline Vec16i gather16i(void const * a) {
         const int j13 = i13<imin+16 ? i13-imin : 31-imax+i13;
         const int j14 = i14<imin+16 ? i14-imin : 31-imax+i14;
         const int j15 = i15<imin+16 ? i15-imin : 31-imax+i15;
-        return blend16i<j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15>(b, c);
+        return blend16<j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15>(b, c);
     }
     // use gather instruction
     return _mm512_i32gather_epi32(Vec16i(i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15), (const int *)a, 4);
@@ -2304,11 +2478,11 @@ static inline Vec8q gather8q(void const * a) {
         if (imax > 7) {
             // make sure we don't read past the end of the array
             Vec8q b = Vec8q().load((int64_t const *)a + imax-7);
-            return permute8q<i0-imax+7, i1-imax+7, i2-imax+7, i3-imax+7, i4-imax+7, i5-imax+7, i6-imax+7, i7-imax+7> (b);
+            return permute8<i0-imax+7, i1-imax+7, i2-imax+7, i3-imax+7, i4-imax+7, i5-imax+7, i6-imax+7, i7-imax+7> (b);
         }
         else {
             Vec8q b = Vec8q().load((int64_t const *)a + imin);
-            return permute8q<i0-imin, i1-imin, i2-imin, i3-imin, i4-imin, i5-imin, i6-imin, i7-imin> (b);
+            return permute8<i0-imin, i1-imin, i2-imin, i3-imin, i4-imin, i5-imin, i6-imin, i7-imin> (b);
         }
     }
     if ((i0<imin+8 || i0>imax-8) && (i1<imin+8 || i1>imax-8) && (i2<imin+8 || i2>imax-8) && (i3<imin+8 || i3>imax-8)
@@ -2324,10 +2498,78 @@ static inline Vec8q gather8q(void const * a) {
         const int j5 = i5<imin+8 ? i5-imin : 15-imax+i5;
         const int j6 = i6<imin+8 ? i6-imin : 15-imax+i6;
         const int j7 = i7<imin+8 ? i7-imin : 15-imax+i7;
-        return blend8q<j0, j1, j2, j3, j4, j5, j6, j7>(b, c);
+        return blend8<j0, j1, j2, j3, j4, j5, j6, j7>(b, c);
     }
     // use gather instruction
     return _mm512_i64gather_epi64(Vec8q(i0,i1,i2,i3,i4,i5,i6,i7), (const long long *)a, 8);
+}
+
+/*****************************************************************************
+*
+*          Vector scatter functions
+*
+******************************************************************************
+*
+* These functions write the elements of a vector to arbitrary positions in an
+* array in memory. Each vector element is written to an array position 
+* determined by an index. An element is not written if the corresponding
+* index is out of range.
+* The indexes can be specified as constant template parameters or as an
+* integer vector.
+* 
+* The scatter functions are useful if the data are distributed in a sparce
+* manner into the array. If the array is dense then it is more efficient
+* to permute the data into the right positions and then write the whole
+* permuted vector into the array.
+*
+* Example:
+* Vec8q a(10,11,12,13,14,15,16,17);
+* int64_t b[16] = {0};
+* scatter<0,2,14,10,1,-1,5,9>(a,b); 
+* // Now, b = {10,14,11,0,0,16,0,0,0,17,13,0,0,0,12,0}
+*
+*****************************************************************************/
+
+template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7,
+int i8, int i9, int i10, int i11, int i12, int i13, int i14, int i15>
+    static inline void scatter(Vec16i const & data, void * array) {
+    __m512i indx = constant16i<i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15>();
+    Vec16ib mask(i0>=0, i1>=0, i2>=0, i3>=0, i4>=0, i5>=0, i6>=0, i7>=0,
+        i8>=0, i9>=0, i10>=0, i11>=0, i12>=0, i13>=0, i14>=0, i15>=0);
+    _mm512_mask_i32scatter_epi32((int*)array, mask, indx, data, 4);
+}
+
+template <int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7>
+static inline void scatter(Vec8q const & data, void * array) {
+    __m256i indx = constant8i<i0,i1,i2,i3,i4,i5,i6,i7>();
+    Vec8qb mask(i0>=0, i1>=0, i2>=0, i3>=0, i4>=0, i5>=0, i6>=0, i7>=0);
+    _mm512_mask_i32scatter_epi64((long long *)array, mask, indx, data, 8);
+}
+
+
+/*****************************************************************************
+*
+*          Scatter functions with variable indexes
+*
+*****************************************************************************/
+
+static inline void scatter(Vec16i const & index, uint32_t limit, Vec16i const & data, void * destination) {
+    Vec16ib mask = Vec16ui(index) < limit;
+    _mm512_mask_i32scatter_epi32((int*)destination, mask, index, data, 4);
+}
+
+static inline void scatter(Vec8q const & index, uint32_t limit, Vec8q const & data, void * destination) {
+    Vec8qb mask = Vec8uq(index) < uint64_t(limit);
+    _mm512_mask_i64scatter_epi64((long long *)destination, mask, index, data, 8);
+}
+
+static inline void scatter(Vec8i const & index, uint32_t limit, Vec8q const & data, void * destination) {
+#if INSTRSET >= 10 //  __AVX512VL__
+    __mmask16 mask = _mm256_cmplt_epu32_mask(index, Vec8ui(limit));
+#else
+    __mmask16 mask = _mm512_mask_cmplt_epu32_mask(0xFFu, _mm512_castsi256_si512(index), _mm512_castsi256_si512(Vec8ui(limit)));
+#endif
+    _mm512_mask_i32scatter_epi64((long long *)destination, (__mmask8)mask, index, data, 8);
 }
 
 
@@ -2422,6 +2664,9 @@ static inline Vec16i compress (Vec8q const & low, Vec8q const & high) {
     Vec8i high2  = _mm512_cvtepi64_epi32(high);
     return Vec16i(low2, high2);
 }
+static inline Vec16ui compress (Vec8uq const & low, Vec8uq const & high) {
+    return Vec16ui(compress(Vec8q(low), Vec8q(high)));
+}
 
 // Function compress_saturated : packs two vectors of 64-bit integers into one vector of 32-bit integers
 // Signed, with saturation
@@ -2450,10 +2695,25 @@ static inline Vec16ui compress_saturated (Vec8uq const & low, Vec8uq const & hig
 
 // vector operator / : divide each element by divisor
 
+static inline __m512i broadcast128_512 (__m128i x) {
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)   // fix bug in VS2019, 32 bit mode, release
+    Vec4i m1 = x;
+    Vec8i m2 = Vec8i(m1,m1);
+    Vec16i m = Vec16i(m2,m2);
+    return m;
+#else
+    return _mm512_broadcast_i32x4(x);
+#endif 
+}
+
 // vector of 16 32-bit signed integers
 static inline Vec16i operator / (Vec16i const & a, Divisor_i const & d) {
-    __m512i m   = _mm512_broadcast_i32x4(d.getm());        // broadcast multiplier
-    __m512i sgn = _mm512_broadcast_i32x4(d.getsign());     // broadcast sign of d
+//    __m512i m   = _mm512_broadcast_i32x4(d.getm());      // broadcast multiplier
+//    __m512i sgn = _mm512_broadcast_i32x4(d.getsign());   // broadcast sign of d
+
+    __m512i m   = broadcast128_512(d.getm());              // broadcast multiplier
+    __m512i sgn = broadcast128_512(d.getsign());           // broadcast sign of d
+
     __m512i t1  = _mm512_mul_epi32(a,m);                   // 32x32->64 bit signed multiplication of even elements of a
     __m512i t3  = _mm512_srli_epi64(a,32);                 // get odd elements of a into position for multiplication
     __m512i t4  = _mm512_mul_epi32(t3,m);                  // 32x32->64 bit signed multiplication of odd elements
@@ -2469,7 +2729,7 @@ static inline Vec16i operator / (Vec16i const & a, Divisor_i const & d) {
 
 // vector of 16 32-bit unsigned integers
 static inline Vec16ui operator / (Vec16ui const & a, Divisor_ui const & d) {
-    __m512i m   = _mm512_broadcast_i32x4(d.getm());       // broadcast multiplier
+    __m512i m   = broadcast128_512(d.getm());              // broadcast multiplier
     __m512i t1  = _mm512_mul_epu32(a,m);                   // 32x32->64 bit unsigned multiplication of even elements of a
     __m512i t3  = _mm512_srli_epi64(a,32);                 // get odd elements of a into position for multiplication
     __m512i t4  = _mm512_mul_epu32(t3,m);                  // 32x32->64 bit unsigned multiplication of odd elements
@@ -2575,7 +2835,7 @@ static inline Vec16ui divide_by_ui(Vec16ui const & x) {
         mult = mult + 1;                                             // round up mult
     }
     // do 32*32->64 bit unsigned multiplication and get high part of result
-    const __m512i multv = Vec16ui(uint64_t(mult));                   // zero-extend mult and broadcast
+    const __m512i multv = _mm512_maskz_set1_epi32(0x5555, mult);     // zero-extend mult and broadcast
     __m512i t1 = _mm512_mul_epu32(x,multv);                          // 32x32->64 bit unsigned multiplication of even elements
     if (round_down) {
         t1      = _mm512_add_epi64(t1,multv);                        // compensate for rounding error. (x+1)*m replaced by x*m+m to avoid overflow
@@ -2586,7 +2846,7 @@ static inline Vec16ui divide_by_ui(Vec16ui const & x) {
     if (round_down) {
         t4      = _mm512_add_epi64(t4,multv);                        // compensate for rounding error. (x+1)*m replaced by x*m+m to avoid overflow
     }
-    __m512i t7 = _mm512_mask_mov_epi32(t2, __mmask16(0xAA), t4);     // blend two results
+    __m512i t7 = _mm512_mask_mov_epi32(t2, __mmask16(0xAAAA), t4);   // blend two results
     Vec16ui q  = _mm512_srli_epi32(t7, b);                           // shift right by b
     return q;                                                        // no overflow possible
 }
@@ -2625,11 +2885,10 @@ static inline Vec16ui & operator /= (Vec16ui & a, Const_int_t<d> b) {
 *****************************************************************************/
 
 // Get index to the first element that is true. Return -1 if all are false
-
 static inline int horizontal_find_first(Vec16ib const & x) {
     uint32_t b = uint16_t(__mmask16(x));
     if (b) {
-        return bit_scan_forward(b);
+        return (int)bit_scan_forward(b);
     }
     else {
         return -1;
@@ -2637,21 +2896,22 @@ static inline int horizontal_find_first(Vec16ib const & x) {
 }
 
 static inline int horizontal_find_first(Vec8qb const & x) {
-    uint32_t b = uint8_t(__mmask8(x));
+    uint32_t b = uint8_t(__mmask16(x));
     if (b) {
-        return bit_scan_forward(b);
+        return (int)bit_scan_forward(b);
     }
     else {
         return -1;
     }
 }
 
+// Count number of true elements
 static inline uint32_t horizontal_count(Vec16ib const & x) {
     return vml_popcnt(uint32_t(uint16_t(__mmask16(x))));
 }
 
 static inline uint32_t horizontal_count(Vec8qb const & x) {
-    return vml_popcnt(uint32_t(uint16_t(__mmask16(x))));
+    return vml_popcnt(uint32_t(uint8_t(__mmask16(x))));
 }
 
 
@@ -2665,10 +2925,11 @@ static inline uint32_t horizontal_count(Vec8qb const & x) {
 static inline uint8_t to_bits(Vec4ib x) {
     __m512i a = _mm512_castsi128_si512(x);
     __mmask16 b = _mm512_mask_testn_epi32_mask(0xF, a, a);
-    return uint8_t(b) ^ 0xF;
+    return uint8_t(b) ^ 0xFu;
 }
 
 // to_Vec16c: convert integer bitfield to boolean vector
+// DEPRECATED. REPLACED BY load_bits
 static inline Vec4ib to_Vec4ib(uint8_t x) {
     return _mm512_castsi512_si128(_mm512_maskz_set1_epi32(__mmask16(x), -1));
 }
@@ -2677,10 +2938,11 @@ static inline Vec4ib to_Vec4ib(uint8_t x) {
 static inline uint8_t to_bits(Vec2qb x) {
     __m512i a = _mm512_castsi128_si512(x);
     __mmask16 b = _mm512_mask_testn_epi64_mask(0x3, a, a);
-    return uint8_t(b) ^ 0x3;
+    return uint8_t(b) ^ 0x3u;
 }
 
 // to_Vec16c: convert integer bitfield to boolean vector
+// DEPRECATED. REPLACED BY load_bits
 static inline Vec2qb to_Vec2qb(uint8_t x) {
     return _mm512_castsi512_si128(_mm512_maskz_set1_epi64(__mmask16(x), -1LL));
 }
@@ -2689,11 +2951,11 @@ static inline Vec2qb to_Vec2qb(uint8_t x) {
 static inline uint8_t to_bits(Vec8ib x) {
     __m512i a = _mm512_castsi256_si512(x);
     __mmask16 b = _mm512_mask_testn_epi32_mask(0xFF, a, a);
-    return ~ uint8_t(b);
+    return uint8_t(~ uint8_t(b));
 }
 
-// to_Vec16c: convert integer bitfield to boolean vector
 static inline Vec8ib to_Vec8ib(uint8_t x) {
+    // DEPRECATED. REPLACED BY load_bits
     return _mm512_castsi512_si256(_mm512_maskz_set1_epi32(__mmask16(x), -1));
 }
 
@@ -2701,10 +2963,11 @@ static inline Vec8ib to_Vec8ib(uint8_t x) {
 static inline uint8_t to_bits(Vec4qb x) {
     __m512i a = _mm512_castsi256_si512(x);
     __mmask16 b = _mm512_mask_testn_epi64_mask(0xF, a, a);
-    return uint8_t(b) ^ 0xF;
+    return uint8_t(b) ^ 0xFu;
 }
 
 // to_Vec16c: convert integer bitfield to boolean vector
+// DEPRECATED. REPLACED BY load_bits
 static inline Vec4qb to_Vec4qb(uint8_t x) {
     return _mm512_castsi512_si256(_mm512_maskz_set1_epi64(__mmask16(x), -1LL));
 }
@@ -2716,18 +2979,25 @@ static inline uint16_t to_bits(Vec16b a) {
 }
 
 // to_Vec16b: convert integer bitfield to boolean vector
+// DEPRECATED. REPLACED BY load_bits
 static inline Vec16b to_Vec16b(uint16_t x) {
     return (__mmask16)x;
 }
 
 // to_Vec16ib: convert integer bitfield to boolean vector
+// DEPRECATED. REPLACED BY load_bits
 static inline Vec16ib to_Vec16ib(uint16_t x) {
     return to_Vec16b(x);
 }
 
 // to_Vec8b: convert integer bitfield to boolean vector
+// DEPRECATED. REPLACED BY load_bits
 static inline Vec8qb to_Vec8qb(uint8_t x) {
-    return (__mmask8)x;
+    return (__mmask16)x;
 }
+
+#ifdef VCL_NAMESPACE
+}
+#endif
 
 #endif // VECTORI512_H
