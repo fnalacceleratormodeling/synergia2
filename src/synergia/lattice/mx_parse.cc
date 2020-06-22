@@ -61,8 +61,6 @@ using boost::spirit::qi::real_policies;
 using boost::any;
 using boost::any_cast;
 
-using boost::optional;
-
 using namespace qi::labels;
 using namespace std;
 
@@ -338,13 +336,13 @@ namespace synergia
     void ins_while(mx_while & while_, mx_logic const & logic, mx_tree const & block)
     { while_.assign(logic, block); }
 
-    void ins_seq_member(mx_line_seq & seq, optional<char> m, optional<int> o, mx_line_member const & member)
+    void ins_seq_member(mx_line_seq & seq, boost::optional<char> m, boost::optional<int> o, mx_line_member const & member)
     { int op=m?-1:1; if(o) op*=o.get(); seq.insert_member(op, member); }
 
-    void set_attr(mx_attr & attr, string const & name, optional<char> c, any const & v)
+    void set_attr(mx_attr & attr, string const & name, boost::optional<char> c, any const & v)
     { if(c) attr.set_lazy_attr(name, v); else attr.set_attr(name, v); }
 
-    void set_flag_attr(mx_attr & attr, optional<char> c, string const & name)
+    void set_flag_attr(mx_attr & attr, boost::optional<char> c, string const & name)
     { if(c) attr.set_attr(name, boost::any(mx_expr(0.0))); else attr.set_attr(name, boost::any(mx_expr(1.0))); }
 
     void set_cmd_label(mx_command & cmd, string const & label)
@@ -613,9 +611,9 @@ struct synergia::madx_tree_parser
 
     flag_attr =   // flag attributes, attributes with values only, etc.
           ( -char_("-") >> name )                 [phx::bind(&set_flag_attr, _val, _1, _2)]
-        | ( dblq_str )   [phx::bind(&set_attr, _val, string("default"), optional<char>(), _1)]
-        | ( snglq_str )  [phx::bind(&set_attr, _val, string("default"), optional<char>(), _1)]
-        | ( expr )       [phx::bind(&set_attr, _val, string("default"), optional<char>(), _1)]
+        | ( dblq_str )   [phx::bind(&set_attr, _val, string("default"), boost::optional<char>(), _1)]
+        | ( snglq_str )  [phx::bind(&set_attr, _val, string("default"), boost::optional<char>(), _1)]
+        | ( expr )       [phx::bind(&set_attr, _val, string("default"), boost::optional<char>(), _1)]
         ;
 
     cmd_attr =
