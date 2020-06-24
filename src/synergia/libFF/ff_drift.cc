@@ -12,7 +12,7 @@ namespace
         Particles p;
         ConstParticleMasks masks;
 
-        double l, ref_p, m, ref_t;
+        double len, ref_p, mass, ref_t;
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
@@ -21,7 +21,7 @@ namespace
                 FF_algorithm::drift_unit(
                         p(i, 0), p(i, 1), p(i, 2),
                         p(i, 3), p(i, 4), p(i, 5),
-                        l, ref_p, m, ref_t);
+                        len, ref_p, mass, ref_t);
         }
     };
 
@@ -30,7 +30,7 @@ namespace
         Particles p;
         ConstParticleMasks masks;
 
-        double l, ref_p, m, ref_t;
+        double len, ref_p, mass, ref_t;
 
         KOKKOS_INLINE_FUNCTION
         void operator()(const int idx) const
@@ -51,7 +51,7 @@ namespace
 
                 FF_algorithm::drift_unit(
                         p0, p1, p2, p3, p4, p5,
-                        l, ref_p, m, ref_t);
+                        len, ref_p, mass, ref_t);
 
                 p0.store(&p(i, 0));
                 p2.store(&p(i, 2));
@@ -85,8 +85,14 @@ namespace
     {
         if (bp.num_valid())
         {
+#if 0
+            PropDrift drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
+            Kokkos::parallel_for(bp.size(), drift);
+#endif
+#if 1
             PropDriftSimd drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
             Kokkos::parallel_for(bp.size()/GSVector::size(), drift);
+#endif
         }
     }
 
