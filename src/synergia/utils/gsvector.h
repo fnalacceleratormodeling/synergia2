@@ -9,7 +9,7 @@
 #undef GSV_MIC
 #endif
 
-#define GSV_AVX
+//#define GSV_AVX
 
 // no simd when build for CUDA
 #ifdef Kokkos_ENABLE_CUDA
@@ -47,12 +47,12 @@ struct VecExpr
     { return static_cast<E const&>(*this).cal(); } 
 
     KOKKOS_INLINE_FUNCTION
-    operator E &()
-    { return static_cast<      E &>(*this); }
+    operator E& ()
+    { return static_cast<E &>(*this); }
 
     KOKKOS_INLINE_FUNCTION
-    operator E const &() const
-    { return reinterpret_cast<const E &>(*this); }
+    operator E const& () const
+    { return reinterpret_cast<const E&>(*this); }
     //{ return static_cast<const E &>(*this); }
 };
 
@@ -90,104 +90,168 @@ struct Vec : public VecExpr<Vec<T>, T>
         E const& v = vec;
         data = v.cal();
     }
+
+#if 0
+    KOKKOS_INLINE_FUNCTION
+    operator double() const
+    { return data; }
+#endif
 };
+
 
 // expression classes
 template <typename E1, typename E2, class T, class E = void>
 struct VecAdd : public VecExpr<VecAdd<E1, E2, T>, T>
 {
-    E1 const & _u; E2 const & _v;
+    E1 const& _u; E2 const& _v;
 
     KOKKOS_INLINE_FUNCTION
-    VecAdd(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    VecAdd(VecExpr<E1, T> const& u, VecExpr<E2, T> const& v) 
+    : _u(u), _v(v) { }
 
     KOKKOS_INLINE_FUNCTION
-    typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return _u.cal() + _v.cal(); }
+    typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const 
+    { return _u.cal() + _v.cal(); }
 };
 
 template <typename E1, typename E2, class T>
 struct VecSub : public VecExpr<VecSub<E1, E2, T>, T>
 {
-    E1 const & _u; E2 const & _v;
+    E1 const& _u; E2 const& _v;
 
     KOKKOS_INLINE_FUNCTION
-    VecSub(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    VecSub(VecExpr<E1, T> const& u, VecExpr<E2, T> const& v) 
+    : _u(u), _v(v) { }
 
     KOKKOS_INLINE_FUNCTION
-    typename VecExpr<VecSub<E1, E2, T>, T>::vec_t cal() const { return _u.cal() - _v.cal(); }
+    typename VecExpr<VecSub<E1, E2, T>, T>::vec_t cal() const 
+    { return _u.cal() - _v.cal(); }
 };
 
 template <typename E1, typename E2, class T>
 struct VecMul : public VecExpr<VecMul<E1, E2, T>, T>
 {
-    E1 const & _u; E2 const & _v;
+    E1 const& _u; E2 const& _v;
 
     KOKKOS_INLINE_FUNCTION
-    VecMul(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    VecMul(VecExpr<E1, T> const& u, VecExpr<E2, T> const& v) 
+    : _u(u), _v(v) { }
 
     KOKKOS_INLINE_FUNCTION
-    typename VecExpr<VecMul<E1, E2, T>, T>::vec_t cal() const { return _u.cal() * _v.cal(); }
+    typename VecExpr<VecMul<E1, E2, T>, T>::vec_t cal() const 
+    { return _u.cal() * _v.cal(); }
 };
 
 template <typename E1, typename E2, class T>
 struct VecDiv : public VecExpr<VecDiv<E1, E2, T>, T>
 {
-    E1 const & _u; E2 const & _v;
+    E1 const& _u; E2 const& _v;
 
     KOKKOS_INLINE_FUNCTION
-    VecDiv(VecExpr<E1, T> const & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    VecDiv(VecExpr<E1, T> const& u, VecExpr<E2, T> const& v) 
+    : _u(u), _v(v) { }
 
     KOKKOS_INLINE_FUNCTION
-    typename VecExpr<VecDiv<E1, E2, T>, T>::vec_t cal() const { return _u.cal() / _v.cal(); }
+    typename VecExpr<VecDiv<E1, E2, T>, T>::vec_t cal() const 
+    { return _u.cal() / _v.cal(); }
 };
 
+#if 0
 template <typename E1, typename E2, class T>
 struct VecAddAssign : public VecExpr<VecAddAssign<E1, E2, T>, T>
 {
-    E1 & _u; E2 const & _v;
+    E1& _u; E2 const& _v;
 
     KOKKOS_INLINE_FUNCTION
-    VecAddAssign(VecExpr<E1, T> & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    VecAddAssign(VecExpr<E1, T>& u, VecExpr<E2, T> const& v) 
+    : _u(u), _v(v) { }
 
     KOKKOS_INLINE_FUNCTION
-    typename VecExpr<VecAddAssign<E1, E2, T>, T>::vec_t cal() { _u.cal() = _u.cal() + _v.cal(); return _u; }
+    typename VecExpr<VecAddAssign<E1, E2, T>, T>::vec_t cal() 
+    { _u.cal() = _u.cal() + _v.cal(); return _u; }
 };
 
 template <typename E1, typename E2, class T>
 struct VecSubAssign : public VecExpr<VecSubAssign<E1, E2, T>, T>
 {
-    E1 & _u; E2 const & _v;
+    E1& _u; E2 const& _v;
 
     KOKKOS_INLINE_FUNCTION
-    VecSubAssign(VecExpr<E1, T> & u, VecExpr<E2, T> const & v) : _u(u), _v(v) { }
+    VecSubAssign(VecExpr<E1, T>& u, VecExpr<E2, T> const& v) 
+    : _u(u), _v(v) { }
 
     KOKKOS_INLINE_FUNCTION
-    typename VecExpr<VecSubAssign<E1, E2, T>, T>::vec_t cal() { _u = _u.cal() - _v.cal(); return _u; }
+    typename VecExpr<VecSubAssign<E1, E2, T>, T>::vec_t cal() 
+    { _u = _u.cal() - _v.cal(); return _u; }
 };
+#endif
 
 template <typename E, class T>
 struct VecNeg : public VecExpr<VecNeg<E, T>, T>
 {
-    E const & _u;
+    E const& _u;
 
     KOKKOS_INLINE_FUNCTION
-    VecNeg(VecExpr<E, T> const & u) : _u(u) { }
+    VecNeg(VecExpr<E, T> const& u) : _u(u) { }
 
     KOKKOS_INLINE_FUNCTION
-    typename VecExpr<VecNeg<E, T>, T>::vec_t cal() const { return -(_u.cal()); }
+    typename VecExpr<VecNeg<E, T>, T>::vec_t cal() const 
+    { return -(_u.cal()); }
 };
 
 template <typename E, class T>
 struct VecSqrt : public VecExpr<VecSqrt<E, T>, T>
 {
-    E const & _u;
+    E const& _u;
 
     KOKKOS_INLINE_FUNCTION
-    VecSqrt(VecExpr<E, T> const & u) : _u(u) { }
+    VecSqrt(VecExpr<E, T> const& u) : _u(u) { }
 
     KOKKOS_INLINE_FUNCTION
-    typename VecExpr<VecSqrt<E, T>, T>::vec_t cal() const { return sqrt(_u.cal()); }
+    typename VecExpr<VecSqrt<E, T>, T>::vec_t cal() const 
+    { return sqrt(_u.cal()); }
 };
+
+#if 1
+template <typename E, class T>
+struct VecSin: public VecExpr<VecSin<E, T>, T>
+{
+    E const& _u;
+
+    KOKKOS_INLINE_FUNCTION
+    VecSin(VecExpr<E, T> const& u) : _u(u) { }
+
+    KOKKOS_INLINE_FUNCTION
+    typename VecExpr<VecSin<E, T>, T>::vec_t cal() const 
+    { return sin(_u.cal()); }
+};
+
+template <typename E, class T>
+struct VecCos: public VecExpr<VecCos<E, T>, T>
+{
+    E const& _u;
+
+    KOKKOS_INLINE_FUNCTION
+    VecCos(VecExpr<E, T> const& u) : _u(u) { }
+
+    KOKKOS_INLINE_FUNCTION
+    typename VecExpr<VecCos<E, T>, T>::vec_t cal() const 
+    { return cos(_u.cal()); }
+};
+
+template <typename E, class T>
+struct VecAsin : public VecExpr<VecAsin<E, T>, T>
+{
+    E const& _u;
+
+    KOKKOS_INLINE_FUNCTION
+    VecAsin(VecExpr<E, T> const& u) : _u(u) { }
+
+    KOKKOS_INLINE_FUNCTION
+    typename VecExpr<VecAsin<E, T>, T>::vec_t cal() const 
+    { return asin(_u.cal()); }
+};
+#endif
 
 // overload operators
 //
@@ -216,6 +280,7 @@ VecDiv<E1, E2, T> const
 operator/ (VecExpr<E1, T> const & u, VecExpr<E2, T> const & v)
 { return VecDiv<E1, E2, T>(u, v); }
 
+#if 0
 template <typename E1, typename E2, class T>
 KOKKOS_INLINE_FUNCTION
 VecAddAssign<E1, E2, T> const
@@ -227,6 +292,7 @@ KOKKOS_INLINE_FUNCTION
 VecSubAssign<E1, E2, T> const
 operator-= (VecExpr<E1, T>      & u, VecExpr<E2, T> const & v)
 { return VecSubAssign<E1, E2, T>(u, v); }
+#endif
 
 template <typename E, class T>
 KOKKOS_INLINE_FUNCTION
@@ -240,7 +306,25 @@ VecSqrt<E, T> const
 sqrt (VecExpr<E, T> const & u)
 { return VecSqrt<E, T>(u); }
 
+#if 1
+template <typename E, class T>
+KOKKOS_INLINE_FUNCTION
+VecSin<E, T> const
+sin (VecExpr<E, T> const & u)
+{ return VecSin<E, T>(u); }
 
+template <typename E, class T>
+KOKKOS_INLINE_FUNCTION
+VecCos<E, T> const
+cos (VecExpr<E, T> const & u)
+{ return VecCos<E, T>(u); }
+
+template <typename E, class T>
+KOKKOS_INLINE_FUNCTION
+VecAsin<E, T> const
+asin (VecExpr<E, T> const & u)
+{ return VecAsin<E, T>(u); }
+#endif
 
 // specialization for different platforms
 //
@@ -249,13 +333,13 @@ class Vec2d;
 class Vec4d;
 class vector4double;
 
-//#include <x86intrin.h>
-//#include <immintrin.h>
-
+// headers
 #if defined(GSV_SSE)
   #include "vectorclass/vectorclass.h"
+  #include "vectorclass/vectormath_trig.h"
 #elif defined(GSV_AVX)
   #include "vectorclass/vectorclass.h"
+  #include "vectorclass/vectormath_trig.h"
 #elif defined(GSV_QPX)
   #include <mass_simd.h>
 #endif
