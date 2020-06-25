@@ -7,7 +7,6 @@
 #include <stdexcept>
 
 //#include "basic_toolkit/PhysicsConstants.h"
-#include "synergia/utils/invsqrt.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
 
@@ -15,6 +14,12 @@
 
 namespace FF_algorithm
 {
+    template<typename T >
+    KOKKOS_INLINE_FUNCTION
+    T invsqrt(T const& x) 
+    { return 1.0 / sqrt(x); }
+
+
     KOKKOS_INLINE_FUNCTION
     constexpr double quiet_nan()
     {
@@ -57,16 +62,19 @@ namespace FF_algorithm
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    void slot_unit
-      (T & x, T & xp, T & y, T & yp, T & cdt, T & dpop, double ct, double st, double pref, double m)
+    void slot_unit(
+            T & x, T & xp, T & y, T & yp, T & cdt, T & dpop, 
+            T ct, T st, T pref, T m)
     {
+        const T uni(1.0);
+
         T r0 = x;
         T r1 = y;
         T r2 = 0.0;
 
-        T zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
+        T zp = sqrt((dpop+uni)*(dpop+uni) - xp * xp - yp * yp);
 
-        T p = (dpop+1) * pref;
+        T p = (dpop+uni) * pref;
         T e = sqrt(p*p + m*m);
 
         T b0 = xp * pref / e;
@@ -79,12 +87,12 @@ namespace FF_algorithm
 
         r0 = x + tau * b0;
         r1 = y + tau * b1;
-        r2 = 0 + tau * b2;
+        r2 =     tau * b2;
 
         x = r0 * ct - r2 * st;
         y = r1;
 
-        cdt += tau;
+        cdt = cdt + tau;
 
         xp = xp * ct - zp * st;
         yp = yp;
@@ -93,32 +101,34 @@ namespace FF_algorithm
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void edge_unit
-      (T const & y, T & yp, double k)
+      (T const & y, T & yp, T k)
     {
-        yp -= k * y;
+        yp = yp - k * y;
     }
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void edge_unit
-      (T const & y, T & xp, T & yp, double kx, double ky, char)
+      (T const & y, T & xp, T & yp, T kx, T ky, char)
     {
-        yp -= kx * y;
-        xp += ky * y;
+        yp = yp - kx * y;
+        xp = xp + ky * y;
     }
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void edge_unit
-      (T const & y, T & xp, T & yp, T const & dpop, double k)
+      (T const & y, T & xp, T & yp, T const & dpop, T k)
     {
-        T zp = sqrt((dpop+1)*(dpop+1) - xp * xp - yp * yp);
+        const T uni(1.0);
+
+        T zp = sqrt((dpop+uni)*(dpop+uni) - xp * xp - yp * yp);
 
         T xxp = xp;
         T yyp = yp;
 
-        yp -= (xxp / zp) * k * y;
-        xp += (yyp / zp) * k * y;
+        yp = yp - (xxp / zp) * k * y;
+        xp = xp + (yyp / zp) * k * y;
     }
 
     // exact solution for dipole without high order combined functions
@@ -148,18 +158,20 @@ namespace FF_algorithm
     {
         typedef Kokkos::complex<T> CT;
 
+        const T uni(1.0);
+
         T p0 = p_ref;
         T p  = p_ref * (dpop + 1.0);
         T E0 = sqrt(p0 * p0 + m * m);
         T E  = sqrt(p * p + m * m);
 
         T igamma = m / E0;
-        T ibeta  = invsqrt(1.0 - igamma * igamma);
+        T ibeta  = uni / sqrt(uni - igamma * igamma);
 
         T csq = pconstants::c * pconstants::c * 1e-9;
         T psq = (dpop + 1.0) * (dpop + 1.0);
 
-        T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
+        T Ef = uni / sqrt(psq + igamma * igamma * ibeta * ibeta);
 
         T beta1 = Ef * xp;
         T beta2 = Ef * yp;
@@ -194,51 +206,78 @@ namespace FF_algorithm
     KOKKOS_INLINE_FUNCTION
     void bend_unit
       (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
-       double theta, double strength, double p_ref, double m, double cdt_ref,
+       T theta, T strength, T p_ref, T m, T cdt_ref,
        Kokkos::complex<double> phase, Kokkos::complex<double> term)
     {
         typedef Kokkos::complex<T> CT;
 
+        const T uni(1.0);
+        const T tc(pconstants::c);
+
         T p0 = p_ref;
-        T p  = p_ref * (dpop + 1.0);
+        T p  = p_ref * (dpop + uni);
         T E0 = sqrt(p0 * p0 + m * m);
         T E  = sqrt(p * p + m * m);
 
         T igamma = m / E0;
-        T ibeta  = invsqrt(1.0 - igamma * igamma);
+        T ibeta  = uni / sqrt(uni - igamma * igamma);
 
-        T csq = pconstants::c * pconstants::c * 1e-9;
-        T psq = (dpop + 1.0) * (dpop + 1.0);
+        T csq = T(pconstants::c * pconstants::c * 1e-9);
+        T psq = (dpop + uni) * (dpop + uni);
 
-        T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
+        T Ef = uni / sqrt(psq + igamma * igamma * ibeta * ibeta);
 
         T beta1 = Ef * xp;
         T beta2 = Ef * yp;
-        T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
+        T beta3 = Ef * sqrt( (dpop + uni) * (dpop + uni) - xp * xp - yp * yp );
 
-        CT ui  = CT(0.0, x);
-        CT vui = CT(pconstants::c * beta3, pconstants::c * beta1);
+        //CT ui  = CT(0.0, x);
+        T ui_r = 0.0;
+        T ui_i = x;
+
+        //CT vui = CT(tc * beta3, tc * beta1);
+        T vui_r = tc * beta3;
+        T vui_i = tc * beta1;
 
         T iomega = E / (csq * strength);
 
-        CT bi = CT(0.0, 1.0) * vui * iomega - ui;
-        CT bf = bi * phase + term;
+        //CT bi = CT(0.0, 1.0) * vui * iomega - ui;
+        T bi_r = -vui_i * iomega - ui_r;
+        T bi_i =  vui_r * iomega - ui_i;
 
-        T rho = pconstants::c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+        //CT bf = bi * phase + term;
+        T phase_r(phase.real()); T phase_i(phase.imag());
+        T bf_r = bi_r * phase_r - bi_i * phase_i + T(term.real());
+        T bf_i = bi_r * phase_i + bi_i * phase_r + T(term.imag());
 
-        T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+        T rho = tc * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
 
-        CT expf = Kokkos::exp( CT(0.0, dthmphi) );
-        CT vuf  = vui * expf;
-        CT uf   = (ui + bi) * expf - bf;
+        //T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+        T dthmphi = asin(bi_r / rho) - asin(bf_r / rho);
+
+        //CT expf = Kokkos::exp( CT(0.0, dthmphi) );
+        T expf_r = cos(dthmphi);
+        T expf_i = sin(dthmphi);
+
+        //CT vuf  = vui * expf;
+        //T vuf_r = vui_r * expf_r - vui_i * expf_i;
+        T vuf_i = vui_r * expf_i + vui_i * expf_r;
+
+        //CT uf   = (ui + bi) * expf - bf;
+        //T uf_r = (ui_r+bi_r)*expf_r - (ui_i+bi_i)*expf_i - bf_r;
+        T uf_i = (ui_r+bi_r)*expf_i + (ui_i+bi_i)*expf_r - bf_i;
 
         T dtheta = dthmphi + theta;
-        T ncdt = - pconstants::c * dtheta * iomega;
+        T ncdt = -tc * dtheta * iomega;
 
-        x    = uf.imag();
-        y   += beta2 * ncdt;
-        cdt += ncdt - cdt_ref;
-        xp   = vuf.imag() / (Ef * pconstants::c);
+        //x = uf.imag();
+        x = uf_i;
+
+        //xp = vuf.imag() / (Ef * tc);
+        xp = vuf_i / (Ef * tc);
+
+        y   = y + beta2 * ncdt;
+        cdt = cdt + ncdt - cdt_ref;
     }
 
     KOKKOS_INLINE_FUNCTION
@@ -261,18 +300,20 @@ namespace FF_algorithm
     {
         typedef Kokkos::complex<T> CT;
 
+        const T uni(1.0);
+
         T p0 = p_ref;
         T p  = p_ref * (dpop + 1.0);
         T E0 = sqrt(p0 * p0 + m * m);
         T E  = sqrt(p * p + m * m);
 
         T igamma = m / E0;
-        T ibeta  = invsqrt(1.0 - igamma * igamma);
+        T ibeta  = uni / sqrt(uni - igamma * igamma);
 
         T csq = pconstants::c * pconstants::c * 1e-9;
         T psq = (dpop + 1.0) * (dpop + 1.0);
 
-        T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
+        T Ef = uni / sqrt(psq + igamma * igamma * ibeta * ibeta);
 
         T beta1 = Ef * xp;
         T beta2 = Ef * yp;
