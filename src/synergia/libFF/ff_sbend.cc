@@ -1,6 +1,7 @@
 #include "ff_sbend.h"
 
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/utils/gsvector.h"
 #include "synergia/utils/simple_timer.h"
 
 // p [Gev/c] = -- * B*rho [ Tesla meters ]
@@ -58,7 +59,9 @@ namespace
         const Kokkos::complex<double> phase;
         const Kokkos::complex<double> term;
 
-        PropSbend(Particles const& p, ConstParticleMasks const& masks, SbendParams const& sp)
+        PropSbend(Particles const& p, 
+                ConstParticleMasks const& masks, 
+                SbendParams const& sp)
             : p(p), masks(masks), sp(sp)
             , dphi( -(sp.angle - (sp.e1 + sp.e2)) )   // -psi
             , phase(std::exp(std::complex<double>(0.0, -dphi)))
@@ -90,7 +93,8 @@ namespace
                     //
                     // 3. ref particle angle (kicks both xp and yp)
                     FF_algorithm::edge_unit(
-                            p(i,2), p(i,1), p(i,3), sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                            p(i,2), p(i,1), p(i,3), 
+                            sp.us_edge_k_x, sp.us_edge_k_y, 0); 
                 }
 
                 // bend
@@ -105,13 +109,103 @@ namespace
                     // FF_algorithm::edge_unit(y, yp, ds_edge_k);
                     // FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
                     FF_algorithm::edge_unit(
-                            p(i,2), p(i,1), p(i,3), sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+                            p(i,2), p(i,1), p(i,3), 
+                            sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
 
                     // slot
                     FF_algorithm::slot_unit(
                             p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
                             sp.ce2, sp.se2, sp.pref_b, sp.m_b);
                 }
+            }
+        }
+    };
+
+    struct PropSbendSimd
+    {
+        Particles p;
+        ConstParticleMasks masks;
+        const SbendParams sp;
+
+        const double dphi;
+        const Kokkos::complex<double> phase;
+        const Kokkos::complex<double> term;
+
+        PropSbendSimd(Particles const& p, 
+                ConstParticleMasks const& masks, 
+                SbendParams const& sp)
+            : p(p), masks(masks), sp(sp)
+            , dphi( -(sp.angle - (sp.e1 + sp.e2)) )   // -psi
+            , phase(std::exp(std::complex<double>(0.0, -dphi)))
+            , term( std::complex<double>(0.0, sp.length / sp.angle) *
+                    std::complex<double>(1.0 - cos(sp.angle), - sin(sp.angle)) *
+                    std::complex<double>(cos(sp.e2), -sin(sp.e2)) )
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int idx) const
+        {
+            int i = idx * GSVector::size();
+
+            int m = 0;
+            for(int x=i; x<i+GSVector::size(); ++x) m |= masks(x);
+
+            if (m)
+            {
+                GSVector p0(&p(i, 0));
+                GSVector p1(&p(i, 1));
+                GSVector p2(&p(i, 2));
+                GSVector p3(&p(i, 3));
+                GSVector p4(&p(i, 4));
+                GSVector p5(&p(i, 5));
+
+                if (sp.ledge)
+                {
+                    // slot
+                    FF_algorithm::slot_unit<GSVector>( 
+                            p0, p1, p2, p3, p4, p5,
+                            sp.ce1, sp.se1, sp.pref_b, sp.m_b );
+
+                    // edge:
+                    // 1. chef fixed angle (only kicks yp)
+                    // FF_algorithm::edge_unit(
+                    //        p(i,2), p(i,3), us_edge_k );
+                    //
+                    // 2. chef per-particle angle
+                    // FF_algorithm::edge_unit(
+                    //        p(i,2), p(i,1), p(i,3), dpop, us_edge_k_p);
+                    //
+                    // 3. ref particle angle (kicks both xp and yp)
+                    FF_algorithm::edge_unit<GSVector>(
+                            p2, p1, p3, sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                }
+
+                // bend
+                FF_algorithm::bend_unit<GSVector>(
+                        p0, p1, p2, p3, p4, p5,
+                        dphi, sp.strength, sp.pref_b, sp.m_b, sp.ref_cdt, 
+                        phase, term );
+
+                if (sp.redge)
+                {
+                    // edge
+                    // FF_algorithm::edge_unit(y, yp, ds_edge_k);
+                    // FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                    FF_algorithm::edge_unit<GSVector>(
+                            p2, p1, p3, sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+
+                    // slot
+                    FF_algorithm::slot_unit<GSVector>(
+                            p0, p1, p2, p3, p4, p5,
+                            sp.ce2, sp.se2, sp.pref_b, sp.m_b);
+                }
+
+                p0.store(&p(i, 0));
+                p1.store(&p(i, 1));
+                p2.store(&p(i, 2));
+                p3.store(&p(i, 3));
+                p4.store(&p(i, 4));
+                p5.store(&p(i, 5));
             }
         }
     };
@@ -189,7 +283,8 @@ namespace
                     //FF_algorithm::edge_unit(y, yp, us_edge_k);
                     //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
                     FF_algorithm::edge_unit(
-                            p(i,2), p(i,1), p(i,3), sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                            p(i,2), p(i,1), p(i,3), 
+                            sp.us_edge_k_x, sp.us_edge_k_y, 0); 
 
                     // bend edge (thin, but with face angle)
                     FF_algorithm::bend_edge(
@@ -198,11 +293,13 @@ namespace
                 }
 
                 // bend body
-                FF_algorithm::bend_yoshida6<double, fa::thin_cf_kick_2<double>, 2> ( 
-                      p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                      sp.pref_b, sp.m_b, step_ref_cdt,
-                      step_kl, step_dphi, step_phase, step_term,
-                      sp.r0, sp.strength, sp.steps );
+                FF_algorithm::bend_yoshida6<double, 
+                    fa::thin_cf_kick_2<double>, 2> ( 
+                            p(i,0), p(i,1), p(i,2), 
+                            p(i,3), p(i,4), p(i,5),
+                            sp.pref_b, sp.m_b, step_ref_cdt,
+                            step_kl, step_dphi, step_phase, step_term,
+                            sp.r0, sp.strength, sp.steps );
 
                 if (sp.redge)
                 {
@@ -215,7 +312,8 @@ namespace
                     //FF_algorithm::edge_unit(y, yp, ds_edge_k);
                     //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
                     FF_algorithm::edge_unit(
-                            p(i,2), p(i,1), p(i,3), sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+                            p(i,2), p(i,1), p(i,3), 
+                            sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
 
                     // slot
                     FF_algorithm::slot_unit(
@@ -372,12 +470,11 @@ namespace
         }
 
         FF_algorithm::bend_yoshida6< double, 
-                                     FF_algorithm::thin_cf_kick_2<double>, 
-                                     2 >
-            ( x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
-              pref_l, m_l, 0.0 /* step ref_cdt */,
-              step_kl, step_dphi, step_phase, step_term,
-              sp.r0, sp.strength, sp.steps);
+            FF_algorithm::thin_cf_kick_2<double>, 2> ( 
+                    x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
+                    pref_l, m_l, 0.0 /* step ref_cdt */,
+                    step_kl, step_dphi, step_phase, step_term,
+                    sp.r0, sp.strength, sp.steps);
 
         if (sp.redge)
         {
@@ -499,8 +596,15 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
         auto masks = bunch.get_local_particle_masks(ParticleGroup::regular);
 
+#if 0
         PropSbend sbend(parts, masks, sp);
         Kokkos::parallel_for(num, sbend);
+#endif
+
+#if 1
+        PropSbendSimd sbend(parts, masks, sp);
+        Kokkos::parallel_for(num/GSVector::size(), sbend);
+#endif
     }
     else
     {
