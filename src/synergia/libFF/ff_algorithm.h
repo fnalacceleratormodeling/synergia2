@@ -204,10 +204,10 @@ namespace FF_algorithm
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    void bend_unit
-      (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
-       T theta, T strength, T p_ref, T m, T cdt_ref,
-       Kokkos::complex<double> phase, Kokkos::complex<double> term)
+    void bend_unit(T& x, T& xp, T& y, T& yp, T& cdt, T const& dpop, 
+            T theta, T strength, T p_ref, T m, T cdt_ref, 
+            Kokkos::complex<double> phase, 
+            Kokkos::complex<double> term)
     {
         typedef Kokkos::complex<T> CT;
 
@@ -260,11 +260,9 @@ namespace FF_algorithm
         T expf_i = sin(dthmphi);
 
         //CT vuf  = vui * expf;
-        //T vuf_r = vui_r * expf_r - vui_i * expf_i;
         T vuf_i = vui_r * expf_i + vui_i * expf_r;
 
         //CT uf   = (ui + bi) * expf - bf;
-        //T uf_r = (ui_r+bi_r)*expf_r - (ui_i+bi_i)*expf_i - bf_r;
         T uf_i = (ui_r+bi_r)*expf_i + (ui_i+bi_i)*expf_r - bf_i;
 
         T dtheta = dthmphi + theta;
@@ -294,54 +292,77 @@ namespace FF_algorithm
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    void bend_edge
-      (T & x, T & xp, T & y, T & yp, T & cdt, T const& dpop,
-       double e, Kokkos::complex<double> phase, double strength, double p_ref, double m)
+    void bend_edge(T& x, T& xp, T& y, T& yp, T& cdt, T const& dpop, 
+            T e, Kokkos::complex<double> phase, 
+            T strength, T p_ref, T m)
     {
         typedef Kokkos::complex<T> CT;
 
         const T uni(1.0);
+        const T tc(pconstants::c);
 
         T p0 = p_ref;
-        T p  = p_ref * (dpop + 1.0);
+        T p  = p_ref * (dpop + uni);
         T E0 = sqrt(p0 * p0 + m * m);
         T E  = sqrt(p * p + m * m);
 
         T igamma = m / E0;
         T ibeta  = uni / sqrt(uni - igamma * igamma);
 
-        T csq = pconstants::c * pconstants::c * 1e-9;
-        T psq = (dpop + 1.0) * (dpop + 1.0);
+        T csq = T(pconstants::c * pconstants::c * 1e-9);
+        T psq = (dpop + uni) * (dpop + uni);
 
         T Ef = uni / sqrt(psq + igamma * igamma * ibeta * ibeta);
 
         T beta1 = Ef * xp;
         T beta2 = Ef * yp;
-        T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
+        T beta3 = Ef * sqrt( (dpop + uni) * (dpop + uni) - xp * xp - yp * yp );
 
-        CT ui  = CT(0.0, x);
-        CT vui = CT(pconstants::c * beta3, pconstants::c * beta1);
+        //CT ui  = CT(0.0, x);
+        T ui_r = 0.0;
+        T ui_i = x;
+
+        //CT vui = CT(pconstants::c * beta3, pconstants::c * beta1);
+        T vui_r = tc * beta3;
+        T vui_i = tc * beta1;
 
         T iomega = E / (csq * strength);
 
-        CT bi = CT(0.0, 1.0) * vui * iomega - ui;
-        CT bf = bi * phase;
+        //CT bi = CT(0.0, 1.0) * vui * iomega - ui;
+        T bi_r = -vui_i * iomega - ui_r;
+        T bi_i =  vui_r * iomega - ui_i;
 
-        T rho = pconstants::c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+        //CT bf = bi * phase;
+        T phase_r(phase.real()); T phase_i(phase.imag());
+        T bf_r = bi_r * phase_r - bi_i * phase_i;
+        T bf_i = bi_r * phase_i + bi_i * phase_r;
 
-        T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+        T rho = tc * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
 
-        CT expf = Kokkos::exp( CT(0.0, dthmphi) );
-        CT vuf  = vui * expf;
-        CT uf   = (ui + bi) * expf - bf;
+        //T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+        T dthmphi = asin(bi_r / rho) - asin(bf_r / rho);
+
+        //CT expf = Kokkos::exp( CT(0.0, dthmphi) );
+        T expf_r = cos(dthmphi);
+        T expf_i = sin(dthmphi);
+
+        //CT vuf  = vui * expf;
+        T vuf_i = vui_r * expf_i + vui_i * expf_r;
+
+        //CT uf   = (ui + bi) * expf - bf;
+        T uf_i = (ui_r+bi_r)*expf_i + (ui_i+bi_i)*expf_r - bf_i;
 
         T dtheta = dthmphi + e;
-        T ncdt = - pconstants::c * dtheta * iomega;
+        T ncdt = - tc * dtheta * iomega;
 
-        x    = uf.imag();
-        y   += beta2 * ncdt;
-        cdt += ncdt;
-        xp   = vuf.imag() / (Ef * pconstants::c);
+        //x = uf.imag();
+        x = uf_i;
+
+        //xp = vuf.imag() / (Ef * pconstants::c);
+        xp = vuf_i / (Ef * tc);
+
+        y = y + beta2 * ncdt;
+        cdt = cdt + ncdt;
     }
 
 // thin_cf_quadrupole_unit is not used.  It follows expressions in
@@ -392,26 +413,26 @@ namespace FF_algorithm
     // Phys.Rev.Accel.Beams 20 (2017) no.4, 043501 Table XIII
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    T thin_cf_quadrupole_bx (T const& x, T const& y, double r0)
+    T thin_cf_quadrupole_bx (T const& x, T const& y, T const& r0)
     { return r0 * y / (r0 + x); }
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    T thin_cf_quadrupole_by (T const& x, T const& y, double r0, double alf)
-    { return r0 * log(1.0 + alf); }
+    T thin_cf_quadrupole_by (T const& x, T const& y, T const& r0, T const& alf)
+    { return r0 * log(T(1.0) + alf); }
 
    // the expressions in thin_cf_sectupole_b{x|y} come from
     // Zolkin, Sector magnets or transverse electromagnetic fields in cylindrical coordinates,
     // Phys.Rev.Accel.Beams 20 (2017) no.4, 043501 Table XIII
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    T thin_cf_sextupole_bx (T const& x, T const& y, double r0, double alf)
-    { return x * (2.0 + alf) * y / (1.0 + alf); }
+    T thin_cf_sextupole_bx (T const& x, T const& y, T const& r0, T const& alf)
+    { return x * (T(2.0) + alf) * y / (T(1.0) + alf); }
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
-    T thin_cf_sextupole_by (T const& x, T const& y, double r0, double alf)
-    { return 0.5 * (x*x + 2.0*x*r0) - y*y - r0*r0*log(1.0 + alf); }
+    T thin_cf_sextupole_by (T const& x, T const& y, T const& r0, T const& alf)
+    { return T(0.5) * (x*x + T(2.0)*x*r0) - y*y - r0*r0*log(T(1.0) + alf); }
 
     // combined function sbends kick up to quadrupole
     template <typename T>
@@ -419,13 +440,16 @@ namespace FF_algorithm
     void thin_cf_kick_1
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
+        const T uni(1.0);
+
         T vk1n(kL[0]);
         T vk1s(kL[1]);
 
-        T alf = x / r0;
+        T vr0(r0);
+        T alf = x / vr0;
 
-        xp = xp - vk1n * (1.0 + alf) * thin_cf_quadrupole_by(x, y, r0, alf);
-        yp = yp + vk1n * (1.0 + alf) * thin_cf_quadrupole_bx(x, y, r0);
+        xp = xp - vk1n * (uni + alf) * thin_cf_quadrupole_by(x, y, vr0, alf);
+        yp = yp + vk1n * (uni + alf) * thin_cf_quadrupole_bx(x, y, vr0);
     }
 
     // combined function sbends kick up to sextupole
@@ -434,19 +458,22 @@ namespace FF_algorithm
     void thin_cf_kick_2
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
+        const T uni(1.0);
+
         T vk1n(kL[0]);
         T vk1s(kL[1]);
 
         T vk2n(kL[2]);
         T vk2s(kL[3]);
 
-        T alf = x / r0;
+        T vr0(r0);
+        T alf = x / vr0;
 
-        xp = xp - vk1n * (1.0 + alf) * thin_cf_quadrupole_by(x, y, r0, alf)
-                - vk2n * (1.0 + alf) * thin_cf_sextupole_by(x, y, r0, alf) * 0.5;
+        xp = xp - vk1n * (uni + alf) * thin_cf_quadrupole_by(x, y, vr0, alf)
+                - vk2n * (uni + alf) * thin_cf_sextupole_by(x, y, vr0, alf) * T(0.5);
 
-        yp = yp + vk1n * (1.0 + alf) * thin_cf_quadrupole_bx(x, y, r0)
-                + vk2n * (1.0 + alf) * thin_cf_sextupole_bx(x, y, r0, alf) * 0.5;
+        yp = yp + vk1n * (uni + alf) * thin_cf_quadrupole_bx(x, y, vr0)
+                + vk2n * (uni + alf) * thin_cf_sextupole_bx(x, y, vr0, alf) * T(0.5);
     }
 
 
@@ -1418,7 +1445,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
             //          m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[0] , bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[0] , bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[0], step_term[0]);
 
             f_kf( x, xp, y, yp, r0, k1 );
@@ -1426,7 +1453,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             f_kf( x, xp, y, yp, r0, k2 );
@@ -1434,7 +1461,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             f_kf( x, xp, y, yp, r0, k1 );
@@ -1442,7 +1469,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[2], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[2], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[2], step_term[2]);
 
             f_kf( x, xp, y, yp, r0, k3 );
@@ -1450,7 +1477,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[3], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[3], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[3], step_term[3]);
 
             f_kf( x, xp, y, yp, r0, k4 );
@@ -1458,7 +1485,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[3], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[3], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[3], step_term[3]);
 
             f_kf( x, xp, y, yp, r0, k3 );
@@ -1466,7 +1493,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[2], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[2], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[2], step_term[2]);
 
             f_kf( x, xp, y, yp, r0, k1 );
@@ -1474,7 +1501,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             f_kf( x, xp, y, yp, r0, k2 );
@@ -1482,7 +1509,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[1], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[1], step_term[1]);
 
             f_kf( x, xp, y, yp, r0, k1 );
@@ -1490,7 +1517,7 @@ namespace FF_algorithm
             //drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
             //           m, substep_reference_cdt);
 
-            bend_unit(x, xp, y, yp, cdt, dpop, dphi[0], bend_strength, reference_momentum,
+            bend_unit<T>(x, xp, y, yp, cdt, dpop, dphi[0], bend_strength, reference_momentum,
                        m, substep_reference_cdt, step_phase[0], step_term[0]);
 
         }
