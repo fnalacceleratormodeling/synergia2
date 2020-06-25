@@ -9,7 +9,7 @@
 #undef GSV_MIC
 #endif
 
-//#define GSV_AVX
+#define GSV_AVX
 
 // no simd when build for CUDA
 #ifdef Kokkos_ENABLE_CUDA
@@ -212,7 +212,19 @@ struct VecSqrt : public VecExpr<VecSqrt<E, T>, T>
     { return sqrt(_u.cal()); }
 };
 
-#if 1
+template <typename E, class T>
+struct VecLog: public VecExpr<VecLog<E, T>, T>
+{
+    E const& _u;
+
+    KOKKOS_INLINE_FUNCTION
+    VecLog(VecExpr<E, T> const& u) : _u(u) { }
+
+    KOKKOS_INLINE_FUNCTION
+    typename VecExpr<VecLog<E, T>, T>::vec_t cal() const 
+    { return log(_u.cal()); }
+};
+
 template <typename E, class T>
 struct VecSin: public VecExpr<VecSin<E, T>, T>
 {
@@ -251,7 +263,6 @@ struct VecAsin : public VecExpr<VecAsin<E, T>, T>
     typename VecExpr<VecAsin<E, T>, T>::vec_t cal() const 
     { return asin(_u.cal()); }
 };
-#endif
 
 // overload operators
 //
@@ -306,7 +317,12 @@ VecSqrt<E, T> const
 sqrt (VecExpr<E, T> const & u)
 { return VecSqrt<E, T>(u); }
 
-#if 1
+template <typename E, class T>
+KOKKOS_INLINE_FUNCTION
+VecLog<E, T> const
+log (VecExpr<E, T> const & u)
+{ return VecLog<E, T>(u); }
+
 template <typename E, class T>
 KOKKOS_INLINE_FUNCTION
 VecSin<E, T> const
@@ -324,7 +340,6 @@ KOKKOS_INLINE_FUNCTION
 VecAsin<E, T> const
 asin (VecExpr<E, T> const & u)
 { return VecAsin<E, T>(u); }
-#endif
 
 // specialization for different platforms
 //
@@ -337,9 +352,11 @@ class vector4double;
 #if defined(GSV_SSE)
   #include "vectorclass/vectorclass.h"
   #include "vectorclass/vectormath_trig.h"
+  #include "vectorclass/vectormath_exp.h"
 #elif defined(GSV_AVX)
   #include "vectorclass/vectorclass.h"
   #include "vectorclass/vectormath_trig.h"
+  #include "vectorclass/vectormath_exp.h"
 #elif defined(GSV_QPX)
   #include <mass_simd.h>
 #endif
