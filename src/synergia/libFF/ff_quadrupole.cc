@@ -69,9 +69,12 @@ namespace
                 p(i, 0) -= xoff;
                 p(i, 2) -= yoff;
 
-                FF_algorithm::yoshida6<double, FF_algorithm::thin_quadrupole_unit<double>, 1>
-                    (p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-                     ref_p, ref_m, step_ref_t, step_l, step_k, steps);
+                FF_algorithm::yoshida6<double, 
+                    FF_algorithm::thin_quadrupole_unit<double>, 1> (
+                            p(i,0), p(i,1), p(i,2), 
+                            p(i,3), p(i,4), p(i,5), 
+                            ref_p, ref_m, step_ref_t, 
+                            step_l, step_k, steps );
 
                 p(i, 0) += xoff;
                 p(i, 2) += yoff;
@@ -127,8 +130,8 @@ namespace
                 GSVector p4(&p(i, 4));
                 GSVector p5(&p(i, 5));
 
-                p0 -= xoff;
-                p2 -= yoff;
+                p0 = p0 - xoff;
+                p2 = p2 - yoff;
 
                 FF_algorithm::yoshida6<GSVector, 
                     FF_algorithm::thin_quadrupole_unit<GSVector>, 1>(
@@ -136,14 +139,14 @@ namespace
                             ref_p, ref_m, step_ref_t, 
                             step_l, step_k, steps );
 
-                p0 += xoff;
-                p2 += yoff;
+                p0 = p0 + xoff;
+                p2 = p2 + yoff;
 
-                p0.store(&p(i,0));
-                p1.store(&p(i,1));
-                p2.store(&p(i,2));
-                p3.store(&p(i,3));
-                p4.store(&p(i,4));
+                p0.store(&p(i, 0));
+                p1.store(&p(i, 1));
+                p2.store(&p(i, 2));
+                p3.store(&p(i, 3));
+                p4.store(&p(i, 4));
             }
         }
     };
