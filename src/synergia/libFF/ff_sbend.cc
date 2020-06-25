@@ -231,7 +231,9 @@ namespace
         const Kokkos::complex<double> step_term[4];
         const double step_dphi[4];
 
-        PropSbendCF( Particles const& p, ConstParticleMasks const& masks, SbendParams const& sp )
+        PropSbendCF( Particles const& p, 
+                ConstParticleMasks const& masks, 
+                SbendParams const& sp )
             : p(p), masks(masks), sp(sp)
 
             , step_angle(sp.angle/sp.steps)
@@ -320,6 +322,137 @@ namespace
                             p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
                             sp.ce2, sp.se2, sp.pref_b, sp.m_b);
                 }
+            }
+        }
+    };
+
+    struct PropSbendCFSimd
+    {
+        Particles p;
+        ConstParticleMasks masks;
+        const SbendParams sp;
+
+        const double step_angle;
+        const double step_ref_cdt;
+
+        const double step_kl[6];
+
+        const Kokkos::complex<double> phase_e1;
+        const Kokkos::complex<double> phase_e2;
+
+        const Kokkos::complex<double> step_phase[4];
+        const Kokkos::complex<double> step_term[4];
+        const double step_dphi[4];
+
+        PropSbendCFSimd( Particles const& p, 
+                ConstParticleMasks const& masks, 
+                SbendParams const& sp )
+            : p(p), masks(masks), sp(sp)
+
+            , step_angle(sp.angle/sp.steps)
+            , step_ref_cdt(sp.ref_cdt/sp.steps)
+
+            , step_kl{  // k_b[i] = k_l[i] * scale
+                sp.k_l[0] * sp.scale * sp.length / sp.steps,
+                sp.k_l[1] * sp.scale * sp.length / sp.steps,
+                sp.k_l[2] * sp.scale * sp.length / sp.steps,
+                sp.k_l[3] * sp.scale * sp.length / sp.steps,
+                sp.k_l[4] * sp.scale * sp.length / sp.steps,
+                sp.k_l[5] * sp.scale * sp.length / sp.steps }
+
+            , phase_e1(fa::bend_edge_phase(sp.e1))
+            , phase_e2(fa::bend_edge_phase(sp.e2))
+
+            , step_phase{
+                fa::sbend_unit_phase(by6::c1, step_angle),
+                fa::sbend_unit_phase(by6::c2, step_angle),
+                fa::sbend_unit_phase(by6::c3, step_angle),
+                fa::sbend_unit_phase(by6::c4, step_angle) }
+
+            , step_term{
+                fa::sbend_unit_term(by6::c1, step_angle, sp.r0),
+                fa::sbend_unit_term(by6::c2, step_angle, sp.r0),
+                fa::sbend_unit_term(by6::c3, step_angle, sp.r0),
+                fa::sbend_unit_term(by6::c4, step_angle, sp.r0) }
+
+            , step_dphi{
+                fa::sbend_dphi(by6::c1, step_angle),
+                fa::sbend_dphi(by6::c2, step_angle),
+                fa::sbend_dphi(by6::c3, step_angle),
+                fa::sbend_dphi(by6::c4, step_angle) }
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int idx) const
+        {
+            int i = idx * GSVector::size();
+
+            int m = 0;
+            for(int x=i; x<i+GSVector::size(); ++x) m |= masks(x);
+
+            if (m)
+            {
+                GSVector p0(&p(i, 0));
+                GSVector p1(&p(i, 1));
+                GSVector p2(&p(i, 2));
+                GSVector p3(&p(i, 3));
+                GSVector p4(&p(i, 4));
+                GSVector p5(&p(i, 5));
+
+                if (sp.ledge)
+                {
+                    // slot
+                    FF_algorithm::slot_unit<GSVector>(
+                            p0, p1, p2, p3, p4, p5,
+                            sp.ce1, sp.se1, sp.pref_b, sp.m_b );
+
+                    // edge
+                    //FF_algorithm::edge_unit(y, yp, us_edge_k);
+                    //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
+                    FF_algorithm::edge_unit<GSVector>(
+                            p2, p1, p3, 
+                            sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+
+                    // bend edge (thin, but with face angle)
+                    FF_algorithm::bend_edge<GSVector>(
+                            p0, p1, p2, p3, p4, p5,
+                            sp.e1, phase_e1, sp.strength, sp.pref_b, sp.m_b);
+                }
+
+                // bend body
+                FF_algorithm::bend_yoshida6<GSVector, 
+                    fa::thin_cf_kick_2<GSVector>, 2> ( 
+                            p0, p1, p2, p3, p4, p5,
+                            sp.pref_b, sp.m_b, step_ref_cdt,
+                            step_kl, step_dphi, step_phase, step_term,
+                            sp.r0, sp.strength, sp.steps );
+
+                if (sp.redge)
+                {
+                    // bend edge (thin, but with face angle)
+                    FF_algorithm::bend_edge<GSVector>(
+                            p0, p1, p2, p3, p4, p5,
+                            sp.e2, phase_e2, sp.strength, sp.pref_b, sp.m_b);
+
+                    // edge
+                    //FF_algorithm::edge_unit(y, yp, ds_edge_k);
+                    //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
+                    FF_algorithm::edge_unit<GSVector>(
+                            p2, p1, p3, 
+                            sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+
+                    // slot
+                    FF_algorithm::slot_unit<GSVector>(
+                            p0, p1, p2, p3, p4, p5,
+                            sp.ce2, sp.se2, sp.pref_b, sp.m_b);
+                }
+
+                p0.store(&p(i, 0));
+                p1.store(&p(i, 1));
+                p2.store(&p(i, 2));
+                p3.store(&p(i, 3));
+                p4.store(&p(i, 4));
+                p5.store(&p(i, 5));
             }
         }
     };
@@ -616,8 +749,15 @@ void FF_sbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         auto parts = bunch.get_local_particles(ParticleGroup::regular);
         auto masks = bunch.get_local_particle_masks(ParticleGroup::regular);
 
+#if 0
         PropSbendCF sbend(parts, masks, sp);
         Kokkos::parallel_for(num, sbend);
+#endif
+
+#if 1
+        PropSbendCFSimd sbend(parts, masks, sp);
+        Kokkos::parallel_for(num/GSVector::size(), sbend);
+#endif
     }
 
     bunch.get_reference_particle().increment_trajectory(sp.length);
