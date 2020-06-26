@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 # script to perform same operations in python as cxx_benchmark does in
 # C++
 
@@ -20,9 +20,8 @@ num_steps = 8
 num_turns = 4
 map_order = 2
 
-lattice = synergia.lattice.Lattice()
-synergia.lattice.xml_load_lattice(lattice, "cxx_lattice.xml")
-lattice.set_all_string_attribute("extractor_type", "chef_propagate", False)
+lattice = synergia.lattice.MadX_reader().get_lattice("fodo", "fodo.madx")
+lattice.set_all_string_attribute("extractor_type", "libff", False)
 
 comm = synergia.utils.Commxx()
 bunch = synergia.bunch.Bunch(lattice.get_reference_particle(), num_macro_particles, num_real_particles, comm)
@@ -60,4 +59,4 @@ max_turns = 0
 t0 = mpi4py.MPI.Wtime()
 propagator.propagate(bunch_simulator, num_turns, max_turns, opts.verbosity)
 t1 = mpi4py.MPI.Wtime()
-print "propagate time = ", t1-t0
+print("propagate time = ", t1-t0)

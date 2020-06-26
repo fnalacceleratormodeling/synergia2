@@ -655,7 +655,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
     double x, y, z, G;
     const double epsz = 1.0e-12 * hz;
 
-    #pragma omp parallel for default(none), \
+    #pragma omp parallel for \
         private( x, y, z, G, mix, miy, rr ), \
         shared( gx, gy, gz, dgx, dgy, dgz, hx, hy, hz, G000, lower, upper, G2 )
     for (int iz = lower; iz < upper; ++iz) {
