@@ -861,10 +861,12 @@ namespace FF_algorithm
         yp += kse * x;
     }
 
+    // k[6]: 
+    // k[0] = beta_b, k[1] = gamma_b, k[2] = beta_e, 
+    // k[3] = ioe,    k[4] = l,       k[5] = radius
     KOKKOS_INLINE_FUNCTION
     void elens_kick_gaussian
-        (double x, double & xp, double y, double & yp, double dpop,
-         double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
+        (double const& x, double& xp, double const& y, double& yp, double const& dpop, double const* k)
     {
         const double small_radius = 1.0e-10;
         double r = sqrt( x * x + y * y );
@@ -872,12 +874,18 @@ namespace FF_algorithm
         // no kick at r = 0.0
         if (r == 0.0) return;
 
+        const double beta_b  = k[0];
+        const double gamma_b = k[1];
+        const double beta_e  = k[2];
+        const double ioe     = k[3];
+        const double l       = k[4];
+        const double radius  = k[5];
+
         double betagamma_p = (1.0 + dpop) * beta_b * gamma_b;
         double beta_p = betagamma_p / sqrt(1.0 + betagamma_p * betagamma_p);
 
         double factors = -2.0 * ioe * l * pconstants::rp * 
             (1.0 + beta_e * beta_p) / (beta_e * beta_p * beta_b * gamma_b * pconstants::c);
-
 
         double kick = 0.0;
 
@@ -898,14 +906,20 @@ namespace FF_algorithm
 
     KOKKOS_INLINE_FUNCTION
     void elens_kick_uniform
-        (double x, double & xp, double y, double & yp, double dpop,
-         double beta_b, double gamma_b, double beta_e, double ioe, double l, double radius)
+        (double const& x, double& xp, double const& y, double& yp, double const& dpop, double const* k)
     {
         const double small_radius = 1.0e-10;
         double r = sqrt( x * x + y * y );
 
         // no kick at r = 0.0
         if (r == 0.0) return;
+
+        const double beta_b  = k[0];
+        const double gamma_b = k[1];
+        const double beta_e  = k[2];
+        const double ioe     = k[3];
+        const double l       = k[4];
+        const double radius  = k[5];
 
         double betagamma_p = (1.0 + dpop) * beta_b * gamma_b;
         double beta_p = betagamma_p / sqrt(1.0 + betagamma_p * betagamma_p);

@@ -34,6 +34,7 @@ enum class element_type
 
     nllens,
     solenoid,
+    elens,
 };
 
 namespace element_type_name
@@ -56,6 +57,7 @@ namespace element_type_name
     constexpr char const* rcollimator= "rcollimator";
     constexpr char const* nllens     = "nllens";
     constexpr char const* solenoid   = "solenoid";
+    constexpr char const* elens      = "elens";
 }
 
 class Lattice;

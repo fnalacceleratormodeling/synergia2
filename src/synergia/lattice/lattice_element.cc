@@ -29,6 +29,7 @@ namespace
         { element_type_name::rcollimator,element_type::rcollimator},
         { element_type_name::nllens,     element_type::nllens},
         { element_type_name::solenoid,   element_type::solenoid},
+        { element_type_name::elens,      element_type::elens},
     };
 
     element_type find_type(std::string const & stype)

@@ -17,7 +17,7 @@ add_library(synergia_libFF
     ff_nllens.cc
     #ff_dipedge.cc
     ff_solenoid.cc
-    #ff_elens.cc
+    ff_elens.cc
     )
 
 target_link_libraries(synergia_libFF

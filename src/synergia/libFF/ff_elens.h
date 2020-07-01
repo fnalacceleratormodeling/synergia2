@@ -1,7 +1,7 @@
 #ifndef FF_ELENS_H
 #define FF_ELENS_H
 
-#include "syneriga/libFF/ff_element.h"
+#include "synergia/libFF/ff_element.h"
 
 class FF_elens : public FF_element
 {
