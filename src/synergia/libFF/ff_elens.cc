@@ -1,12 +1,13 @@
 #include "ff_elens.h"
 #include "ff_algorithm.h"
-#include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 
 
 void FF_elens::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
-    throw std::runtime_error("libFF::elens for JetParticles has yet to be implemented");
+    throw std::runtime_error(
+            "libFF::elens for JetParticles "
+            "has yet to be implemented");
 }
 
 void FF_elens::apply(Lattice_element_slice const& slice, Bunch& bunch)
@@ -304,37 +305,5 @@ void FF_elens::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     // increment the trajectory
     bunch.get_reference_particle().increment_trajectory(length);
-}
-
-template<class Archive>
-    void
-    FF_elens::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(FF_element);
-    }
-
-template
-void
-FF_elens::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_elens::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-FF_elens::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-FF_elens::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-FF_elens::~FF_elens()
-{
-
 }
 

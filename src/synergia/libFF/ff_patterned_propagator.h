@@ -4,7 +4,7 @@
 template<
     typename T,
     int COMP,
-    void(KF)(T const&, T&, T const&, T&, double const*) >
+    void(KF)(T const&, T&, T const&, T&, T const&, double const*) >
 struct FF_patterned_propagator
 {
     struct thin_kicker
@@ -23,7 +23,7 @@ struct FF_patterned_propagator
         void operator() (const int i) const
         { 
             if(m(i)) 
-                KF(p(i,0), p(i,1), p(i,2), p(i,3), k);
+                KF(p(i,0), p(i,1), p(i,2), p(i,3), p(i,5), k);
         }
     };
 
@@ -53,7 +53,7 @@ struct FF_patterned_propagator
                         len*0.5, pref, mass, ref_cdt*0.5 
                 );
 
-                KF(p(i,0), p(i,1), p(i,2), p(i,3), k);
+                KF(p(i,0), p(i,1), p(i,2), p(i,3), p(i,5), k);
 
                 FF_algorithm::drift_unit(
                         p(i, 0), p(i, 1), p(i, 2), 
@@ -157,8 +157,9 @@ struct FF_patterned_propagator
         double xp = ref.get_state()[Bunch::xp];
         double y  = ref.get_state()[Bunch::y];
         double yp = ref.get_state()[Bunch::yp];
+        double dpop = ref.get_state()[Bunch::dpop];
 
-        KF(x, xp, y, yp, k);
+        KF(x, xp, y, yp, dpop, k);
 
         ref.set_state_xp(xp);
         ref.set_state_yp(yp);
@@ -184,7 +185,7 @@ struct FF_patterned_propagator
                 st[3], cdt, st[5], 
                 len* 0.5, pref, mass, 0.0);
 
-        KF(st[0], st[1], st[2], st[3], str);
+        KF(st[0], st[1], st[2], st[3], st[5], str);
 
         FF_algorithm::drift_unit(
                 st[0], st[1], st[2], 

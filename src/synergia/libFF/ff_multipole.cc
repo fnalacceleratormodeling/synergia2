@@ -42,15 +42,15 @@ namespace
 
                 if (mp.kn[1])
                 FF_algorithm::thin_quadrupole_unit(
-                        p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[2]);
+                        p(i,0), p(i,1), p(i,2), p(i,3), 0.0, &mp.kl[2]);
 
                 if (mp.kn[2])
                 FF_algorithm::thin_sextupole_unit(
-                        p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[4]);
+                        p(i,0), p(i,1), p(i,2), p(i,3), 0.0, &mp.kl[4]);
 
                 if (mp.kn[3])
                 FF_algorithm::thin_octupole_unit(
-                        p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[6]);
+                        p(i,0), p(i,1), p(i,2), p(i,3), 0.0, &mp.kl[6]);
 
 #if 1
                 for(int n=4; n<max_order; ++n)

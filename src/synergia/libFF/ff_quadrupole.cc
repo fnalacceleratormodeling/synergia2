@@ -24,7 +24,7 @@ namespace
                 double y = p(i, 2) - yoff;
 
                 FF_algorithm::thin_quadrupole_unit(
-                        x, p(i, 1), y, p(i, 3), k);
+                        x, p(i, 1), y, p(i, 3), 0.0, k);
             }
         }
     };
@@ -175,7 +175,8 @@ namespace
             double cdt(0.0);
             double dpop(ref.get_state()[Bunch::dpop]);
 
-            FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+            FF_algorithm::yoshida6<double, 
+                FF_algorithm::thin_quadrupole_unit<double>, 1 >
                     ( x, xp, y, yp, cdt, dpop,
                       ref_p, ref_m, 0.0,
                       step_length, step_strength, steps );
@@ -291,7 +292,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         x -= xoff;
         y -= yoff;
 
-        FF_algorithm::thin_quadrupole_unit(x, xp,  y, yp, k);
+        FF_algorithm::thin_quadrupole_unit(x, xp,  y, yp, 0.0, k);
 
         x += xoff;
         y += yoff;
