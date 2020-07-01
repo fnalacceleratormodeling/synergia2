@@ -1,0 +1,10 @@
+call, file="adjusted_lattice.madx";
+
+use,sequence=machine;
+select, flag=twiss,clear;
+select, flag=twiss, column=name, s, l, betx, alfx, bety, alfy;
+
+twiss, file=adjusted_lattice_twiss.txt;
+
+stop;
+

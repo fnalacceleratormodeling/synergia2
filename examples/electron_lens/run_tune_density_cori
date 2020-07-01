@@ -1,0 +1,31 @@
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -C knl,quad,cache
+#SBATCH -p debug
+#SBATCH -J tune_density
+#SBATCH --mail-user=egstern@fnal.gov
+#SBATCH --mail-type=ALL
+#SBATCH -t 0:15:00
+
+run_name="2.0e11-elens-4.0A-tunes4.27-4.37"
+
+#synergia_workflow_submitter:sbatch
+
+#OpenMP settings:
+export OMP_NUM_THREADS=1
+export OMP_PLACES=threads
+export OMP_PROC_BIND=spread
+export SYNERGIA2DIR=/global/u2/e/egstern/cori/syn2-dev-intel-mic-2018/install/lib
+
+module load python
+
+procs_to_use=16
+
+# logical cores/MPI task calculation
+cores_per_mpi=$(( 68/$procs_to_use * 4))
+
+# 68 logical cpus/node
+echo "Job start at `date`"
+srun -n $procs_to_use -c $cores_per_mpi --cpu_bind=cores python ~/electron_lens/tune_density.py bulk_track_0.h5 $run_name
+
+echo "Job end at `date`"

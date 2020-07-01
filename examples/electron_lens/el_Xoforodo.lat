@@ -1,0 +1,69 @@
+! File fodo.lat
+!
+! Written for the January, 2007 USPAS.
+! To be used in conjunction with CHEF.
+!
+! Send complaints to the author: Leo Michelotti
+!
+! Modified by James Amundson to increase the quadrupole length.
+! ------------------
+! Parameters
+! ------------------
+
+! focus == 6.5 gives tunes in the 4.36,4.20 range
+!focus := 6.5
+
+! focus == 10 gives tunes in the 2.43,2.34 range
+!focus := 10
+
+! focus == 7 gives tunes in the 3.7,3.8 range
+focus    :=   7               ! [m]     : focal length of equivalent
+!focus    :=   5               ! [m]     : focal length of equivalent ! strong focus
+                                  !         :   thin quad
+sepn     :=  12                 ! [m]     : distance between quad centers
+length   :=   1.0                 ! [m]     : quadrupole length
+strength := -1/(focus*length)      ! [m**-2] : quadrupole strength
+                                  !         :   = B'/brho
+lbpm     := 0.01
+lo1      := 0.01
+
+beam, particle=proton, energy=1.738272046
+!beam, particle=proton, energy=1.5
+
+! ------------------
+! Elements
+! ------------------
+
+o: drift, l=( sepn - length )/2
+halfo: drift, l= ( sepn - length )/4
+!f: quadrupole, l=length, k1=strength*1.0128
+f: quadrupole, l=length, k1=strength
+!d: quadrupole, l=length, k1=(-strength)*0.995
+d: quadrupole, l=length, k1=(-strength)
+r: rfcavity, l= 0.,  volt=  0
+bpm: monitor , l = lbpm
+o1: drift, l = lo1
+o2:  drift, l =( sepn - length )/2-lo1-lbpm
+boc: marker ! for the beginning of each cell
+bol: marker ! for the beginning of the line
+mlens: marker ! location of the electron lens
+lens: elens, l=0, current=0, eenergy=0, radius=0, gaussian=1
+
+! ------------------
+! Lattice
+! ------------------
+!forodoro:   line=(f, o, r, o, d, o, r, o )
+!oforodo:   line=(boc, o, f, o1, bpm, o2, r, o, d, o )
+! oforodo cell with rf cavity
+oforodo:   line=(boc, o, f, o, r, o, d, o )
+! ofolodo cell with electron lens
+!ofolodo:   line=(boc, o, f, o, mlens, o, d, o)
+ofolodo:   line=(boc, o, f, o, lens, o, d, o)
+ofolrodo:   line=(boc, o, f, o, lens, r, o, d, o )
+lofolrodo:   line=(boc, lens, o, f, o, lens, r, o, d, o )
+
+!model:      line=(bol, 12*oforodo)
+! try without bol
+!model:      line=(12*oforodo)
+!model:       line=(6*(oforodo, ofolodo))
+model:      line=(12*lofolrodo)

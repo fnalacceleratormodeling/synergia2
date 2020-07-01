@@ -1,0 +1,41 @@
+#!/bin/bash
+#SBATCH -N @@numnode@@
+#SBATCH -C knl,quad,cache
+#SBATCH -p debug
+#SBATCH -J foo
+#SBATCH --mail-user=egstern@fnal.gov
+#SBATCH --mail-type=ALL
+#SBATCH -t 00:15:00
+
+#OpenMP settings:
+export OMP_NUM_THREADS=1
+export OMP_PLACES=threads
+export OMP_PROC_BIND=spread
+
+
+# load required modules
+. ~egstern/cori/load_synergia_modules_intel_mic_2018.sh
+module unload darshan
+
+. @@setupsh@@
+export SYNERGIA2DIR=@@synergia2dir@@
+
+LD_LIBRARY_PATH=$HDF5_DIR/lib:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=$(synergia --ldlibrarypath)
+PYTHONPATH=$(synergia --pythonpath)
+export LD_LIBRARY_PATH PYTHONPATH
+
+export HDF5_DISABLE_VERSION_CHECK=2
+
+echo "PATH: $PATH"
+echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+echo "PYTHONPATH: $PYTHONPATH"
+
+echo "python is " `which python`
+
+export LD_PRELOAD="libbasic_toolkit.so:libbeamline.so:libmxyzptlk.so:libphysics_toolkit.so:libsynergia_foundation.so:liblsexpr.so:libsynergia_hdf5_utils.so:libsynergia_parallel_utils.so:libsynergia_serialization.so:libsynergia_lattice.so:libsynergia_bunch.so:libsynergia_simulation.so:libsynergia_command_line.so:libsynergia_distributed_fft.so:libsynergia_collective.so:libsynergia_command_line.so"
+
+echo "Job start at `date`"
+srun -n @@numproc@@ --cpu_bind=cores synergia-pyresume
+
+echo "Job end at `date`"

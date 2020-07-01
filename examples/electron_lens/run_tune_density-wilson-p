@@ -1,0 +1,38 @@
+#!/bin/sh
+#PBS -o tune_density.out
+#PBS -e tune_density.err
+#PBS -l nodes=1:intel12
+#PBS -l walltime=00:15:00
+#PBS -q intel12
+#PBS -A mi
+
+# This script is an appropriate template for running PBS jobs on the
+# wilson cluster.
+
+echo PBS_NODEFILE is "$PBS_NODEFILE"
+if [ -n "$PBS_NODEFILE" ]
+then
+    echo "begin nodes"
+    cat $PBS_NODEFILE
+    echo "end nodes"
+fi
+MPI_HOME=/usr/local/openmpi-1.4.4rc3-with-pbs
+
+export PATH=${MPI_HOME}/bin:$PATH
+export LD_LIBRARY_PATH=${MPI_HOME}/lib:$LD_LIBRARY_PATH
+
+. /home/egstern/syn2-dev/setup.sh
+
+cd $PBS_O_WORKDIR
+echo "Job start at `date`"
+# 2014-12-20 (EGS) after upgrade of Wilson cluster and using openmpi 1.8, the
+# --loadbalance option is not used.
+# 2015-01-04 (EGS) using --map-by core --bind-to numa appears to work best
+#${MPI_HOME}/bin/mpirun -np 128 --map-by core --bind-to numa /home/egstern/electron_lens/cxx_elens  elenscurrent=4.0
+export HDF5_DISABLE_VERSION_CHECK=2
+unset OMP_NUM_THREADS
+${MPI_HOME}/bin/mpirun -np 12 --loadbalance --bycore --bind-to-core  synergia ~/electron_lens/tune_density.py bulk_track_0.h5 2.0e11-noimp-qs13-lens4A-p --peakonly
+echo "Job end at `date`"
+
+
+

@@ -1,0 +1,10 @@
+*.pyc
+*.o
+*.so
+*.dylib
+*~
+# next 2 are generated from cxx_elens_options.py
+cxx_elens_options.cc
+cxx_elens_options.h
+cxx_elens
+local_opts.py

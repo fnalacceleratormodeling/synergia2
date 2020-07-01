@@ -1,0 +1,473 @@
+{name: model, type: Mad8, 
+ reference_particle: 
+     {four_momentum: 
+         {mass: 0.938272046, gamma: 1.8526311781434}, charge: 1}, 
+ elements: 
+     {{type: marker, name: boc, 
+     ancestors: 
+         {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+       {k1: -0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens, 
+       {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+       {l: 0, volt: 0}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+       {k1: 0.142857142857143, l: 1}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+       {l: 5.5}, 
+      ancestors: 
+          {model, lofolrodo}}}}

@@ -1,0 +1,62 @@
+#!/bin/bash
+#SBATCH -N @@numnode@@
+#SBATCH -C knl,quad,cache
+__queue{{#SBATCH -q @@queue@@}}{{}}__
+#SBATCH --mail-user=egstern@fnal.gov
+#SBATCH --mail-type=ALL
+__walltime{{#SBATCH -t @@walltime@@}}{{}}__
+#XXX#SBATCH -J foo
+#SBATCH -o synergia.out
+#SBATCH -e synergia.err
+
+#synergia_workflow_submitter:sbatch
+
+#OpenMP settings:
+export OMP_NUM_THREADS=1
+export OMP_PLACES=threads
+export OMP_PROC_BIND=spread
+export SYNERGIA2DIR=@@synergia2dir@@
+
+
+# load required modules
+. ~egstern/cori/load_synergia_modules_intel_mic_2020.sh
+module unload darshan
+
+. @@setupsh@@
+
+#export KMP_AFFINITY=disabled
+export KMP_AFFINITY=verbose
+
+LD_LIBRARY_PATH=$HDF5_DIR/lib:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=$(synergia --ldlibrarypath)
+PYTHONPATH=$(synergia --pythonpath)
+export LD_LIBRARY_PATH PYTHONPATH
+
+export HDF5_DISABLE_VERSION_CHECK=2
+
+echo "PATH: $PATH"
+echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+echo "PYTHONPATH: $PYTHONPATH"
+
+echo "python is " `which python`
+
+export LD_PRELOAD="libbasic_toolkit.so:libbeamline.so:libmxyzptlk.so:libphysics_toolkit.so:libsynergia_foundation.so:liblsexpr.so:libsynergia_hdf5_utils.so:libsynergia_parallel_utils.so:libsynergia_serialization.so:libsynergia_lattice.so:libsynergia_bunch.so:libsynergia_simulation.so:libsynergia_command_line.so:libsynergia_distributed_fft.so:libsynergia_collective.so:libsynergia_command_line.so"
+
+# logical cores/MPI task calculation
+cores_per_mpi1=$(( @@numnode@@*68/@@numproc@@ * 4))
+echo "cores_per_mpi calc 1: " $cores_per_mpi1
+
+mpi_per_node=$(( @@numproc@@/@@numnode@@ ))
+echo "mpi_per_node: " $mpi_per_node
+t=$(( 68 / $mpi_per_node ))
+cores_per_mpi2=$(( $t * 4 ))
+echo "cores_per_mpi calc 2: " $cores_per_mpi2
+
+echo "libraries in use for executable: " @@synergia_executable@@
+ldd @@synergia_executable@@
+
+# 68 logical cpus/node
+echo "Job start at `date`"
+srun -n @@numproc@@ -c $cores_per_mpi2 --cpu-bind=cores @@synergia_executable@@ @@script@@ @@args@@
+
+echo "Job end at `date`"

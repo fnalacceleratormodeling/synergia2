@@ -1,0 +1,90 @@
+! File fodo.lat
+!
+! Written for the January, 2007 USPAS.
+! To be used in conjunction with CHEF.
+!
+! Send complaints to the author: Leo Michelotti
+!
+! Modified by James Amundson to increase the quadrupole length.
+! ------------------
+! Parameters
+! ------------------
+
+! focus == 6.5 gives tunes in the 4.36,4.20 range
+!focus := 6.5
+
+! focus == 10 gives tunes in the 2.43,2.34 range
+!focus := 10
+
+! focus == 7 gives tunes in the 3.7,3.8 range
+focus    :=   7               ! [m]     : focal length of equivalent
+!focus    :=   5               ! [m]     : focal length of equivalent ! strong focus
+                                  !         :   thin quad
+sepn     :=  12                 ! [m]     : distance between quad centers
+length   :=   1.0                 ! [m]     : quadrupole length
+strength := -1/(focus*length)      ! [m**-2] : quadrupole strength
+                                  !         :   = B'/brho
+k2l := 0.0
+
+lbpm     := 0.01
+lo1      := 0.01
+
+! first eql beta point is close to the beginning of the cell at 0.0124
+olen = (sepn - length)/2
+lo1a := 24.0124-2*sepn
+lo1b := olen - lo1a
+
+! second eql beta point is near the end of the half cell
+
+lo2b := olen + length + olen - 11.986
+lo2a := olen-lo2b
+
+beam, particle=proton, energy=1.738272046
+!beam, particle=proton, energy=1.5
+
+! ------------------
+! Elements
+! ------------------
+
+o: drift, l=( sepn - length )/2
+o1a : drift, l= lo1a
+o1b : drift, l=lo1b
+o2a : drift, l=lo2a
+o2b : drift, l=lo2b
+
+halfo: drift, l= ( sepn - length )/4
+f: quadrupole, l=length, k1=strength*1.0128
+!f: quadrupole, l=length, k1=strength
+d: quadrupole, l=length, k1=(-strength)*0.995
+!d: quadrupole, l=length, k1=(-strength)
+r: rfcavity, l= 0.,  volt=  0
+bpm: monitor , l = lbpm
+o1: drift, l = lo1
+o2:  drift, l =( sepn - length )/2-lo1-lbpm
+boc: marker ! for the beginning of each cell
+bol: marker ! for the beginning of the line
+mlens: marker ! location of the electron lens
+lens1: elens, l=0, current=0, eenergy=0, radius=0, gaussian=1
+lens2: elens, l=0, current=0, eenergy=0, radius=0, gaussian=1
+
+s: multipole, k2l = k2l
+
+! ------------------
+! Lattice
+! ------------------
+!forodoro:   line=(f, o, r, o, d, o, r, o )
+!oforodo:   line=(boc, o, f, o1, bpm, o2, r, o, d, o )
+! oforodo cell with rf cavity
+oforodo:   line=(boc, o, f, o, r, o, d, o )
+! ofolodo cell with electron lens
+!ofolodo:   line=(boc, o, f, o, mlens, o, d, o)
+ofolodo:   line=(boc, o, f, o, lens, o, d, o)
+ofolrodo:   line=(boc, o, f, o, lens, r, o, d, o )
+!lofolrodo:   line=(boc, lens, o, f, o, lens, r, o, d, o )
+lofolrodo: line = (boc, o1a, lens1, s, o1b, f, o2a, lens2, o2b, r, o, d, o)
+
+!model:      line=(bol, 12*oforodo)
+! try without bol
+!model:      line=(12*oforodo)
+!model:       line=(6*(oforodo, ofolodo))
+model:      line=(12*lofolrodo)
