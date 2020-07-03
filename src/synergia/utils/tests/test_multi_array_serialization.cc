@@ -37,3 +37,44 @@ BOOST_AUTO_TEST_CASE(test2d)
     multi_array_check_equal(a, b, tolerance);
 }
 
+BOOST_AUTO_TEST_CASE(test2d_b)
+{
+    MArray2d a(boost::extents[6][6]);
+    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
+        for (unsigned int j = 0; j < a.shape()[1]; ++j) {
+            a[i][j] = 0.0;
+        }
+    }
+    for (unsigned int i=0; i < a.shape()[0]; ++i) {
+        a[i][i] = 1.0*i;
+        if (i%2 == 0) {
+            a[i][i+1] = i*1.0+0.5;
+        } else {
+            a[i][i-1] = i*1.0-0.5;
+        }
+    }
+    std::cout << "saving array:" << std::endl;
+    for (int i=0; i<6; ++i) {
+        for (int j=0; j<6; ++j) {
+            if (j != 0) {
+                std::cout << " ";
+            }
+            std::cout << a[i][j];
+        }
+        std::cout << std::endl;
+    }
+    xml_save(a, "multi_array2d_b.xml");
+    MArray2d b;
+    xml_load(b, "multi_array2d_b.xml");
+    std::cout << "read back" << std::endl;
+    for (int i=0; i<6; ++i) {
+        for (int j=0; j<6; ++j) {
+            if (j != 0) {
+                std::cout << " ";
+            }
+            std::cout << b[i][j];
+        }
+        std::cout << std::endl;
+    }
+    multi_array_check_equal(a, b, tolerance);
+}
