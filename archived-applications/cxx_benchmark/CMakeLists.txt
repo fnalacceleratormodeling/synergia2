@@ -20,3 +20,11 @@ copy_file(write_xml.py benchmark)
 add_executable(cxx_write_xml cxx_write_xml.cc)
 target_link_libraries(cxx_write_xml synergia_simulation)
 copy_file(cxx_write_xml benchmark)
+
+add_executable(cxx_read_binary cxx_read_binary.cc)
+target_link_libraries(cxx_read_binary synergia_simulation)
+copy_file(cxx_read_binary benchmark)
+
+add_executable(cxx_write_binary cxx_write_binary.cc)
+target_link_libraries(cxx_write_binary synergia_simulation)
+copy_file(cxx_write_binary benchmark)
