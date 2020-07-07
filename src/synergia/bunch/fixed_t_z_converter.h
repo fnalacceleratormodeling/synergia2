@@ -3,7 +3,7 @@
 #include "synergia/utils/serialization.h"
 class Bunch;
 
-/// Fixed_t_z_converter is a virtual base class for converters
+/// Fixed_t_z_converter is an abstract base class for converters
 /// between the different system of coordinates 
 
 
@@ -78,28 +78,29 @@ class Fixed_t_z_zeroth : public Fixed_t_z_converter
 public:
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
     void
-    from_z_lab_to_t_lab(Bunch &bunch);
+    from_z_lab_to_t_lab(Bunch &bunch) override;
     /// Convert from the fixed-t state in the accelerator frameto the fixed-z state in the accelerator frame.
     void
-    from_t_lab_to_z_lab(Bunch &bunch);
+    from_t_lab_to_z_lab(Bunch &bunch) override;
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the beam frame.
      /// Should never be used!!!!!
     void
-    from_z_lab_to_t_bunch(Bunch &bunch);
+    from_z_lab_to_t_bunch(Bunch &bunch) override;
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
      /// Should never be used!!!!!
     void
-    from_t_bunch_to_z_lab(Bunch &bunch);
+    from_t_bunch_to_z_lab(Bunch &bunch) override;
     /// Should never be used!!!!!
     void
-    from_t_lab_to_t_bunch(Bunch &bunch);
+    from_t_lab_to_t_bunch(Bunch &bunch) override;
     /// Should never be used!!!!!
     void
-    from_t_bunch_to_t_lab(Bunch &bunch);
+    from_t_bunch_to_t_lab(Bunch &bunch) override;
 
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
+
 };
 BOOST_CLASS_EXPORT_KEY(Fixed_t_z_zeroth)
 
