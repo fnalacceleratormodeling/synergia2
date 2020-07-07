@@ -1,6 +1,10 @@
 add_definitions(-DBOOST_TEST_DYN_LINK)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+add_test_executable(test_boost_void_caster test_boost_void_caster.cc)
+target_link_libraries(test_boost_void_caster ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_boost_void_caster COMMAND $<TARGET_FILE:test_boost_void_caster>)
+
 add_test_executable(test_bunch test_bunch.cc)
 target_link_libraries(test_bunch synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch>)
@@ -134,6 +138,7 @@ add_test(NAME test_diagnostics_track_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXE
 
 add_test_executable(test_populate test_populate.cc)
 target_link_libraries(test_populate synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+
 add_test(NAME test_populate COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_populate>)
 add_test(NAME test_populate_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_populate.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_populate.py 
