@@ -17,9 +17,9 @@ private:
   ///assume the  wake functions are stored using a quadratic grid
   /// z[i]= (i-istart)^2*delta_z+zstart for i>istart
   /// z[i]= -(i-istart)^2*delta_z+zstart  for i< istart
-  int istart;
-  double zstart;
-  double delta_z;
+  int istart = 0;
+  double zstart = 0.0;
+  double delta_z = 0.0;
     
     
    std::vector<double> z_coord;    
