@@ -89,8 +89,49 @@ namespace
         offset_fudge = length - step_length;
         return slices;
     }
-}
 
+    template <typename ITER>
+    void 
+    create_substep( std::vector<Step>& steps,
+            std::shared_ptr<Operator> col_op_ptr,
+            ITER& it, ITER const& end,
+            double left, double length, double& offset_fudge)
+    {
+        // create the substep
+        steps.emplace_back(length);
+
+        if (length == 0.0) 
+        {
+            auto slices = get_fixed_step_slices(it, end, 
+                    left, 0.0, offset_fudge, true);
+
+            auto & op = steps.back().append_independent("zero_length", 1.0);
+            for (auto const& s : slices) op.append_slice(s);
+        } 
+        else 
+        {
+            double half_length = 0.5 * length;
+
+            // slices for first half substep
+            auto fst_half_slices = get_fixed_step_slices(it, end,
+                    left, half_length, offset_fudge, false);
+
+            // slices for second half substep
+            auto snd_half_slices = get_fixed_step_slices(it, end,
+                    left, half_length, offset_fudge, false);
+
+            auto& op1 = steps.back().append_independent("first_half", 0.5);
+            for(auto const& s : fst_half_slices) op1.append_slice(s);
+
+            // collective
+            steps.back().append(col_op_ptr);
+
+            // 2nd half
+            auto& op2 = steps.back().append_independent("second_half", 0.5);
+            for(auto const& s : snd_half_slices) op2.append_slice(s);
+        }
+    }
+}
 
 
 std::vector<Step>
@@ -136,117 +177,48 @@ Split_operator_stepper::apply_impl(Lattice const & lattice) const
         double all_substeps_length = 0.0;
         bool   found_force = false;
 
-        for (auto it = all_slices.begin(); it != all_slices.end(); ++it) 
+        // skip the last slice
+        for(int it = 0; it < all_slices.size()-1; ++it)
         {
-            substep_length += it->get_right() - it->get_left();
+            auto const& s = all_slices[it];
+            auto const& ele = s.get_lattice_element();
 
-            // jfa: I don't know of a simpler way to skip the last element of a
-            //      container
-            auto tmp_it = it; ++tmp_it;
-            if (tmp_it != all_slices.end()) 
+            substep_length += s.get_right() - s.get_left();
+
+            // force diagnostics?
+            if (s.has_right_edge() 
+                    && ele.has_string_attribute(force_diag_attr)
+                    && !false_string(ele.get_string_attribute(force_diag_attr)) )
             {
-                if (it->has_right_edge() 
-                        && it->get_lattice_element().has_string_attribute(force_diag_attr)
-                        && !false_string(it->get_lattice_element().get_string_attribute(force_diag_attr)) )
-                {
-                    found_force = true;
-                    all_substeps_length += substep_length;
+                found_force = true;
+                all_substeps_length += substep_length;
 
-                    // create step
-                    steps.emplace_back(substep_length);
+                // create the substep
+                create_substep(steps, col_op_ptr,
+                        substep_lattice_it, lattice_end,
+                        substep_left, substep_length, substep_offset_fudge);
 
-                    if (substep_length == 0.0) 
-                    {
-                        auto sub_slices = get_fixed_step_slices(
-                                substep_lattice_it, lattice_end,
-                                substep_left, 0.0, substep_offset_fudge, true);
-
-                        auto & op = steps.back().append_independent("zero_length", 1.0);
-                        for (auto const& s : sub_slices) op.append_slice(s);
-                    } 
-                    else 
-                    {
-#if 0
-                        double half_substep_length = 0.5 * substep_length;
-                        Independent_operator_sptr subfirst_half_op_sptr(
-                                Stepper::get_fixed_step("first_half",
-                                        substep_lattice_it, substep_left,
-                                        lattice_end, half_substep_length,
-                                        substep_offset_fudge, false));
-                        Independent_operator_sptr subsecond_half_op_sptr(
-                                Stepper::get_fixed_step("second_half",
-                                        substep_lattice_it, substep_left,
-                                        lattice_end, half_substep_length,
-                                        substep_offset_fudge, true));
-                        substep_sptr->append(subfirst_half_op_sptr, 0.5);
-                        for (Collective_operators::const_iterator coll_op_it =
-                                collective_operators.begin();
-                                coll_op_it != collective_operators.end();
-                                ++coll_op_it) {
-                            Collective_operator_sptr copied_collective_operator_sptr(
-                                    (*coll_op_it)->clone());
-                            substep_sptr->append(copied_collective_operator_sptr, 1.0);
-                        }
-                        substep_sptr->append(subsecond_half_op_sptr, 0.5);
-#endif
-                    }
-
-                    //get_steps().push_back(substep_sptr);
-                    substep_length = 0.0;
-                }
-            } 
-            else 
-            {
-#if 0
-                if (found_force) 
-                {
-                    double remain_length = step_length - all_substeps_length;
-                    if (remain_length <= fixed_step_tolerance) {
-                        remain_length = 0.0;
-                    }
-                    Step_sptr remain_sptr(new Step(remain_length));
-                    if (remain_length == 0.0) {
-                        Independent_operator_sptr zero_len_op_sptr(
-                                Stepper::get_fixed_step("zero_length",
-                                        substep_lattice_it, substep_left,
-                                        lattice_end, 0.0, substep_offset_fudge,
-                                        true));
-                        remain_sptr->append(zero_len_op_sptr, 1.0);
-
-                    } else {
-                        double half_remain_length = 0.5 * remain_length;
-                        Independent_operator_sptr remain_first_half_op_sptr(
-                                Stepper::get_fixed_step("first_half",
-                                        substep_lattice_it, substep_left,
-                                        lattice_end, half_remain_length,
-                                        substep_offset_fudge, false));
-                        Independent_operator_sptr remain_second_half_op_sptr(
-                                Stepper::get_fixed_step("second_half",
-                                        substep_lattice_it, substep_left,
-                                        lattice_end, half_remain_length,
-                                        substep_offset_fudge, true));
-                        remain_sptr->append(remain_first_half_op_sptr, 0.5);
-                        for (Collective_operators::const_iterator coll_op_it =
-                                collective_operators.begin();
-                                coll_op_it != collective_operators.end();
-                                ++coll_op_it) {
-                            Collective_operator_sptr copied_collective_operator_sptr(
-                                    (*coll_op_it)->clone());
-                            remain_sptr->append(copied_collective_operator_sptr, 1.0);
-                        }
-                        remain_sptr->append(remain_second_half_op_sptr, 0.5);
-                    }
-                    get_steps().push_back(remain_sptr);
-                    if (substep_lattice_it != lattice_it) {
-                        throw(std::runtime_error(
-                                "internal error: Split_operator_stepper created an inconsistent force_diagnostics step"));
-                    }
-                }
-#endif
+                // reset length
+                substep_length = 0.0;
             }
         }
 
-        if (!found_force) 
+        if (found_force) 
+        {
+            double remain_length = step_length - all_substeps_length;
+            if (remain_length <= fixed_step_tolerance) remain_length = 0.0;
+
+            // create the substep
+            create_substep(steps, col_op_ptr,
+                    substep_lattice_it, lattice_end,
+                    substep_left, remain_length, substep_offset_fudge);
+
+            if (substep_lattice_it != lattice_it)
+                throw std::runtime_error(
+                        "internal error: Split_operator_stepper "
+                        "created an inconsistent force_diagnostics step");
+        }
+        else
         {
             // new step
             steps.emplace_back(step_length);
@@ -266,8 +238,9 @@ Split_operator_stepper::apply_impl(Lattice const & lattice) const
 
     if (lattice_it != lattice_end) 
     {
-        throw(std::runtime_error(
-                "internal error: split_operator_stepper did not make it to the end of the lattice\n"));
+        throw std::runtime_error(
+                "internal error: split_operator_stepper "
+                "did not make it to the end of the lattice\n");
     }
 
     return steps;
