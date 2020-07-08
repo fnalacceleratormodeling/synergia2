@@ -8,7 +8,7 @@
 
 template<typename T>
     void
-    Aperture_operation::apply_impl(T & t, Bunch & bunch, int verbosity, Logger & logger)
+    Aperture_operation::apply_impl(T& aperture_op, Bunch & bunch, int verbosity, Logger & logger)
     {
         double t0 = MPI_Wtime();
         bool write_loss=false;
@@ -26,9 +26,9 @@ template<typename T>
                 }
         }          
 
-        int nt;
+        int num_threads;
         #pragma omp parallel
-        { nt = omp_get_num_threads(); }
+        { num_threads = omp_get_num_threads(); }
 
         if   (bunch.is_bucket_index_assigned())  b_index=bunch.get_bucket_index();
         int repetition=bunch.get_reference_particle().get_repetition();
@@ -43,15 +43,15 @@ template<typename T>
         int npart_s = bunch.get_local_spectator_num();
 
         int * discard = new int[npart];
-        int * discard_count = new int[nt];
+        int * discard_count = new int[num_threads];
 
         int * discard_s = new int[npart_s];
-        int * discard_s_count = new int[nt];
+        int * discard_s_count = new int[num_threads];
 
-        int part_per_thread = npart / nt;
-        int s_part_per_thread = npart_s / nt;
+        int part_per_thread = npart / num_threads;
+        int s_part_per_thread = npart_s / num_threads;
 
-        #pragma omp parallel shared(nt, npart, npart_s, particles, s_particles, discard, discard_s, discard_count, discard_s_count)
+        #pragma omp parallel shared(num_threads, npart, npart_s, particles, s_particles, discard, discard_s, discard_count, discard_s_count)
         {
             int it = omp_get_thread_num();
 
@@ -59,11 +59,11 @@ template<typename T>
             discard_s_count[it] = 0;
 
             int s = it * part_per_thread;
-            int e = (it==nt-1) ? npart : (s+part_per_thread);
+            int e = (it==num_threads - 1) ? npart : (s+part_per_thread);
 
             for (int part = s; part < e; ++part)
             {
-                if (t(particles, part)) 
+                if (aperture_op(particles, part)) 
                 {
                     discard[part] = 1;
                     ++discard_count[it];
@@ -75,11 +75,11 @@ template<typename T>
             }
 
             s = it * s_part_per_thread;
-            e = (it==nt-1) ? npart_s : (s + s_part_per_thread);
+            e = (it==num_threads - 1) ? npart_s : (s + s_part_per_thread);
 
             for (int part = s; part < e; ++part)
             {
-                if (t(s_particles, part)) 
+                if (aperture_op(s_particles, part)) 
                 {
                     discard_s[part] = 1;
                     ++discard_s_count[it];
@@ -95,7 +95,7 @@ template<typename T>
         int discarded = 0;
         int discarded_s = 0;
 
-        for (int i=0; i<nt; ++i) 
+        for (int i=0; i < num_threads; ++i) 
         {
             discarded += discard_count[i];
             discarded_s += discard_s_count[i];
