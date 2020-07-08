@@ -128,7 +128,7 @@ template<typename T>
             int head = 0;
             int tail = npart - 1;
 
-            do
+            while(head < tail)
             {
                 while (!discard[head] && head<tail) ++head;
                 if (head >= tail) break;
@@ -162,8 +162,7 @@ template<typename T>
 
                 ++head;
                 --tail;
-
-            } while(head < tail);
+            }
 
             // move some lost particles over to the padding area
             int padded  = bunch.get_local_num_padded();
@@ -208,7 +207,7 @@ template<typename T>
             int head = 0;
             int tail = npart_s - 1;
 
-            do
+            while(head < tail)
             {
                 while (!discard_s[head] && head<tail) ++head;
                 if (head >= tail) break;
@@ -242,8 +241,7 @@ template<typename T>
 
                 ++head;
                 --tail;
-
-            } while(head < tail);
+            }
 
             // move some lost spectator particles over to the padding area
             int padded  = bunch.get_local_spectator_num_padded();
