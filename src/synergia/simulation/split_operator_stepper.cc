@@ -93,7 +93,7 @@ namespace
     template <typename ITER>
     void 
     create_substep( std::vector<Step>& steps,
-            std::shared_ptr<Operator> col_op_ptr,
+            std::vector<std::shared_ptr<Operator>> const& col_op_ptrs,
             ITER& it, ITER const& end,
             double left, double length, double& offset_fudge)
     {
@@ -124,7 +124,8 @@ namespace
             for(auto const& s : fst_half_slices) op1.append_slice(s);
 
             // collective
-            steps.back().append(col_op_ptr);
+            for(auto col_op_ptr : col_op_ptrs)
+                steps.back().append(col_op_ptr);
 
             // 2nd half
             auto& op2 = steps.back().append_independent("second_half", 0.5);
@@ -138,7 +139,10 @@ std::vector<Step>
 Split_operator_stepper::apply_impl(Lattice const & lattice) const
 {
     std::vector<Step> steps;
-    auto col_op_ptr = std::shared_ptr<Operator>(co_ops->create_operator());
+    std::vector<std::shared_ptr<Operator>> col_op_ptrs;
+
+    for(auto const& co_op : co_ops) 
+        col_op_ptrs.emplace_back(co_op->create_operator());
 
     double step_length = lattice.get_length() / num_steps;
     double half_step_length = 0.5 * step_length;
@@ -194,7 +198,7 @@ Split_operator_stepper::apply_impl(Lattice const & lattice) const
                 all_substeps_length += substep_length;
 
                 // create the substep
-                create_substep(steps, col_op_ptr,
+                create_substep(steps, col_op_ptrs,
                         substep_lattice_it, lattice_end,
                         substep_left, substep_length, substep_offset_fudge);
 
@@ -209,7 +213,7 @@ Split_operator_stepper::apply_impl(Lattice const & lattice) const
             if (remain_length <= fixed_step_tolerance) remain_length = 0.0;
 
             // create the substep
-            create_substep(steps, col_op_ptr,
+            create_substep(steps, col_op_ptrs,
                     substep_lattice_it, lattice_end,
                     substep_left, remain_length, substep_offset_fudge);
 
@@ -228,7 +232,8 @@ Split_operator_stepper::apply_impl(Lattice const & lattice) const
             for(auto const& s : fst_half_slices) op1.append_slice(s);
 
             // collective
-            steps.back().append(col_op_ptr);
+            for(auto col_op_ptr : col_op_ptrs)
+                steps.back().append(col_op_ptr);
 
             // 2nd half
             auto & op2 = steps.back().append_independent("second_half", 0.5);

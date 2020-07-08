@@ -70,6 +70,10 @@ PYBIND11_MODULE(simulation, m)
     py::class_<Split_operator_stepper, Stepper>(m, "Split_operator_stepper")
         .def( py::init<CO_options const&, int>(),
                 "collective_options"_a, "num_steps"_a )
+        .def( "append_collective_op",
+                &Split_operator_stepper::append_collective_op,
+                "Append a collective operator",
+                "collective_options"_a )
         ;
 
     // Independent_stepper_elements
