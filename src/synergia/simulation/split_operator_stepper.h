@@ -26,6 +26,13 @@ public:
         , co_ops{std::shared_ptr<const CO_options>(coo.clone())}
     { }
 
+    template<class ...ARGS>
+    Split_operator_stepper(int num_steps, ARGS const& ... args)
+    : num_steps(num_steps)
+    , co_ops({(std::shared_ptr<const CO_options>(args.clone()))...})
+    { }
+
+
     void append_collective_op(CO_options const& coo)
     { co_ops.push_back(std::shared_ptr<const CO_options>(coo.clone())); }
 
