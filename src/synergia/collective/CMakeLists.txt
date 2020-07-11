@@ -8,7 +8,6 @@ target_link_libraries(synergia_collective
   ${GSL_LIBRARY}
   ${GSL_CBLAS_LIBRARY}
   ${HDF5_LIBRARIES}
-  ${Boost_LIBRARIES}
   ${OpenMP_CXX_LIBRARIES}
   ${FFTW3_LIBRARIES}
   ${FFTW3_MPI_LIBRARIES})
