@@ -6,22 +6,24 @@ target_link_libraries(test_boost_void_caster ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY
 add_test(NAME test_boost_void_caster COMMAND $<TARGET_FILE:test_boost_void_caster>)
 
 add_test_executable(test_bunch test_bunch.cc)
-target_link_libraries(test_bunch synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_bunch synergia_bunch synergia_serialization synergia_foundation synergia_parallel_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch>)
 add_test(NAME test_bunch_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_bunch.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_bunch_spectator test_bunch_spectator.cc)
-target_link_libraries(test_bunch_spectator synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_bunch_spectator synergia_bunch synergia_foundation synergia_parallel_utils
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch_spectator COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch_spectator>)
 
 add_test_executable(test_bunch_mem_layout test_bunch_mem_layout.cc)
-target_link_libraries(test_bunch_mem_layout synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_bunch_mem_layout synergia_bunch synergia_foundation synergia_parallel_utils
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch_mem_layout COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch_mem_layout>)
 
 add_test_executable(test_bunch_train test_bunch_train.cc)
-target_link_libraries(test_bunch_train synergia_bunch
+target_link_libraries(test_bunch_train synergia_bunch synergia_foundation synergia_parallel_utils
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch_train COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch_train>)
 add_test(test_bunch_train_py
@@ -31,7 +33,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_bunch_train.py
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_bunch_train_mpi test_bunch_train_mpi.cc)
-target_link_libraries(test_bunch_train_mpi synergia_bunch
+target_link_libraries(test_bunch_train_mpi synergia_bunch synergia_foundation synergia_parallel_utils
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch_train_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch_train_mpi>)
 add_test(NAME test_bunch_train_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2  $<TARGET_FILE:test_bunch_train_mpi>)
@@ -66,14 +68,14 @@ add_test_executable(test_diagnostics test_diagnostics.cc test_diagnostics_get_co
     test_diagnostics_get_mom2.icc
     test_diagnostics_get_random_particles.icc
     test_diagnostics_get_std.icc)
-target_link_libraries(test_diagnostics synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_diagnostics synergia_bunch synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics>)
 add_test(NAME test_diagnostics_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_diagnostics_track test_diagnostics_track.cc)
-target_link_libraries(test_diagnostics_track synergia_bunch
+target_link_libraries(test_diagnostics_track synergia_bunch synergia_serialization synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_track COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_track>)
 add_test(NAME test_diagnostics_track_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_track.py)
@@ -81,9 +83,9 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_track.py
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_diagnostics_bulk_track test_diagnostics_bulk_track.cc)
-target_link_libraries(test_diagnostics_bulk_track synergia_bunch
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_diagnostics_bulk_track COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_bulk_track>)
+target_link_libraries(test_diagnostics_bulk_track synergia_bunch synergia_serialization synergia_foundation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${Boost_SERIALIZATION})
+add_test(NAME test_diagnostics_bulk_track COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_bulk_track> synergia_serializatios)
 
 add_test(NAME test_diagnostics_bulk_track_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_bulk_track.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_bulk_track.py 
@@ -97,35 +99,36 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_bulk_track2.py
 
 add_test_executable(test_diagnostics_particles test_diagnostics_particles.cc)
 # add_dependencies(test_diagnostics_particles test_diagnostics_particles_get_mean.icc)
-target_link_libraries(test_diagnostics_particles synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_diagnostics_particles synergia_bunch synergia_foundation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_particles COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_particles>)
 add_test(NAME test_diagnostics_particles_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_particles.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_particles.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_diagnostics_basic_mpi test_diagnostics_basic_mpi.cc)
-target_link_libraries(test_diagnostics_basic_mpi synergia_bunch
+target_link_libraries(test_diagnostics_basic_mpi synergia_bunch synergia_foundation synergia_parallel_utils
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_basic_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_basic_mpi>)
 add_test(NAME test_diagnostics_basic_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_diagnostics_basic_mpi>)
 add_test(NAME test_diagnostics_basic_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_diagnostics_basic_mpi>)
 
 add_test_executable(test_diagnostics_full2_mpi test_diagnostics_full2_mpi.cc)
-target_link_libraries(test_diagnostics_full2_mpi synergia_bunch
+target_link_libraries(test_diagnostics_full2_mpi synergia_bunch synergia_foundation synergia_parallel_utils
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_full2_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_full2_mpi>)
 add_test(NAME test_diagnostics_full2_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_diagnostics_full2_mpi>)
 add_test(NAME test_diagnostics_full2_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_diagnostics_full2_mpi>)
 
 add_test_executable(test_diagnostics_particles_mpi test_diagnostics_particles_mpi.cc)
-target_link_libraries(test_diagnostics_particles_mpi synergia_bunch
+target_link_libraries(test_diagnostics_particles_mpi synergia_bunch synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_particles_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_particles_mpi>)
 add_test(NAME test_diagnostics_particles_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_diagnostics_particles_mpi>)
 add_test(NAME test_diagnostics_particles_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_diagnostics_particles_mpi>)
 
 add_test_executable(test_diagnostics_track_mpi test_diagnostics_track_mpi.cc)
-target_link_libraries(test_diagnostics_track_mpi synergia_bunch
+target_link_libraries(test_diagnostics_track_mpi synergia_bunch synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_track_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_track_mpi>)
 add_test(NAME test_diagnostics_track_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_diagnostics_track_mpi>)
@@ -137,7 +140,8 @@ add_test(NAME test_diagnostics_track_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXE
 #add_test(NAME test_multi_diagnostics_writer_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_multi_diagnostics_writer.py)
 
 add_test_executable(test_populate test_populate.cc)
-target_link_libraries(test_populate synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_populate synergia_bunch synergia_foundation synergia_parallel_utils synergia_hdf5_utils
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${HDF5_LIBRARIES})
 
 add_test(NAME test_populate COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_populate>)
 add_test(NAME test_populate_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_populate.py)

@@ -63,24 +63,24 @@ target_link_libraries(test_hdf5_chunked_array2d_writer synergia_hdf5_utils ${Boo
 add_test(test_hdf5_chunked_array2d_writer test_hdf5_chunked_array2d_writer)
 
 add_test_executable(test_distributed_fft3d test_distributed_fft3d.cc)
-target_link_libraries(test_distributed_fft3d synergia_distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_distributed_fft3d synergia_distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} synergia_parallel_utils)
 add_test(NAME test_distributed_fft3d COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_fft3d>)
 
 add_test_executable(test_distributed_fft3d_mpi test_distributed_fft3d_mpi.cc)
 target_link_libraries(test_distributed_fft3d_mpi synergia_distributed_fft
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} synergia_parallel_utils)
 add_test(NAME test_distributed_fft3d_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_fft3d_mpi>)
 add_test(NAME test_distributed_fft3d_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_distributed_fft3d_mpi>)
 add_test(NAME test_distributed_fft3d_mpi3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_distributed_fft3d_mpi>)
 add_test(NAME test_distributed_fft3d_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_distributed_fft3d_mpi>)
 
 add_test_executable(test_distributed_fft2d test_distributed_fft2d.cc)
-target_link_libraries(test_distributed_fft2d synergia_distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_distributed_fft2d synergia_distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} synergia_parallel_utils)
 add_test(NAME test_distributed_fft2d COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_fft2d>)
 
 add_test_executable(test_distributed_fft2d_mpi test_distributed_fft2d_mpi.cc)
 target_link_libraries(test_distributed_fft2d_mpi synergia_distributed_fft
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} synergia_parallel_utils)
 add_test(NAME test_distributed_fft2d_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_fft2d_mpi>)
 add_test(NAME test_distributed_fft2d_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_distributed_fft2d_mpi>)
 add_test(NAME test_distributed_fft2d_mpi3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_distributed_fft2d_mpi>)

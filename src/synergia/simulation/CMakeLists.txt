@@ -10,13 +10,14 @@ add_library(synergia_simulation operator.cc step.cc stepper.cc
     lattice_simulator.cc operation_extractor.cc aperture.cc
     aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
     bunch_train_simulator.cc resume.cc dense_mapping.cc calculate_closed_orbit.cc diagnostics_normal_form.cc)
-target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
-    synergia_lattice synergia_libFF ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
+target_link_libraries(synergia_simulation
+  PRIVATE synergia_foundation synergia_bunch
+    synergia_lattice synergia_libFF ${CHEF_LIBS} ${Boost_REGEX_LIBRARY} ${OpenMP_CXX_LIBRARIES})
 
 add_python_extension(simulation simulation_wrap.cc)
 target_link_libraries(simulation synergia_foundation synergia_bunch
         synergia_lattice synergia_simulation
-        ${CHEF_LIBS} ${Boost_LIBRARIES})
+        ${CHEF_LIBS} ${Boost_LIBRARIES} ${OpenMP_CXX_LIBRARIES})
 
 install(TARGETS synergia_simulation DESTINATION ${LIB_INSTALL_DIR})
 install(FILES

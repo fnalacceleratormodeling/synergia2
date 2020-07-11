@@ -20,7 +20,9 @@ add_library(synergia_libFF
     ff_elens.cc
     )
 target_link_libraries(synergia_libFF
-   synergia_bunch synergia_lattice synergia_serialization synergia_parallel_utils)
+  PRIVATE
+   synergia_bunch synergia_lattice synergia_serialization synergia_parallel_utils
+ ${OpenMP_CXX_LIBRARIES})
 
 #if (BUILD_PYTHON_BINDINGS)
 #    add_python_extension(foundation foundation_wrap.cc)

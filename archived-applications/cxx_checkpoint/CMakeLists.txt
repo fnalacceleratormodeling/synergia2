@@ -1,5 +1,5 @@
 add_executable(cxx_checkpoint cxx_checkpoint.cc)
-target_link_libraries(cxx_checkpoint synergia_simulation synergia_collective)
+target_link_libraries(cxx_checkpoint synergia_simulation synergia_collective synergia_foundation synergia_parallel_utils synergia_bunch synergia_lattice)
 
 set(CLEAN_FILES
     cxx_covariance_matrix.xml

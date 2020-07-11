@@ -1,5 +1,5 @@
 add_executable(cxx_example cxx_example.cc)
-target_link_libraries(cxx_example synergia_simulation synergia_collective)
+target_link_libraries(cxx_example synergia_simulation synergia_collective synergia_serialization synergia_foundation synergia_parallel_utils synergia_bunch synergia_lattice)
 
 copy_file(fodo.lat cxx_example)
 copy_file (cxx_example.py cxx_example)

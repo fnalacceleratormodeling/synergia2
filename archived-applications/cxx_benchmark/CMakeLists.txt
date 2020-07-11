@@ -1,27 +1,27 @@
 add_executable(benchmark benchmark.cc benchmark_options.cc)
-target_link_libraries(benchmark synergia_simulation synergia_collective synergia_command_line)
+target_link_libraries(benchmark synergia_simulation synergia_collective synergia_command_line synergia_parallel_utils synergia_bunch synergia_lattice)
 copy_file(fodo.madx benchmark)
 copy_file(cxx_means.txt benchmark)
 copy_file(cxx_covariance_matrix.txt benchmark)
 
 add_executable(benchmark2d benchmark2d.cc benchmark_options.cc)
-target_link_libraries(benchmark2d synergia_simulation synergia_collective synergia_command_line)
+target_link_libraries(benchmark2d synergia_simulation synergia_collective synergia_command_line synergia_bunch synergia_parallel_utils synergia_foundation synergia_lattice)
 
 add_executable(sis18 s3_sis18.cc)
-target_link_libraries(sis18 synergia_simulation synergia_collective)
+target_link_libraries(sis18 synergia_simulation synergia_collective lsexpr synergia_parallel_utils synergia_lattice)
 
 copy_file(sis18-6.lsx sis18)
 
 add_executable(read_xml read_xml.cc)
-target_link_libraries(read_xml synergia_simulation)
+target_link_libraries(read_xml synergia_simulation synergia_serialization)
 copy_file(write_xml.py benchmark)
 
 add_executable(cxx_write_xml cxx_write_xml.cc)
-target_link_libraries(cxx_write_xml synergia_simulation)
+target_link_libraries(cxx_write_xml synergia_simulation synergia_serialization)
 
 add_executable(cxx_read_binary cxx_read_binary.cc)
-target_link_libraries(cxx_read_binary synergia_simulation)
+target_link_libraries(cxx_read_binary synergia_simulation synergia_serialization)
 
 add_executable(cxx_write_binary cxx_write_binary.cc)
-target_link_libraries(cxx_write_binary synergia_simulation)
+target_link_libraries(cxx_write_binary synergia_simulation synergia_serialization)
 

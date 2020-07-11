@@ -1,2 +1,3 @@
 add_executable(fodo fodo.cc benchmark_options.cc)
-target_link_libraries(fodo synergia_simulation synergia_collective synergia_command_line)
+target_link_libraries(fodo synergia_simulation synergia_collective synergia_command_line synergia_foundation synergia_bunch synergia_lattice
+    ${OpenMP_CXX_LIBRARIES})

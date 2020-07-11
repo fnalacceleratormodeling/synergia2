@@ -1,5 +1,5 @@
 add_executable(cxx_booster cxx_booster.cc)
-target_link_libraries(cxx_booster synergia_simulation synergia_collective)
+target_link_libraries(cxx_booster synergia_simulation synergia_collective synergia_serialization synergia_foundation synergia_parallel_utils synergia_bunch synergia_lattice)
 
 add_executable(cxx_booster_resume cxx_booster_resume.cc)
 target_link_libraries(cxx_booster_resume synergia_lattice synergia_simulation synergia_collective)

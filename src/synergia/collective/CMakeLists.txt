@@ -3,10 +3,15 @@ add_library(synergia_collective rectangular_grid_domain.cc rectangular_grid.cc
     space_charge_2d_open_hockney.cc space_charge_2d_bassetti_erskine.cc
     space_charge_2d_kv.cc
     space_charge_rectangular.cc impedance.cc wake_field.cc diagnostics_space_charge.cc)
-target_link_libraries(synergia_collective synergia_bunch
-  synergia_simulation synergia_distributed_fft
+target_link_libraries(synergia_collective
+  PRIVATE synergia_bunch synergia_simulation synergia_distributed_fft synergia_parallel_utils synergia_hdf5_utils synergia_foundation
   ${GSL_LIBRARY}
-  ${GSL_CBLAS_LIBRARY})
+  ${GSL_CBLAS_LIBRARY}
+  ${HDF5_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
+  ${FFTW3_LIBRARIES}
+  ${FFTW3_MPI_LIBRARIES})
 
 add_python_extension(collective collective_wrap.cc)
 target_link_libraries(collective synergia_collective synergia_bunch

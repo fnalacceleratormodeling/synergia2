@@ -9,7 +9,7 @@ target_link_libraries(test_fast_mapping_term synergia_simulation synergia_lattic
 add_test(NAME test_fast_mapping_term COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_fast_mapping_term>)
 
 add_test_executable(test_fast_mapping test_fast_mapping.cc)
-target_link_libraries(test_fast_mapping synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_fast_mapping synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${OpenMP_CXX_LIBRARIES})
 add_test(NAME test_fast_mapping COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_fast_mapping>)
 
 add_test_executable(test_fast_mapping_operation test_fast_mapping_operation.cc)

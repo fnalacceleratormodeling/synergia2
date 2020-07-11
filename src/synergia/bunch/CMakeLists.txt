@@ -19,11 +19,18 @@ add_library(synergia_bunch
     populate.cc 
     analysis.cc 
     period.cc)
-target_link_libraries(synergia_bunch synergia_parallel_utils synergia_distributed_fft
-    synergia_hdf5_utils synergia_foundation synergia_serialization)
+target_link_libraries(synergia_bunch 
+                      PRIVATE
+                      synergia_parallel_utils
+                      synergia_distributed_fft
+                      synergia_hdf5_utils
+                      synergia_foundation
+                      synergia_serialization
+                      ${OpenMP_CXX_LIBRARIES}
+                      ${FFTW3_LIBRARIES})
 
 add_python_extension(bunch bunch_wrap.cc)
-target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
+target_link_libraries(bunch synergia_bunch synergia_distributed_fft synergia_foundation ${Boost_LIBRARIES} )
 
 install(TARGETS synergia_bunch DESTINATION ${LIB_INSTALL_DIR})
 install(FILES

@@ -7,13 +7,13 @@ add_test(test_rectangular_grid_domain test_rectangular_grid_domain)
 #add_test(NAME test_bunch_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_test_executable(test_deposit test_deposit.cc)
-target_link_libraries(test_deposit synergia_collective
+target_link_libraries(test_deposit synergia_collective synergia_bunch synergia_parallel_utils synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_deposit COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_deposit>)
 #add_test(NAME test_bunch_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_test_executable(test_deposit_xyz test_deposit_xyz.cc)
-target_link_libraries(test_deposit_xyz synergia_collective
+target_link_libraries(test_deposit_xyz synergia_collective synergia_foundation synergia_parallel_utils synergia_bunch
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_deposit_xyz COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_deposit_xyz>)
 #add_test(NAME test_bunch_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
@@ -26,13 +26,13 @@ add_test(test_rectangular_grid test_rectangular_grid)
 #add_test(NAME test_bunch_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_test_executable(test_distributed_rectangular_grid test_distributed_rectangular_grid.cc)
-target_link_libraries(test_distributed_rectangular_grid synergia_collective
+target_link_libraries(test_distributed_rectangular_grid synergia_collective synergia_parallel_utils
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_distributed_rectangular_grid test_distributed_rectangular_grid)
 #add_test(NAME test_bunch_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_test_executable(test_distributed_rectangular_grid_mpi test_distributed_rectangular_grid_mpi.cc)
-target_link_libraries(test_distributed_rectangular_grid_mpi synergia_collective
+target_link_libraries(test_distributed_rectangular_grid_mpi synergia_collective synergia_parallel_utils
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_distributed_rectangular_grid_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_rectangular_grid_mpi>)
 add_test(NAME test_distributed_rectangular_grid_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_distributed_rectangular_grid_mpi>)
@@ -42,8 +42,8 @@ add_test(NAME test_distributed_rectangular_grid_mpi4 COMMAND ${MPIEXEC_EXECUTABL
 
 add_test_executable(test_space_charge_rectangular
     test_space_charge_rectangular.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_rectangular synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_rectangular synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_rectangular COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_rectangular>)
 add_test(NAME test_space_charge_rectangular_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_space_charge_rectangular>)
 add_test(NAME test_space_charge_rectangular_mpi3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_space_charge_rectangular>)
@@ -52,26 +52,26 @@ add_test(NAME test_space_charge_rectangular_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} $
 add_test_executable(test_interpolate_rectangular_zyx
     test_interpolate_rectangular_zyx.cc gaussian_charge_density.cc)
 target_link_libraries(test_interpolate_rectangular_zyx synergia_collective
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(test_interpolate_rectangular_zyx test_interpolate_rectangular_zyx)
 
 add_test_executable(test_interpolate_rectangular_xyz
     test_interpolate_rectangular_xyz.cc gaussian_charge_density.cc)
 target_link_libraries(test_interpolate_rectangular_xyz synergia_collective
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(test_interpolate_rectangular_xyz test_interpolate_rectangular_xyz)
 
 
 add_test_executable(test_space_charge_3d_open_hockney
     test_space_charge_3d_open_hockney.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_3d_open_hockney synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_3d_open_hockney synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_space_charge_3d_open_hockney COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_3d_open_hockney>)
 
 add_test_executable(test_space_charge_3d_open_hockney_mpi
     test_space_charge_3d_open_hockney_mpi.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_3d_open_hockney_mpi synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_3d_open_hockney_mpi synergia_collective synergia_hdf5_utils synergia_bunch synergia_foundation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_3d_open_hockney_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_3d_open_hockney_mpi>)
 add_test(NAME test_space_charge_3d_open_hockney_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_space_charge_3d_open_hockney_mpi>)
 add_test(NAME test_space_charge_3d_open_hockney_mpi3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_space_charge_3d_open_hockney_mpi>)
@@ -79,8 +79,8 @@ add_test(NAME test_space_charge_3d_open_hockney_mpi4 COMMAND ${MPIEXEC_EXECUTABL
 
 add_test_executable(test_space_charge_3d_open_hockney2_mpi
     test_space_charge_3d_open_hockney2_mpi.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_3d_open_hockney2_mpi synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_3d_open_hockney2_mpi synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_3d_open_hockney2_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_3d_open_hockney2_mpi>)
 add_test(NAME test_space_charge_3d_open_hockney2_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_space_charge_3d_open_hockney2_mpi>)
 add_test(NAME test_space_charge_3d_open_hockney2_mpi3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_space_charge_3d_open_hockney2_mpi>)
@@ -88,33 +88,32 @@ add_test(NAME test_space_charge_3d_open_hockney2_mpi4 COMMAND ${MPIEXEC_EXECUTAB
 
 add_test_executable(test_space_charge_3d_open_hockney2
     test_space_charge_3d_open_hockney2.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_3d_open_hockney2 synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_3d_open_hockney2 synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_3d_open_hockney2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_3d_open_hockney2>)
 
 add_test_executable(test_space_charge_3d_open_hockney3
     test_space_charge_3d_open_hockney3.cc linear_cylindrical_charge_density.cc)
-target_link_libraries(test_space_charge_3d_open_hockney3 synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_3d_open_hockney3 synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_space_charge_3d_open_hockney3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_3d_open_hockney3>)
 
 add_test_executable(test_space_charge_3d_open_hockney4
     test_space_charge_3d_open_hockney4.cc uniform_cylindrical_charge_density.cc)
-target_link_libraries(test_space_charge_3d_open_hockney4 synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_3d_open_hockney4 synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_space_charge_3d_open_hockney4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_3d_open_hockney4>)
 
 add_test_executable(test_space_charge_2d_open_hockney
     test_space_charge_2d_open_hockney.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_2d_open_hockney synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_2d_open_hockney synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_2d_open_hockney COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_open_hockney>)
 
 add_test_executable(test_space_charge_2d_open_hockney_mpi
     test_space_charge_2d_open_hockney_mpi.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_2d_open_hockney_mpi
-    synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_2d_open_hockney_mpi synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_2d_open_hockney_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_open_hockney_mpi>)
 add_test(NAME test_space_charge_2d_open_hockney_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_space_charge_2d_open_hockney_mpi>)
 add_test(NAME test_space_charge_2d_open_hockney_mpi3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_space_charge_2d_open_hockney_mpi>)
@@ -122,15 +121,14 @@ add_test(NAME test_space_charge_2d_open_hockney_mpi4 COMMAND ${MPIEXEC_EXECUTABL
 
 add_test_executable(test_space_charge_2d_open_hockney2
     test_space_charge_2d_open_hockney2.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_2d_open_hockney2 synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_2d_open_hockney2 synergia_collective synergia_hdf5_utils synergia_bunch synergia_foundation synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_2d_open_hockney2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_open_hockney2>)
 
 add_test_executable(test_space_charge_2d_open_hockney2_mpi
     test_space_charge_2d_open_hockney2_mpi.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_2d_open_hockney2_mpi
-    synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_2d_open_hockney2_mpi synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_2d_open_hockney2_mpi1 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_open_hockney2_mpi>)
 add_test(NAME test_space_charge_2d_open_hockney2_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_space_charge_2d_open_hockney2_mpi>)
 add_test(NAME test_space_charge_2d_open_hockney2_mpi3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_space_charge_2d_open_hockney2_mpi>)
@@ -138,41 +136,41 @@ add_test(NAME test_space_charge_2d_open_hockney2_mpi4 COMMAND ${MPIEXEC_EXECUTAB
 
 add_test_executable(test_space_charge_2d_open_hockney3
     test_space_charge_2d_open_hockney3.cc linear_cylindrical_charge_density.cc)
-target_link_libraries(test_space_charge_2d_open_hockney3 synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_2d_open_hockney3 synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_space_charge_2d_open_hockney3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_open_hockney3>)
 
 add_test_executable(test_space_charge_2d_open_hockney4
     test_space_charge_2d_open_hockney4.cc uniform_cylindrical_charge_density.cc)
-target_link_libraries(test_space_charge_2d_open_hockney4 synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_2d_open_hockney4 synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_space_charge_2d_open_hockney4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_open_hockney4>)
 
 add_test_executable(test_space_charge_2d_bassetti_erskine
 test_space_charge_2d_bassetti_erskine.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_2d_bassetti_erskine synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_2d_bassetti_erskine synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_2d_bassetti_erskine COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_bassetti_erskine>)
 
 add_test_executable(test_space_charge_2d_kv
 test_space_charge_2d_kv.cc gaussian_charge_density.cc)
-target_link_libraries(test_space_charge_2d_kv synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_2d_kv synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_space_charge_2d_kv COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_space_charge_2d_kv>)
 
 add_test_executable(test_diagnostics_space_charge test_diagnostics_space_charge.cc )
-target_link_libraries(test_diagnostics_space_charge synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_diagnostics_space_charge synergia_collective synergia_hdf5_utils synergia_foundation synergia_bunch synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_diagnostics_space_charge COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_space_charge>)
 
 add_test_executable(test_diagnostics_space_charge_3d_hockney test_diagnostics_space_charge_3d_hockney.cc )
-target_link_libraries(test_diagnostics_space_charge_3d_hockney synergia_collective
-    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_diagnostics_space_charge_3d_hockney synergia_collective synergia_bunch synergia_foundation synergia_hdf5_utils synergia_simulation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${GSL_LIBRARIES})
 add_test(NAME test_diagnostics_space_charge_3d_hockney COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_diagnostics_space_charge_3d_hockney>)
 
 
 add_test_executable(test_impedance test_impedance.cc)
-target_link_libraries(test_impedance synergia_collective
+target_link_libraries(test_impedance synergia_collective synergia_foundation synergia_parallel_utils synergia_bunch synergia_simulation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_impedance COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_impedance>)
 add_test(NAME test_impedance_mpi2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_impedance>)
@@ -180,7 +178,7 @@ add_test(NAME test_impedance_mpi3 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPRO
 add_test(NAME test_impedance_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_impedance>)
 
 add_test_executable(test_wake_field test_wake_field.cc)
-target_link_libraries(test_wake_field synergia_collective
+target_link_libraries(test_wake_field synergia_collective synergia
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_wake_field COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_wake_field>)
 
