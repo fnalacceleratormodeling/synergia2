@@ -23,8 +23,8 @@ target_link_libraries(pylsexpr lsexpr ${Boost_LIBRARIES})
 
 add_library(synergia_distributed_fft distributed_fft3d.cc
     distributed_fft2d.cc)
-target_link_libraries(synergia_distributed_fft ${PARALLEL_FFTW_LIBRARIES}
-    synergia_serialization synergia_parallel_utils)
+target_link_libraries(synergia_distributed_fft synergia_serialization synergia_parallel_utils
+     ${PARALLEL_FFTW_LIBRARIES} ${OpenMP_CXX_LIBRARIES})
 
 add_library(synergia_command_line command_line_arg.cc)
 

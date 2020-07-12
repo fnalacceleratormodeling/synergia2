@@ -74,7 +74,6 @@ public:
         cdt += tau;
 
         xp = xp * ct - zp * st;
-        yp = yp;
     }
 
     template <typename T>
