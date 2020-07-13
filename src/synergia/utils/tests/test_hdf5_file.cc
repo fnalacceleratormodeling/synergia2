@@ -106,7 +106,6 @@ struct Hdf5_file_fixture
 };
 
 
-const double tolerance = 1.0e-13;
 BOOST_FIXTURE_TEST_CASE(read_data, Hdf5_file_fixture)
 {
 

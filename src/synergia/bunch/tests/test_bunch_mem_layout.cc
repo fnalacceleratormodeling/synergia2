@@ -11,8 +11,6 @@
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
-const double tolerance = 1.0e-14;
-
 const double mass = 100.0;
 const double total_energy = 125.0;
 const double real_num = 2.0e12;

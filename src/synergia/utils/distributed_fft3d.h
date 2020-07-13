@@ -24,8 +24,6 @@ private:
     fftw_plan plan, inv_plan;
     double *data;
     fftw_complex *workspace;
-    fftw_complex *workspace1;
-    fftw_complex *workspace2;
 #endif //USE_FFTW2
     int lower, upper;
     std::vector<int> uppers, lengths;
@@ -36,23 +34,8 @@ private:
     int nt;   // number of threads
     int np;   // number of mpi procs
     int rank; // mpi rank
-
-    int n0, n1, n2, n2r, n2c;
-    fftw_plan fp1, fp2, fp3;
-    fftw_plan bp1, bp2, bp3;
-
-    // complex type (contiguous of two doubles)
-    MPI_Datatype mpi_cplx;
-
-    // data types for the all to all BEFORE 3rd dim fft
-    MPI_Datatype mpi_fs11, mpi_fs12;
-    MPI_Datatype mpi_fr11, mpi_fr12, mpi_fr13, mpi_fr14;
-
-    // data types for the all to all AFTER 3rd dim fft
-    MPI_Datatype mpi_fs21, mpi_fs22, mpi_fs23;
-    MPI_Datatype mpi_fr21, mpi_fr22;
-
     Commxx_sptr comm_sptr;
+
     void
     calculate_uppers_lengths();
 public:
