@@ -259,6 +259,133 @@ namespace
         }
     };
 
+    struct alg_g2_linear
+    {
+        const double epsilon = 0.01;
+
+        karray1d_dev g2;
+        int gx, gy;
+        int gx0, gy0, gz0;
+        int dgx, dgy, dgz;
+        int padded_dgx;
+        double hx, hy, hz;
+
+        double igxgy;
+        double igx;
+
+        double G000;
+
+        alg_g2_linear(
+                karray1d_dev const & g2,
+                std::array<int, 3> const & g,
+                std::array<int, 3> const & dg,
+                std::array<double, 3> const & h ) 
+            : g2(g2)
+            , gx(g[0]+1), gy(g[1]+1)
+            , gx0(g[0]), gy0(g[1]), gz0(g[2])
+            , dgx(dg[0]), dgy(dg[1]), dgz(dg[2])
+            , padded_dgx(Distributed_fft3d::get_padded_shape_real(dgx))
+            , hx(h[0]), hy(h[1]), hz(h[2])
+            , igxgy(1.0/(gx*gy))
+            , igx(1.0/gx)
+            , G000(0.0)
+        { 
+            double rr = hx * hx + hy * hy;
+            double r1 = sqrt(hx * hx + hy * hy + hz * hz);
+            G000 = (2.0 / rr) * (hz * r1 + rr * log((hz + r1) 
+                        / sqrt(rr)) - hz * hz); // average value of outer cylinder.
+        }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            int iz = i * igxgy;
+            int iy = (i - iz*gx*gy) * igx;
+            int ix = i - iz*gx*gy - iy*gx;
+
+            double z = (iz>gz0) ? (dgz-iz)*hz : iz*hz;
+            double y = iy * hy;
+            double x = ix * hx;
+
+            double rr = x * x + y * y;
+            double s_rr_0 = sqrt(rr + z*z);
+            double s_rr_n = sqrt(rr + (z-hz)*(z-hz));
+            double s_rr_p = sqrt(rr + (z+hz)*(z+hz));
+
+            double G = 2.0 * s_rr_0 - s_rr_n - s_rr_p;
+
+            double T1, T2, r1, r2;
+            const double epsz = 1e-12 * hz;
+
+            if (z < -hz) 
+            {
+                r1 = (s_rr_n - z + hz) / (s_rr_0 - z);
+                T1 = (hz - z) * log(r1);
+                r2 = (s_rr_0 - z) / (s_rr_p - z - hz);
+                T2 = (hz + z) * log(r2);
+                G += T1 + T2;
+            } 
+            else if (std::abs(z + hz) < epsz) 
+            {
+                r1 = (s_rr_n - z + hz) / (s_rr_0 - z);
+                T1 = (hz - z) * log(r1);
+                G += T1;
+            } 
+            else if (std::abs(z) < epsz) 
+            {
+                if (std::abs(x) + std::abs(y) < 2. * epsz) 
+                {
+                    G += hz * G000;
+                } /* T1+T2 in fact */
+                else 
+                {
+                    r1 = (sqrt(hz * hz + rr) + hz) / sqrt(rr);
+                    G += 2.0 * hz * log(r1);
+                }
+            } 
+            else if (std::abs(z - hz) < epsz) 
+            {
+                r1 = (s_rr_p + z + hz) / (s_rr_0 + z);
+                T1 = (hz + z) * log(r1);
+                G += T1;
+            } 
+            else if (z > hz) 
+            {
+                r1 = (s_rr_0 + z) / (s_rr_n + z - hz);
+                T1 = (hz - z) * log(r1);
+                r2 = (s_rr_p + z + hz) / (s_rr_0 + z);
+                T2 = (hz + z) * log(r2);
+                G += T1 + T2;
+            } 
+            else 
+            {
+                //throw std::runtime_error(
+                //        "Space_charge_3d_open_hockney::get_green_fn2 error1");
+            }
+
+
+            int miy = dgy - iy;
+            int mix = dgx - ix;
+
+            g2(iz*padded_dgx*dgy + iy*padded_dgx + ix) = G;
+
+            if (iy != gy0)
+            {
+                g2(iz*padded_dgx*dgy + miy*padded_dgx + ix) = G;
+
+                if (ix != gx0)
+                {
+                    g2(iz*padded_dgx*dgy + miy*padded_dgx + mix) = G;
+                }
+            }
+
+            if (ix != gx0)
+            {
+                g2(iz*padded_dgx*dgy + iy*padded_dgx + mix) = G;
+            }
+        }
+    };
+
     struct alg_cplx_multiplier
     {
         karray1d_dev prod;
@@ -519,7 +646,14 @@ Space_charge_3d_open_hockney::apply_bunch(
     get_local_charge_density(bunch); // [C/m^3]
     get_global_charge_density(bunch);
 
-    get_green_fn2_pointlike();
+    if (options.green_fn == green_fn_t::pointlike) 
+    {
+        get_green_fn2_pointlike();
+    }
+    else 
+    {
+        get_green_fn2_linear();
+    }
 
     get_local_phi2();
     get_global_phi2();
@@ -690,7 +824,14 @@ Space_charge_3d_open_hockney::get_global_charge_density(
 void
 Space_charge_3d_open_hockney::get_green_fn2_pointlike()
 {
-    scoped_simple_timer timer("sc3d_green_fn2");
+    if (options.periodic_z)
+    {
+        throw std::runtime_error(
+                "Space_charge_3d_open_hockney::get_green_fn2_linear: "
+                "periodic_z not yet implemented");
+    }
+
+    scoped_simple_timer timer("sc3d_green_fn2_point");
 
     auto  g = domain.get_grid_shape();
     auto  h = doubled_domain.get_cell_size();
@@ -703,6 +844,32 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     // rest of the doubled domain will be filled with mirrors
     alg_g2_pointlike alg(g2, g, dg, h);
     Kokkos::parallel_for((g[0]+1)*(g[1]+1)*(g[2]+1), alg);
+    Kokkos::fence();
+}
+
+void
+Space_charge_3d_open_hockney::get_green_fn2_linear()
+{
+    if (options.periodic_z)
+    {
+        throw std::runtime_error(
+                "Space_charge_3d_open_hockney::get_green_fn2_linear: "
+                "periodic_z not yet implemented");
+    }
+
+    scoped_simple_timer timer("sc3d_green_fn2_linear");
+
+    auto  g = domain.get_grid_shape();
+    auto  h = doubled_domain.get_cell_size();
+    auto dg = doubled_domain.get_grid_shape();
+
+    alg_zeroer az{g2};
+    Kokkos::parallel_for(g2.extent(0), az);
+
+    // calculation is performed on grid (gx+1, gy+1, gz+1)
+    // rest of the doubled domain will be filled with mirrors
+    alg_g2_linear alg(g2, g, dg, h);
+    Kokkos::parallel_for((g[0]+1)*(g[1]+1)*dg[2], alg);
     Kokkos::fence();
 }
 
@@ -792,10 +959,12 @@ Space_charge_3d_open_hockney::get_normalization_force()
     // from charege density
     normalization *= 1.0;
 
-    // from point-like greens function.
+    // 1.0 from point-like greens function.
     // 1.0/(hz*hz) for linear greens function
-    normalization *= 1.0;
+    if (options.green_fn == green_fn_t::linear)
+        normalization *= 1.0 / (hz*hz);
 
+    // from fft
     normalization *= fft.get_roundtrip_normalization();
 
     return normalization;

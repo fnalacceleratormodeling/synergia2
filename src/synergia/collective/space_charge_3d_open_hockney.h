@@ -9,12 +9,18 @@
 
 #include "synergia/utils/distributed_fft3d.h"
 
+enum class green_fn_t
+{
+    pointlike,
+    linear,
+};
 
 struct Space_charge_3d_open_hockney_options : public CO_options
 {
     std::array<int, 3> shape;
     std::array<int, 3> doubled_shape;
 
+    green_fn_t green_fn;
     bool periodic_z;
     double z_period;
     bool grid_entire_period;
@@ -28,6 +34,7 @@ struct Space_charge_3d_open_hockney_options : public CO_options
             int gridx = 32, int gridy = 32, int gridz = 64)
         : shape{gridx, gridy, gridz}
         , doubled_shape{gridx*2, gridy*2, gridz*2}
+        , green_fn(green_fn_t::pointlike)
         , periodic_z(false)
         , z_period(0.0)
         , grid_entire_period(false)
@@ -48,6 +55,7 @@ struct Space_charge_3d_open_hockney_options : public CO_options
         ar(cereal::base_class<CO_options>(this));
         ar(shape);
         ar(doubled_shape);
+        ar(green_fn);
         ar(periodic_z);
         ar(z_period);
         ar(grid_entire_period);
@@ -138,6 +146,7 @@ private:
             double time_step );
 
     void get_green_fn2_pointlike();
+    void get_green_fn2_linear();
     void get_local_phi2();
     void get_global_phi2();
 

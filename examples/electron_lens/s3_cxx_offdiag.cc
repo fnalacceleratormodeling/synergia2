@@ -6,7 +6,7 @@
 #include "synergia/simulation/lattice_simulator.h"
 
 #include "synergia/simulation/split_operator_stepper.h"
-//#include "synergia/simulation/independent_stepper_elements.h"
+#include "synergia/simulation/independent_stepper_elements.h"
 
 #include "synergia/bunch/populate.h"
 #include "synergia/bunch/core_diagnostics.h"
@@ -110,6 +110,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 
     // space charge
     Space_charge_3d_open_hockney_options sc_ops(64, 64, 128);
+    sc_ops.green_fn = green_fn_t::linear;
     sc_ops.comm_group_size = 1;
     //sc_ops.periodic_z = false;
     //sc_ops.longitudinal_kicks = false;
@@ -117,7 +118,10 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     //Dummy_CO_options sc_ops;
 
     // stepper
-    Split_operator_stepper stepper(sc_ops, 72);
+    Split_operator_stepper stepper(72, sc_ops);
+    //Split_operator_stepper stepper(sc_ops, 72);
+    //stepper.append_collective_op(Dummy_CO_options());
+    //Independent_stepper_elements stepper(1);
 
     // Propagator
     Propagator propagator(lattice, stepper);
