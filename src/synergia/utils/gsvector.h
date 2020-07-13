@@ -5,15 +5,6 @@
 #include <boost/core/enable_if.hpp>
 #include <boost/type_traits/is_same.hpp>
 
-
-#if 0
-#undef GSV_SSE
-#undef GSV_AVX
-#undef GSV_V4D
-#undef GSV_MIC
-#endif
-
-
 // helper
 namespace detail
 {
@@ -193,8 +184,12 @@ class Vec2d;
 class Vec4d;
 class vector4double;
 
-//#include <x86intrin.h>
-//#include <immintrin.h>
+// clang (and maybe GCC) complain about shifting of negative signed values in
+// the vectorclass.h header. This is formally undefined behavior in C++, but
+// does what is wanted on all implementations we use.
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshift-negative-value"
 
 #if defined(GSV_SSE)
   #include "vectorclass.h"
@@ -203,6 +198,8 @@ class vector4double;
 #elif defined(GSV_QPX)
   #include <mass_simd.h>
 #endif
+
+#pragma GCC diagnostic pop
 
 namespace detail
 {

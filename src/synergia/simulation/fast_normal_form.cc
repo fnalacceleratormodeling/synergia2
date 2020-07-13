@@ -1,7 +1,7 @@
 #include "fast_normal_form.h"
 
 #if defined(__has_warning)
-#if ! __has_warning("-Wint-in-bool-context")
+#if  __has_warning("-Wint-in-bool-context")
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #endif
@@ -10,7 +10,7 @@
 #include "Eigen/Eigen"
 
 #if defined(__has_warning)
-#if ! __has_warning("-Wint-in-bool-context")
+#if __has_warning("-Wint-in-bool-context")
 #pragma GCC diagnostic pop
 #endif
 #endif
