@@ -1,8 +1,36 @@
-#include <iostream>
 
 #include "step.h"
-//#include "synergia/utils/simple_timer.h"
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/period.h"
+
+namespace
+{
+    void apply_longitudinal_boundary(Bunch& bunch)
+    {
+        // Bunch longitudinal boundary condition
+        auto lb = bunch.get_longitudinal_boundary();
+
+        switch(lb.first)
+        {
+            case LongitudinalBoundary::periodic:
+                apply_longitudinal_periodicity(bunch, lb.second);
+                break;
+
+            case LongitudinalBoundary::aperture:
+                apply_zcut(bunch, lb.second);          
+                break;
+
+            case LongitudinalBoundary::bucket_barrier:
+                apply_longitudinal_bucket_barrier(bunch, lb.second);
+                break;
+
+            case LongitudinalBoundary::open:
+            default:
+                break;
+        }
+
+    }
+}
 
 Step::Step(double length) 
 : operators()
@@ -10,15 +38,6 @@ Step::Step(double length)
 , length(length)
 {
 }
-
-#if 0
-Step::Step()
-: operators()
-, step_betas()
-, length(0.0)
-{
-}
-#endif
 
 void Step::create_operations(Lattice const & lattice)
 {
@@ -58,12 +77,13 @@ void Step::apply(Bunch_simulator & simulator, Logger & logger) const
             << std::fixed << std::setprecision(3) << t1 - t0 << "s"
             << "\n";
 
-        //double t = simple_timer_current();
-
         // per operator diagnostics action
         simulator.diag_action_operator(*op);
 
-        //t = simple_timer_show(t, "diagnostics-operator");      
+        // longitudinal conditions
+        for (auto& train : simulator.get_trains())
+            for (auto& bunch : train.get_bunches())
+                apply_longitudinal_boundary(bunch);
     }
 }
 
@@ -93,35 +113,4 @@ Step::print(int index) const
 #endif
 }
 
-#if 0
-template<class Archive>
-    void
-    Step::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_NVP(operators);
-        ar & BOOST_SERIALIZATION_NVP(time_fractions);
-        ar & BOOST_SERIALIZATION_NVP(length); 
-        ar & BOOST_SERIALIZATION_NVP(step_betas);
-    }
-
-template
-void
-Step::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-Step::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-Step::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Step::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-#endif
 #endif

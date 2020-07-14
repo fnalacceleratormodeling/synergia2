@@ -248,6 +248,9 @@ public:
     template<typename AP>
     int apply_aperture(AP const& ap, ParticleGroup pg = PG::regular);
 
+    template<typename AP>
+    int apply_zcut(AP const& ap, ParticleGroup pg = PG::regular);
+
     // retrieve the array holding lost particles from last aperture operation
     karray2d_row
     get_particles_last_discarded(ParticleGroup pg = PG::regular) const
@@ -307,7 +310,7 @@ public:
     void set_longitudinal_bounadry(LB lb, double param = 0.0)
     { boundary = lb; boundary_param = param; }
 
-    std::pair<LB, double> get_longitudinal_bounadry() const
+    std::pair<LB, double> get_longitudinal_boundary() const
     { return std::make_pair(boundary, boundary_param); }
 
     // bucket index
@@ -461,6 +464,18 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
     // diagnostics
     if (ndiscarded && diag_aperture)
         diag_aperture->update_and_write(*this);
+
+    return ndiscarded;
+}
+
+template<typename AP>
+inline int Bunch::apply_zcut(AP const& ap, ParticleGroup pg)
+{ 
+    int ndiscarded = get_bunch_particles(pg).apply_aperture(ap); 
+
+    // diagnostics
+    if (ndiscarded && diag_zcut)
+        diag_zcut->update_and_write(*this);
 
     return ndiscarded;
 }

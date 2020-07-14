@@ -26,7 +26,7 @@ add_library(synergia_bunch
     populate.cc 
     populate_host.cc 
     #analysis.cc 
-    #period.cc 
+    period.cc 
     )
 
 target_link_libraries(synergia_bunch 
