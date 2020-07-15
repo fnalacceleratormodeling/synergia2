@@ -11,8 +11,6 @@
 const int Space_charge_2d_bassetti_erskine::longitudinal_gaussian;
 const int Space_charge_2d_bassetti_erskine::longitudinal_uniform;
 
-const std::complex<double > complex_1(1.0, 0.0);
-const std::complex<double > complex_0(0.0, 0.0);
 const std::complex<double > complex_i(0.0, 1.0);
 
 Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :

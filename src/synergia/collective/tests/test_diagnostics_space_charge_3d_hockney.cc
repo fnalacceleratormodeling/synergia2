@@ -20,10 +20,7 @@ using pconstants::epsilon0;
 
  BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
- const double tolerance = 1.0e-12;
-
-
-BOOST_FIXTURE_TEST_CASE(update_and_write, Ellipsoidal_bunch_fixture)
+ BOOST_FIXTURE_TEST_CASE(update_and_write, Ellipsoidal_bunch_fixture)
 {
   Diagnostics_space_charge_3d_hockney diag_spc("spc_3d_hockney_diagnostics_test.h5");
   Bunch_sptr bunch_sptr((new Bunch(bunch)));
@@ -76,24 +73,16 @@ BOOST_FIXTURE_TEST_CASE(diagnostics_field_check, gaussian_3d_bunch_fixture)
   std_bunch[0]= std_temp[0];
   std_bunch[1]= std_temp[2];
   std_bunch[2]= std_temp[4];  
- 
-  
-  
-  
+
   sp_diagnostics_sptr->set_bunch_sptr(bunch_sptr);  
    
-  double gamma= bunch_sptr->get_reference_particle().get_gamma();
   double beta= bunch_sptr->get_reference_particle().get_beta();
 
   std::vector<int > grid_shape(3);  
   grid_shape[0] = 128;
   grid_shape[1] = 128;
   grid_shape[2] = 64;
-  
-  
-  
-  
-  
+
   int max_component(3);
   
   double step_length=10.;
@@ -105,9 +94,7 @@ BOOST_FIXTURE_TEST_CASE(diagnostics_field_check, gaussian_3d_bunch_fixture)
  
   Space_charge_3d_open_hockney space_charge(grid_shape); 
   space_charge.add_diagnostics(sp_diagnostics_sptr);
-  
-   
-  
+
   Rectangular_grid_sptr local_rho(space_charge.get_local_charge_density(*bunch_sptr)); 
   Distributed_rectangular_grid_sptr rho2(
                 space_charge.get_global_charge_density2(*local_rho, bunch_sptr->get_comm_sptr()));

@@ -616,7 +616,6 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
 
     double total_x_kick2 = 0.0;
     double total_y_kick2 = 0.0;
-    double total_p_kick2 = 0.0;
     for (int i = 0; i < bunch.get_local_num(); ++i) {
         double kick;
         kick = bunch.get_local_particles()[i][Bunch::xp]
@@ -628,7 +627,6 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
    }
     double avg_x_kick2 = total_x_kick2 / bunch.get_local_num();
     double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
-    double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
     const double rough_tolerance = 20.0;
     BOOST_CHECK_CLOSE(avg_x_kick2, 2.0e-3, rough_tolerance);

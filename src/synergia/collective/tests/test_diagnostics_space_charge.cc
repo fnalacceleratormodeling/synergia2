@@ -20,9 +20,6 @@ using pconstants::epsilon0;
 
  BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
- const double tolerance = 1.0e-12;
-
-
 BOOST_FIXTURE_TEST_CASE(update, Ellipsoidal_bunch_fixture)
 {
   Diagnostics_space_charge_rectangular diag_spc("spc_rectangular_diagnostics_test.h5");

@@ -20,8 +20,6 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture);
 // define DBGPRINT to get verbose output of test values
 #define DBGPRINT 0
 
-const double tolerance = 1.0e-12;
-
 Distributed_rectangular_grid_sptr
 get_uniform_cylindrical_rho2(Space_charge_3d_open_hockney & space_charge,
         Bunch & bunch, double r0, double z_period)

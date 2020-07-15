@@ -84,7 +84,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
              space_charge.get_doubled_domain_sptr()->get_grid_shape());
     double max_fractional_error = -2.0;
     double min_fractional_error = 2.0;
-    const double solution_tolerance = 2.0e-2;
     for (int component = 0; component < 2; ++component) {
         for (int i = std::max(nondoubled_shape[0] / 2,
                 local_force2->get_lower()); i < std::min(
@@ -98,7 +97,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
                     int k = nondoubled_shape[2] / 2;
                     double x, y, z;
                     space_charge.get_doubled_domain_sptr()->get_cell_coordinates(i, j, k, x, y, z);
-                    double r = std::sqrt(x * x + y * y + z * z);
                     double var = 0.0;
                     double local_force2_calc_ijk =0;
                     if (component == 0) {
@@ -114,9 +112,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
                                 * rho2->get_grid_points_1d()[k]
                                 * local_force2->get_normalization();
                     }
-                    double local_force2_exact_ijk
-                            = gaussian_electric_force_component(q, Q, r, sigma,
-                                    var);
                     double local_force2_exact_ijk_2
                             = gaussian_electric_force_component2(q, Q, x, y, z,
                                     sigma, sigmaz, var);
@@ -192,7 +187,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
              space_charge.get_domain().get_grid_shape());
     double max_fractional_error = -2.0;
     double min_fractional_error = 2.0;
-    const double solution_tolerance = 2.0e-2;
     for (int component = 0; component < 2; ++component) {
         for (int i = std::max(nondoubled_shape[0] / 2,
                 local_force2->get_lower()); i < std::min(
@@ -206,7 +200,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
                     int k = nondoubled_shape[2] / 2;
                     double x, y, z;
                     space_charge.get_doubled_domain_sptr()->get_cell_coordinates(i, j, k, x, y, z);
-                    double r = std::sqrt(x * x + y * y + z * z);
                     double var = 0.0;
                     double local_force2_calc_ijk = 0.0;
                     if (component == 0) {
@@ -222,10 +215,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
                                 * rho2->get_grid_points_1d()[k]
                                 * local_force2->get_normalization();
                     }
-
-                    double local_force2_exact_ijk
-                            = gaussian_electric_force_component(q, Q, r, sigma,
-                                    var);
 
                     double local_force2_exact_ijk_2
                             = gaussian_electric_force_component2(q, Q, x, y, z,

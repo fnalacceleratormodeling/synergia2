@@ -778,7 +778,6 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
 BOOST_FIXTURE_TEST_CASE(real_apply_full_lowgamma, Rod_bunch_fixture_lowgamma)
 {
     Bunch original_bunch(bunch);
-    const double time_fraction = 1.0;
     const double step_length = 0.1;
     const double beta = bunch.get_reference_particle().get_beta();
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
@@ -887,7 +886,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_lowgamma, Rod_bunch_fixture_lowgamma)
 BOOST_FIXTURE_TEST_CASE(real_apply_full_highgamma, Rod_bunch_fixture_highgamma)
 {
     Bunch original_bunch(bunch);
-    const double time_fraction = 1.0;
     const double step_length = 0.1;
     const double beta = bunch.get_reference_particle().get_beta();
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
@@ -997,7 +995,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_highgamma, Rod_bunch_fixture_highgamma)
 BOOST_FIXTURE_TEST_CASE(real_apply_full_lowgamma_x2, Rod_bunch_fixture_lowgamma)
 {
     Bunch original_bunch(bunch);
-    const double time_fraction = 1.0;
     const double step_length = 0.1;
     const double beta = bunch.get_reference_particle().get_beta();
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
@@ -1107,7 +1104,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_lowgamma_x2, Rod_bunch_fixture_lowgamma)
 BOOST_FIXTURE_TEST_CASE(real_apply_full_highgamma_x2, Rod_bunch_fixture_highgamma)
 {
     Bunch original_bunch(bunch);
-    const double time_fraction = 1.0;
     const double step_length = 0.1;
     const double beta = bunch.get_reference_particle().get_beta();
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
@@ -1216,7 +1212,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_full_highgamma_x2, Rod_bunch_fixture_highgamm
 BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgamma)
 {
     Bunch original_bunch(bunch);
-    const double time_fraction = 1.0;
     const double step_length = 0.1;
     const double beta = bunch.get_reference_particle().get_beta();
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
@@ -1324,7 +1319,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgam
 BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highgamma)
 {
     Bunch original_bunch(bunch);
-    const double time_fraction = 1.0;
     const double step_length = 0.1;
     const double beta = bunch.get_reference_particle().get_beta();
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
@@ -1420,7 +1414,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highg
 BOOST_FIXTURE_TEST_CASE(serialize_, Rod_bunch_fixture_lowgamma)
 {
     Bunch original_bunch(bunch);
-    const double time_fraction = 1.0;
     const double step_length = 0.1;
     const double beta = bunch.get_reference_particle().get_beta();
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();

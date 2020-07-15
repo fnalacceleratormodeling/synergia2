@@ -7,8 +7,6 @@
 #include "synergia/utils/serialization.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
-const double tolerance = 1.0e-12;
-
 BOOST_AUTO_TEST_CASE(construct)
 {
     Dummy_collective_operator collective_operator("test");

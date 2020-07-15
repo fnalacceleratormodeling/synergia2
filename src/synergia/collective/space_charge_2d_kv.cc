@@ -13,10 +13,6 @@ const int Space_charge_2d_kv::longitudinal_uniform;
 const int Space_charge_2d_kv::field_centered;
 const int Space_charge_2d_kv::field_not_centered;
 
-const std::complex<double > complex_1(1.0, 0.0);
-const std::complex<double > complex_0(0.0, 0.0);
-const std::complex<double > complex_i(0.0, 1.0);
-
 Space_charge_2d_kv::Space_charge_2d_kv() :
         Collective_operator("space charge")
         , sigma_x(0.0), sigma_y(0.0), sigma_cdt(0.0)

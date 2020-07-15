@@ -20,11 +20,6 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
 const int charge = pconstants::proton_charge;
 const double mass = pconstants::mp;
-const double real_num = 1.7e11;
-const int total_num = 10000;
-const double total_energy = 125.0;
-
-const double tolerance = 1.0e-12;
 
 BOOST_AUTO_TEST_CASE(construct)
 {
@@ -183,7 +178,6 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_lowgamma, Round_rod_bunch_f
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
     const double gamma = bunch.get_reference_particle().get_gamma();
     const double time_step = step_length/(beta*pconstants::c);
-    const double bunchlen = bunch.get_z_period_length();
 
     Logger logger(0);
 
@@ -254,7 +248,6 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_gaussian_lowgamma, Round_ro
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
     const double gamma = bunch.get_reference_particle().get_gamma();
     const double time_step = step_length/(beta*pconstants::c);
-    const double bunchlen = bunch.get_z_period_length();
 
     Logger logger(0);
 
@@ -507,7 +500,6 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_highgamma, Round_rod_bunch_
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
     const double gamma = bunch.get_reference_particle().get_gamma();
     const double time_step = step_length/(beta*pconstants::c);
-    const double bunchlen = bunch.get_z_period_length();
 
     Logger logger(0);
 
@@ -576,7 +568,6 @@ BOOST_FIXTURE_TEST_CASE(apply_bassetti_erskine_round_gaussian_highgamma, Round_r
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
     const double gamma = bunch.get_reference_particle().get_gamma();
     const double time_step = step_length/(beta*pconstants::c);
-    const double bunchlen = bunch.get_z_period_length();
 
     Logger logger(0);
 

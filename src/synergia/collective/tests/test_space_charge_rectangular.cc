@@ -67,7 +67,6 @@ BOOST_FIXTURE_TEST_CASE(set_domain, Ellipsoidal_bunch_fixture)
     size[0]=0.1;
     size[1]=0.2;
     size[2]=0.05;
-    double gamma=bunch.get_reference_particle().get_gamma();
     double beta=bunch.get_reference_particle().get_beta();
     
     
@@ -214,7 +213,6 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
   {
 
      double gamma= bunch.get_reference_particle().get_gamma();
-     double beta= bunch.get_reference_particle().get_beta();
      std::vector<int > grid_shape1(3);
      grid_shape1[0] =32;
      grid_shape1[1] = 16;
@@ -325,7 +323,6 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
   {
 
      double gamma= bunch.get_reference_particle().get_gamma();
-     double beta= bunch.get_reference_particle().get_beta();
      std::vector<int > grid_shape1(3);
      grid_shape1[0] =32;
      grid_shape1[1] = 16;
@@ -444,7 +441,6 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
 {
    
     double gamma= bunch.get_reference_particle().get_gamma();
-    double beta= bunch.get_reference_particle().get_beta();
     std::vector<int > grid_shape1(3);
     grid_shape1[0] =32;
     grid_shape1[1] = 12;
@@ -629,7 +625,6 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
 BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
 {
     double gamma= bunch.get_reference_particle().get_gamma();
-    double beta= bunch.get_reference_particle().get_beta();
     std::vector<int > grid_shape1(3);
     grid_shape1[0] =32;
     grid_shape1[1] = 12;
