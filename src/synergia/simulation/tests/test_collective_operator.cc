@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/simulation/operator.h"
+#include "synergia/simulation/collective_operator.h"
 #include "synergia/simulation/step.h"
 #include "bunch_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"

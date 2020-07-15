@@ -5,7 +5,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/synergia-pyresume.in"
     "${CMAKE_CURRENT_BINARY_DIR}/synergia-pyresume" IMMEDIATE)
 
 add_executable(synergia-resume synergia-resume.cc)
-target_link_libraries(synergia-resume synergia_simulation synergia_command_line synergia_collective)
+target_link_libraries(synergia-resume synergia_simulation synergia_command_line synergia_collective ${CHEF_LIBS})
 
 add_executable(synergia-archive-convert synergia-archive-convert.cc)
 target_link_libraries(synergia-archive-convert synergia_simulation synergia_command_line synergia_collective synergia_serialization synergia_lattice)

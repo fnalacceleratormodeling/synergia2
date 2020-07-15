@@ -7,6 +7,8 @@
 #include "synergia/utils/serialization.h"
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/operator.h"
+#include "synergia/simulation/independent_operator.h"
+#include "synergia/simulation/collective_operator.h"
 #include "synergia/simulation/step.h"
 
 class Stepper

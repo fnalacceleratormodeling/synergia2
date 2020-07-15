@@ -238,7 +238,7 @@ Space_charge_3d_open_hockney::set_green_fn_type(Green_fn_type green_fn_type)
     case linear:
         break;
     default:
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney::set_green_fn_type: invalid green_fn_type");
     }
     this->green_fn_type = green_fn_type;
@@ -260,7 +260,7 @@ Space_charge_3d_open_hockney::set_charge_density_comm(
     case charge_allreduce:
         break;
     default:
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney::set_charge_density_comm: invalid charge_density_comm");
     }
     this->charge_density_comm = charge_density_comm;
@@ -283,7 +283,7 @@ Space_charge_3d_open_hockney::set_e_field_comm(E_field_comm e_field_comm)
     case e_field_allreduce:
         break;
     default:
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney::set_e_field_comm: invalid e_field_comm");
     }
 
@@ -316,7 +316,7 @@ Space_charge_3d_open_hockney::set_fixed_domain(
     if ((domain_sptr->get_grid_shape()[0] != grid_shape[0])
             || (domain_sptr->get_grid_shape()[1] != grid_shape[1])
             || (domain_sptr->get_grid_shape()[2] != grid_shape[2])) {
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney::set_fixed_domain requires a shape\nequal to that of the parent object, but with zyx ordering.");
     }
     this->domain_sptr = domain_sptr;
@@ -386,7 +386,7 @@ Rectangular_grid_domain_sptr
 Space_charge_3d_open_hockney::get_domain_sptr() const
 {
     if (!have_domains) {
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney::get_domain_sptr: domain not set");
     }
     return domain_sptr;
@@ -396,7 +396,7 @@ Rectangular_grid_domain_sptr
 Space_charge_3d_open_hockney::get_doubled_domain_sptr() const
 {
     if (!have_domains) {
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney::get_doubled_domain_sptr: domain not set");
     }
     return doubled_domain_sptr;
@@ -514,7 +514,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
         return get_global_charge_density2_allreduce(local_charge_density,
                 comm_sptr);
     default:
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney: invalid charge_density_comm");
     }
 }
@@ -523,7 +523,7 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_green_fn2_pointlike()
 {
     if (doubled_domain_sptr == NULL) {
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney::get_green_fn2_pointlike called before domain specified");
     }
     int lower = distributed_fft3d_sptr->get_lower();
@@ -623,7 +623,7 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_green_fn2_linear()
 {
     if (doubled_domain_sptr == NULL) {
-        throw runtime_error(
+        throw std::runtime_error(
                 "Space_charge_3d_open_hockney::get_green_fn2_linear called before domain specified");
     }
     int lower = distributed_fft3d_sptr->get_lower();
@@ -1061,7 +1061,7 @@ Space_charge_3d_open_hockney::get_global_electric_field_component(
     else if(e_field_comm==e_field_allreduce){
         global_electric_field_sptr=get_global_electric_field_component_allreduce(dist_field);
     }
-    else throw runtime_error(
+    else throw std::runtime_error(
                  "Space_charge_3d_open_hockney: invalid e_field_comm");
 
 

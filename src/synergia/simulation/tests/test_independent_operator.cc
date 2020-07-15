@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/simulation/operator.h"
+#include "synergia/simulation/independent_operator.h"
 #include "synergia/simulation/step.h"
 #include "synergia/simulation/lattice_simulator.h"
 #include "bunch_fixture.h"

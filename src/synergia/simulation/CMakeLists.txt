@@ -1,15 +1,37 @@
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(synergia_simulation operator.cc step.cc stepper.cc
-    independent_stepper.cc independent_stepper_elements.cc
-    split_operator_stepper.cc split_operator_stepper_elements.cc
+add_library(synergia_simulation 
+    operator.cc 
+    independent_operator.cc
+    collective_operator.cc
+    step.cc 
+    stepper.cc
+    independent_stepper.cc 
+    independent_stepper_elements.cc
+    split_operator_stepper.cc 
+    split_operator_stepper_elements.cc
     split_operator_stepper_choice.cc
-    propagate_actions.cc lattice_elements_actions.cc diagnostics_actions.cc propagator.cc
-    fast_mapping.cc  fast_normal_form.cc chef_propagator.cc independent_operation.cc
-    lattice_simulator.cc operation_extractor.cc aperture.cc
-    aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
-    bunch_train_simulator.cc resume.cc dense_mapping.cc calculate_closed_orbit.cc diagnostics_normal_form.cc)
+    propagate_actions.cc 
+    lattice_elements_actions.cc 
+    diagnostics_actions.cc 
+    propagator.cc
+    fast_mapping.cc  
+    fast_normal_form.cc 
+    chef_propagator.cc 
+    independent_operation.cc
+    lattice_simulator.cc 
+    operation_extractor.cc 
+    aperture.cc
+    aperture_operation.cc 
+    aperture_operation_extractor.cc 
+    populate_stationary.cc 
+    bunch_simulator.cc
+    bunch_train_simulator.cc 
+    resume.cc 
+    dense_mapping.cc 
+    calculate_closed_orbit.cc 
+    diagnostics_normal_form.cc)
 target_link_libraries(synergia_simulation
   PRIVATE synergia_foundation synergia_bunch
     synergia_lattice synergia_libFF ${CHEF_LIBS} ${Boost_REGEX_LIBRARY} ${OpenMP_CXX_LIBRARIES})
@@ -35,6 +57,8 @@ install(FILES
     lattice_simulator.h
     operation_extractor.h
     operator.h
+    independent_operator.h
+    collective_operator.h
     propagate_actions.h
     lattice_elements_actions.h
     propagator.h

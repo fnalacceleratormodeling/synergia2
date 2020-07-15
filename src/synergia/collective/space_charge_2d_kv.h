@@ -1,7 +1,7 @@
 #ifndef SPACE_CHARGE_2D_KV_H_
 #define SPACE_CHARGE_2D_KV_H_
 
-#include "synergia/simulation/operator.h"
+#include "synergia/simulation/collective_operator.h"
 #include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"
 

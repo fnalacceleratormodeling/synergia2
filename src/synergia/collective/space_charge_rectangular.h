@@ -1,6 +1,6 @@
 #ifndef SPACE_CHARGE_RECTANGULAR_H_
 #define SPACE_CHARGE_RECTANGULAR_H_
-// #include "synergia/simulation/operator.h"
+#include "synergia/simulation/collective_operator.h"
 #include "synergia/collective/diagnostics_space_charge.h"
 #include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"

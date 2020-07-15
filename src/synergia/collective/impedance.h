@@ -1,7 +1,7 @@
 #ifndef IMPEDANCE_H_
 #define  IMPEDANCE_H_
 #include "wake_field.h"
-#include "synergia/simulation/operator.h"
+#include "synergia/simulation/collective_operator.h"
 #include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/utils/serialization.h"

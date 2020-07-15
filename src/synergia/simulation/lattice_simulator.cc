@@ -9,6 +9,7 @@
 #include "synergia/libFF/ff_element_map.h"
 #include "synergia/simulation/calculate_closed_orbit.h"
 #include "synergia/simulation/fast_normal_form.h"
+#include "synergia/simulation/independent_operator.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
