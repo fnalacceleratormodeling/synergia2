@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(orbit_bump_timing)
     double beta = refpart.get_beta();
 
     lattice_sptr->set_reference_particle(refpart);
-
+    lattice_sptr->set_all_string_attribute("extractor_type", "libff");
     Commxx_sptr commxx(new Commxx);
 
     Bunch_sptr bunch_sptr(new Bunch(refpart, 1, 1.0e10, commxx));
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(orbit_bump_timing)
 
     const double co_tolerance = 100.0 * tolerance * lattice_sptr->get_length();
 
-    propagator.propagate(bunch_simulator, 1, 1, 1);
+    propagator.propagate(bunch_simulator, 1, 1, 10);
 
     for (int i=0; i<4; ++i) {
         std::cout << std::setprecision(16) << "orbit propagation " << i << ", " << bunch_sptr->get_local_particles()[0][i] << std::endl;
