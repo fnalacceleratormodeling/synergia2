@@ -17,10 +17,13 @@
       -DKokkos_ENABLE_OPENMP=on \
       /path/to/synergia/
 
+### Avaiable Build Options
+
 Kokkos options:
 
     cmake -DKokkos_ENABLE_OPENMP=on
     cmake -DKokkos_ENABLE_CUDA=off
+    ...
 
 Enable Python bindings:
 
@@ -30,11 +33,33 @@ Enable simple timer profiling:
 
     cmake -DSIMPLE_TIMER=on
 
-Paddings need to be turned off in the CUDA build due to a Kokkos bug https://github.com/kokkos/kokkos/issues/2995
+### Options for OpenMP Build
+
+    cmake -DKokkos_ENABLE_OPENMP=on
+    cmake -DKokkos_ENABLE_CUDA=off
+
+### Options for GPU/CUDA build
+
+`nvcc` needs to be in path
+
+    export PATH=/usr/local/cuda/bin:$PATH
+
+Kokkos options
 
     cmake -DKokkos_ENABLE_OPENMP=off
     cmake -DKokkos_ENABLE_CUDA=on
+
+Use `nvcc_wrapper` as the default cxx compiler, and set the GPU architecture in the `CXX_FLAGS`. `nvcc_wrapper` can be found in Synergia source tree under `src/synergia/utils/kokkos/bin/nvcc_wrapper`
+
+    cmake -DCMAKE_CXX_COMPILER=/path/to/nvcc_wrapper
+    cmake -DCMAKE_CXX_FLAGS="-arch=sm_70"
+
+
+Paddings need to be turned off in the CUDA build due to a Kokkos bug https://github.com/kokkos/kokkos/issues/2995
+
     cmake -DALLOW_PADDING=off
+
+
 
 
 ## 2. Cori - KNL:
