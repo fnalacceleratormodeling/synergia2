@@ -41,8 +41,6 @@ void FF_elens::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 
     const double  current_over_e = current / pconstants::e;
-    const double    elens_length = length;
-    const double electron_energy = eenergy;
 
     // references
     Reference_particle       & ref_l = bunch.get_design_reference_particle();

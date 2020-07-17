@@ -24,7 +24,7 @@ namespace FF_algorithm
     constexpr double quiet_nan()
     {
 #ifdef Kokkos_ENABLE_CUDA
-        return nan(NULL);
+        return nan("");
 #else
         return std::numeric_limits<double>::quiet_NaN();
 #endif
@@ -461,10 +461,7 @@ namespace FF_algorithm
         const T uni(1.0);
 
         T vk1n(kL[0]);
-        T vk1s(kL[1]);
-
         T vk2n(kL[2]);
-        T vk2s(kL[3]);
 
         T vr0(r0);
         T alf = x / vr0;
@@ -826,8 +823,6 @@ namespace FF_algorithm
         double sn = sin(dtheta);
         double cs = cos(dtheta);
 
-        double xi = x;
-        double yi = y;
         double xpi = xp;
         double ypi = yp;
 
@@ -908,7 +903,7 @@ namespace FF_algorithm
     void elens_kick_uniform
         (double const& x, double& xp, double const& y, double& yp, double const& dpop, double const* k)
     {
-        const double small_radius = 1.0e-10;
+        //const double small_radius = 1.0e-10;
         double r = sqrt( x * x + y * y );
 
         // no kick at r = 0.0

@@ -171,10 +171,12 @@ bool Independent_operator::need_update(
         Reference_particle const & ref,
         Logger & logger)
 {
+    return false;
+
+#if 0
     const double reference_particle_tolerance = 1.0e-8;
     bool retval = false;
 
-#if 0
     if (have_operations) 
     {
         retval = false;
@@ -225,9 +227,9 @@ bool Independent_operator::need_update(
         }
         retval = true;
     }
-#endif
 
     return retval;
+#endif
 }
 
 void
