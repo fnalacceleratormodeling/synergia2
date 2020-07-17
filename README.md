@@ -30,6 +30,12 @@ Enable simple timer profiling:
 
     cmake -DSIMPLE_TIMER=on
 
+Paddings need to be turned off in the CUDA build due to a Kokkos bug https://github.com/kokkos/kokkos/issues/2995
+
+    cmake -DKokkos_ENABLE_OPENMP=off
+    cmake -DKokkos_ENABLE_CUDA=on
+    cmake -DALLOW_PADDING=off
+
 
 ## 2. Cori - KNL:
 
