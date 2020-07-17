@@ -1,9 +1,12 @@
 
-# path for non-system packages
-export LOCAL_ROOT=/path/to/local/packages
+# Build Instructions
+
+## 0. Path for non-system packages
+
+    export LOCAL_ROOT=/path/to/local/packages
 
 
-Linux:
+## 1. General Linux:
 
     CC=gcc CXX=g++ \
     cmake -DCMAKE_INSTALL_PREFIX=$LOCAL_ROOT \
@@ -11,21 +14,24 @@ Linux:
       -DEIGEN3_INCLUDE_DIR=$LOCAL_ROOT/include/eigen3 \
       -DHDF5_ROOT=$LOCAL_ROOT \
       -DCMAKE_BUILD_TYPE=Release \
-      -DKOKKOS_ENABLE_OPENMP=on \
+      -DKokkos_ENABLE_OPENMP=on \
       /path/to/synergia/
 
 Kokkos options:
-    cmake -DKOKKOS_ENABLE_OPENMP=on
-    cmake -DKOKKOS_ENABLE_CUDA=off
+
+    cmake -DKokkos_ENABLE_OPENMP=on
+    cmake -DKokkos_ENABLE_CUDA=off
 
 Enable Python bindings:
+
     cmake -DBUILD_PYTHON_BINDINGS=on
 
 Enable simple timer profiling:
+
     cmake -DSIMPLE_TIMER=on
 
 
-Cori - KNL:
+## 2. Cori - KNL:
 
     module load cmake
     module switch craype-haswell craype-mic-knl
@@ -37,10 +43,10 @@ Cori - KNL:
 
     export CRAYPE_LINK_TYPE=dynamic
 
-    CC=cc CXX=CC cmake -DEIGEN3_INCLUDE_DIR:PATH=~/local/include/eigen3 -DFFTW3_LIBRARY_DIRS:PATH=${FFTW_ROOT}/lib -DKOKKOS_ENABLE_OPENMP=on ../synergia2/
+    CC=cc CXX=CC cmake -DEIGEN3_INCLUDE_DIR:PATH=~/local/include/eigen3 -DFFTW3_LIBRARY_DIRS:PATH=${FFTW_ROOT}/lib -DKokkos_ENABLE_OPENMP=on ../synergia2/
 
 
-Power9:
+## 3. Power9:
 
     export PATH=$LOCAL_ROOT/bin:/usr/local/gnu8/gcc-8.3.0/bin:/usr/local/openmpi-4.0.2-gcc-8.3.0/bin:/usr/local/cmake3/3.16.2/bin:/usr/local/cuda/bin:$PATH
     export LD_LIBRARY_PATH=$LOCAL_ROOT/lib:$LOCAL_ROOT/lib64:/usr/local/gnu8/gcc-8.3.0/lib:/usr/local/gnu8/gcc-8.3.0/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
@@ -50,8 +56,8 @@ Power9:
       -DFFTW3_LIBRARY_DIRS=/data/qlu/local/lib \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_PYTHON_BINDINGS=off \
-      -DKOKKOS_ENABLE_OPENMP=off \
-      -DKOKKOS_ENABLE_CUDA=on \
+      -DKokkos_ENABLE_OPENMP=off \
+      -DKokkos_ENABLE_CUDA=on \
       -DCMAKE_CXX_COMPILER=nvcc_wrapper \
       -DCMAKE_CXX_FLAGS="-arch=sm_70" 
       ../synergia2/
@@ -62,7 +68,7 @@ Power9 enable Python:
     cmake -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$LOCAL_ROOT/bin/python3
 
 
-Power9 build python3 (libffi needd to enable _ctypes):
+Build python3 on Power9 (libffi needd to enable _ctypes):
 
     wget python.tar.gz && tar xf
     cd python
@@ -85,14 +91,18 @@ Power9 build python3 (libffi needd to enable _ctypes):
 
 
 
-MacOS:
-brew install gcc hdf5 eigen fftw3
+## 4. MacOS:
+
+    brew install gcc hdf5 eigen fftw3
 
 MacOS with gcc:
-CC=gcc-9 CXX=g++-9 cmake -DKOKKOS_ENABLE_OPENMP=on -DCMAKE_OSX_SYSROOT="/" -DCMAKE_OSX_DEPLOYMENT_TARGET="" /path/to/synergia/
+
+    CC=gcc-9 CXX=g++-9 cmake -DKokkos_ENABLE_OPENMP=on -DCMAKE_OSX_SYSROOT="/" -DCMAKE_OSX_DEPLOYMENT_TARGET="" /path/to/synergia/
 
 MacOS with apple clang (openmp missing, possible with '-Xpreprocessor -fopenmp -lomp'):
-cmake /path/to/synergia
 
-MacOS with Python 3 (homebrew):
-cmake -DPYTHON_EXECUTABLE=/usr/local/bin/python3
+    cmake /path/to/synergia
+
+4.3 MacOS with Python 3 (homebrew):
+
+    cmake -DPYTHON_EXECUTABLE=/usr/local/bin/python3
