@@ -1190,11 +1190,11 @@ Bunch::set_bucket_index(int index)
     this->bucket_index_assigned=true;
 }
 
-int
+std::size_t
 Bunch::get_bucket_index() const
 {
   if (!bucket_index_assigned)  throw std::runtime_error("bucket index has not been assigned yet");
-return bucket_index;
+  return bucket_index;
 }
 
 bool

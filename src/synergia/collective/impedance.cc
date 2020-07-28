@@ -45,9 +45,9 @@ Bunch_properties::serialize<boost::archive::xml_iarchive >(
 
 
 
-Impedance::Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
-                    double const & orbit_length, double const & bunchsp, int const nstored_turns,
-			                            bool full_machine, std::vector<int > wn):
+Impedance::Impedance(std::string const & wake_file, std::string const & wake_type, int zgrid,
+                    double orbit_length, double bunchsp, std::size_t nstored_turns,
+			                            bool full_machine, std::vector<int> wn):
 Collective_operator("impedance"), z_grid(zgrid), nstored_turns(nstored_turns), 
              orbit_length(orbit_length), bunch_spacing(bunchsp), 
               full_machine(full_machine),wn(wn)
@@ -73,9 +73,9 @@ Collective_operator("impedance"), z_grid(zgrid), nstored_turns(nstored_turns),
 	construct();
 }  
 
-Impedance::Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
-                    double const & orbit_length, int const& num_buckets, int const nstored_turns,
-			              bool full_machine, std::vector<int > wn):
+Impedance::Impedance(std::string const & wake_file, std::string const & wake_type, int zgrid,
+                    double orbit_length, int num_buckets, std::size_t nstored_turns,
+			              bool full_machine, std::vector<int> wn):
 Collective_operator("impedance"), z_grid(zgrid), nstored_turns(nstored_turns), 
 		num_buckets(num_buckets), orbit_length(orbit_length),
               full_machine(full_machine), wn(wn)
@@ -212,7 +212,7 @@ MArray1d_ref const &  Impedance::get_ywake_trailing() const {return *ywake_trail
 MArray1d_ref const &  Impedance::get_zwake0() const {return *zwake0_sptr;}
 
 bool Impedance::is_full_machine() const { return full_machine;}
-int Impedance::get_nstored_turns() const { return nstored_turns;}
+std::size_t Impedance::get_nstored_turns() const { return nstored_turns;}
 std::list< std::vector<Bunch_properties> > &
 Impedance::get_stored_vbunches() {return stored_vbunches;}
 
@@ -773,7 +773,7 @@ Impedance::store_bunches_data(Bunch_train & bunch_train)
     Bunch_properties bi;
     std::vector<Bunch_properties> vbi_local(0);
     std::vector<Bunch_properties> vbi(num_bunches);    
-    for (int i = 0; i < num_bunches; ++i){
+    for (std::size_t i = 0; i < num_bunches; ++i){
         if (bunches.at(i)->get_comm().has_this_rank()) {
 	    Bunch_sptr bunch_sptr=bunches.at(i);
             bunch_sptr->convert_to_state(Bunch::fixed_t_lab);
@@ -831,7 +831,7 @@ Impedance::apply(Bunch_train & bunch_train, double time_step, Step & step,
     store_bunches_data(bunch_train);
     Bunches bunches(bunch_train.get_bunches());
     size_t num_bunches = bunch_train.get_size();
-    for (int i = 0; i < num_bunches; ++i)
+    for (std::size_t i = 0; i < num_bunches; ++i)
         if (bunches.at(i)->get_comm().has_this_rank()) {
             apply(*bunches.at(i), time_step, step, verbosity,logger);
         }  

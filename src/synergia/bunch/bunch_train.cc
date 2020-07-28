@@ -58,13 +58,13 @@ Bunch_train::get_parent_comm_sptr()
 void
 Bunch_train::set_bucket_indices()
 {
-    std::list<int > found_indices;
+    std::vector<std::size_t> found_indices;
     for (size_t i = 0; i < bunches.size(); ++i) {
         if (!bunches[i]->is_bucket_index_assigned()) {
             bunches[i]->set_bucket_index(i);
         }
-        for (std::list<int >::const_iterator it = found_indices.begin();
-                it != found_indices.end(); ++it) {
+        for (auto it = found_indices.cbegin();
+                it != found_indices.cend(); ++it) {
             if (*it >= bunches[i]->get_bucket_index()) {
                 throw std::runtime_error(
                         "Bunch_train: bunch bucket indices must be either in strictly increasing order or all zero; otherwise wake field does not work");

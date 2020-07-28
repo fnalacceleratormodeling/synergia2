@@ -26,7 +26,7 @@ private:
     Wake_field_sptr wake_field_sptr;
    
     int z_grid;
-    int nstored_turns;
+    std::size_t nstored_turns;
     int num_buckets;
     double orbit_length;
     double wake_factor;
@@ -76,13 +76,13 @@ private:
 
   public:
     Impedance();
-    Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
-		  double const & orbit_length, double const & bunchsp, int const nstored_turns,
-			  bool full_machine=false,std::vector<int > wn=std::vector<int >());
+    Impedance(std::string const & wake_file, std::string const & wake_type, int grid,
+		  double orbit_length, double bunchsp, std::size_t nstored_turns,
+			  bool full_machine=false, std::vector<int> wn = std::vector<int>());
 
-    Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
-		  double const & orbit_length, int const & num_buckets, int const nstored_turns,
-			  bool full_machine=false, std::vector<int > wn=std::vector<int >());
+    Impedance(std::string const & wake_file, std::string const & wake_type, int zgrid,
+		  double orbit_length, int num_buckets, std::size_t nstored_turns,
+			  bool full_machine=false, std::vector<int> wn = std::vector<int>());
 			  
     Impedance(Impedance const& impedance);
     virtual Impedance *
@@ -124,7 +124,7 @@ private:
     
     virtual bool 
     is_full_machine() const;
-    virtual int 
+    virtual std::size_t
     get_nstored_turns() const;
     using Collective_operator::apply;
     virtual

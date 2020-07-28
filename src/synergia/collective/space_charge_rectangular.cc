@@ -578,15 +578,15 @@ if ((component < 0) || (component > 2)) {
    //AM!  make sure the field is zero at the edge of the grid
 // THIS toghether with zero charge distribution at the edge of the grid is essential for a conservative approximation
     MArray3d_ref grid_points(En->get_grid_points());
-    for (int j=0; j<grid_points.shape()[1];++j){
-        for (int k=0; k<grid_points.shape()[2];++k){
+    for (std::size_t j=0; j<grid_points.shape()[1];++j){
+        for (std::size_t k=0; k<grid_points.shape()[2];++k){
             grid_points[0][j][k]=0.;
             grid_points[grid_points.shape()[0]-1][j][k]=0.;
             
         }
     }    
-    for (int i=0; i<grid_points.shape()[0];++i){
-        for (int k=0; k<grid_points.shape()[2];++k){
+    for (std::size_t i=0; i<grid_points.shape()[0];++i){
+        for (std::size_t k=0; k<grid_points.shape()[2];++k){
             grid_points[i][0][k]=0.;         
             grid_points[i][grid_points.shape()[1]-1][k]=0.;
         }
