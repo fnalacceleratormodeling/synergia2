@@ -688,9 +688,11 @@ void
 Space_charge_3d_open_hockney::construct_workspaces(
         std::array<int, 3> const& s)
 {
+#if 0
     int lower = fft.get_lower();
     int upper = fft.get_upper();
     int nz = upper - lower;
+#endif
 
     int nx_real = fft.padded_nx_real();
     int nx_cplx = fft.padded_nx_cplx();

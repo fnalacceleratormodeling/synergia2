@@ -44,6 +44,13 @@ deposit_charge_rectangular_3d_omp_reduce(
         Rectangular_grid_domain& domain,
         std::array<int, 3> const& dims,
         Bunch const& bunch );
+
+void
+deposit_charge_rectangular_3d_omp_reduce_xyz(
+        karray1d_dev& rho_dev,
+        Rectangular_grid_domain& domain,
+        std::array<int, 3> const& dims,
+        Bunch const& bunch );
 #endif
 
 

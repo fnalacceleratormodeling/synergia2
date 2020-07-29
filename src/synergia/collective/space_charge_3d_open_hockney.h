@@ -72,20 +72,6 @@ CEREAL_REGISTER_TYPE(Space_charge_3d_open_hockney_options)
 /// grid shape expects [x][y][z] order.
 class Space_charge_3d_open_hockney : public Collective_operator
 {
-public:
-    enum Green_fn_type
-    {
-        pointlike = 1, linear = 2
-    };
-    enum Charge_density_comm
-    {
-        reduce_scatter = 1, charge_allreduce = 2
-    };
-    enum E_field_comm
-    {
-        gatherv_bcast = 1, allgatherv = 2, e_field_allreduce = 3
-    };
-
 private:
 
     const Space_charge_3d_open_hockney_options options;
