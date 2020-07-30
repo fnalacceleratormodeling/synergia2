@@ -408,7 +408,7 @@ public:
     void
     set_bucket_index(int index);
 
-    int
+    std::size_t
     get_bucket_index() const;
     
     bool

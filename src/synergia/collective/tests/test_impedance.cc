@@ -160,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Bunches_fixture)
  
   std::list< std::vector<Bunch_properties> >::const_iterator it=imped.get_stored_vbunches().begin();
   std::list< std::vector<Bunch_properties> >::const_iterator lit=imped_loaded.get_stored_vbunches().begin();
-  for (int st=0; st<imped.get_stored_vbunches().size(); ++st){  
+  for (int st=0; st<imped.get_stored_vbunches().size(); ++st){
       for (int nb=0; nb<bunches.size();++nb){
 	BOOST_CHECK_EQUAL(it->at(nb).x_mean, lit->at(nb).x_mean);
 	BOOST_CHECK_EQUAL(it->at(nb).y_mean, lit->at(nb).y_mean);
@@ -248,15 +248,15 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Bunches_fixture)
   BOOST_CHECK_EQUAL(imped.get_nstored_turns() ,  imped_loaded.get_nstored_turns()  );
   BOOST_CHECK_EQUAL(imped.get_num_buckets() ,  imped_loaded.get_num_buckets() );
   BOOST_CHECK_EQUAL(imped.get_train_wave().size(),imped_loaded.get_train_wave().size());
-  for (int i=0;i<imped.get_train_wave().size();++i){
+  for (std::size_t i=0;i<imped.get_train_wave().size();++i){
      BOOST_CHECK_EQUAL(imped.get_train_wave().at(i), imped_loaded.get_train_wave().at(i));
   } 
    
  
   std::list< std::vector<Bunch_properties> >::const_iterator it=imped.get_stored_vbunches().begin();
   std::list< std::vector<Bunch_properties> >::const_iterator lit=imped_loaded.get_stored_vbunches().begin();
-  for (int st=0; st<imped.get_stored_vbunches().size(); ++st){  
-      for (int nb=0; nb<bunches.size();++nb){
+  for (std::size_t st=0; st<imped.get_stored_vbunches().size(); ++st) {
+      for (std::size_t nb=0; nb<bunches.size();++nb){
 	BOOST_CHECK_EQUAL(it->at(nb).x_mean, lit->at(nb).x_mean);
 	BOOST_CHECK_EQUAL(it->at(nb).y_mean, lit->at(nb).y_mean);
 	BOOST_CHECK_EQUAL(it->at(nb).z_mean, lit->at(nb).z_mean);
@@ -296,15 +296,15 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Bunches_fixture)
   BOOST_CHECK_EQUAL(imped_clone_sptr->get_nstored_turns() ,  imped_loaded_clone.get_nstored_turns()  );
   BOOST_CHECK_EQUAL(imped_clone_sptr->get_num_buckets() ,  imped_loaded_clone.get_num_buckets() );
   BOOST_CHECK_EQUAL(imped_clone_sptr->get_train_wave().size(),imped_loaded_clone.get_train_wave().size());
-  for (int i=0;i<imped_clone_sptr->get_train_wave().size();++i){
+  for (std::size_t i=0;i<imped_clone_sptr->get_train_wave().size();++i){
      BOOST_CHECK_EQUAL(imped_clone_sptr->get_train_wave().at(i), imped_loaded_clone.get_train_wave().at(i));
   } 
    
  
   it=imped_clone_sptr->get_stored_vbunches().begin();
   lit=imped_loaded_clone.get_stored_vbunches().begin();
-  for (int st=0; st<imped_clone_sptr->get_stored_vbunches().size(); ++st){  
-      for (int nb=0; nb<bunches.size();++nb){
+  for (std::size_t st=0; st<imped_clone_sptr->get_stored_vbunches().size(); ++st){
+      for (std::size_t nb=0; nb<bunches.size();++nb){
 	BOOST_CHECK_EQUAL(it->at(nb).x_mean, lit->at(nb).x_mean);
 	BOOST_CHECK_EQUAL(it->at(nb).y_mean, lit->at(nb).y_mean);
 	BOOST_CHECK_EQUAL(it->at(nb).z_mean, lit->at(nb).z_mean);
