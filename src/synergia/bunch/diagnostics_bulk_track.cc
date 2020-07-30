@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <sstream>
 #include "diagnostics_bulk_track.h"
 #include "synergia/utils/parallel_utils.h"
 
@@ -84,6 +85,9 @@ Diagnostics_bulk_track::update()
             if (local_num_tracks + local_offset > get_bunch().get_local_num()) 
             {
                 local_num_tracks = get_bunch().get_local_num() - local_offset;
+            }
+            if (local_num_tracks < 0) {
+                local_num_tracks = 0;
             }
 
             // loop over my local tracks
@@ -230,8 +234,9 @@ Diagnostics_bulk_track::receive_other_local_coords(
                 int error = MPI_Recv((void*) &all_coords[array_offset][0],
                                      message_size, MPI_DOUBLE, rank, rank, comm, &status);
                 if (error != MPI_SUCCESS) {
-                    throw std::runtime_error(
-                                "Diagnostics_bulk_track::receive_other_local_coords: MPI_Recv failed.");
+                    std::stringstream ss("Diagnostics_bulk_track::receive_other_local_coords: MPI_Recv failed: ");
+                    ss << error;
+                    throw std::runtime_error(ss.str());
                 }
                 array_offset += local_num;
             }
@@ -254,8 +259,11 @@ Diagnostics_bulk_track::send_local_coords()
         status = MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
                           comm);
         if (status != MPI_SUCCESS) {
-            throw std::runtime_error(
-                        "Diagnostics_bulk_track::send_local_coords: MPI_Send failed.");
+            std::stringstream ss;
+            ss << "Diagnostics_bulk_track::send_local_coords: MPI_Send failed: ";
+            ss << status << "\n";
+            ss << get_filename() << " local_num_tracks: " << local_num_tracks << ", message_size: " << message_size << ", receiver: " << receiver << ", rank: " << rank;
+            throw std::runtime_error(ss.str());
         }
     }
 }
