@@ -1,5 +1,5 @@
-#ifndef DISTRIBUTED_FFT3D_CUDA_H_
-#define DISTRIBUTED_FFT3D_CUDA_H_
+#ifndef DISTRIBUTED_FFT3D_RECT_CUDA_H_
+#define DISTRIBUTED_FFT3D_RECT_CUDA_H_
 
 #include <vector>
 #include <string>
@@ -17,11 +17,15 @@ private:
     std::array<int, 3> shape;
     MPI_Comm comm;
 
-    cufftHandle plan;
-    cufftHandle invplan;
+    karray1d_dev datax;
+    karray1d_dev datay;
+
+    cufftHandle plan_x;
+    cufftHandle plan_y;
+    cufftHandle plan_z;
 
     int lower;
-    int nz;
+    int nx;
 
 public:
 
@@ -36,10 +40,10 @@ public:
 
 
     int get_lower() const { return lower; }
-    int get_upper() const { return lower + nz; }
+    int get_upper() const { return lower + nx; }
 
-    int padded_nx_real() const { return get_padded_shape_real(shape[0]); }
-    int padded_nx_cplx() const { return get_padded_shape_cplx(shape[0]); }
+    int padded_nz_real() const { return get_padded_shape_real(shape[2]); }
+    int padded_nz_cplx() const { return get_padded_shape_cplx(shape[2]); }
 
     std::array<int, 3> const& get_shape() const { return shape; }
 

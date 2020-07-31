@@ -1,5 +1,5 @@
-#ifndef DISTRIBUTED_FFT3D_H
-#define DISTRIBUTED_FFT3D_H
+#ifndef DISTRIBUTED_FFT3D_RECT_H
+#define DISTRIBUTED_FFT3D_RECT_H
 
 // discrete FFT on 3D grid. 
 // 2D DST-II on x-y plane and DFT along the z-axis

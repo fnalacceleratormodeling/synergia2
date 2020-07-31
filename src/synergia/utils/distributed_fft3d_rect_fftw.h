@@ -1,5 +1,5 @@
-#ifndef DISTRIBUTED_FFT3D_FFTW_H_
-#define DISTRIBUTED_FFT3D_FFTW_H_
+#ifndef DISTRIBUTED_FFT3D_RECT_FFTW_H_
+#define DISTRIBUTED_FFT3D_RECT_FFTW_H_
 
 #include <fftw3.h>
 #include <fftw3-mpi.h>
