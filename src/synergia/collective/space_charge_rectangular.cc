@@ -119,6 +119,50 @@ namespace
         { arr(i) = 0.0; }
     };
 
+    struct alg_phi
+    {
+        karray1d_dev phi;
+        int lower, gy, gz;
+        double igygz, igz;
+        double px, py, pz;
+        double gamma;
+
+        alg_phi(karray1d_dev const& phi,
+                int lower, int gy, int gz,
+                double px, double py, double pz,
+                double gamma)
+            : phi(phi)
+            , lower(lower), gy(gy), gz(gz)
+            , igygz(1.0/(gy*gz))
+            , igz(1.0/gz)
+            , px(px), py(py), pz(pz)
+            , gamma(gamma)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            const int ix = i * igygz;
+            const int iy = (i - ix*gy*gz) * igz;
+            const int iz = i - ix*gy*gz - iy*gz;
+
+            int xt = ix + lower + 1;
+            int yt = iy + 1;
+
+            double denominator 
+                = mconstants::pi * mconstants::pi * ( 
+                        xt*xt / (px*px) + 
+                        yt*yt / (py*py) + 
+                        4.0 * iz*iz / (pz*pz*gamma*gamma) );
+
+            int base = ix*gy*gz + iy*gz + iz;
+
+            phi(base*2+0) /= denominator;
+            phi(base*2+1) /= denominator;
+
+        }
+    };
+
     struct alg_force_extractor
     {
         karray1d_dev phi;
@@ -476,8 +520,6 @@ Space_charge_rectangular::get_local_phi(double gamma)
     fft.transform(rho, phihat);
     print_grid(l, phihat, 32, 36, 32, 33, 32, 33, 64, 64, 130);
 
-    MPI_Abort(MPI_COMM_WORLD, 333);
-
     int lower = fft.get_lower();
     int upper = fft.get_upper();
 
@@ -486,6 +528,16 @@ Space_charge_rectangular::get_local_phi(double gamma)
     auto g = domain.get_grid_shape();
     int gy = g[1];
     int gz_padded_cplx = g[2]/2 + 1;
+
+    alg_phi aphi(phihat, lower, gy, gz_padded_cplx,
+            ps[0], ps[1], ps[2], gamma);
+
+    Kokkos::parallel_for(
+            (upper-lower)*gy*gz_padded_cplx, aphi);
+
+    print_grid(l, phihat, 32, 36, 32, 33, 32, 33, 64, 64, 130);
+
+    MPI_Abort(MPI_COMM_WORLD, 333);
 
 #if 0
     for(int x=lower; x<upper; ++x)
