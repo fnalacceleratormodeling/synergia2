@@ -412,7 +412,7 @@ Space_charge_rectangular::get_local_charge_density(Bunch const& bunch)
     deposit_charge_rectangular_3d_omp_reduce_xyz(rho,
             domain, g, bunch);
 #else
-    deposit_charge_rectangular_3d_kokkos_scatter_view(rho,
+    deposit_charge_rectangular_3d_kokkos_scatter_view_xyz(rho,
             domain, g, bunch);
 #endif
 
@@ -470,11 +470,13 @@ Space_charge_rectangular::get_local_phi(double gamma)
     alg_zeroer az{phihat};
     Kokkos::parallel_for(phihat.extent(0), az);
 
-    //Logger l;
-    //print_grid(l, rho, 32, 36, 32, 33, 32, 33, 64, 64, 130);
+    Logger l;
+    print_grid(l, rho, 32, 36, 32, 33, 32, 33, 64, 64, 130);
 
     fft.transform(rho, phihat);
-    //print_grid(l, phihat, 32, 36, 32, 33, 32, 33, 64, 64, 130);
+    print_grid(l, phihat, 32, 36, 32, 33, 32, 33, 64, 64, 130);
+
+    MPI_Abort(MPI_COMM_WORLD, 333);
 
     int lower = fft.get_lower();
     int upper = fft.get_upper();
@@ -485,6 +487,7 @@ Space_charge_rectangular::get_local_phi(double gamma)
     int gy = g[1];
     int gz_padded_cplx = g[2]/2 + 1;
 
+#if 0
     for(int x=lower; x<upper; ++x)
     {
         int xt = x + 1;
@@ -508,6 +511,7 @@ Space_charge_rectangular::get_local_phi(double gamma)
             }
         }
     }
+#endif
 
     fft.inv_transform(phihat, phi);
     //phi_local->set_normalization(1./(4.*shape[0]*shape[1]*shape[2]*epsilon0));
