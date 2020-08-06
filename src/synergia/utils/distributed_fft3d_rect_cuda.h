@@ -17,12 +17,16 @@ private:
     std::array<int, 3> shape;
     MPI_Comm comm;
 
-    karray1d_dev datax;
-    karray1d_dev datay;
+    karray1d_dev data1;
+    karray1d_dev data2;
 
     cufftHandle plan_x;
     cufftHandle plan_y;
     cufftHandle plan_z;
+
+    cufftHandle inv_plan_x;
+    cufftHandle inv_plan_y;
+    cufftHandle inv_plan_z;
 
     int lower;
     int nx;
