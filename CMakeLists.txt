@@ -63,11 +63,13 @@ endif()
 set(MPIEXEC_NUMPROC_FLAG ${MPI_OVERSUBSCRIBE_FLAG} ${MPIEXEC_NUMPROC_FLAG})
 
 # OpenMP
-FIND_PACKAGE(OpenMP)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif ()
+if(${Kokkos_ENABLE_OPENMP})
+    FIND_PACKAGE(OpenMP)
+    if (OPENMP_FOUND)
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    endif ()
+endif()
 
 # hdf5
 set(HDF5_PREFER_PARALLEL true)
@@ -90,22 +92,24 @@ find_package(Eigen3 REQUIRED)
 list(APPEND extra_includes ${EIGEN3_INCLUDE_DIR})
 
 # fftw3
-find_package(FFTW3 REQUIRED)
-list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
+if(${Kokkos_ENABLE_OPENMP})
+    find_package(FFTW3 REQUIRED)
+    list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
 
-if(NOT FFTW3_MPI_FOUND)
-    message(FATAL_ERROR "Missing FFTW3-mpi")
+    if(NOT FFTW3_MPI_FOUND)
+        message(FATAL_ERROR "Missing FFTW3-mpi")
+    endif()
+
+    if (OPENMP_FOUND AND NOT FFTW3_OMP_FOUND)
+        message(FATAL_ERROR "FFTW3 openmp not found")
+    endif()
+
+    if(OPENMP_FOUND)
+        set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
+    else(OPENMP_FOUND)
+        set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})
+    endif(OPENMP_FOUND)
 endif()
-
-if (OPENMP_FOUND AND NOT FFTW3_OMP_FOUND)
-    message(FATAL_ERROR "FFTW3 openmp not found")
-endif()
-
-if(OPENMP_FOUND)
-    set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
-else(OPENMP_FOUND)
-    set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})
-endif(OPENMP_FOUND)
 
 # warnings
 string(APPEND ${CMAKE_CXX_FLAGS} "-Wall -Werror")
