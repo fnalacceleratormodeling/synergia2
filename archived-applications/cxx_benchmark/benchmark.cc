@@ -10,6 +10,7 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/foundation/distribution.h"
 #include "synergia/bunch/populate.h"
+#include "synergia/bunch/core_diagnostics.h"
 #include "synergia/bunch/diagnostics_basic.h"
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
@@ -64,7 +65,51 @@ run(Benchmark_options const& opts)
     xml_load(means, "cxx_means.xml");
     MArray2d covariances;
     xml_load(covariances, "cxx_covariance_matrix.xml");
+
+    // On cori with the Intel compiler, there is a bizarre bug that
+    //  reads in the correlation matrix incorrectly.
+#if 0   // enable for cori
+    // strangely, each row has to be flipped
+    for (int r=0; r<6; ++r) {
+        for (int c=0; c<3; ++c) {
+            double t=covariances[r][c];
+            covariances[r][c] = covariances[r][5-c];
+            covariances[r][5-c] = t;
+        }
+    }
+#endif
+
+    if (comm_sptr->get_rank() == 0) {
+        std::cout.precision(16);
+        for (int i=0; i<6; ++i) {
+            if (i != 0) {
+                std::cout << std::endl;
+            }
+            for (int j=0; j<6; ++j) {
+                if (j != 0) {
+                    std::cout << " ";
+                }
+                std::cout << covariances[i][j];
+            }
+        }
+        std::cout << std::endl;
+    }
     populate_6d(distribution, *bunch_sptr, means, covariances);
+    MArray1d bunch_means(Core_diagnostics::calculate_mean(*bunch_sptr));
+    MArray1d bunch_stds(Core_diagnostics::calculate_std(*bunch_sptr, bunch_means));
+    if (comm_sptr->get_rank() == 0) {
+        std::cout.precision(16);
+        std::cout << "Bunch means:";
+        for (int i=0; i<6; ++i) {
+            std::cout << " " << bunch_means[i];
+        }
+        std::cout << std::endl;
+        std::cout << "Bunch stds:";
+        for (int i=0; i<6; ++i) {
+            std::cout << " " << bunch_stds[i];
+        }
+        std::cout << std::endl;
+    }
     if (opts.sortperiod > 0) {
         bunch_sptr->sort(Bunch::z);
     }
