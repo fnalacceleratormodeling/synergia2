@@ -12,12 +12,10 @@ void
 run()
 {
     MArray2d covariance(boost::extents[6][6]);
+    double c = 1.0;
     for (int i=0; i<6; ++i) {
-        covariance[i][i] = i;
-        if (i%2 == 0) {
-            covariance[i][i+1] = i+0.5;
-        } else {
-            covariance[i][i-1] = i-0.5;
+        for (int j=0; j<6; ++j) {
+            covariance[i][j] = c++;
         }
     }
 
