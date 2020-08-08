@@ -25,3 +25,6 @@ target_link_libraries(cxx_read_binary synergia_simulation synergia_serialization
 add_executable(cxx_write_binary cxx_write_binary.cc)
 target_link_libraries(cxx_write_binary synergia_simulation synergia_serialization)
 
+add_executable(bunchgen bunchgen.cc)
+target_link_libraries(bunchgen synergia_bunch synergia_foundation synergia_parallel_utils)
+
