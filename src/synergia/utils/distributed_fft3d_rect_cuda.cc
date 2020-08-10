@@ -385,7 +385,7 @@ void Distributed_fft3d_rect::construct(std::array<int, 3> const & new_shape, MPI
     comm = new_comm;
 
     lower = 0;
-    nx = shape[2];
+    nx = shape[0];
 
     // (x*2, y, z) of a complex grid for batched DST along x
     // (x, y*2, z) of a complex grid for batched DST along y
