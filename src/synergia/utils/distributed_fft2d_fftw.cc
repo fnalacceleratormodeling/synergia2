@@ -1,21 +1,20 @@
 #include <cstring>
 #include <stdexcept>
-#include "distributed_fft2d_fftw.h"
+#include "distributed_fft2d.h"
 
 Distributed_fft2d::Distributed_fft2d()
-    : shape()
-    , comm(MPI_COMM_NULL)
+    : Distributed_fft2d_base()
     , plan(nullptr)
     , inv_plan(nullptr)
     , data(nullptr)
     , workspace(nullptr)
-    , lower(0)
-    , nx(0)
 {
     fftw_mpi_init();
 }
 
-void Distributed_fft2d::construct(std::array<int, 3> const & new_shape, MPI_Comm new_comm)
+void Distributed_fft2d::construct(
+        std::array<int, 3> const & new_shape, 
+        Commxx const& new_comm)
 {
     if (data || workspace)
     {
@@ -30,19 +29,14 @@ void Distributed_fft2d::construct(std::array<int, 3> const & new_shape, MPI_Comm
     data = nullptr;
     workspace = nullptr;
 
-    if (new_comm == MPI_COMM_NULL) 
-    {
-        comm = MPI_COMM_NULL;
+    if (new_comm.is_null()) 
         return;
-    }
 
-    int comm_size;
-    MPI_Comm_size(new_comm, &comm_size);
-
-    if (comm_size/2 >= new_shape[0]/2) 
+    if (new_comm.size()/2 >= new_shape[0]/2) 
     {
         throw std::runtime_error(
-                "Distributed_fft2d: (number of processors)/2 must be <= shape[0]/2");
+                "Distributed_fft2d: (number of processors)/2 "
+                "must be <= shape[0]/2");
     }
 
     shape = new_shape;
@@ -78,11 +72,12 @@ void Distributed_fft2d::construct(std::array<int, 3> const & new_shape, MPI_Comm
 
 void
 Distributed_fft2d::transform(
-        karray1d_dev & in, 
-        karray1d_dev & out)
+        karray1d_dev& in, 
+        karray1d_dev& out)
 {
     if (!data || !workspace)
-        throw std::runtime_error("Distributed_fft2d::transform() uninitialized" );
+        throw std::runtime_error(
+                "Distributed_fft2d::transform() uninitialized" );
 
     memcpy( (void*)data, (void*)&in(lower*shape[1]*2),
             nx * shape[1] * sizeof(double) * 2);
@@ -95,11 +90,12 @@ Distributed_fft2d::transform(
 
 void
 Distributed_fft2d::inv_transform(
-        karray1d_dev & in, 
-        karray1d_dev & out)
+        karray1d_dev& in, 
+        karray1d_dev& out)
 {
     if (!data || !workspace)
-        throw std::runtime_error("Distributed_fft2d::transform() uninitialized" );
+        throw std::runtime_error(
+                "Distributed_fft2d::transform() uninitialized" );
 
     memcpy( (void*)workspace, (void*)&in(lower*shape[1]*2),
             nx * shape[1] * sizeof(double) * 2);
@@ -108,12 +104,6 @@ Distributed_fft2d::inv_transform(
 
     memcpy( (void*)&out(lower*shape[1]*2), (void*)data,
             nx * shape[1] * sizeof(double) * 2);
-}
-
-double
-Distributed_fft2d::get_roundtrip_normalization() const
-{
-    return 1.0 / (shape[0] * shape[1] );
 }
 
 Distributed_fft2d::~Distributed_fft2d()
