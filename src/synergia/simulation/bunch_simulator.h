@@ -165,6 +165,9 @@ public:
             Commxx const& comm = Commxx()
             );
 
+    // bunch simulator id
+    std::string const& id() const
+    { return uuid; }
 
     // register a per-turn diagnostics (with an optional turn period)
     // the train and bunch are indexed based on actual number of
@@ -296,6 +299,8 @@ public:
 
 private:
 
+    std::string uuid;
+
     int curr_turn = 0;   // current progress in turns
     int num_turns = -1;  // total number of turns (-1 no limit)
 
@@ -322,6 +327,8 @@ private:
     template<class AR>
     void serialize(AR & ar)
     {
+        ar(CEREAL_NVP(uuid));
+
         ar(CEREAL_NVP(curr_turn));
         ar(CEREAL_NVP(num_turns));
 

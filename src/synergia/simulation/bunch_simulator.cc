@@ -1,10 +1,45 @@
 #include <numeric>
+#include <random>
+#include <sstream>
 
 #include "synergia/simulation/bunch_simulator.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/independent_operation.h"
 
+
 namespace impl {
+
+    static std::random_device              rd;
+    static std::mt19937                    gen(rd());
+    static std::uniform_int_distribution<> dis(0, 15);
+    static std::uniform_int_distribution<> dis2(8, 11);
+
+    std::string generate_uuid_v4() {
+        std::stringstream ss;
+        int i;
+        ss << std::hex;
+        for (i = 0; i < 8; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        for (i = 0; i < 4; i++) {
+            ss << dis(gen);
+        }
+        ss << "-4";
+        for (i = 0; i < 3; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        ss << dis2(gen);
+        for (i = 0; i < 3; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        for (i = 0; i < 12; i++) {
+            ss << dis(gen);
+        };
+        return ss.str();
+    }
 
     void divide_bunches(int size, 
             size_t num_bunches_pri, 
@@ -285,8 +320,9 @@ Bunch_simulator::Bunch_simulator(
         Bunch_train && pt, 
         Bunch_train && st,
         std::shared_ptr<Commxx> const& comm )
-    : trains{std::move(pt), std::move(st)}
+    : uuid(impl::generate_uuid_v4())
     , comm(std::move(comm))
+    , trains{std::move(pt), std::move(st)}
     , diags_step_period()
     , diags_step_listed()
     , diags_element()
