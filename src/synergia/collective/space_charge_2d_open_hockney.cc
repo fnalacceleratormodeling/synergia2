@@ -304,37 +304,51 @@ namespace
 
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
-        Space_charge_2d_open_hockney_options const & ops)
+        Space_charge_2d_open_hockney_options const& ops)
     : Collective_operator("sc_2d_open_hockney", 1.0)
     , options(ops)
+    , bunch_sim_id()
     , domain(ops.shape, {1.0, 1.0, 1.0})
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
     , particle_bin()
-    , fft()
-    , comm(Commxx::Null)
+    , ffts()
 {
 }
 
 void 
 Space_charge_2d_open_hockney::apply_impl(
-            Bunch_simulator & simulator, 
+            Bunch_simulator& sim, 
             double time_step, 
-            Logger & logger)
+            Logger& logger)
 {
     logger << "    Space charge 2d open hockney\n";
 
     scoped_simple_timer timer("sc2d_total");
-    apply_bunch(simulator[0][0], time_step, logger);
+
+    // construct the workspace for a new bunch simulator
+    if (bunch_sim_id != sim.id())
+    {
+        construct_workspaces(sim);
+        bunch_sim_id = sim.id();
+    }
+
+    // apply to bunches
+    for(size_t t=0; t<2; ++t)
+    {
+        for(size_t b=0; b<sim[t].get_bunch_array_size(); ++b)
+        {
+            apply_bunch(sim[t][b], ffts[t][b], time_step, logger);
+        }
+    }
 }
 
 void
 Space_charge_2d_open_hockney::apply_bunch(
-            Bunch & bunch, 
+            Bunch& bunch, 
+            Distributed_fft2d& fft,
             double time_step, 
-            Logger & logger)
+            Logger& logger)
 {
-    setup_communication(bunch.get_comm());
-
     update_domain(bunch);
 
     get_local_charge_density(bunch); // [C/m^3]
@@ -342,39 +356,21 @@ Space_charge_2d_open_hockney::apply_bunch(
 
     get_green_fn2_pointlike();
 
-    get_local_force2();
-    get_global_force2();
+    get_local_force2(fft);
+    get_global_force2(fft.get_comm());
 
-    auto fn_norm = get_normalization_force(bunch);
+    auto fn_norm = get_normalization_force(bunch, fft);
 
     apply_kick(bunch, fn_norm, time_step);
 }
 
 void
-Space_charge_2d_open_hockney::setup_communication(Commxx const & bunch_comm)
+Space_charge_2d_open_hockney::construct_workspaces(
+        Bunch_simulator const& sim)
 {
-    scoped_simple_timer timer("sc2d_comm");
+    scoped_simple_timer timer("sc2d_workspaces");
 
-    if (comm.is_null()) 
-    {
-        scoped_simple_timer t2("sc2d_comm_comm");
-        comm = bunch_comm.divide(options.comm_group_size);
-    }
-
-    if (options.doubled_shape != fft.get_shape()) 
-    {
-        scoped_simple_timer t3("sc2d_comm_fft");
-        fft.construct(options.doubled_shape, comm);
-        construct_workspaces(options.doubled_shape);
-    }
-}
-
-void
-Space_charge_2d_open_hockney::construct_workspaces(std::array<int, 3> const& s)
-{
-    int lower = fft.get_lower();
-    int upper = fft.get_upper();
-    int nx = upper - lower;
+    auto const& s = options.doubled_shape;
 
     rho2 = karray1d_dev("rho2", s[0] * s[1] * 2 + s[2]);
       g2 = karray1d_dev(  "g2", s[0] * s[1] * 2);
@@ -382,6 +378,19 @@ Space_charge_2d_open_hockney::construct_workspaces(std::array<int, 3> const& s)
 
     h_rho2 = Kokkos::create_mirror_view(rho2);
     h_phi2 = Kokkos::create_mirror_view(phi2);
+
+    for(size_t t=0; t<2; ++t)
+    {
+        for(size_t b=0; b<sim[t].get_bunch_array_size(); ++b)
+        {
+            auto comm = sim[t][b]
+                .get_comm()
+                .divide(options.comm_group_size);
+
+            ffts[t].emplace_back();
+            ffts[t].back().construct(s, comm);
+        }
+    }
 }
  
 void
@@ -498,7 +507,7 @@ Space_charge_2d_open_hockney::get_green_fn2_pointlike()
 }
 
 void
-Space_charge_2d_open_hockney::get_local_force2()
+Space_charge_2d_open_hockney::get_local_force2(Distributed_fft2d& fft)
 {
     scoped_simple_timer timer("sc2d_local_f");
 
@@ -512,7 +521,7 @@ Space_charge_2d_open_hockney::get_local_force2()
     Kokkos::fence();
 
     // zero phi2 when using multiple ranks
-    if (comm.size() > 1)
+    if (fft.get_comm().size() > 1)
     {
         alg_zeroer az{phi2};
         Kokkos::parallel_for(dg[0]*dg[1]*2, az);
@@ -533,7 +542,7 @@ Space_charge_2d_open_hockney::get_local_force2()
 }
 
 void
-Space_charge_2d_open_hockney::get_global_force2()
+Space_charge_2d_open_hockney::get_global_force2(Commxx const& comm)
 {
     // do nothing if the solver only has a single rank
     if (comm.size() == 1) return;
@@ -562,7 +571,8 @@ Space_charge_2d_open_hockney::get_global_force2()
 }
 
 double
-Space_charge_2d_open_hockney::get_normalization_force(Bunch const & bunch)
+Space_charge_2d_open_hockney::get_normalization_force(
+        Bunch const & bunch, Distributed_fft2d const& fft)
 {
     auto h = domain.get_cell_size();
 

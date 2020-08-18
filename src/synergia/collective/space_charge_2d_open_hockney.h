@@ -62,13 +62,16 @@ private:
 
     const Space_charge_2d_open_hockney_options options;
 
+    // cached bunch simulator id
+    // if the id is changed, the workspace needs to be reconstructed
+    std::string bunch_sim_id;
+
     Rectangular_grid_domain domain;
     Rectangular_grid_domain doubled_domain;
 
     karray2d_dev particle_bin;
 
-    Distributed_fft2d fft;
-    Commxx comm;
+    std::array<std::vector<Distributed_fft2d>, 2> ffts;
 
     karray1d_dev rho2;
     karray1d_dev phi2;
@@ -77,38 +80,45 @@ private:
     karray1d_hst h_rho2;
     karray1d_hst h_phi2;
 
-    void construct_workspaces(std::array<int, 3> const& s);
+private:
+
+    void construct_workspaces(
+            Bunch_simulator const& sim);
 
     void apply_impl(
-            Bunch_simulator & simulator, 
+            Bunch_simulator& simulator, 
             double time_step, 
-            Logger & logger) override;
+            Logger& logger) override;
 
     void apply_bunch(
-            Bunch & bunch, 
+            Bunch& bunch, 
+            Distributed_fft2d& fft,
             double time_step, 
-            Logger & logger);
+            Logger& logger);
 
-    void setup_communication(Commxx const & bunch_comm);
-    void update_domain(Bunch const & bunch);
+    void update_domain(Bunch const& bunch);
 
     void get_local_charge_density(Bunch const& bunch);
-    void get_green_fn2_pointlike();
-    void get_local_force2();
+    void get_global_charge_density(Bunch const& bunch);
 
-    void get_global_charge_density(Bunch const & bunch);
-    void get_global_force2();
+    void get_green_fn2_pointlike();
+
+    void get_local_force2(Distributed_fft2d& fft);
+    void get_global_force2(Commxx const& comm);
 
     void apply_kick(
-            Bunch & bunch,
+            Bunch& bunch,
             double fn_norm,
             double time_step );
 
-    double get_normalization_force(Bunch const & bunch);
+    double get_normalization_force(
+            Bunch const& bunch,
+            Distributed_fft2d const& fft);
 
 public:
 
-    Space_charge_2d_open_hockney(Space_charge_2d_open_hockney_options const & ops);
+    Space_charge_2d_open_hockney(
+            Space_charge_2d_open_hockney_options const & ops);
 
 };
 
