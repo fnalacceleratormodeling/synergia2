@@ -338,7 +338,7 @@ Bunch_simulator::get_bunch_array_idx(int train, int bunch) const
     if (train > 1) return -1;
     if (bunch >= trains[train].get_num_bunches()) return -1;
 
-    return trains[train].get_bunch_array_idx(bunch);
+    return trains[train].get_array_idx_of_bunch(bunch);
 }
 
 bool
