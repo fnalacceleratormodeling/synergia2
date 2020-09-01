@@ -333,7 +333,7 @@ Wake_field::Wake_field(
     }
 
     // create device view and deep copy from host
-    terms = Kokkos::create_mirror_view(h_terms);
+    terms = karray1d_dev("terms", size_wake*6);
     Kokkos::deep_copy(terms, h_terms);
   } 
   catch (std::exception const& e)

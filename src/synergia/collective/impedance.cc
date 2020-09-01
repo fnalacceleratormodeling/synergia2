@@ -60,8 +60,11 @@ namespace
             {
                 int bin = (p(i, 4) - z_left) * recip_h;
 
+#if 0
+                // no throw in the CUDA kernel
                 if (bin < 0 || bin >= z_grid)
                     throw std::runtime_error("impedance z-binning out of range");
+#endif
 
                 sum[z_grid*0 + bin] += 1;        // zdensity
                 sum[z_grid*1 + bin] += p(i, 0);  // xmom
@@ -203,7 +206,7 @@ namespace
             };
 
             Kokkos::parallel_reduce(
-                    TeamThreadRange(member, z_grid),
+                    Kokkos::TeamThreadRange(member, z_grid),
                     z_wake_reduce,
                     array_sum_res_t(sum) 
             );
@@ -263,10 +266,10 @@ Impedance::apply_impl(Bunch_simulator& sim,
 void
 Impedance::construct_workspaces(Bunch_simulator const& sim)
 {
-    zbinning = karray1d("zbinning", opts.z_grid*3);
+    zbinning = karray1d_dev("zbinning", opts.z_grid*3);
     h_zbinning = Kokkos::create_mirror_view(zbinning);
 
-    wakes = karray1d("wakes", opts.z_grid*5);
+    wakes = karray1d_dev("wakes", opts.z_grid*5);
     h_wakes = Kokkos::create_mirror_view(wakes);
 }
 
