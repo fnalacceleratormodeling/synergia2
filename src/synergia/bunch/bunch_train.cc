@@ -163,19 +163,22 @@ Bunch_train::Bunch_train(
 
     for (int b=0; b<bunches_per_rank; ++b)
     {
-        int  b_idx = b + color * bunches_per_rank;
-        bunch_idx_map[b_idx] = bunches.size();
+        // bunch_index and array_index
+        int b_idx = b + color * bunches_per_rank;
+        int a_idx = bunches.size();
 
-        auto bunch_comm = comm->split(color);
+        // construct the idx map
+        bunch_idx_map[b_idx] = a_idx;
 
+        // construct and push bunch object
         bunches.emplace_back( ref, 
                 num_particles_per_bunch,
                 num_real_particles_per_bunch,
-                bunch_comm,
+                comm->split(color),
                 0,             // num of specatator particles
                 b_idx,         // bunch index in the train
                 b_idx,         // bucket index set to the same of bunch index
-                bunches.size() // array index in the bunches array
+                a_idx          // array index in the bunches array
                 );
     }
 }

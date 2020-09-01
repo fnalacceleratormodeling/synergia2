@@ -53,21 +53,18 @@ public:
             Commxx const & comm = Commxx(),
             int index = 0 );
 
-    // index of the train (0 or 1)
-    int get_index() const
-    { return index; }
-
-    // number of bunches on this rank (size of the bunch array)
-    size_t get_bunch_array_size() const
-    { return bunches.size(); }
-
-    int get_bunch_array_idx(int bunch) const
-    { return bunch_idx_map[bunch]; }
+    // Get the communicator
+    Commxx const& get_comm() const { return *comm; }
 
     // total number of bunches in the train. it is not always
     // the same as the size of the bunch array
     int get_num_bunches() const
     { return num_bunches; }
+
+    // number of local bunches on this rank. alias for 
+    // get_bunch_array_size()
+    int get_num_local_bunches() const
+    { return get_bunch_array_size(); }
 
     // number of buckets. it is not necessary for the bunches to
     // occupy consecutive buckets, so there might be some empty
@@ -76,19 +73,38 @@ public:
     int get_num_buckets() const
     { return num_buckets; }
 
-    Bunch & operator[](size_t idx)
-    { return bunches[idx]; }
+    // index of the train (0 or 1)
+    int get_index() const
+    { return index; }
 
-    Bunch const & operator[](size_t idx) const
-    { return bunches[idx]; }
+    // number of bunches on this rank (size of the bunch array)
+    size_t get_bunch_array_size() const
+    { return bunches.size(); }
 
-    std::vector<Bunch> & get_bunches()
+    // get the local array index from the bunch index in the train
+    // returns -1 if the bunch is not available locally
+    int get_array_idx_of_bunch(int bunch_idx) const
+    { return bunch_idx_map[bunch_idx]; }
+
+    // get the bunch index in the train from the local array index
+    int get_train_idx_of_bunch(int array_idx) const
+    { return bunches[array_idx].get_bunch_index(); }
+
+    // access the local bunch
+    Bunch& operator[](size_t array_idx)
+    { return bunches[array_idx]; }
+
+    Bunch const& operator[](size_t array_idx) const
+    { return bunches[array_idx]; }
+
+    // access the local bunch array
+    std::vector<Bunch>& get_bunches()
     { return bunches; }
 
-    std::vector<Bunch> const & get_bunches() const
+    std::vector<Bunch> const& get_bunches() const
     { return bunches; }
 
-    std::vector<double > & get_spacings();
+    std::vector<double>& get_spacings();
 
     // update the total particle number for all bunches in the bunch train
     // note that calling each bunch's update_total_num() wont do the actual
