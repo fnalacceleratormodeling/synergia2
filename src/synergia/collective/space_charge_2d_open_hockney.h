@@ -82,9 +82,6 @@ private:
 
 private:
 
-    void construct_workspaces(
-            Bunch_simulator const& sim);
-
     void apply_impl(
             Bunch_simulator& simulator, 
             double time_step, 
@@ -96,15 +93,25 @@ private:
             double time_step, 
             Logger& logger);
 
-    void update_domain(Bunch const& bunch);
+    void construct_workspaces(
+            Bunch_simulator const& sim);
 
-    void get_local_charge_density(Bunch const& bunch);
-    void get_global_charge_density(Bunch const& bunch);
+    void update_domain(
+            Bunch const& bunch);
+
+    void get_local_charge_density(
+            Bunch const& bunch);
+
+    void get_global_charge_density(
+            Bunch const& bunch);
 
     void get_green_fn2_pointlike();
 
-    void get_local_force2(Distributed_fft2d& fft);
-    void get_global_force2(Commxx const& comm);
+    void get_local_force2(
+            Distributed_fft2d& fft);
+
+    void get_global_force2(
+            Commxx const& comm);
 
     void apply_kick(
             Bunch& bunch,
