@@ -1,24 +1,138 @@
 #ifndef IMPEDANCE_H_
-#define  IMPEDANCE_H_
+#define IMPEDANCE_H_
+
 #include "wake_field.h"
+
 #include "synergia/simulation/operator.h"
-#include "synergia/simulation/step.h"
-#include "synergia/bunch/bunch.h"
-#include "synergia/utils/serialization.h"
-#include "synergia/utils/commxx.h"
+#include "synergia/simulation/collective_operator_options.h"
 
- struct Bunch_properties
- {
-     double x_mean;
-     double y_mean;
-     double z_mean;
-     double realnum;
-     int bucket_index;
-     template<class Archive>
-         void
-         serialize(Archive & ar, const unsigned int version);
- };
 
+struct Impedance_options : public CO_options
+{
+    std::string wake_file;
+    std::string wake_type;
+
+    int z_grid;
+    bool full_machine;
+
+    int nstored_turns;
+    int num_buckets;
+    double orbit_length;
+    double bunch_spacing;
+
+    std::array<int, 3> wn;
+
+    Impedance_options(
+            std::string const& wake_file = "",
+            std::string const& wake_type = "",
+            int z_grid = 1000 )
+        : wake_file(wake_file)
+        , wake_type(wake_type)
+        , z_grid(z_grid)
+        , full_machine(false)
+        , nstored_turns(1)
+        , num_buckets(1)
+    { }
+
+    CO_options* clone() const override
+    { return new Impedance_options(*this); }
+
+    Collective_operator * create_operator() const override;
+
+    template<class Archive>
+    void serialize(Archive & ar)
+    { 
+        ar(cereal::base_class<CO_options>(this));
+    }
+};
+
+
+CEREAL_REGISTER_TYPE(Impedance_options)
+
+struct Bunch_properties
+{
+    double x_mean;
+    double y_mean;
+    double z_mean;
+    double realnum;
+    int bucket_index;
+};
+
+struct Bunch_params
+{
+    double z_mean;
+    double z_left;
+    double cell_size_z;
+    double N_factor;
+};
+
+class Impedance : public Collective_operator
+{
+private:
+
+    const Impedance_options opts;
+    std::string bunch_sim_id;
+
+    int nstored_turns;
+    std::list<std::vector<Bunch_properties>> stored_vbunches;
+
+    // z_grid*3, in the fortran order for
+    // zdensity, xmom, ymom
+    karray1d_dev zbinning;
+    karray1d_hst h_zbinning;
+
+    // buffer for wake fields
+    // z_grid*5, in the fortran order for
+    // xwake_leading, xwake_trailing,
+    // ywake_leading, ywake_trailing,
+    // zwake0
+    karray1d_dev wakes;
+    karray1d_hst h_wakes;
+
+    Wake_field wake_field;
+
+private:
+
+    void apply_impl(
+            Bunch_simulator& simulator, 
+            double time_step, 
+            Logger& logger) override;
+
+    void apply_bunch(
+            Bunch& bunch, 
+            double time_step, 
+            Logger& logger);
+
+    void construct_workspaces(
+            Bunch_simulator const& sim);
+
+    void store_bunches_data(
+            Bunch_simulator const& sim);
+
+    Bunch_params
+    calculate_moments_and_partitions(
+            Bunch const& bunch);
+
+    void calculate_kicks(
+            Bunch const& bunch,
+            Bunch_params const& bp);
+
+    void apply_impedance_kick(
+            Bunch& bunch, 
+            double wake_factor);
+
+public:
+
+    Impedance(Impedance_options const& ops);
+};
+
+inline Collective_operator * 
+Impedance_options::create_operator() const
+{ return new Impedance(*this); }
+
+
+
+#if 0
 
 class Impedance : public Collective_operator
 {
@@ -138,16 +252,8 @@ private:
             Train_diagnosticss const& per_operation_train_diagnosticss, 
             Propagate_actions * propagate_actions_ptr, Stepper & stepper, int step_count,  int turn, 
             Logger & logger);
-            
-    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version); 
-    virtual
-    ~Impedance();
 };
-
-BOOST_CLASS_EXPORT_KEY(Impedance);
-typedef boost::shared_ptr<Impedance> Impedance_sptr; // syndoc:include
+#endif
 
 #endif /* IMPEDANCE_H_ */
 

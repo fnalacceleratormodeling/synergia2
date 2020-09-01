@@ -9,8 +9,8 @@ add_library(synergia_collective
     #space_charge_2d_bassetti_erskine.cc
     #space_charge_2d_kv.cc
     space_charge_rectangular.cc 
-    #impedance.cc 
-    #wake_field.cc 
+    impedance.cc 
+    wake_field.cc 
     #diagnostics_space_charge.cc
     )
 
