@@ -3,15 +3,38 @@
 #include <stdexcept>
 #include <sstream>
 
-Wake_field::Wake_field(std::string const & wake_file, std::string const & wake_type):
-wake_file(wake_file), wake_type(wake_type)
+Wake_field::Wake_field(
+        std::string const& wake_file, 
+        std::string const& wake_type)
+    : wake_file(wake_file)
+    , wake_type(wake_type)
 {
+
+    std::cout << "wake file read\n";
   
-  try{
+  try
+  {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);  
-    int size_wake;
-    if (rank==0){
+
+    if (rank==0)
+    {
+        std::vector<double> z_coord_v;    
+        std::vector<double> z_wake_v;
+
+        std::vector<double> xw_lead_v;
+        // i.e. wake term proportional with the displacement of the leading (source) particle
+
+        std::vector<double> xw_trail_v; 
+        // i.e. wake term proportional with the displacement of the trailing (affected) particle
+
+        std::vector<double> yw_lead_v;
+        // i.e. wake term proportional with the displacement of the leading (source) particle
+
+        std::vector<double> yw_trail_v;
+        // i.e. wake term proportional with the displacement of the trail particle
+
+
       // read the wakes from the file wake_file     
       // for parallel plates geometry wake file should be written as a four column file such, containing wakes functions such:
       //  z[m]        Wz_trx/Z_0/L[1/(m^2*s]       Wz_try/Z_0/L[1/(m^2*s]        Wz_l/Z_0/L[1/(ms)]   
@@ -19,12 +42,15 @@ wake_file(wake_file), wake_type(wake_type)
 	    std::ifstream rfile;
 	    std::string line;
 	    rfile.open(wake_file.c_str());
+
 	    int num_columns_prev(-1);
-	    while (!rfile.eof() && rfile.is_open()) {
+	    while (!rfile.eof() && rfile.is_open()) 
+        {
 	      std::vector<double> temp_wake;
 	      getline(rfile,line);
 	      
-	      if ( !line.empty() ){  
+	      if ( !line.empty() )
+          {  
 		  size_t pos=line.find_first_not_of(" \t\r\n");
 		  if (pos !=std::string::npos){
 		      if (line.at(pos) != '#' ){
@@ -36,33 +62,39 @@ wake_file(wake_file), wake_type(wake_type)
 			      num_columns++;			  
 			    }
 			    
-			    if (!((num_columns_prev ==-1) || (num_columns_prev == num_columns)))  throw
-				std::runtime_error(" the number of columns in the wake file is not the same on all lines");
+			    if (!((num_columns_prev ==-1) || (num_columns_prev == num_columns)))  
+                    throw std::runtime_error(" the number of columns in the wake file is not the same on all lines");
+
 			    num_columns_prev=num_columns;
-			    if (num_columns==1) throw
-				  std::runtime_error(" the wake file has only one column");
+
+			    if (num_columns==1) 
+                    throw std::runtime_error(" the wake file has only one column");
 			    
-			    if (num_columns==2) {
-				  if (temp_wake.size()!=2) throw std::runtime_error(" temp_wake size should be 2 in this case");
-				  z_coord.push_back(temp_wake[0]);				 				 
-				  if (get_wake_type()=="Z") {
-				      z_wake.push_back(temp_wake[1]);
+			    if (num_columns==2) 
+                {
+				  if (temp_wake.size()!=2) 
+                      throw std::runtime_error(" temp_wake size should be 2 in this case");
+
+				  z_coord_v.push_back(temp_wake[0]);				 				 
+
+				  if (wake_type=="Z") {
+				      z_wake_v.push_back(temp_wake[1]);
 				  }  				 
-				  /* else if(get_wake_type()=="XL") {
+				  /* else if(wake_type=="XL") {
 				      xw_lead.push_back(temp_wake[1]);
 				  }
-				  else if(get_wake_type()=="XT") {
+				  else if(wake_type=="XT") {
 				      xw_trail.push_back(temp_wake[1]);
 				  }
-				    else if(get_wake_type()=="YL") {
+				    else if(wake_type=="YL") {
 				      yw_lead.push_back(temp_wake[1]);
 				  }
-				  else if(get_wake_type()=="YT") {
+				  else if(wake_type=="YT") {
 				      yw_trail.push_back(temp_wake[1]);
 				  } */
-				  else if (get_wake_type()=="XLYL") {				   
-				      xw_lead.push_back(temp_wake[1]);
-				      yw_lead.push_back(temp_wake[1]);
+				  else if (wake_type=="XLYL") {				   
+				      xw_lead_v.push_back(temp_wake[1]);
+				      yw_lead_v.push_back(temp_wake[1]);
 				  }
 				  else{
 				    throw
@@ -73,61 +105,61 @@ wake_file(wake_file), wake_type(wake_type)
 			    
 			    if (num_columns==3) {
 				  if (temp_wake.size()!=3) throw std::runtime_error(" temp_wake size should be 3 in this case");
-				  z_coord.push_back(temp_wake[0]);				 				 
-				  /*if (get_wake_type()=="XLZ") {
+				  z_coord_v.push_back(temp_wake[0]);				 				 
+				  /*if (wake_type=="XLZ") {
 				      xw_lead.push_back(temp_wake[1]);
 				      z_wake.push_back(temp_wake[2]);				    
 				  }  
-				  if (get_wake_type()=="XTZ") {
+				  if (wake_type=="XTZ") {
 				      xw_trail.push_back(temp_wake[1]);
 				      z_wake.push_back(temp_wake[2]);				    
 				  }  
-				  if (get_wake_type()=="YLZ") {
+				  if (wake_type=="YLZ") {
 				      yw_lead.push_back(temp_wake[1]);
 				      z_wake.push_back(temp_wake[2]);				    
 				  } 
-				  if (get_wake_type()=="YTZ") {
+				  if (wake_type=="YTZ") {
 				      yw_trail.push_back(temp_wake[1]);
 				      z_wake.push_back(temp_wake[2]);				    
 				  } 
-				  if (get_wake_type()=="XLYL") {
+				  if (wake_type=="XLYL") {
 				      xw_lead.push_back(temp_wake[1]);
 				      yw_lead.push_back(temp_wake[2]);					    
 				  } 
-				  if (get_wake_type()=="XTYT") {
+				  if (wake_type=="XTYT") {
 				      xw_trail.push_back(temp_wake[1]);
 				      yw_trail.push_back(temp_wake[2]);					    
 				  } 
-				  if (get_wake_type()=="XLXT") {
+				  if (wake_type=="XLXT") {
 				      xw_lead.push_back(temp_wake[1]);
 				      xw_trail.push_back(temp_wake[2]);					    
 				  } 
-				  if (get_wake_type()=="YLYT") {
+				  if (wake_type=="YLYT") {
 				      yw_lead.push_back(temp_wake[1]);
 				      yw_trail.push_back(temp_wake[2]);					    
 				  } 			*/	 
-				  if (get_wake_type()=="XLYLZ") {
-				      xw_lead.push_back(temp_wake[1]);
-				      yw_lead.push_back(temp_wake[1]);
-				      z_wake.push_back(temp_wake[2]);
+				  if (wake_type=="XLYLZ") {
+				      xw_lead_v.push_back(temp_wake[1]);
+				      yw_lead_v.push_back(temp_wake[1]);
+				      z_wake_v.push_back(temp_wake[2]);
 				  } 
-				  else if (get_wake_type()=="XLXTYLYT") {
-				      xw_lead.push_back(temp_wake[1]);
-				      xw_trail.push_back(temp_wake[2]);
-				      yw_lead.push_back(temp_wake[1]);
-				      yw_trail.push_back(temp_wake[2]);				   
+				  else if (wake_type=="XLXTYLYT") {
+				      xw_lead_v.push_back(temp_wake[1]);
+				      xw_trail_v.push_back(temp_wake[2]);
+				      yw_lead_v.push_back(temp_wake[1]);
+				      yw_trail_v.push_back(temp_wake[2]);				   
 				  } 
-				  else if (get_wake_type()=="XZ_Elliptical_coeff") {
+				  else if (wake_type=="XZ_Elliptical_coeff") {
                       double cxs=0.42; // approximate values for the main injector
                       double cxw=-0.40; // this hardwiring of the yokoya coefficents should
                       double cys=0.81; //           be changed!!!
                       double cyw=0.40;
                       double cl=0.985;
-                      xw_lead.push_back(cxs*temp_wake[1]);
-                      xw_trail.push_back(cxw*temp_wake[1]);
-                      yw_lead.push_back(cys*temp_wake[1]);
-                      yw_trail.push_back(cyw*temp_wake[1]); 
-                      z_wake.push_back(cl*temp_wake[2]);                                   
+                      xw_lead_v.push_back(cxs*temp_wake[1]);
+                      xw_trail_v.push_back(cxw*temp_wake[1]);
+                      yw_lead_v.push_back(cys*temp_wake[1]);
+                      yw_trail_v.push_back(cyw*temp_wake[1]); 
+                      z_wake_v.push_back(cl*temp_wake[2]);                                   
                   }
 				  else{
 				    throw
@@ -139,26 +171,26 @@ wake_file(wake_file), wake_type(wake_type)
 			    
 			    if (num_columns==4) {
 				  if (temp_wake.size()!=4) throw std::runtime_error(" temp_wake size should be 4 in this case");
-				  z_coord.push_back(temp_wake[0]);				 				 
+				  z_coord_v.push_back(temp_wake[0]);				 				 
 				  
-				  if (get_wake_type()=="XLXTYLYTZ") {
-				      xw_lead.push_back(temp_wake[1]);
-				      xw_trail.push_back(temp_wake[2]);
-				      yw_lead.push_back(temp_wake[1]);
-				      yw_trail.push_back(temp_wake[2]);
-				      z_wake.push_back(temp_wake[3]);
+				  if (wake_type=="XLXTYLYTZ") {
+				      xw_lead_v.push_back(temp_wake[1]);
+				      xw_trail_v.push_back(temp_wake[2]);
+				      yw_lead_v.push_back(temp_wake[1]);
+				      yw_trail_v.push_back(temp_wake[2]);
+				      z_wake_v.push_back(temp_wake[3]);
 				  } 
-				  else if (get_wake_type()=="XLYLZ") {
-				    xw_lead.push_back(temp_wake[1]);
-				    yw_lead.push_back(temp_wake[2]);
-				    z_wake.push_back(temp_wake[3]);
+				  else if (wake_type=="XLYLZ") {
+				    xw_lead_v.push_back(temp_wake[1]);
+				    yw_lead_v.push_back(temp_wake[2]);
+				    z_wake_v.push_back(temp_wake[3]);
 				  } 
-				  else  if (get_wake_type()=="XLXTYLYTZpp") { // this is for old wake files for parallel planes geometry
-				      xw_lead.push_back(temp_wake[1]);
-				      xw_trail.push_back(-temp_wake[1]);
-				      yw_lead.push_back(temp_wake[2]);
-				      yw_trail.push_back(temp_wake[1]);
-				      z_wake.push_back(temp_wake[3]);
+				  else  if (wake_type=="XLXTYLYTZpp") { // this is for old wake files for parallel planes geometry
+				      xw_lead_v.push_back(temp_wake[1]);
+				      xw_trail_v.push_back(-temp_wake[1]);
+				      yw_lead_v.push_back(temp_wake[2]);
+				      yw_trail_v.push_back(temp_wake[1]);
+				      z_wake_v.push_back(temp_wake[3]);
 				  } 
 				  else{
 				    throw
@@ -169,26 +201,26 @@ wake_file(wake_file), wake_type(wake_type)
 			    
 			    if (num_columns==5) {
 				  if (temp_wake.size()!=5) throw std::runtime_error(" temp_wake size should be 5 in this case");
-				  z_coord.push_back(temp_wake[0]);				 				 
+				  z_coord_v.push_back(temp_wake[0]);				 				 
 				  
-				  if (get_wake_type()=="XLXTYLYT") {
-				      xw_lead.push_back(temp_wake[1]);
-				      xw_trail.push_back(temp_wake[2]);
-				      yw_lead.push_back(temp_wake[3]);
-				      yw_trail.push_back(temp_wake[4]);				    
+				  if (wake_type=="XLXTYLYT") {
+				      xw_lead_v.push_back(temp_wake[1]);
+				      xw_trail_v.push_back(temp_wake[2]);
+				      yw_lead_v.push_back(temp_wake[3]);
+				      yw_trail_v.push_back(temp_wake[4]);				    
 				  } 
-				    else  if (get_wake_type()=="XLXTYLYTZpp"){
-				      xw_lead.push_back(temp_wake[1]);
-				      xw_trail.push_back(-temp_wake[1]);  
-				      yw_lead.push_back(temp_wake[2]);
-				      yw_trail.push_back(temp_wake[3]);
-				      z_wake.push_back(temp_wake[4]);
+				    else  if (wake_type=="XLXTYLYTZpp"){
+				      xw_lead_v.push_back(temp_wake[1]);
+				      xw_trail_v.push_back(-temp_wake[1]);  
+				      yw_lead_v.push_back(temp_wake[2]);
+				      yw_trail_v.push_back(temp_wake[3]);
+				      z_wake_v.push_back(temp_wake[4]);
 				    } 
-				    else  if (get_wake_type()=="TRANSVERSEpp"){
-				      xw_lead.push_back(temp_wake[1]);
-				      xw_trail.push_back(-temp_wake[1]);  
-				      yw_lead.push_back(temp_wake[2]);
-				      yw_trail.push_back(temp_wake[3]);
+				    else  if (wake_type=="TRANSVERSEpp"){
+				      xw_lead_v.push_back(temp_wake[1]);
+				      xw_trail_v.push_back(-temp_wake[1]);  
+				      yw_lead_v.push_back(temp_wake[2]);
+				      yw_trail_v.push_back(temp_wake[3]);
 				     // z_wake.push_back();
 				    } 
 				  else{
@@ -200,14 +232,14 @@ wake_file(wake_file), wake_type(wake_type)
 			    
 			    if (num_columns==6) {
 				  if (temp_wake.size()!=6)  throw std::runtime_error(" temp_wake size should be 6 in this case");				
-				  z_coord.push_back(temp_wake[0]);				 				 
+				  z_coord_v.push_back(temp_wake[0]);				 				 
 				  
-				  if (get_wake_type()=="XLXTYLYTZ") {
-				      xw_lead.push_back(temp_wake[1]);
-				      xw_trail.push_back(temp_wake[2]);
-				      yw_lead.push_back(temp_wake[3]);
-				      yw_trail.push_back(temp_wake[4]);
-				      z_wake.push_back(temp_wake[5]);
+				  if (wake_type=="XLXTYLYTZ") {
+				      xw_lead_v.push_back(temp_wake[1]);
+				      xw_trail_v.push_back(temp_wake[2]);
+				      yw_lead_v.push_back(temp_wake[3]);
+				      yw_trail_v.push_back(temp_wake[4]);
+				      z_wake_v.push_back(temp_wake[5]);
 				  } 				
 				  else{
 				    throw
@@ -222,206 +254,142 @@ wake_file(wake_file), wake_type(wake_type)
 		    } 
 		}  // !line.empty()	    	    	    
 	    }// while rfile
+
 	    rfile.close();	  
-	    size_wake=z_coord.size();
-	    if (xw_lead.size()==0)   xw_lead.resize(size_wake, 0.0);
-	    if (xw_trail.size()==0)  xw_trail.resize(size_wake, 0.0);
-	    if (yw_lead.size()==0)   yw_lead.resize(size_wake, 0.0);
-	    if (yw_trail.size()==0)  yw_trail.resize(size_wake, 0.0);
-	    if ( z_wake.size()==0)   z_wake.resize(size_wake, 0.0);
+
+	    size_wake = z_coord_v.size();
+
+	    if (xw_lead_v.size()==0)   xw_lead_v.resize(size_wake, 0.0);
+	    if (xw_trail_v.size()==0)  xw_trail_v.resize(size_wake, 0.0);
+	    if (yw_lead_v.size()==0)   yw_lead_v.resize(size_wake, 0.0);
+	    if (yw_trail_v.size()==0)  yw_trail_v.resize(size_wake, 0.0);
+	    if ( z_wake_v.size()==0)   z_wake_v.resize(size_wake, 0.0);
 	    
-    
 	    std::cout<<"  Wake_field: wake read from  "<<wake_file<<std::endl;
-	    std::cout<<"  Wake_field: wake_type:  "<<get_wake_type()<<std::endl;
-	  // wakes read!	 
+	    std::cout<<"  Wake_field: wake_type:  "<<wake_type<<std::endl;
+	    // wakes read!	 
+
+        // create kokkos views
+        h_terms = karray1d_hst("terms", size_wake*6);
+
+        // copy from vectors to kokkos views
+        size_t sz = size_wake * sizeof(double);
+        memcpy(&(h_terms(size_wake*0)), z_coord_v.data(),  sz);
+        memcpy(&(h_terms(size_wake*1)), z_wake_v.data(),   sz);
+        memcpy(&(h_terms(size_wake*2)), xw_lead_v.data(),  sz);
+        memcpy(&(h_terms(size_wake*3)), xw_trail_v.data(), sz);
+        memcpy(&(h_terms(size_wake*4)), yw_lead_v.data(),  sz);
+        memcpy(&(h_terms(size_wake*5)), yw_trail_v.data(), sz);
+
     }//rank=0	  
 
-  // Broadcasting to all     
-	  int error=MPI_Bcast( (void *) &size_wake, 1, MPI_INT, 0,  MPI_COMM_WORLD );
-      if (error != MPI_SUCCESS) {
-			throw std::runtime_error("MPI error in Wake_field::Wake_field 1");
-      }
-	  z_coord.resize(size_wake);
-	  xw_lead.resize(size_wake);
-	  xw_trail.resize(size_wake);
-	  yw_lead.resize(size_wake);
-	  yw_trail.resize(size_wake);
-	  z_wake.resize(size_wake);
-	  
-	  error=MPI_Bcast( z_coord.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
-      if (error != MPI_SUCCESS) {
-			throw std::runtime_error("MPI error in Wake_field::Wake_field 2");
-      }
-	  error=MPI_Bcast( xw_lead.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
-      if (error != MPI_SUCCESS) {
-			throw std::runtime_error("MPI error in Wake_field::Wake_field 3");
-      }
-	  error=MPI_Bcast( xw_trail.data(), size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
-      if (error != MPI_SUCCESS) {
-			throw std::runtime_error("MPI error in Wake_field::Wake_field 4");
-      }
-	  error=MPI_Bcast( yw_lead.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
-      if (error != MPI_SUCCESS) {
-			throw std::runtime_error("MPI error in Wake_field::Wake_field 5");
-      }
-	  error=MPI_Bcast( yw_trail.data(), size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
-      if (error != MPI_SUCCESS) {
-			throw std::runtime_error("MPI error in Wake_field::Wake_field 6");
-      }
-	  error=MPI_Bcast( z_wake.data(),   size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
-      if (error != MPI_SUCCESS) {
-			throw std::runtime_error("MPI error in Wake_field::Wake_field 7");
-      }
-	
-	  if (z_coord[0]>0) {
-	    double dz1=z_coord[1]-z_coord[0];
-	    double dz2=z_coord[2]-z_coord[0];
-	    delta_z=0.5*dz2-dz1;
-	    istart=static_cast<int>(0.5*(1.-dz1/delta_z));
-	    delta_z=0.25*dz2/(1.-istart);// delta_z recalcualted to reduce some numerical roundoff errors 
-	    zstart=z_coord[0]-istart*istart*delta_z;
-	  }
-	  else if (z_coord[2]<=0) {
-	    double dz1=z_coord[1]-z_coord[0];
-	    double dz2=z_coord[2]-z_coord[0];
-	    delta_z=dz1-0.5*dz2;
-	    istart=static_cast<int>(0.5*(1.+dz1/delta_z));
-	    delta_z=-0.25*dz2/(1.-istart);// delta_z recalcualted to reduce some numerical roundoff errors 
-	    zstart=z_coord[0]+istart*istart*delta_z;
-	  } 
-	  else throw
-	    std::runtime_error("wake file wrong: either the first z coordinate is positive or the first three  z  coordinates are negative");	  
+    // Broadcasting the array size
+    int error=MPI_Bcast((void *)&size_wake, 1, MPI_INT, 0,  MPI_COMM_WORLD );
+    if (error != MPI_SUCCESS) 
+        throw std::runtime_error("MPI error in Wake_field::Wake_field 1");
+
+    // create arrays for rest of the ranks
+    if (rank != 0)
+    {
+        h_terms = karray1d_hst("terms", size_wake*6);
+    }
+
+    // broadcast to all ranks
+    error = MPI_Bcast( h_terms.data(),  size_wake*6, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+    if (error != MPI_SUCCESS) 
+        throw std::runtime_error("MPI error in Wake_field::Wake_field");
+
+    // subview of z_coord
+    auto z_coord = Kokkos::subview(h_terms, std::make_pair(0, size_wake));
+
+    // init others
+    if (z_coord[0] > 0) 
+    {
+        double dz1 = z_coord[1] - z_coord[0];
+        double dz2 = z_coord[2] - z_coord[0];
+
+        // delta_z recalcualted to reduce some numerical roundoff errors 
+        delta_z = 0.5 * dz2 - dz1;
+        istart = static_cast<int>(0.5 * (1. - dz1/delta_z));
+        delta_z = 0.25 * dz2 / (1. - istart);
+        zstart = z_coord[0]-istart*istart*delta_z;
+    }
+    else if (z_coord[2] <= 0) 
+    {
+        double dz1 = z_coord[1] - z_coord[0];
+        double dz2 = z_coord[2] - z_coord[0];
+
+        // delta_z recalcualted to reduce some numerical roundoff errors 
+        delta_z = dz1 - 0.5 * dz2;
+        istart = static_cast<int>(0.5 * (1. + dz1 / delta_z));
+        delta_z = -0.25 * dz2 / (1. - istart);
+        zstart = z_coord[0] + istart * istart * delta_z;
+    } 
+    else 
+    {
+        throw std::runtime_error(
+                "wake file wrong: either the first z coordinate "
+                "is positive or the first three z coordinates are negative");	  
+    }
+
+    // create device view and deep copy from host
+    terms = Kokkos::create_mirror_view(h_terms);
+    Kokkos::deep_copy(terms, h_terms);
+  } 
+  catch (std::exception const& e)
+  {
+      std::cout<<e.what()<<std::endl;   
+      MPI_Abort(MPI_COMM_WORLD, 454);
   }
-  catch (std::exception const& e){
-        std::cout<<e.what()<<std::endl;   
-        MPI_Abort(MPI_COMM_WORLD, 454);
-   }
 
 }  
 
-std::string Wake_field::get_wake_type() const { return wake_type;}
-std::string Wake_field::get_wake_file_name() const { return wake_file;}
-// std::vector<double> Wake_field::get_z_coord() const { return z_coord;}
-// std::vector<double> Wake_field::get_xw_lead() const { return xw_lead;}
-// std::vector<double> Wake_field::get_xw_trail() const { return xw_trail;}
-// std::vector<double> Wake_field::get_yw_lead() const { return yw_lead;}
-// std::vector<double> Wake_field::get_yw_trail() const{ return yw_trail;}
-// std::vector<double> Wake_field::get_z_wake() const { return z_wake;}
-int Wake_field::get_istart() const { return istart;}
-double Wake_field::get_zstart() const { return zstart;}
-double Wake_field::get_delta_z() const { return delta_z;}
-
-MArray1d_ref const Wake_field::get_z_coord()  { 
-  MArray1d_ref retval(z_coord.data(), boost::extents[z_coord.size()]);
-  return retval;
-}
-MArray1d_ref const Wake_field::get_xw_lead() { 
-  MArray1d_ref retval(xw_lead.data(), boost::extents[xw_lead.size()]);
-  return retval;
-} 
-
-MArray1d_ref const Wake_field::get_xw_trail()  { 
-  MArray1d_ref retval(xw_trail.data(), boost::extents[xw_trail.size()]);
-  return retval;
-} 
-
-MArray1d_ref const Wake_field::get_yw_lead()  { 
-  MArray1d_ref retval(yw_lead.data(), boost::extents[yw_lead.size()]);
-  return retval;
-}   
-
-MArray1d_ref const Wake_field::get_yw_trail() { 
-  MArray1d_ref retval(yw_trail.data(), boost::extents[yw_trail.size()]);
-  return retval;
-}   
-
-MArray1d_ref const Wake_field::get_z_wake()  { 
-  MArray1d_ref retval(z_wake.data(), boost::extents[z_wake.size()]);
-  return retval;
-}   
-
 void Wake_field::multiply_xw_lead(double mltp)
 {
-        int size=xw_lead.size();
-        for (int i=0;i<size; ++i){
+#if 0
+        for (int i=0;i<size_wake; ++i){
           xw_lead[i] *= mltp;     
         }
+#endif
 }
  
 void Wake_field::multiply_xw_trail(double mltp)
 { 
+#if 0
         int size=xw_trail.size();
         for (int i=0;i<size; ++i){
           xw_trail[i] *= mltp;     
         }
-
+#endif
 }
  
 void Wake_field::multiply_yw_lead(double mltp)
 {
+#if 0
         int size=yw_lead.size();
         for (int i=0;i<size; ++i){
           yw_lead[i] *= mltp;     
         }
+#endif
 }
  
 void Wake_field::multiply_yw_trail(double mltp)
 {
+#if 0
         int size=yw_trail.size();
         for (int i=0;i<size; ++i){
           yw_trail[i] *= mltp;     
         }
+#endif
 }
  
 void Wake_field::multiply_z_wake(double mltp)
 {
+#if 0
         int size=z_wake.size();
         for (int i=0;i<size; ++i){
           z_wake[i] *= mltp;     
         }
+#endif
 }
  
-
-Wake_field::Wake_field(){};
-
-	
-template<class Archive>
-    void
-    Wake_field::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_NVP(wake_file);
-        ar & BOOST_SERIALIZATION_NVP(wake_type);
-        ar & BOOST_SERIALIZATION_NVP(istart);
-        ar & BOOST_SERIALIZATION_NVP(zstart);
-	ar & BOOST_SERIALIZATION_NVP(delta_z);
-	ar & BOOST_SERIALIZATION_NVP(z_coord);
-	ar & BOOST_SERIALIZATION_NVP(xw_lead);
-	ar & BOOST_SERIALIZATION_NVP(xw_trail);
-	ar & BOOST_SERIALIZATION_NVP(yw_lead);
-	ar & BOOST_SERIALIZATION_NVP(yw_trail);
-	ar & BOOST_SERIALIZATION_NVP(z_wake);
-    }
-
-
-template
-void
-Wake_field::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-Wake_field::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-Wake_field::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Wake_field::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-
-
-Wake_field::~Wake_field(){}
