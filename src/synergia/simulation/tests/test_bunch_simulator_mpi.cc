@@ -433,10 +433,10 @@ TEST_CASE("create two bunch trains (4 and 2 bunches)", "[Bunch_simulator]")
             REQUIRE(sim.has_local_bunch(1, 0) == false);
             REQUIRE(sim.has_local_bunch(1, 1) == false);
 
-            REQUIRE(sim[0].get_bunch_array_idx(0) == (mpi_rank==0 ? 0 : -1));
-            REQUIRE(sim[0].get_bunch_array_idx(1) == (mpi_rank==0 ? 1 : -1));
-            REQUIRE(sim[0].get_bunch_array_idx(2) == (mpi_rank==1 ? 0 : -1));
-            REQUIRE(sim[0].get_bunch_array_idx(3) == (mpi_rank==1 ? 1 : -1));
+            REQUIRE(sim[0].get_array_idx_of_bunch(0) == (mpi_rank==0 ? 0 : -1));
+            REQUIRE(sim[0].get_array_idx_of_bunch(1) == (mpi_rank==0 ? 1 : -1));
+            REQUIRE(sim[0].get_array_idx_of_bunch(2) == (mpi_rank==1 ? 0 : -1));
+            REQUIRE(sim[0].get_array_idx_of_bunch(3) == (mpi_rank==1 ? 1 : -1));
         }
         else
         {
@@ -461,8 +461,8 @@ TEST_CASE("create two bunch trains (4 and 2 bunches)", "[Bunch_simulator]")
             REQUIRE(sim.has_local_bunch(1, 0) == true);
             REQUIRE(sim.has_local_bunch(1, 1) == true);
 
-            REQUIRE(sim[1].get_bunch_array_idx(0) == 0);
-            REQUIRE(sim[1].get_bunch_array_idx(1) == 1);
+            REQUIRE(sim[1].get_array_idx_of_bunch(0) == 0);
+            REQUIRE(sim[1].get_array_idx_of_bunch(1) == 1);
         }
     }
     else if (mpi_size == 4)
@@ -501,10 +501,10 @@ TEST_CASE("create two bunch trains (4 and 2 bunches)", "[Bunch_simulator]")
             REQUIRE(sim.has_local_bunch(1, 0) == false);
             REQUIRE(sim.has_local_bunch(1, 1) == false);
 
-            REQUIRE(sim[0].get_bunch_array_idx(0) == (mpi_rank==0 ? 0 : -1));
-            REQUIRE(sim[0].get_bunch_array_idx(1) == (mpi_rank==1 ? 0 : -1));
-            REQUIRE(sim[0].get_bunch_array_idx(2) == (mpi_rank==2 ? 0 : -1));
-            REQUIRE(sim[0].get_bunch_array_idx(3) == (mpi_rank==3 ? 0 : -1));
+            REQUIRE(sim[0].get_array_idx_of_bunch(0) == (mpi_rank==0 ? 0 : -1));
+            REQUIRE(sim[0].get_array_idx_of_bunch(1) == (mpi_rank==1 ? 0 : -1));
+            REQUIRE(sim[0].get_array_idx_of_bunch(2) == (mpi_rank==2 ? 0 : -1));
+            REQUIRE(sim[0].get_array_idx_of_bunch(3) == (mpi_rank==3 ? 0 : -1));
         }
         else
         {
@@ -524,8 +524,8 @@ TEST_CASE("create two bunch trains (4 and 2 bunches)", "[Bunch_simulator]")
             REQUIRE(sim.has_local_bunch(1, 0) == (mpi_rank==4));
             REQUIRE(sim.has_local_bunch(1, 1) == (mpi_rank==5));
 
-            REQUIRE(sim[1].get_bunch_array_idx(0) == (mpi_rank==4 ? 0 : -1));
-            REQUIRE(sim[1].get_bunch_array_idx(1) == (mpi_rank==5 ? 0 : -1));
+            REQUIRE(sim[1].get_array_idx_of_bunch(0) == (mpi_rank==4 ? 0 : -1));
+            REQUIRE(sim[1].get_array_idx_of_bunch(1) == (mpi_rank==5 ? 0 : -1));
         }
     }
     else
