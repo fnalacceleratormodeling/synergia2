@@ -88,16 +88,49 @@ namespace core_diagnostics_impl
             : p(p), masks(masks), dev_mean("dev_mean", 6) 
         { Kokkos::deep_copy(dev_mean, mean); }
 
-#if 0
+        KOKKOS_INLINE_FUNCTION
+        void init(value_type dst) const
+        { for (int j=0; j<value_count; ++j) dst[j] = 0.0; }
+
         KOKKOS_INLINE_FUNCTION
         void join(volatile value_type dst, const volatile value_type src) const
         { for (int j=0; j<value_count; ++j) dst[j] += src[j]; }
-#endif
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i, value_type sum) const;
     };
 
+    // init
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<min_tag>::init(value_type dst) const
+    { for (int j=0; j<value_count; ++j) dst[j] = 1e100; }
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<max_tag>::init(value_type dst) const
+    { for (int j=0; j<value_count; ++j) dst[j] = -1e100; }
+
+    // join
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<min_tag>::join(volatile value_type dst, 
+            const volatile value_type src) const
+    { 
+        for (int j=0; j<value_count; ++j) 
+            if (dst[j] > src[j]) dst[j] = src[j];
+    }
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<max_tag>::join(volatile value_type dst, 
+            const volatile value_type src) const
+    { 
+        for (int j=0; j<value_count; ++j) 
+            if (dst[j] < src[j]) dst[j] = src[j];
+    }
+
+    // operator()
     template<>
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<mean_tag>::operator()   (const int i, value_type sum) const
