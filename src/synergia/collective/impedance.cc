@@ -61,14 +61,19 @@ namespace
                 int bin = (p(i, 4) - z_left) * recip_h;
 
 #if 0
-                // no throw in the CUDA kernel
                 if (bin < 0 || bin >= z_grid)
                     throw std::runtime_error("impedance z-binning out of range");
 #endif
-
-                sum[z_grid*0 + bin] += 1;        // zdensity
-                sum[z_grid*1 + bin] += p(i, 0);  // xmom
-                sum[z_grid*2 + bin] += p(i, 2);  // ymom
+                if (bin == z_grid)
+                {
+                    sum[z_grid*0 + bin-1] += 1;
+                }
+                else
+                {
+                    sum[z_grid*0 + bin] += 1;        // zdensity
+                    sum[z_grid*1 + bin] += p(i, 0);  // xmom
+                    sum[z_grid*2 + bin] += p(i, 2);  // ymom
+                }
             }
         }
     };
@@ -157,20 +162,19 @@ namespace
                 sum.arr[0] += zdensity[j] * N_factor * xmom[j] * xwl;
 
                 double xwt = xw_trail[iz] + z1 * (xw_trail[iz+1] - xw_trail[iz]) * recip_z2;
-                sum.arr[1] += zdensity[j] * N_factor * xwl;
+                sum.arr[1] += zdensity[j] * N_factor * xwt;
 
                 double ywl = yw_lead[iz]  + z1 * (yw_lead[iz+1] - yw_lead[iz])   * recip_z2;
                 sum.arr[2] += zdensity[j] * N_factor * ymom[j] * ywl;
 
                 double ywt = yw_trail[iz] + z1 * (yw_trail[iz+1] - yw_trail[iz]) * recip_z2;
-                sum.arr[3] += zdensity[j] * N_factor * ywl;
+                sum.arr[3] += zdensity[j] * N_factor * ywt;
 
                 double zw = z_wake[iz] + z1 * (z_wake[iz+1] - z_wake[iz]) * recip_z2;
                 sum.arr[4] += zdensity[j] * N_factor * zw;
             }
         }
     };
-
 
     struct alg_z_wake
     {
@@ -244,14 +248,12 @@ Impedance::apply_impl(Bunch_simulator& sim,
     // construct the workspace for a new bunch simulator
     if (bunch_sim_id != sim.id())
     {
-        construct_workspaces(sim);
+        construct_workspaces();
         bunch_sim_id = sim.id();
     }
 
     // pre-work
     store_bunches_data(sim);
-
-    std::cout << "store bunch data\n";
 
     // apply to bunches
     for(size_t t=0; t<2; ++t)
@@ -264,7 +266,7 @@ Impedance::apply_impl(Bunch_simulator& sim,
 }
  
 void
-Impedance::construct_workspaces(Bunch_simulator const& sim)
+Impedance::construct_workspaces()
 {
     zbinning = karray1d_dev("zbinning", opts.z_grid*3);
     h_zbinning = Kokkos::create_mirror_view(zbinning);
@@ -335,21 +337,16 @@ void
 Impedance::apply_bunch(Bunch& bunch, 
         double time_step, Logger& logger)
 {
-    std::cout << "apply bunch\n";
-
     auto bp = calculate_moments_and_partitions(bunch);   
-    std::cout << "cal moments\n";
     //t = simple_timer_show(t, "impedance_apply:  calculate_moments_and_partitions ");
 
     auto means = Core_diagnostics::calculate_mean(bunch);
     bp.z_mean = means[4];
     bp.N_factor = bunch.get_real_num() / bunch.get_total_num();
-    std::cout << "cal z mean\n";
     //t = simple_timer_show(t, "impedance_apply: calculate_z_mean ");
 
     int bunch_bucket = bunch.get_bucket_index(); 
     calculate_kicks(bunch, bp);
-    std::cout << "cal kicks\n";
     //t = simple_timer_show(t, "impedance_apply: calculate_kicks ");
 
 #if 0
@@ -374,14 +371,22 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
 
     auto bunchmax = Core_diagnostics::calculate_max(bunch);
     double z_length = bunchmax[2] - bp.z_left;
+
+#if 0
+    std::cout << "min: " << bunchmin[0] << ", " << bunchmin[1] << ", " << bunchmin[2] << "\n";
+    std::cout << "max: " << bunchmax[0] << ", " << bunchmax[1] << ", " << bunchmax[2] << "\n";
+
+    auto mean = Core_diagnostics::calculate_mean(bunch);
+    std::cout << "m: " << mean[0] << ", " << mean[2] << ", " << mean[4] << "\n";
+#endif
+
     
     if (z_length <= 1.e-14) 
         throw std::runtime_error("z_length too small ");
 
     // 1e-14 is to make sure the max-z particle falls in the last bin
-    bp.cell_size_z = z_length / double(opts.z_grid) + 1e-14;
-
-    std::cout << "cellsize = " << bp.cell_size_z << "\n";
+    //bp.cell_size_z = z_length / double(opts.z_grid) + 1e-14;
+    bp.cell_size_z = z_length / double(opts.z_grid);
 
     // double h = z_length/(opts.z_grid-1.0); // AM why have I done that???
     double h = bp.cell_size_z;
@@ -398,8 +403,6 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
     Kokkos::parallel_reduce("z_binning", 
             bunch.size(), alg, h_zbinning.data());
 
-    std::cout << "zbinning\n";
-
     // MPI reduction to get global z-binning results
     int error = MPI_Allreduce(MPI_IN_PLACE, h_zbinning.data(), 
             opts.z_grid*3, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
@@ -414,7 +417,12 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
     alg_z_normalize alg2{zbinning, opts.z_grid};
     Kokkos::parallel_for(opts.z_grid, alg2);
 
-    std::cout << "normalize\n";
+#if 0
+    Logger l;
+    kt::print_arr_sum(l, zbinning, 0, opts.z_grid);
+    kt::print_arr_sum(l, zbinning, opts.z_grid*1, opts.z_grid);
+    kt::print_arr_sum(l, zbinning, opts.z_grid*2, opts.z_grid);
+#endif
 
     return bp;
 }   
@@ -422,8 +430,6 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
 
 void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
 {
-    std::cout << "cal kicks\n";
-
     int registered_turns = stored_vbunches.size();
     int numbunches;
     int num_trains = 0;
@@ -458,9 +464,6 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
                     "or larger than num_trains-1"); 
     }
 
-    std::cout << "here\n";
-
-
     using Kokkos::TeamPolicy;
     using Kokkos::TeamThreadRange;
 
@@ -468,6 +471,13 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     // wakes: xw_lead, xw_trail, yw_lead, yw_trail, zwake
     alg_z_wake ft_z_wake{bp, wake_field, zbinning, wakes};
     Kokkos::parallel_for(TeamPolicy<>(opts.z_grid, 32), ft_z_wake);
+
+    Logger l;
+    kt::print_arr_sum(l, wakes, 0, opts.z_grid);
+    kt::print_arr_sum(l, wakes, opts.z_grid*1, opts.z_grid);
+    kt::print_arr_sum(l, wakes, opts.z_grid*2, opts.z_grid);
+    kt::print_arr_sum(l, wakes, opts.z_grid*3, opts.z_grid);
+    kt::print_arr_sum(l, wakes, opts.z_grid*4, opts.z_grid);
 
     MPI_Abort(MPI_COMM_WORLD, 333);
 

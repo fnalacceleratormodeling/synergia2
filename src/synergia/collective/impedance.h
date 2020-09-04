@@ -103,8 +103,7 @@ private:
             double time_step, 
             Logger& logger);
 
-    void construct_workspaces(
-            Bunch_simulator const& sim);
+    void construct_workspaces();
 
     void store_bunches_data(
             Bunch_simulator const& sim);
