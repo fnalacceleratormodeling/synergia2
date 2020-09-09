@@ -548,7 +548,7 @@ Impedance::store_bunches_data(Bunch_simulator const& sim)
 
     // each bunch has 5 properties, x/y/z_mean, real_num, and bucket_idx
     karray1d_dev d_vbi_buf("vbi_buf", num_bunches * 5);
-    karray1d_hst vbi_buf("vbi_buf", num_bunches * 5);
+    karray1d_hst vbi_buf = Kokkos::create_mirror_view(d_vbi_buf);
 
     for (int i = 0; i < num_local_bunches; ++i)
     {
