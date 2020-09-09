@@ -283,7 +283,6 @@ namespace
         }
     }
 
-#if 1
     struct alg_bunch_wake
     {
         Bunch_params bp;
@@ -393,7 +392,85 @@ namespace
             wakes(z_grid*4+i) += sum[4];
         }
     };
-#endif
+
+
+    struct alg_turn_wake
+    {
+        typedef double value_type[];
+
+        Bunch_params bp;
+        Bunch_props bps;
+        Wake_field wf;
+
+        const double bunch_spacing;
+        const double orbit_length;
+        const bool full_machine;
+
+        const int value_count = 5;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i, value_type sum) const
+        {
+            int turn = i+1;
+            int num_bunches = bps.num_bunches;
+            double lsum[5] = {0, 0, 0, 0, 0};
+
+            // current turn
+            for(int j=0; j<num_bunches; ++j)
+            {
+                int j_idx = bps.get_read_index(-turn, j);
+
+                int j_bucket = bps.bucket_index[j_idx];
+                if (turn == 1 && j_bucket >= bp.bucket) continue;
+
+                double zji = bunch_spacing * (bp.bucket - j_bucket) 
+                    + orbit_length * turn
+                    + (bps.zmean[j_idx] - bp.z_mean);
+
+                // below it is assumed the wake function is stored using a quadratic grid
+                int iz = get_zindex_for_wake(zji, wf.delta_z, wf.istart, wf.zstart);
+
+                // accumulate
+                sum_over_bunch(lsum, 
+                        iz, wf.size_wake, zji,
+                        bps.xmean(j_idx), 
+                        bps.ymean(j_idx), 
+                        bps.realnum(j_idx), 
+                        wf.terms);
+            }
+
+            // full machine
+            if (full_machine)
+            {
+                // TODO ...
+            }
+
+            sum[0] += lsum[0];
+            sum[1] += lsum[1];
+            sum[2] += lsum[2];
+            sum[3] += lsum[3];
+            sum[4] += lsum[4];
+        }
+    };
+
+    struct alg_add_turn_wake
+    {
+        karray1d_dev wakes;
+        karray1d_dev turn_wakes;
+        const int z_grid;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            wakes(z_grid*0+i) += turn_wakes(0);
+            wakes(z_grid*1+i) += turn_wakes(1);
+            wakes(z_grid*2+i) += turn_wakes(2);
+            wakes(z_grid*3+i) += turn_wakes(3);
+            wakes(z_grid*4+i) += turn_wakes(4);
+        }
+    };
+
+
 
 }
 
@@ -632,13 +709,15 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     using Kokkos::TeamPolicy;
     using Kokkos::TeamThreadRange;
 
+    // in-bunch z wake
     // zbinning: zdensity, xmom, ymom
     // wakes: xw_lead, xw_trail, yw_lead, yw_trail, zwake
     alg_z_wake ft_z_wake{bp, wake_field, zbinning, wakes};
     Kokkos::parallel_for(TeamPolicy<>(opts.z_grid, 1), ft_z_wake);
 
-    // at the moment
-    /// bucket 0 is in front of bucket 1, which is in front of bucket 2, etc...
+    // bunch-bunch wake
+    // at the moment bucket 0 is in front of bucket 1, 
+    // which is in front of bucket 2, etc...
     alg_bunch_wake ft_bunch_wake(
         bp, wake_field, bps, wakes, 
         opts.bunch_spacing, 
@@ -647,6 +726,27 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
         opts.z_grid
     );
     Kokkos::parallel_for(opts.z_grid, ft_bunch_wake);
+
+    // turn-turn wake
+    if (bps.registered_turns > 1)
+    {
+        // calculate turn-turn wakes
+        karray1d_dev turn_wakes("turn_wakes", 5);
+        alg_turn_wake ft_turn_wake{
+            bp, bps, wake_field,
+            opts.bunch_spacing,
+            opts.orbit_length,
+            opts.full_machine
+        };
+        Kokkos::parallel_reduce(bps.registered_turns-1, 
+                ft_turn_wake, turn_wakes);
+
+        // add the turn-turn wakes to the final wakes
+        alg_add_turn_wake ft_add_turn_wake{
+            wakes, turn_wakes, opts.z_grid
+        };
+        Kokkos::parallel_for(opts.z_grid, ft_add_turn_wake);
+    }
 
     // prints
     Logger l;
