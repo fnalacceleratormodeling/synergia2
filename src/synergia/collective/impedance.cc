@@ -140,6 +140,7 @@ namespace
         karray1d_dev const& zbins;
         karray1d_dev const& wf;
 
+        KOKKOS_INLINE_FUNCTION
         alg_z_wake_reduce(int i, int z_grid,
                 Bunch_params const& bp,
                 Wake_field const& wf,
