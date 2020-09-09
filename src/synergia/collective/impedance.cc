@@ -244,89 +244,6 @@ namespace
         }
     };
 
-
-#if 0
-    struct alg_bunch_wake_reduce
-    {
-        typedef kt::array_type<double, 5> value_type;
-
-        const int mean_bin;
-        const double z_to_zmean;
-        const double z_mean;
-        const int bucket;
-        const double bunch_spacing;
-
-        const int size_wake;
-        const int istart;
-        const double zstart;
-        const double delta_z;
-
-        karray1d_dev const& wf;
-        karray1d_dev const& bp;
-
-        // mean_bin = (int)((bp.z_mean - bp.z_left)/bp.cell_size_z);
-        // z_to_zmean = (mean_bin - i) * bp.cell_size_z;
-        alg_bunch_wake_reduce(int i, 
-                double bunch_spacing,
-                Bunch_params const& bp,
-                Wake_field const& wf,
-                karray1d_dev const& bunch_properties)
-            : mean_bin( (int)((bp.z_mean - bp.z_left)/bp.cell_size_z) )
-            , z_to_zmean( (mean_bin - i) * bp.cell_size_z )
-            , z_mean(bp.z_mean)
-            , bucket(bp.bucket)
-            , bunch_spacing(bunch_spacing)
-            , size_wake(wf.size_wake), istart(wf.istart)
-            , zstart(wf.zstart), delta_z(wf.delta_z)
-            , wf(wf.terms)
-            , bp(bunch_properties)
-        { }
-
-        KOKKOS_INLINE_FUNCTION
-        void operator() (const int j, value_type& sum) const
-        {
-            double* xmean = &bp(0);
-            double* ymean = &bp(0);
-            double* zmean = &bp(0);
-            double* realnum = &bp(0);
-
-            double* z_coord  = &wf(size_wake*0);
-            double* z_wake   = &wf(size_wake*1);
-            double* xw_lead  = &wf(size_wake*2);
-            double* xw_trail = &wf(size_wake*3);
-            double* yw_lead  = &wf(size_wake*4);
-            double* yw_trail = &wf(size_wake*5);
-
-            double zji = z_to_zmean + bunch_spacing * (bucket - j) + (zmean[j] - z_mean);
-            if (zji < z_coord[0]) return;
-
-            // below it is assumed the wake function is stored using a quadratic grid
-            int iz = get_zindex_for_wake(zji, delta_z, istart, zstart);
-
-            if (iz+1<size_wake && iz>0)
-            {
-                double z1 = zji - z_coord[iz];
-                double recip_z2 = 1.0 / (z_coord[iz+1] - z_coord[iz]);
-
-                double xwl = xw_lead[iz]  + z1 * (xw_lead[iz+1]  - xw_lead[iz])  * recip_z2;
-                sum.arr[0] += realnum[j] * xmean[j] * xwl;
-
-                double xwt = xw_trail[iz] + z1 * (xw_trail[iz+1] - xw_trail[iz]) * recip_z2;
-                sum.arr[1] += realnum[j] * xwt;
-
-                double ywl = yw_lead[iz]  + z1 * (yw_lead[iz+1]  - yw_lead[iz])  * recip_z2;
-                sum.arr[2] += realnum[j] * ymean[j] * ywl;
-
-                double ywt = yw_trail[iz] + z1 * (yw_trail[iz+1] - yw_trail[iz]) * recip_z2;
-                sum.arr[3] += realnum[j] * ywt;
-
-                double zw  = z_wake[iz]   + z1 * (z_wake[iz+1]   - z_wake[iz])   * recip_z2;
-                sum.arr[4] += realnum[j] * zw;
-            }
-        }
-    };
-#endif
-
     KOKKOS_INLINE_FUNCTION
     void sum_over_bunch(double* sum,
             int iz, 
@@ -432,7 +349,6 @@ namespace
                         wf.terms);
             }
 
-#if 0
             // full machine
             if (full_machine)
             {
@@ -469,7 +385,6 @@ namespace
                             wf.terms);
                 }
             }
-#endif
 
             wakes(z_grid*0+i) += sum[0];
             wakes(z_grid*1+i) += sum[1];
