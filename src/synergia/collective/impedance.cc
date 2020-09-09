@@ -31,6 +31,24 @@ namespace
         Kokkos::parallel_for(arr.extent(0), alg);
     }
 
+    struct alg_write_bps
+    {
+        Bunch_props bps;
+        karray1d_dev vbi_buf;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            int idx = bps.get_write_index(i);
+
+            bps.xmean(idx) = vbi_buf(i*5 + 0);
+            bps.ymean(idx) = vbi_buf(i*5 + 1);
+            bps.zmean(idx) = vbi_buf(i*5 + 2);
+            bps.realnum(idx) = vbi_buf(i*5 + 3);
+            bps.bucket_index(idx) = (int)vbi_buf(i*5 + 4);
+        }
+    };
+
     struct alg_z_binning
     {
         typedef double value_type[];
@@ -226,11 +244,250 @@ namespace
         }
     };
 
+
+#if 0
+    struct alg_bunch_wake_reduce
+    {
+        typedef kt::array_type<double, 5> value_type;
+
+        const int mean_bin;
+        const double z_to_zmean;
+        const double z_mean;
+        const int bucket;
+        const double bunch_spacing;
+
+        const int size_wake;
+        const int istart;
+        const double zstart;
+        const double delta_z;
+
+        karray1d_dev const& wf;
+        karray1d_dev const& bp;
+
+        // mean_bin = (int)((bp.z_mean - bp.z_left)/bp.cell_size_z);
+        // z_to_zmean = (mean_bin - i) * bp.cell_size_z;
+        alg_bunch_wake_reduce(int i, 
+                double bunch_spacing,
+                Bunch_params const& bp,
+                Wake_field const& wf,
+                karray1d_dev const& bunch_properties)
+            : mean_bin( (int)((bp.z_mean - bp.z_left)/bp.cell_size_z) )
+            , z_to_zmean( (mean_bin - i) * bp.cell_size_z )
+            , z_mean(bp.z_mean)
+            , bucket(bp.bucket)
+            , bunch_spacing(bunch_spacing)
+            , size_wake(wf.size_wake), istart(wf.istart)
+            , zstart(wf.zstart), delta_z(wf.delta_z)
+            , wf(wf.terms)
+            , bp(bunch_properties)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int j, value_type& sum) const
+        {
+            double* xmean = &bp(0);
+            double* ymean = &bp(0);
+            double* zmean = &bp(0);
+            double* realnum = &bp(0);
+
+            double* z_coord  = &wf(size_wake*0);
+            double* z_wake   = &wf(size_wake*1);
+            double* xw_lead  = &wf(size_wake*2);
+            double* xw_trail = &wf(size_wake*3);
+            double* yw_lead  = &wf(size_wake*4);
+            double* yw_trail = &wf(size_wake*5);
+
+            double zji = z_to_zmean + bunch_spacing * (bucket - j) + (zmean[j] - z_mean);
+            if (zji < z_coord[0]) return;
+
+            // below it is assumed the wake function is stored using a quadratic grid
+            int iz = get_zindex_for_wake(zji, delta_z, istart, zstart);
+
+            if (iz+1<size_wake && iz>0)
+            {
+                double z1 = zji - z_coord[iz];
+                double recip_z2 = 1.0 / (z_coord[iz+1] - z_coord[iz]);
+
+                double xwl = xw_lead[iz]  + z1 * (xw_lead[iz+1]  - xw_lead[iz])  * recip_z2;
+                sum.arr[0] += realnum[j] * xmean[j] * xwl;
+
+                double xwt = xw_trail[iz] + z1 * (xw_trail[iz+1] - xw_trail[iz]) * recip_z2;
+                sum.arr[1] += realnum[j] * xwt;
+
+                double ywl = yw_lead[iz]  + z1 * (yw_lead[iz+1]  - yw_lead[iz])  * recip_z2;
+                sum.arr[2] += realnum[j] * ymean[j] * ywl;
+
+                double ywt = yw_trail[iz] + z1 * (yw_trail[iz+1] - yw_trail[iz]) * recip_z2;
+                sum.arr[3] += realnum[j] * ywt;
+
+                double zw  = z_wake[iz]   + z1 * (z_wake[iz+1]   - z_wake[iz])   * recip_z2;
+                sum.arr[4] += realnum[j] * zw;
+            }
+        }
+    };
+#endif
+
+    KOKKOS_INLINE_FUNCTION
+    void sum_over_bunch(double* sum,
+            int iz, 
+            int size_wake,
+            double zji,
+            double xmean, 
+            double ymean, 
+            double realnum,
+            karray1d_dev const& wf )
+    {
+        double* z_coord  = &wf(size_wake*0);
+        double* z_wake   = &wf(size_wake*1);
+        double* xw_lead  = &wf(size_wake*2);
+        double* xw_trail = &wf(size_wake*3);
+        double* yw_lead  = &wf(size_wake*4);
+        double* yw_trail = &wf(size_wake*5);
+
+        if (iz+1<size_wake && iz>0)
+        {
+            double z1 = zji - z_coord[iz];
+            double recip_z2 = 1.0 / (z_coord[iz+1] - z_coord[iz]);
+
+            double xwl = xw_lead[iz]  + z1 * (xw_lead[iz+1]  - xw_lead[iz])  * recip_z2;
+            sum[0] += realnum * xmean * xwl;
+
+            double xwt = xw_trail[iz] + z1 * (xw_trail[iz+1] - xw_trail[iz]) * recip_z2;
+            sum[1] += realnum * xwt;
+
+            double ywl = yw_lead[iz]  + z1 * (yw_lead[iz+1]  - yw_lead[iz])  * recip_z2;
+            sum[2] += realnum * ymean * ywl;
+
+            double ywt = yw_trail[iz] + z1 * (yw_trail[iz+1] - yw_trail[iz]) * recip_z2;
+            sum[3] += realnum * ywt;
+
+            double zw  = z_wake[iz]   + z1 * (z_wake[iz+1]   - z_wake[iz])   * recip_z2;
+            sum[4] += realnum * zw;
+        }
+    }
+
+#if 1
+    struct alg_bunch_wake
+    {
+        Bunch_params bp;
+        Wake_field wf;
+        Bunch_props bps;
+        karray1d_dev wakes;
+
+        const int mean_bin;
+        const double bunch_spacing;
+        const double orbit_length;
+        const bool full_machine;
+        const int z_grid;
+
+        alg_bunch_wake( Bunch_params const& bp,
+                Wake_field const& wf,
+                Bunch_props const& bps,
+                karray1d_dev const& wakes,
+                double bunch_spacing,
+                double orbit_length,
+                bool full_machine,
+                int z_grid)
+            : bp(bp), wf(wf), bps(bps), wakes(wakes)
+            , mean_bin((bp.z_mean - bp.z_left) / bp.cell_size_z)
+            , bunch_spacing(bunch_spacing)
+            , orbit_length(orbit_length)
+            , full_machine(full_machine)
+            , z_grid(z_grid)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            double z_to_zmean = (mean_bin - i) * bp.cell_size_z;
+
+            int num_bunches = bps.num_bunches;
+            double sum[5];
+
+            // current turn
+            for(int j=0; j<num_bunches; ++j)
+            {
+                // 0 is current turn
+                int j_idx = bps.get_read_index(0, j);
+
+                int j_bucket = bps.bucket_index[j_idx];
+                if (j_bucket >= bp.bucket) continue;
+
+                double zji = z_to_zmean 
+                    + bunch_spacing * (bp.bucket - j_bucket) 
+                    + (bps.zmean[j_idx] - bp.z_mean);
+
+                //if (zji < z_coord[0]) continue;
+
+                // below it is assumed the wake function is stored using a quadratic grid
+                int iz = get_zindex_for_wake(zji, wf.delta_z, wf.istart, wf.zstart);
+
+                // accumulate
+                sum_over_bunch(sum, 
+                        iz, wf.size_wake, zji,
+                        bps.xmean(j_idx), 
+                        bps.ymean(j_idx), 
+                        bps.realnum(j_idx), 
+                        wf.terms);
+            }
+
+            // full machine
+            if (full_machine)
+            {
+                // TODO ...
+            }
+
+            // prev turn
+            if (bps.registered_turns > 1)
+            {
+                for(int j=0; j<num_bunches; ++j)
+                {
+                    // -1 is prev turn
+                    int j_idx = bps.get_read_index(-1, j);
+
+                    int j_bucket = bps.bucket_index[j_idx];
+                    if (j_bucket < bp.bucket) continue;
+
+                    double zji = z_to_zmean 
+                        + bunch_spacing * (bp.bucket - j_bucket) 
+                        + orbit_length
+                        + (bps.zmean(j_idx) - bp.z_mean);
+
+                    //if (zji < z_coord[0]) continue;
+
+                    // below it is assumed the wake function is stored using a quadratic grid
+                    int iz = get_zindex_for_wake(zji, wf.delta_z, wf.istart, wf.zstart);
+
+                    // accumulate
+                    sum_over_bunch(sum, 
+                            iz, wf.size_wake, zji,
+                            bps.xmean(j_idx), 
+                            bps.ymean(j_idx), 
+                            bps.realnum(j_idx), 
+                            wf.terms);
+                }
+            }
+
+            wakes(z_grid*0+i) = sum[0];
+            wakes(z_grid*1+i) = sum[1];
+            wakes(z_grid*2+i) = sum[2];
+            wakes(z_grid*3+i) = sum[3];
+            wakes(z_grid*4+i) = sum[4];
+        }
+    };
+#endif
+
 }
 
 Impedance::Impedance(Impedance_options const& opts)
     : Collective_operator("impedance", 1.0)
     , opts(opts)
+    , bunch_sim_id()
+    , bps(1/*num_bunches*/, opts.nstored_turns)
+    , zbinning()
+    , h_zbinning()
+    , wakes()
+    , h_wakes()
     , wake_field(opts.wake_file, opts.wake_type)
 {
 }
@@ -241,14 +498,17 @@ void
 Impedance::apply_impl(Bunch_simulator& sim, 
         double time_step, Logger& logger)
 {
-    logger << "    Impedance\n";
+    if (sim[1].get_num_bunches())
+        throw std::runtime_error(
+                "Impedance cannot have bunches in secondary train");
 
+    logger << "    Impedance\n";
     scoped_simple_timer timer("imp_total");
 
     // construct the workspace for a new bunch simulator
     if (bunch_sim_id != sim.id())
     {
-        construct_workspaces();
+        construct_workspaces(sim);
         bunch_sim_id = sim.id();
     }
 
@@ -266,13 +526,17 @@ Impedance::apply_impl(Bunch_simulator& sim,
 }
  
 void
-Impedance::construct_workspaces()
+Impedance::construct_workspaces(Bunch_simulator const& sim)
 {
     zbinning = karray1d_dev("zbinning", opts.z_grid*3);
     h_zbinning = Kokkos::create_mirror_view(zbinning);
 
     wakes = karray1d_dev("wakes", opts.z_grid*5);
     h_wakes = Kokkos::create_mirror_view(wakes);
+
+    int num_bunches = sim[0].get_num_bunches();
+    if (num_bunches != bps.num_bunches)
+        bps = Bunch_props(num_bunches, opts.nstored_turns);
 }
 
 void
@@ -283,7 +547,8 @@ Impedance::store_bunches_data(Bunch_simulator const& sim)
     auto num_local_bunches = train.get_num_local_bunches();
 
     // each bunch has 5 properties, x/y/z_mean, real_num, and bucket_idx
-    karray1d vbi_buf("vbi_buf", num_bunches * 5);
+    karray1d_dev d_vbi_buf("vbi_buf", num_bunches * 5);
+    karray1d_hst vbi_buf("vbi_buf", num_bunches * 5);
 
     for (int i = 0; i < num_local_bunches; ++i)
     {
@@ -316,21 +581,16 @@ Impedance::store_bunches_data(Bunch_simulator const& sim)
     if (error != MPI_SUCCESS) 
         throw std::runtime_error(
                 "Impedance::store_bunches_data: MPI error in MPI_Allreduce");
-		
-    std::vector<Bunch_properties> vbi(num_bunches);
-    for(int i=0; i<num_bunches; ++i)
-    {
-        vbi[i].x_mean = vbi_buf[i*5+0];
-        vbi[i].y_mean = vbi_buf[i*5+1];
-        vbi[i].z_mean = vbi_buf[i*5+2];
-        vbi[i].realnum = vbi_buf[i*5+3];
-        vbi[i].bucket_index = (int)vbi_buf[i*5+4];
-    }
 
-    stored_vbunches.push_front(vbi);
+    // copy the vbi_buf to device memory
+    Kokkos::deep_copy(d_vbi_buf, vbi_buf);
 
-    if (stored_vbunches.size() > nstored_turns) 
-        stored_vbunches.pop_back();
+    // copy the buffer to bps
+    alg_write_bps write_bps{bps, d_vbi_buf};
+    Kokkos::parallel_for(num_bunches, write_bps);
+
+    // increment the registered turns in bps
+    bps.increment_registered_turns();
 }
 
 void
@@ -343,9 +603,9 @@ Impedance::apply_bunch(Bunch& bunch,
     auto means = Core_diagnostics::calculate_mean(bunch);
     bp.z_mean = means[4];
     bp.N_factor = bunch.get_real_num() / bunch.get_total_num();
+    bp.bucket = bunch.get_bucket_index(); 
     //t = simple_timer_show(t, "impedance_apply: calculate_z_mean ");
 
-    int bunch_bucket = bunch.get_bucket_index(); 
     calculate_kicks(bunch, bp);
     //t = simple_timer_show(t, "impedance_apply: calculate_kicks ");
 
@@ -371,15 +631,6 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
 
     auto bunchmax = Core_diagnostics::calculate_max(bunch);
     double z_length = bunchmax[2] - bp.z_left;
-
-#if 0
-    std::cout << "min: " << bunchmin[0] << ", " << bunchmin[1] << ", " << bunchmin[2] << "\n";
-    std::cout << "max: " << bunchmax[0] << ", " << bunchmax[1] << ", " << bunchmax[2] << "\n";
-
-    auto mean = Core_diagnostics::calculate_mean(bunch);
-    std::cout << "m: " << mean[0] << ", " << mean[2] << ", " << mean[4] << "\n";
-#endif
-
     
     if (z_length <= 1.e-14) 
         throw std::runtime_error("z_length too small ");
@@ -417,41 +668,37 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
     alg_z_normalize alg2{zbinning, opts.z_grid};
     Kokkos::parallel_for(opts.z_grid, alg2);
 
-#if 0
-    Logger l;
-    kt::print_arr_sum(l, zbinning, 0, opts.z_grid);
-    kt::print_arr_sum(l, zbinning, opts.z_grid*1, opts.z_grid);
-    kt::print_arr_sum(l, zbinning, opts.z_grid*2, opts.z_grid);
-#endif
-
     return bp;
 }   
 
 
 void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
 {
-    int registered_turns = stored_vbunches.size();
-    int numbunches;
     int num_trains = 0;
+    int mean_bin = (int)((bp.z_mean - bp.z_left) / bp.cell_size_z);
 
-    if (registered_turns == 0)
+    if (bps.registered_turns == 0)
         throw std::runtime_error(
                 "registered_turns size cannot be zero, "
                 "probably you propagate a bunch instead of a bunch_train");
 
-    numbunches = (*stored_vbunches.begin()).size();
+    if (mean_bin < 0 || mean_bin >= opts.z_grid) 
+        throw std::runtime_error(
+                "impedance: the index bin of beam min cannot be <0 or >z_grid, "
+                "something is wrong" );
 
     if (opts.full_machine) 
     { 
-        num_trains = int(opts.num_buckets / numbunches);  
         /// num_trains is relevant only when the full machine option is considered 
-        /// a full machine consideres a num_train of bunches repeats with modulation wave wn[] 
+        /// a full machine consideres a num_train of bunches repeats with modulation 
+        /// wave wn[] 
         /// all buckets are full, but only numbunches bunches properties are stored 
         /// exemple: full_machine, all bunches identical, no wave across the machine: 
         /// num_trains=num_buckets, wn=[0,0,0], it's a one bunch simulation  
         /// example: full_machine, two bunch simulation, num_trains= num_buckets/2  
+        num_trains = int(opts.num_buckets / bps.num_bunches);  
 
-        if (std::abs(opts.num_buckets / float(numbunches) - num_trains) > 1e-8) 
+        if (std::abs(opts.num_buckets / float(bps.num_bunches) - num_trains) > 1e-8) 
             throw std::runtime_error( 
                     "full machine assumes repetitive numer of trains: "
                     "num_buckets should be divisible to numbunches");
@@ -472,6 +719,18 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     alg_z_wake ft_z_wake{bp, wake_field, zbinning, wakes};
     Kokkos::parallel_for(TeamPolicy<>(opts.z_grid, 32), ft_z_wake);
 
+    // at the moment
+    /// bucket 0 is in front of bucket 1, which is in front of bucket 2, etc...
+    alg_bunch_wake ft_bunch_wake{
+        bp, wake_field, bps, wakes, 
+        opts.bunch_spacing, 
+        opts.orbit_length,
+        opts.full_machine,
+        opts.z_grid
+    };
+    Kokkos::parallel_for(opts.z_grid, ft_bunch_wake);
+
+    // prints
     Logger l;
     kt::print_arr_sum(l, wakes, 0, opts.z_grid);
     kt::print_arr_sum(l, wakes, opts.z_grid*1, opts.z_grid);
@@ -480,6 +739,57 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     kt::print_arr_sum(l, wakes, opts.z_grid*4, opts.z_grid);
 
     MPI_Abort(MPI_COMM_WORLD, 333);
+
+
+
+#if 0
+
+    // stored_vbunches.begin() stores the bunches info at 
+    std::list< std::vector<Bunch_properties> >::const_iterator it=stored_vbunches.begin(); 
+
+    // at the moment
+    /// bucket 0 is in front of bucket 1, which is in front of bucket 2, etc...
+    int mean_bin = (int)((bp.z_mean - bp.z_left) / bp.cell_size_z);
+
+    if ( mean_bin < 0 || mean_bin >= opts.z_grid) 
+        throw std::runtime_error(
+                "impedance: the index bin of beam min cannot be <0 or >z_grid, "
+                "something is wrong" );
+
+
+    double z_to_zmean = (mean_bin-real_i)*cell_size_z; 
+
+    for (int ibunch= 0; ibunch<numbunches; ++ibunch)
+    {            
+        //  double xwl(0.), xwt(0.), ywl(0.), ywt(0.), zw(0.);
+        int ibucket=(*it)[ibunch].bucket_index;
+
+        if(ibucket<bunch_bucket) 
+        {
+            ///  same turn, the leading buckets effect    
+            double zji = z_to_zmean + bunch_spacing * (bunch_bucket-ibucket) 
+                + ((*it)[ibunch].z_mean-bunch_z_mean);
+
+            int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
+
+            if ((iz+1 < zpoints) && (iz>0)) 
+            {
+                double xwl=xw_lead[iz]+(zji-z_coord[iz])*(xw_lead[iz+1]-xw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                double xwt=xw_trail[iz]+(zji-z_coord[iz])*(xw_trail[iz+1]-xw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);
+                double ywl=yw_lead[iz]+(zji-z_coord[iz])*(yw_lead[iz+1]-yw_lead[iz])/(z_coord[iz+1]-z_coord[iz]);
+                double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
+                double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]); 
+
+                xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
+                xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
+                ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
+                ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
+                zwake0_local[i] += (*it)[ibunch].realnum*zw;
+            }
+        }
+    } // ibunch loop
+
+#endif
 
    
 #if 0

@@ -30,8 +30,10 @@ struct Impedance_options : public CO_options
         , wake_type(wake_type)
         , z_grid(z_grid)
         , full_machine(false)
-        , nstored_turns(1)
+        , nstored_turns(15)
         , num_buckets(1)
+        , orbit_length(1)
+        , bunch_spacing(1)
     { }
 
     CO_options* clone() const override
@@ -49,13 +51,53 @@ struct Impedance_options : public CO_options
 
 CEREAL_REGISTER_TYPE(Impedance_options)
 
-struct Bunch_properties
+struct Bunch_props
 {
-    double x_mean;
-    double y_mean;
-    double z_mean;
-    double realnum;
-    int bucket_index;
+    Bunch_props(int num_bunches, int max_turns)
+        : num_bunches(num_bunches)
+        , max_turns(max_turns)
+        , registered_turns(0)
+        , write_pos(0)
+        , xmean("xmean", num_bunches*max_turns)
+        , ymean("ymean", num_bunches*max_turns)
+        , zmean("zmean", num_bunches*max_turns)
+        , realnum("realnum", num_bunches*max_turns)
+        , bucket_index("bucket", num_bunches*max_turns)
+    { }
+
+    // done writing a turn. increment the pointers
+    void increment_registered_turns()
+    {
+        if (++registered_turns >= max_turns) registered_turns = max_turns;
+        if (++write_pos >= max_turns) write_pos = 0;
+    }
+
+    // write position for current turn and the specified bunch
+    KOKKOS_INLINE_FUNCTION
+    int get_write_index(int bunch) const
+    { return write_pos*num_bunches + bunch; }
+
+    // turn: 0 is current, -1 is prev, -2 ...
+    KOKKOS_INLINE_FUNCTION
+    int get_read_index(int turn, int bunch) const
+    { 
+        // read_pos is one behind the write_pos
+        int pos = write_pos + turn - 1;
+        if (pos < 0) pos += max_turns;
+        return pos*num_bunches + bunch; 
+    }
+
+    int num_bunches;
+    int max_turns;
+
+    int registered_turns;
+    int write_pos;
+
+    karray1d_dev xmean;
+    karray1d_dev ymean;
+    karray1d_dev zmean;
+    karray1d_dev realnum;
+    Kokkos::View<int*> bucket_index;
 };
 
 struct Bunch_params
@@ -64,6 +106,7 @@ struct Bunch_params
     double z_left;
     double cell_size_z;
     double N_factor;
+    int bucket;
 };
 
 class Impedance : public Collective_operator
@@ -73,8 +116,8 @@ private:
     const Impedance_options opts;
     std::string bunch_sim_id;
 
-    int nstored_turns;
-    std::list<std::vector<Bunch_properties>> stored_vbunches;
+    // bunch properties over turns
+    Bunch_props bps;
 
     // z_grid*3, in the fortran order for
     // zdensity, xmom, ymom
@@ -103,7 +146,8 @@ private:
             double time_step, 
             Logger& logger);
 
-    void construct_workspaces();
+    void construct_workspaces(
+            Bunch_simulator const& sim);
 
     void store_bunches_data(
             Bunch_simulator const& sim);
