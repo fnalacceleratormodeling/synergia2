@@ -402,7 +402,8 @@ namespace
             double z_to_zmean = (mean_bin - i) * bp.cell_size_z;
 
             int num_bunches = bps.num_bunches;
-            double sum[5];
+            double sum[5] = {0, 0, 0, 0, 0};
+
 
             // current turn
             for(int j=0; j<num_bunches; ++j)
@@ -431,6 +432,7 @@ namespace
                         wf.terms);
             }
 
+#if 0
             // full machine
             if (full_machine)
             {
@@ -467,12 +469,13 @@ namespace
                             wf.terms);
                 }
             }
+#endif
 
-            wakes(z_grid*0+i) = sum[0];
-            wakes(z_grid*1+i) = sum[1];
-            wakes(z_grid*2+i) = sum[2];
-            wakes(z_grid*3+i) = sum[3];
-            wakes(z_grid*4+i) = sum[4];
+            wakes(z_grid*0+i) += sum[0];
+            wakes(z_grid*1+i) += sum[1];
+            wakes(z_grid*2+i) += sum[2];
+            wakes(z_grid*3+i) += sum[3];
+            wakes(z_grid*4+i) += sum[4];
         }
     };
 #endif
@@ -717,17 +720,17 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     // zbinning: zdensity, xmom, ymom
     // wakes: xw_lead, xw_trail, yw_lead, yw_trail, zwake
     alg_z_wake ft_z_wake{bp, wake_field, zbinning, wakes};
-    Kokkos::parallel_for(TeamPolicy<>(opts.z_grid, 32), ft_z_wake);
+    Kokkos::parallel_for(TeamPolicy<>(opts.z_grid, 1), ft_z_wake);
 
     // at the moment
     /// bucket 0 is in front of bucket 1, which is in front of bucket 2, etc...
-    alg_bunch_wake ft_bunch_wake{
+    alg_bunch_wake ft_bunch_wake(
         bp, wake_field, bps, wakes, 
         opts.bunch_spacing, 
         opts.orbit_length,
         opts.full_machine,
         opts.z_grid
-    };
+    );
     Kokkos::parallel_for(opts.z_grid, ft_bunch_wake);
 
     // prints
