@@ -866,6 +866,9 @@ Impedance::apply_impedance_kick(Bunch& bunch,
 
     Kokkos::parallel_for(bunch.size(), alg);
 
+    Logger l(0, LoggerV::DEBUG);
+    bunch.print_statistics(l);
+
     MPI_Abort(MPI_COMM_WORLD, 333);
 
 #if 0
