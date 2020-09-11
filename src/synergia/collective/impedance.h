@@ -162,6 +162,7 @@ private:
 
     void apply_impedance_kick(
             Bunch& bunch, 
+            Bunch_params const& bp,
             double wake_factor);
 
 public:

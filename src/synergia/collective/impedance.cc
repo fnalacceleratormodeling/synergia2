@@ -505,7 +505,42 @@ namespace
         }
     };
 
+    struct alg_apply_kick
+    {
+        Particles p;
+        ConstParticleMasks masks;
 
+        karray1d_dev wf;
+        const int size_wake;
+        const int z_grid;
+        const double z_left;
+        const double recip_h;
+        const double wake_factor;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            double* z_wake   = &wf(size_wake*1);
+            double* xw_lead  = &wf(size_wake*2);
+            double* xw_trail = &wf(size_wake*3);
+            double* yw_lead  = &wf(size_wake*4);
+            double* yw_trail = &wf(size_wake*5);
+
+            if (masks(i))
+            {
+                int bin = (p(i, 4) - z_left) * recip_h;
+                if (bin<0 || bin>=z_grid) return;
+
+                double xkick = xw_lead[bin] + xw_trail[bin] * p(i, 0);
+                double ykick = yw_lead[bin] + yw_trail[bin] * p(i, 2);
+                double zkick = z_wake[bin];
+
+                p(i, 1) += wake_factor * xkick;
+                p(i, 3) += wake_factor * ykick;
+                p(i, 5) += wake_factor * zkick;
+            }
+        }
+    };
 
 }
 
@@ -639,14 +674,15 @@ Impedance::apply_bunch(Bunch& bunch,
     calculate_kicks(bunch, bp);
     //t = simple_timer_show(t, "impedance_apply: calculate_kicks ");
 
-#if 0
+    ///N.B. the wakefiled file reads W/(Z_0*L), Z_0=1/(epsilon_0*c)
+    double wake_factor = -4. * mconstants::pi * pconstants::rp;
+
     double gamma = bunch.get_reference_particle().get_gamma();
     double beta = bunch.get_reference_particle().get_beta();
-    double w_f = get_wake_factor() * time_step / (gamma*beta);  
-    
-    apply_impedance_kick(bunch,  w_f);
+    double w_f = wake_factor * time_step / (gamma*beta);  
+
+    apply_impedance_kick(bunch,  bp, w_f);
     //t = simple_timer_show(t, "impedance apply:apply_impedance_kick ");
-#endif
 }
 
 
@@ -671,10 +707,6 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
 
     // double h = z_length/(opts.z_grid-1.0); // AM why have I done that???
     double h = bp.cell_size_z;
-
-    // TODO: need to verify if zeroing h_zbinning 
-    // is needed for GPU version
-    // ...
 
     // get binning results
     auto parts = bunch.get_local_particles();
@@ -815,13 +847,27 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     kt::print_arr_sum(l, wakes, opts.z_grid*2, opts.z_grid);
     kt::print_arr_sum(l, wakes, opts.z_grid*3, opts.z_grid);
     kt::print_arr_sum(l, wakes, opts.z_grid*4, opts.z_grid);
-
-    MPI_Abort(MPI_COMM_WORLD, 333);
 }
 
 void 
-Impedance::apply_impedance_kick(Bunch & bunch, double wake_factor)
+Impedance::apply_impedance_kick(Bunch& bunch, 
+        Bunch_params const& bp, double wake_factor)
 {
+    alg_apply_kick alg{
+        bunch.get_local_particles(),
+        bunch.get_local_particle_masks(),
+        wake_field.terms,
+        wake_field.size_wake,
+        opts.z_grid,
+        bp.z_left,
+        1.0/bp.cell_size_z,
+        wake_factor
+    };
+
+    Kokkos::parallel_for(bunch.size(), alg);
+
+    MPI_Abort(MPI_COMM_WORLD, 333);
+
 #if 0
   
  MArray1i_ref const bin_partition(get_bin_partition());
