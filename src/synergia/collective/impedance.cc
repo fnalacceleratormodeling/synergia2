@@ -7,11 +7,15 @@
 #include "synergia/utils/kokkos_tools.h"
 
 #include "synergia/utils/simple_timer.h"
-//#include "synergia/utils/parallel_utils.h"
+
+#include <Kokkos_ScatterView.hpp>
 
 
 typedef Kokkos::TeamPolicy<> team_policy;
 typedef typename team_policy::member_type team_member;
+
+using scatter_t = Kokkos::Experimental::ScatterView<
+    double*, Kokkos::LayoutLeft>;
 
 namespace
 {
@@ -78,10 +82,6 @@ namespace
             {
                 int bin = (p(i, 4) - z_left) * recip_h;
 
-#if 0
-                if (bin < 0 || bin >= z_grid)
-                    throw std::runtime_error("impedance z-binning out of range");
-#endif
                 if (bin == z_grid)
                 {
                     sum[z_grid*0 + bin-1] += 1;
@@ -91,6 +91,38 @@ namespace
                     sum[z_grid*0 + bin] += 1;        // zdensity
                     sum[z_grid*1 + bin] += p(i, 0);  // xmom
                     sum[z_grid*2 + bin] += p(i, 2);  // ymom
+                }
+            }
+        }
+    };
+
+    struct alg_z_binning_sv
+    {
+        ConstParticles p;
+        ConstParticleMasks masks;
+        scatter_t scatter;
+
+        const int z_grid;
+        const double z_left;
+        const double recip_h;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            if (masks(i))
+            {
+                auto access = scatter.access();
+
+                int bin = (p(i, 4) - z_left) * recip_h;
+                if (bin == z_grid)
+                {
+                    access(z_grid*0 + bin-1) += 1;
+                }
+                else
+                {
+                    access(z_grid*0 + bin) += 1;        // zdensity
+                    access(z_grid*1 + bin) += p(i, 0);  // xmom
+                    access(z_grid*2 + bin) += p(i, 2);  // ymom
                 }
             }
         }
@@ -179,6 +211,8 @@ namespace
 
                 double xwl = xw_lead[iz]  + z1 * (xw_lead[iz+1] - xw_lead[iz])   * recip_z2;
                 sum.arr[0] += zdensity[j] * N_factor * xmom[j] * xwl;
+
+                //printf("%g\n", xmom[j]);
 
                 double xwt = xw_trail[iz] + z1 * (xw_trail[iz+1] - xw_trail[iz]) * recip_z2;
                 sum.arr[1] += zdensity[j] * N_factor * xwt;
@@ -645,24 +679,49 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
     // get binning results
     auto parts = bunch.get_local_particles();
     auto masks = bunch.get_local_particle_masks();
+
+#if 0
     alg_z_binning alg(parts, masks, opts.z_grid, bp.z_left, h);
+    Kokkos::parallel_reduce(bunch.size(), alg, h_zbinning.data());
+    Kokkos::fence();
+#endif
 
-    Kokkos::parallel_reduce("z_binning", 
-            bunch.size(), alg, h_zbinning.data());
+    // zero first
+    kt::zero_karray(zbinning);
 
+    // z binning
+    scatter_t scatter(zbinning);
+    alg_z_binning_sv alg{parts, masks, scatter, opts.z_grid, bp.z_left, 1.0/h};
+
+    Kokkos::parallel_for(bunch.size(), alg);
+    Kokkos::Experimental::contribute(zbinning, scatter);
+    Kokkos::fence();
+ 
     // MPI reduction to get global z-binning results
-    int error = MPI_Allreduce(MPI_IN_PLACE, h_zbinning.data(), 
-            opts.z_grid*3, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
+    if (bunch.get_comm().size() > 1)
+    {
+        // copy to host
+        Kokkos::deep_copy(h_zbinning, zbinning);
 
-    if (error != MPI_SUCCESS)
-        throw std::runtime_error("MPI error in Impedance reduce z_binning");
+        // all reduce
+        int error = MPI_Allreduce(MPI_IN_PLACE, h_zbinning.data(), 
+                opts.z_grid*3, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
 
-    // copy back to device
-    Kokkos::deep_copy(zbinning, h_zbinning);
+        if (error != MPI_SUCCESS)
+            throw std::runtime_error("MPI error in Impedance reduce z_binning");
+
+        // copy back to device
+        Kokkos::deep_copy(zbinning, h_zbinning);
+    }
 
     // normalize
     alg_z_normalize alg2{zbinning, opts.z_grid};
     Kokkos::parallel_for(opts.z_grid, alg2);
+
+    Logger l;
+    kt::print_arr_sum(l, zbinning, 0, opts.z_grid);
+    kt::print_arr_sum(l, zbinning, opts.z_grid*1, opts.z_grid);
+    kt::print_arr_sum(l, zbinning, opts.z_grid*2, opts.z_grid);
 
     return bp;
 }   
@@ -714,7 +773,7 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     // zbinning: zdensity, xmom, ymom
     // wakes: xw_lead, xw_trail, yw_lead, yw_trail, zwake
     alg_z_wake ft_z_wake{bp, wake_field, zbinning, wakes};
-    Kokkos::parallel_for(TeamPolicy<>(opts.z_grid, 1), ft_z_wake);
+    Kokkos::parallel_for(TeamPolicy<>(opts.z_grid, 32), ft_z_wake);
 
     // bunch-bunch wake
     // at the moment bucket 0 is in front of bucket 1, 
