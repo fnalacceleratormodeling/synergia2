@@ -288,14 +288,9 @@ public:
             ParticleGroup pg = PG::regular) const
     { get_bunch_particles(pg).print_particle(idx, logger); }
 
-#if 0
-    std::array<size_t, 2> get_particle_strides(ParticleGroup pg = PG::regular) const
-    { 
-        std::array<size_t, 2> strides;
-        get_bunch_particles(pg).parts.stride(strides.data());
-        return strides;
-    }
-#endif
+    // print statistics
+    // spectator particles are not included
+    void print_statistics(Logger& logger) const;
 
     /// Get the particle charge in units of e.
     int get_particle_charge() const { return particle_charge; }

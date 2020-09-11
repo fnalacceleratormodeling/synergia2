@@ -687,7 +687,7 @@ BunchParticles::write_file(Hdf5_file const& file,
 }
 
 void 
-BunchParticles::print_particle(size_t idx, Logger & logger) const
+BunchParticles::print_particle(size_t idx, Logger& logger) const
 {
     logger(LoggerV::DEBUG)
         << std::showpos << std::scientific

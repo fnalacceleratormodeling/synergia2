@@ -218,7 +218,7 @@ public:
     get_particles_last_discarded() const;
 
     void check_pz2_positive();
-    void print_particle(size_t idx, Logger & logger) const;
+    void print_particle(size_t idx, Logger& logger) const;
 
     // read from a hdf5 file. total_num of current bunch must be the same 
     // as the one stored in the particle file
