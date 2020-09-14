@@ -7,6 +7,7 @@
 #include <cmath>
 #include <algorithm>
 #include <sstream>
+#include <utility>
 
 // particle padding based on GSVector settings
 #if defined(GSV_SSE)
@@ -62,16 +63,12 @@ static Particle_id_offset particle_id_offset;
 void
 Bunch::assign_ids(int local_offset)
 {
-    int global_offset, request_num;
-    if (comm_sptr->get_rank() == 0) {
-        request_num = total_num;
-    } else {
-        request_num = 0;
-    }
-    global_offset = particle_id_offset.get(request_num, *comm_sptr);
+	int const my_rank = comm_sptr->get_rank();
+	int const request_num = (my_rank == 0) ? total_num : 0;
+    int const global_offset = particle_id_offset.get(request_num, *comm_sptr);
     for (int i = 0; i < local_num; ++i) {
-        (*local_particles)[i][id] = i + local_offset + global_offset;
-    }
+      (*local_particles)[i][id] = i + local_offset + global_offset;
+  }
 }
 
 void
@@ -858,78 +855,76 @@ Bunch::set_converter(Fixed_t_z_converter &converter)
 }
 
 void
-Bunch::convert_to_state(State state)
+Bunch::convert_to_state(State newstate)
 {
-    if (this->state != state) 
-    {
-        if (this->state == fixed_z_lab) 
-        {
-            if (state == fixed_t_lab) 
-            {
-                converter_ptr->from_z_lab_to_t_lab(*this);
-            }
-            else if ( state == fixed_t_bunch) 
-            {
-                converter_ptr->from_z_lab_to_t_bunch(*this);
-            }
-            // else if ( state == fixed_z_bunch) {
-            //    converter_ptr->from_z_lab_to_z_bunch(*this);
-            //}
-            else 
-            {
-                std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl;
-                throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 1");
-            }
-        }
-        else if (this->state == fixed_z_bunch) 
-        {
-            throw std::runtime_error("state z_bunch not implemented yet in Bunch::convert_to_state");
-        }
-        else if (this->state == fixed_t_lab) 
-        {
-            if (state == fixed_z_lab ) 
-            {
-                converter_ptr->from_t_lab_to_z_lab(*this);
-            }
-            //else if (state == fixed_z_bunch) {
-            //    converter_ptr->from_t_lab_to_z_bunch(*this);
-            //}
-            else if (state == fixed_t_bunch) 
-            {
-                converter_ptr->from_t_lab_to_t_bunch(*this);
-            }
-            else 
-            {
-                std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl;
-                throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 2");
-            }
-        }
-        else if (this->state == fixed_t_bunch) 
-        {
-            if (state == fixed_z_lab ) 
-            {
-                converter_ptr->from_t_bunch_to_z_lab(*this);
-            }
-            //else if (state == fixed_z_bunch ) {
-            //    converter_ptr->from_t_bunch_to_z_bunch(*this);
-            //}
-            else if (state == fixed_t_lab ) 
-            {
-                converter_ptr->from_t_bunch_to_t_lab(*this);
-            }
-            else 
-            {
-                std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl;
-                throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 3");
-            }
-        }
+	if (state == newstate) return;
 
-        this->state = state;
-    }
+	if (this->state == fixed_z_lab)
+	{
+		if (newstate == fixed_t_lab)
+		{
+			converter_ptr->from_z_lab_to_t_lab(*this);
+		}
+		else if ( newstate == fixed_t_bunch)
+		{
+			converter_ptr->from_z_lab_to_t_bunch(*this);
+		}
+		// else if ( state == fixed_z_bunch) {
+		//    converter_ptr->from_z_lab_to_z_bunch(*this);
+		//}
+		else
+		{
+			std::cout<<" state to convert to="<<newstate<<std::endl;
+			std::cout<<" initial state ="<<this->state<<std::endl;
+			throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 1");
+		}
+	}
+	else if (this->state == fixed_z_bunch)
+	{
+		throw std::runtime_error("state z_bunch not implemented yet in Bunch::convert_to_state");
+	}
+	else if (this->state == fixed_t_lab)
+	{
+		if (newstate == fixed_z_lab )
+		{
+			converter_ptr->from_t_lab_to_z_lab(*this);
+		}
+		//else if (state == fixed_z_bunch) {
+		//    converter_ptr->from_t_lab_to_z_bunch(*this);
+		//}
+		else if (newstate == fixed_t_bunch)
+		{
+			converter_ptr->from_t_lab_to_t_bunch(*this);
+		}
+		else
+		{
+			std::cout<<" state to convert to="<<newstate<<std::endl;
+			std::cout<<" initial state ="<<this->state<<std::endl;
+			throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 2");
+		}
+	}
+	else if (this->state == fixed_t_bunch)
+	{
+		if (newstate == fixed_z_lab )
+		{
+			converter_ptr->from_t_bunch_to_z_lab(*this);
+		}
+		//else if (state == fixed_z_bunch ) {
+		//    converter_ptr->from_t_bunch_to_z_bunch(*this);
+		//}
+		else if (newstate == fixed_t_lab )
+		{
+			converter_ptr->from_t_bunch_to_t_lab(*this);
+		}
+		else
+		{
+			std::cout<<" state to convert to="<<newstate<<std::endl;
+			std::cout<<" initial state ="<<this->state<<std::endl;
+			throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 3");
+		}
+	}
 
+	this->state = newstate;
 }
 
 
