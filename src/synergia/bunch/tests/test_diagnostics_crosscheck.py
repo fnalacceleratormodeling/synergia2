@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from math import sqrt
 import numpy
+from numpy.random import default_rng
 
 total_num = 9;
 particles = numpy.zeros([total_num, 6], 'd')
@@ -38,7 +39,8 @@ for i in range(0, 6):
             (i, j, mom2[i, j]))
 f.close()
 
-random_particles = numpy.random.lognormal(size=[total_num,6])
+rng = default_rng(seed=7607) # a nice prime number
+random_particles = rng.lognormal(size=[total_num,6])
 corr = numpy.corrcoef(random_particles.transpose())
 f = open("test_diagnostics_get_random_particles.icc", "w")
 for i in range(0, total_num):
