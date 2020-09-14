@@ -28,6 +28,8 @@ enum class element_type
     sextupole,
     octupole,
     monitor,
+    hmonitor,
+    vmonitor,
     marker,
     instrument,
     rcollimator,
@@ -50,6 +52,8 @@ namespace element_type_name
     constexpr char const* vkicker    = "vkicker";
     constexpr char const* kicker     = "kicker";
     constexpr char const* monitor    = "monitor";
+    constexpr char const* hmonitor   = "hmonitor";
+    constexpr char const* vmonitor   = "vmonitor";
     constexpr char const* sextupole  = "sextupole";
     constexpr char const* octupole   = "octupole";
     constexpr char const* marker     = "marker";

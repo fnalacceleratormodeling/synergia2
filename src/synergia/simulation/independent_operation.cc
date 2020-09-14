@@ -31,6 +31,8 @@ namespace
         case element_type::kicker:     return std::make_unique<FF_kicker>();
 
         case element_type::monitor:    return std::make_unique<FF_drift>();
+        case element_type::hmonitor:   return std::make_unique<FF_drift>();
+        case element_type::vmonitor:   return std::make_unique<FF_drift>();
         case element_type::sextupole:  return std::make_unique<FF_sextupole>();
         case element_type::octupole:   return std::make_unique<FF_octupole>();
         case element_type::marker:     return std::make_unique<FF_drift>();

@@ -22,6 +22,8 @@ namespace
         { element_type_name::vkicker,    element_type::vkicker},
         { element_type_name::kicker,     element_type::kicker},
         { element_type_name::monitor,    element_type::monitor},
+        { element_type_name::hmonitor,   element_type::hmonitor},
+        { element_type_name::vmonitor,   element_type::vmonitor},
         { element_type_name::sextupole,  element_type::sextupole},
         { element_type_name::octupole,   element_type::octupole},
         { element_type_name::marker,     element_type::marker},
