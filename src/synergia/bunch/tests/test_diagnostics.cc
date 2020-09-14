@@ -32,11 +32,9 @@ dummy_populate(Bunch &bunch)
 struct Fixture
 {
     Fixture() :
-            reference_particle(pconstants::electron_charge, mass, total_energy), comm_sptr(
-                    new Commxx), bunch_sptr(
-                    new Bunch(reference_particle, total_num, real_num,
-                            comm_sptr))
-
+      reference_particle(pconstants::electron_charge, mass, total_energy),
+      comm_sptr(new Commxx),
+      bunch_sptr(new Bunch(reference_particle, total_num, real_num, comm_sptr))
     {
         BOOST_TEST_MESSAGE("setup fixture");
         dummy_populate(*bunch_sptr);
@@ -55,7 +53,7 @@ struct Fixture
 
 BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
-    Diagnostics_basic diagnostics("dummy.h5");
+    Diagnostics_basic const diagnostics("dummy.h5");
 }
 
 BOOST_FIXTURE_TEST_CASE(is_serial, Fixture)
@@ -128,11 +126,11 @@ BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 // #include "test_diagnostics_get_bunchmin.icc"
 // }
 
-//BOOST_FIXTURE_TEST_CASE(get_bunchmax, Fixture)
-//{
+// BOOST_FIXTURE_TEST_CASE(get_bunchmax, Fixture)
+// {
 //    Diagnostics_basic diagnostics("dummy.h5");
-//#include "test_diagnostics_get_bunchmax.icc"
-//}
+// #include "test_diagnostics_get_bunchmax.icc"
+// }
 
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
@@ -207,74 +205,81 @@ BOOST_FIXTURE_TEST_CASE(get_mom2_full2, Fixture)
 BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
 {
     const double tolerance_corr = 1.0e-10;
-    Bunch_sptr bunch2_sptr(
-            new Bunch(reference_particle, total_num, real_num, comm_sptr));
-    MArray2d_ref particles(bunch2_sptr->get_local_particles());
+    auto random_bunch = boost::make_shared<Bunch>(reference_particle, total_num, real_num, comm_sptr);
+    MArray2d_ref particles(random_bunch->get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics("dummy.h5");
-    diagnostics.set_bunch_sptr(bunch2_sptr);
+    diagnostics.set_bunch_sptr(random_bunch);
     diagnostics.update();
 #include "test_diagnostics_get_corr.icc"
 }
 
 
-// BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
-// {
-//     Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
-//             comm));
-//     MArray2d_ref particles(bunch2_sptr->get_local_particles());
-// #include "test_diagnostics_get_random_particles.icc"
-//     Diagnostics_full2 diagnostics(bunch2_sptr, "dummy.h5");
-//     diagnostics.update();
-// #include "test_diagnostics_get_emitx.icc"
-// }
+BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
+{
+    const double tolerance_emit2d = 1.0e-12;
+    Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
+            comm_sptr));
+    MArray2d_ref particles(bunch2_sptr->get_local_particles());
+#include "test_diagnostics_get_random_particles.icc"
+    Diagnostics_full2 diagnostics("dummy.h5");
+    diagnostics.set_bunch_sptr(bunch2_sptr);
+    diagnostics.update();
+#include "test_diagnostics_get_emitx.icc"
+}
 
-/*BOOST_FIXTURE_TEST_CASE(get_emity_full2, Fixture)
+BOOST_FIXTURE_TEST_CASE(get_emity_full2, Fixture)
  {
- Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
- comm));
- MArray2d_ref particles(bunch2_sptr->get_local_particles());
+   const double tolerance_emit2d = 1.0e-12;
+   Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
+      comm_sptr));
+    MArray2d_ref particles(bunch2_sptr->get_local_particles());
  #include "test_diagnostics_get_random_particles.icc"
- Diagnostics_full2 diagnostics(bunch2_sptr, "dummy.h5");
- diagnostics.update();
+    Diagnostics_full2 diagnostics("dummy.h5");
+    diagnostics.set_bunch_sptr(bunch2_sptr);
+    diagnostics.update();
  #include "test_diagnostics_get_emity.icc"
- }*/
+ }
 
-// BOOST_FIXTURE_TEST_CASE(get_emitz_full2, Fixture)
-// {
-//     Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
-//             comm));
-//     MArray2d_ref particles(bunch2_sptr->get_local_particles());
-// #include "test_diagnostics_get_random_particles.icc"
-//     Diagnostics_full2 diagnostics(bunch2_sptr, "dummy.h5");
-//     diagnostics.update();
-// #include "test_diagnostics_get_emitz.icc"
-// }
-// const double tolerance_emit4d = 1.0e-11;
-//
-// BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
-// {
-//     Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
-//             comm));
-//     MArray2d_ref particles(bunch2_sptr->get_local_particles());
-// #include "test_diagnostics_get_random_particles.icc"
-//     Diagnostics_full2 diagnostics(bunch2_sptr, "dummy.h5");
-//     diagnostics.update();
-// #include "test_diagnostics_get_emitxy.icc"
-// }
-//
-// const double tolerance_emit6d = 1.0e-10;
-//
-// BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
-// {
-//     Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
-//             comm));
-//     MArray2d_ref particles(bunch2_sptr->get_local_particles());
-// #include "test_diagnostics_get_random_particles.icc"
-//     Diagnostics_full2 diagnostics(bunch2_sptr, "dummy.h5");
-//     diagnostics.update();
-// #include "test_diagnostics_get_emitxyz.icc"
-// }
+BOOST_FIXTURE_TEST_CASE(get_emitz_full2, Fixture)
+{
+    const double tolerance_emit2d = 1.0e-12;
+    Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
+            comm_sptr));
+    MArray2d_ref particles(bunch2_sptr->get_local_particles());
+#include "test_diagnostics_get_random_particles.icc"
+    Diagnostics_full2 diagnostics("dummy.h5");
+    diagnostics.set_bunch_sptr(bunch2_sptr);
+    diagnostics.update();
+#include "test_diagnostics_get_emitz.icc"
+}
+
+const double tolerance_emit4d = 1.0e-11;
+BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
+{
+    Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
+        comm_sptr));
+    MArray2d_ref particles(bunch2_sptr->get_local_particles());
+#include "test_diagnostics_get_random_particles.icc"
+    Diagnostics_full2 diagnostics("dummy.h5");
+    diagnostics.set_bunch_sptr(bunch2_sptr);
+    diagnostics.update();
+#include "test_diagnostics_get_emitxy.icc"
+}
+
+const double tolerance_emit6d = 1.0e-10;
+BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
+{
+    Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
+        comm_sptr));
+    MArray2d_ref particles(bunch2_sptr->get_local_particles());
+#include "test_diagnostics_get_random_particles.icc"    
+    Diagnostics_full2 diagnostics("dummy.h5");
+    diagnostics.set_bunch_sptr(bunch2_sptr);
+    diagnostics.update();
+#include "test_diagnostics_get_emitxyz.icc"
+}
+
 // this test fails.  All I do is instantiate a Diagnostics_full2 object and destroy
 // it.  The failure occurs in the destructor for the hdf5_writers.
 
@@ -295,25 +300,14 @@ BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
 }
 BOOST_FIXTURE_TEST_CASE(serialize_full2, Fixture)
 {
-	{
-    std::cout << "egs: before create diagnostics_full2 dummy_full2.h5" << std::endl; std::cout.flush();
+    {
     Diagnostics_full2 diagnostics("dummy_full2.h5");
-    std::cout << "egs: before setbunch" << std::endl; std::cout.flush();
     diagnostics.set_bunch_sptr(bunch_sptr);
-    std::cout << "egs: before update()" << std::endl; std::cout.flush();
     diagnostics.update();
-    std::cout << "egs: before write()" << std::endl; std::cout.flush();
     diagnostics.write();
-    std::cout << "egs: before xml_save(full2.xml)" << std::endl; std::cout.flush();
     xml_save(diagnostics, "full2.xml");
-    std::cout << "egs: before create diagnostics_full2 dummy_full2.h5" << std::endl; std::cout.flush();
   }
-  std::cout << "egs: wrote full2.xml" << std::endl; std::cout.flush();
   Diagnostics_full2 loaded;
-  std::cout << "egs: created loaded" << std::endl; std::cout.flush();
-  std::cout << "egs: have_writers: " << loaded.get_have_writers() << std::endl; std::cout.flush();
-  std::cout << "egs: have_write_helper: " << loaded.have_write_helper() << std::endl; std::cout.flush();
-
   xml_load(loaded, "full2.xml");
 }
 
