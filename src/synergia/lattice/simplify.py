@@ -26,7 +26,7 @@ def _copy_attributes_ancestors(element, new_element):
         new_element.add_ancestor(ancestor)
 
 def eliminate_markers(lattice):
-    new_lattice = synergia.lattice.Lattice(lattice.get_name())
+    new_lattice = synergia.lattice.Lattice(lattice.get_name(), lattice.get_element_adaptor_map_sptr())
     new_lattice.set_reference_particle(lattice.get_reference_particle())
     for element in lattice.get_elements():
             if (element.get_type() == 'marker') and \
@@ -37,7 +37,7 @@ def eliminate_markers(lattice):
     return new_lattice
 
 def convert_monitors(lattice):
-    new_lattice = synergia.lattice.Lattice(lattice.get_name())
+    new_lattice = synergia.lattice.Lattice(lattice.get_name(), lattice.get_element_adaptor_map_sptr())
     new_lattice.set_reference_particle(lattice.get_reference_particle())
     for element in lattice.get_elements():
             if ((element.get_type() == 'monitor') or \
@@ -56,7 +56,7 @@ def _is_magnet(type):
     return type.find(suffix) == (len(type) - len(suffix))
 
 def convert_magnets(lattice):
-    new_lattice = synergia.lattice.Lattice(lattice.get_name())
+    new_lattice = synergia.lattice.Lattice(lattice.get_name(), lattice.get_element_adaptor_map_sptr())
     new_lattice.set_reference_particle(lattice.get_reference_particle())
     for element in lattice.get_elements():
             if _is_magnet(element.get_type()) and \
@@ -81,7 +81,7 @@ def convert_magnets(lattice):
     return new_lattice
 
 def convert_kickers(lattice):
-    new_lattice = synergia.lattice.Lattice(lattice.get_name())
+    new_lattice = synergia.lattice.Lattice(lattice.get_name(), lattice.get_element_adaptor_map_sptr())
     new_lattice.set_reference_particle(lattice.get_reference_particle())
     for element in lattice.get_elements():
             if ((element.get_type() == 'hicker') or \
@@ -107,7 +107,7 @@ def convert_kickers(lattice):
     return new_lattice
 
 def combine_drifts(lattice):
-    new_lattice = synergia.lattice.Lattice(lattice.get_name())
+    new_lattice = synergia.lattice.Lattice(lattice.get_name(), lattice.get_element_adaptor_map_sptr())
     new_lattice.set_reference_particle(lattice.get_reference_particle())
     last_element = None
     for element in lattice.get_elements():
