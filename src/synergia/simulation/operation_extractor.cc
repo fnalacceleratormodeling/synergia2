@@ -210,7 +210,8 @@ extract_aperture_operation(
     }
     else
     {
-        throw std::runtime_error("unknown aperture_type");
+        return std::make_unique<Aperture_operation<Dummy_aperture>>(slice);
+        //throw std::runtime_error("unknown aperture_type " + aperture_type);
     }
 }
 

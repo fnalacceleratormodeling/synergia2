@@ -91,7 +91,21 @@ PYBIND11_MODULE(simulation, m)
                 &Bunch_simulator::create_single_bunch_simulator,
                 py::return_value_policy::move,
                 "Create a Bunch_simulator with a single bunch.",
-                "reference_particle"_a, "num_particles"_a, "num_real_particles"_a, "commxx"_a = Commxx() )
+                "reference_particle"_a, 
+                "num_particles"_a, 
+                "num_real_particles"_a, 
+                "commxx"_a = Commxx() )
+ 
+        .def_static( "create_bunch_train_simulator",
+                &Bunch_simulator::create_bunch_train_simulator,
+                py::return_value_policy::move,
+                "Create a Bunch_simulator with a single bunch train.",
+                "reference_particle"_a, 
+                "num_particles"_a, 
+                "num_real_particles"_a, 
+                "num_bunches"_a,
+                "spacing"_a,
+                "commxx"_a = Commxx() )
         
 #if 0
         .def( "set_turns",

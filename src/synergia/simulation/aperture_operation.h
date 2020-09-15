@@ -34,6 +34,18 @@ public:
     { return ap.type; }
 };
 
+struct Dummy_aperture
+{
+    constexpr static const char *type = "dummy";
+
+    Dummy_aperture(Lattice_element const&)
+    { }
+
+    KOKKOS_INLINE_FUNCTION
+    bool discard(ConstParticles const& parts, int p) const
+    { return false; }
+};
+
 
 
 /// An aperture to remove all particles with infinite and/or NaN coordinates.

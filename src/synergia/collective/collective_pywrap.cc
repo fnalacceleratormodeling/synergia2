@@ -3,6 +3,7 @@
 #include <pybind11/stl.h>
 
 
+#include "dummy_collective_operator.h"
 #include "space_charge_2d_open_hockney.h"
 
 namespace py = pybind11;
@@ -20,6 +21,11 @@ PYBIND11_MODULE(collective, m)
         .def_readwrite( "comm_group_size", 
                 &Space_charge_2d_open_hockney_options::comm_group_size,
                 "Communication group size (must be 1 when running on GPUs)." )
+        ;
+
+    py::class_<Dummy_CO_options, CO_options>
+        (m, "Dummy_CO_options")
+        .def( py::init<>(), "Construct a dummy collective operator.")
         ;
 }
 

@@ -263,7 +263,36 @@ PYBIND11_MODULE(bunch, m)
         ;
 
     // populate
-    m.def( "populate_6d", populate_6d );
+    //m.def( "populate_6d", populate_6d );
+
+    m.def( "populate_6d", 
+            []( Distribution& dist, 
+                Bunch& bunch,
+                py::buffer p_means,
+                py::buffer p_covars ) {
+
+                    using ka1d_unmanaged = Kokkos::View<double*, 
+                        Kokkos::HostSpace, 
+                        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                    using ka2d_unmanaged = Kokkos::View<double**, 
+                        Kokkos::LayoutRight, 
+                        Kokkos::HostSpace, 
+                        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                    py::buffer_info pm_info = p_means.request();
+                    py::buffer_info pc_info = p_covars.request();
+
+                    ka1d_unmanaged means((double*)pm_info.ptr, 
+                            pm_info.shape[0]);
+
+                    ka2d_unmanaged covars((double*)pc_info.ptr, 
+                            pc_info.shape[0], pc_info.shape[1]);
+
+                    populate_6d(dist, bunch, means, covars);
+              } )
+        ;
+
 
     m.def( "populate_6d_truncated", 
             []( Distribution& dist, 
