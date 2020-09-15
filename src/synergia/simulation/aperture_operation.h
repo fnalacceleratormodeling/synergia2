@@ -115,6 +115,39 @@ struct Circular_aperture
     }
 };
 
+/// An elliptical aperture with horizontal and vertical radii in meters
+/// determined by the Lattice_element_attributes
+/// "elliptical_aperture_horizontal_radius" and
+/// "elliptical_aperture_vertical_radius", respectively.
+/// Both radii must be specified. Failing to do so will cause an
+/// exception.
+struct Elliptical_aperture
+{
+    constexpr static const char *type = "elliptical";
+    double h2, v2, xoff, yoff;
+
+    Elliptical_aperture(Lattice_element const& ele)
+        : h2(1.0), v2(1.0)
+        , xoff(ele.get_double_attribute("hoffset", 0.0))
+        , yoff(ele.get_double_attribute("voffset", 0.0))
+    { 
+        double hr = ele.get_double_attribute("elliptical_aperture_horizontal_radius");
+        double vr = ele.get_double_attribute("elliptical_aperture_vertical_radius");
+        h2 = hr * hr;
+        v2 = vr * vr;
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    bool discard(ConstParticles const& parts, int p) const
+    {
+        double xrel = parts(p, 0) - xoff;
+        double yrel = parts(p, 2) - yoff;
+
+        double scaled_r2 = xrel * xrel / h2 + yrel * yrel / v2;
+        return (scaled_r2 > 1.0);
+    }
+};
+
 
 #if 0
 /// An elliptical aperture with horizontal and vertical radii in meters

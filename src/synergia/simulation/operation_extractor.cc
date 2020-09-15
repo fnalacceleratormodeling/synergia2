@@ -208,10 +208,14 @@ extract_aperture_operation(
     {
         return std::make_unique<Aperture_operation<Circular_aperture>>(slice);
     }
+    else if (aperture_type == Elliptical_aperture::type)
+    {
+        return std::make_unique<Aperture_operation<Elliptical_aperture>>(slice);
+    }
     else
     {
-        return std::make_unique<Aperture_operation<Dummy_aperture>>(slice);
-        //throw std::runtime_error("unknown aperture_type " + aperture_type);
+        //return std::make_unique<Aperture_operation<Dummy_aperture>>(slice);
+        throw std::runtime_error("unknown aperture_type " + aperture_type);
     }
 }
 
