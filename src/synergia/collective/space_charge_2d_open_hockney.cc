@@ -381,14 +381,16 @@ Space_charge_2d_open_hockney::construct_workspaces(
 
     for(size_t t=0; t<2; ++t)
     {
-        for(size_t b=0; b<sim[t].get_bunch_array_size(); ++b)
+        int num_local_bunches = sim[t].get_bunch_array_size();
+        ffts[t] = std::vector<Distributed_fft2d>(num_local_bunches);
+
+        for(size_t b=0; b<num_local_bunches; ++b)
         {
             auto comm = sim[t][b]
                 .get_comm()
                 .divide(options.comm_group_size);
 
-            ffts[t].emplace_back();
-            ffts[t].back().construct(s, comm);
+            ffts[t][b].construct(s, comm);
         }
     }
 }
