@@ -805,7 +805,13 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     // zbinning: zdensity, xmom, ymom
     // wakes: xw_lead, xw_trail, yw_lead, yw_trail, zwake
     alg_z_wake ft_z_wake{bp, wake_field, zbinning, wakes};
-    Kokkos::parallel_for(TeamPolicy<>(opts.z_grid, 32), ft_z_wake);
+
+    const int team_size_max = team_policy(opts.z_grid, 1)
+        .team_size_max(ft_z_wake, Kokkos::ParallelForTag());
+
+    Kokkos::parallel_for(
+            TeamPolicy<>(opts.z_grid, team_size_max), 
+            ft_z_wake);
 
     // bunch-bunch wake
     // at the moment bucket 0 is in front of bucket 1, 
