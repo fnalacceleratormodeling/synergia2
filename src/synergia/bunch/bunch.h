@@ -318,19 +318,14 @@ public:
     // Diagnostics
     template<class Diag>
     Diagnostics_handler
-    add_diagnostics(
-            Diag const& diag,
-            std::string const& name, 
-            std::string const& filename,
-            std::string const& temp_dir = "")
+    add_diagnostics(Diag const& diag, std::string const& name)
     { 
-        auto res = diags.emplace(name, Diagnostics_worker(
-                diag, filename, temp_dir, comm)); 
+        auto res = diags.emplace(name, Diagnostics_worker(diag, comm)); 
         return Diagnostics_handler(res.first->second, *this);
     }
 
-
-    Diagnostics_worker & get_diag(std::string const & name);
+    Diagnostics_worker& 
+    get_diag(std::string const & name);
 
     std::string diag_type(std::string const& name)
     { return get_diag(name).type(); }
@@ -341,17 +336,13 @@ public:
     void diag_update_and_write(std::string const& name)
     { get_diag(name).update_and_write(*this); }
 
-    void set_diag_loss_aperture(
-            std::string const& filename, 
-            std::string const& temp_dir = "" )
+    void set_diag_loss_aperture(std::string const& filename)
     { diag_aperture.reset( new Diagnostics_worker(
-                Diagnostics_loss(), filename, temp_dir, comm)); }
+                Diagnostics_loss(filename), comm)); }
 
-    void set_diag_loss_zcut(
-            std::string const& filename,
-            std::string const& temp_dir = "" )
+    void set_diag_loss_zcut(std::string const& filename)
     { diag_zcut.reset( new Diagnostics_worker(
-                Diagnostics_loss(), filename, temp_dir, comm)); }
+                Diagnostics_loss(filename), comm)); }
 
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,

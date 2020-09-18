@@ -139,9 +139,7 @@ PYBIND11_MODULE(bunch, m)
         .def( "add_diagnostics",
                 []( Bunch& self,
                     std::shared_ptr<Diagnostics> const& diag, 
-                    std::string const& name,
-                    std::string const& filename,
-                    std::string const& local_dir) {
+                    std::string const& name ) {
                         // if the diagnostics is an inherited python type,
                         // reg a ref of the python instance to keep it alive so the
                         // __dict__ object which contains the actual python methods
@@ -149,10 +147,10 @@ PYBIND11_MODULE(bunch, m)
                         PyDiagnostics* p = dynamic_cast<PyDiagnostics*>(diag.get());
                         if (p) { p->reg_self(); }
 
-                        self.add_diagnostics(diag, name, filename, local_dir);
+                        self.add_diagnostics(diag, name);
                 },
                 "Add a diagnostics to the bunch object.",
-                "diag"_a, "name"_a, "filename"_a, "local_dir"_a = "" )
+                "diag"_a, "name"_a )
 
         .def( "diag_type",
                 &Bunch::diag_type,

@@ -31,21 +31,17 @@ public:
     template<class DiagCal>
     Diagnostics_worker(
             DiagCal const& diag,
-            std::string const& filename,
-            std::string const& local_dir,
             std::shared_ptr<Commxx> const& comm)
         : diag(std::make_shared<DiagCal>(diag))
-        , diag_file(filename, local_dir, diag.serial(), comm)
+        , diag_file(diag.filename(), ""/*local_dir*/, diag.serial(), comm)
     { }
 
     // for registering from python only
     Diagnostics_worker(
             std::shared_ptr<Diagnostics> const& diag,
-            std::string const& filename,
-            std::string const& local_dir,
             std::shared_ptr<Commxx> const& comm)
         : diag(diag)
-        , diag_file(filename, local_dir, diag->serial(), comm)
+        , diag_file(diag->filename(), ""/*local_dir*/, diag->serial(), comm)
     { }
 
     std::string type() const;

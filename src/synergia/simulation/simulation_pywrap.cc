@@ -140,7 +140,6 @@ PYBIND11_MODULE(simulation, m)
                 "Register a per turn diagnostics.",
                 "diag"_a, 
                 "name"_a, 
-                "filename"_a,
                 "train_idx"_a = 0, 
                 "bunch_idx"_a = 0, 
                 "period"_a = 1 )

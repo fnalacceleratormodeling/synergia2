@@ -20,7 +20,8 @@
 #include "synergia/utils/lsexpr.h"
 
 #include "synergia/collective/space_charge_2d_open_hockney.h"
-#include "synergia/collective/space_charge_3d_open_hockney.h"
+//#include "synergia/collective/space_charge_3d_open_hockney.h"
+//#include "synergia/collective/space_charge_rectangular.h"
 //#include "synergia/collective/dummy_collective_operator.h"
 
 #include "synergia/utils/simple_timer.h"
@@ -195,7 +196,8 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
         << "reference momentum = " << ref.get_momentum() << " GeV\n";
 
     // space charge
-    Space_charge_3d_open_hockney_options sc_ops(64, 64, 64);
+    Space_charge_2d_open_hockney_options sc_ops(128, 128, 256);
+    //Space_charge_rectangular_options sc_ops({64, 64, 128}, {0.1, 0.1, 1.0});
     sc_ops.comm_group_size = 1;
 
     // stepper
@@ -242,7 +244,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 
 #if 0
     // or read from file
-    //bunch.read_file_legacy("turn_particles_0000_4M.h5");
+    //bunch.read_file_legacy("turn_particles_0000.h5");
     //bunch.write_file("bunch_particles_4M.h5");
     bunch.read_file("bunch_particles_4M.h5");
 
@@ -254,16 +256,16 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // statistics before propagate
     print_statistics(bunch, screen);
 
-    Diagnostics_full2 diag_full2;
-    sim.reg_diag_per_turn(diag_full2, "full2", "diag_full2.h5");
+    Diagnostics_full2 diag_full2("diag_full2.h5");
+    auto diag = sim.reg_diag_per_turn(diag_full2, "full2");
 
-#if 0
-    Diagnostics_bulk_track diag_bt(1000, 0);
-    sim.reg_diag_per_turn(diag_bt, "bulk_track", "diag_bulk_track.h5");
+    Diagnostics_bulk_track diag_bt("diag_bulk_track.h5", 1000, 0);
+    sim.reg_diag_per_turn(diag_bt, "bulk_track");
 
-    Diagnostics_particles diag_part(100);
-    sim.reg_diag_per_turn(diag_part, "particles", "diag_particles.h5");
-#endif
+    Diagnostics_particles diag_part("diag_particles.h5", 100);
+    sim.reg_diag_per_turn(diag_part, "particles");
+
+    sim.reg_diag_loss_aperture("loss.h5");
 
     // propagate
     propagator.propagate(sim, simlog, 2);
@@ -345,7 +347,7 @@ void bs_save()
     Bunch& b = sim.get_bunch();
 
     Diagnostics_dummy diag;
-    b.add_diagnostics(diag, "dummy", "dummy.h5");
+    b.add_diagnostics(diag, "dummy");
 
     Diagnostics_loss d2;
     //b.set_diag_loss_aperture(d2);

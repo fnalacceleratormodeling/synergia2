@@ -177,7 +177,6 @@ public:
     reg_diag_per_turn(
             Diag const& diag, 
             std::string const& name, 
-            std::string const& filename,
             int train = 0, int bunch = 0, int period = 1 )
     { 
         int bunch_idx = get_bunch_array_idx(train, bunch);
@@ -196,7 +195,7 @@ public:
         diags_step_period.push_back(dt);
 
         return trains[train][bunch_idx]
-            .add_diagnostics(diag, name, filename);
+            .add_diagnostics(diag, name);
     }
 
     // diag loss
