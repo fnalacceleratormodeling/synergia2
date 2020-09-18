@@ -173,21 +173,30 @@ public:
     // the train and bunch are indexed based on actual number of
     // bunches per train
     template<class Diag>
-    void reg_diag_per_turn(
+    Diagnostics_handler
+    reg_diag_per_turn(
             Diag const& diag, 
             std::string const& name, 
             std::string const& filename,
             int train = 0, int bunch = 0, int period = 1 )
     { 
         int bunch_idx = get_bunch_array_idx(train, bunch);
-        if (bunch_idx == -1) return;
+
+        if (bunch_idx == -1) 
+        {
+            throw std::runtime_error(
+                "Bunch_simulator::reg_diag_per_turn "
+                "designated bunch doesnt exist" );
+        }
 
         dt_step_period dt{ train, bunch_idx, name, 
             trigger_step_period{period, -1} 
         };
 
         diags_step_period.push_back(dt);
-        trains[train][bunch_idx].add_diagnostics(diag, name, filename);
+
+        return trains[train][bunch_idx]
+            .add_diagnostics(diag, name, filename);
     }
 
     // diag loss

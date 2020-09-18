@@ -317,13 +317,17 @@ public:
 
     // Diagnostics
     template<class Diag>
-    void add_diagnostics(
+    Diagnostics_handler
+    add_diagnostics(
             Diag const& diag,
             std::string const& name, 
             std::string const& filename,
             std::string const& temp_dir = "")
-    { diags.emplace(name, Diagnostics_worker(
-                diag, filename, temp_dir, comm)); }
+    { 
+        auto res = diags.emplace(name, Diagnostics_worker(
+                diag, filename, temp_dir, comm)); 
+        return Diagnostics_handler(res.first->second, *this);
+    }
 
 
     Diagnostics_worker & get_diag(std::string const & name);

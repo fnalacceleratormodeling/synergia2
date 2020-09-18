@@ -68,5 +68,36 @@ private:
     }
 };
 
+class Diagnostics_handler
+{
+private:
+
+    Diagnostics_worker& worker;
+    Bunch const& bunch;
+
+public:
+
+    Diagnostics_handler(
+            Diagnostics_worker& worker,
+            Bunch const& bunch) 
+        : worker(worker), bunch(bunch)
+    { }
+
+    std::string type() const
+    { return worker.type(); }
+
+    std::string name() const
+    { return ""; }
+
+    void update()
+    { worker.update(bunch); }
+
+    void write()
+    { worker.write(); }
+
+    void update_and_write()
+    { worker.update_and_write(bunch); }
+};
+
 
 #endif
