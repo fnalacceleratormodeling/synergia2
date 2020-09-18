@@ -15,6 +15,7 @@ class Diagnostics
 private:
 
     std::string type_;
+    std::string filename_;
     bool single_file_;
     bool first_write = true;
 
@@ -25,13 +26,19 @@ private:
 
 public:
 
-    Diagnostics(std::string const& type = "Diagnostics", bool single_file = true)
-        : type_(type), single_file_(single_file)
+    Diagnostics(
+            std::string const& type = "Diagnostics", 
+            std::string const& filename = "diag.h5",
+            bool single_file = true)
+        : type_(type)
+        , filename_(filename)
+        , single_file_(single_file)
     { }
 
     virtual ~Diagnostics() = default;
 
     std::string type() const { return type_; }
+    std::string filename() const { return filename_; }
 
     void update(Bunch const& bunch)
     { do_update(bunch); }
@@ -52,6 +59,7 @@ public:
     void serialize(Archive & ar)
     {
         ar(CEREAL_NVP(type_));
+        ar(CEREAL_NVP(filename_));
         ar(CEREAL_NVP(single_file_));
         ar(CEREAL_NVP(first_write));
     }
@@ -62,7 +70,8 @@ class Diagnostics_dummy : public Diagnostics
 
 public:
 
-    Diagnostics_dummy() : Diagnostics("diag_dummy", true)
+    Diagnostics_dummy() 
+        : Diagnostics("diag_dummy", "diag_dummy.h5", true)
     { }
 
 private:

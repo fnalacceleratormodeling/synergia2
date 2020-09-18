@@ -57,8 +57,10 @@ public:
     ///        a numerical index inserted
     /// @param num_tracks the number of local particles to track
     /// @param offset id offset for first particle to track
-    /// @param local_dir local directory to use for temporary scratch
-    Diagnostics_bulk_track(int num_tracks = 0, int offset = 0);
+    Diagnostics_bulk_track(
+            std::string const& filename = "diag_bulk_track.h5", 
+            int num_tracks = 0, 
+            int offset = 0);
 
 };
 

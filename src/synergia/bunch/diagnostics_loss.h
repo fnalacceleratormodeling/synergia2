@@ -17,8 +17,8 @@ private:
  
 public:
 
-    Diagnostics_loss()
-        : Diagnostics("diagnostics_loss", true)
+    Diagnostics_loss(std::string const& filename = "diag_loss.h5")
+        : Diagnostics("diagnostics_loss", filename, true)
         , bucket_index(-1)
         , repetition(0)
         , s_ref_particle(0.0)

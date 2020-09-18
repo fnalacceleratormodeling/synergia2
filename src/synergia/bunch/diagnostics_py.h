@@ -12,8 +12,11 @@ public:
     // inherit the constructors
     using Diagnostics::Diagnostics;
 
-    PyDiagnostics(std::string const& type = "PyDiagnostics", bool serial = true)
-        : Diagnostics(type, serial), self()
+    PyDiagnostics(
+            std::string const& type = "PyDiagnostics", 
+            std::string const& filename = "py_diag.h5",
+            bool serial = true)
+        : Diagnostics(type, filename, serial), self()
     { }
 
     // hold a reference to the python instance so it wont go out of scope

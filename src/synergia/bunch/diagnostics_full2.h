@@ -25,8 +25,8 @@ private:
 
 public:
 
-    Diagnostics_full2()
-        : Diagnostics("diagnostics_full2", true)
+    Diagnostics_full2(std::string const& filename = "diag_full2.h5")
+        : Diagnostics("diagnostics_full2", filename, true)
         , ref()
         , num_particles(0)
         , real_num_particles(0.0)

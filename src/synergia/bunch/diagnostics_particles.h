@@ -17,6 +17,7 @@ private:
 public:
 
     Diagnostics_particles(
+            std::string const& filename = "diag_particles.h5",
             int num_part = -1, int offset = 0,
             int num_spec_part = 0, int spec_offset = 0 );
 

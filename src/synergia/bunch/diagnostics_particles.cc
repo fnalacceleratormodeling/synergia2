@@ -3,11 +3,12 @@
 #include "synergia/bunch/bunch.h"
 
 Diagnostics_particles::Diagnostics_particles(
+        std::string const& filename,
         int num_part, 
         int offset,
         int num_spec_part, 
         int spec_offset)
-    : Diagnostics("diagnostics_particles", false)
+    : Diagnostics("diagnostics_particles", filename, false)
     , bunch_ptr(nullptr)
     , num_part(num_part) , offset(offset)
     , num_spec_part(num_spec_part), spec_offset(spec_offset)

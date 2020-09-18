@@ -7,9 +7,10 @@
 
 
 Diagnostics_bulk_track::Diagnostics_bulk_track(
+        std::string const& filename,
         int num_tracks, 
         int offset )
-    : Diagnostics("diagnostis_bulk_track", true)
+    : Diagnostics("diagnostis_bulk_track", filename, true)
     , total_num_tracks(num_tracks)
     , local_num_tracks(0)
     , offset(offset)

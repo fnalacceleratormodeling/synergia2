@@ -202,14 +202,19 @@ PYBIND11_MODULE(bunch, m)
 
     // Diagnostics_calculator base class
     py::class_<Diagnostics, PyDiagnostics, std::shared_ptr<Diagnostics>>(m, "Diagnostics")
-        .def( py::init<std::string const&, bool>(),
+        .def( py::init<std::string const&, std::string const&, bool>(),
                 "Construct a Diagnostics object.",
                 "type"_a = "py_diag", 
+                "filename"_a = "py_diag.h5",
                 "serial"_a = true )
 
         .def( "type",
                 &Diagnostics::type,
                 "Get the type of the Diagnostics." )
+
+        .def( "filename",
+                &Diagnostics::filename,
+                "Returns the filename of the Diagnostics." )
 
 #if 0
         .def( "__reduce__",
@@ -226,7 +231,7 @@ PYBIND11_MODULE(bunch, m)
                     return py::make_tuple(self.attr("__dict__")); 
                 },
                 [](py::tuple const& t) { 
-                    PyDiagnostics cpp_diag("restored pydiag", true);
+                    PyDiagnostics cpp_diag("restored pydiag", "py_diag.h5", true);
                     auto py_diag = t[0].cast<py::dict>();
                     return std::make_pair(cpp_diag, py_diag);
                 } ) )
@@ -241,21 +246,25 @@ PYBIND11_MODULE(bunch, m)
 
     py::class_<Diagnostics_full2, Diagnostics, std::shared_ptr<Diagnostics_full2>>(
             m, "Diagnostics_full2")
-        .def( py::init<>() )
+        .def( py::init<std::string const&>(),
+                "Construct a Diagnostics_full2 object.",
+                "filename"_a = "diag_full2.h5" )
         ;
 
     py::class_<Diagnostics_bulk_track, Diagnostics, std::shared_ptr<Diagnostics_bulk_track>>(
             m, "Diagnostics_bulk_track")
-        .def( py::init<int, int>(),
+        .def( py::init<std::string const&, int, int>(),
                 "Construct a Diagnostics_bulk_track object.",
+                "filename"_a = "diag_bulk_track.h5",
                 "num_tracks"_a = 0,
                 "offset"_a = 0 )
         ;
 
     py::class_<Diagnostics_particles, Diagnostics, std::shared_ptr<Diagnostics_particles>>(
             m, "Diagnostics_particles")
-        .def( py::init<int, int, int, int>(),
+        .def( py::init<std::string const&, int, int, int, int>(),
                 "Construct a Diagnostics_particles object.",
+                "filename"_a = "diag_particles.h5",
                 "num_part"_a = -1,
                 "offset"_a = 0,
                 "num_spec_part"_a = 0,
