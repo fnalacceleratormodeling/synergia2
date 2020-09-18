@@ -349,14 +349,21 @@ class Vec4d;
 class vector4double;
 
 // headers
-#if defined(GSV_SSE)
+#if defined(GSV_SSE) || defined(GSV_AVX)
+
+  #if defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wattributes"
+  #endif
+
   #include "vectorclass/vectorclass.h"
   #include "vectorclass/vectormath_trig.h"
   #include "vectorclass/vectormath_exp.h"
-#elif defined(GSV_AVX)
-  #include "vectorclass/vectorclass.h"
-  #include "vectorclass/vectormath_trig.h"
-  #include "vectorclass/vectormath_exp.h"
+
+  #if defined(__GNUC__)
+    #pragma GCC diagnostic pop
+  #endif
+
 #elif defined(GSV_QPX)
   #include <mass_simd.h>
 #endif
