@@ -139,7 +139,6 @@ PYBIND11_MODULE(simulation, m)
                 &Bunch_simulator::reg_diag_per_turn<std::shared_ptr<Diagnostics>>,
                 "Register a per turn diagnostics.",
                 "diag"_a, 
-                "name"_a, 
                 "train_idx"_a = 0, 
                 "bunch_idx"_a = 0, 
                 "period"_a = 1 )

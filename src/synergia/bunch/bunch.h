@@ -84,7 +84,7 @@ private:
     std::array<BunchParticles, 2> parts;
 
     // diagnostics
-    std::map<std::string, Diagnostics_worker> diags;
+    std::vector<Diagnostics_worker> diags;
 
     // diagnostics for particle losses
     std::unique_ptr<Diagnostics_worker> diag_aperture;
@@ -317,13 +317,16 @@ public:
 
     // Diagnostics
     template<class Diag>
-    Diagnostics_handler
-    add_diagnostics(Diag const& diag, std::string const& name)
+    std::pair<Diagnostics_handler, int>
+    add_diagnostics(Diag const& diag)
     { 
-        auto res = diags.emplace(name, Diagnostics_worker(diag, comm)); 
-        return Diagnostics_handler(res.first->second, *this);
+        diags.emplace_back(diag, comm); 
+        return std::make_pair(
+                Diagnostics_handler(diags.back(), *this), 
+                diags.size() - 1);
     }
 
+#if 0
     Diagnostics_worker& 
     get_diag(std::string const & name);
 
@@ -335,6 +338,19 @@ public:
 
     void diag_update_and_write(std::string const& name)
     { get_diag(name).update_and_write(*this); }
+#endif
+
+    Diagnostics_handler get_diag(int id)
+    { return Diagnostics_handler(diags[id], *this); }
+
+    std::string diag_type(int id) const
+    { return diags[id].type(); }
+
+    void diag_update(int id)
+    { get_diag(id).update(); }
+
+    void diag_update_and_write(int id)
+    { get_diag(id).update_and_write(); }
 
     void set_diag_loss_aperture(std::string const& filename)
     { diag_aperture.reset( new Diagnostics_worker(

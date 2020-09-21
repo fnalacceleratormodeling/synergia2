@@ -164,6 +164,7 @@ Bunch::inject(Bunch const& o)
     if (old_total == 0) real_num = o.get_real_num();
 }
 
+#if 0
 Diagnostics_worker & 
 Bunch::get_diag(std::string const & name)
 { 
@@ -171,6 +172,7 @@ Bunch::get_diag(std::string const & name)
     if (it == diags.end()) throw std::runtime_error("cannot find diagnostics " + name);
     return it->second;
 }
+#endif
 
 void
 Bunch::print_statistics(Logger& logger) const

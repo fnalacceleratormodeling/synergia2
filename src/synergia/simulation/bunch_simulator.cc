@@ -383,7 +383,7 @@ Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
         if (dt.trigger(turn_num, step_num))
         {
             trains[dt.train][dt.bunch]
-                .diag_update_and_write(dt.diag_name);
+                .diag_update_and_write(dt.diag_id);
         }
     }
 
@@ -392,7 +392,7 @@ Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
         if (dt.trigger(turn_num, step_num))
         {
             trains[dt.train][dt.bunch]
-                .diag_update_and_write(dt.diag_name);
+                .diag_update_and_write(dt.diag_id);
         }
     }
 }
@@ -405,7 +405,7 @@ Bunch_simulator::diag_action_element(Lattice_element const& element)
         if (dt.trigger(element))
         {
             trains[dt.train][dt.bunch]
-                .diag_update_and_write(dt.diag_name);
+                .diag_update_and_write(dt.diag_id);
         }
     }
 }

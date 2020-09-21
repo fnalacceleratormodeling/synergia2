@@ -257,13 +257,13 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     print_statistics(bunch, screen);
 
     Diagnostics_full2 diag_full2("diag_full2.h5");
-    auto diag = sim.reg_diag_per_turn(diag_full2, "full2");
+    auto diag = sim.reg_diag_per_turn(diag_full2);
 
     Diagnostics_bulk_track diag_bt("diag_bulk_track.h5", 1000, 0);
-    sim.reg_diag_per_turn(diag_bt, "bulk_track");
+    sim.reg_diag_per_turn(diag_bt);
 
     Diagnostics_particles diag_part("diag_particles.h5", 100);
-    sim.reg_diag_per_turn(diag_part, "particles");
+    sim.reg_diag_per_turn(diag_part);
 
     sim.reg_diag_loss_aperture("loss.h5");
 
@@ -347,7 +347,7 @@ void bs_save()
     Bunch& b = sim.get_bunch();
 
     Diagnostics_dummy diag;
-    b.add_diagnostics(diag, "dummy");
+    b.add_diagnostics(diag);
 
     Diagnostics_loss d2;
     //b.set_diag_loss_aperture(d2);

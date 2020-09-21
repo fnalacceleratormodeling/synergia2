@@ -75,7 +75,7 @@ public:
 
     Diagnostics_handler(
             Diagnostics_worker& worker,
-            Bunch const& bunch) 
+            Bunch const& bunch )
         : worker(worker), bunch(bunch)
     { }
 

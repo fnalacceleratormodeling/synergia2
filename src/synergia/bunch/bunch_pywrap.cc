@@ -137,20 +137,20 @@ PYBIND11_MODULE(bunch, m)
                 "particle_group"_a = ParticleGroup::regular )
 
         .def( "add_diagnostics",
-                []( Bunch& self,
-                    std::shared_ptr<Diagnostics> const& diag, 
-                    std::string const& name ) {
-                        // if the diagnostics is an inherited python type,
-                        // reg a ref of the python instance to keep it alive so the
-                        // __dict__ object which contains the actual python methods
-                        // is available for serializing and calling from C++
-                        PyDiagnostics* p = dynamic_cast<PyDiagnostics*>(diag.get());
-                        if (p) { p->reg_self(); }
+                []( Bunch& self, std::shared_ptr<Diagnostics> const& diag ) {
+                    // if the diagnostics is an inherited python type,
+                    // reg a ref of the python instance to keep it alive 
+                    // so the __dict__ object which contains the actual 
+                    // python methods is available for serializing and 
+                    // calling from C++
+                    PyDiagnostics* p = 
+                        dynamic_cast<PyDiagnostics*>(diag.get());
+                    if (p) { p->reg_self(); }
 
-                        self.add_diagnostics(diag, name);
+                    self.add_diagnostics(diag);
                 },
                 "Add a diagnostics to the bunch object.",
-                "diag"_a, "name"_a )
+                "diag"_a )
 
         .def( "diag_type",
                 &Bunch::diag_type,
