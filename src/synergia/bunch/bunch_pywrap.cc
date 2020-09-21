@@ -198,6 +198,25 @@ PYBIND11_MODULE(bunch, m)
                 "bunch"_a, "mean"_a )
         ;
 
+    // Diagnostics_handler
+    py::class_<Diagnostics_handler>(m, "Diagnostics_handler")
+        .def( "type",
+                &Diagnostics_handler::type,
+                "Get the type of the registered diagnostics." )
+
+        .def( "update",
+                &Diagnostics_handler::type,
+                "Update the diagnostics." )
+
+        .def( "write",
+                &Diagnostics_handler::write,
+                "Write the diagnostics." )
+
+        .def( "update_and_write",
+                &Diagnostics_handler::update_and_write,
+                "Update and write the diagnostics." )
+        ;
+
     // Diagnostics_calculator base class
     py::class_<Diagnostics, PyDiagnostics, std::shared_ptr<Diagnostics>>(m, "Diagnostics")
         .def( py::init<std::string const&, std::string const&, bool>(),

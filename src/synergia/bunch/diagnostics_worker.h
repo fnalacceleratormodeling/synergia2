@@ -82,9 +82,6 @@ public:
     std::string type() const
     { return worker.type(); }
 
-    std::string name() const
-    { return ""; }
-
     void update()
     { worker.update(bunch); }
 
