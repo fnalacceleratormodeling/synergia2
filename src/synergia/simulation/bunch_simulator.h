@@ -220,6 +220,18 @@ public:
             int train = 0, int bunch = 0, 
             std::vector<int> const& numbers = {})
     {
+        int bunch_idx = get_bunch_array_idx(train, bunch);
+        if (bunch_idx == -1) return Diagnostics_handler();
+
+        auto handler = trains[train][bunch_idx]
+            .add_diagnostics(diag);
+
+        dt_turn_listed dt{ train, bunch_idx, handler.second, 
+            trigger_turn_listed{numbers} 
+        };
+
+        diags_turn_listed.push_back(dt);
+        return handler.first;
     }
 
     // diag loss

@@ -151,6 +151,14 @@ PYBIND11_MODULE(simulation, m)
                 "bunch_idx"_a = 0, 
                 "period"_a = 1 )
 
+        .def( "reg_diag_turn_listed", 
+                &Bunch_simulator::reg_diag_turn_listed<std::shared_ptr<Diagnostics>>,
+                "Register a per step diagnostics.",
+                "diag"_a, 
+                "train_idx"_a = 0, 
+                "bunch_idx"_a = 0, 
+                "turns"_a = std::vector<int>() )
+
         .def( "dump",
                 &Bunch_simulator::dump,
                 "Dump." )
