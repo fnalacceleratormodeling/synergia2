@@ -205,13 +205,13 @@ public:
     Diagnostics_handler
     reg_diag_per_turn(Diag const& diag, 
             int train = 0, int bunch = 0, int period = 1)
-    { reg_diag_period(diag, train, bunch, period, -1); }
+    { return reg_diag_period(diag, train, bunch, period, -1); }
  
     template<class Diag>
     Diagnostics_handler
     reg_diag_per_step(Diag const& diag, 
             int train = 0, int bunch = 0, int period = 1)
-    { reg_diag_period(diag, train, bunch, 1, period); }
+    { return reg_diag_period(diag, train, bunch, 1, period); }
 
     // register a diagnsotics at specified number of turns
     template<class Diag>
