@@ -58,13 +58,14 @@ private:
         { ar(turn_period, step_period); }
     };
 
-    struct trigger_step_listed
+    struct trigger_turn_listed
     {
-        std::vector<std::pair<int, int>> numbers;
+        std::vector<int> numbers;
 
         bool operator()(int turn, int step) const
         {
-            return false;
+            return (step == FINAL_STEP) && 
+                    std::find(numbers.begin(), numbers.end(), turn) != numbers.end();
         }
 
         template<class AR>
@@ -100,7 +101,7 @@ private:
     };
 
     using dt_step_period = diag_tuple_t<trigger_step_period>;
-    using dt_step_listed = diag_tuple_t<trigger_step_listed>;
+    using dt_turn_listed = diag_tuple_t<trigger_turn_listed>;
     using dt_element     = diag_tuple_t<trigger_element>;
 
     // void action(Bunch_simulator&, Lattice&, int turn, int step, void* data)
@@ -187,13 +188,7 @@ public:
             int turn_period, int step_period)
     { 
         int bunch_idx = get_bunch_array_idx(train, bunch);
-
-        if (bunch_idx == -1) 
-        {
-            throw std::runtime_error(
-                "Bunch_simulator::reg_diag_per_turn "
-                "designated bunch doesnt exist" );
-        }
+        if (bunch_idx == -1) return Diagnostics_handler();
 
         auto handler = trains[train][bunch_idx]
             .add_diagnostics(diag);
@@ -217,6 +212,15 @@ public:
     reg_diag_per_step(Diag const& diag, 
             int train = 0, int bunch = 0, int period = 1)
     { reg_diag_period(diag, train, bunch, 1, period); }
+
+    // register a diagnsotics at specified number of turns
+    template<class Diag>
+    Diagnostics_handler
+    reg_diag_turn_listed(Diag const& diag,
+            int train = 0, int bunch = 0, 
+            std::vector<int> const& numbers = {})
+    {
+    }
 
     // diag loss
     void reg_diag_loss_aperture(
@@ -337,7 +341,7 @@ private:
 
     // diagnostics action trigger conditions
     std::vector<dt_step_period> diags_step_period;
-    std::vector<dt_step_listed> diags_step_listed;
+    std::vector<dt_turn_listed> diags_turn_listed;
     std::vector<dt_element>     diags_element;
 
     // it would survive the checkpoint load
@@ -364,7 +368,7 @@ private:
         ar(CEREAL_NVP(trains));
 
         ar(CEREAL_NVP(diags_step_period));
-        ar(CEREAL_NVP(diags_step_listed));
+        ar(CEREAL_NVP(diags_turn_listed));
         ar(CEREAL_NVP(diags_element));
 
         ar(CEREAL_NVP(prop_actions));

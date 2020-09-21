@@ -324,7 +324,7 @@ Bunch_simulator::Bunch_simulator(
     , comm(std::move(comm))
     , trains{std::move(pt), std::move(st)}
     , diags_step_period()
-    , diags_step_listed()
+    , diags_turn_listed()
     , diags_element()
     , prop_actions()
     , prop_actions_step_end()
@@ -387,7 +387,7 @@ Bunch_simulator::diag_action_step_and_turn(int turn_num, int step_num)
         }
     }
 
-    for (auto const& dt : diags_step_listed)
+    for (auto const& dt : diags_turn_listed)
     {
         if (dt.trigger(turn_num, step_num))
         {
