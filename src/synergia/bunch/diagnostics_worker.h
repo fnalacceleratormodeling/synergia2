@@ -68,28 +68,32 @@ class Diagnostics_handler
 {
 private:
 
-    Diagnostics_worker& worker;
-    Bunch const& bunch;
+    Diagnostics_worker * worker;
+    Bunch const* bunch;
 
 public:
+
+    Diagnostics_handler()
+        : worker(nullptr), bunch(nullptr)
+    { }
 
     Diagnostics_handler(
             Diagnostics_worker& worker,
             Bunch const& bunch )
-        : worker(worker), bunch(bunch)
+        : worker(&worker), bunch(&bunch)
     { }
 
     std::string type() const
-    { return worker.type(); }
+    { return worker ? worker->type() : ""; }
 
     void update()
-    { worker.update(bunch); }
+    { if(worker) worker->update(*bunch); }
 
     void write()
-    { worker.write(); }
+    { if(worker) worker->write(); }
 
     void update_and_write()
-    { worker.update_and_write(bunch); }
+    { if(worker) worker->update_and_write(*bunch); }
 };
 
 
