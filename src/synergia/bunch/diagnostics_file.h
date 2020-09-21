@@ -17,19 +17,18 @@ private:
     bool serial;
     int file_count;
 
-    std::string temp_dir;
     std::string filename;
     std::string filename_base;
     std::string filename_suffix;
     std::string filename_appendix;
 
+    static std::string temp_dir;
     static const int flush_period = 100;
 
 public:
 
     Diagnostics_file( 
             std::string const& filename,
-            std::string const& temp_dir,
             bool serial,
             std::shared_ptr<Commxx> const& comm);
 
@@ -50,6 +49,12 @@ public:
     void open_file();
     void flush_file();
     void close_file();
+
+    static void set_local_dir(std::string const& local_dir)
+    { temp_dir = local_dir; }
+
+    static std::string const& get_local_dir()
+    { return temp_dir; }
 
 private:
 

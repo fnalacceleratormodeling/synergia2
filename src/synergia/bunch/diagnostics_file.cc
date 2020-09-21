@@ -4,15 +4,16 @@
 
 #pragma message "TODO: replace boost::filesystem here"
 
+std::string 
+Diagnostics_file::temp_dir = "";
+
 Diagnostics_file::Diagnostics_file(
         std::string const& filename,
-        std::string const& temp_dir,
         bool serial,
         std::shared_ptr<Commxx> const& comm )
     : file()
     , serial(serial)
     , file_count(0)
-    , temp_dir(temp_dir)
     , filename(filename)
     , filename_base()
     , filename_suffix()
@@ -39,7 +40,6 @@ Diagnostics_file::Diagnostics_file()
     : file()
     , serial(true)
     , file_count(0)
-    , temp_dir()
     , filename()
     , filename_base()
     , filename_suffix()

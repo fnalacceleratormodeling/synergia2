@@ -33,7 +33,7 @@ public:
             DiagCal const& diag,
             std::shared_ptr<Commxx> const& comm)
         : diag(std::make_shared<DiagCal>(diag))
-        , diag_file(diag.filename(), ""/*local_dir*/, diag.serial(), comm)
+        , diag_file(diag.filename(), diag.serial(), comm)
     { }
 
     // for registering from python only
@@ -41,7 +41,7 @@ public:
             std::shared_ptr<Diagnostics> const& diag,
             std::shared_ptr<Commxx> const& comm)
         : diag(diag)
-        , diag_file(diag->filename(), ""/*local_dir*/, diag->serial(), comm)
+        , diag_file(diag->filename(), diag->serial(), comm)
     { }
 
     std::string type() const;
