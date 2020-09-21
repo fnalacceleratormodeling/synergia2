@@ -43,7 +43,14 @@ private:
 
         bool operator()(int turn, int step) const
         {
-            return (step == FINAL_STEP) && (turn % turn_period == 0); 
+            // only the turn number matters
+            if (step_period == -1) 
+                return (turn % turn_period == 0) 
+                    && (step == FINAL_STEP);
+
+            // at both the right turn and step
+            return (turn % turn_period == 0) 
+                && (step % step_period == 0);
         }
 
         template<class AR>
@@ -173,10 +180,11 @@ public:
     // the train and bunch are indexed based on actual number of
     // bunches per train
     template<class Diag>
-    Diagnostics_handler
-    reg_diag_per_turn(
+    Diagnostics_handler 
+    reg_diag_period(
             Diag const& diag, 
-            int train = 0, int bunch = 0, int period = 1 )
+            int train, int bunch, 
+            int turn_period, int step_period)
     { 
         int bunch_idx = get_bunch_array_idx(train, bunch);
 
@@ -190,14 +198,25 @@ public:
         auto handler = trains[train][bunch_idx]
             .add_diagnostics(diag);
 
-        dt_step_period dt{ train, bunch_idx, 
-            handler.second, 
-            trigger_step_period{period, -1} 
+        dt_step_period dt{ train, bunch_idx, handler.second, 
+            trigger_step_period{turn_period, step_period} 
         };
 
         diags_step_period.push_back(dt);
         return handler.first;
     }
+
+    template<class Diag>
+    Diagnostics_handler
+    reg_diag_per_turn(Diag const& diag, 
+            int train = 0, int bunch = 0, int period = 1)
+    { reg_diag_period(diag, train, bunch, period, -1); }
+ 
+    template<class Diag>
+    Diagnostics_handler
+    reg_diag_per_step(Diag const& diag, 
+            int train = 0, int bunch = 0, int period = 1)
+    { reg_diag_period(diag, train, bunch, 1, period); }
 
     // diag loss
     void reg_diag_loss_aperture(

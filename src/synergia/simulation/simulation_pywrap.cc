@@ -143,6 +143,14 @@ PYBIND11_MODULE(simulation, m)
                 "bunch_idx"_a = 0, 
                 "period"_a = 1 )
 
+        .def( "reg_diag_per_step", 
+                &Bunch_simulator::reg_diag_per_step<std::shared_ptr<Diagnostics>>,
+                "Register a per step diagnostics.",
+                "diag"_a, 
+                "train_idx"_a = 0, 
+                "bunch_idx"_a = 0, 
+                "period"_a = 1 )
+
         .def( "dump",
                 &Bunch_simulator::dump,
                 "Dump." )
