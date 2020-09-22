@@ -587,7 +587,7 @@ Propagator::do_turn_end(
 void
 Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
 {
-    const int total_turns = sim.total_num_turns();
+    const int total_turns = sim.max_turns();
 
     // parameter check
     if (max_turns == -1 && total_turns == -1)

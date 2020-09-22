@@ -159,6 +159,19 @@ PYBIND11_MODULE(simulation, m)
                 "bunch_idx"_a = 0, 
                 "turns"_a = std::vector<int>() )
 
+        .def( "current_turn",
+                &Bunch_simulator::current_turn,
+                "Get the current simulation turn." )
+
+        .def( "max_turns",
+                &Bunch_simulator::max_turn,
+                "Get the max simulation turns." )
+
+        .def( "set_max_turns",
+                &Bunch_simulator::set_max_turn,
+                "Set the max simulation turns.",
+                "max_turns"_a )
+
         .def( "dump",
                 &Bunch_simulator::dump,
                 "Dump." )

@@ -311,10 +311,10 @@ public:
 
     // turns
     void inc_turn() { ++curr_turn; }
-    void set_num_turns(int turns) { num_turns = turns; }
+    void set_max_turns(int turns) { num_turns = turns; }
 
     int current_turn() const { return curr_turn; }
-    int total_num_turns() const { return num_turns; }
+    int max_turns() const { return num_turns; }
 
     // serialization helper
     void save_checkpoint_particles(std::string const& fname) const;
