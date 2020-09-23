@@ -22,12 +22,12 @@ using namespace py::literals;
 
 PYBIND11_MODULE(bunch, m)
 {
-    py::enum_<ParticleGroup>(m, "ParticleGroup", py::arithmetic())
+    py::enum_<ParticleGroup>(m, "ParticleGroup")
         .value("regular",   ParticleGroup::regular)
         .value("spectator", ParticleGroup::spectator)
         ;
 
-    py::enum_<LongitudinalBoundary>(m, "LongitudinalBoundary", py::arithmetic())
+    py::enum_<LongitudinalBoundary>(m, "LongitudinalBoundary")
         .value("open",           LongitudinalBoundary::open)
         .value("periodic",       LongitudinalBoundary::periodic)
         .value("aperture",       LongitudinalBoundary::aperture)
