@@ -172,6 +172,12 @@ PYBIND11_MODULE(simulation, m)
                 "Set the max simulation turns.",
                 "max_turns"_a )
 
+        .def ( "set_longitudinal_boundary",
+                &Bunch_simulator::set_longitudinal_boundary,
+                "Set the longitudinal boundary for each bunch in the simulator",
+                "boundary"_a,
+                "param"_a = 0.0 )
+
         .def( "dump",
                 &Bunch_simulator::dump,
                 "Dump." )

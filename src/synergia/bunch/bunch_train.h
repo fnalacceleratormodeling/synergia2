@@ -112,6 +112,11 @@ public:
     // on the other hand, calling bunch_train's update_bunch_total_num() 
     // gurantees that all bunches are updated for all ranks
     void update_bunch_total_num();
+
+    void set_longitudinal_boundary(
+            LongitudinalBoundary lb, double param = 0.0)
+    { for(auto& b : bunches) 
+            b.set_longitudinal_boundary(lb, param); }
     
     std::vector< int> & get_proc_counts_for_impedance();
     std::vector< int> & get_proc_offsets_for_impedance();

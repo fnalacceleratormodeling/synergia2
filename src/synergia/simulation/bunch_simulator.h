@@ -316,6 +316,14 @@ public:
     int current_turn() const { return curr_turn; }
     int max_turns() const { return num_turns; }
 
+    // longitudinal boundary
+    void set_longitudinal_boundary(
+            LongitudinalBoundary lb, double param = 0.0)
+    { 
+        trains[0].set_longitudinal_boundary(lb, param); 
+        trains[1].set_longitudinal_boundary(lb, param); 
+    }
+
     // serialization helper
     void save_checkpoint_particles(std::string const& fname) const;
     void load_checkpoint_particles(std::string const& fname);
