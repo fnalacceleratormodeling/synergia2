@@ -302,7 +302,7 @@ public:
     double get_real_num() const { return real_num; }
 
     /// longitudinal boundary conditions
-    void set_longitudinal_bounadry(LB lb, double param = 0.0)
+    void set_longitudinal_boundary(LB lb, double param = 0.0)
     { boundary = lb; boundary_param = param; }
 
     std::pair<LB, double> get_longitudinal_boundary() const

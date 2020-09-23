@@ -136,6 +136,16 @@ PYBIND11_MODULE(bunch, m)
                 "capacity"_a, 
                 "particle_group"_a = ParticleGroup::regular )
 
+        .def ( "set_longitudinal_boundary",
+                &Bunch::set_longitudinal_boundary,
+                "Set the longitudinal boundary of the bunch",
+                "boundary"_a,
+                "param"_a = 0.0 )
+
+        .def ( "get_longitudinal_boundary",
+                &Bunch::get_longitudinal_boundary,
+                "Get the longitudinal boundary of the bunch" )
+
         .def( "add_diagnostics",
                 []( Bunch& self, std::shared_ptr<Diagnostics> const& diag ) {
                     // if the diagnostics is an inherited python type,
