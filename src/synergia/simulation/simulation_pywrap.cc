@@ -164,11 +164,11 @@ PYBIND11_MODULE(simulation, m)
                 "Get the current simulation turn." )
 
         .def( "max_turns",
-                &Bunch_simulator::max_turn,
+                &Bunch_simulator::max_turns,
                 "Get the max simulation turns." )
 
         .def( "set_max_turns",
-                &Bunch_simulator::set_max_turn,
+                &Bunch_simulator::set_max_turns,
                 "Set the max simulation turns.",
                 "max_turns"_a )
 
