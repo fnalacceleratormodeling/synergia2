@@ -23,6 +23,7 @@
 #endif
 
 #include <stdexcept>
+#include <string>
 
 template<class Archive>
     void
@@ -99,6 +100,16 @@ Chef_lattice::register_beamline(BmlPtr beamline_sptr)
 
 }
 
+// is_a_bend is a free function
+bool
+is_a_bend(ElmPtr ce)
+{
+    return (strcmp(ce->Type(), "sbend") == 0 ||
+            strcmp(ce->Type(), "rbend") == 0 ||
+            strcmp(ce->Type(), "CF_sbend") == 0 ||
+            strcmp(ce->Type(), "CF_rbend") == 0);
+}
+
 BmlPtr
 Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
 {
@@ -109,8 +120,58 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
     } else {
         converted_beamline_sptr = drift_converter.convert(*beamline_sptr);
     }
-    register_beamline(converted_beamline_sptr);
-    return converted_beamline_sptr;
+
+    // reorder beamline slots so chef elements
+    //    slot | synergia_marker | magnet | slot | synergia_marker
+    // becomes
+    //    synergia_marker | slot | magnet | slot | synergia_marker
+
+    // make a vector of all the beamline iterators for convenient indexing
+    std::vector<beamline::iterator> biters;
+    for (auto it=converted_beamline_sptr->begin();
+         it!=converted_beamline_sptr->end(); ++it) {
+        biters.push_back(it);
+    }
+
+    // search for slots
+    int cur_elem = 0;
+    while (cur_elem < biters.size()) {
+        if ( strcmp((*biters[cur_elem])->Type(), "Slot") == 0) {
+            // check for slot | synergia_marker | bend | slot | synergia_marker
+            // first there have to be enough elements left
+            if (cur_elem+4 >= biters.size()) {
+                break; // not enough elements, I'm done
+            }
+
+            if ( (*biters[cur_elem+1])->Name() == lattice_element_marker->Name() &&
+                 is_a_bend((*biters[cur_elem+2])) &&
+                 (*biters[cur_elem+3])->Name() == lattice_element_marker->Name() &&
+                 strcmp((*biters[cur_elem+4])->Type(), "Slot") == 0 ) {
+                // flip around the slots and synergia markers
+                beamline::iterator tmpiter;
+                // first before the bend
+                tmpiter = biters[cur_elem];
+                biters[cur_elem] = biters[cur_elem+1];
+                biters[cur_elem+1] = tmpiter;
+                // after the bend
+                tmpiter = biters[cur_elem+3];
+                biters[cur_elem+3] = biters[cur_elem+4];
+                biters[cur_elem+4] = tmpiter;
+                cur_elem = cur_elem + 5;
+            } else {
+                throw std::runtime_error("unpolished beamline doesn't follow the slot|marker|bend|marker|slot pattern");
+            }
+        } else {
+            ++cur_elem;
+        }
+    }
+
+    BmlPtr slots_reordered_sptr;
+    for (auto& bit:biters) {
+        slots_reordered_sptr->append(*bit);
+    }
+    register_beamline(slots_reordered_sptr);
+    return slots_reordered_sptr;
 }
 
 void

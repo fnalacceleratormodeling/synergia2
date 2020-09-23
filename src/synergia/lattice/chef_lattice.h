@@ -30,6 +30,10 @@ typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr; // syndoc:include
 //      see get_chef_section_sptr below
 //class Chef_lattice : public boost::enable_shared_from_this<Chef_lattice >
 
+// is_a_bend is a free function
+bool
+is_a_bend(ElmPtr ce);
+
 class Chef_lattice
 {
     friend class Chef_lattice_tester;
