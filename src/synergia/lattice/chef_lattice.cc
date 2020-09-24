@@ -136,7 +136,17 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
     // search for slots
     int cur_elem = 0;
     while (cur_elem < biters.size()) {
+        std::cout << "checking element: " << (*biters[cur_elem])->Name() << std::endl;
         if ( strcmp((*biters[cur_elem])->Type(), "Slot") == 0) {
+            std::cout << "found slot!!, original pattern:" << std::endl;
+            std::cout << "original elements:" << std::endl;
+            std::cout << chef_element_as_string(*biters[cur_elem-1]) << std::endl;
+            std::cout << chef_element_as_string(*biters[cur_elem]) << std::endl;
+            std::cout << chef_element_as_string(*biters[cur_elem+1]) << std::endl;
+            std::cout << chef_element_as_string(*biters[cur_elem+2]) << std::endl;
+            std::cout << chef_element_as_string(*biters[cur_elem+3]) << std::endl;
+            std::cout << chef_element_as_string(*biters[cur_elem+4]) << std::endl;
+            std::cout << chef_element_as_string(*biters[cur_elem+5]) << std::endl;
             // check for slot | synergia_marker | bend | slot | synergia_marker
             // first there have to be enough elements left
             if (cur_elem+4 >= biters.size()) {
@@ -147,6 +157,7 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
                  is_a_bend((*biters[cur_elem+2])) &&
                  (*biters[cur_elem+3])->Name() == lattice_element_marker->Name() &&
                  strcmp((*biters[cur_elem+4])->Type(), "Slot") == 0 ) {
+                std::cout << "Found matching pattern" << std::endl;
                 // flip around the slots and synergia markers
                 beamline::iterator tmpiter;
                 // first before the bend
@@ -157,6 +168,14 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
                 tmpiter = biters[cur_elem+3];
                 biters[cur_elem+3] = biters[cur_elem+4];
                 biters[cur_elem+4] = tmpiter;
+                std::cout << "reordered elements:" << std::endl;
+                std::cout << chef_element_as_string(*biters[cur_elem-1]) << std::endl;
+                std::cout << chef_element_as_string(*biters[cur_elem]) << std::endl;
+                std::cout << chef_element_as_string(*biters[cur_elem+1]) << std::endl;
+                std::cout << chef_element_as_string(*biters[cur_elem+2]) << std::endl;
+                std::cout << chef_element_as_string(*biters[cur_elem+3]) << std::endl;
+                std::cout << chef_element_as_string(*biters[cur_elem+4]) << std::endl;
+                std::cout << chef_element_as_string(*biters[cur_elem+5]) << std::endl;
                 cur_elem = cur_elem + 5;
             } else {
                 throw std::runtime_error("unpolished beamline doesn't follow the slot|marker|bend|marker|slot pattern");
@@ -166,8 +185,10 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
         }
     }
 
-    BmlPtr slots_reordered_sptr;
+    BmlPtr slots_reordered_sptr(new beamline("slots-reordered-beamline"));
+    std::cout << "constructing reordered beamline" << std::endl;
     for (auto& bit:biters) {
+        std::cout << "element: " << (*bit)->Name() << std::endl;
         slots_reordered_sptr->append(*bit);
     }
     register_beamline(slots_reordered_sptr);
