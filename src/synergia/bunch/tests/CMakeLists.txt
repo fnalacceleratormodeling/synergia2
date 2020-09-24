@@ -46,7 +46,8 @@ add_test(NAME test_bunch_train_mpi4 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMP
 #add_test(NAME test_bunch_with_diagnostics COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1  $<TARGET_FILE:test_bunch_train>)
 
 
-add_custom_command(OUTPUT test_diagnostics_get_corr.icc
+add_custom_command(OUTPUT
+        test_diagnostics_get_corr.icc
         test_diagnostics_get_emitx.icc
         test_diagnostics_get_emitxy.icc
         test_diagnostics_get_emitxyz.icc
@@ -58,7 +59,8 @@ add_custom_command(OUTPUT test_diagnostics_get_corr.icc
         test_diagnostics_get_std.icc
     COMMAND ${MY_PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_diagnostics_crosscheck.py
     DEPENDS test_diagnostics_crosscheck.py)
-add_test_executable(test_diagnostics test_diagnostics.cc test_diagnostics_get_corr.icc
+add_test_executable(test_diagnostics test_diagnostics.cc
+    test_diagnostics_get_corr.icc
     test_diagnostics_get_emitx.icc
     test_diagnostics_get_emitxy.icc
     test_diagnostics_get_emitxyz.icc

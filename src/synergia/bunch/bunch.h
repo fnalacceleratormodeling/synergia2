@@ -1,10 +1,6 @@
 #ifndef BUNCH_H_
 #define BUNCH_H_
 
-#include <sstream>
-#include <iomanip>
-#include <vector>
-#include <mpi.h>
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/utils/commxx.h"
@@ -12,6 +8,12 @@
 #include "boost/shared_ptr.hpp"
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/restrict_extension.h"
+
+#include <mpi.h>
+
+#include <string>
+#include <utility>
+#include <vector>
 
 /// Represents a macroparticle bunch distributed across the processors
 /// in a comm_sptrunicator.
@@ -54,12 +56,12 @@ public:
 
 private:
 
-    LongitudinalBoundary boundary;  // open, periodic, z-cut, or bucket barrier
-    double boundary_param;  // NA, z-period, longitudinal_extent, or bucket_length
+    LongitudinalBoundary boundary = lb_open;
+    double boundary_param = 0.0;  // NA, z-period, longitudinal_extent, or bucket_length
 
     Reference_particle reference_particle;
     Reference_particle design_reference_particle;
-    int particle_charge;
+    int particle_charge = 1;
 
     /*
      * Local Particle Array Memory Layout:
@@ -99,7 +101,8 @@ private:
      *
      */
 
-    int local_num, local_num_aligned, local_num_padded, local_num_slots;
+    int local_num = 0;
+    int local_num_aligned, local_num_padded, local_num_slots;
     int local_s_num, local_s_num_aligned, local_s_num_padded, local_s_num_slots;
 
     int total_num, total_s_num;
@@ -125,12 +128,16 @@ private:
     //  Fixed_t_z_synergia20 default_converter;
     void
     assign_ids(int local_offset);
+
     void
     assign_spectator_ids(int local_offset);
+
     std::string
     get_local_particles_serialization_path() const;
+
     void
     construct(int total_num, double real_num, int total_s_num);
+
 public:
     //!
     //! Constructor:
@@ -458,7 +465,7 @@ public:
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
-typedef boost::shared_ptr<Bunch > Bunch_sptr; // syndoc:include // syndoc:include
-typedef std::vector<Bunch_sptr > Bunches;
+using Bunch_sptr = boost::shared_ptr<Bunch>;
+using Bunches = std::vector<Bunch_sptr>;
 
 #endif /* BUNCH_H_ */
