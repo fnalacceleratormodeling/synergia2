@@ -434,6 +434,15 @@ Independent_operator::apply_impl(
                 simulator.diag_action_operation(*opn);
             }
 
+            // per element diagnostics
+            // the former "forced diagnostics"
+            for (auto const& slice : slices)
+            {
+                if (slice.has_right_edge())
+                    simulator.diag_action_element(
+                            slice.get_lattice_element());
+            }
+
             // update per-bunch per-independent-operator
             bunch.update_total_num();
         }

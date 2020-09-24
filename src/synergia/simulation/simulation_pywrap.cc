@@ -159,6 +159,15 @@ PYBIND11_MODULE(simulation, m)
                 "bunch_idx"_a = 0, 
                 "turns"_a = std::vector<int>() )
 
+        .def( "reg_diag_per_element", 
+                &Bunch_simulator::reg_diag_per_element<std::shared_ptr<Diagnostics>>,
+                "Register a per element diagnostics.",
+                "diag"_a, 
+                "element"_a,
+                "turn_period"_a = 1,
+                "train_idx"_a = 0, 
+                "bunch_idx"_a = 0 )
+ 
         .def( "current_turn",
                 &Bunch_simulator::current_turn,
                 "Get the current simulation turn." )

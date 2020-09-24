@@ -402,7 +402,7 @@ Bunch_simulator::diag_action_element(Lattice_element const& element)
 {
     for (auto const& dt : diags_element)
     {
-        if (dt.trigger(element))
+        if (dt.trigger(current_turn(), element))
         {
             trains[dt.train][dt.bunch]
                 .diag_update_and_write(dt.diag_id);

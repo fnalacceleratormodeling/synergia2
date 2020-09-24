@@ -75,16 +75,18 @@ private:
 
     struct trigger_element
     {
-        std::vector<std::string> names;
+        std::string name;
+        int turn_period;
 
-        bool operator()(Lattice_element const& ele) const
+        bool operator()(int turn, Lattice_element const& ele) const
         {
-            return false;
+            return (turn % turn_period == 0) 
+                && (ele.get_name() == name);
         }
 
         template<class AR>
         void serialize(AR & ar)
-        { ar(names); }
+        { ar(name, turn_period); }
     };
 
     template<typename TriggerT>
@@ -234,6 +236,29 @@ public:
         return handler.first;
     }
 
+    // register a diagnostics at specific element and 
+    // the period of turns
+    // * this is the former forced diagnostics
+    template<class Diag>
+    Diagnostics_handler
+    reg_diag_per_element(Diag const& diag, 
+            Lattice_element const& ele, int turn_period = 1,
+            int train = 0, int bunch = 0)
+    {
+        int bunch_idx = get_bunch_array_idx(train, bunch);
+        if (bunch_idx == -1) return Diagnostics_handler();
+
+        auto handler = trains[train][bunch_idx]
+            .add_diagnostics(diag);
+
+        dt_element dt{ train, bunch_idx, handler.second,
+            trigger_element{ele.get_name(), turn_period}
+        };
+
+        diags_element.push_back(dt);
+        return handler.first;
+    }
+ 
     // diag loss
     void reg_diag_loss_aperture(
             std::string const& filename, int train = 0, int bunch = 0 )
@@ -244,12 +269,6 @@ public:
     { get_bunch(train, bunch).set_diag_loss_zcut(filename); }
 
 #if 0
-    // diag per element
-    void reg_diag_element(
-            std::string const& name, Diagnostics & diag, 
-            trigger_ele_t, int train = 0, int bunch = 0 )
-    { }
-
     // diag per operator
     void reg_diag_operator(
             std::string const& name, Diagnostics & diag, 

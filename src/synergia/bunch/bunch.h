@@ -326,20 +326,6 @@ public:
                 diags.size() - 1);
     }
 
-#if 0
-    Diagnostics_worker& 
-    get_diag(std::string const & name);
-
-    std::string diag_type(std::string const& name)
-    { return get_diag(name).type(); }
-
-    void diag_update(std::string const& name)
-    { get_diag(name).update(*this); }
-
-    void diag_update_and_write(std::string const& name)
-    { get_diag(name).update_and_write(*this); }
-#endif
-
     Diagnostics_handler get_diag(int id)
     { return Diagnostics_handler(diags[id], *this); }
 
