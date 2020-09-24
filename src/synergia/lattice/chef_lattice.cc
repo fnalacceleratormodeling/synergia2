@@ -24,6 +24,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <cstring>
 
 template<class Archive>
     void
@@ -101,13 +102,94 @@ Chef_lattice::register_beamline(BmlPtr beamline_sptr)
 }
 
 // is_a_bend is a free function
-bool
+static bool
 is_a_bend(ElmPtr ce)
 {
     return (strcmp(ce->Type(), "sbend") == 0 ||
             strcmp(ce->Type(), "rbend") == 0 ||
             strcmp(ce->Type(), "CF_sbend") == 0 ||
             strcmp(ce->Type(), "CF_rbend") == 0);
+}
+
+// find next bend starting from idx.  Return the index of the bend or -1.
+static int
+find_next_bend(std::vector<beamline::iterator> const& biters, int idx, bool wraparound)
+{
+    int startidx = idx;
+    bool do_wrap = wraparound && (startidx == 0);
+    while (idx != biters.size()) {
+        if (is_a_bend(*biters[idx])) {
+            return idx;
+        } else {
+            ++idx;
+        }
+    }
+    if (!do_wrap) {
+        return -1; // didn't find it and we're not wrapping around
+    }
+    idx = 0;
+    while (idx != startidx) {
+        if (is_a_bend(*biters[idx])) {
+            return idx;
+        } else {
+            ++idx;
+        }
+    }
+    return -1; // didn't find it after wrap-around
+}
+
+// find next Slot that goes with the current bend starting from idx
+static int find_next_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound) {
+    int startidx = idx;
+    bool do_wrap = wraparound && (startidx == 0);
+    while (idx != biters.size()) {
+        if (strcmp((*biters[idx])->Type(), "Slot") == 0 &&
+            (*biters[idx])->Name() == findname) {
+            return idx;
+        } else {
+            ++idx;
+        }
+    }
+    if (!do_wrap) {
+        return -1; // we didn't find it and we're not wrapping around
+    }
+    idx = 0;
+    while (idx != startidx) {
+        if (strcmp((*biters[idx])->Type(), "Slot") == 0 &&
+            (*biters[idx])->Name() == findname) {
+            return idx;
+        } else {
+            ++idx;
+        }
+    }
+    return -1; //we didn't find it even after wrapping around
+}
+
+// find previous Slot that goes with the current bend starting from index idx
+static int find_prev_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound) {
+    int startidx = idx;
+    bool do_wrap = wraparound && (startidx == 0);
+    while (idx > 0) {
+        if (strcmp((*biters[idx])->Type(), "Slot") == 0 &&
+            (*biters[idx])->Name() == findname) {
+            return idx;
+        } else {
+            --idx;
+        }
+    }
+    if (!do_wrap) {
+        return -1; // we didn't find it and we're not wrapping around
+    }
+    idx = biters.size()-1;
+    while (idx != startidx) {
+        if (strcmp((*biters[idx])->Type(), "Slot") == 0 &&
+            (*biters[idx])->Name() == findname) {
+            return idx;
+        } else {
+            --idx;
+        }
+    }
+    return -1; // we didn't find it even after wrapping around
 }
 
 BmlPtr
@@ -136,53 +218,50 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
     // search for slots
     int cur_elem = 0;
     while (cur_elem < biters.size()) {
-        std::cout << "checking element: " << (*biters[cur_elem])->Name() << std::endl;
-        if ( strcmp((*biters[cur_elem])->Type(), "Slot") == 0) {
-            std::cout << "found slot!!, original pattern:" << std::endl;
-            std::cout << "original elements:" << std::endl;
-            std::cout << chef_element_as_string(*biters[cur_elem-1]) << std::endl;
-            std::cout << chef_element_as_string(*biters[cur_elem]) << std::endl;
-            std::cout << chef_element_as_string(*biters[cur_elem+1]) << std::endl;
-            std::cout << chef_element_as_string(*biters[cur_elem+2]) << std::endl;
-            std::cout << chef_element_as_string(*biters[cur_elem+3]) << std::endl;
-            std::cout << chef_element_as_string(*biters[cur_elem+4]) << std::endl;
-            std::cout << chef_element_as_string(*biters[cur_elem+5]) << std::endl;
-            // check for slot | synergia_marker | bend | slot | synergia_marker
-            // first there have to be enough elements left
-            if (cur_elem+4 >= biters.size()) {
-                break; // not enough elements, I'm done
-            }
-
-            if ( (*biters[cur_elem+1])->Name() == lattice_element_marker->Name() &&
-                 is_a_bend((*biters[cur_elem+2])) &&
-                 (*biters[cur_elem+3])->Name() == lattice_element_marker->Name() &&
-                 strcmp((*biters[cur_elem+4])->Type(), "Slot") == 0 ) {
-                std::cout << "Found matching pattern" << std::endl;
-                // flip around the slots and synergia markers
-                beamline::iterator tmpiter;
-                // first before the bend
-                tmpiter = biters[cur_elem];
-                biters[cur_elem] = biters[cur_elem+1];
-                biters[cur_elem+1] = tmpiter;
-                // after the bend
-                tmpiter = biters[cur_elem+3];
-                biters[cur_elem+3] = biters[cur_elem+4];
-                biters[cur_elem+4] = tmpiter;
-                std::cout << "reordered elements:" << std::endl;
-                std::cout << chef_element_as_string(*biters[cur_elem-1]) << std::endl;
-                std::cout << chef_element_as_string(*biters[cur_elem]) << std::endl;
-                std::cout << chef_element_as_string(*biters[cur_elem+1]) << std::endl;
-                std::cout << chef_element_as_string(*biters[cur_elem+2]) << std::endl;
-                std::cout << chef_element_as_string(*biters[cur_elem+3]) << std::endl;
-                std::cout << chef_element_as_string(*biters[cur_elem+4]) << std::endl;
-                std::cout << chef_element_as_string(*biters[cur_elem+5]) << std::endl;
-                cur_elem = cur_elem + 5;
-            } else {
-                throw std::runtime_error("unpolished beamline doesn't follow the slot|marker|bend|marker|slot pattern");
-            }
+        int next_bend = find_next_bend(biters, cur_elem, false);
+        if (next_bend < 0) {
+            break; // no next bend, I'm done
         } else {
-            ++cur_elem;
+            cur_elem = next_bend;
         }
+        std::cout << "Found bend " << (*biters[cur_elem])->Name() << std::endl;
+        int prev_slot = find_prev_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_inSlot", false);
+        int next_slot = find_next_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_outSlot", false);
+        if (prev_slot < 0) {
+            std::cout << "couldn't find " << (*biters[cur_elem])->Name()+"_inSlot" << std::endl;
+        } else {
+            std::cout << "prev_slot: " << prev_slot << std::endl;
+        }
+        if (prev_slot >= cur_elem) {
+            throw std::runtime_error("prev_slot is not less than cur_elem");
+        }
+        if (next_slot < 0) {
+            std::cout << "couldn't find " << (*biters[cur_elem])->Name()+"_outSlot" << std::endl;
+        } else {
+            std::cout << "next_slot: " << next_slot << std::endl;
+        }
+        if (next_slot <= cur_elem) {
+            throw std::runtime_error("next_slot is not greater than cur_elem");
+        }
+        // on either side of the bend should be lattice element markers
+        if ((*biters[cur_elem-1])->Name() != lattice_element_marker->Name() ||
+                (*biters[cur_elem+1])->Name() != lattice_element_marker->Name()) {
+            throw std::runtime_error("bend is not surrounded by lattice element markers");
+        }
+        // Move the prev_slot to just after the marker
+        beamline::iterator inslotit = biters[prev_slot];
+        for (int p=prev_slot+1; p != cur_elem; ++p) {
+            biters[p-1] = biters[p];
+        }
+        biters[cur_elem-1] = inslotit;
+
+        beamline::iterator outslotit = biters[next_slot];
+        for (int p=next_slot-1; p != cur_elem; --p) {
+            biters[p+1] = biters[p];
+        }
+        biters[cur_elem+1] = outslotit;
+
+        ++cur_elem;
     }
 
     BmlPtr slots_reordered_sptr(new beamline("slots-reordered-beamline"));
