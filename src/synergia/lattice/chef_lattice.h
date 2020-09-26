@@ -31,16 +31,16 @@ typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr; // syndoc:include
 //class Chef_lattice : public boost::enable_shared_from_this<Chef_lattice >
 
 // is_a_bend is a free function
-static bool
+bool
 is_a_bend(ElmPtr ce);
 
-static int
+int
 find_next_bend(std::vector<beamline::iterator> const& biters, int idx, bool wraparound);
 
-static int
+int
 find_next_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound);
 
-static int
+int
 find_prev_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound);
 
 class Chef_lattice

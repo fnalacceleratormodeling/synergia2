@@ -102,7 +102,7 @@ Chef_lattice::register_beamline(BmlPtr beamline_sptr)
 }
 
 // is_a_bend is a free function
-static bool
+bool
 is_a_bend(ElmPtr ce)
 {
     return (strcmp(ce->Type(), "sbend") == 0 ||
@@ -112,7 +112,7 @@ is_a_bend(ElmPtr ce)
 }
 
 // find next bend starting from idx.  Return the index of the bend or -1.
-static int
+int
 find_next_bend(std::vector<beamline::iterator> const& biters, int idx, bool wraparound)
 {
     int startidx = idx;
@@ -139,7 +139,7 @@ find_next_bend(std::vector<beamline::iterator> const& biters, int idx, bool wrap
 }
 
 // find next Slot that goes with the current bend starting from idx
-static int find_next_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound) {
+int find_next_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound) {
     int startidx = idx;
     bool do_wrap = wraparound && (startidx == 0);
     while (idx != biters.size()) {
@@ -166,7 +166,8 @@ static int find_next_Slot(std::vector<beamline::iterator> const & biters, int id
 }
 
 // find previous Slot that goes with the current bend starting from index idx
-static int find_prev_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound) {
+int
+find_prev_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound) {
     int startidx = idx;
     bool do_wrap = wraparound && (startidx == 0);
     while (idx > 0) {
@@ -192,6 +193,22 @@ static int find_prev_Slot(std::vector<beamline::iterator> const & biters, int id
     return -1; // we didn't find it even after wrapping around
 }
 
+void print_neighborhood(std::vector<beamline::iterator> const & biters, int idx)
+{
+    int startidx = (idx-3 >= 0) ? (idx-3) : 0;
+    int endidx = (idx+3 < biters.size()) ? idx+3 : biters.size();
+    for (int p=startidx; p<endidx; ++p) {
+        if (p==idx) {
+            std::cout << "---> ";
+        } else {
+            std::cout << "     ";
+        }
+        std::cout << p << ": " << (*biters[p])->Name() << "(";
+        std::cout << (*biters[p])->Type() << ")" << std::endl;
+    }
+    return;
+}
+
 BmlPtr
 Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
 {
@@ -215,7 +232,7 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
         biters.push_back(it);
     }
 
-    // search for slots
+    // search for bends
     int cur_elem = 0;
     while (cur_elem < biters.size()) {
         int next_bend = find_next_bend(biters, cur_elem, false);
@@ -224,50 +241,53 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
         } else {
             cur_elem = next_bend;
         }
-        std::cout << "Found bend " << (*biters[cur_elem])->Name() << std::endl;
+        
         int prev_slot = find_prev_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_inSlot", false);
         int next_slot = find_next_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_outSlot", false);
-        if (prev_slot < 0) {
-            std::cout << "couldn't find " << (*biters[cur_elem])->Name()+"_inSlot" << std::endl;
-        } else {
-            std::cout << "prev_slot: " << prev_slot << std::endl;
-        }
-        if (prev_slot >= cur_elem) {
+        if ((prev_slot >= 0) && (prev_slot >= cur_elem)) {
             throw std::runtime_error("prev_slot is not less than cur_elem");
         }
-        if (next_slot < 0) {
-            std::cout << "couldn't find " << (*biters[cur_elem])->Name()+"_outSlot" << std::endl;
-        } else {
-            std::cout << "next_slot: " << next_slot << std::endl;
-        }
-        if (next_slot <= cur_elem) {
+
+        if ((next_slot >= 0) && (next_slot <= cur_elem)) {
             throw std::runtime_error("next_slot is not greater than cur_elem");
         }
+
         // on either side of the bend should be lattice element markers
-        if ((*biters[cur_elem-1])->Name() != lattice_element_marker->Name() ||
-                (*biters[cur_elem+1])->Name() != lattice_element_marker->Name()) {
+        if ((cur_elem > 0) && ((*biters[cur_elem-1])->Name() != lattice_element_marker->Name())) {
+            std::cout << "bend not surrounded by lattice element markers 1" << std::endl;
+            print_neighborhood(biters, cur_elem);
             throw std::runtime_error("bend is not surrounded by lattice element markers");
         }
-        // Move the prev_slot to just after the marker
-        beamline::iterator inslotit = biters[prev_slot];
-        for (int p=prev_slot+1; p != cur_elem; ++p) {
-            biters[p-1] = biters[p];
+            
+        if ((cur_elem < biters.size()-1) && ((*biters[cur_elem+1])->Name() != lattice_element_marker->Name())) {
+            std::cout << "bend not surrounded by lattice element markers 2" << std::endl;
+            print_neighborhood(biters, cur_elem);
+            throw std::runtime_error("bend is not surrounded by lattice element markers");
         }
-        biters[cur_elem-1] = inslotit;
 
-        beamline::iterator outslotit = biters[next_slot];
-        for (int p=next_slot-1; p != cur_elem; --p) {
-            biters[p+1] = biters[p];
+        // Move the prev_slot to just after the marker if it exists
+        if (prev_slot >=0 ) {
+            beamline::iterator inslotit = biters[prev_slot];
+            for (int p=prev_slot+1; p != cur_elem; ++p) {
+                biters[p-1] = biters[p];
+            }
+            biters[cur_elem-1] = inslotit;
         }
-        biters[cur_elem+1] = outslotit;
+
+        // Move the next_slot to just before the marker if it exists
+        if (next_slot >= 0) {
+            beamline::iterator outslotit = biters[next_slot];
+            for (int p=next_slot-1; p != cur_elem; --p) {
+                biters[p+1] = biters[p];
+            }
+            biters[cur_elem+1] = outslotit;
+        }
 
         ++cur_elem;
     }
 
     BmlPtr slots_reordered_sptr(new beamline("slots-reordered-beamline"));
-    std::cout << "constructing reordered beamline" << std::endl;
     for (auto& bit:biters) {
-        std::cout << "element: " << (*bit)->Name() << std::endl;
         slots_reordered_sptr->append(*bit);
     }
     register_beamline(slots_reordered_sptr);
