@@ -25,6 +25,9 @@ public:
     /// Fill two one-dimensional arrays such that (x,y) are distributed
     /// uniformly in the unit disk.
     virtual void fill_unit_disk(karray1d x_array, karray1d y_array) = 0;
+
+    /// Skip ahead the random number generator by delta
+    virtual void advance(uint64_t delta) = 0;
 };
 
 /// Random_distribution provides a Distribution of random numbers. The random seed
@@ -85,6 +88,11 @@ public:
     /// uniformly in the unit disk.
     void fill_unit_disk(karray1d x_array, karray1d y_array) override;
     using Distribution::fill_unit_disk;
+
+    void advance(uint64_t delta) override
+    { }
+
+    void test();
 };
 
 #endif /* DISTRIBUTION_H_ */
