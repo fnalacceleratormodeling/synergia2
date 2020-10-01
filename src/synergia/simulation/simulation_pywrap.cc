@@ -167,6 +167,20 @@ PYBIND11_MODULE(simulation, m)
                 "turn_period"_a = 1,
                 "train_idx"_a = 0, 
                 "bunch_idx"_a = 0 )
+
+        .def( "reg_diag_loss_aperture",
+                &Bunch_simulator::reg_diag_loss_aperture,
+                "Register an aperture loss diagnostics to the bunch.",
+                "filename"_a,
+                "train_idx"_a = 0,
+                "bunch_idx"_a = 0 )
+
+         .def( "reg_diag_loss_zcut",
+                &Bunch_simulator::reg_diag_loss_zcut,
+                "Register a zcut loss diagnostics to the bunch.",
+                "filename"_a,
+                "train_idx"_a = 0,
+                "bunch_idx"_a = 0 )
  
         .def( "current_turn",
                 &Bunch_simulator::current_turn,
