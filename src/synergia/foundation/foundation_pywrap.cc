@@ -241,7 +241,7 @@ PYBIND11_MODULE(foundation, m)
 
     py::class_<PCG_random_distribution, Distribution>(m, "PCG_random_distribution")
         .def( py::init<unsigned long int, Commxx const&>(),
-                "seed"_a, "comm"_a = Commxx::World )
+                "seed"_a, "comm"_a )
         ;
 
 

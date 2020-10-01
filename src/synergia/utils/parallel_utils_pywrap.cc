@@ -41,6 +41,18 @@ PYBIND11_MODULE(parallel_utils, m)
     py::class_<Commxx, std::shared_ptr<Commxx>>(m, "Commxx")
         .def(py::init<>())
         .def( "rank", &Commxx::rank )
+        .def( "size", &Commxx::size )
+        .def( "is_null", &Commxx::is_null )
+        .def( "is_root", &Commxx::is_root )
+        .def( "parent", &Commxx::parent )
+
+        .def_property_readonly_static( 
+                "World", 
+                [](py::object) { return Commxx::World; } )
+
+        .def_property_readonly_static( 
+                "Null",
+                [](py::object) { return Commxx::Null; } )
         ;
 
     m.def( "simple_timer_print", &simple_timer_print, "logger"_a )
