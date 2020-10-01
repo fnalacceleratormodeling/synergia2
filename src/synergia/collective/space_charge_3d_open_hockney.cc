@@ -611,36 +611,49 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         Space_charge_3d_open_hockney_options const & ops)
     : Collective_operator("sc_3d_open_hockney", 1.0)
     , options(ops)
+    , bunch_sim_id()
     , domain(ops.shape, {1.0, 1.0, 1.0})
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
-    , fft()
-    , comm(Commxx::Null)
+    , ffts()
 {
-    //fft.construct(options.doubled_shape, comm);
 }
 
 
 
 void 
 Space_charge_3d_open_hockney::apply_impl(
-            Bunch_simulator & simulator, 
+            Bunch_simulator& sim, 
             double time_step, 
-            Logger & logger)
+            Logger& logger)
 {
     logger << "    Space charge 3d open hockney\n";
 
     scoped_simple_timer timer("sc3d_total");
-    apply_bunch(simulator[0][0], time_step, logger);
+
+    // construct the workspace for a new bunch simulator
+    if (bunch_sim_id != sim.id())
+    {
+        construct_workspaces(sim);
+        bunch_sim_id = sim.id();
+    }
+
+    // apply to bunches
+    for(size_t t=0; t<2; ++t)
+    {
+        for(size_t b=0; b<sim[t].get_bunch_array_size(); ++b)
+        {
+            apply_bunch(sim[t][b], ffts[t][b], time_step, logger);
+        }
+    }
 }
 
 void
 Space_charge_3d_open_hockney::apply_bunch(
-            Bunch & bunch, 
+            Bunch& bunch, 
+            Distributed_fft3d& fft,
             double time_step, 
-            Logger & logger)
+            Logger& logger)
 {
-    setup_communication(bunch.get_comm());
-
     update_domain(bunch);
 
     get_local_charge_density(bunch); // [C/m^3]
@@ -655,47 +668,43 @@ Space_charge_3d_open_hockney::apply_bunch(
         get_green_fn2_linear();
     }
 
-    get_local_phi2();
-    get_global_phi2();
+    get_local_phi2(fft);
+    get_global_phi2(fft);
 
-    auto fn_norm = get_normalization_force();
+    auto fn_norm = get_normalization_force(fft);
 
     get_force();
     apply_kick(bunch, fn_norm, time_step);
 }
 
 void
-Space_charge_3d_open_hockney::setup_communication(
-        Commxx const & bunch_comm)
-{
-    scoped_simple_timer timer("sc3d_comm");
-
-    if (comm.is_null()) 
-    {
-        scoped_simple_timer t2("sc3d_comm_comm");
-        comm = bunch_comm.divide(options.comm_group_size);
-    }
-
-    if (options.doubled_shape != fft.get_shape()) 
-    {
-        scoped_simple_timer t3("sc3d_comm_fft");
-        fft.construct(options.doubled_shape, comm);
-        construct_workspaces(options.doubled_shape);
-    }
-}
-
-void
 Space_charge_3d_open_hockney::construct_workspaces(
-        std::array<int, 3> const& s)
+        Bunch_simulator const& sim)
 {
-#if 0
-    int lower = fft.get_lower();
-    int upper = fft.get_upper();
-    int nz = upper - lower;
-#endif
+    scoped_simple_timer timer("sc3d_workspaces");
 
-    int nx_real = fft.padded_nx_real();
-    int nx_cplx = fft.padded_nx_cplx();
+    // doubled shape
+    auto const& s = options.doubled_shape;
+
+    // fft objects
+    for(size_t t=0; t<2; ++t)
+    {
+        int num_local_bunches = sim[t].get_bunch_array_size();
+        ffts[t] = std::vector<Distributed_fft3d>(num_local_bunches);
+
+        for(size_t b=0; b<num_local_bunches; ++b)
+        {
+            auto comm = sim[t][b]
+                .get_comm()
+                .divide(options.comm_group_size);
+
+            ffts[t][b].construct(s, comm);
+        }
+    }
+
+    // local workspaces
+    int nx_real = Distributed_fft3d::get_padded_shape_real(s[0]);
+    int nx_cplx = Distributed_fft3d::get_padded_shape_cplx(s[0]);
 
     // doubled domain
     rho2 = karray1d_dev("rho2", nx_real * s[1] * s[2]);
@@ -704,12 +713,6 @@ Space_charge_3d_open_hockney::construct_workspaces(
 
     h_rho2 = Kokkos::create_mirror_view(rho2);
     h_phi2 = Kokkos::create_mirror_view(phi2);
-
-#if 0
-    rho2hat = karray1d_dev("rho2hat", nx_cplx * s[1] * nz * 2);
-      g2hat = karray1d_dev(  "g2hat", nx_cplx * s[1] * nz * 2);
-    phi2hat = karray1d_dev("phi2hat", nx_cplx * s[1] * nz * 2);
-#endif
 
     // En is in the original domain
     enx = karray1d_dev("enx", s[0] * s[1] * s[2] / 8);
@@ -876,7 +879,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
 }
 
 void
-Space_charge_3d_open_hockney::get_local_phi2()
+Space_charge_3d_open_hockney::get_local_phi2(Distributed_fft3d& fft)
 {
     scoped_simple_timer timer("sc3d_local_f");
 
@@ -890,7 +893,7 @@ Space_charge_3d_open_hockney::get_local_phi2()
     Kokkos::fence();
 
     // zero phi2 when using multiple ranks
-    if (comm.size() > 1)
+    if (fft.get_comm().size() > 1)
     {
         int padded_gx_real = fft.padded_nx_real();
         alg_zeroer az{phi2};
@@ -914,10 +917,10 @@ Space_charge_3d_open_hockney::get_local_phi2()
 }
 
 void
-Space_charge_3d_open_hockney::get_global_phi2()
+Space_charge_3d_open_hockney::get_global_phi2(Distributed_fft3d const& fft)
 {
     // do nothing if the solver only has a single rank
-    if (comm.size() == 1) return;
+    if (fft.get_comm().size() == 1) return;
 
     scoped_simple_timer timer("sc3d_global_f");
 
@@ -931,7 +934,7 @@ Space_charge_3d_open_hockney::get_global_phi2()
                              nx_real*dg[1]*dg[2], 
                              MPI_DOUBLE, 
                              MPI_SUM, 
-                             comm );
+                             fft.get_comm() );
 
     if (err != MPI_SUCCESS)
     {
@@ -944,7 +947,7 @@ Space_charge_3d_open_hockney::get_global_phi2()
 }
 
 double
-Space_charge_3d_open_hockney::get_normalization_force()
+Space_charge_3d_open_hockney::get_normalization_force(Distributed_fft3d const& fft)
 {
     auto h = domain.get_cell_size();
 

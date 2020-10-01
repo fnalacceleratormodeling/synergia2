@@ -76,21 +76,16 @@ private:
 
     const Space_charge_3d_open_hockney_options options;
 
+    std::string bunch_sim_id;
+
     Rectangular_grid_domain domain;
     Rectangular_grid_domain doubled_domain;
 
-    Distributed_fft3d fft;
-    Commxx comm;
+    std::array<std::vector<Distributed_fft3d>, 2> ffts;
 
     karray1d_dev rho2;
     karray1d_dev phi2;
     karray1d_dev g2;
-
-#if 0
-    karray1d_dev rho2hat;
-    karray1d_dev phi2hat;
-    karray1d_dev g2hat;
-#endif
 
     karray1d_hst h_rho2;
     karray1d_hst h_phi2;
@@ -108,14 +103,12 @@ private:
 
     void apply_bunch( 
             Bunch & bunch, 
+            Distributed_fft3d& fft,
             double time_step, 
             Logger & logger);
 
-    void setup_communication(
-            Commxx const & bunch_comm);
-
     void construct_workspaces(
-            std::array<int, 3> const& s);
+            Bunch_simulator const& sim);
 
     void update_domain(
             Bunch const & bunch);
@@ -133,12 +126,17 @@ private:
 
     void get_green_fn2_pointlike();
     void get_green_fn2_linear();
-    void get_local_phi2();
-    void get_global_phi2();
+
+    void get_local_phi2(
+            Distributed_fft3d& fft);
+
+    void get_global_phi2(
+            Distributed_fft3d const& fft);
 
     void get_force();
 
-    double get_normalization_force();
+    double get_normalization_force(
+            Distributed_fft3d const& fft);
 
 public:
 
