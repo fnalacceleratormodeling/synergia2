@@ -5,7 +5,7 @@
 
 Distributed_fft3d::Distributed_fft3d()
     : shape()
-    , comm(MPI_COMM_NULL)
+    , comm(Commxx::Null)
     , plan(nullptr)
     , inv_plan(nullptr)
     , data(nullptr)
@@ -21,7 +21,7 @@ Distributed_fft3d::Distributed_fft3d()
 void 
 Distributed_fft3d::construct(
         std::array<int, 3> const & new_shape, 
-        MPI_Comm new_comm)
+        Commxx const& new_comm)
 {
     if (data || workspace)
     {
@@ -36,16 +36,10 @@ Distributed_fft3d::construct(
     data = nullptr;
     workspace = nullptr;
 
-    if (new_comm == MPI_COMM_NULL) 
-    {
-        comm = MPI_COMM_NULL;
+    if (new_comm.is_null()) 
         return;
-    }
 
-    int comm_size;
-    MPI_Comm_size(new_comm, &comm_size);
-
-    if (comm_size > new_shape[2]) 
+    if (new_comm.size() > new_shape[2]) 
     {
         throw std::runtime_error( 
                 "Distributed_fft3d: (number of processors) must be "

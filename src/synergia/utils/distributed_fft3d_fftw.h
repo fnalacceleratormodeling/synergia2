@@ -16,8 +16,7 @@ class Distributed_fft3d
 private:
 
     std::array<int, 3> shape;
-
-    MPI_Comm comm;
+    Commxx comm;
 
     fftw_plan plan;
     fftw_plan inv_plan;
@@ -45,8 +44,9 @@ public:
     int padded_nx_cplx() const { return get_padded_shape_cplx(shape[0]); }
 
     std::array<int, 3> const& get_shape() const { return shape; }
+    Commxx const& get_comm() const { return comm; }
 
-    void construct(std::array<int, 3> const& shape, MPI_Comm comm);
+    void construct(std::array<int, 3> const& shape, Commxx const& comm);
 
     void transform(karray1d_dev & in, karray1d_dev & out);
     void inv_transform(karray1d_dev & in, karray1d_dev & out);
