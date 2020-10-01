@@ -1,15 +1,11 @@
 #include <cstring>
 #include <stdexcept>
-#include "distributed_fft3d_cuda.h"
+#include "distributed_fft3d.h"
 
 Distributed_fft3d::Distributed_fft3d()
-    : shape()
-    , comm(Commxx::Null)
+    : Distributed_fft3d_base()
     , plan()
     , invplan()
-
-    , lower(0)
-    , nz(0)
 {
 }
 
@@ -53,12 +49,6 @@ Distributed_fft3d::inv_transform(karray1d_dev& in, karray1d_dev& out)
     cufftExecZ2D( invplan, 
             (cufftDoubleComplex*)in.data(),
             (cufftDoubleReal*)out.data() );
-}
-
-double
-Distributed_fft3d::get_roundtrip_normalization() const
-{
-    return 1.0 / (shape[0] * shape[1] * shape[2]);
 }
 
 Distributed_fft3d::~Distributed_fft3d()
