@@ -6,6 +6,7 @@
 #include "four_momentum.h"
 #include "reference_particle.h"
 #include "distribution.h"
+#include "pcg_distribution.h"
 //#include "synergia/utils/numpy_multi_ref_converter.h"
 //#include "synergia/utils/comm_converter.h"
 #include "math_constants.h"
@@ -237,6 +238,12 @@ PYBIND11_MODULE(foundation, m)
         .def( py::init<unsigned long int, Commxx const&>(),
                 "seed"_a, "comm"_a )
         ;
+
+    py::class_<PCG_random_distribution, Distribution>(m, "PCG_random_distribution")
+        .def( py::init<unsigned long int, Commxx const&>(),
+                "seed"_a, "comm"_a = Commxx::World )
+        ;
+
 
 #if 0
     class_<Distribution, boost::noncopyable > ("Distribution", no_init);
