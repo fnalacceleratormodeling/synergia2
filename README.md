@@ -79,17 +79,19 @@ Paddings need to be turned off in the CUDA build due to a Kokkos bug https://git
 
 ## 3. Power9:
 
-    export PATH=$LOCAL_ROOT/bin:/usr/local/gnu8/gcc-8.3.0/bin:/usr/local/openmpi-4.0.2-gcc-8.3.0/bin:/usr/local/cmake3/3.16.2/bin:/usr/local/cuda/bin:$PATH
-    export LD_LIBRARY_PATH=$LOCAL_ROOT/lib:$LOCAL_ROOT/lib64:/usr/local/gnu8/gcc-8.3.0/lib:/usr/local/gnu8/gcc-8.3.0/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+    export SYN_SRC=/path/to/synergia
+    export LOCAL_ROOT=/data/qlu/local
 
-    CC=/usr/local/gnu8/gcc-8.3.0/bin/gcc CXX=/usr/local/gnu8/gcc-8.3.0/bin/g++ \
-    cmake -DEIGEN3_INCLUDE_DIR=/data/qlu/local/include/eigen3 \
-      -DFFTW3_LIBRARY_DIRS=/data/qlu/local/lib \
+    export PATH=$LOCAL_ROOT/bin:/usr/local/gnu8/gcc-8.3.0/bin:/usr/local/openmpi-4.0.2-gcc-8.3.0/bin:/usr/local/cmake3/3.16.2/bin:/usr/local/cuda-11.1/bin:$PATH
+    export LD_LIBRARY_PATH=$LOCAL_ROOT/lib:$LOCAL_ROOT/lib64:/usr/local/gnu8/gcc-8.3.0/lib:/usr/local/gnu8/gcc-8.3.0/lib64:/usr/local/cuda-11.1/compat:$LD_LIBRARY_PATH
+
+    CXX=/usr/local/gnu8/gcc-8.3.0/bin/g++ \
+    cmake -DEIGEN3_INCLUDE_DIR=$LOCAL_ROOT/include/eigen3 \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_PYTHON_BINDINGS=off \
       -DKokkos_ENABLE_OPENMP=off \
       -DKokkos_ENABLE_CUDA=on \
-      -DCMAKE_CXX_COMPILER=nvcc_wrapper \
+      -DCMAKE_CXX_COMPILER=$SYN_SRC/src/synergia/utils/kokkos/bin/nvcc_wrapper \
       -DCMAKE_CXX_FLAGS="-arch=sm_70" 
       ../synergia2/
 
