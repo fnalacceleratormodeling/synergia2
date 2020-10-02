@@ -1,7 +1,6 @@
 #ifndef DISTRIBUTION_H_
 #define DISTRIBUTION_H_
 
-#include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/commxx.h"
 #include <gsl/gsl_rng.h>
 
@@ -16,15 +15,15 @@ public:
     virtual double get() = 0;
 
     /// Fill a one-dimensional array uniformly between min and max.
-    virtual void fill_uniform(karray1d array, double min, double max) = 0;
+    virtual double get_uniform(double min, double max) = 0;
 
     /// Fill a one-dimensional array with Gaussian distribution of
     /// zero mean and unit standard deviation.
-    virtual void fill_unit_gaussian(karray1d array) = 0;
+    virtual double get_unit_gaussian() = 0;
 
     /// Fill two one-dimensional arrays such that (x,y) are distributed
     /// uniformly in the unit disk.
-    virtual void fill_unit_disk(karray1d x_array, karray1d y_array) = 0;
+    /// virtual void fill_unit_disk(double* x_array, double* y_array) = 0;
 
     /// Skip ahead the random number generator by delta
     virtual void advance(uint64_t delta) = 0;
@@ -75,19 +74,15 @@ public:
     double get() override;
 
     /// Fill a one-dimensional array uniformly between min and max.
-    void fill_uniform(karray1d array, double min, double max) override;
-    using Distribution::fill_uniform;
+    double get_uniform(double min, double max) override;
 
     /// Fill a one-dimensional array with Gaussian distribution of
     /// zero mean and unit standard deviation.
-    void fill_unit_gaussian(karray1d array) override;
-    using Distribution::fill_unit_gaussian;
-
+    double get_unit_gaussian() override;
 
     /// Fill two one-dimensional arrays such that (x,y) are distributed
     /// uniformly in the unit disk.
-    void fill_unit_disk(karray1d x_array, karray1d y_array) override;
-    using Distribution::fill_unit_disk;
+    /// void fill_unit_disk(double* x_array, double* y_array) override;
 
     void advance(uint64_t delta) override
     { }

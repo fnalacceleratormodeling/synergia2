@@ -137,8 +137,10 @@ namespace
     {
         for (int j = 0; j < 6; ++j) 
         {
-            dist.fill_unit_gaussian(
-                    Kokkos::subview(particles, std::make_pair(start, end), j) );
+            int np = particles.extent(0);
+
+            for(int p=0; p<np; ++p)
+                particles(p, j) = dist.get_unit_gaussian();
 
             const double scale = sqrt( covariances(j, j) );
 

@@ -59,22 +59,21 @@ Random_distribution::get()
     return gsl_rng_uniform(rng);
 }
 
-void
-Random_distribution::fill_uniform(karray1d array, double min, double max)
+double
+Random_distribution::get_uniform(double min, double max)
 {
-    const auto N = array.extent(0);
-    for (auto i=0; i<N; ++i) array(i) = gsl_ran_flat(rng, min, max);
+    return gsl_ran_flat(rng, min, max);
 }
 
-void
-Random_distribution::fill_unit_gaussian(karray1d array)
+double
+Random_distribution::get_unit_gaussian()
 {
-    const auto N = array.extent(0);
-    for (auto i=0; i<N; ++i) array(i) = gsl_ran_ugaussian_ratio_method(rng);
+    return gsl_ran_ugaussian_ratio_method(rng);
 }
 
+#if 0
 void
-Random_distribution::fill_unit_disk(karray1d x_array, karray1d y_array)
+Random_distribution::fill_unit_disk(double* x_array, double* y_array)
 {
     const auto Nx = x_array.extent(0);
     const auto Ny = y_array.extent(0);
@@ -90,10 +89,11 @@ Random_distribution::fill_unit_disk(karray1d x_array, karray1d y_array)
             x = 2.0 * gsl_rng_uniform(rng) - 1.0;
             y = 2.0 * gsl_rng_uniform(rng) - 1.0;
         }
-        x_array(n) = x;
-        y_array(n) = y;
+        x_array[n] = x;
+        y_array[n] = y;
     }
 }
+#endif
 
 Random_distribution::~Random_distribution()
 {
