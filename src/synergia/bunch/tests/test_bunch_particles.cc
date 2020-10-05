@@ -40,7 +40,8 @@ void check_particle_values(BunchParticles const& bp)
 TEST_CASE("BunchParticles", "[BunchParticles]")
 {
     // create object
-    BunchParticles bp("test", np, -1, Commxx::World);
+    BunchParticles bp(ParticleGroup::regular, 
+            np, -1, Commxx::World);
 
     // init particle data
     init_particle_values(bp);
@@ -86,7 +87,8 @@ TEST_CASE("BunchParticles", "[BunchParticles]")
 
         SECTION("read into 0 sized bunch particle")
         {
-            BunchParticles bp2("test", 0, 0, Commxx::World);
+            BunchParticles bp2(ParticleGroup::regular, 
+                    0, 0, Commxx::World);
 
             REQUIRE(bp2.size() == 0);
             REQUIRE(bp2.capacity() >= 0);
@@ -104,7 +106,8 @@ TEST_CASE("BunchParticles", "[BunchParticles]")
 
         SECTION("read into 0 size but reserved bunch particle")
         {
-            BunchParticles bp2("test", 0, np+6, Commxx::World);
+            BunchParticles bp2(ParticleGroup::regular, 
+                    0, np+6, Commxx::World);
 
             REQUIRE(bp2.size() == 0);
             REQUIRE(bp2.capacity() >= np+6);
@@ -122,7 +125,8 @@ TEST_CASE("BunchParticles", "[BunchParticles]")
 
         SECTION("read into non-zero sized bunch particle")
         {
-            BunchParticles bp2("test", np+6, -1, Commxx::World);
+            BunchParticles bp2(ParticleGroup::regular, 
+                    np+6, -1, Commxx::World);
 
             REQUIRE(bp2.size() == np+6);
             REQUIRE(bp2.capacity() >= np+6);

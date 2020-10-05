@@ -28,7 +28,7 @@ namespace
     struct particle_id_assigner
     {
         Particles parts;
-        int offset;
+        int64_t offset;
 
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
@@ -215,10 +215,11 @@ namespace
 
 
 BunchParticles::BunchParticles( 
-        std::string const& label, 
+        ParticleGroup pg,
         int total, int reserved, 
         Commxx const& comm)
-    : label(label)
+    : group(pg)
+    , label(pg==PG::regular ? "particles" : "spectators")
     , n_valid(0)
     , n_active(0)
     , n_reserved(0)
@@ -309,6 +310,29 @@ void BunchParticles::assign_ids(int local_offset, Commxx const& comm)
     int global_offset = Particle_id_offset::get(request_num, comm);
 
     particle_id_assigner pia{parts, local_offset + global_offset};
+    Kokkos::parallel_for(n_active, pia);
+}
+
+void BunchParticles::assign_ids(int train_idx, int bunch_idx)
+{
+    // each bunch is assined a range in the global id space
+    //
+    // here we assume the max number of particles that a single
+    // bunch can hold is 2^32. 
+    // a bunch can have 2^2, or 4 groups of particles
+    // a train can have 2^16, or 65536 bunches.
+    // a bunch simulator can have 2^2, or 4 trains
+    //
+    // so the overall bits the ids take is 32+2+16+2 = 52, less
+    // than 53 which is the max integer number that can be 
+    // represented in double
+
+    int64_t base = 0;
+    base |= (int64_t)train_idx << 50;
+    base |= (int64_t)bunch_idx << 34;
+    base |= (int64_t)group << 32;
+
+    particle_id_assigner pia{parts, base};
     Kokkos::parallel_for(n_active, pia);
 }
 

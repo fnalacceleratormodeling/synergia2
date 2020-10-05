@@ -10,6 +10,12 @@
 
 #include <cereal/cereal.hpp>
 
+enum class ParticleGroup
+{
+    regular = 0,
+    spectator = 1
+};
+
 typedef Kokkos::View<double*[7], Kokkos::LayoutLeft> Particles;
 typedef Kokkos::View<const double*[7], Kokkos::LayoutLeft> ConstParticles;
 
@@ -67,6 +73,8 @@ namespace cereal
 
 class BunchParticles
 {
+    using PG = ParticleGroup;
+
 public:
 
     constexpr static const int particle_index_null = -1;
@@ -124,6 +132,8 @@ private:
      *
      */
 
+    // particle group (regular or spectator)
+    ParticleGroup group;
     std::string label;
 
     // see the memory layout
@@ -153,7 +163,7 @@ public:
     // particles array will be allocated to the size of reserved_num
     // if reserved is less than total, it will be set to the total_num
     BunchParticles( 
-            std::string const& label, 
+            ParticleGroup pg,
             int total_num, 
             int reserved_num, 
             Commxx const& comm );
@@ -230,6 +240,9 @@ public:
     // checkpoint save/load
     void save_checkpoint_particles(Hdf5_file & file, int idx) const;
     void load_checkpoint_particles(Hdf5_file & file, int idx);
+
+    // assign ids cooperatively
+    void assign_ids(int train_idx, int bunch_idx);
 
 private:
 

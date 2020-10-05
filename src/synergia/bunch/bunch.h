@@ -19,12 +19,6 @@
 #include <cereal/types/array.hpp>
 #include <cereal/types/map.hpp>
 
-enum class ParticleGroup
-{
-    regular = 0,
-    spectator = 1
-};
-
 enum class LongitudinalBoundary
 {
     open = 0,
@@ -109,7 +103,8 @@ public:
     /// @param reference_particle the reference particle for the bunch.
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
-    /// @param bucket_index the bucket number the  bunch occupies, used for multi-bunch simulations
+    /// @param bucket_index the bucket number the bunch occupies, used for 
+    ///        multi-bunch simulations
     /// @param comm_sptr the comm_sptrunicator.
     Bunch(  Reference_particle const& reference_particle, 
             int total_num,
@@ -145,26 +140,33 @@ public:
     { real_num = num; }
 
     /// Return the reference particle
-    Reference_particle &      get_reference_particle()       
+    Reference_particle&      
+    get_reference_particle()       
     { return ref_part; }
 
-    Reference_particle const& get_reference_particle() const 
+    Reference_particle const& 
+    get_reference_particle() const 
     { return ref_part; }
 
-    Reference_particle &      get_design_reference_particle()       
+    Reference_particle&      
+    get_design_reference_particle()       
     { return design_ref_part; }
 
-    Reference_particle const& get_design_reference_particle() const 
+    Reference_particle const& 
+    get_design_reference_particle() const 
     { return design_ref_part; }
 
-    void set_design_reference_particle(Reference_particle const & ref_part)
+    void 
+    set_design_reference_particle(Reference_particle const& ref_part)
     { design_ref_part = ref_part; }
 
     // BunchParticles
-    BunchParticles &      get_bunch_particles(ParticleGroup pg = PG::regular)
+    BunchParticles&
+    get_bunch_particles(ParticleGroup pg = PG::regular)
     { return parts[(int)pg]; }
 
-    BunchParticles const& get_bunch_particles(ParticleGroup pg = PG::regular) const
+    BunchParticles const& 
+    get_bunch_particles(ParticleGroup pg = PG::regular) const
     { return parts[(int)pg]; }
 
     /// Get the array containing the macroparticles on this processor.
@@ -172,22 +174,28 @@ public:
     /// larger local_num. The macroparticle state vectors are stored in
     /// array[0:local_num,0:6] and the macroparticle IDs are stored in
     /// array[0:local_num,6]. Use get_local_num() to obtain local_num.
-    Particles          get_local_particles(ParticleGroup pg = PG::regular)       
+    Particles
+    get_local_particles(ParticleGroup pg = PG::regular)       
     { return get_bunch_particles(pg).parts; }
 
-    ConstParticles     get_local_particles(ParticleGroup pg = PG::regular) const 
+    ConstParticles
+    get_local_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).parts; }
 
-    HostParticles      get_host_particles(ParticleGroup pg = PG::regular)       
+    HostParticles
+    get_host_particles(ParticleGroup pg = PG::regular)       
     { return get_bunch_particles(pg).hparts; }
 
-    ConstHostParticles get_host_particles(ParticleGroup pg = PG::regular) const 
+    ConstHostParticles
+    get_host_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).hparts; }
 
-    ParticleMasks      get_local_particle_masks(ParticleGroup pg = PG::regular)
+    ParticleMasks
+    get_local_particle_masks(ParticleGroup pg = PG::regular)
     { return get_bunch_particles(pg).masks; }
 
-    ConstParticleMasks get_local_particle_masks(ParticleGroup pg = PG::regular) const
+    ConstParticleMasks
+    get_local_particle_masks(ParticleGroup pg = PG::regular) const
     { return get_bunch_particles(pg).masks; }
 
     int get_total_num(ParticleGroup pg = PG::regular) const 
@@ -240,6 +248,13 @@ public:
         real_num = old_total ? bp.num_total() * real_num / old_total : 0.0;
 
         return old_total;
+    }
+
+    // assign particle ids for bunch particles
+    void assign_particle_ids(int train_idx, int bunch_idx)
+    { 
+        get_bunch_particles(PG::regular).assign_ids(train_idx, bunch_idx);
+        get_bunch_particles(PG::spectator).assign_ids(train_idx, bunch_idx); 
     }
 
     // aperture operation

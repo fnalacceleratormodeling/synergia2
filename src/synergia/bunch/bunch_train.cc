@@ -180,6 +180,10 @@ Bunch_train::Bunch_train(
                 b_idx,         // bucket index set to the same of bunch index
                 a_idx          // array index in the bunches array
                 );
+
+        // assign unique particle ids across the bunch simulator, 
+        // by taking the train index and bunch index
+        bunches.back().assign_particle_ids(index, b_idx);
     }
 }
 
