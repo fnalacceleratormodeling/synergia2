@@ -120,6 +120,11 @@ PYBIND11_MODULE(simulation, m)
                 py::return_value_policy::reference_internal,
                 "Get the bunch reference from the bunch_simulator.",
                 "train"_a = 0, "bunch"_a = 0 )
+        
+        .def( "has_local_bunch",
+                &Bunch_simulator::has_local_bunch,
+                "Check if the bunch is present on current rank.",
+                "train"_a, "bunch"_a )
 
         .def( "reg_prop_action_step_end",
                 (void (Bunch_simulator::*)(action_step_t))&Bunch_simulator::reg_prop_action_step_end,
