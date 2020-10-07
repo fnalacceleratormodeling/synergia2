@@ -147,6 +147,10 @@ private:
     // number of particles discarded from the most recent aperture apply.
     int n_last_discarded;
 
+    // particle offset in cases where a single bunch span across
+    // multiple ranks
+    int poffset;
+
 
 public:
 

@@ -225,6 +225,7 @@ BunchParticles::BunchParticles(
     , n_reserved(0)
     , n_total(total)
     , n_last_discarded(0)
+    , poffset(0)
     , parts()
     , masks()
     , discards()
@@ -251,6 +252,11 @@ BunchParticles::BunchParticles(
         // local_num
         n_valid    = counts_t[mpi_rank];
         n_active   = counts_t[mpi_rank];
+
+        // local_num offset
+        poffset = 0;
+        for(int i=0; i<mpi_rank; ++i) 
+            poffset+=counts_t[i];
 
         // allocate
 #ifdef NO_PADDING
@@ -332,7 +338,7 @@ void BunchParticles::assign_ids(int train_idx, int bunch_idx)
     base |= (int64_t)bunch_idx << 34;
     base |= (int64_t)group << 32;
 
-    particle_id_assigner pia{parts, base};
+    particle_id_assigner pia{parts, base+poffset};
     Kokkos::parallel_for(n_active, pia);
 }
 
