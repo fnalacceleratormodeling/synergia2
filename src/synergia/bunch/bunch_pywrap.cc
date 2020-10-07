@@ -197,6 +197,11 @@ PYBIND11_MODULE(bunch, m)
                 "Calculate the mean for the bunch.",
                 "bunch"_a )
 
+        .def_static( "calculate_abs_mean_ka",
+                &Core_diagnostics::calculate_abs_mean,
+                "Calculate the mean of absolute values for the bunch.",
+                "bunch"_a )
+
         .def_static( "calculate_std_ka",
                 [](Bunch const& bunch, py::buffer b) {
                     py::buffer_info info = b.request();

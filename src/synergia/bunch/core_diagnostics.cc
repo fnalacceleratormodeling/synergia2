@@ -65,6 +65,7 @@ using fun_t = std::function<double(ConstParticles const &, int, int)>;
 namespace core_diagnostics_impl
 {
     struct mean_tag   { constexpr static int size = 6; };
+    struct abs_mean_tag { constexpr static int size = 6; };
     struct z_mean_tag { constexpr static int size = 1; };
     struct std_tag    { constexpr static int size = 6; };
     struct min_tag    { constexpr static int size = 3; };
@@ -134,6 +135,14 @@ namespace core_diagnostics_impl
     template<>
     KOKKOS_INLINE_FUNCTION
     void particle_reducer<mean_tag>::operator()   (const int i, value_type sum) const
+    { 
+        if (masks(i)) 
+            for (int j=0; j<value_count; ++j) sum[j] += p(i, j); 
+    }
+
+    template<>
+    KOKKOS_INLINE_FUNCTION
+    void particle_reducer<abs_mean_tag>::operator()   (const int i, value_type sum) const
     { 
         if (masks(i)) 
             for (int j=0; j<value_count; ++j) sum[j] += fabs(p(i, j)); 
@@ -223,8 +232,11 @@ Core_diagnostics::calculate_mean(Bunch const & bunch)
     Kokkos::parallel_reduce("cal_mean", npart, pr, mean.data());
     Kokkos::fence();
 
-    MPI_Allreduce(MPI_IN_PLACE, mean.data(), 6, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
-    for (int i=0; i<6; ++i) mean(i) /= bunch.get_total_num();
+    MPI_Allreduce(MPI_IN_PLACE, mean.data(), 
+            6, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
+
+    for (int i=0; i<6; ++i) 
+        mean(i) /= bunch.get_total_num();
 
     return mean;
 }
@@ -245,11 +257,39 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
     Kokkos::parallel_reduce(npart, pr, &mean);
     Kokkos::fence();
 
-    MPI_Allreduce(MPI_IN_PLACE, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
+    MPI_Allreduce(MPI_IN_PLACE, &mean, 
+            1, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
+
     mean = mean / bunch.get_total_num();
 
     return mean;
 }
+
+karray1d
+Core_diagnostics::calculate_abs_mean(Bunch const & bunch)
+{
+    using core_diagnostics_impl::particle_reducer;
+    using core_diagnostics_impl::abs_mean_tag;
+
+    karray1d abs_mean("abs_mean", 6);
+
+    auto particles = bunch.get_local_particles();
+    auto masks = bunch.get_local_particle_masks();
+    const int npart = bunch.size();
+
+    particle_reducer<abs_mean_tag> pr(particles, masks);
+    Kokkos::parallel_reduce("cal_abs_mean", npart, pr, abs_mean.data());
+    Kokkos::fence();
+
+    MPI_Allreduce(MPI_IN_PLACE, abs_mean.data(), 
+            6, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
+
+    for (int i=0; i<6; ++i) 
+        abs_mean(i) /= bunch.get_total_num();
+
+    return abs_mean;
+}
+
 
 double
 Core_diagnostics::calculate_z_std(Bunch const& bunch, double const& mean)
