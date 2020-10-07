@@ -136,7 +136,7 @@ namespace core_diagnostics_impl
     void particle_reducer<mean_tag>::operator()   (const int i, value_type sum) const
     { 
         if (masks(i)) 
-            for (int j=0; j<value_count; ++j) sum[j] += p(i, j); 
+            for (int j=0; j<value_count; ++j) sum[j] += fabs(p(i, j)); 
     }
 
     template<>

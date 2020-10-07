@@ -5,7 +5,7 @@
 #include "synergia/simulation/bunch_simulator.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/independent_operation.h"
-
+#include "synergia/bunch/populate_global.h"
 
 namespace impl {
 
@@ -533,5 +533,45 @@ Bunch_simulator::load_checkpoint_particles(std::string const& fname)
 
     for (int i=0; i<bunches.size(); ++i)
         bunches[i]->load_checkpoint_particles(file, i);
+}
+
+void
+Bunch_simulator::populate_6d(
+        uint64_t seed,
+        const_karray1d means,
+        const_karray2d_row covariances)
+{
+    karray1d limits("limits", 6);
+    for(int i=0; i<6; ++i) limits[i] = 0.0;
+
+    populate_6d_truncated(
+            seed, means, covariances, limits);
+}
+
+void
+Bunch_simulator::populate_6d_truncated(
+        uint64_t seed,
+        const_karray1d means,
+        const_karray2d_row covariances,
+        const_karray1d limits)
+{
+    int train_idx = 0;
+
+    for(auto & train : get_trains())
+    {
+        for(auto & bunch : train.get_bunches())
+        {
+            // assign unique particle ids across 
+            // the bunch simulator, 
+            bunch.assign_particle_ids(train_idx);
+
+            // coordinated populate depends on the
+            // global particle id
+            populate_global_6d_truncated(seed, 
+                    bunch, means, covariances, limits);
+        }
+
+        ++train_idx;
+    }
 }
 

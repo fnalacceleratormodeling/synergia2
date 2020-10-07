@@ -24,6 +24,7 @@ add_library(synergia_bunch
     #diagnostics_bulk_spectator_track.cc 
     #diagnostics_phase_space_density.cc
     populate.cc 
+    populate_global.cc 
     populate_host.cc 
     #analysis.cc 
     period.cc 

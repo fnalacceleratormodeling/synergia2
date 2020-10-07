@@ -210,6 +210,33 @@ PYBIND11_MODULE(simulation, m)
                 &Bunch_simulator::dump,
                 "Dump." )
 
+        .def( "populate_6d",
+                []( Bunch_simulator& sim,
+                    uint64_t seed,
+                    py::buffer p_means,
+                    py::buffer p_covars ) {
+
+                        using ka1d_unmanaged = Kokkos::View<double*, 
+                            Kokkos::HostSpace, 
+                            Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                        using ka2d_unmanaged = Kokkos::View<double**, 
+                            Kokkos::LayoutRight, 
+                            Kokkos::HostSpace, 
+                            Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                        py::buffer_info pm_info = p_means.request();
+                        py::buffer_info pc_info = p_covars.request();
+
+                        ka1d_unmanaged means((double*)pm_info.ptr, 
+                                pm_info.shape[0]);
+
+                        ka2d_unmanaged covars((double*)pc_info.ptr, 
+                                pc_info.shape[0], pc_info.shape[1]);
+
+                        sim.populate_6d(seed, means, covars);
+                  } 
+        )
         ;
 
 

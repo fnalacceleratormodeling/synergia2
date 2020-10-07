@@ -343,6 +343,18 @@ public:
         trains[1].set_longitudinal_boundary(lb, param); 
     }
 
+    // coordinated populate
+    // the populated bunch simulator will be deterministic
+    // regardless of the number of ranks in the simulation
+    void populate_6d(uint64_t seed,
+            const_karray1d means, 
+            const_karray2d_row covariances);
+
+    void populate_6d_truncated(uint64_t seed,
+            const_karray1d means, 
+            const_karray2d_row covariances,
+            const_karray1d limits);
+
     // serialization helper
     void save_checkpoint_particles(std::string const& fname) const;
     void load_checkpoint_particles(std::string const& fname);
