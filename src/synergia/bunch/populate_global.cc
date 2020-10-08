@@ -129,7 +129,8 @@ populate_global_6d_truncated(
 #endif
 
     // deep copy from device to host
-    // bunch.checkout_particles();
+    // not for particles, but for masks
+    bunch.checkout_particles();
 
     const int np = bunch.size();
     auto parts = bunch.get_host_particles();
