@@ -212,8 +212,6 @@ namespace
                 double xwl = xw_lead[iz]  + z1 * (xw_lead[iz+1] - xw_lead[iz])   * recip_z2;
                 sum.arr[0] += zdensity[j] * N_factor * xmom[j] * xwl;
 
-                //printf("%g\n", xmom[j]);
-
                 double xwt = xw_trail[iz] + z1 * (xw_trail[iz+1] - xw_trail[iz]) * recip_z2;
                 sum.arr[1] += zdensity[j] * N_factor * xwt;
 
@@ -511,7 +509,6 @@ namespace
         ConstParticleMasks masks;
 
         karray1d_dev wf;
-        const int size_wake;
         const int z_grid;
         const double z_left;
         const double recip_h;
@@ -520,11 +517,11 @@ namespace
         KOKKOS_INLINE_FUNCTION
         void operator() (const int i) const
         {
-            double* z_wake   = &wf(size_wake*1);
-            double* xw_lead  = &wf(size_wake*2);
-            double* xw_trail = &wf(size_wake*3);
-            double* yw_lead  = &wf(size_wake*4);
-            double* yw_trail = &wf(size_wake*5);
+            double* xw_lead  = &wf(z_grid*0);
+            double* xw_trail = &wf(z_grid*1);
+            double* yw_lead  = &wf(z_grid*2);
+            double* yw_trail = &wf(z_grid*3);
+            double* z_wake   = &wf(z_grid*4);
 
             if (masks(i))
             {
@@ -581,13 +578,9 @@ Impedance::apply_impl(Bunch_simulator& sim,
     store_bunches_data(sim);
 
     // apply to bunches
-    for(size_t t=0; t<2; ++t)
-    {
-        for(size_t b=0; b<sim[t].get_bunch_array_size(); ++b)
-        {
-            apply_bunch(sim[t][b], time_step, logger);
-        }
-    }
+    for(auto & train : sim.get_trains())
+        for(auto & bunch : train.get_bunches())
+            apply_bunch(bunch, time_step, logger);
 }
  
 void
@@ -662,17 +655,16 @@ void
 Impedance::apply_bunch(Bunch& bunch, 
         double time_step, Logger& logger)
 {
+    //bunch.convert_to_state(fixed_t_lab);
+
     auto bp = calculate_moments_and_partitions(bunch);   
-    //t = simple_timer_show(t, "impedance_apply:  calculate_moments_and_partitions ");
 
     auto means = Core_diagnostics::calculate_mean(bunch);
     bp.z_mean = means[4];
     bp.N_factor = bunch.get_real_num() / bunch.get_total_num();
     bp.bucket = bunch.get_bucket_index(); 
-    //t = simple_timer_show(t, "impedance_apply: calculate_z_mean ");
 
     calculate_kicks(bunch, bp);
-    //t = simple_timer_show(t, "impedance_apply: calculate_kicks ");
 
     ///N.B. the wakefiled file reads W/(Z_0*L), Z_0=1/(epsilon_0*c)
     double wake_factor = -4. * mconstants::pi * pconstants::rp;
@@ -682,7 +674,8 @@ Impedance::apply_bunch(Bunch& bunch,
     double w_f = wake_factor * time_step / (gamma*beta);  
 
     apply_impedance_kick(bunch,  bp, w_f);
-    //t = simple_timer_show(t, "impedance apply:apply_impedance_kick ");
+
+    //bunch.convert_to_state(fixed_z_lab);
 }
 
 
@@ -750,10 +743,12 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
     alg_z_normalize alg2{zbinning, opts.z_grid};
     Kokkos::parallel_for(opts.z_grid, alg2);
 
+#if 0
     Logger l;
     kt::print_arr_sum(l, zbinning, 0, opts.z_grid);
     kt::print_arr_sum(l, zbinning, opts.z_grid*1, opts.z_grid);
     kt::print_arr_sum(l, zbinning, opts.z_grid*2, opts.z_grid);
+#endif
 
     return bp;
 }   
@@ -846,6 +841,7 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
         Kokkos::parallel_for(opts.z_grid, ft_add_turn_wake);
     }
 
+#if 0
     // prints
     Logger l;
     kt::print_arr_sum(l, wakes, 0, opts.z_grid);
@@ -853,6 +849,7 @@ void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
     kt::print_arr_sum(l, wakes, opts.z_grid*2, opts.z_grid);
     kt::print_arr_sum(l, wakes, opts.z_grid*3, opts.z_grid);
     kt::print_arr_sum(l, wakes, opts.z_grid*4, opts.z_grid);
+#endif
 }
 
 void 
@@ -862,8 +859,7 @@ Impedance::apply_impedance_kick(Bunch& bunch,
     alg_apply_kick alg{
         bunch.get_local_particles(),
         bunch.get_local_particle_masks(),
-        wake_field.terms,
-        wake_field.size_wake,
+        wakes,
         opts.z_grid,
         bp.z_left,
         1.0/bp.cell_size_z,
@@ -872,39 +868,9 @@ Impedance::apply_impedance_kick(Bunch& bunch,
 
     Kokkos::parallel_for(bunch.size(), alg);
 
+#if 1
     Logger l(0, LoggerV::DEBUG);
     bunch.print_statistics(l);
-
-    MPI_Abort(MPI_COMM_WORLD, 333);
-
-#if 0
-  
- MArray1i_ref const bin_partition(get_bin_partition());
- MArray1d_ref const  xwake_leading(get_xwake_leading());
- MArray1d_ref const xwake_trailing(get_xwake_trailing());
- MArray1d_ref const  ywake_leading(get_ywake_leading());
- MArray1d_ref const  ywake_trailing(get_ywake_trailing()); 
- MArray1d_ref const zwake0(get_zwake0());
- 
- 
- for (int part = 0; part < bunch.get_local_num(); ++part) {
-        double xkick=0., ykick=0., zkick=0.;
-        int bin=bin_partition[part];  // bin_partition(n) is the bin where you find the particle n 
-//            if ((bin>=z_grid) || (bin<0))  { std::cout<<"bin="<<bin<<"z_grid="<<z_grid<<std::endl;
-//         throw
-//         std::runtime_error("something wrong with bining");} 
-
-        xkick=xwake_leading[bin]+xwake_trailing[bin]*bunch.get_local_particles()[part][0];	
-        ykick=ywake_leading[bin]+ywake_trailing[bin]*bunch.get_local_particles()[part][2];
-        zkick = zwake0[bin];
-    
-       
-        bunch.get_local_particles()[part][1] += wake_factor*xkick;   
-        bunch.get_local_particles()[part][3]  += wake_factor*ykick;
-        bunch.get_local_particles()[part][5]  += wake_factor*zkick;
-      
-      
-    }
 #endif
 }
 
