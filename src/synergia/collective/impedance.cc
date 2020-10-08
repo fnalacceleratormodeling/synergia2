@@ -600,6 +600,8 @@ Impedance::construct_workspaces(Bunch_simulator const& sim)
 void
 Impedance::store_bunches_data(Bunch_simulator const& sim)
 {
+    scoped_simple_timer timer("imp_store_bunches_data");
+
     auto const& train = sim[0];
     auto num_bunches = train.get_num_bunches();
     auto num_local_bunches = train.get_num_local_bunches();
@@ -682,6 +684,8 @@ Impedance::apply_bunch(Bunch& bunch,
 Bunch_params
 Impedance::calculate_moments_and_partitions(Bunch const& bunch)
 {
+    scoped_simple_timer timer("imp_moments_and_partitions");
+
     // output cell_size_z, xmom, ymom, zdensity
     Bunch_params bp;
   
@@ -756,6 +760,8 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
 
 void Impedance::calculate_kicks(Bunch const& bunch, Bunch_params const& bp)
 {
+    scoped_simple_timer timer("imp_calcualte_kicks");
+
     int num_trains = 0;
     int mean_bin = (int)((bp.z_mean - bp.z_left) / bp.cell_size_z);
 
@@ -856,6 +862,8 @@ void
 Impedance::apply_impedance_kick(Bunch& bunch, 
         Bunch_params const& bp, double wake_factor)
 {
+    scoped_simple_timer timer("imp_apply_kick");
+
     alg_apply_kick alg{
         bunch.get_local_particles(),
         bunch.get_local_particle_masks(),
