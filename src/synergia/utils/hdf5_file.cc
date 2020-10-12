@@ -27,9 +27,8 @@ Hdf5_file::open(Flag flag)
     }
 
     int attempts = 0;
-    bool fail = true;
 
-    while ((attempts < 5) && fail)
+    while (! is_open)
     {
         try
         {
@@ -44,22 +43,20 @@ Hdf5_file::open(Flag flag)
                 h5file = H5Fopen(file_name.c_str(), flag_to_h5_flags(flag), H5P_DEFAULT);
             }
 
-            fail = false;
+            is_open = true;
         }
         catch(Hdf5_exception & e)
         {
             ++attempts;
-            fail = true;
-
             std::cout << e.what() << "\n";
-            std::cout << "caught hdf5 open file error, attempts number="
+            std::cout << "caught hdf5 open file error, attempt number="
                 << attempts << " on rank=" << Commxx().get_rank() << std::endl;
-
+            if (attempts >= 5) {
+              throw Hdf5_exception("Too many attempts to open an HDF5 file have failed.");
+            }
             sleep(3);
         }
     }
-
-    is_open = true;
 }
 
 void
