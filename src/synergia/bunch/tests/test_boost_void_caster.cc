@@ -1,6 +1,4 @@
-
 #define BOOST_TEST_MAIN
-//#include "boost/serialization/void_cast.hpp"
 #include "boost/test/unit_test.hpp"
 #include <cstddef>
 
@@ -24,8 +22,7 @@ int Derived::foo() { return i() * 2; };
 
 BOOST_AUTO_TEST_CASE(test1)
 {
- // boost::serialization::void_cast_register<Derived, Base>();
- Base*    pb = reinterpret_cast<Base*>(1 << 20);
+  Base*    pb = reinterpret_cast<Base*>(1 << 20);
  Derived* pd = static_cast<Derived*>(pb);
  auto dist = reinterpret_cast<std::ptrdiff_t>(pd);
  BOOST_CHECK(dist == (1 << 20));
