@@ -4,53 +4,21 @@
 #include "hdf5.h"
 
 #include <stdexcept>
-#include <sstream>
-#include <exception>
+#include <string>
 
 // hdf5 exceptions
-struct Hdf5_exception : public std::exception
+struct Hdf5_exception : public std::runtime_error
 {
-    Hdf5_exception(std::string const & msg = "")
-        : hdf5_msg(), user_msg(msg)
-    { 
-        std::stringstream buf;
+  explicit Hdf5_exception(std::string const& msg) : std::runtime_error(msg)
+    {
+      H5Eclear(H5E_DEFAULT);
+    }
 
-        //cerr_redirect cr(buf.rdbuf());
-        //H5Eprint(H5E_DEFAULT, stderr);
-
+    explicit Hdf5_exception(char const* msg = "")
+        : std::runtime_error(msg)
+    {
         H5Eclear(H5E_DEFAULT);
-
-        hdf5_msg = buf.str();
     }
-
-    ~Hdf5_exception() throw() { }
-
-    virtual const char * what() const throw()
-    {
-        std::string res = std::string("\n")
-            + "===================================\n" 
-            + "USER MESSAGE:\n" + user_msg + "\n\n"
-            + "HDF5 MESSAGE:\n" + hdf5_msg + "\n"
-            + "===================================\n";
-        return res.c_str();
-    }
-
-private:
-
-#if 0
-    struct cerr_redirect
-    {
-        cerr_redirect(std::streambuf * new_buf) : old(std::cerr.rdbuf(new_buf)) { }
-        ~cerr_redirect() { std::cerr.rdbuf(old); }
-
-        std::streambuf * old;
-    };
-#endif
-
-private:
-
-    std::string hdf5_msg;
-    std::string user_msg;
 };
 
 // handles the closing of resources in the RAII way
