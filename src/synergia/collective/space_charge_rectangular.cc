@@ -353,39 +353,55 @@ Space_charge_rectangular::Space_charge_rectangular(
     : Collective_operator("sc_rectangular", 1.0)
     , options(ops)
     , domain(ops.shape, {1.0, 1.0, 1.0})
-    , fft()
-    , comm(Commxx::Null)
+    , ffts()
 {
 }
 
 
 void 
 Space_charge_rectangular::apply_impl(
-            Bunch_simulator & simulator, 
+            Bunch_simulator& sim, 
             double time_step, 
-            Logger & logger)
+            Logger& logger)
 {
     logger << "    Space charge 3d open hockney\n";
 
     scoped_simple_timer timer("sc_rect_total");
-    apply_bunch(simulator[0][0], time_step, logger);
+
+    // construct the workspace for a new bunch simulator
+    if (bunch_sim_id != sim.id())
+    {
+        construct_workspaces(sim);
+        bunch_sim_id = sim.id();
+    }
+
+    // apply to bunches
+    for(size_t t=0; t<2; ++t)
+    {
+        for(size_t b=0; b<sim[t].get_bunch_array_size(); ++b)
+        {
+            apply_bunch(sim[t][b], ffts[t][b], time_step, logger);
+        }
+    }
+
 }
 
 void
 Space_charge_rectangular::apply_bunch(
             Bunch& bunch, 
+            Distributed_fft3d_rect& fft,
             double time_step, 
             Logger& logger)
 {
-    set_domain(bunch);
+    update_domain(bunch);
 
     get_local_charge_density(bunch);
     get_global_charge_density(bunch);
 
     double gamma = bunch.get_reference_particle().get_gamma();
 
-    get_local_phi(gamma);
-    get_global_phi();
+    get_local_phi(fft, gamma);
+    get_global_phi(fft);
 
     auto fn_norm = get_normalization_force();
 
@@ -395,9 +411,29 @@ Space_charge_rectangular::apply_bunch(
 
 void
 Space_charge_rectangular::construct_workspaces(
-        std::array<int, 3> const& s)
+        Bunch_simulator const& sim)
 {
-    int nz_cplx = fft.padded_nz_cplx();
+    // shape
+    auto const& s = options.shape;
+
+    // fft objects
+    for(size_t t=0; t<2; ++t)
+    {
+        int num_local_bunches = sim[t].get_bunch_array_size();
+        ffts[t] = std::vector<Distributed_fft3d_rect>(num_local_bunches);
+
+        for(size_t b=0; b<num_local_bunches; ++b)
+        {
+            auto comm = sim[t][b]
+                .get_comm()
+                .divide(options.comm_group_size);
+
+            ffts[t][b].construct(s, comm);
+        }
+    }
+
+    // local workspaces
+    int nz_cplx = Distributed_fft3d_rect::get_padded_shape_cplx(s[2]);
 
     rho = karray1d_dev("rho", s[0] * s[1] * s[2]);
     phi = karray1d_dev("phi", s[0] * s[1] * s[2]);
@@ -415,15 +451,8 @@ Space_charge_rectangular::construct_workspaces(
 
 
 void
-Space_charge_rectangular::set_domain(Bunch const& bunch)
+Space_charge_rectangular::update_domain(Bunch const& bunch)
 {
-    if (comm.is_null())
-    {
-        comm = bunch.get_comm().divide(options.comm_group_size);
-        fft.construct(options.shape, comm);
-        construct_workspaces(options.shape);
-    }
-
     double beta = bunch.get_reference_particle().get_beta();
     auto dsize = options.pipe_size;
     dsize[2] /= beta;    // size in z_lab frame, longitudinal cdt coordinate
@@ -449,16 +478,6 @@ Space_charge_rectangular::get_local_charge_density(Bunch const& bunch)
 #else
     deposit_charge_rectangular_3d_kokkos_scatter_view_xyz(rho,
             domain, g, bunch);
-#endif
-
-#if 0
-    Rectangular_grid_sptr rho_sptr(new Rectangular_grid(domain_sptr));
-    deposit_charge_rectangular_xyz(*rho_sptr, bunch);
-
-    int error = MPI_Allreduce(MPI_IN_PLACE, 
-            (void*)  rho_sptr->get_grid_points().origin(), 
-            rho_sptr->get_grid_points().num_elements(), 
-            MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
 #endif
 }
 
@@ -500,7 +519,8 @@ Space_charge_rectangular::get_global_charge_density(Bunch const& bunch)
 
 
 void
-Space_charge_rectangular::get_local_phi(double gamma)
+Space_charge_rectangular::get_local_phi(
+        Distributed_fft3d_rect& fft, double gamma)
 {
     scoped_simple_timer timer("sc_rect_local_phi");
 
@@ -526,10 +546,11 @@ Space_charge_rectangular::get_local_phi(double gamma)
 }
 
 void
-Space_charge_rectangular::get_global_phi()
+Space_charge_rectangular::get_global_phi(
+        Distributed_fft3d_rect const& fft)
 {
     // do nothing if the solver only has a single rank
-    if (comm.size() == 1) return;
+    if (fft.get_comm().size() == 1) return;
 
     scoped_simple_timer timer("sc_rect_global_phi");
 
@@ -540,7 +561,7 @@ Space_charge_rectangular::get_global_phi()
                              h_phi.extent(0),
                              MPI_DOUBLE, 
                              MPI_SUM, 
-                             comm );
+                             fft.get_comm() );
 
     if (err != MPI_SUCCESS)
     {
