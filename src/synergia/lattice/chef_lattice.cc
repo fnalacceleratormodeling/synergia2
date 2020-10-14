@@ -23,6 +23,8 @@
 #endif
 
 #include <stdexcept>
+#include <string>
+#include <cstring>
 
 template<class Archive>
     void
@@ -99,6 +101,114 @@ Chef_lattice::register_beamline(BmlPtr beamline_sptr)
 
 }
 
+// is_a_bend is a free function
+bool
+is_a_bend(ElmPtr ce)
+{
+    return (strcmp(ce->Type(), "sbend") == 0 ||
+            strcmp(ce->Type(), "rbend") == 0 ||
+            strcmp(ce->Type(), "CF_sbend") == 0 ||
+            strcmp(ce->Type(), "CF_rbend") == 0);
+}
+
+// find next bend starting from idx.  Return the index of the bend or -1.
+int
+find_next_bend(std::vector<beamline::iterator> const& biters, int idx, bool wraparound)
+{
+    int startidx = idx;
+    bool do_wrap = wraparound && (startidx == 0);
+    while (idx != biters.size()) {
+        if (is_a_bend(*biters[idx])) {
+            return idx;
+        } else {
+            ++idx;
+        }
+    }
+    if (!do_wrap) {
+        return -1; // didn't find it and we're not wrapping around
+    }
+    idx = 0;
+    while (idx != startidx) {
+        if (is_a_bend(*biters[idx])) {
+            return idx;
+        } else {
+            ++idx;
+        }
+    }
+    return -1; // didn't find it after wrap-around
+}
+
+// find next Slot that goes with the current bend starting from idx
+int find_next_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound) {
+    int startidx = idx;
+    bool do_wrap = wraparound && (startidx == 0);
+    while (idx != biters.size()) {
+        if (strcmp((*biters[idx])->Type(), "Slot") == 0 &&
+            (*biters[idx])->Name() == findname) {
+            return idx;
+        } else {
+            ++idx;
+        }
+    }
+    if (!do_wrap) {
+        return -1; // we didn't find it and we're not wrapping around
+    }
+    idx = 0;
+    while (idx != startidx) {
+        if (strcmp((*biters[idx])->Type(), "Slot") == 0 &&
+            (*biters[idx])->Name() == findname) {
+            return idx;
+        } else {
+            ++idx;
+        }
+    }
+    return -1; //we didn't find it even after wrapping around
+}
+
+// find previous Slot that goes with the current bend starting from index idx
+int
+find_prev_Slot(std::vector<beamline::iterator> const & biters, int idx, std::string findname, bool wraparound) {
+    int startidx = idx;
+    bool do_wrap = wraparound && (startidx == 0);
+    while (idx > 0) {
+        if (strcmp((*biters[idx])->Type(), "Slot") == 0 &&
+            (*biters[idx])->Name() == findname) {
+            return idx;
+        } else {
+            --idx;
+        }
+    }
+    if (!do_wrap) {
+        return -1; // we didn't find it and we're not wrapping around
+    }
+    idx = biters.size()-1;
+    while (idx != startidx) {
+        if (strcmp((*biters[idx])->Type(), "Slot") == 0 &&
+            (*biters[idx])->Name() == findname) {
+            return idx;
+        } else {
+            --idx;
+        }
+    }
+    return -1; // we didn't find it even after wrapping around
+}
+
+void print_neighborhood(std::vector<beamline::iterator> const & biters, int idx)
+{
+    int startidx = (idx-3 >= 0) ? (idx-3) : 0;
+    int endidx = (idx+3 < biters.size()) ? idx+3 : biters.size();
+    for (int p=startidx; p<endidx; ++p) {
+        if (p==idx) {
+            std::cout << "---> ";
+        } else {
+            std::cout << "     ";
+        }
+        std::cout << p << ": " << (*biters[p])->Name() << "(";
+        std::cout << (*biters[p])->Type() << ")" << std::endl;
+    }
+    return;
+}
+
 BmlPtr
 Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
 {
@@ -109,8 +219,66 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
     } else {
         converted_beamline_sptr = drift_converter.convert(*beamline_sptr);
     }
-    register_beamline(converted_beamline_sptr);
-    return converted_beamline_sptr;
+
+    // reorder beamline slots so chef elements
+    //    slot | synergia_marker | magnet | slot | synergia_marker
+    // becomes
+    //    synergia_marker | slot | magnet | slot | synergia_marker
+
+    // make a vector of all the beamline iterators for convenient indexing
+    std::vector<beamline::iterator> biters;
+    for (auto it=converted_beamline_sptr->begin();
+         it!=converted_beamline_sptr->end(); ++it) {
+        biters.push_back(it);
+    }
+
+    // search for bends
+    int cur_elem = 0;
+    while (cur_elem < biters.size()) {
+        int next_bend = find_next_bend(biters, cur_elem, false);
+        if (next_bend < 0) {
+            break; // no next bend, I'm done
+        } else {
+            cur_elem = next_bend;
+        }
+        
+        // check for marker just before?
+        if ((cur_elem > 0) && ((*biters[cur_elem-1])->Name() == lattice_element_marker->Name())) {
+            int prev_slot = find_prev_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_inSlot", false);
+            // Move the prev_slot to just after the marker if it exists
+            if (prev_slot >=0 ) {
+                beamline::iterator inslotit = biters[prev_slot];
+                for (int p=prev_slot+1; p != cur_elem; ++p) {
+                    biters[p-1] = biters[p];
+                }
+                biters[cur_elem-1] = inslotit;
+            }
+        }
+
+        // check for marker afterwards
+        if ((cur_elem < biters.size()-1) && ((*biters[cur_elem+1])->Name() == lattice_element_marker->Name())) {
+        
+            int next_slot = find_next_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_outSlot", false);
+
+            // Move the next_slot to just before the marker if it exists
+            if (next_slot >= 0) {
+                beamline::iterator outslotit = biters[next_slot];
+                for (int p=next_slot-1; p != cur_elem; --p) {
+                    biters[p+1] = biters[p];
+                }
+                biters[cur_elem+1] = outslotit;
+            }
+        }
+
+        ++cur_elem;
+    }
+
+    BmlPtr slots_reordered_sptr(new beamline("slots-reordered-beamline"));
+    for (auto& bit:biters) {
+        slots_reordered_sptr->append(*bit);
+    }
+    register_beamline(slots_reordered_sptr);
+    return slots_reordered_sptr;
 }
 
 void
