@@ -1,19 +1,16 @@
 #include <cstring>
 #include <stdexcept>
 #include <omp.h>
-#include "distributed_fft3d_rect_fftw.h"
+#include "distributed_fft3d_rect.h"
 
 Distributed_fft3d_rect::Distributed_fft3d_rect()
-    : shape()
-    , comm(MPI_COMM_NULL)
+    : Distributed_fft3d_rect_base()
     , plan_xy(nullptr)
     , plan_z(nullptr)
     , inv_plan_xy(nullptr)
     , inv_plan_z(nullptr)
     , data(nullptr)
     , workspace(nullptr)
-    , lower(0)
-    , nx(0)
 {
     fftw_init_threads();
     fftw_mpi_init();
@@ -23,7 +20,7 @@ Distributed_fft3d_rect::Distributed_fft3d_rect()
 void 
 Distributed_fft3d_rect::construct(
         std::array<int, 3> const & new_shape, 
-        MPI_Comm new_comm)
+        Commxx const& new_comm)
 {
     if (data || workspace)
     {
@@ -43,16 +40,10 @@ Distributed_fft3d_rect::construct(
     data = nullptr;
     workspace = nullptr;
 
-    if (new_comm == MPI_COMM_NULL) 
-    {
-        comm = MPI_COMM_NULL;
+    if (new_comm.is_null())
         return;
-    }
 
-    int comm_size;
-    MPI_Comm_size(new_comm, &comm_size);
-
-    if (comm_size > new_shape[0]) 
+    if (new_comm.size() > new_shape[0]) 
     {
         throw std::runtime_error( 
                 "Distributed_fft3d_rect: (number of processors) must be "
@@ -157,12 +148,6 @@ Distributed_fft3d_rect::inv_transform(
 
     memcpy((void*)&out(lower*plane_yz_real), (void*)data,
             nx * plane_yz_real * sizeof(double));
-}
-
-double
-Distributed_fft3d_rect::get_roundtrip_normalization() const
-{
-    return 1.0 / (shape[0] * shape[1] * shape[2]);
 }
 
 Distributed_fft3d_rect::~Distributed_fft3d_rect()

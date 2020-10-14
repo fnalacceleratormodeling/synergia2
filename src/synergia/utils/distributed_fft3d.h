@@ -27,7 +27,7 @@ public:
     Distributed_fft3d_base() 
     : shape(), comm(Commxx::Null), lower(0), nz(0) { }
 
-    virtual ~Distributed_fft3d_base() { }
+    virtual ~Distributed_fft3d_base() = default;
 
     int get_lower() const { return lower; }
     int get_upper() const { return lower + nz; }

@@ -1,6 +1,6 @@
 #include <cstring>
 #include <stdexcept>
-#include "distributed_fft3d_rect_cuda.h"
+#include "distributed_fft3d_rect.h"
 #include "synergia/foundation/math_constants.h"
 
 namespace 
@@ -338,8 +338,7 @@ namespace
 }
 
 Distributed_fft3d_rect::Distributed_fft3d_rect()
-    : shape()
-    , comm(MPI_COMM_NULL)
+    : Distributed_fft3d_rect_base()
     , data1()
     , data2()
     , plan_x()
@@ -348,12 +347,12 @@ Distributed_fft3d_rect::Distributed_fft3d_rect()
     , inv_plan_x()
     , inv_plan_y()
     , inv_plan_z()
-    , lower(0)
-    , nx(0)
 {
 }
 
-void Distributed_fft3d_rect::construct(std::array<int, 3> const & new_shape, MPI_Comm new_comm)
+void Distributed_fft3d_rect::construct(
+        std::array<int, 3> const & new_shape, 
+        Commxx const& new_comm)
 {
     cufftDestroy(plan_x);
     cufftDestroy(plan_y);
@@ -363,22 +362,14 @@ void Distributed_fft3d_rect::construct(std::array<int, 3> const & new_shape, MPI
     cufftDestroy(inv_plan_y);
     cufftDestroy(inv_plan_z);
 
-    //cufftDestroy(invplan);
-
-    if (new_comm == MPI_COMM_NULL)
-    {
-        comm = MPI_COMM_NULL;
+    if (new_comm.is_null())
         return;
-    }
 
-    int comm_size = 0;
-    MPI_Comm_size(new_comm, &comm_size);
-
-    if (comm_size != 1)
+    if (new_comm.size() > new_shape[0]) 
     {
-        throw std::runtime_error(
-                "Distributed_fft3d_rect: number of processor must be 1 "
-                "for CUDA implementation" );
+        throw std::runtime_error( 
+                "Distributed_fft3d_rect: (number of processors) must be "
+                "<= shape[0]");
     }
 
     shape = new_shape;
@@ -539,12 +530,6 @@ Distributed_fft3d_rect::inv_transform(karray1d_dev& in, karray1d_dev& out)
     // re-arrange for final array
     alg_inv_pad_z padz(data1, out, shape);
     Kokkos::parallel_for(gx*gy*gz, padz);
-}
-
-double
-Distributed_fft3d_rect::get_roundtrip_normalization() const
-{
-    return 1.0 / (shape[0] * shape[1] * shape[2]);
 }
 
 Distributed_fft3d_rect::~Distributed_fft3d_rect()
