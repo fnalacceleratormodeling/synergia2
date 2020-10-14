@@ -242,45 +242,32 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
             cur_elem = next_bend;
         }
         
-        int prev_slot = find_prev_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_inSlot", false);
-        int next_slot = find_next_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_outSlot", false);
-        if ((prev_slot >= 0) && (prev_slot >= cur_elem)) {
-            throw std::runtime_error("prev_slot is not less than cur_elem");
-        }
-
-        if ((next_slot >= 0) && (next_slot <= cur_elem)) {
-            throw std::runtime_error("next_slot is not greater than cur_elem");
-        }
-
-        // on either side of the bend should be lattice element markers
-        if ((cur_elem > 0) && ((*biters[cur_elem-1])->Name() != lattice_element_marker->Name())) {
-            std::cout << "bend not surrounded by lattice element markers 1" << std::endl;
-            print_neighborhood(biters, cur_elem);
-            throw std::runtime_error("bend is not surrounded by lattice element markers");
-        }
-            
-        if ((cur_elem < biters.size()-1) && ((*biters[cur_elem+1])->Name() != lattice_element_marker->Name())) {
-            std::cout << "bend not surrounded by lattice element markers 2" << std::endl;
-            print_neighborhood(biters, cur_elem);
-            throw std::runtime_error("bend is not surrounded by lattice element markers");
-        }
-
-        // Move the prev_slot to just after the marker if it exists
-        if (prev_slot >=0 ) {
-            beamline::iterator inslotit = biters[prev_slot];
-            for (int p=prev_slot+1; p != cur_elem; ++p) {
-                biters[p-1] = biters[p];
+        // check for marker just before?
+        if ((cur_elem > 0) && ((*biters[cur_elem-1])->Name() == lattice_element_marker->Name())) {
+            int prev_slot = find_prev_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_inSlot", false);
+            // Move the prev_slot to just after the marker if it exists
+            if (prev_slot >=0 ) {
+                beamline::iterator inslotit = biters[prev_slot];
+                for (int p=prev_slot+1; p != cur_elem; ++p) {
+                    biters[p-1] = biters[p];
+                }
+                biters[cur_elem-1] = inslotit;
             }
-            biters[cur_elem-1] = inslotit;
         }
 
-        // Move the next_slot to just before the marker if it exists
-        if (next_slot >= 0) {
-            beamline::iterator outslotit = biters[next_slot];
-            for (int p=next_slot-1; p != cur_elem; --p) {
-                biters[p+1] = biters[p];
+        // check for marker afterwards
+        if ((cur_elem < biters.size()-1) && ((*biters[cur_elem+1])->Name() == lattice_element_marker->Name())) {
+        
+            int next_slot = find_next_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_outSlot", false);
+
+            // Move the next_slot to just before the marker if it exists
+            if (next_slot >= 0) {
+                beamline::iterator outslotit = biters[next_slot];
+                for (int p=next_slot-1; p != cur_elem; --p) {
+                    biters[p+1] = biters[p];
+                }
+                biters[cur_elem+1] = outslotit;
             }
-            biters[cur_elem+1] = outslotit;
         }
 
         ++cur_elem;
