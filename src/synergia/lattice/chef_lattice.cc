@@ -193,10 +193,12 @@ find_prev_Slot(std::vector<beamline::iterator> const & biters, int idx, std::str
     return -1; // we didn't find it even after wrapping around
 }
 
-void print_neighborhood(std::vector<beamline::iterator> const & biters, int idx)
+void print_neighborhood(std::vector <beamline::iterator> const& biters, int idx, int n=3);
+
+void print_neighborhood(std::vector<beamline::iterator> const & biters, int idx, int n)
 {
-    int startidx = (idx-3 >= 0) ? (idx-3) : 0;
-    int endidx = (idx+3 < biters.size()) ? idx+3 : biters.size();
+    int startidx = (idx-n >= 0) ? (idx-n) : 0;
+    int endidx = (idx+n < biters.size()) ? idx+n : biters.size();
     for (int p=startidx; p<endidx; ++p) {
         if (p==idx) {
             std::cout << "---> ";
@@ -232,6 +234,10 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
         biters.push_back(it);
     }
 
+    std::cout << "polish_beamline:on entry" << std::endl;
+    print_neighborhood(biters, 0, 20);
+    std::cout << std::endl;
+
     // search for bends
     int cur_elem = 0;
     while (cur_elem < biters.size()) {
@@ -242,33 +248,40 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
             cur_elem = next_bend;
         }
         
+        std::cout << "found bend at idx: " << cur_elem << std::endl;
+        print_neighborhood(biters, cur_elem, 4);
         // check for marker just before?
         if ((cur_elem > 0) && ((*biters[cur_elem-1])->Name() == lattice_element_marker->Name())) {
             int prev_slot = find_prev_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_inSlot", false);
             // Move the prev_slot to just after the marker if it exists
             if (prev_slot >=0 ) {
+                std::cout << "Found previous slot at idx: " << prev_slot << std::endl;
                 beamline::iterator inslotit = biters[prev_slot];
                 for (int p=prev_slot+1; p != cur_elem; ++p) {
                     biters[p-1] = biters[p];
                 }
                 biters[cur_elem-1] = inslotit;
+                std::cout << "after rearrange: " << std::endl;
+                print_neighborhood(biters, cur_elem, 4);
             }
         }
 
         // check for marker afterwards
         if ((cur_elem < biters.size()-1) && ((*biters[cur_elem+1])->Name() == lattice_element_marker->Name())) {
-        
             int next_slot = find_next_Slot(biters, cur_elem, (*biters[cur_elem])->Name()+"_outSlot", false);
-
             // Move the next_slot to just before the marker if it exists
             if (next_slot >= 0) {
+                std::cout << "Found next slot at idx: " << next_slot << std::endl;
                 beamline::iterator outslotit = biters[next_slot];
                 for (int p=next_slot-1; p != cur_elem; --p) {
                     biters[p+1] = biters[p];
                 }
                 biters[cur_elem+1] = outslotit;
+                std::cout << "after rearrange: " << std::endl;
+                print_neighborhood(biters, cur_elem, 4);
             }
         }
+        std::cout << std::endl;
 
         ++cur_elem;
     }
