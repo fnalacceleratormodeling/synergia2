@@ -174,6 +174,55 @@ namespace
         }
     };
 
+    struct fixed_z_to_t_converter
+    {
+        Particles parts;
+        ConstParticleMasks masks;
+
+        double p_ref;
+        double beta;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            if (masks(i))
+            {
+                double p = p_ref + parts(i, 5) * p_ref;
+                double px = parts(i, 1) * p_ref;
+                double py = parts(i, 3) * p_ref;
+                double pz2 = p*p - px*px - py*py;
+                double pz = sqrt(pz2);
+
+                parts(i, 4) = - parts(i, 4) * beta;
+                parts(i, 5) = pz / p_ref;
+            }
+        }
+    };
+
+    struct fixed_t_to_z_converter
+    {
+        Particles parts;
+        ConstParticleMasks masks;
+
+        double p_ref;
+        double beta;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        {
+            if (masks(i))
+            {
+                double px = parts(i, 1) * p_ref;
+                double py = parts(i, 3) * p_ref;
+                double pz = parts(i, 5) * p_ref;
+                double p = sqrt(px*px + py*py + pz*pz);
+
+                parts(i, 4) = - parts(i, 4) / beta;
+                parts(i, 5) = (p-p_ref) / p_ref;
+            }
+        }
+    };
+
     struct discarded_particle_mover
     {
         Kokkos::View<int*> counter;
@@ -370,6 +419,19 @@ void BunchParticles::inject(
     n_valid += o.n_valid;
 }
 
+void
+BunchParticles::convert_to_fixed_t_lab(double p_ref, double beta)
+{
+    fixed_z_to_t_converter alg{parts, masks, p_ref, beta};
+    Kokkos::parallel_for(n_active, alg);
+}
+
+void
+BunchParticles::convert_to_fixed_z_lab(double p_ref, double beta)
+{
+    fixed_t_to_z_converter alg{parts, masks, p_ref, beta};
+    Kokkos::parallel_for(n_active, alg);
+}
 
 std::pair<karray2d_row, HostParticleMasks> 
 BunchParticles::get_particles_in_range(int idx, int n) const

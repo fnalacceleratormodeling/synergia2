@@ -358,10 +358,26 @@ public:
     /// of the two bunches differ, the particles will be shifted accordingly.
     void inject(Bunch const& bunch);
     
+    void convert_to_fixed_t_lab()
+    {
+        double pref = ref_part.get_momentum();
+        double beta = ref_part.get_beta();
+        get_bunch_particles(PG::regular).convert_to_fixed_t_lab(pref, beta);
+        get_bunch_particles(PG::spectator).convert_to_fixed_t_lab(pref, beta);
+    }
+
+    void convert_to_fixed_z_lab()
+    {
+        double pref = ref_part.get_momentum();
+        double beta = ref_part.get_beta();
+        get_bunch_particles(PG::regular).convert_to_fixed_z_lab(pref, beta);
+        get_bunch_particles(PG::spectator).convert_to_fixed_z_lab(pref, beta);
+    }
+
     void check_pz2_positive()
     {
-        get_bunch_particles(ParticleGroup::regular).check_pz2_positive();
-        get_bunch_particles(ParticleGroup::spectator).check_pz2_positive();
+        get_bunch_particles(PG::regular).check_pz2_positive();
+        get_bunch_particles(PG::spectator).check_pz2_positive();
     }
 
     // read/write particles

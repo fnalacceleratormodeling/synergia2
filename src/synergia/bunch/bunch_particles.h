@@ -204,6 +204,10 @@ public:
             karray1d_dev const& inj_st,
             double pdiff );
 
+    // convert between fixed z lab and fixed t lab
+    void convert_to_fixed_t_lab(double p_ref, double beta);
+    void convert_to_fixed_z_lab(double p_ref, double beta);
+
 #if 0
     void set_total_num(int num);
     void expand_local_num(int num, int added_lost);

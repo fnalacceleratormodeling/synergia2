@@ -657,7 +657,7 @@ void
 Impedance::apply_bunch(Bunch& bunch, 
         double time_step, Logger& logger)
 {
-    //bunch.convert_to_state(fixed_t_lab);
+    bunch.convert_to_fixed_t_lab();
 
     auto bp = calculate_moments_and_partitions(bunch);   
 
@@ -677,7 +677,7 @@ Impedance::apply_bunch(Bunch& bunch,
 
     apply_impedance_kick(bunch,  bp, w_f);
 
-    //bunch.convert_to_state(fixed_z_lab);
+    bunch.convert_to_fixed_z_lab();
 }
 
 
