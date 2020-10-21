@@ -5,12 +5,8 @@
 #include "synergia/foundation/math_constants.h"
 #include "synergia/foundation/physical_constants.h"
 
-#include "deposit.h"
-
-//#include "interpolate_rectangular_zyx.h"
-//#include "synergia/utils/multi_array_offsets.h"
+#include "synergia/collective/deposit.h"
 #include "synergia/utils/simple_timer.h"
-//#include "synergia/utils/hdf5_writer.h"
 
 using mconstants::pi;
 using pconstants::epsilon0;
