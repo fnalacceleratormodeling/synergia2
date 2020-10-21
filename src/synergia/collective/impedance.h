@@ -6,8 +6,10 @@
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/collective_operator_options.h"
 
+class Impedance;
 
-struct Impedance_options : public CO_options
+struct Impedance_options 
+    : public CO_base_options<Impedance_options, Impedance>
 {
     std::string wake_file;
     std::string wake_type;
@@ -36,15 +38,10 @@ struct Impedance_options : public CO_options
         , bunch_spacing(1)
     { }
 
-    CO_options* clone() const override
-    { return new Impedance_options(*this); }
-
-    Collective_operator * create_operator() const override;
-
     template<class Archive>
     void serialize(Archive & ar)
     { 
-        ar(cereal::base_class<CO_options>(this));
+        ar(cereal::base_class<CO_base_options>(this));
     }
 };
 
@@ -169,11 +166,6 @@ public:
 
     Impedance(Impedance_options const& ops);
 };
-
-inline Collective_operator * 
-Impedance_options::create_operator() const
-{ return new Impedance(*this); }
-
 
 
 #if 0

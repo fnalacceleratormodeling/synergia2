@@ -15,7 +15,12 @@ enum class green_fn_t
     linear,
 };
 
-struct Space_charge_3d_open_hockney_options : public CO_options
+class Space_charge_3d_open_hockney;
+
+struct Space_charge_3d_open_hockney_options 
+    : public CO_base_options<
+          Space_charge_3d_open_hockney_options,
+          Space_charge_3d_open_hockney>
 {
     std::array<int, 3> shape;
     std::array<int, 3> doubled_shape;
@@ -44,15 +49,10 @@ struct Space_charge_3d_open_hockney_options : public CO_options
         , comm_group_size(4)
     { }
 
-    CO_options * clone() const override
-    { return new Space_charge_3d_open_hockney_options(*this); }
-
-    Collective_operator * create_operator() const override;
-
     template<class Archive>
     void serialize(Archive & ar)
     { 
-        ar(cereal::base_class<CO_options>(this));
+        ar(cereal::base_class<CO_base_options>(this));
         ar(shape);
         ar(doubled_shape);
         ar(green_fn);
@@ -298,11 +298,5 @@ public:
             Logger & logger);
 #endif
 };
-
-
-inline Collective_operator * 
-Space_charge_3d_open_hockney_options::create_operator() const
-{ return new Space_charge_3d_open_hockney(*this); }
-
 
 #endif /* SPACE_CHARGE_3D_OPEN_HOCKNEY_H_ */

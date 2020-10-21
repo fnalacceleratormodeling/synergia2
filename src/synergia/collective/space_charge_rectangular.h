@@ -6,7 +6,12 @@
 #include "synergia/collective/rectangular_grid_domain.h"
 #include "synergia/utils/distributed_fft3d_rect.h"
 
-struct Space_charge_rectangular_options : public CO_options
+class Space_charge_rectangular;
+
+struct Space_charge_rectangular_options 
+    : public CO_base_options<
+          Space_charge_rectangular_options,
+          Space_charge_rectangular>
 {
     std::array<int, 3> shape;
     std::array<double, 3> pipe_size;
@@ -18,15 +23,10 @@ struct Space_charge_rectangular_options : public CO_options
         : shape(shape), pipe_size(pipe_size), comm_group_size(1)
     { }
 
-    CO_options * clone() const override
-    { return new Space_charge_rectangular_options(*this); }
-
-    Collective_operator * create_operator() const override;
-
     template<class Archive>
     void serialize(Archive & ar)
     {
-        ar(cereal::base_class<CO_options>(this));
+        ar(cereal::base_class<CO_base_options>(this));
         ar(shape);
         ar(pipe_size);
         ar(comm_group_size);
@@ -106,10 +106,5 @@ public:
             Space_charge_rectangular_options const& ops);
 
 };
-
-inline Collective_operator * 
-Space_charge_rectangular_options::create_operator() const
-{ return new Space_charge_rectangular(*this); }
-
 
 #endif /* SPACE_CHARGE_RECTANGULAR_H_ */

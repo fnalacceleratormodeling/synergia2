@@ -2,11 +2,10 @@
 #define SPACE_CHARGE_2D_KV_H_
 
 #include "synergia/simulation/operator.h"
-#include "synergia/simulation/step.h"
-#include "synergia/bunch/bunch.h"
+#include "synergia/simulation/collective_operator_options.h"
 
-#include "synergia/utils/serialization.h"
 
+#if 0
 class Space_charge_2d_kv : public Collective_operator
 {
 public:
@@ -61,5 +60,6 @@ BOOST_CLASS_EXPORT_KEY(Space_charge_2d_kv)
 
 typedef boost::shared_ptr<Space_charge_2d_kv >
         Space_charge_2d_kv_sptr; // syndoc:include
+#endif
 
 #endif /* SPACE_CHARGE_2D_KV_H_ */
