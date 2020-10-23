@@ -20,7 +20,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # using GCC
   set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result -Wno-register")
-  set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
+  if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
+  endif()
   message("Using g++")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # using Intel C++
