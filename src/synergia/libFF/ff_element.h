@@ -5,6 +5,7 @@
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/lattice.h"
+#include "synergia/foundation/trigon_particle.h"
 
 class JetParticle;
 
@@ -19,8 +20,16 @@ public:
 
     virtual ~FF_element() = default;
 
-    //virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle) = 0;
-    virtual void apply(Lattice_element_slice const& slice, Bunch & bunch) = 0;
+#if 0
+    template<size_t I>
+    virtual void apply(Lattice_element_slice const& slice, 
+            Trigon_particle<I> & trigon)
+    { }
+#endif
+
+    virtual void apply(Lattice_element_slice const& slice, 
+            Bunch & bunch)
+    { }
 
 #if 0
     Reference_particle &

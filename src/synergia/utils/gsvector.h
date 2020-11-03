@@ -65,6 +65,11 @@ struct Vec : public VecExpr<Vec<T>, T>
     KOKKOS_INLINE_FUNCTION
     static constexpr int size() { return detail::VectorHelper<T>::size(); }
 
+    template<typename U = T>
+    KOKKOS_INLINE_FUNCTION
+    Vec(const T * t, typename std::enable_if<U::is_trigon>::type* = 0) 
+    : data(*t) { }
+
     KOKKOS_INLINE_FUNCTION
     Vec(const double   d) : data( d ) { }
 
@@ -76,6 +81,11 @@ struct Vec : public VecExpr<Vec<T>, T>
 
     KOKKOS_INLINE_FUNCTION
     void store(double *p) const { detail::VectorHelper<T>::st(p, data); }
+
+    template<typename U = T>
+    KOKKOS_INLINE_FUNCTION
+    void store(T *p, typename std::enable_if<U::is_trigon>::type* = 0) const
+    { *p = data; }
 
     KOKKOS_INLINE_FUNCTION
     T & cal()       { return data; }

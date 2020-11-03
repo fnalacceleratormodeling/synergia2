@@ -261,9 +261,18 @@ namespace
 }
 
 
+template<>
+void bunch_particles_t<double>::assign_ids(int local_offset, Commxx const& comm)
+{
+    int request_num = (comm.rank() == 0) ? n_total : 0;
+    int global_offset = Particle_id_offset::get(request_num, comm);
 
+    particle_id_assigner pia{parts, local_offset + global_offset};
+    Kokkos::parallel_for(n_active, pia);
+}
 
-BunchParticles::BunchParticles( 
+template<>
+bunch_particles_t<double>::bunch_particles_t( 
         ParticleGroup pg,
         int total, int reserved, 
         Commxx const& comm)
@@ -334,13 +343,8 @@ BunchParticles::BunchParticles(
     } 
 }
 
-void BunchParticles::reserve(int n, Commxx const& comm)
-{
-    int r = decompose_1d_local(comm, n);
-    reserve_local(r);
-}
-
-void BunchParticles::reserve_local(int r)
+template<>
+void bunch_particles_t<double>::reserve_local(int r)
 {
     if (r <= n_reserved) return;
 
@@ -359,16 +363,15 @@ void BunchParticles::reserve_local(int r)
     hdiscards = Kokkos::create_mirror_view(discards);
 }
 
-void BunchParticles::assign_ids(int local_offset, Commxx const& comm)
+template<>
+void bunch_particles_t<double>::reserve(int n, Commxx const& comm)
 {
-    int request_num = (comm.rank() == 0) ? n_total : 0;
-    int global_offset = Particle_id_offset::get(request_num, comm);
-
-    particle_id_assigner pia{parts, local_offset + global_offset};
-    Kokkos::parallel_for(n_active, pia);
+    int r = decompose_1d_local(comm, n);
+    reserve_local(r);
 }
 
-void BunchParticles::assign_ids(int train_idx, int bunch_idx)
+template<>
+void bunch_particles_t<double>::assign_ids(int train_idx, int bunch_idx)
 {
     // each bunch is assined a range in the global id space
     //
@@ -391,8 +394,9 @@ void BunchParticles::assign_ids(int train_idx, int bunch_idx)
     Kokkos::parallel_for(n_active, pia);
 }
 
-void BunchParticles::inject( 
-        BunchParticles const& o,
+template<>
+void bunch_particles_t<double>::inject( 
+        bunch_particles_t const& o,
         karray1d_dev const& ref_st_diff,
         karray1d_dev const& tgt_st,
         karray1d_dev const& inj_st,
@@ -419,22 +423,25 @@ void BunchParticles::inject(
     n_valid += o.n_valid;
 }
 
+template<>
 void
-BunchParticles::convert_to_fixed_t_lab(double p_ref, double beta)
+bunch_particles_t<double>::convert_to_fixed_t_lab(double p_ref, double beta)
 {
     fixed_z_to_t_converter alg{parts, masks, p_ref, beta};
     Kokkos::parallel_for(n_active, alg);
 }
 
+template<>
 void
-BunchParticles::convert_to_fixed_z_lab(double p_ref, double beta)
+bunch_particles_t<double>::convert_to_fixed_z_lab(double p_ref, double beta)
 {
     fixed_t_to_z_converter alg{parts, masks, p_ref, beta};
     Kokkos::parallel_for(n_active, alg);
 }
 
+template<>
 std::pair<karray2d_row, HostParticleMasks> 
-BunchParticles::get_particles_in_range(int idx, int n) const
+bunch_particles_t<double>::get_particles_in_range(int idx, int n) const
 {
     // index out of range
     if (idx == particle_index_null || idx < 0 || idx+n > n_active)
@@ -455,8 +462,9 @@ BunchParticles::get_particles_in_range(int idx, int n) const
     return std::make_pair(hp, hpm);
 }
 
+template<>
 std::pair<karray1d_row, bool>              
-BunchParticles::get_particle(int idx) const
+bunch_particles_t<double>::get_particle(int idx) const
 {
     // index out of range
     if (idx == particle_index_null || idx < 0 || idx > n_active)
@@ -477,8 +485,9 @@ BunchParticles::get_particle(int idx) const
     return std::make_pair(hp, hpm(0));
 }
 
+template<>
 int
-BunchParticles::search_particle(int pid, int last_idx) const
+bunch_particles_t<double>::search_particle(int pid, int last_idx) const
 {
     if (last_idx != particle_index_null)
     {
@@ -496,8 +505,9 @@ BunchParticles::search_particle(int pid, int last_idx) const
     return idx;
 }
 
+template<>
 karray2d_row
-BunchParticles::get_particles_last_discarded() const
+bunch_particles_t<double>::get_particles_last_discarded() const
 { 
     karray2d_row_dev discarded("discarded", n_last_discarded, 7);
     karray2d_row hdiscarded = Kokkos::create_mirror_view(discarded);
@@ -512,7 +522,7 @@ BunchParticles::get_particles_last_discarded() const
 
 #if 0
 void
-BunchParticles::set_local_num(int n)
+bunch_particles_t::set_local_num(int n)
 {
     num = n;
 
@@ -546,7 +556,7 @@ BunchParticles::set_local_num(int n)
 }
 
 void
-BunchParticles::expand_local_num(int num, int added_lost)
+bunch_particles_t::expand_local_num(int num, int added_lost)
 {
 #if 0
     // keep the previous values
@@ -613,8 +623,9 @@ BunchParticles::expand_local_num(int num, int added_lost)
 }
 #endif
 
+template<>
 int
-BunchParticles::update_valid_num()
+bunch_particles_t<double>::update_valid_num()
 {
     int old_valid_num = n_valid;
     mask_reducer mr{masks};
@@ -622,16 +633,18 @@ BunchParticles::update_valid_num()
     return old_valid_num;
 }
 
+template<>
 int
-BunchParticles::update_total_num(Commxx const& comm)
+bunch_particles_t<double>::update_total_num(Commxx const& comm)
 {
     int old_total_num = n_total;
     MPI_Allreduce(&n_valid, &n_total, 1, MPI_INT, MPI_SUM, comm);
     return old_total_num;
 }
 
+template<>
 void 
-BunchParticles::check_pz2_positive()
+bunch_particles_t<double>::check_pz2_positive()
 {
     checkout_particles();
 
@@ -651,8 +664,9 @@ BunchParticles::check_pz2_positive()
     }
 }
 
+template<>
 void
-BunchParticles::read_file_legacy(Hdf5_file const& file, Commxx const& comm)
+bunch_particles_t<double>::read_file_legacy(Hdf5_file const& file, Commxx const& comm)
 {
     auto dims = file.get_dims("particles");
     if (dims.size() != 2 || dims[1] != 7)
@@ -690,8 +704,9 @@ BunchParticles::read_file_legacy(Hdf5_file const& file, Commxx const& comm)
     Kokkos::parallel_for(n_reserved, pmi);
 }
 
+template<>
 void
-BunchParticles::read_file(Hdf5_file const& file, Commxx const& comm)
+bunch_particles_t<double>::read_file(Hdf5_file const& file, Commxx const& comm)
 {
     auto dims = file.get_dims(label);
     if (dims.size() != 2 || dims[1] != 7)
@@ -748,8 +763,9 @@ BunchParticles::read_file(Hdf5_file const& file, Commxx const& comm)
     checkin_particles();
 }
 
+template<>
 void
-BunchParticles::write_file(Hdf5_file const& file, 
+bunch_particles_t<double>::write_file(Hdf5_file const& file, 
         int num_part, int offset, Commxx const& comm) const
 {
     int local_num_part = 0;
@@ -770,7 +786,7 @@ BunchParticles::write_file(Hdf5_file const& file,
             || local_num_part + local_offset > n_active)
     {
         throw std::runtime_error(
-                "invalid num_part or offset for BunchParticles::write_file()");
+                "invalid num_part or offset for bunch_particles_t::write_file()");
     }
 
     auto parts = get_particles_in_range(local_offset, local_num_part);
@@ -778,8 +794,9 @@ BunchParticles::write_file(Hdf5_file const& file,
     file.write_collective(label + "_masks", parts.second);
 }
 
+template<>
 void 
-BunchParticles::print_particle(size_t idx, Logger& logger) const
+bunch_particles_t<double>::print_particle(size_t idx, Logger& logger) const
 {
     logger(LoggerV::DEBUG)
         << std::showpos << std::scientific
@@ -794,8 +811,9 @@ BunchParticles::print_particle(size_t idx, Logger& logger) const
         ;
 }
 
+template<>
 void
-BunchParticles::save_checkpoint_particles(Hdf5_file & file, int idx) const
+bunch_particles_t<double>::save_checkpoint_particles(Hdf5_file & file, int idx) const
 {
     checkout_particles();
 
@@ -808,8 +826,9 @@ BunchParticles::save_checkpoint_particles(Hdf5_file & file, int idx) const
     file.write(ss.str(), hmasks.data(), hmasks.span(), true);
 }
 
+template<>
 void
-BunchParticles::load_checkpoint_particles(Hdf5_file & file, int idx)
+bunch_particles_t<double>::load_checkpoint_particles(Hdf5_file & file, int idx)
 {
     std::stringstream ss;
     ss << "bunch_particles_" << label << "_parts_" << idx;

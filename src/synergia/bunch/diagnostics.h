@@ -8,7 +8,10 @@
 
 #include "synergia/utils/hdf5_file.h"
 
-class Bunch;
+template<class PART>
+class bunch_t;
+
+using Bunch = bunch_t<double>;
 
 class Diagnostics
 {

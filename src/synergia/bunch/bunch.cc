@@ -45,7 +45,8 @@ Bunch::get_local_particles_serialization_path() const
 #endif
 
 
-Bunch::Bunch(
+template<>
+Bunch::bunch_t(
         Reference_particle const& reference_particle, 
         int total_num, 
         double real_num, 
@@ -69,7 +70,8 @@ Bunch::Bunch(
 {
 }
 
-Bunch::Bunch()
+template<>
+Bunch::bunch_t()
     : comm(new Commxx())
     , boundary(LB::open)
     , boundary_param(0.0)
@@ -85,6 +87,7 @@ Bunch::Bunch()
 {
 }
 
+template<>
 void
 Bunch::inject(Bunch const& o)
 {
@@ -174,6 +177,7 @@ Bunch::get_diag(std::string const & name)
 }
 #endif
 
+template<>
 void
 Bunch::print_statistics(Logger& logger) const
 {

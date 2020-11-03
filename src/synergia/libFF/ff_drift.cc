@@ -99,7 +99,8 @@ namespace
 
 }
 
-void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
+#if 0
+void FF_drift::apply(Lattice_element_slice const& slice, Trigon_particle_t & trigon)
 {
     throw std::runtime_error("Propagate JetParticle through a drift element is yet to be implemented");
 
@@ -130,8 +131,10 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
                reference_cdt);
 #endif
 }
+#endif
 
-void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
+#if 0
+void FF_drift::apply_b(Lattice_element_slice const& slice, Bunch& bunch)
 {
     scoped_simple_timer timer("libFF_drift");
 
@@ -160,4 +163,5 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     Kokkos::fence();
 }
+#endif
 

@@ -29,7 +29,8 @@ enum class LongitudinalBoundary
 
 /// Represents a macroparticle bunch distributed across the processors
 /// in a comm_sptrunicator.
-class Bunch
+template<class PART>
+class bunch_t
 {
 private:
 
@@ -53,7 +54,7 @@ public:
     constexpr static const int id   = 6;
 
     constexpr static const int particle_index_null = 
-        BunchParticles::particle_index_null;
+        bunch_particles_t<PART>::particle_index_null;
 
 private:
 
@@ -75,7 +76,7 @@ private:
 
     // parts[0]: PG::regular particles
     // parts[1]: spectator particles
-    std::array<BunchParticles, 2> parts;
+    std::array<bunch_particles_t<PART>, 2> parts;
 
     // diagnostics
     std::vector<Diagnostics_worker> diags;
@@ -106,21 +107,27 @@ public:
     /// @param bucket_index the bucket number the bunch occupies, used for 
     ///        multi-bunch simulations
     /// @param comm_sptr the comm_sptrunicator.
-    Bunch(  Reference_particle const& reference_particle, 
-            int total_num,
-            double real_num, 
-            Commxx comm = Commxx(),
-            int total_spectator_num = 0,
-            int bunch_index = 0,
-            int bucket_index = 0,
-            int array_index = 0 );
+    bunch_t(  Reference_particle const& reference_particle, 
+              int total_num,
+              double real_num, 
+              Commxx comm = Commxx(),
+              int total_spectator_num = 0,
+              int bunch_index = 0,
+              int bucket_index = 0,
+              int array_index = 0 );
+
+    template<typename U = PART>
+    bunch_t(  Reference_particle const& reference_particle, 
+              int total_num = 1,
+              Commxx comm = Commxx(),
+              typename std::enable_if<U::is_trigon>::type* = 0);
 
     // default ctor for serialization only
-    Bunch();
+    bunch_t();
     
     // non-copyable but moveable
-    Bunch(Bunch const&) = delete;
-    Bunch(Bunch &&) = default;
+    bunch_t(bunch_t const&) = delete;
+    bunch_t(bunch_t &&) = default;
 
     // indicies
     int get_array_index()  const { return array_index; }
@@ -160,12 +167,12 @@ public:
     set_design_reference_particle(Reference_particle const& ref_part)
     { design_ref_part = ref_part; }
 
-    // BunchParticles
-    BunchParticles&
+    // bunch particles
+    bunch_particles_t<PART> &
     get_bunch_particles(ParticleGroup pg = PG::regular)
     { return parts[(int)pg]; }
 
-    BunchParticles const& 
+    bunch_particles_t<PART> const& 
     get_bunch_particles(ParticleGroup pg = PG::regular) const
     { return parts[(int)pg]; }
 
@@ -356,7 +363,7 @@ public:
     /// injected bunch must have the same macroparticle weight, i.e.,
     /// real_num/total_num. If the state vectors of the reference particles
     /// of the two bunches differ, the particles will be shifted accordingly.
-    void inject(Bunch const& bunch);
+    void inject(bunch_t const& bunch);
     
     void convert_to_fixed_t_lab()
     {
@@ -465,8 +472,11 @@ private:
     }
 };
 
+typedef bunch_t<double> Bunch;
+
+template<>
 template<typename AP>
-inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
+inline int bunch_t<double>::apply_aperture(AP const& ap, ParticleGroup pg)
 { 
     // Particles might get lost here. The update of total particle number is
     // performed at the end of each independent operator on a per-bunch basis.
@@ -482,8 +492,9 @@ inline int Bunch::apply_aperture(AP const& ap, ParticleGroup pg)
     return ndiscarded;
 }
 
+template<>
 template<typename AP>
-inline int Bunch::apply_zcut(AP const& ap, ParticleGroup pg)
+inline int bunch_t<double>::apply_zcut(AP const& ap, ParticleGroup pg)
 { 
     int ndiscarded = get_bunch_particles(pg).apply_aperture(ap); 
 
@@ -493,6 +504,30 @@ inline int Bunch::apply_zcut(AP const& ap, ParticleGroup pg)
 
     return ndiscarded;
 }
+
+template<typename PART>
+template<typename U>
+inline bunch_t<PART>::bunch_t(  
+        Reference_particle const& reference_particle, 
+        int total_num, 
+        Commxx bunch_comm,
+        typename std::enable_if<U::is_trigon>::type*)
+  : comm(std::make_shared<Commxx>(bunch_comm))
+  , boundary(LB::open)
+  , boundary_param(0.0)
+  , ref_part(reference_particle)
+  , design_ref_part(reference_particle)
+  , particle_charge(reference_particle.get_charge())
+  , real_num(1.0)
+  , parts{ bunch_particles_t<PART>(total_num, *comm),
+           bunch_particles_t<PART>(0, *comm) }
+  , bunch_index(0)
+  , bucket_index(0)
+  , array_index(0)
+{
+}
+
+
 
 
 #endif /* BUNCH_H_ */

@@ -2,7 +2,10 @@
 #define PERIOD_H_
 
 
-class Bunch;
+template<class T>
+class bunch_t;
+
+using Bunch = bunch_t<double>;
 
 void apply_longitudinal_bucket_barrier(Bunch& bunch, double length);
 void apply_longitudinal_periodicity(Bunch& bunch, double length); 

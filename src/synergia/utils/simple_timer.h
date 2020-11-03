@@ -1,3 +1,8 @@
+#ifndef SIMPLE_TIMER_H
+#define SIMPLE_TIMER_H
+
+
+#if 0
 #include "mpi.h"
 #include <iostream>
 #include <iomanip>
@@ -58,7 +63,9 @@ simple_timer_show(double t0, const char * label)
     return 0.0;
 #endif // USE_SIMPLE_TIMER
 }
+#endif
 
+#include <iomanip>
 #include <map>
 #include "synergia/utils/logger.h"
 
@@ -117,4 +124,6 @@ struct scoped_simple_timer
 
 void 
 simple_timer_print(Logger & logger);
+
+#endif
 

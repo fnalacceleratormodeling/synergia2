@@ -1,6 +1,6 @@
 add_library(synergia_libFF
     ff_element.cc
-    ff_drift.cc
+    #ff_drift.cc
     ff_sbend.cc
     #ff_rbend.cc
     ff_multipole.cc
@@ -8,7 +8,6 @@ add_library(synergia_libFF
     ff_sextupole.cc
     ff_octupole.cc
     ff_rfcavity.cc
-    #ff_kicker.cc
     ff_kicker.cc
     #ff_vkicker.cc
     #ff_marker.cc

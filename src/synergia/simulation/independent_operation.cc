@@ -51,11 +51,55 @@ namespace
     }
 }
 
+namespace ff_element
+{
+    template<class Particle>
+    void apply(Lattice_element_slice const& slice, Particle& p)
+    {
+        auto t = slice.get_lattice_element().get_type();
+
+        switch(t)
+        {
+        case element_type::drift:      FF_drift::apply_b(slice, p); break; 
+#if 0
+        case element_type::sbend:      FF_sbend::apply(slice, p); break;
+
+        case element_type::quadrupole: FF_quadrupole::apply(slice, p); break;
+        case element_type::rfcavity:   FF_rfcavity::apply(slice, p); break;
+        case element_type::multipole:  FF_multipole::apply(slice, p); break;
+
+        //case element_type::rbend:    
+        case element_type::hkicker:    FF_kicker::apply(slice, p); break;
+        case element_type::vkicker:    FF_kicker::apply(slice, p); break;
+        case element_type::kicker:     FF_kicker::apply(slice, p); break;
+
+
+        case element_type::monitor:    FF_drift::apply(slice, p); break;
+        case element_type::hmonitor:   FF_drift::apply(slice, p); break;
+        case element_type::vmonitor:   FF_drift::apply(slice, p); break;
+        case element_type::sextupole:  FF_sextupole::apply(slice, p); break;
+        case element_type::octupole:   FF_octupole::apply(slice, p); break;
+        case element_type::marker:     FF_drift::apply(slice, p); break;
+        case element_type::instrument: FF_drift::apply(slice, p); break;
+        case element_type::rcollimator:FF_drift::apply(slice, p); break;
+
+
+        case element_type::nllens:     FF_nllens::apply(slice, p); break;
+        case element_type::solenoid:   FF_solenoid::apply(slice, p); break;
+        case element_type::elens:      FF_elens::apply(slice, p); break;
+#endif
+
+        default: break;
+        }
+    }
+};
+
 
 LibFF_operation::LibFF_operation(
         std::vector<Lattice_element_slice> const& slices) 
     : Independent_operation("LibFF")
     , libff_element_slices()
+    , slices(slices)
 {
     for (auto const & slice : slices)
     {
@@ -68,8 +112,16 @@ LibFF_operation::LibFF_operation(
 void
 LibFF_operation::apply_impl(Bunch & bunch, Logger & logger) const
 {
+#if 0
     for (auto const & es : libff_element_slices)
         es.first->apply(es.second, bunch);
+#endif
+
+    for (auto const & slice : slices)
+    {
+        auto type = slice.get_lattice_element().get_type();
+        ff_element::apply(slice, bunch);
+    }
 }
 
 

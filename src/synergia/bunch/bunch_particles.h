@@ -7,6 +7,7 @@
 #include "synergia/utils/logger.h"
 
 #include "synergia/utils/hdf5_file.h"
+#include "synergia/utils/gsvector.h"
 
 #include <cereal/cereal.hpp>
 
@@ -71,13 +72,24 @@ namespace cereal
 }
 
 
-class BunchParticles
+template<class PART>
+class bunch_particles_t
 {
     using PG = ParticleGroup;
 
 public:
 
     constexpr static const int particle_index_null = -1;
+
+    using parts_t = typename Kokkos::View<PART*[7], Kokkos::LayoutLeft>;
+    using const_parts_t = typename Kokkos::View<const PART*[7], Kokkos::LayoutLeft>;
+
+    using host_parts_t = typename parts_t::HostMirror;
+    using const_host_parts_t = typename const_parts_t::HostMirror;
+
+    using gsv_t = typename std::conditional<
+        std::is_floating_point<PART>::value, 
+        GSVector, Vec<PART>>::type;
 
 private:
 
@@ -154,11 +166,11 @@ private:
 
 public:
 
-    Particles parts;
+    parts_t parts;
     ParticleMasks masks;
     ParticleMasks discards;
 
-    HostParticles hparts;
+    host_parts_t hparts;
     HostParticleMasks hmasks;
     HostParticleMasks hdiscards;
 
@@ -166,11 +178,18 @@ public:
 
     // particles array will be allocated to the size of reserved_num
     // if reserved is less than total, it will be set to the total_num
-    BunchParticles( 
+    bunch_particles_t( 
             ParticleGroup pg,
             int total_num, 
             int reserved_num, 
             Commxx const& comm );
+
+    // constructor for trigon particles
+    template<typename U = PART>
+    bunch_particles_t(
+            int total_num,
+            Commxx const& comm, 
+            typename std::enable_if<U::is_trigon>::type* = 0);
 
     int num_valid()          const { return n_valid; }
     int num_active()         const { return n_active; }
@@ -198,7 +217,7 @@ public:
     void reserve_local(int n);
 
     // inject with 
-    void inject(BunchParticles const& o,
+    void inject(bunch_particles_t const& o,
             karray1d_dev const& ref_st_diff,
             karray1d_dev const& tgt_st,
             karray1d_dev const& inj_st,
@@ -294,6 +313,11 @@ private:
 };
 
 
+// instantiated with a double is still the default BunchParticles
+typedef bunch_particles_t<double> BunchParticles;
+
+
+// implementations
 namespace bunch_particles_impl
 {
     template<class AP>
@@ -319,98 +343,12 @@ namespace bunch_particles_impl
             }
         }
     };
-
-#if 0
-    using k1d_byte = Kokkos::View<uint8_t*>;
-
-    template<class AP>
-    struct discard_checker
-    {
-        typedef int value_type;
-
-        AP ap;
-        ConstParticles parts;
-        k1d_byte discard;
-
-        KOKKOS_INLINE_FUNCTION
-        void operator() (const int i, int& discarded) const
-        {
-            if (ap.discard(parts, i))
-            {
-                discard[i] = 1;
-                ++discarded;
-            }
-            else
-            {
-                discard[i] = 0;
-            }
-        }
-    };
-
-    struct particle_mover
-    {
-        int nparts;
-        int padding;
-        int ndiscarded;
-
-        Particles parts;
-        k1d_byte discard;
-
-        KOKKOS_INLINE_FUNCTION
-        void operator() (const int i) const
-        {
-            // move all the discarded particles to the tail
-            int head = 0;
-            int tail = nparts - 1;
-
-            do
-            {
-                while (!discard[head] && head<tail) ++head;
-                if (head >= tail) break;
-
-                while ( discard[tail] && tail>head) --tail;
-                if (head >= tail) break;
-
-                for (int idx=0; idx<7; ++idx)
-                {
-                    double tmp = parts(head, idx);
-                    parts(head, idx) = parts(tail, idx);
-                    parts(tail, idx) = tmp;
-                }
-
-                ++head;
-                --tail;
-
-            } while (head < tail);
-
-            // move some lost particles over to the padding area
-            int padded = nparts + padding;
-            int np = ndiscarded < padding ? ndiscarded : padding;
-
-            for (int p=0; p<np; ++p)
-            {
-                // pl: position of next lost particle
-                // pp: position of next padding slot
-                int pl = nparts - ndiscarded + p;
-                int pp = padded - 1 - p;
-
-                for (int idx=0; idx<7; ++idx)
-                {
-                    // copy the lost particle over to the padding slot
-                    // makes pl the new padding slot
-                    parts(pp, idx) = parts(pl, idx);
-                    parts(pl, idx) = 0.0;
-                }
-            }
-        }
-    };
-#endif
 }
 
 
-
+template<>
 template<typename AP>
-inline int BunchParticles::apply_aperture(AP const& ap)
+inline int bunch_particles_t<double>::apply_aperture(AP const& ap)
 {
     using namespace bunch_particles_impl;
 
@@ -425,30 +363,30 @@ inline int BunchParticles::apply_aperture(AP const& ap)
     n_valid -= ndiscarded;
 
     return ndiscarded;
-
-#if 0
-    int ndiscarded = 0;
-    k1d_byte discard(Kokkos::ViewAllocateWithoutInitializing("discard"), num);
-
-    // go through each particle to see which one is been filtered out
-    discard_checker<AP> dc{ap, parts, discard};
-    Kokkos::parallel_reduce(num, dc, ndiscarded);
-
-    if (ndiscarded == 0) return ndiscarded;
-    // std::cout << "      discarded = " << ndiscarded << "\n";
-
-    // move discarded particles to the tail of the array
-    particle_mover pm {num, padding, ndiscarded, parts, discard};
-    Kokkos::parallel_for(1, pm);
-
-    // adjust the array pointers
-    n_last_discarded = ndiscarded;
-    n_valid -= ndiscarded;
-
-    return ndiscarded;
-#endif
 }
 
 
+template<typename PART>
+template<typename U>
+inline bunch_particles_t<PART>::bunch_particles_t(
+        int total_num,
+        Commxx const& comm,
+        typename std::enable_if<U::is_trigon>::type*)
+    : n_valid((!comm.is_null() && comm.rank() == 0) ? 1 : 0)
+    , n_active(n_valid)
+    , n_reserved(n_valid)
+    , n_total(n_valid)
+    , n_last_discarded(0)
+    , poffset(0)
+    , parts(parts_t("trigon", 1))
+    , masks(ParticleMasks("trigon_masks", 1))
+    , discards()
+    , hparts(Kokkos::create_mirror_view(parts))
+    , hmasks(Kokkos::create_mirror_view(masks))
+    , hdiscards()
+{
+    hmasks(0) = (n_valid == 1);
+    Kokkos::deep_copy(masks, hmasks);
+}
 
 #endif

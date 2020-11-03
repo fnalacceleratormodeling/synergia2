@@ -46,6 +46,8 @@ private:
     std::vector< std::pair<std::unique_ptr<FF_element>, 
                  Lattice_element_slice> > libff_element_slices;
 
+    std::vector<Lattice_element_slice> slices;
+
 private:
 
     void print_impl(Logger & logger) const override { }
