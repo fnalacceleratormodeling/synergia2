@@ -372,20 +372,22 @@ inline bunch_particles_t<PART>::bunch_particles_t(
         int total_num,
         Commxx const& comm,
         typename std::enable_if<U::is_trigon>::type*)
-    : n_valid((!comm.is_null() && comm.rank() == 0) ? 1 : 0)
+    : group(PG::regular)
+    , label("trigons")
+    , n_valid((!comm.is_null() && comm.rank() == 0) ? total_num : 0)
     , n_active(n_valid)
     , n_reserved(n_valid)
     , n_total(n_valid)
     , n_last_discarded(0)
     , poffset(0)
-    , parts(parts_t("trigon", 1))
-    , masks(ParticleMasks("trigon_masks", 1))
+    , parts(parts_t("trigon", n_reserved))
+    , masks(ParticleMasks("trigon_masks", n_reserved))
     , discards()
     , hparts(Kokkos::create_mirror_view(parts))
     , hmasks(Kokkos::create_mirror_view(masks))
     , hdiscards()
 {
-    hmasks(0) = (n_valid == 1);
+    for(int i=0; i<n_valid; ++i) hmasks(i) = 1;
     Kokkos::deep_copy(masks, hmasks);
 }
 

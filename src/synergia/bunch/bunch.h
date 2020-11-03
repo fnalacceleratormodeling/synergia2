@@ -116,6 +116,7 @@ public:
               int bucket_index = 0,
               int array_index = 0 );
 
+    // to construct a bunch with trigon particles
     template<typename U = PART>
     bunch_t(  Reference_particle const& reference_particle, 
               int total_num = 1,
