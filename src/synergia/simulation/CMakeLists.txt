@@ -40,7 +40,7 @@ target_link_libraries(synergia_simulation
     synergia_foundation 
     synergia_bunch
     synergia_lattice 
-    synergia_libFF 
+    #synergia_libFF 
     synergia_collective
     )
 

@@ -2,21 +2,20 @@ add_library(synergia_libFF
     ff_element.cc
     #ff_drift.cc
     ff_sbend.cc
-    #ff_rbend.cc
     ff_multipole.cc
     ff_quadrupole.cc
     ff_sextupole.cc
     ff_octupole.cc
     ff_rfcavity.cc
     ff_kicker.cc
-    #ff_vkicker.cc
-    #ff_marker.cc
-    #ff_constfoc.cc
-    #ff_element_map.cc
     ff_nllens.cc
-    #ff_dipedge.cc
     ff_solenoid.cc
     ff_elens.cc
+
+    #ff_marker.cc
+    #ff_constfoc.cc
+    #ff_dipedge.cc
+    #ff_rbend.cc
     )
 
 target_link_libraries(synergia_libFF

@@ -1,10 +1,7 @@
 #ifndef FF_DRIFT_H
 #define FF_DRIFT_H
 
-#include "synergia/libFF/ff_element.h"
 #include "synergia/libFF/ff_algorithm.h"
-#include "synergia/foundation/trigon_particle.h"
-#include "synergia/utils/gsvector.h"
 #include "synergia/utils/simple_timer.h"
 
 namespace drift_impl
@@ -106,16 +103,10 @@ namespace drift_impl
 }
 
 
-class FF_drift : public FF_element
+namespace FF_drift
 {
-
-public:
-
-    void apply(Lattice_element_slice const& slice, Bunch & bunch) override
-    { }
-
     template<class BunchT>
-    static void apply_b(Lattice_element_slice const& slice, BunchT & bunch)
+    inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
     {
         using namespace drift_impl;
 
@@ -146,6 +137,6 @@ public:
 
         Kokkos::fence();
     }
-};
+}
 
 #endif // FF_DRIFT_H

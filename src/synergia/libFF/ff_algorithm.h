@@ -12,6 +12,9 @@
 
 #include <Kokkos_Core.hpp>
 
+inline bool close_to_zero(double v)
+{ return fabs(v) < 1e-13; }
+
 namespace FF_algorithm
 {
     template<typename T >

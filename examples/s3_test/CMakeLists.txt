@@ -4,7 +4,6 @@ target_link_libraries(s3_test
     synergia_lattice
     synergia_collective
     synergia_bunch 
-    synergia_libFF
     )
 
 add_custom_command(OUTPUT fodo.madx

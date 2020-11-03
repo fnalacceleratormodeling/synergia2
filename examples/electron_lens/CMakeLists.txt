@@ -4,7 +4,6 @@ target_link_libraries(cxx_offdiag
     synergia_lattice
     synergia_collective
     synergia_bunch 
-    synergia_libFF
     )
 
 copy_file(adjusted_lattice.lsx cxx_offdiag)
