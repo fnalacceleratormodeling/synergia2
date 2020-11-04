@@ -81,6 +81,8 @@ public:
 
     constexpr static const int particle_index_null = -1;
 
+    using part_t = PART;
+
     using parts_t = typename Kokkos::View<PART*[7], Kokkos::LayoutLeft>;
     using const_parts_t = typename Kokkos::View<const PART*[7], Kokkos::LayoutLeft>;
 
