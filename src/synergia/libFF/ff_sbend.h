@@ -300,8 +300,8 @@ namespace sbend_impl
                 }
 
                 // bend body
-                FF_algorithm::bend_yoshida6<double, 
-                    fa::thin_cf_kick_2<double>, 2> ( 
+                FF_algorithm::bend_yoshida6<typename BP::part_t,
+                    fa::thin_cf_kick_2<typename BP::part_t>, 2> ( 
                             p(i,0), p(i,1), p(i,2), 
                             p(i,3), p(i,4), p(i,5),
                             sp.pref_b, sp.m_b, step_ref_cdt,
