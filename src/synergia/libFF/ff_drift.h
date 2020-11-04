@@ -38,10 +38,10 @@ namespace drift_impl
         KOKKOS_INLINE_FUNCTION
         void operator()(const int idx) const
         {
-            int i = idx * GSVector::size();
+            int i = idx * gsv_t::size();
 
             int m = 0;
-            for(int x=i; x<i+GSVector::size(); ++x) m |= masks(x);
+            for(int x=i; x<i+gsv_t::size(); ++x) m |= masks(x);
 
             if (m)
             {
