@@ -22,26 +22,26 @@ namespace FF_element
         case element_type::rfcavity:   FF_rfcavity::apply(slice, b); break;
         case element_type::multipole:  FF_multipole::apply(slice, b); break;
 
-        //case element_type::rbend:    
         case element_type::hkicker:    FF_kicker::apply(slice, b); break;
         case element_type::vkicker:    FF_kicker::apply(slice, b); break;
         case element_type::kicker:     FF_kicker::apply(slice, b); break;
 
 
-        case element_type::monitor:    FF_drift::apply(slice, b); break;
-        case element_type::hmonitor:   FF_drift::apply(slice, b); break;
-        case element_type::vmonitor:   FF_drift::apply(slice, b); break;
         case element_type::sextupole:  FF_sextupole::apply(slice, b); break;
         case element_type::octupole:   FF_octupole::apply(slice, b); break;
-        case element_type::marker:     FF_drift::apply(slice, b); break;
-        case element_type::instrument: FF_drift::apply(slice, b); break;
-        case element_type::rcollimator:FF_drift::apply(slice, b); break;
 
 
         case element_type::nllens:     FF_nllens::apply(slice, b); break;
         case element_type::solenoid:   FF_solenoid::apply(slice, b); break;
         case element_type::elens:      FF_elens::apply(slice, b); break;
 #endif
+
+        case element_type::monitor:    FF_drift::apply(slice, b); break;
+        case element_type::hmonitor:   FF_drift::apply(slice, b); break;
+        case element_type::vmonitor:   FF_drift::apply(slice, b); break;
+        case element_type::marker:     FF_drift::apply(slice, b); break;
+        case element_type::instrument: FF_drift::apply(slice, b); break;
+        case element_type::rcollimator:FF_drift::apply(slice, b); break;
 
         default: 
             throw std::runtime_error("FF_element::apply() unknown element");
