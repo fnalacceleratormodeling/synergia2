@@ -2,6 +2,7 @@
 #define FF_ELEMENT_H
 
 #include "synergia/libFF/ff_drift.h"
+#include "synergia/libFF/ff_sbend.h"
 
 namespace FF_element
 {
@@ -13,9 +14,9 @@ namespace FF_element
         switch(t)
         {
         case element_type::drift:      FF_drift::apply(slice, b); break; 
-#if 0
         case element_type::sbend:      FF_sbend::apply(slice, b); break;
 
+#if 0
         case element_type::quadrupole: FF_quadrupole::apply(slice, b); break;
         case element_type::rfcavity:   FF_rfcavity::apply(slice, b); break;
         case element_type::multipole:  FF_multipole::apply(slice, b); break;

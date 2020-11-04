@@ -32,10 +32,13 @@ enum class LongitudinalBoundary
 template<class PART>
 class bunch_t
 {
-private:
+public:
 
     using PG = ParticleGroup;
     using LB = LongitudinalBoundary;
+
+    using bp_t = bunch_particles_t<PART>;
+    using gsv_t = typename bp_t::gsv_t;
 
 public:
     /*! \enum State The state of the bunch is captured at a fixed  s (or z, longitudinal coordinate)

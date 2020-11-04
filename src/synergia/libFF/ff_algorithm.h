@@ -12,11 +12,18 @@
 
 #include <Kokkos_Core.hpp>
 
+#define LIBFF_USE_GSV 1
+
 inline bool close_to_zero(double v)
 { return fabs(v) < 1e-13; }
 
 namespace FF_algorithm
 {
+    // default yoshida order and steps
+    constexpr int default_steps = 6;
+    constexpr int default_order = 4;
+
+
     template<typename T >
     KOKKOS_INLINE_FUNCTION
     T invsqrt(T const& x) 
@@ -67,9 +74,14 @@ namespace FF_algorithm
     KOKKOS_INLINE_FUNCTION
     void slot_unit(
             T & x, T & xp, T & y, T & yp, T & cdt, T & dpop, 
-            T ct, T st, T pref, T m)
+            double ct, double st, double pref, double m)
     {
         const T uni(1.0);
+
+        const T vct(ct);
+        const T vst(st);
+        const T vpref(pref);
+        const T vm(m);
 
         T r0 = x;
         T r1 = y;
@@ -77,27 +89,27 @@ namespace FF_algorithm
 
         T zp = sqrt((dpop+uni)*(dpop+uni) - xp * xp - yp * yp);
 
-        T p = (dpop+uni) * pref;
-        T e = sqrt(p*p + m*m);
+        T p = (dpop+uni) * vpref;
+        T e = sqrt(p*p + vm*vm);
 
-        T b0 = xp * pref / e;
-        T b1 = yp * pref / e;
-        T b2 = zp * pref / e;
+        T b0 = xp * vpref / e;
+        T b1 = yp * vpref / e;
+        T b2 = zp * vpref / e;
 
-        T bp = st * b0 + ct * b2;
+        T bp = vst * b0 + vct * b2;
 
-        T tau = -x * st / bp;
+        T tau = -x * vst / bp;
 
         r0 = x + tau * b0;
         r1 = y + tau * b1;
         r2 =     tau * b2;
 
-        x = r0 * ct - r2 * st;
+        x = r0 * vct - r2 * vst;
         y = r1;
 
         cdt = cdt + tau;
 
-        xp = xp * ct - zp * st;
+        xp = xp * vct - zp * vst;
         yp = yp;
     }
 
@@ -112,10 +124,13 @@ namespace FF_algorithm
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void edge_unit
-      (T const & y, T & xp, T & yp, T kx, T ky, char)
+      (T const & y, T & xp, T & yp, double kx, double ky, char)
     {
-        yp = yp - kx * y;
-        xp = xp + ky * y;
+        const T vkx(kx);
+        const T vky(ky);
+
+        yp = yp - vkx * y;
+        xp = xp + vky * y;
     }
 
     template <typename T>
@@ -208,7 +223,8 @@ namespace FF_algorithm
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void bend_unit(T& x, T& xp, T& y, T& yp, T& cdt, T const& dpop, 
-            T theta, T strength, T p_ref, T m, T cdt_ref, 
+            double theta, double strength, double p_ref, 
+            double m, double cdt_ref, 
             Kokkos::complex<double> phase, 
             Kokkos::complex<double> term)
     {
@@ -217,12 +233,18 @@ namespace FF_algorithm
         const T uni(1.0);
         const T tc(pconstants::c);
 
-        T p0 = p_ref;
-        T p  = p_ref * (dpop + uni);
-        T E0 = sqrt(p0 * p0 + m * m);
-        T E  = sqrt(p * p + m * m);
+        const T vtheta(theta);
+        const T vstrength(strength);
+        const T vp_ref(p_ref);
+        const T vm(m);
+        const T vcdt_ref(cdt_ref);
 
-        T igamma = m / E0;
+        T p0 = vp_ref;
+        T p  = vp_ref * (dpop + uni);
+        T E0 = sqrt(p0 * p0 + vm * vm);
+        T E  = sqrt(p * p + vm * vm);
+
+        T igamma = vm / E0;
         T ibeta  = uni / sqrt(uni - igamma * igamma);
 
         T csq = T(pconstants::c * pconstants::c * 1e-9);
@@ -242,7 +264,7 @@ namespace FF_algorithm
         T vui_r = tc * beta3;
         T vui_i = tc * beta1;
 
-        T iomega = E / (csq * strength);
+        T iomega = E / (csq * vstrength);
 
         //CT bi = CT(0.0, 1.0) * vui * iomega - ui;
         T bi_r = -vui_i * iomega - ui_r;
@@ -268,7 +290,7 @@ namespace FF_algorithm
         //CT uf   = (ui + bi) * expf - bf;
         T uf_i = (ui_r+bi_r)*expf_i + (ui_i+bi_i)*expf_r - bf_i;
 
-        T dtheta = dthmphi + theta;
+        T dtheta = dthmphi + vtheta;
         T ncdt = -tc * dtheta * iomega;
 
         //x = uf.imag();
@@ -278,7 +300,7 @@ namespace FF_algorithm
         xp = vuf_i / (Ef * tc);
 
         y   = y + beta2 * ncdt;
-        cdt = cdt + ncdt - cdt_ref;
+        cdt = cdt + ncdt - vcdt_ref;
     }
 
     KOKKOS_INLINE_FUNCTION

@@ -6,9 +6,10 @@
 
 namespace drift_impl
 {
+    template<class BP>
     struct PropDrift
     {
-        Particles p;
+        typename BP::parts_t p;
         ConstParticleMasks masks;
 
         double len, ref_p, mass, ref_t;
@@ -88,15 +89,14 @@ namespace drift_impl
     {
         if (bp.num_valid())
         {
-#if 0
-            PropDrift drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
-            Kokkos::parallel_for(bp.size(), drift);
-#endif
-#if 1
-            PropDriftSimd<BP> drift{
-                bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
-
+#if LIBFF_USE_GSV
+            PropDriftSimd<BP> 
+                drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
             Kokkos::parallel_for(bp.size()/BP::gsv_t::size(), drift);
+#else
+            PropDrift<BP>
+                drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
+            Kokkos::parallel_for(bp.size(), drift);
 #endif
         }
     }
