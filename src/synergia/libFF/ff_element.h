@@ -46,6 +46,10 @@ namespace FF_element
             throw std::runtime_error("FF_element::apply() unknown element");
         }
     }
+
+    template<class BUNCH>
+    void apply(Lattice_element const& element, BUNCH & b)
+    { apply(Lattice_element_slice(element), b); }
 };
 
 
