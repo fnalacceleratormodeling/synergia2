@@ -2,6 +2,18 @@ from mpi4py import MPI
 import numpy as np
 import synergia
 
+class mydiag(synergia.bunch.Diagnostics):
+    def __init__(self, filename):
+        synergia.bunch.Diagnostics.__init__(self, "mydiag", filename)
+        print("mydiag created")
+
+    def do_update(self, bunch):
+        print("my diag update")
+
+    def do_reduce(self, comm, root):
+        print("my diag reduce")
+
+
 def print_statistics(bunch):
 
     parts = bunch.get_particles_numpy()
@@ -41,11 +53,15 @@ def create_propagator(lattice):
     return propagator
 
 def run2():
+
+    screen = synergia.utils.parallel_utils.Logger(0, 
+            synergia.utils.parallel_utils.LoggerV.DEBUG)
+
     lattice = get_lattice()
     sim = create_simulator(lattice.get_reference_particle())
     propagator = create_propagator(lattice)
 
-    print_statistics(sim.get_bunch())
+    sim.get_bunch().print_statistics(screen);
 
     class context:
         steps = 0
@@ -67,6 +83,10 @@ def run2():
     diag_part = synergia.bunch.Diagnostics_particles("diag_part_py.h5", 100)
     sim.reg_diag_per_turn(diag_part)
 
+    sim.reg_diag_per_turn(mydiag("mydiag.h5"))
+    #diag_dummy = synergia.bunch.Diagnostics_dummy()
+    #sim.reg_diag_per_turn(diag_dummy)
+
     # logger
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO_STEP)
@@ -75,7 +95,7 @@ def run2():
     propagator.propagate(sim, simlog, 1)
 
     print("total steps = ", context.steps)
-    print_statistics(sim.get_bunch())
+    sim.get_bunch().print_statistics(screen);
 
     # save
     synergia.simulation.checkpoint_save(propagator, sim);
@@ -84,15 +104,17 @@ def checkpoint_resume():
 
     [propagator, sim] = synergia.simulation.checkpoint_load();
 
-    print_statistics(sim.get_bunch())
-
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO_STEP)
 
     screen = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.DEBUG)
 
+    sim.get_bunch().print_statistics(screen);
+
     propagator.propagate(sim, simlog, 1)
+
+    sim.get_bunch().print_statistics(screen);
     synergia.utils.parallel_utils.simple_timer_print(screen)
 
 def run():
