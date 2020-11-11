@@ -155,9 +155,11 @@ PYBIND11_MODULE(bunch, m)
                     // calling from C++
                     PyDiagnostics* p = 
                         dynamic_cast<PyDiagnostics*>(diag.get());
-                    if (p) { p->reg_self(); }
 
-                    self.add_diagnostics(diag);
+                    if (p) { 
+                        p->reg_self(); 
+                        self.add_diagnostics(diag);
+                    }
                 },
                 "Add a diagnostics to the bunch object.",
                 "diag"_a )
@@ -179,6 +181,9 @@ PYBIND11_MODULE(bunch, m)
 
         .def ( "inject",
                 &Bunch::inject )
+
+        .def ( "print_statistics",
+                &Bunch::print_statistics )
 
         .def( "dump",
                 &Bunch::dump,
@@ -367,5 +372,4 @@ PYBIND11_MODULE(bunch, m)
 
 
 }
-
 

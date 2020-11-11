@@ -42,6 +42,19 @@ if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(bunch bunch_wrap.cc)
     #target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
 
+    add_library(synergia_pydiag diagnostics_py.cc)
+
+    target_include_directories(synergia_pydiag 
+        PRIVATE ${PYBIND11_INCLUDE_DIR}
+        PRIVATE ${pybind11_INCLUDE_DIR}
+        PRIVATE ${PYTHON_INCLUDE_DIRS} )
+
+    target_link_libraries(synergia_pydiag 
+        PRIVATE ${PYTHON_LIBRARIES})
+
+    # add pydiag to synergia_bunch library
+    target_link_libraries(synergia_bunch synergia_pydiag)
+
     pybind11_add_module(bunch bunch_pywrap.cc)
     target_link_libraries(bunch PRIVATE synergia_bunch)
 

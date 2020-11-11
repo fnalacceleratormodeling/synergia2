@@ -9,9 +9,6 @@ class PyDiagnostics : public Diagnostics
 {
 public:
 
-    // inherit the constructors
-    using Diagnostics::Diagnostics;
-
     PyDiagnostics(
             std::string const& type = "PyDiagnostics", 
             std::string const& filename = "py_diag.h5",
@@ -27,53 +24,10 @@ private:
 
     pybind11::object self;
 
-    void do_update(Bunch const& bunch) override
-    {
-        self.attr("do_update")(bunch);
-
-#if 0
-        PYBIND11_OVERLOAD_PURE(
-                void,        // return type
-                Diagnostics, // parent class
-                do_update,   // name of the function in c++
-                bunch        // arguments
-        );
-#endif
-    }
-
-    void do_reduce(Commxx const& comm, int root) override
-    {
-        self.attr("do_reduce")(comm, root);
-
-#if 0
-        PYBIND11_OVERLOAD_PURE(
-                void,        // return type
-                Diagnostics, // parent class
-                do_reduce,
-                comm,
-                root
-        );
-#endif
-    }
-
-    void do_first_write(Hdf5_file& file) override
-    { }
-
-    void do_write(Hdf5_file& file) override
-    { }
-
-#if 0
-    void do_write(Hdf5_file& file, bool first_write) override
-    {
-        PYBIND11_OVERLOAD_PURE(
-                void,  // return type
-                Diagnostics, // parent class
-                do_write,
-                hdf5_file,
-                first_write 
-        );
-    }
-#endif
+    void do_update(Bunch const& bunch) override ;
+    void do_reduce(Commxx const& comm, int root) override ;
+    void do_first_write(Hdf5_file& file) override;
+    void do_write(Hdf5_file& file) override;
 
     friend class cereal::access;
 
@@ -88,7 +42,8 @@ private:
         catch(...) { pickle = py::module::import("pickle"); }
 
         auto s = pickle.attr("dumps")(self, 2).cast<std::string>();
-        auto base_s = base64_encode(reinterpret_cast<const unsigned char*>(s.c_str()), s.length());
+        auto base_s = base64_encode(
+                reinterpret_cast<const unsigned char*>(s.c_str()), s.length());
 
         ar(base_s);
     }

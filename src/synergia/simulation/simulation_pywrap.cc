@@ -12,6 +12,8 @@
 
 #include "synergia/simulation/checkpoint.h"
 
+#include "synergia/bunch/diagnostics_py.h"
+
 namespace py = pybind11;
 using namespace py::literals;
 
@@ -141,7 +143,22 @@ PYBIND11_MODULE(simulation, m)
                 "action"_a )
 
         .def( "reg_diag_per_turn", 
-                &Bunch_simulator::reg_diag_per_turn<std::shared_ptr<Diagnostics>>,
+                [](Bunch_simulator& self,
+                    std::shared_ptr<Diagnostics> const& diag,
+                    int train_idx,
+                    int bunch_idx,
+                    int period) {
+
+                    PyDiagnostics* p = 
+                        dynamic_cast<PyDiagnostics*>(diag.get());
+
+                    if (p) { 
+                        p->reg_self(); 
+
+                        self.reg_diag_per_turn<std::shared_ptr<Diagnostics>>(
+                            diag, train_idx, bunch_idx, period);
+                    }
+                },
                 "Register a per turn diagnostics.",
                 "diag"_a, 
                 "train_idx"_a = 0, 
@@ -241,5 +258,3 @@ PYBIND11_MODULE(simulation, m)
 
 
 }
-
-
