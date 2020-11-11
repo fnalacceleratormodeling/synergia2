@@ -185,11 +185,11 @@ public:
     /// larger local_num. The macroparticle state vectors are stored in
     /// array[0:reserved,0:6] and the macroparticle IDs are stored in
     /// array[0:reserved,6]. Use capacity() to obtain reserved num.
-    Particles
+    typename bunch_particles_t<PART>::parts_t
     get_local_particles(ParticleGroup pg = PG::regular)       
     { return get_bunch_particles(pg).parts; }
 
-    ConstParticles
+    typename bunch_particles_t<PART>::const_parts_t
     get_local_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).parts; }
 
@@ -202,11 +202,11 @@ public:
     { return get_bunch_particles(pg).masks; }
 
     // get the host particle arrays and masks arrays
-    HostParticles
+    typename bunch_particles_t<PART>::host_parts_t
     get_host_particles(ParticleGroup pg = PG::regular)       
     { return get_bunch_particles(pg).hparts; }
 
-    ConstHostParticles
+    typename bunch_particles_t<PART>::const_host_parts_t
     get_host_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).hparts; }
 
@@ -476,7 +476,7 @@ private:
     }
 };
 
-typedef bunch_t<double> Bunch;
+using Bunch = bunch_t<double>;
 
 template<>
 template<typename AP>
