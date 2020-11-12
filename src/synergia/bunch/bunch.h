@@ -229,7 +229,7 @@ public:
     { return get_bunch_particles(pg).size(); }
 
     int size_in_gsv(ParticleGroup pg = PG::regular) const
-    { return get_bunch_particles(pg).size() / gsv_t::size(); }
+    { return get_bunch_particles(pg).size_in_gsv(); }
 
     int capacity(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).capacity(); }

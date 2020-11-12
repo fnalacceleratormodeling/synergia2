@@ -200,8 +200,9 @@ public:
     int num_last_discarded() const { return n_last_discarded; }
 
     // getters with names more consistent with std containers
-    int size()     const { return n_active; }
-    int capacity() const { return n_reserved; }
+    int size()        const { return n_active; }
+    int size_in_gsv() const { return n_active/gsv_t::size(); }
+    int capacity()    const { return n_reserved; }
 
     // copy particles/masks between host and device memories
     void checkin_particles() const
