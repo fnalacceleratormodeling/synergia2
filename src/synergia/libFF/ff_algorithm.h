@@ -517,7 +517,7 @@ namespace FF_algorithm
             kl[1] = str[1] * len;
 
             drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * len, pref, m, substep_ref_cdt );
-            thin_quadrupole_unit(x, xp, y, yp, 0.0, kl);  // str*len
+            thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len
             drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * len, pref, m, substep_ref_cdt );
         }
         else if( (kicks % 4) == 0 )
@@ -532,12 +532,12 @@ namespace FF_algorithm
             for( int i=0; i<u; ++i)
             {
                 drift_unit( x, xp, y, yp, cdt, dpop, frontLength, pref, m, substep_ref_cdt );
-                thin_quadrupole_unit(x, xp, y, yp, 0.0, kl);  // quaterStrength
+                thin_quadrupole_unit(x, xp, y, yp, kl);  // quaterStrength
 
                 for( int i=0; i<3; ++i)
                 {
                     drift_unit( x, xp, y, yp, cdt, dpop, sepLength, pref, m, substep_ref_cdt );
-                    thin_quadrupole_unit(x, xp, y, yp, 0.0, kl);  // quaterStrength
+                    thin_quadrupole_unit(x, xp, y, yp, kl);  // quaterStrength
                 }
 
                 drift_unit( x, xp, y, yp, cdt, dpop, frontLength, pref, m, substep_ref_cdt );
@@ -549,12 +549,12 @@ namespace FF_algorithm
             kl[1] = str[1] * len / kicks;
 
             drift_unit( x, xp, y, yp, cdt, dpop, len / (2.0*kicks), pref, m, substep_ref_cdt );
-            thin_quadrupole_unit(x, xp, y, yp, 0.0, kl);  // str*len/kicks
+            thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len/kicks
 
             for( int i=0; i<kicks-1; ++i )
             {
                 drift_unit( x, xp, y, yp, cdt, dpop, len / kicks, pref, m, substep_ref_cdt );
-                thin_quadrupole_unit(x, xp, y, yp, 0.0, kl);  // str*len/kicks
+                thin_quadrupole_unit(x, xp, y, yp, kl);  // str*len/kicks
             }
 
             drift_unit( x, xp, y, yp, cdt, dpop, len / (2.0*kicks), pref, m, substep_ref_cdt );
@@ -574,7 +574,7 @@ namespace FF_algorithm
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void thin_quadrupole_unit
-      (T const& x, T& xp, T const& y, T& yp, T const&, double const * kL)
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         T vk0(kL[0]);
         T vk1(kL[1]);
@@ -586,7 +586,7 @@ namespace FF_algorithm
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void thin_sextupole_unit
-      (T const& x, T& xp, T const& y, T& yp, T const&, double const * kL)
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         T vk0(kL[0]);
         T vk1(kL[1]);
@@ -598,7 +598,7 @@ namespace FF_algorithm
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void thin_octupole_unit
-      (T const& x, T& xp, T const& y, T& yp, T const&, double const * kL)
+      (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         xp += - 0.5 * kL[0] * (x * x * x / 3.0 - x * y * y)
               + 0.5 * kL[1] * (x * x * y - y * y * y / 3.0);
@@ -612,7 +612,7 @@ namespace FF_algorithm
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
         thin_dipole_unit(x, xp, y, yp, kL);
-        thin_quadrupole_unit(x, xp, y, yp, 0.0, kL + 2);
+        thin_quadrupole_unit(x, xp, y, yp, kL + 2);
         thin_sextupole_unit(x, xp, y, yp, 0.0, kL + 4);
     }
 
@@ -621,7 +621,7 @@ namespace FF_algorithm
     void rbend_thin_cf_kick
       (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
     {
-        thin_quadrupole_unit(x, xp, y, yp, 0.0, kL + 0);
+        thin_quadrupole_unit(x, xp, y, yp, kL + 0);
         thin_sextupole_unit(x, xp, y, yp, 0.0, kL + 2);
     }
 
@@ -966,9 +966,17 @@ namespace FF_algorithm
     { return (full_drifts_per_step(order) - 2) / 2 + 2; }
 
     // general n-th order yoshida
+    template<class T>
+    using yoshida_kf_t = void(*)(
+            T const&, T&, T const&, T&, double const*);
+
+    template<class T>
+    using bend_yoshida_kf_t = void(*)(
+            T const&, T&, T const&, T&, double, double const*);
+
     template <
         typename T,
-        void(kf)(T const& x, T& xp, T const& y, T& yp, T const&, double const * kL),
+        yoshida_kf_t<T> kf,
         int n,
         int components >
     struct yoshida_element
@@ -1008,7 +1016,7 @@ namespace FF_algorithm
 #if 1
     template <
         typename T,
-        void(kf)(T const& x, T& xp, T const& y, T& yp, T const&, double const * kL),
+        yoshida_kf_t<T> kf,
         int components >
     struct yoshida_element < T, kf, 0, components >
     {
@@ -1040,7 +1048,7 @@ namespace FF_algorithm
 
     template <
         typename T,
-        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        yoshida_kf_t<T> kf,
         int components >
     KOKKOS_INLINE_FUNCTION
     struct yoshida_element < T, kf, 0, components >
@@ -1071,7 +1079,7 @@ namespace FF_algorithm
 
     template <
         typename T,
-        void(kf)(T const& x, T& xp, T const& y, T& yp, T const&, double const * kL),
+        yoshida_kf_t<T> kf,
         int order,
         int components >
     KOKKOS_INLINE_FUNCTION
@@ -1098,7 +1106,7 @@ namespace FF_algorithm
     // hardwired 2nd order yoshida
     template <
         typename T,
-        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        yoshida_kf_t<T> kf,
         int components >
     KOKKOS_INLINE_FUNCTION
     void yoshida2(T & x, T & xp,
@@ -1126,7 +1134,7 @@ namespace FF_algorithm
     // hardwired 4th order yoshida
     template <
         typename T,
-        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        yoshida_kf_t<T> kf,
         int components >
     KOKKOS_INLINE_FUNCTION
     void yoshida4(T & x, T & xp,
@@ -1191,7 +1199,7 @@ namespace FF_algorithm
     // hardwired 6th order yoshida
     template <
         typename T,
-        void(kf)(T const & x, T & xp, T const & y, T & yp, T const&, double const * kL),
+        yoshida_kf_t<T> kf,
         int components >
     KOKKOS_INLINE_FUNCTION
     void yoshida6(T & x, T & xp,
@@ -1238,47 +1246,47 @@ namespace FF_algorithm
             drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k1 );
+            kf( x, xp, y, yp, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k2 );
+            kf( x, xp, y, yp, k2 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k1 );
+            kf( x, xp, y, yp, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k3 );
+            kf( x, xp, y, yp, k3 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k4 );
+            kf( x, xp, y, yp, k4 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k3 );
+            kf( x, xp, y, yp, k3 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k1 );
+            kf( x, xp, y, yp, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k2 );
+            kf( x, xp, y, yp, k2 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, 0.0, k1 );
+            kf( x, xp, y, yp, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);

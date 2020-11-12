@@ -23,7 +23,7 @@ namespace quad_impl
                 auto y = p(i, 2) - yoff;
 
                 FF_algorithm::thin_quadrupole_unit(
-                        x, p(i, 1), y, p(i, 3), typename BP::part_t(0.0), k);
+                        x, p(i, 1), y, p(i, 3), k);
             }
         }
     };
@@ -251,7 +251,7 @@ namespace FF_quadrupole
             x -= xoff;
             y -= yoff;
 
-            FF_algorithm::thin_quadrupole_unit(x, xp,  y, yp, 0.0, k);
+            FF_algorithm::thin_quadrupole_unit(x, xp,  y, yp, k);
 
             x += xoff;
             y += yoff;
