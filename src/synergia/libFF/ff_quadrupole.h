@@ -263,7 +263,7 @@ namespace FF_quadrupole
 
             PropQuadThin<typename BunchT::bp_t> pqt{ bp.parts, bp.masks, 
                 {k[0], k[1]}, xoff, yoff };
-            Kokkos::parallel_for(bp.size()/BunchT::gsv_t::size(), pqt);
+            Kokkos::parallel_for(bp.size(), pqt);
 
             // TODO: spectator particles
             // ...
