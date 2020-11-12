@@ -92,7 +92,7 @@ namespace drift_impl
 #if LIBFF_USE_GSV
             PropDriftSimd<BP> 
                 drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
-            Kokkos::parallel_for(bp.size()/BP::gsv_t::size(), drift);
+            Kokkos::parallel_for(bp.size_in_gsv(), drift);
 #else
             PropDrift<BP>
                 drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};

@@ -285,7 +285,7 @@ namespace FF_quadrupole
 #if LIBFF_USE_GSV
             PropQuadSimd<typename BunchT::bp_t> pq(bp, steps, xoff, yoff, 
                     ref_p, ref_m, ref_t, length, k[0], k[1]);
-            Kokkos::parallel_for(bp.size()/BunchT::gsv_t::size(), pq);
+            Kokkos::parallel_for(bp.size_in_gsv(), pq);
 
             // TODO: spectator particles
             // ...
