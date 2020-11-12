@@ -79,7 +79,7 @@ private:
 
     // parts[0]: PG::regular particles
     // parts[1]: spectator particles
-    std::array<bunch_particles_t<PART>, 2> parts;
+    std::array<bp_t, 2> parts;
 
     // diagnostics
     std::vector<Diagnostics_worker> diags;
@@ -227,6 +227,9 @@ public:
 
     int size(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).size(); }
+
+    int size_in_gsv(ParticleGroup pg = PG::regular) const
+    { return get_bunch_particles(pg).size() / gsv_t::size(); }
 
     int capacity(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).capacity(); }
