@@ -280,23 +280,24 @@ namespace FF_quadrupole
             double ref_t = get_reference_cdt(length, steps, k, ref_l);
 
             // bunch particles
-            auto bp = bunch.get_bunch_particles(ParticleGroup::regular);
+            auto apply = [&](ParticleGroup pg) {
+                auto bp = bunch.get_bunch_particles(pg);
+                if (!bp.size()) return;
 
 #if LIBFF_USE_GSV
-            PropQuadSimd<typename BunchT::bp_t> pq(bp, steps, xoff, yoff, 
-                    ref_p, ref_m, ref_t, length, k[0], k[1]);
-            Kokkos::parallel_for(bp.size_in_gsv(), pq);
-
-            // TODO: spectator particles
-            // ...
+                PropQuadSimd<typename BunchT::bp_t> pq(bp, steps, xoff, yoff, 
+                        ref_p, ref_m, ref_t, length, k[0], k[1]);
+                Kokkos::parallel_for(bp.size_in_gsv(), pq);
 #else
-            PropQuad<typename BunchT::bp_t> pq(bp, steps, xoff, yoff, 
-                    ref_p, ref_m, ref_t, length, k[0], k[1]);
-            Kokkos::parallel_for(bp.size(), pq);
-
-            // TODO: spectator particles
-            // ...
+                PropQuad<typename BunchT::bp_t> pq(bp, steps, xoff, yoff, 
+                        ref_p, ref_m, ref_t, length, k[0], k[1]);
+                Kokkos::parallel_for(bp.size(), pq);
 #endif
+            };
+
+            // apply
+            apply(ParticleGroup::regular);
+            apply(ParticleGroup::spectator);
 
             // advance the ref_part
             bunch.get_reference_particle().increment_trajectory(length);
