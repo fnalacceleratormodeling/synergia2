@@ -27,30 +27,42 @@ namespace mpole_impl
     template<class BP>
     struct PropMultipole
     {
+        using gsv_t = typename BP::gsv_t;
+
         typename BP::parts_t p;
         ConstParticleMasks masks;
         const MultipoleParams mp;
 
         KOKKOS_INLINE_FUNCTION
-        void operator()(const int i) const
+        void operator()(const int idx) const
         {
-            if (masks(i))
+            int i = idx * gsv_t::size();
+
+            int m = 0;
+            for(int x=i; x<i+gsv_t::size(); ++x) m |= masks(x);
+ 
+            if (m)
             {
+                gsv_t p0(&p(i,0));
+                gsv_t p1(&p(i,1));
+                gsv_t p2(&p(i,2));
+                gsv_t p3(&p(i,3));
+
                 if (mp.kn[0])
                     FF_algorithm::thin_dipole_unit( 
-                            p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[0]);
+                            p0, p1, p2, p3, &mp.kl[0]);
 
                 if (mp.kn[1])
                     FF_algorithm::thin_quadrupole_unit( 
-                            p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[2]);
+                            p0, p1, p2, p3, &mp.kl[2]);
 
                 if (mp.kn[2])
                     FF_algorithm::thin_sextupole_unit( 
-                            p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[4]);
+                            p0, p1, p2, p3, &mp.kl[4]);
 
                 if (mp.kn[3])
                     FF_algorithm::thin_octupole_unit( 
-                            p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[6]);
+                            p0, p1, p2, p3, &mp.kl[6]);
 
 #if 0
                 for(int n=4; n<max_order; ++n)
@@ -60,6 +72,9 @@ namespace mpole_impl
                                 p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[n*2], n+1);
                 }
 #endif
+
+                p1.store(&p(i,1));
+                p3.store(&p(i,3));
             }
         }
     };

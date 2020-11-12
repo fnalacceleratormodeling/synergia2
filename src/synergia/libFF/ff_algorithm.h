@@ -567,8 +567,8 @@ namespace FF_algorithm
     void thin_dipole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
-        xp = xp - kL[0];
-        yp = yp + kL[1];
+        xp = xp - T(kL[0]);
+        yp = yp + T(kL[1]);
     }
 
     template <typename T>
@@ -600,10 +600,16 @@ namespace FF_algorithm
     void thin_octupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL)
     {
-        xp += - 0.5 * kL[0] * (x * x * x / 3.0 - x * y * y)
-              + 0.5 * kL[1] * (x * x * y - y * y * y / 3.0);
-        yp += - 0.5 * kL[0] * (y * y * y / 3.0 - x * x * y)
-              + 0.5 * kL[1] * (x * x * x / 3.0 - x * y * y);
+        T vk0(kL[0]);
+        T vk1(kL[1]);
+
+        T n1(0.5);
+        T n2(1.0/3.0);
+
+        xp = xp - n1 * vk0 * (x * x * x * n2 - x * y * y)
+                + n1 * vk1 * (x * x * y - y * y * y * n2);
+        yp = yp - n1 * vk0 * (y * y * y * n2 - x * x * y)
+                + n1 * vk1 * (x * x * x * n2 - x * y * y);
     }
 
     template <typename T>
