@@ -120,6 +120,11 @@ MadX_adaptor_map::MadX_adaptor_map() :
     boost::shared_ptr<Elens_madx_adaptor > elens_madx_adaptor(
             new Elens_madx_adaptor);
     set_adaptor("elens", elens_madx_adaptor);
+
+    boost::shared_ptr<Mcmlens_madx_adaptor > mcmlens_madx_adaptor(
+            new Mcmlens_madx_adaptor);
+    set_adaptor("mcmlens", mcmlens_madx_adaptor);
+
 }
 
 template<class Archive>
