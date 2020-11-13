@@ -6,6 +6,11 @@
 
 namespace quad_impl
 {
+    template<class T>
+    KOKKOS_INLINE_FUNCTION
+    void kick(T const&x, T& xp, T const& y, T& yp, T const&, double const* kL)
+    { FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, kL); }
+
     template<class BP>
     struct PropQuadThin
     {
@@ -62,13 +67,14 @@ namespace quad_impl
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
+            using part_t = typename BP::part_t;
+
             if (masks(i))
             {
                 p(i, 0) -= xoff;
                 p(i, 2) -= yoff;
 
-                FF_algorithm::yoshida6<typename BP::part_t, 
-                    FF_algorithm::thin_quadrupole_unit<typename BP::part_t>, 1> (
+                FF_algorithm::yoshida6<part_t, kick<part_t>, 1> (
                             p(i,0), p(i,1), p(i,2), 
                             p(i,3), p(i,4), p(i,5), 
                             ref_p, ref_m, step_ref_t, 
@@ -133,11 +139,10 @@ namespace quad_impl
                 p0 = p0 - xoff;
                 p2 = p2 - yoff;
 
-                FF_algorithm::yoshida6<gsv_t, 
-                    FF_algorithm::thin_quadrupole_unit<gsv_t>, 1>(
-                            p0, p1, p2, p3, p4, p5,
-                            ref_p, ref_m, step_ref_t, 
-                            step_l, step_k, steps );
+                FF_algorithm::yoshida6<gsv_t, kick<gsv_t>, 1>( 
+                        p0, p1, p2, p3, p4, p5,
+                        ref_p, ref_m, step_ref_t, 
+                        step_l, step_k, steps );
 
                 p0 = p0 + xoff;
                 p2 = p2 + yoff;
@@ -175,8 +180,7 @@ namespace quad_impl
             double cdt(0.0);
             double dpop(ref.get_state()[Bunch::dpop]);
 
-            FF_algorithm::yoshida6<double, 
-                FF_algorithm::thin_quadrupole_unit<double>, 1 >
+            FF_algorithm::yoshida6<double, kick<double>, 1>
                     ( x, xp, y, yp, cdt, dpop,
                       ref_p, ref_m, 0.0,
                       step_length, step_strength, steps );

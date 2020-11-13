@@ -974,7 +974,7 @@ namespace FF_algorithm
     // general n-th order yoshida
     template<class T>
     using yoshida_kf_t = void(*)(
-            T const&, T&, T const&, T&, double const*);
+            T const&, T&, T const&, T&, T const&, double const*);
 
     template<class T>
     using bend_yoshida_kf_t = void(*)(
@@ -1043,7 +1043,7 @@ namespace FF_algorithm
             drift_unit( x, xp, y, yp, cdt, dpop, 
                     0.5 * c * step_length, pref, m, substep_ref_cdt );
 
-            kf( x, xp, y, yp, 0.0, kl );
+            kf( x, xp, y, yp, cdt, kl );
 
             drift_unit( x, xp, y, yp, cdt, dpop, 
                     0.5 * c * step_length, pref, m, substep_ref_cdt );
@@ -1129,7 +1129,7 @@ namespace FF_algorithm
                     0.5 * step_length, reference_momentum, 
                     m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, step_strength );
+            kf( x, xp, y, yp, cdt, step_strength );
 
             drift_unit(x, xp, y, yp, cdt, dpop, 
                     0.5 * step_length, reference_momentum, 
@@ -1182,19 +1182,19 @@ namespace FF_algorithm
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d1 * step_strength );
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, cdt, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d2 * step_strength );
-            kf( x, xp, y, yp, k2 );
+            kf( x, xp, y, yp, cdt, k2 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d3 * step_strength );
-            kf( x, xp, y, yp, k3 );
+            kf( x, xp, y, yp, cdt, k3 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
@@ -1252,47 +1252,47 @@ namespace FF_algorithm
             drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, cdt, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k2 );
+            kf( x, xp, y, yp, cdt, k2 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, cdt, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k3 );
+            kf( x, xp, y, yp, cdt, k3 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k4 );
+            kf( x, xp, y, yp, cdt, k4 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k3 );
+            kf( x, xp, y, yp, cdt, k3 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, cdt, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k2 );
+            kf( x, xp, y, yp, cdt, k2 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, cdt, k1 );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
