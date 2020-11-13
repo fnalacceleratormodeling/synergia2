@@ -1,7 +1,10 @@
 #include <stdexcept>
 #include <sstream>
+#include "lattice.h"
+#include "lattice_element.h"
 #include "madx_adaptors.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/foundation/physical_constants.h"
 
 #include <complex>
 
@@ -2480,3 +2483,66 @@ Elens_madx_adaptor::~Elens_madx_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Elens_madx_adaptor)
+
+/****************************************************************/
+Mcmlens_madx_adaptor::Mcmlens_madx_adaptor()
+{
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("j0", 0.0);
+    get_default_element().set_double_attribute("ebeta", 0.0);
+    get_default_element().set_double_attribute("pbeta", 0.0);
+    get_default_element().set_double_attribute("radius", 0.0);
+}
+
+Chef_elements
+Mcmlens_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    double beta_e = lattice_element.get_double_attribute("ebeta");
+    double beta_p = lattice_element.get_lattice().get_reference_particle().get_beta();
+    double radius = lattice_element.get_double_attribute("radius");
+    double length = lattice_element.get_double_attribute("l");
+    double j0 = lattice_element.get_double_attribute("j0");
+
+    double km = j0 * length * (1.0 - beta_e*beta_p)/(2*brho*beta_e*beta_p*pconstants::epsilon0*pow(pconstants::c, 2));
+
+    McMLensPtr mcmlensptr(new McMLens(lattice_element.get_name().c_str(), length, km, radius));
+
+    retval.push_back(mcmlensptr);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Mcmlens_madx_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Mcmlens_madx_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Mcmlens_madx_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Mcmlens_madx_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Mcmlens_madx_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Mcmlens_madx_adaptor::~Mcmlens_madx_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Mcmlens_madx_adaptor)
+/****************************************************************/
