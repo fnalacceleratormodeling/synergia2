@@ -44,7 +44,7 @@ namespace solenoid_impl
     };
 
     template<class BunchT, kf_t<typename BunchT::gsv_t> KF>
-    void apply_edge_kick(Bunch& bunch, ParticleGroup pg, double kse)
+    void apply_edge_kick(BunchT& bunch, ParticleGroup pg, double kse)
     {
         if(!bunch.get_local_num(pg)) return;
 
