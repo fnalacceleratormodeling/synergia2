@@ -6,6 +6,7 @@
 #include "synergia/libFF/ff_quadrupole.h"
 #include "synergia/libFF/ff_multipole.h"
 #include "synergia/libFF/ff_sextupole.h"
+#include "synergia/libFF/ff_octupole.h"
 
 namespace FF_element
 {
@@ -22,6 +23,8 @@ namespace FF_element
 
         case element_type::multipole:  FF_multipole::apply(slice, b); break;
         case element_type::sextupole:  FF_sextupole::apply(slice, b); break;
+        case element_type::octupole:   FF_octupole::apply(slice, b); break;
+
 #if 0
         case element_type::rfcavity:   FF_rfcavity::apply(slice, b); break;
 
@@ -30,7 +33,6 @@ namespace FF_element
         case element_type::kicker:     FF_kicker::apply(slice, b); break;
 
 
-        case element_type::octupole:   FF_octupole::apply(slice, b); break;
 
         case element_type::nllens:     FF_nllens::apply(slice, b); break;
         case element_type::solenoid:   FF_solenoid::apply(slice, b); break;
