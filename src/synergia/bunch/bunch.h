@@ -37,6 +37,7 @@ public:
     using PG = ParticleGroup;
     using LB = LongitudinalBoundary;
 
+    using part_t = PART;
     using bp_t = bunch_particles_t<PART>;
     using gsv_t = typename bp_t::gsv_t;
 
