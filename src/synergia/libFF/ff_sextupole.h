@@ -65,10 +65,12 @@ namespace FF_sextupole
             double mass = bunch.get_mass();
 
             // yoshida steps
-            int steps = (int)slice.get_lattice_element()
-                .get_double_attribute("yoshida_steps", 4.0);
+            int steps = (int)element.get_double_attribute(
+                    "yoshida_steps", 4.0);
 
-            double ref_cdt = pp::get_reference_cdt_yoshida(ref_l, length, k, steps);
+            // reference cdt
+            double ref_cdt = pp::get_reference_cdt_yoshida(
+                    ref_l, length, k, steps);
 
             // propagate
             pp::apply_yoshida_kick(bunch, ParticleGroup::regular,

@@ -642,7 +642,7 @@ namespace FF_algorithm
     template <typename T>
     KOKKOS_INLINE_FUNCTION
     void thin_kicker_unit
-      (T const& x, T& xp, T const& y, T& yp, T const&, double const * kL)
+      (T& xp, T& yp, double const * kL)
     {
         xp = xp + T(kL[0]);
         yp = yp + T(kL[1]);
