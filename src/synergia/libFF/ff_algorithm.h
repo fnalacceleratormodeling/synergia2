@@ -687,9 +687,9 @@ namespace FF_algorithm
         double       mhp_relative_strength = 1.0;
         double       mhp_phase_shift       = 0.0;
 
-        double phase_slip_argument = ( cdt * w_rf / pconstants::c ) + anh_phase;
+        T phase_slip_argument = ( cdt * T(w_rf / pconstants::c) ) + T(anh_phase);
 
-        double strength_factor = 0.0;
+        T strength_factor(0.0);
 
         for (int i=0; i<nh; ++i)
         {
@@ -697,19 +697,20 @@ namespace FF_algorithm
             mhp_relative_strength = mhp[i*3+1];
             mhp_phase_shift       = mhp[i*3+2];
 
-            strength_factor += mhp_relative_strength *
-                sin( mhp_harmonic_multiple * (phi_s + phase_slip_argument) + mhp_phase_shift );
+            strength_factor = strength_factor + T(mhp_relative_strength) *
+                sin( T(mhp_harmonic_multiple) * 
+                        (T(phi_s) + phase_slip_argument) + T(mhp_phase_shift) );
         }
 
-        double p = old_ref_p * (dpop + 1.0);
-        double E = sqrt(p * p + m * m);
+        T p = T(old_ref_p) * (dpop + T(1.0));
+        T E = sqrt(p * p + T(m * m));
 
-        E += volt * strength_factor;
+        E = E + T(volt) * strength_factor;
 
-        px *= old_ref_p / new_ref_p;
-        py *= old_ref_p / new_ref_p;
+        px = px * T(old_ref_p / new_ref_p);
+        py = py * T(old_ref_p / new_ref_p);
 
-        dpop = sqrt((E-m)*(E+m)) / new_ref_p - 1.0;
+        dpop = sqrt((E-T(m))*(E+T(m))) / T(new_ref_p) - T(1.0);
     }
 
 
