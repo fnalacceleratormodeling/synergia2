@@ -8,9 +8,10 @@
 #include "synergia/libFF/ff_sextupole.h"
 #include "synergia/libFF/ff_octupole.h"
 #include "synergia/libFF/ff_kicker.h"
-//#include "synergia/libFF/ff_nllens.h"
 #include "synergia/libFF/ff_solenoid.h"
 #include "synergia/libFF/ff_rfcavity.h"
+//#include "synergia/libFF/ff_elens.h"
+//#include "synergia/libFF/ff_nllens.h"
 
 namespace FF_element
 {
@@ -35,10 +36,8 @@ namespace FF_element
 
         case element_type::solenoid:   FF_solenoid::apply(slice, b); break;
         case element_type::rfcavity:   FF_rfcavity::apply(slice, b); break;
-#if 0
-        case element_type::elens:      FF_elens::apply(slice, b); break;
-        case element_type::nllens:     FF_nllens::apply(slice, b); break;
-#endif
+        //case element_type::elens:      FF_elens::apply(slice, b); break;
+        //case element_type::nllens:     FF_nllens::apply(slice, b); break;
 
         case element_type::monitor:    FF_drift::apply(slice, b); break;
         case element_type::hmonitor:   FF_drift::apply(slice, b); break;
@@ -47,10 +46,8 @@ namespace FF_element
         case element_type::instrument: FF_drift::apply(slice, b); break;
         case element_type::rcollimator:FF_drift::apply(slice, b); break;
 
-#if 0
         default: 
             throw std::runtime_error("FF_element::apply() unknown element");
-#endif
         }
     }
 
