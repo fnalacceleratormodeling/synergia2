@@ -842,49 +842,54 @@ namespace FF_algorithm
     }
 
 
+    template<class T>
     KOKKOS_INLINE_FUNCTION
     void solenoid_unit
-        (double & x, double & xp, double & y, double & yp, double & cdt, double & dpop,
+        (T& x, T& xp, T& y, T& yp, T& cdt, T const& dpop,
          double ks, double ksl, double length, double ref_p, double mass, double ref_cdt)
     {
-        double p2 = (1.0 + dpop) * (1.0 + dpop);
-        double zp = sqrt(p2 - xp*xp - yp*yp);
-        double dtheta = ksl / zp;
+        T uni(1.0);
 
-        double sn = sin(dtheta);
-        double cs = cos(dtheta);
+        T p2 = (uni + dpop) * (uni + dpop);
+        T zp = sqrt(p2 - xp*xp - yp*yp);
+        T dtheta = T(ksl) / zp;
 
-        double xpi = xp;
-        double ypi = yp;
+        T sn = sin(dtheta);
+        T cs = cos(dtheta);
+
+        T xpi = xp;
+        T ypi = yp;
 
         xp =    cs*xpi + sn*ypi;
         yp = (-sn)*xpi + cs*ypi;
 
-        cs -= 1.0;
+        cs = cs - uni;
 
-        x += (    cs * (-ypi) + sn * xpi ) / ks;
-        y += ( (-sn) * (-ypi) + cs * xpi ) / ks;
+        x = x + (    cs * (-ypi) + sn * xpi ) / T(ks);
+        y = y + ( (-sn) * (-ypi) + cs * xpi ) / T(ks);
 
-        double en = sqrt(p2 * ref_p * ref_p + mass * mass);
-        double duration = length / (zp * ref_p / en );
+        T en = sqrt(p2 * T(ref_p) * T(ref_p) + T(mass) * T(mass));
+        T duration = T(length) / (zp * T(ref_p) / en );
 
-        cdt += duration - ref_cdt;
+        cdt = cdt + duration - T(ref_cdt);
     }
 
+    template<class T>
     KOKKOS_INLINE_FUNCTION
     void solenoid_in_edge_kick
-        (double const & x, double & xp, double const & y, double & yp, double kse)
+        (T const & x, T& xp, T const & y, T& yp, double kse)
     {
-        xp += kse * y;
-        yp -= kse * x;
+        xp = xp + T(kse) * y;
+        yp = yp - T(kse) * x;
     }
 
+    template<class T>
     KOKKOS_INLINE_FUNCTION
     void solenoid_out_edge_kick
-        (double const & x, double & xp, double const & y, double & yp, double kse)
+        (T const & x, T& xp, T const & y, T& yp, double kse)
     {
-        xp -= kse * y;
-        yp += kse * x;
+        xp = xp - T(kse) * y;
+        yp = yp + T(kse) * x;
     }
 
     // k[6]: 
