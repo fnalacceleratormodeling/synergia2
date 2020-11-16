@@ -2508,7 +2508,7 @@ Mcmlens_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 
     double km = j0 * length * (1.0 - beta_e*beta_p)/(2*brho*beta_e*beta_p*pconstants::epsilon0*pow(pconstants::c, 2));
 
-    McMLensPtr mcmlensptr(new McMLens(lattice_element.get_name().c_str(), length, km, radius));
+    McMLensPtr mcmlensptr(new McMLens(lattice_element.get_name().c_str(), km, radius));
 
     retval.push_back(mcmlensptr);
     return retval;
