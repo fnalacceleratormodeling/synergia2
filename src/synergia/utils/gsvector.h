@@ -118,6 +118,20 @@ template<class T>
 bool operator< (Vec<T> const& lhs, double rhs)
 { return lhs.data < rhs; }
 
+template<class T>
+bool operator> (Vec<T> const& lhs, double rhs)
+{ return lhs.data > rhs; }
+
+template<class T>
+bool operator<= (Vec<T> const& lhs, double rhs)
+{ return lhs.data <= rhs; }
+
+template<class T>
+bool operator>= (Vec<T> const& lhs, double rhs)
+{ return lhs.data >= rhs; }
+
+
+
 // expression classes
 template <typename E1, typename E2, class T, class E = void>
 struct VecAdd : public VecExpr<VecAdd<E1, E2, T>, T>

@@ -176,14 +176,19 @@ public:
     }
 
     bool operator== (double rhs) const
-    {
-        return value() == rhs;
-    }
+    { return value() == rhs; }
 
     bool operator< (double rhs) const
-    {
-        return value() < rhs;
-    }
+    { return value() < rhs; }
+
+    bool operator> (double rhs) const
+    { return value() > rhs; }
+
+    bool operator<= (double rhs) const
+    { return value() <= rhs; }
+
+    bool operator>= (double rhs) const
+    { return value() >= rhs; }
 
     Trigon<T, Power, Dim>& operator+=(Trigon<T, Power, Dim> const& t)
     {
