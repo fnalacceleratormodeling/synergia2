@@ -182,6 +182,10 @@ target_link_libraries(test_wake_field synergia_collective synergia
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_wake_field COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_wake_field>)
 
+add_test(NAME test_space_charge_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_space_charge.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_space_charge.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/wake_files
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
