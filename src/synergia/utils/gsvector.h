@@ -60,6 +60,8 @@ struct VecExpr
 template<class T>
 struct Vec : public VecExpr<Vec<T>, T>
 {
+    using data_t = T;
+
     T data;
 
     KOKKOS_INLINE_FUNCTION
@@ -108,6 +110,13 @@ struct Vec : public VecExpr<Vec<T>, T>
 #endif
 };
 
+template<class T>
+bool operator== (Vec<T> const& lhs, double rhs)
+{ return lhs.data == rhs; }
+
+template<class T>
+bool operator< (Vec<T> const& lhs, double rhs)
+{ return lhs.data < rhs; }
 
 // expression classes
 template <typename E1, typename E2, class T, class E = void>
@@ -236,6 +245,19 @@ struct VecLog: public VecExpr<VecLog<E, T>, T>
 };
 
 template <typename E, class T>
+struct VecExp: public VecExpr<VecExp<E, T>, T>
+{
+    E const& _u;
+
+    KOKKOS_INLINE_FUNCTION
+    VecExp(VecExpr<E, T> const& u) : _u(u) { }
+
+    KOKKOS_INLINE_FUNCTION
+    typename VecExpr<VecExp<E, T>, T>::vec_t cal() const 
+    { return exp(_u.cal()); }
+};
+
+template <typename E, class T>
 struct VecSin: public VecExpr<VecSin<E, T>, T>
 {
     E const& _u;
@@ -332,6 +354,12 @@ KOKKOS_INLINE_FUNCTION
 VecLog<E, T> const
 log (VecExpr<E, T> const & u)
 { return VecLog<E, T>(u); }
+
+template <typename E, class T>
+KOKKOS_INLINE_FUNCTION
+VecExp<E, T> const
+exp (VecExpr<E, T> const & u)
+{ return VecExp<E, T>(u); }
 
 template <typename E, class T>
 KOKKOS_INLINE_FUNCTION
