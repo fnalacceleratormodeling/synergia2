@@ -11,7 +11,7 @@
 #include "synergia/libFF/ff_solenoid.h"
 #include "synergia/libFF/ff_rfcavity.h"
 #include "synergia/libFF/ff_elens.h"
-//#include "synergia/libFF/ff_nllens.h"
+#include "synergia/libFF/ff_nllens.h"
 
 namespace FF_element
 {
@@ -37,7 +37,7 @@ namespace FF_element
         case element_type::solenoid:   FF_solenoid::apply(slice, b); break;
         case element_type::rfcavity:   FF_rfcavity::apply(slice, b); break;
         case element_type::elens:      FF_elens::apply(slice, b); break;
-        //case element_type::nllens:     FF_nllens::apply(slice, b); break;
+        case element_type::nllens:     FF_nllens::apply(slice, b); break;
 
         case element_type::monitor:    FF_drift::apply(slice, b); break;
         case element_type::hmonitor:   FF_drift::apply(slice, b); break;

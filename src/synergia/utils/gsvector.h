@@ -310,6 +310,19 @@ struct VecAsin : public VecExpr<VecAsin<E, T>, T>
     { return asin(_u.cal()); }
 };
 
+template <typename E, class T>
+struct VecAtan : public VecExpr<VecAtan<E, T>, T>
+{
+    E const& _u;
+
+    KOKKOS_INLINE_FUNCTION
+    VecAtan(VecExpr<E, T> const& u) : _u(u) { }
+
+    KOKKOS_INLINE_FUNCTION
+    typename VecExpr<VecAtan<E, T>, T>::vec_t cal() const 
+    { return atan(_u.cal()); }
+};
+
 // overload operators
 //
 
@@ -392,6 +405,13 @@ KOKKOS_INLINE_FUNCTION
 VecAsin<E, T> const
 asin (VecExpr<E, T> const & u)
 { return VecAsin<E, T>(u); }
+
+template <typename E, class T>
+KOKKOS_INLINE_FUNCTION
+VecAtan<E, T> const
+atan (VecExpr<E, T> const & u)
+{ return VecAtan<E, T>(u); }
+
 
 // specialization for different platforms
 //

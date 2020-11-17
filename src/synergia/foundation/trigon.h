@@ -1096,6 +1096,57 @@ asin(Trigon<T, Power, Dim> const& t)
 
 template <typename T>
 Derivatives_t<T>
+atan_derivatives(T x, unsigned int power)
+{
+    throw std::runtime_error("atan(trigon t) yet to be implemented");
+
+#if 0
+    Derivatives_t<T> retval;
+    retval[0] = std::atan(x);
+    T x2(x * x);
+    T invsqrt1mx2(1.0 / std::sqrt(1 - x2));
+    if (power > 0) {
+        retval[1] = invsqrt1mx2;
+    }
+    if (power > 1) {
+        retval[2] = qpow(invsqrt1mx2, 3) * x;
+    }
+    if (power > 2) {
+        retval[3] = 2 * qpow(invsqrt1mx2, 5) * x2 + qpow(invsqrt1mx2, 5);
+    }
+    if (power > 3) {
+        retval[4] =
+            6 * qpow(invsqrt1mx2, 7) * x * x2 + 9 * qpow(invsqrt1mx2, 7) * x;
+    }
+    if (power > 4) {
+        retval[5] = 24 * qpow(invsqrt1mx2, 9) * qpow(x2, 2) +
+                    72 * qpow(invsqrt1mx2, 9) * x2 + 9 * qpow(invsqrt1mx2, 9);
+    }
+    if (power > 5) {
+        retval[6] = 120 * qpow(invsqrt1mx2, 11) * x * qpow(x2, 2) +
+                    600 * qpow(invsqrt1mx2, 11) * x * x2 +
+                    225 * qpow(invsqrt1mx2, 11) * x;
+    }
+    if (power > 6) {
+        retval[7] = 720 * qpow(invsqrt1mx2, 13) * qpow(x2, 3) +
+                    5400 * qpow(invsqrt1mx2, 13) * qpow(x2, 2) +
+                    4050 * qpow(invsqrt1mx2, 13) * x2 +
+                    225 * qpow(invsqrt1mx2, 13);
+    }
+    return retval;
+#endif
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+Trigon<T, Power, Dim>
+atan(Trigon<T, Power, Dim> const& t)
+{
+    return generic_transcendental(t, atan_derivatives(t.value(), Power));
+}
+
+
+template <typename T>
+Derivatives_t<T>
 log_derivatives(T x, unsigned int power)
 {
     Derivatives_t<T> retval;

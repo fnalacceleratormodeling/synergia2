@@ -780,23 +780,25 @@ namespace FF_algorithm
         }
     }
 
+    template<class T>
     KOKKOS_INLINE_FUNCTION
     void nllens_unit
-        (double const& x, double & xp, double const& y, double & yp, double const&, double const* k)
+        (T const& x, T& xp, T const& y, T& yp, T const&, double const* k)
     {
-        const double icnll = k[0];
-        const double kick = k[1];
+        const T icnll = T(k[0]);
+        const T kick = T(k[1]);
 
-        double xbar = x * icnll;
-        double ybar = y * icnll;
+        T xbar = x * icnll;
+        T ybar = y * icnll;
 
-        if (ybar == 0 && fabs(xbar) >= 1.0)
+        if (ybar == 0 && (xbar >= 1.0 || xbar <= -1.0))
         {
             xp = quiet_nan();
             yp = quiet_nan();
             return;
         }
 
+#if 0
         Kokkos::complex<double> c_i(0.0, 1.0);
         Kokkos::complex<double> c_1(1.0, 0.0);
 
@@ -819,11 +821,63 @@ namespace FF_algorithm
         // keep working on the rest
         Kokkos::complex<double> dF = zeta/(croot*croot) + carcsin/(croot*croot*croot);
 
-        double dpx = kick * dF.real();
-        double dpy = -kick * dF.imag();
+        T dpx = kick * dF.real();
+        T dpy = -kick * dF.imag();
 
-        xp += dpx;
-        yp += dpy;
+        xp = xp + dpx;
+        yp = yp + dpy;
+#endif
+
+        T zeta_r = xbar;
+        T zeta_i = ybar;
+
+        // c = c_1 - zeta*zeta
+        T c_r =  T(1.0) - zeta_r * zeta_r + zeta_i * zeta_i;
+        T c_i = -T(2.0) * zeta_r * zeta_i;
+
+        // croot = sqrt(c);
+        T croot_r = sqrt(T(0.5) * ( c_r + sqrt(c_r*c_r + c_i*c_i)));
+        T croot_i = sqrt(T(0.5) * (-c_r + sqrt(c_r*c_r + c_i*c_i)));
+
+        // co = c_i * zeta + croot
+        T co_r = croot_r - zeta_i;
+        T co_i = croot_i + zeta_r;
+
+        T r = sqrt(co_r*co_r + co_i*co_i);
+
+        T theta = (co_r>0) 
+            ? atan(co_i/co_r) + T(0.0)
+            : atan(co_i/co_r) + T(mconstants::pi);
+
+        // log(co)
+        T logco_r = log(r);
+        T logco_i = theta;
+
+        // carcsin = -c_i * log(co)
+        T carcsin_r = logco_i;
+        T carcsin_i = -logco_r;
+
+        // cr2 = croot * croot
+        T cr2_r = croot_r * croot_r - croot_i * croot_i;
+        T cr2_i = T(2.0) * croot_r * croot_i;
+
+        // df1 = zeta/cr2
+        T df1_r = (cr2_r*zeta_r+cr2_i*zeta_i) / (cr2_r*cr2_r+cr2_i*cr2_i);
+        T df1_i = (cr2_r*zeta_i-cr2_i*zeta_r) / (cr2_r*cr2_r+cr2_i*cr2_i);
+
+        // df2 = carcsin/cr2
+        T df2_r = (cr2_r*carcsin_r+cr2_i*carcsin_i) / (cr2_r*cr2_r+cr2_i*cr2_i);
+        T df2_i = (cr2_r*carcsin_i-cr2_i*carcsin_r) / (cr2_r*cr2_r+cr2_i*cr2_i);
+
+        // df = df1 + df2
+        T df_r = df1_r + df2_r;
+        T df_i = df1_i + df2_i;
+
+        T dpx =  kick * df_r;
+        T dpy = -kick * df_i;
+
+        xp = xp + dpx;
+        yp = yp + dpy;
     }
 
     template <typename T>

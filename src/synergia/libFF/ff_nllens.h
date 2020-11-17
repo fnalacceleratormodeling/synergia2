@@ -8,14 +8,6 @@
 
 namespace FF_nllens
 {
-    template<class BunchT,
-        typename std::enable_if<BunchT::part_t::is_trigon>::type* = nullptr>
-    void apply(Lattice_element_slice const& slice, BunchT& bunch)
-    { 
-        throw std::runtime_error(
-                "propagate trigon bunch for non-linear lens is not implemented");
-    }
-
     template<class BunchT>
     void apply(Lattice_element_slice const& slice, BunchT& bunch)
     {
@@ -32,8 +24,13 @@ namespace FF_nllens
         const double kick = -knll * icnll;
         const double k[2] = {icnll, kick};
 
-        using pp = FF_patterned_propagator<BunchT,
-              FF_algorithm::nllens_unit, FF_algorithm::nllens_unit>;
+        using gsv_t = typename std::conditional<
+            std::is_floating_point<typename BunchT::part_t>::value,
+            Vec<double>, typename BunchT::gsv_t>::type;
+
+        using pp = FF_patterned_propagator<BunchT, gsv_t,
+              FF_algorithm::nllens_unit<gsv_t>, 
+              FF_algorithm::nllens_unit<double> >;
 
         Reference_particle & ref = bunch.get_design_reference_particle();
         pp::get_reference_cdt_zero(ref, k);
