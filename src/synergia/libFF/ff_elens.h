@@ -59,11 +59,13 @@ namespace FF_elens
             beta_b, gamma_b, beta_e, current_over_e, length, radius
         };
 
-        using gsv_t = typename BunchT::gsv_t;
+        using gsv_t = typename std::conditional<
+            std::is_floating_point<typename BunchT::part_t>::value,
+            Vec<double>, typename BunchT::gsv_t>::type;
 
         if (gaussian)
         {
-            using pp = FF_patterned_propagator<BunchT, 
+            using pp = FF_patterned_propagator<BunchT, gsv_t,
                   FF_algorithm::elens_kick_gaussian<gsv_t>, 
                   FF_algorithm::elens_kick_gaussian<double> >;
 
@@ -88,7 +90,7 @@ namespace FF_elens
         }
         else
         {
-            using pp = FF_patterned_propagator<BunchT, 
+            using pp = FF_patterned_propagator<BunchT, gsv_t,
                   FF_algorithm::elens_kick_uniform<gsv_t>, 
                   FF_algorithm::elens_kick_uniform<double> >;
 

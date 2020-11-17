@@ -51,7 +51,8 @@ namespace FF_kicker
         double sk[2] = {b_hk, b_vk};
 
         using gsv_t = typename BunchT::gsv_t;
-        using pp = FF_patterned_propagator<BunchT, kick<gsv_t>, kick<double>>;
+        using pp = FF_patterned_propagator<BunchT, gsv_t,
+              kick<gsv_t>, kick<double>>;
 
         if ( close_to_zero(length) )
         {

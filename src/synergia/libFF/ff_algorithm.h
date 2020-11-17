@@ -896,73 +896,82 @@ namespace FF_algorithm
     // k[6]: 
     // k[0] = beta_b, k[1] = gamma_b, k[2] = beta_e, 
     // k[3] = ioe,    k[4] = l,       k[5] = radius
+    template<class T>
     KOKKOS_INLINE_FUNCTION
     void elens_kick_gaussian
-        (double const& x, double& xp, double const& y, double& yp, double const& dpop, double const* k)
+        (T const& x, T& xp, T const& y, T& yp, T const& dpop, double const* k)
     {
-        const double small_radius = 1.0e-10;
-        double r = sqrt( x * x + y * y );
+        const double small_radius(1.0e-10);
+        T r = sqrt( x * x + y * y );
 
         // no kick at r = 0.0
         if (r == 0.0) return;
 
-        const double beta_b  = k[0];
-        const double gamma_b = k[1];
-        const double beta_e  = k[2];
-        const double ioe     = k[3];
-        const double l       = k[4];
-        const double radius  = k[5];
+        const T t1(1.0);
+        const T t2(2.0);
+        const T t4(4.0);
+        const T t6(6.0);
+        const T t8(8.0);
 
-        double betagamma_p = (1.0 + dpop) * beta_b * gamma_b;
-        double beta_p = betagamma_p / sqrt(1.0 + betagamma_p * betagamma_p);
+        const T beta_b  = k[0];
+        const T gamma_b = k[1];
+        const T beta_e  = k[2];
+        const T ioe     = k[3];
+        const T l       = k[4];
+        const T radius  = k[5];
 
-        double factors = -2.0 * ioe * l * pconstants::rp * 
-            (1.0 + beta_e * beta_p) / (beta_e * beta_p * beta_b * gamma_b * pconstants::c);
+        T betagamma_p = (t1 + dpop) * beta_b * gamma_b;
+        T beta_p = betagamma_p / sqrt(t1 + betagamma_p * betagamma_p);
 
-        double kick = 0.0;
+        T factors = -t2 * ioe * l * T(pconstants::rp) * 
+            (t1 + beta_e * beta_p) / (beta_e * beta_p * beta_b * gamma_b * T(pconstants::c));
+
+        T kick(0.0);
 
         if (r < small_radius)
         {
-            kick = factors * ( r / (2.0 * radius * radius) - 
-                    (1.0 / 2.0) * ((r*r*r) / (4*radius*radius*radius*radius)) +
-                    (1.0 / 6.0) * ((r*r*r*r*r) / (8*radius*radius*radius*radius*radius*radius)) );
+            kick = factors * ( r / (t2 * radius * radius) - 
+                    (t1 / t2) * ((r*r*r) / (t4*radius*radius*radius*radius)) +
+                    (t1 / t6) * ((r*r*r*r*r) / (t8*radius*radius*radius*radius*radius*radius)) );
         }
         else
         {
-            kick = factors * (1.0 - exp( - r * r / (2.0 * radius * radius))) / r;
+            kick = factors * (t1 - exp( - r * r / (t2 * radius * radius))) / r;
         }
 
-        xp += kick * x / r;
-        yp += kick * y / r;
+        xp = xp + kick * x / r;
+        yp = yp + kick * y / r;
     }
 
+    template<class T>
     KOKKOS_INLINE_FUNCTION
     void elens_kick_uniform
-        (double const& x, double& xp, double const& y, double& yp, double const& dpop, double const* k)
+        (T const& x, T& xp, T const& y, T& yp, T const& dpop, double const* k)
     {
         //const double small_radius = 1.0e-10;
-        double r = sqrt( x * x + y * y );
+        T r = sqrt( x * x + y * y );
 
         // no kick at r = 0.0
         if (r == 0.0) return;
 
-        const double beta_b  = k[0];
-        const double gamma_b = k[1];
-        const double beta_e  = k[2];
-        const double ioe     = k[3];
-        const double l       = k[4];
-        const double radius  = k[5];
+        const T beta_b  = k[0];
+        const T gamma_b = k[1];
+        const T beta_e  = k[2];
+        const T ioe     = k[3];
+        const T l       = k[4];
+        const T radius  = k[5];
 
-        double betagamma_p = (1.0 + dpop) * beta_b * gamma_b;
-        double beta_p = betagamma_p / sqrt(1.0 + betagamma_p * betagamma_p);
+        T betagamma_p = (T(1.0) + dpop) * beta_b * gamma_b;
+        T beta_p = betagamma_p / sqrt(T(1.0) + betagamma_p * betagamma_p);
 
-        double factors = -2.0 * ioe * l * pconstants::rp * 
-            (1.0 + beta_e * beta_p) / (beta_e * beta_p * beta_b * gamma_b * pconstants::c);
+        T factors = -T(2.0) * ioe * l * T(pconstants::rp) * 
+            (T(1.0) + beta_e * beta_p) / 
+            (beta_e * beta_p * beta_b * gamma_b * T(pconstants::c));
 
-        double kick = factors * r / (radius * radius);
+        T kick = factors * r / (radius * radius);
 
-        xp += kick * x / r;
-        yp += kick * y / r;
+        xp = xp + kick * x / r;
+        yp = yp + kick * y / r;
     }
 
 
