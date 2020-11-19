@@ -118,7 +118,7 @@ namespace solenoid_impl
     }
 
 
-    double get_reference_cdt_solenoid(
+    inline double get_reference_cdt_solenoid(
             double length, Reference_particle & reference_particle,
             bool in_edge, bool out_edge, double ks, double kse, double ksl)
     {

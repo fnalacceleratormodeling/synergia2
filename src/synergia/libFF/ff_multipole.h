@@ -14,7 +14,7 @@ namespace mpole_impl
         double kl[max_order*2];
     };
 
-    void zero_params(MultipoleParams & mp)
+    inline void zero_params(MultipoleParams & mp)
     {
         for(int i=0; i<max_order; ++i)
         {

@@ -464,7 +464,7 @@ namespace sbend_impl
         }
     };
 
-    void prop_reference(
+    inline void prop_reference(
             Reference_particle & ref_l, 
             SbendParams & sp )
     {
@@ -537,7 +537,7 @@ namespace sbend_impl
         sp.ref_cdt = cdt_l;
     }
 
-    void prop_reference_cf(
+    inline void prop_reference_cf(
             Reference_particle & ref_l, 
             SbendParams & sp )
     {

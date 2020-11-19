@@ -157,7 +157,7 @@ namespace quad_impl
     };
 
 
-    double get_reference_cdt(double length, int steps, double * k, Reference_particle &ref)
+    inline double get_reference_cdt(double length, int steps, double * k, Reference_particle &ref)
     {
         if (length == 0)
         {
