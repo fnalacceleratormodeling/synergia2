@@ -2,10 +2,9 @@
 
 #include "synergia/lattice/lattice.h"
 
-
-
 namespace Lattice_simulator
 {
+    constexpr const double default_closed_orbit_tolerance = 1.0e-13;
 
     // Both tune_linear_lattice() and tune_circular_lattice() set the frequency of the 
     // rfcavities based on the momentum of the lattice reference particle.  
@@ -33,4 +32,10 @@ namespace Lattice_simulator
 
     std::array<double, 6> 
     tune_rfcavities(Lattice & lattice);
+
+    // closed orbit
+    std::array<double, 6> 
+    calculate_closed_orbit(Lattice const& lattice, double dpp = 0.0, 
+            double tolerance = default_closed_orbit_tolerance);
+
 }
