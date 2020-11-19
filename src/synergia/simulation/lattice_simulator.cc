@@ -142,7 +142,7 @@ namespace
 }
 
 std::array<double, 6> 
-calculate_closed_orbit(Lattice const& lattice,
+Lattice_simulator::calculate_closed_orbit(Lattice const& lattice,
         double dpp, double tolerance)
 {
     // create params object, make a copy of the lattice
