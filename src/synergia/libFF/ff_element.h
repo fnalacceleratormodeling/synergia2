@@ -1,6 +1,9 @@
 #ifndef FF_ELEMENT_H
 #define FF_ELEMENT_H
 
+#include "synergia/lattice/lattice_element_slice.h"
+#include "synergia/lattice/lattice_element.h"
+
 #include "synergia/libFF/ff_drift.h"
 #include "synergia/libFF/ff_sbend.h"
 #include "synergia/libFF/ff_quadrupole.h"
