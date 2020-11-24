@@ -456,6 +456,12 @@ public:
         get_bunch_particles(PG::spectator).load_checkpoint_particles(file, idx);
     }
 
+    // only for trigon bunches
+    template<class U = PART>
+    std::enable_if_t<U::is_trigon, karray2d_row>
+    get_jacobian(int idx, PG pg = PG::regular) const
+    { return get_bunch_particles(pg).get_jacobian(idx); }
+
 private:
 
     friend class cereal::access;

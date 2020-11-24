@@ -274,6 +274,18 @@ public:
     // assign ids cooperatively
     void assign_ids(int train_idx, int bunch_idx);
 
+    // only available for trigons
+    template<class U = PART>
+    std::enable_if_t<U::is_trigon, karray2d_row>
+    get_jacobian(int idx) const
+    {
+        karray2d_row res("jacobian", 6, 6);
+        for(int i=0; i<6; ++i)
+            for(int j=0; j<6; ++j)
+                res(i,j) = hparts(idx, i).template get_subpower<1>().terms[j];
+        return res;
+    }
+
 private:
 
     void assign_ids(int local_offset, Commxx const& comm);
