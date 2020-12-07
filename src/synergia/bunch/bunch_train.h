@@ -51,6 +51,7 @@ public:
             double num_real_particles_per_bunch,
             double spacing,
             Commxx const & comm = Commxx(),
+            size_t num_spectator_per_bunch = 0,
             int index = 0 );
 
     // Get the communicator

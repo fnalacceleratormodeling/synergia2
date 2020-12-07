@@ -113,6 +113,7 @@ Bunch_train::Bunch_train(
         double num_real_particles_per_bunch,
         double spacing,
         Commxx const & bt_comm,
+        size_t num_spectator_per_bunch,
         int index ) 
 : comm(std::make_shared<Commxx>(bt_comm))
 , bunches()
@@ -175,7 +176,7 @@ Bunch_train::Bunch_train(
                 num_particles_per_bunch,
                 num_real_particles_per_bunch,
                 comm->split(color),
-                0,             // num of specatator particles
+                num_spectator_per_bunch,
                 b_idx,         // bunch index in the train
                 b_idx,         // bucket index set to the same of bunch index
                 a_idx          // array index in the bunches array
