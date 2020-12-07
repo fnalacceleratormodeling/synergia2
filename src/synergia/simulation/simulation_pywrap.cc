@@ -96,7 +96,8 @@ PYBIND11_MODULE(simulation, m)
                 "reference_particle"_a, 
                 "num_particles"_a, 
                 "num_real_particles"_a, 
-                "commxx"_a = Commxx() )
+                "commxx"_a = Commxx(),
+                "num_spectators"_a = 0 )
  
         .def_static( "create_bunch_train_simulator",
                 &Bunch_simulator::create_bunch_train_simulator,
@@ -107,7 +108,8 @@ PYBIND11_MODULE(simulation, m)
                 "num_real_particles"_a, 
                 "num_bunches"_a,
                 "spacing"_a,
-                "commxx"_a = Commxx() )
+                "commxx"_a = Commxx(),
+                "num_spectators"_a = 0 )
         
 #if 0
         .def( "set_turns",

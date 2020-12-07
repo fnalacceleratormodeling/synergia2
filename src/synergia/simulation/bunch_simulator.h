@@ -126,6 +126,7 @@ private:
         construct( Reference_particle const& ref_pri,
                    Reference_particle const& ref_sec,
                    size_t num_part,
+                   size_t num_spec,
                    double num_real_part,
                    size_t num_bunches_pri,
                    size_t num_bunches_sec,
@@ -149,7 +150,8 @@ public:
             Reference_particle const& ref,
             size_t num_particles,
             double num_real_particles,
-            Commxx const& comm = Commxx()
+            Commxx const& comm = Commxx(),
+            size_t num_spectators = 0
             );
 
     static Bunch_simulator 
@@ -159,7 +161,8 @@ public:
             double num_real_particles,
             size_t num_bunches,
             double spacing,
-            Commxx const& comm = Commxx()
+            Commxx const& comm = Commxx(),
+            size_t num_spectators = 0
             );
 
     static Bunch_simulator 
@@ -172,7 +175,8 @@ public:
             size_t num_bunches_sec,
             double spacing_pri,
             double spacing_sec,
-            Commxx const& comm = Commxx()
+            Commxx const& comm = Commxx(),
+            size_t num_spectators = 0
             );
 
     // bunch simulator id
