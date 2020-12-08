@@ -9,7 +9,8 @@
 Diagnostics_bulk_track::Diagnostics_bulk_track(
         std::string const& filename,
         int num_tracks, 
-        int offset )
+        int offset,
+        ParticleGroup pg)
     : Diagnostics("diagnostis_bulk_track", filename, true)
     , total_num_tracks(num_tracks)
     , local_num_tracks(0)
@@ -17,6 +18,7 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(
     , local_offset(0)
     , setup(false)
     , track_coords("local_coords", 0, 0)
+    , pg(pg)
 {
 }
 
@@ -38,8 +40,8 @@ Diagnostics_bulk_track::do_update(Bunch const& bunch)
         local_num_tracks = decompose_1d_local(comm, total_num_tracks);
         local_offset = decompose_1d_local(comm, offset);
 
-        if (local_num_tracks + local_offset > bunch.size()) 
-            local_num_tracks = bunch.size() - local_offset;
+        if (local_num_tracks + local_offset > bunch.size(pg)) 
+            local_num_tracks = bunch.size(pg) - local_offset;
 
         setup = true;
     }
@@ -49,7 +51,8 @@ Diagnostics_bulk_track::do_update(Bunch const& bunch)
     s_n        = ref.get_s_n();
     repetition = ref.get_repetition();
 
-    track_coords = bunch.get_particles_in_range(local_offset, local_num_tracks);
+    track_coords = bunch.get_particles_in_range(
+            local_offset, local_num_tracks, pg);
 }
 
 void
