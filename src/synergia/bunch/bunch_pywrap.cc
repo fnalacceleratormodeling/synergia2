@@ -290,11 +290,12 @@ PYBIND11_MODULE(bunch, m)
 
     py::class_<Diagnostics_bulk_track, Diagnostics, std::shared_ptr<Diagnostics_bulk_track>>(
             m, "Diagnostics_bulk_track")
-        .def( py::init<std::string const&, int, int>(),
+        .def( py::init<std::string const&, int, int, ParticleGroup>(),
                 "Construct a Diagnostics_bulk_track object.",
                 "filename"_a = "diag_bulk_track.h5",
                 "num_tracks"_a = 0,
-                "offset"_a = 0 )
+                "offset"_a = 0,
+                "particlegroup"_a = ParticleGroup::regular )
         ;
 
     py::class_<Diagnostics_particles, Diagnostics, std::shared_ptr<Diagnostics_particles>>(

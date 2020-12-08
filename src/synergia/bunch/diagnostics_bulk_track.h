@@ -2,6 +2,7 @@
 #define DIAGNOSTICS_BULK_TRACK_H_
 
 #include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/bunch.h"
 
 /// Diagnostics_bulk_track records the phase space coordinates of a multiple
 /// particles.
@@ -28,6 +29,8 @@ private:
     double ref_pz;
 
     karray2d_row track_coords;
+
+    ParticleGroup pg;
 
 private:
 
@@ -60,7 +63,8 @@ public:
     Diagnostics_bulk_track(
             std::string const& filename = "diag_bulk_track.h5", 
             int num_tracks = 0, 
-            int offset = 0);
+            int offset = 0,
+            ParticleGroup pg = ParticleGroup::regular);
 
 };
 
