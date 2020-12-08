@@ -108,11 +108,8 @@ install(FILES
     hdf5_chunked_array2d_writer.h
     hdf5_misc.h
     hdf5_file.h
-    hdf5_file.tcc
     hdf5_serial_writer.h
-    hdf5_serial_writer.tcc
     hdf5_writer.h
-    hdf5_writer.tcc
     complex_error_function.h
     multi_array_assert.h
     multi_array_check_equal.h
