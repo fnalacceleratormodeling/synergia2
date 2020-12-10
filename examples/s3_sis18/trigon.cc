@@ -12,6 +12,7 @@ void run()
     Logger screen(0, LoggerV::DEBUG);
 
     auto lsexpr = read_lsexpr_file("sis18-6.lsx");
+    //auto lsexpr = read_lsexpr_file("test.lsx");
     Lattice lattice(lsexpr);
 
     // get the reference particle
@@ -19,6 +20,12 @@ void run()
 
     screen << "reference momentum = " 
         << ref.get_momentum() << " GeV\n";
+
+    // tunes and cdt
+    auto res = Lattice_simulator::calculate_tune_and_cdt(lattice, 0);
+    std::cout << "tune_h = " << res[0] << "\n";
+    std::cout << "tune_v = " << res[1] << "\n";
+    std::cout << "c_delta_t = " << res[2] << "\n";
 
     // closed orbit
     auto probe = Lattice_simulator::calculate_closed_orbit(lattice);
