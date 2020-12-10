@@ -742,7 +742,7 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
 
 #if LIBFF_USE_GSV
         PropSbendSimd<typename BunchT::bp_t> sbend(bp, sp);
-        Kokkos::parallel_for(bp.size()/BunchT::gsv_t::size(), sbend);
+        Kokkos::parallel_for(bp.size_in_gsv(), sbend);
 #else
         PropSbend<typename BunchT::bp_t> sbend(bp, sp);
         Kokkos::parallel_for(bp.size(), sbend);
@@ -758,7 +758,7 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
 
 #if LIBFF_USE_GSV
         PropSbendCFSimd<typename BunchT::bp_t> sbend(bp, sp);
-        Kokkos::parallel_for(bp.size()/BunchT::gsv_t::size(), sbend);
+        Kokkos::parallel_for(bp.size_in_gsv(), sbend);
 #else
         //PropSbendCF<typename BunchT::bp_t> sbend(bp, sp);
         //Kokkos::parallel_for(bp.size(), sbend);
