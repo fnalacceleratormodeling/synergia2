@@ -196,14 +196,14 @@ namespace FF_multipole
 
         // bunch particles
         auto apply = [&](ParticleGroup pg) {
-            int num = bunch.size_in_gsv(pg);
-            if (!num) return;
+            int valid = bunch.get_local_num(pg);
+            if (!valid) return;
 
             auto parts = bunch.get_local_particles(pg);
             auto masks = bunch.get_local_particle_masks(pg);
 
             PropMultipole<typename BunchT::bp_t> multipole{parts, masks, mp};
-            Kokkos::parallel_for(num, multipole);
+            Kokkos::parallel_for(bunch.size_in_gsv(pg), multipole);
         };
 
         apply(ParticleGroup::regular);

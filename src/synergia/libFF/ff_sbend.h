@@ -760,8 +760,8 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
         PropSbendCFSimd<typename BunchT::bp_t> sbend(bp, sp);
         Kokkos::parallel_for(bp.size_in_gsv(), sbend);
 #else
-        //PropSbendCF<typename BunchT::bp_t> sbend(bp, sp);
-        //Kokkos::parallel_for(bp.size(), sbend);
+        PropSbendCF<typename BunchT::bp_t> sbend(bp, sp);
+        Kokkos::parallel_for(bp.size(), sbend);
 #endif
     }
 

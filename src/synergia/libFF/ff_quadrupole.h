@@ -263,14 +263,18 @@ namespace FF_quadrupole
             ref_l.set_state(x, xp, y, yp, 0.0, dpop);
 
             // propagate the bunch particles
-            auto bp = bunch.get_bunch_particles(ParticleGroup::regular);
+            auto apply = [&](ParticleGroup pg) {
+                auto bp = bunch.get_bunch_particles(pg);
+                if (!bp.num_valid()) return;
 
-            PropQuadThin<typename BunchT::bp_t> pqt{ bp.parts, bp.masks, 
-                {k[0], k[1]}, xoff, yoff };
-            Kokkos::parallel_for(bp.size(), pqt);
+                PropQuadThin<typename BunchT::bp_t> pqt{ bp.parts, bp.masks, 
+                    {k[0], k[1]}, xoff, yoff };
+                Kokkos::parallel_for(bp.size(), pqt);
+            };
 
-            // TODO: spectator particles
-            // ...
+            // apply
+            apply(ParticleGroup::regular);
+            apply(ParticleGroup::spectator);
         }
         else
         {
@@ -286,7 +290,7 @@ namespace FF_quadrupole
             // bunch particles
             auto apply = [&](ParticleGroup pg) {
                 auto bp = bunch.get_bunch_particles(pg);
-                if (!bp.size()) return;
+                if (!bp.num_valid()) return;
 
 #if LIBFF_USE_GSV
                 PropQuadSimd<typename BunchT::bp_t> pq(bp, steps, xoff, yoff, 

@@ -159,7 +159,7 @@ struct FF_patterned_propagator
         if(!bunch.get_local_num(pg)) return;
 
         thin_kicker tk(bunch.get_bunch_particles(pg), k);
-        Kokkos::parallel_for(bunch.size(pg)/gsv_t::size(), tk);
+        Kokkos::parallel_for(bunch.size_in_gsv(pg), tk);
     }
 
     static void apply_simple_kick(BUNCH& bunch, ParticleGroup pg,
@@ -173,7 +173,7 @@ struct FF_patterned_propagator
             pref, mass, ref_cdt, len, k
         );
 
-        Kokkos::parallel_for(bunch.size(pg)/gsv_t::size(), sk);
+        Kokkos::parallel_for(bunch.size_in_gsv(pg), sk);
     }
 
 
@@ -194,7 +194,7 @@ struct FF_patterned_propagator
             step_len, step_str, steps 
         );
 
-        Kokkos::parallel_for(bunch.size(pg)/gsv_t::size(), yk);
+        Kokkos::parallel_for(bunch.size_in_gsv(pg), yk);
     }
 
     static void get_reference_cdt_zero(
