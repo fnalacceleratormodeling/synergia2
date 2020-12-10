@@ -38,4 +38,7 @@ namespace Lattice_simulator
     calculate_closed_orbit(Lattice const& lattice, double dpp = 0.0, 
             double tolerance = default_closed_orbit_tolerance);
 
+    // [tune_h, tune_v, c_delta_t]
+    std::array<double, 3>
+    calculate_tune_and_cdt(Lattice const& lattice, double dpp);
 }
