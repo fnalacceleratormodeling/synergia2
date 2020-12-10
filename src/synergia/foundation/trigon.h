@@ -411,6 +411,10 @@ public:
         retval /= val;
         return retval;
     }
+
+    template <typename U, unsigned int P, unsigned int D>
+    friend std::ostream& operator<<(
+            std::ostream& os, Trigon<U, P, D> const& trigon);
 };
 
 template <typename T, unsigned int Dim>
@@ -1169,6 +1173,13 @@ Trigon<T, Power, Dim>
 log(Trigon<T, Power, Dim> const& t)
 {
     return generic_transcendental(t, log_derivatives(t.value(), Power));
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+std::ostream& operator<<(std::ostream& os, Trigon<T, Power, Dim> const& trigon)
+{
+    os << "(trigon)";
+    return os;
 }
 
 #endif // TRIGON_H
