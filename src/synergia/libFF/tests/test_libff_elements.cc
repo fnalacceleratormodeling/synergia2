@@ -76,6 +76,18 @@ TEST_CASE("sbend", "[libFF][Elements]")
     propagate_libff("seq_sbend");
 }
 
+TEST_CASE("drift", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_drift");
+}
+
+TEST_CASE("quadrupole", "[libFF][Elements]")
+{
+    CHECK( true );
+    propagate_libff("seq_quadrupole");
+}
+
 TEST_CASE("sbend cf", "[libFF][Elements]")
 {
     CHECK( true );
