@@ -201,8 +201,8 @@ public:
 
     // getters with names more consistent with std containers
     int size()        const { return n_active; }
-    int size_in_gsv() const { return n_active/gsv_t::size(); }
     int capacity()    const { return n_reserved; }
+    int size_in_gsv() const { return ceil(1.0*n_active/gsv_t::size()); }
 
     // copy particles/masks between host and device memories
     void checkin_particles() const

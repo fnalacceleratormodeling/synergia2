@@ -310,6 +310,13 @@ bunch_particles_t<double>::bunch_particles_t(
         // local_num
         n_valid    = counts_t[mpi_rank];
         n_active   = counts_t[mpi_rank];
+        n_reserved = counts_r[mpi_rank];
+
+        if (n_active % gsv_t::size())
+        {
+            int padded = n_active + gsv_t::size() - n_active%gsv_t::size();
+            if (n_reserved < padded) n_reserved = padded;
+        }
 
         // local_num offset
         poffset = 0;
@@ -322,7 +329,7 @@ bunch_particles_t<double>::bunch_particles_t(
 #else
         auto alloc = Kokkos::view_alloc(label, Kokkos::AllowPadding);
 #endif
-        parts = Particles(alloc, counts_r[mpi_rank]);
+        parts = Particles(alloc, n_reserved);
 
         // with possible paddings
         n_reserved = parts.stride(1);
