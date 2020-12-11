@@ -41,7 +41,8 @@ Lattice_simulator::tune_rfcavities(Lattice & lattice)
     Propagator propagator(temp_lattice, Independent_stepper_elements(1));
 
     // bunch simulator
-    auto sim = Bunch_simulator::create_single_bunch_simulator(ref, 1, 1e09);
+    auto sim = Bunch_simulator::create_single_bunch_simulator(
+            ref, Commxx().size(), 1e09);
 
     // propagate actions
     double accum_cdt = 0.0;
@@ -506,8 +507,11 @@ Lattice_simulator::calculate_tune_and_cdt(Lattice const& lattice, double dpp)
     // trigon bunch
     using trigon_t = Trigon<double, 1, 6>;
 
-    bunch_t<trigon_t> tb(ref);
-    bunch_t<double>   pb(ref, 1, 1e9);
+    // comm world
+    Commxx comm;
+
+    bunch_t<trigon_t> tb(ref, comm.size(), comm);
+    bunch_t<double>   pb(ref, comm.size(), 1e9, comm);
 
     auto tparts = tb.get_host_particles();
     auto pparts = pb.get_host_particles();
