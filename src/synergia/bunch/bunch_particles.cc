@@ -5,46 +5,12 @@
 #include "synergia/utils/parallel_utils.h"
 #include "synergia/utils/hdf5_file.h"
 
+// static init
+namespace bunch_particles_impl
+{ int Particle_id_offset::offset = 0; }
+
 namespace
 {
-    struct Particle_id_offset
-    {
-        static int offset;
-
-        static int get(int request_num, Commxx const& comm)
-        {
-            MPI_Bcast((void *)&offset, 1, MPI_INT, 0, comm);
-            int old_offset = offset;
-            int total_num;
-            MPI_Reduce((void*)&request_num, (void*)&total_num, 1, 
-                    MPI_INT, MPI_SUM, 0, comm);
-            offset += total_num;
-            return old_offset;
-        }
-    };
-
-    int Particle_id_offset::offset = 0;
-
-    struct particle_id_assigner
-    {
-        Particles parts;
-        int64_t offset;
-
-        KOKKOS_INLINE_FUNCTION
-        void operator() (const int i) const
-        { parts(i, 6) = i + offset; }
-    };
-
-    struct particle_masks_initializer
-    {
-        ParticleMasks masks;
-        const int num;
-
-        KOKKOS_INLINE_FUNCTION
-        void operator() (const int i) const
-        { masks(i) = i<num ? 1 : 0; }
-    };
-
     // Kokkos functors
     struct particle_copier_many
     {
@@ -262,95 +228,6 @@ namespace
 
 
 template<>
-void bunch_particles_t<double>::assign_ids(int local_offset, Commxx const& comm)
-{
-    int request_num = (comm.rank() == 0) ? n_total : 0;
-    int global_offset = Particle_id_offset::get(request_num, comm);
-
-    particle_id_assigner pia{parts, local_offset + global_offset};
-    Kokkos::parallel_for(n_active, pia);
-}
-
-template<>
-bunch_particles_t<double>::bunch_particles_t( 
-        ParticleGroup pg,
-        int total, int reserved, 
-        Commxx const& comm)
-    : group(pg)
-    , label(pg==PG::regular ? "particles" : "spectators")
-    , n_valid(0)
-    , n_active(0)
-    , n_reserved(0)
-    , n_total(total)
-    , n_last_discarded(0)
-    , poffset(0)
-    , parts()
-    , masks()
-    , discards()
-    , hparts(Kokkos::create_mirror_view(parts))
-    , hmasks(Kokkos::create_mirror_view(masks))
-    , hdiscards(Kokkos::create_mirror_view(discards))
-{
-    // minimum reserved
-    if (reserved < total) reserved = total;
-
-    if (!comm.is_null() && reserved) 
-    {
-        int mpi_size = comm.size();
-        int mpi_rank = comm.rank();
-
-        std::vector<int> offsets_t(mpi_size);
-        std::vector<int> counts_t(mpi_size);
-        decompose_1d(comm, total, offsets_t, counts_t);
-
-        std::vector<int> offsets_r(mpi_size);
-        std::vector<int> counts_r(mpi_size);
-        decompose_1d(comm, reserved, offsets_r, counts_r);
-
-        // local_num
-        n_valid    = counts_t[mpi_rank];
-        n_active   = counts_t[mpi_rank];
-        n_reserved = counts_r[mpi_rank];
-
-        if (n_active % gsv_t::size())
-        {
-            int padded = n_active + gsv_t::size() - n_active%gsv_t::size();
-            if (n_reserved < padded) n_reserved = padded;
-        }
-
-        // local_num offset
-        poffset = 0;
-        for(int i=0; i<mpi_rank; ++i) 
-            poffset+=counts_t[i];
-
-        // allocate
-#ifdef NO_PADDING
-        auto alloc = Kokkos::view_alloc(label);
-#else
-        auto alloc = Kokkos::view_alloc(label, Kokkos::AllowPadding);
-#endif
-        parts = Particles(alloc, n_reserved);
-
-        // with possible paddings
-        n_reserved = parts.stride(1);
-
-        masks = ParticleMasks(label+"_masks", n_reserved);
-        discards = ParticleMasks(label+"_discards", n_reserved);
-
-        hparts = Kokkos::create_mirror_view(parts);
-        hmasks = Kokkos::create_mirror_view(masks);
-        hdiscards = Kokkos::create_mirror_view(discards);
-
-        // id
-        assign_ids(offsets_t[mpi_rank], comm);
-
-        // valid particles
-        particle_masks_initializer pmi{masks, n_valid};
-        Kokkos::parallel_for(n_reserved, pmi);
-    } 
-}
-
-template<>
 void bunch_particles_t<double>::reserve_local(int r)
 {
     if (r <= n_reserved) return;
@@ -396,6 +273,9 @@ void bunch_particles_t<double>::assign_ids(int train_idx, int bunch_idx)
     base |= (int64_t)train_idx << 50;
     base |= (int64_t)bunch_idx << 34;
     base |= (int64_t)group << 32;
+
+    // particle_id_assigner defined in header
+    using namespace bunch_particles_impl;
 
     particle_id_assigner pia{parts, base+poffset};
     Kokkos::parallel_for(n_active, pia);
@@ -707,6 +587,10 @@ bunch_particles_t<double>::read_file_legacy(Hdf5_file const& file, Commxx const&
     // do the init after checkin because masks_initializer is performed
     // on the device memory
     n_valid = n_active;
+
+    // particle_masks_initializer defined in header
+    using namespace bunch_particles_impl;
+
     particle_masks_initializer pmi{masks, n_valid};
     Kokkos::parallel_for(n_reserved, pmi);
 }

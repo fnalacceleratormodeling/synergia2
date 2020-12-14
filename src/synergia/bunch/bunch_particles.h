@@ -186,13 +186,6 @@ public:
             int reserved_num, 
             Commxx const& comm );
 
-    // constructor for trigon particles
-    template<typename U = PART>
-    bunch_particles_t(
-            int total_num,
-            Commxx const& comm, 
-            typename std::enable_if<U::is_trigon>::type* = 0);
-
     int num_valid()          const { return n_valid; }
     int num_active()         const { return n_active; }
     int num_reserved()       const { return n_reserved; }
@@ -288,7 +281,8 @@ public:
 
 private:
 
-    void assign_ids(int local_offset, Commxx const& comm);
+    void default_ids(int local_offset, Commxx const& comm)
+    { }
 
     // serialization
     friend class cereal::access;
@@ -380,30 +374,141 @@ inline int bunch_particles_t<double>::apply_aperture(AP const& ap)
     return ndiscarded;
 }
 
+#include "synergia/utils/parallel_utils.h"
+
+namespace bunch_particles_impl
+{
+    struct Particle_id_offset
+    {
+        static int offset;
+
+        static int get(int request_num, Commxx const& comm)
+        {
+            MPI_Bcast((void *)&offset, 1, MPI_INT, 0, comm);
+            int old_offset = offset;
+            int total_num;
+            MPI_Reduce((void*)&request_num, (void*)&total_num, 1, 
+                    MPI_INT, MPI_SUM, 0, comm);
+            offset += total_num;
+            return old_offset;
+        }
+    };
+
+    struct particle_id_assigner
+    {
+        Particles parts;
+        int64_t offset;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { parts(i, 6) = i + offset; }
+    };
+
+    struct particle_masks_initializer
+    {
+        ParticleMasks masks;
+        const int num;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator() (const int i) const
+        { masks(i) = i<num ? 1 : 0; }
+    };
+}
+
+// default ids only for double typed bunche_particle object
+template<>
+inline void 
+bunch_particles_t<double>::default_ids(int local_offset, Commxx const& comm)
+{
+    using namespace bunch_particles_impl;
+
+    int request_num = (comm.rank() == 0) ? n_total : 0;
+    int global_offset = Particle_id_offset::get(request_num, comm);
+
+    particle_id_assigner pia{parts, local_offset + global_offset};
+    Kokkos::parallel_for(n_active, pia);
+}
 
 template<typename PART>
-template<typename U>
-inline bunch_particles_t<PART>::bunch_particles_t(
-        int total_num,
-        Commxx const& comm,
-        typename std::enable_if<U::is_trigon>::type*)
-    : group(PG::regular)
-    , label("trigons")
-    , n_valid((!comm.is_null() && comm.rank() == 0) ? total_num : 0)
-    , n_active(n_valid)
-    , n_reserved(n_valid)
-    , n_total(n_valid)
+inline 
+bunch_particles_t<PART>::bunch_particles_t( 
+        ParticleGroup pg,
+        int total, int reserved, 
+        Commxx const& comm)
+    : group(pg)
+    , label(pg==PG::regular ? "particles" : "spectators")
+    , n_valid(0)
+    , n_active(0)
+    , n_reserved(0)
+    , n_total(total)
     , n_last_discarded(0)
     , poffset(0)
-    , parts(parts_t("trigon", n_reserved))
-    , masks(ParticleMasks("trigon_masks", n_reserved))
+    , parts()
+    , masks()
     , discards()
     , hparts(Kokkos::create_mirror_view(parts))
     , hmasks(Kokkos::create_mirror_view(masks))
-    , hdiscards()
+    , hdiscards(Kokkos::create_mirror_view(discards))
 {
-    for(int i=0; i<n_valid; ++i) hmasks(i) = 1;
-    Kokkos::deep_copy(masks, hmasks);
+    using namespace bunch_particles_impl;
+
+    // minimum reserved
+    if (reserved < total) reserved = total;
+
+    if (!comm.is_null() && reserved) 
+    {
+        int mpi_size = comm.size();
+        int mpi_rank = comm.rank();
+
+        std::vector<int> offsets_t(mpi_size);
+        std::vector<int> counts_t(mpi_size);
+        decompose_1d(comm, total, offsets_t, counts_t);
+
+        std::vector<int> offsets_r(mpi_size);
+        std::vector<int> counts_r(mpi_size);
+        decompose_1d(comm, reserved, offsets_r, counts_r);
+
+        // local_num
+        n_valid    = counts_t[mpi_rank];
+        n_active   = counts_t[mpi_rank];
+        n_reserved = counts_r[mpi_rank];
+
+        if (n_active % gsv_t::size())
+        {
+            int padded = n_active + gsv_t::size() - n_active%gsv_t::size();
+            if (n_reserved < padded) n_reserved = padded;
+        }
+
+        // local_num offset
+        for(int i=0; i<mpi_rank; ++i) 
+            poffset += counts_t[i];
+
+        // allocate
+#ifdef NO_PADDING
+        auto alloc = Kokkos::view_alloc(label);
+#else
+        auto alloc = Kokkos::view_alloc(label, Kokkos::AllowPadding);
+#endif
+        parts = parts_t(alloc, n_reserved);
+
+        // with possible paddings
+        n_reserved = parts.stride(1);
+
+        masks = ParticleMasks(label+"_masks", n_reserved);
+        discards = ParticleMasks(label+"_discards", n_reserved);
+
+        hparts = Kokkos::create_mirror_view(parts);
+        hmasks = Kokkos::create_mirror_view(masks);
+        hdiscards = Kokkos::create_mirror_view(discards);
+
+        // set default ids
+        default_ids(offsets_t[mpi_rank], comm);
+
+        // valid particles
+        particle_masks_initializer pmi{masks, n_valid};
+        Kokkos::parallel_for(n_reserved, pmi);
+    } 
 }
+
 
 #endif

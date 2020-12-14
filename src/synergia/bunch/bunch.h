@@ -533,8 +533,8 @@ inline bunch_t<PART>::bunch_t(
   , design_ref_part(reference_particle)
   , particle_charge(reference_particle.get_charge())
   , real_num(1.0)
-  , parts{ bunch_particles_t<PART>(total_num, *comm),
-           bunch_particles_t<PART>(0, *comm) }
+  , parts{ bunch_particles_t<PART>(PG::regular, total_num, -1, *comm),
+           bunch_particles_t<PART>(PG::spectator, 0, -1, *comm) }
   , bunch_index(0)
   , bucket_index(0)
   , array_index(0)
