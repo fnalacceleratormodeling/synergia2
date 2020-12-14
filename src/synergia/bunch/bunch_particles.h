@@ -281,8 +281,7 @@ public:
 
 private:
 
-    void default_ids(int local_offset, Commxx const& comm)
-    { }
+    void default_ids(int local_offset, Commxx const& comm);
 
     // serialization
     friend class cereal::access;
@@ -378,7 +377,7 @@ inline int bunch_particles_t<double>::apply_aperture(AP const& ap)
 
 namespace bunch_particles_impl
 {
-    struct Particle_id_offset
+    struct pid_offset
     {
         static int offset;
 
@@ -394,9 +393,10 @@ namespace bunch_particles_impl
         }
     };
 
-    struct particle_id_assigner
+    template<typename parts_t>
+    struct pid_assigner
     {
-        Particles parts;
+        parts_t parts;
         int64_t offset;
 
         KOKKOS_INLINE_FUNCTION
@@ -416,16 +416,17 @@ namespace bunch_particles_impl
 }
 
 // default ids only for double typed bunche_particle object
-template<>
+template<typename PART>
 inline void 
-bunch_particles_t<double>::default_ids(int local_offset, Commxx const& comm)
+bunch_particles_t<PART>::default_ids(
+        int local_offset, Commxx const& comm)
 {
     using namespace bunch_particles_impl;
 
     int request_num = (comm.rank() == 0) ? n_total : 0;
-    int global_offset = Particle_id_offset::get(request_num, comm);
+    int global_offset = pid_offset::get(request_num, comm);
 
-    particle_id_assigner pia{parts, local_offset + global_offset};
+    pid_assigner<parts_t> pia{parts, local_offset + global_offset};
     Kokkos::parallel_for(n_active, pia);
 }
 

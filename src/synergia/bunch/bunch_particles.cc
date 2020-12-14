@@ -7,7 +7,7 @@
 
 // static init
 namespace bunch_particles_impl
-{ int Particle_id_offset::offset = 0; }
+{ int pid_offset::offset = 0; }
 
 namespace
 {
@@ -277,7 +277,7 @@ void bunch_particles_t<double>::assign_ids(int train_idx, int bunch_idx)
     // particle_id_assigner defined in header
     using namespace bunch_particles_impl;
 
-    particle_id_assigner pia{parts, base+poffset};
+    pid_assigner<parts_t> pia{parts, base+poffset};
     Kokkos::parallel_for(n_active, pia);
 }
 
