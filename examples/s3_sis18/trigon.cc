@@ -12,7 +12,6 @@ void run()
     Logger screen(0, LoggerV::DEBUG);
 
     auto lsexpr = read_lsexpr_file("sis18-6.lsx");
-    //auto lsexpr = read_lsexpr_file("test.lsx");
     Lattice lattice(lsexpr);
 
     // get the reference particle
@@ -23,6 +22,7 @@ void run()
 
     // tunes and cdt
     auto res = Lattice_simulator::calculate_tune_and_cdt(lattice, 0);
+
     std::cout << "tune_h = " << res[0] << "\n";
     std::cout << "tune_v = " << res[1] << "\n";
     std::cout << "c_delta_t = " << res[2] << "\n";
@@ -30,15 +30,21 @@ void run()
     // closed orbit
     auto probe = Lattice_simulator::calculate_closed_orbit(lattice);
 
+    std::cout << "closed orbit probe: ";
+    for(int i=0; i<6; ++i) std::cout << probe[i] << ", ";
+    std::cout << "\n";
+
     // trigon bunch
     using trigon_t = Trigon<double, 1, 6>;
 
-    bunch_t<trigon_t> tb(ref);
+    Commxx comm;
+    bunch_t<trigon_t> tb(ref, comm.size(), comm);
+
     auto parts = tb.get_host_particles();
 
     // init value
     for(int i=0; i<6; ++i) 
-        parts(0, i) = trigon_t(probe[i], i);
+        parts(0, i).set(probe[i], i);
 
     // check in
     tb.checkin_particles();
