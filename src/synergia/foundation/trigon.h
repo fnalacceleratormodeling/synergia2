@@ -144,6 +144,18 @@ public:
 
     T& value() { return get_subpower<0>().terms[0]; }
 
+    void set(T val)
+    {
+        terms.fill(0);
+        lower.set(val);
+    }
+
+    void set(T val, size_t index)
+    {
+        set(val);
+        get_subpower<1>().terms[index] = 1;
+    }
+
     template <unsigned int Subpower>
     typename std::enable_if<(Subpower < Power), Trigon<T, Subpower, Dim>&>::type
     get_subpower()
@@ -432,6 +444,8 @@ public:
     static constexpr unsigned int power() { return 0; }
 
     const T value() const { return terms[0]; }
+
+    void set(T val) { terms[0] = val; }
 
     template <unsigned int Subpower>
     Trigon<T, Subpower, Dim>& get_subpower()
