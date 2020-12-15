@@ -519,7 +519,7 @@ Lattice_simulator::calculate_tune_and_cdt(Lattice const& lattice, double dpp)
     // init value
     for(int i=0; i<6; ++i) 
     {
-        tparts(0, i) = trigon_t(probe[i], i);
+        tparts(0, i).set(probe[i], i);
         pparts(0, i) = probe[i];
     }
 
