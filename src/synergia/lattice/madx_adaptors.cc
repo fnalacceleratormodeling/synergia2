@@ -2490,7 +2490,6 @@ Mcmlens_madx_adaptor::Mcmlens_madx_adaptor()
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("j0", 0.0);
     get_default_element().set_double_attribute("ebeta", 0.0);
-    get_default_element().set_double_attribute("pbeta", 0.0);
     get_default_element().set_double_attribute("radius", 0.0);
 }
 
@@ -2506,9 +2505,9 @@ Mcmlens_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double length = lattice_element.get_double_attribute("l");
     double j0 = lattice_element.get_double_attribute("j0");
 
-    double km = j0 * length * (1.0 - beta_e*beta_p)/(2*brho*beta_e*beta_p*pconstants::epsilon0*pow(pconstants::c, 2));
+    // If length is 0.0 exactly, than j0 is integrated strength
 
-    McMLensPtr mcmlensptr(new McMLens(lattice_element.get_name().c_str(), km, radius));
+    McMLensPtr mcmlensptr(new McMLens(lattice_element.get_name().c_str(), length, j0, beta_e, radius));
 
     retval.push_back(mcmlensptr);
     return retval;
