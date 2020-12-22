@@ -769,6 +769,45 @@ public:
     }
 
 
+    /*****************************************************************
+      ! The following subroutine computes the nonlinear momentum kick
+      ! across a thin lens circular McMillan lens as described in
+      ! I. Lobach, et al., MCMILLAN LENS IN A SYSTEM WITH SPACE CHARGE
+      !     IPAC2018, Vancouver, BC, Canada, doi: 10.18429/JACoW-IPAC2018-THPAF071
+      !
+      !  \Delta p_r =                 -k_m \vec{r}
+      !                         -----------------------
+      !                                   r^2
+      !                           1  +   -----
+      !                                   r_m^2
+      !
+      !
+      !                     ( 1 \pm \beta_z \beta_e )
+      !     k_m =  j0 L  ---------------------------------------------
+      !                   2 ( B \rho ) \epsilon_0 \beta_z \beta_e c^2
+      !
+      !*****************************************************************
+    */
+
+    inline static void thin_mcmillan_unit
+      (double x, double xp, double y, double yp,
+       double j0L, double beta_p, double beta_e, double radius)
+    {
+        double rsquared = x*x + y*y ;
+
+        beta_z = sqrt(1.0 - xp*xp - yp*yp)*beta_p;
+        double brho = (1 + dpop) * 1.0e9/PH_MKS_c;
+
+        double factors = -j0L * (1.0 - beta_e * beta_z) / (2.0 * brho * PH_MKS_eps0 * beta_e * beta_z * PH_MKS_c * PH_MKS_c);
+
+        double nkick = factors / (1.0 + rsquared/(radius * radius));
+
+        xp += nkick * x;
+        yp += nkick * y;
+    }
+
+    ///
+///
     inline static double factorial(int n)
     {
         if (n == 0) return 1.0;
