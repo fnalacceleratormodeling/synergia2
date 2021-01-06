@@ -25,7 +25,19 @@ void run()
 
     std::cout << "tune_h = " << res[0] << "\n";
     std::cout << "tune_v = " << res[1] << "\n";
-    std::cout << "c_delta_t = " << res[2] << "\n";
+    std::cout << "c_delta_t = " << res[2] << "\n\n";
+
+    // chromaticities
+    double dpp = 0.01;
+    auto chroms = Lattice_simulator::get_chromaticities(lattice, dpp);
+
+    std::cout << "slip_factor = " << chroms.slip_factor << "\n";
+    std::cout << "slip_factor_p = " << chroms.slip_factor_prime << "\n";
+    std::cout << "momentum_compaction = " << chroms.momentum_compaction << "\n";
+    std::cout << "h_chrom = " << chroms.horizontal_chromaticity << "\n";
+    std::cout << "h_chrom_p = " << chroms.horizontal_chromaticity_prime << "\n";
+    std::cout << "v_chrom = " << chroms.vertical_chromaticity << "\n";
+    std::cout << "v_chrom_p = " << chroms.vertical_chromaticity_prime << "\n\n";
 
     // closed orbit
     auto probe = Lattice_simulator::calculate_closed_orbit(lattice);
