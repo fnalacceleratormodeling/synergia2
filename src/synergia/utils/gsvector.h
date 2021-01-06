@@ -481,15 +481,26 @@ struct VecAdd<E1, E2, T, typename std::enable_if<std::is_same<T, vector4double>:
     typename VecExpr<VecAdd<E1, E2, T>, T>::vec_t cal() const { return vec_add(_u.cal(), _v.cal()); }
 };
 
+
 // stream operator
-template <class T, typename std::enable_if<std::is_same<T, double>::value>::type>
-inline std::ostream & operator << (std::ostream & out, Vec<T> & v)
+template <class T>
+inline std::ostream& operator << (std::ostream & out, Vec<T> const& v)
 {
     out << "(" << v.data << ")";
     return out;
 }
 
+inline std::ostream& operator << (std::ostream& out, Vec2d const& v)
+{
+    out << v[0] << ", " << v[1];
+    return out;
+}
 
+inline std::ostream& operator << (std::ostream& out, Vec4d const& v)
+{
+    out << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3];
+    return out;
+}
 
 
 // define the GSVector type

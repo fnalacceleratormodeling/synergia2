@@ -491,27 +491,26 @@ namespace
 std::array<double, 3>
 Lattice_simulator::calculate_tune_and_cdt(Lattice const& lattice, double dpp)
 {
+    // trigon bunch
+    using trigon_t = Trigon<double, 1, 6>;
+
     // get the reference particle
     auto const& ref = lattice.get_reference_particle();
 
     // closed orbit
     auto probe = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
 
-#if 0
-    std::cout << "closed orbit: ";
-    for(int i=0; i<6; ++i)
-        std::cout << probe[i] << ", ";
-    std::cout << "\n";
-#endif
-
-    // trigon bunch
-    using trigon_t = Trigon<double, 1, 6>;
-
     // comm world
     Commxx comm;
 
     bunch_t<trigon_t> tb(ref, comm.size(), comm);
     bunch_t<double>   pb(ref, comm.size(), 1e9, comm);
+
+    // design reference particle from the closed orbit
+    auto ref_l = ref;
+    ref_l.set_state(probe);
+    tb.set_design_reference_particle(ref_l);
+    pb.set_design_reference_particle(ref_l);
 
     auto tparts = tb.get_host_particles();
     auto pparts = pb.get_host_particles();
@@ -563,14 +562,6 @@ Lattice_simulator::calculate_tune_and_cdt(Lattice const& lattice, double dpp)
     auto kjac = tb.get_jacobian(0);
     auto jac = karray_to_matrix(kjac);
 
-#if 0
-    for(int i=0; i<6; ++i)
-    {
-        for(int j=0; j<6; ++j) std::cout << jac(i, j) << ", ";
-        std::cout << "\n";
-    }
-#endif
-
     auto nus = filter_transverse_tunes(jac);
 
 #if 0
@@ -585,5 +576,130 @@ Lattice_simulator::calculate_tune_and_cdt(Lattice const& lattice, double dpp)
     return {tune_h, tune_v, c_delta_t};
 }
 
+
+chromaticities_t
+Lattice_simulator::get_chromaticities(Lattice const& lattice, double dpp)
+{
+    chromaticities_t chroms;
+
+    auto ref = lattice.get_reference_particle();
+    double gamma = ref.get_gamma();
+
+    // tune = [tune_h, tune_v, cdt]
+    auto tune_0  = calculate_tune_and_cdt(lattice, 0.0);
+    auto tune_p  = calculate_tune_and_cdt(lattice, dpp);
+    auto tune_m  = calculate_tune_and_cdt(lattice, -dpp);
+    auto tune_pp = calculate_tune_and_cdt(lattice, 2.0*dpp);
+    auto tune_mm = calculate_tune_and_cdt(lattice, -2.0*dpp);
+
+    // five point stencil:
+    // given function f(x) = a_0 + a_1*x + a_2*x**2 + a_3*x**3 + a_4*x**4
+    // choose offset spacing d, calculate values
+    // y++ = f(2*d)
+    // y+ = f(d)
+    // y0 = f(0)
+    // y- = f(-d)
+    // y-- = f(-2*d)
+    // then you can easily calculate:
+    // y0 = a_0
+    // y+ - y- = 2*a_1*d + 2*a_3*d**3
+    // y++ - y-- = 4*a_1*d + 16*a_3*d**3
+    // y+ + y- - 2*y0 = 2*a_2*d**2 + 2*a_4*d**4
+    // y++ + y-- - 2*y0 = 8*a_2*d**2 + 32*a_4*d**4
+    // yielding expressions:
+    // 8*(y+ - y-) - (y++ - y--) = 12*a_1*d
+    // (y++ - y--) - 2*(y+ - y-) = 12*a_3*d**3
+    // 16*(y+ + y- - 2*y_0) - (y++ + y-- - 2*y_0) = 24*a_2*d**2
+    // (y++ + y-- - 2*y_0) - 4*(y+ + y- - 2*y_0) = 24*a_4*d**4
+
+    double tune_h0 = tune_0[0];
+    double tune_v0 = tune_0[1];
+    double cT0 = tune_0[2];
+
+    double tune_h_plus = tune_p[0];
+    double tune_v_plus = tune_p[1];
+    double c_delta_t_plus = tune_p[2];
+
+    double tune_h_minus = tune_m[0];
+    double tune_v_minus = tune_m[1];
+    double c_delta_t_minus = tune_m[2];
+
+    double tune_h_plusplus = tune_pp[0];
+    double tune_v_plusplus = tune_pp[1];
+    double c_delta_t_plusplus = tune_pp[2];
+
+    double tune_h_minusminus = tune_mm[0];
+    double tune_v_minusminus = tune_mm[1];
+    double c_delta_t_minusminus = tune_mm[2];
+
+#if 0
+    std::cout << "tune_0: " << tune_0[0] << ", " << tune_0[1] << ", " << tune_0[2] << "\n";
+    std::cout << "tune_p: " << tune_p[0] << ", " << tune_p[1] << ", " << tune_p[2] << "\n";
+    std::cout << "tune_m: " << tune_m[0] << ", " << tune_m[1] << ", " << tune_m[2] << "\n";
+    std::cout << "tune_pp: " << tune_pp[0] << ", " << tune_pp[1] << ", " << tune_pp[2] << "\n";
+    std::cout << "tune_mm: " << tune_mm[0] << ", " << tune_mm[1] << ", " << tune_mm[2] << "\n";
+#endif
+
+    double a_h_chrom, b_h_chrom;
+    a_h_chrom = 0.5*(tune_h_plus-tune_h_minus)/dpp;
+    b_h_chrom = 0.25*(tune_h_plusplus-tune_h_minusminus)/dpp;
+    double horizontal_chromaticity_alt=(4*a_h_chrom - b_h_chrom)/3.0;
+
+    double a_v_chrom, b_v_chrom;
+    a_v_chrom = 0.5*(tune_v_plus-tune_v_minus)/dpp;
+    b_v_chrom = 0.25*(tune_v_plusplus-tune_v_minusminus)/dpp;
+    double vertical_chromaticity_alt=(4*a_v_chrom - b_v_chrom)/3.0;
+
+    double a_slip, b_slip;
+    a_slip = 0.5*(c_delta_t_plus-c_delta_t_minus)/cT0 / dpp;
+    b_slip = 0.25*(c_delta_t_plusplus-c_delta_t_minusminus)/cT0 / dpp;
+    double slip_factor_alt =(4*a_slip-b_slip)/3.0;
+    double cdtp_m_cdtm = c_delta_t_plus - c_delta_t_minus;
+    double cdtp_p_cdtm_m2cdt0 = c_delta_t_plus + c_delta_t_minus - 2*cT0;
+    double cdtpp_m_cdtmm = c_delta_t_plusplus - c_delta_t_minusminus;
+    double cdtpp_p_cdtmm_m2cdt0 = c_delta_t_plusplus + c_delta_t_minusminus - 2*cT0;
+
+    double qxp_m_qxm = tune_h_plus - tune_h_minus;
+    double qxp_p_qxm_m2qx0 = tune_h_plus + tune_h_minus - 2*tune_h0;
+    double qxpp_m_qxmm = tune_h_plusplus - tune_h_minusminus;
+    double qxpp_p_qxmm_m2qx0 = tune_h_plusplus + tune_h_minusminus - 2*tune_h0;
+
+    double qyp_m_qym = tune_v_plus - tune_v_minus;
+    double qyp_p_qym_m2qy0 = tune_v_plus + tune_v_minus - 2*tune_v0;
+    double qypp_m_qymm = tune_v_plusplus - tune_v_minusminus;
+    double qypp_p_qymm_m2qy0 = tune_v_plusplus + tune_v_minusminus - 2*tune_v0;
+
+    chroms.slip_factor 
+        = (8.0*cdtp_m_cdtm - cdtpp_m_cdtmm)/(12.0*dpp*cT0);
+
+    chroms.slip_factor_prime 
+        = 2.0*(16*cdtp_p_cdtm_m2cdt0 - cdtpp_p_cdtmm_m2cdt0) /(24.0*dpp*dpp*cT0);
+
+    chroms.momentum_compaction 
+        = chroms.slip_factor + 1. / gamma / gamma;
+
+    // d^2 cdt/d dpop^2 = 2! *a_2
+
+    // d^3 cdt/ d dpop^3 = 3! * a_3 but I'm not planning on using it
+    // double d3cdt_d_dpop3 = 6.0*(cdtpp_m_cdtmm - 2.0*cdtp_m_cdtm)/(12.0*dpp*dpp*dpp*cT0);
+
+    // d^4 cdt / d dpop^4 = 4! * a_4 but I'm not planning on using it
+    // double d4cdt_d_dpop4 = 24.0*(cdtpp_p_cdtmm_m2cdt0 - 4.0*cdtp_p_cdtm_m2cdt0)/(24.0*dpp*dpp*dpp*dpp*cT0);
+
+    chroms.horizontal_chromaticity 
+        = (8.0*qxp_m_qxm - qxpp_m_qxmm)/(12.0*dpp);
+
+    chroms.vertical_chromaticity 
+        = (8.0*qyp_m_qym - qypp_m_qymm)/(12.0*dpp);
+
+    chroms.horizontal_chromaticity_prime 
+        = 2.0*(16*qxp_p_qxm_m2qx0 - qxpp_p_qxmm_m2qx0) /(24.0*dpp*dpp);
+
+    chroms.vertical_chromaticity_prime 
+        = 2.0*(16*qyp_p_qym_m2qy0 - qypp_p_qymm_m2qy0) /(24.0*dpp*dpp);
+
+
+    return chroms;
+}
 
 

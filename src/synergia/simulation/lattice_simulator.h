@@ -2,6 +2,20 @@
 
 #include "synergia/lattice/lattice.h"
 
+struct chromaticities_t
+{
+    double momentum_compaction;
+
+    double horizontal_chromaticity;
+    double horizontal_chromaticity_prime;
+
+    double vertical_chromaticity;
+    double vertical_chromaticity_prime;
+
+    double slip_factor;
+    double slip_factor_prime;
+};
+
 namespace Lattice_simulator
 {
     constexpr const double default_closed_orbit_tolerance = 1.0e-13;
@@ -41,4 +55,7 @@ namespace Lattice_simulator
     // [tune_h, tune_v, c_delta_t]
     std::array<double, 3>
     calculate_tune_and_cdt(Lattice const& lattice, double dpp);
+
+    chromaticities_t
+    get_chromaticities(Lattice const& lattice, double dpp);
 }

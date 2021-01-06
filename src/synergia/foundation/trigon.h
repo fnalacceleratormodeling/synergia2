@@ -429,6 +429,29 @@ public:
             std::ostream& os, Trigon<U, P, D> const& trigon);
 };
 
+// general is_trigon type trait
+template<typename>
+struct is_trigon : std::false_type { };
+
+template<typename T, unsigned int P, unsigned int D>
+struct is_trigon<Trigon<T, P, D>> : std::true_type { };
+
+// stream operator
+template <typename T, unsigned int Power, unsigned int Dim>
+std::ostream& 
+operator<<(std::ostream& os, Trigon<T, Power, Dim> const& t)
+{
+    os << t.lower;
+
+    os << "P(" << Power << "): (";
+    for(int i=0; i<t.count; ++i) os << t.terms[i] << ", ";
+    os << ")\n";
+
+    return os;
+}
+
+
+// power 0
 template <typename T, unsigned int Dim>
 class Trigon<T, 0, Dim>
 {
@@ -583,6 +606,14 @@ public:
         return retval;
     }
 };
+
+template <typename T, unsigned int Dim>
+std::ostream& 
+operator<<(std::ostream& os, Trigon<T, 0, Dim> const& t)
+{
+    os << "\nP(0): (" << t.terms[0] << ")\n";
+    return os;
+}
 
 template <typename T, unsigned int Power, unsigned int Dim>
 Trigon<T, Power, Dim>
@@ -1187,13 +1218,6 @@ Trigon<T, Power, Dim>
 log(Trigon<T, Power, Dim> const& t)
 {
     return generic_transcendental(t, log_derivatives(t.value(), Power));
-}
-
-template <typename T, unsigned int Power, unsigned int Dim>
-std::ostream& operator<<(std::ostream& os, Trigon<T, Power, Dim> const& trigon)
-{
-    os << "(trigon)";
-    return os;
 }
 
 #endif // TRIGON_H

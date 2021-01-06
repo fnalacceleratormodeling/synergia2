@@ -171,15 +171,15 @@ namespace sbend_impl
 
                     // edge:
                     // 1. chef fixed angle (only kicks yp)
-                    // FF_algorithm::edge_unit(
-                    //        p(i,2), p(i,3), us_edge_k );
+                    // FF_algorithm::edge_unit<gsv_t>(
+                    //        p2, p3, sp.us_edge_k );
                     //
                     // 2. chef per-particle angle
-                    // FF_algorithm::edge_unit(
-                    //        p(i,2), p(i,1), p(i,3), dpop, us_edge_k_p);
+                    // FF_algorithm::edge_unit<gsv_t>(
+                    //        p2, p1, p3, p5, sp.us_edge_k_p);
                     //
                     // 3. ref particle angle (kicks both xp and yp)
-                    FF_algorithm::edge_unit<gsv_t>(
+                    FF_algorithm::edge_unit<gsv_t>( 
                             p2, p1, p3, sp.us_edge_k_x, sp.us_edge_k_y, 0); 
                 }
 
@@ -192,9 +192,9 @@ namespace sbend_impl
                 if (sp.redge)
                 {
                     // edge
-                    // FF_algorithm::edge_unit(y, yp, ds_edge_k);
-                    // FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
-                    FF_algorithm::edge_unit<gsv_t>(
+                    // FF_algorithm::edge_unit<gsv_t>(p2, p3, sp.ds_edge_k);
+                    // FF_algorithm::edge_unit<gsv_t>(p2, p1, p3, p5, sp.ds_edge_k_p);
+                    FF_algorithm::edge_unit<gsv_t>( 
                             p2, p1, p3, sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
 
                     // slot
@@ -503,10 +503,18 @@ namespace sbend_impl
             sp.us_edge_k_x = sp.us_edge_k_p * (xp_l/zp_l);
             sp.us_edge_k_y = sp.us_edge_k_p * (yp_l/zp_l);
 
+            // edge kick that is in accordance with 
+            // method 1 (chef fixed angle)
+            // double brho_l = pref_l / PH_CNV_brho_to_p;
+            // sp.us_edge_k = sp.strength * tan(atan2(xp_l, zp_l)) / brho_l;
+            // FF_algorithm::edge_unit(y_l, yp_l, sp.us_edge_k );
+
             // edge kick strenth are scaled to bunch. so need to div by "scale" to scale
             // it to the lattice reference
+            // in accordance with method 3
             FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
                     sp.us_edge_k_x/sp.scale, sp.us_edge_k_y/sp.scale, 0);
+
         }
 
         FF_algorithm::bend_complete(
@@ -522,10 +530,16 @@ namespace sbend_impl
             sp.ds_edge_k_x = sp.ds_edge_k_p * (xp_l/zp_l);
             sp.ds_edge_k_y = sp.ds_edge_k_p * (yp_l/zp_l);
 
+            // edge kick that is in accordance with 
+            // method 1 (chef fixed angle)
+            // double brho_l = pref_l / PH_CNV_brho_to_p;
+            // sp.ds_edge_k = - sp.strength * tan(atan2(xp_l, zp_l)) / brho_l;
+            // FF_algorithm::edge_unit(y_l, yp_l, sp.ds_edge_k );
+
             // edge kick strenth are scaled to bunch. so need to div by "scale" to scale
             // it to the lattice reference
-            FF_algorithm::edge_unit(
-                    y_l, xp_l, yp_l, sp.ds_edge_k_x/sp.scale, sp.ds_edge_k_y/sp.scale, 0);
+            FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
+                    sp.ds_edge_k_x/sp.scale, sp.ds_edge_k_y/sp.scale, 0);
 
             // slot
             FF_algorithm::slot_unit(
@@ -732,7 +746,6 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
 
     sp.ds_edge_k_x = 0.0;
     sp.ds_edge_k_y = 0.0;
-
 
     if (cf == 0)
     {
