@@ -490,13 +490,19 @@ inline std::ostream& operator << (std::ostream & out, Vec<T> const& v)
     return out;
 }
 
-inline std::ostream& operator << (std::ostream& out, Vec2d const& v)
+template<class T>
+inline 
+std::enable_if_t<std::is_same<T, Vec2d>::value, std::ostream&>
+operator << (std::ostream& out, T const& v)
 {
     out << v[0] << ", " << v[1];
     return out;
 }
 
-inline std::ostream& operator << (std::ostream& out, Vec4d const& v)
+template<class T>
+inline 
+std::enable_if_t<std::is_same<T, Vec4d>::value, std::ostream&>
+operator << (std::ostream& out, T const& v)
 {
     out << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3];
     return out;
@@ -504,7 +510,6 @@ inline std::ostream& operator << (std::ostream& out, Vec4d const& v)
 
 
 // define the GSVector type
-
 #if defined(GSV_SSE)
   typedef Vec<Vec2d >        GSVector;
 #elif defined(GSV_AVX)
