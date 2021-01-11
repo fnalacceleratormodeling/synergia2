@@ -14,6 +14,15 @@ class FF_algorithm
 {
 public:
 
+    inline static double factorial(int n)
+    {
+        if (n == 0) return 1.0;
+
+        double r = 1;
+        for(int i = 1; i <= n; ++i) r *= i;
+        return r;
+    }
+
     // exact solution for drift spaces
     template <typename T>
     inline static void drift_unit
@@ -450,7 +459,7 @@ public:
 
     template <typename T>
     inline static void thin_quadrupole_unit
-      (T const& x, T& xp, T const& y, T& yp, double const * kL)
+      (T const& x, T& xp, T const& y, T& yp, double const* kL, T const& = 0.0, double const* = nullptr)
     {
         T vk0(kL[0]);
         T vk1(kL[1]);
@@ -506,7 +515,7 @@ public:
 
     template <typename T>
     inline static void thin_kicker_unit
-      (T const& x, T& xp, T const& y, T& yp, double const * kL)
+      (T const& x, T& xp, T const& y, T& yp, double const * kL, T const& = 0.0, double const* k = nullptr)
     {
         xp = xp + T(kL[0]);
         yp = yp + T(kL[1]);
@@ -789,35 +798,27 @@ public:
       !*****************************************************************
     */
 
+    template<typename T>
     inline static void thin_mcmillan_unit
-      (double x, double xp, double y, double yp,
-       double j0L, double beta_p, double beta_e, double radius)
+      (T const& x, T& xp, T const& y, T& yp, double const* kL, T const& dpop, double const* k)
     {
-        double rsquared = x*x + y*y ;
+        T j0L = kL[0];
+        T beta_p = k[0];
+        T beta_e = k[1];
+        T radius = k[2];
 
-        beta_z = sqrt(1.0 - xp*xp - yp*yp)*beta_p;
-        double brho = (1 + dpop) * 1.0e9/PH_MKS_c;
+        T rsquared = x*x + y*y ;
 
-        double factors = -j0L * (1.0 - beta_e * beta_z) / (2.0 * brho * PH_MKS_eps0 * beta_e * beta_z * PH_MKS_c * PH_MKS_c);
+        T beta_z = sqrt(T(1.0) - xp*xp - yp*yp) * beta_p;
+        T brho = (T(1.0) + dpop) * T(1.0e9/PH_MKS_c);
 
-        double nkick = factors / (1.0 + rsquared/(radius * radius));
+        T factors = -j0L * (T(1.0) - beta_e * beta_z) / (T(2.0) * brho * T(PH_MKS_eps0) * beta_e * beta_z * T(PH_MKS_c * PH_MKS_c));
 
-        xp += nkick * x;
-        yp += nkick * y;
+        T nkick = factors / (T(1.0) + rsquared/(radius * radius));
+
+        xp = xp + nkick * x;
+        yp = yp + nkick * y;
     }
-
-    ///
-///
-    inline static double factorial(int n)
-    {
-        if (n == 0) return 1.0;
-
-        double r = 1;
-        for(int i = 1; i <= n; ++i) r *= i;
-        return r;
-    }
-
-
 
     // utility
     inline int full_drifts_per_step(int order)
@@ -1034,15 +1035,15 @@ public:
     // hardwired 6th order yoshida
     template <
         typename T,
-        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        void(kf)(T const&, T&, T const&, T&, double const*, T const&, double const*),
         int components >
     inline static void yoshida6(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
                                 double m, double step_reference_cdt,
-                                double step_length, double * step_strength,
-                                int steps)
+                                double step_length, double const* step_strength,
+                                int steps, double const* k = nullptr)
     {
         // see yoshida4.py for formulas
         const double c1 = 0.79361246386112147294625603763;
@@ -1080,47 +1081,47 @@ public:
             drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, k1, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k2 );
+            kf( x, xp, y, yp, k2, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, k1, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k3 );
+            kf( x, xp, y, yp, k3, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k4 );
+            kf( x, xp, y, yp, k4, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k3 );
+            kf( x, xp, y, yp, k3, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, k1, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k2 );
+            kf( x, xp, y, yp, k2, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
-            kf( x, xp, y, yp, k1 );
+            kf( x, xp, y, yp, k1, dpop, k );
 
             drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
