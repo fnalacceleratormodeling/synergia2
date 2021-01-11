@@ -435,6 +435,47 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
     }
 }
 
+/*****************************************************************
+  ! The following functor computes the nonlinear momentum kick
+  ! across a thin lens circular McMillan lens as described in
+  ! I. Lobach, et al., MCMILLAN LENS IN A SYSTEM WITH SPACE CHARGE
+  !     IPAC2018, Vancouver, BC, Canada, doi: 10.18429/JACoW-IPAC2018-THPAF071
+  !
+  !  \Delta p_r =                 -k_m \vec{r}
+  !                         -----------------------
+  !                                   r^2
+  !                           1  +   -----
+  !                                   r_m^2
+  !
+  !
+  !                     ( 1 \pm \beta_z \beta_e )
+  !     k_m =  j0 L  ---------------------------------------------
+  !                   2 ( B \rho ) \epsilon_0 \beta_z \beta_e c^2
+  !
+  !*****************************************************************
+*/
+
+template <type T> {
+class Thin_mcmillan_unit
+{
+private:
+        double beta_p;
+        double beta_e;
+        double radius;
+
+    public:
+        Thin_mcmillan_unit::thin_mcmillan_unit(double beta_p, double beta_e, double radius) :
+            beta_p(beta_p),
+            beta_e(beta_e),
+            radius(radius)
+        {}
+
+        void operator () (T &x, T &xp, T &y, T &yp, double *kL) {
+
+        }
+};
+}
+
 template<class Archive>
     void
     FF_mcmillan::serialize(Archive & ar, const unsigned int version)
