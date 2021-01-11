@@ -26,7 +26,7 @@ double FF_quadrupole::get_reference_cdt(double length, double * k, Reference_par
         double cdt(0.0);
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
-        FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+        FF_algorithm::yoshida6<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   0.0,

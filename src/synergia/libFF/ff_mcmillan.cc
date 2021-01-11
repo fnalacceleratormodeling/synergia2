@@ -16,19 +16,24 @@ double FF_mcmillan::get_reference_cdt(double length, double j0, double beta_e, d
     double cdt (0.0);
     double dpop(reference_particle.get_state()[Bunch::dpop]);
 
+    double k[3] = {beta_p, beta_e, radius};
+
     if ( close_to_zero(length) )
     {
         // for 0 length, j0 is the integrated current density*length
-        FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, dpop, j0, beta_p, beta_e, radius);
+        double kL[2] = {j0, 0.0};
+        FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
     }
     else
     {
+
         if (simple)
         {
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, 0.0);
 
             // for >0 length, j0 is the current density, so must be multiplied by length for integrated strength
-            FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, dpop, j0*length, beta_p, beta_e, radius);
+            double kL[2] = {j0*length, 0.0};
+            FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, 0.0);
         }
@@ -38,13 +43,13 @@ double FF_mcmillan::get_reference_cdt(double length, double j0, double beta_e, d
             double step_length = length / steps;
 
             // for >0 length, j0 is the current density
-            double step_strength = j0*step_length;
+            double step_strength[2] = {j0*step_length, 0.0};
 
             // propagate
             FF_algorithm::yoshida6<double, FF_algorithm::thin_mcmillan_unit<double>, 1>
                 ( x, xp, y, yp, cdt, dpop,
                   pref, m, 0.0,
-                  step_length, step_strength, steps );
+                  step_length, step_strength, steps, k );
         }
     }
 
@@ -94,12 +99,16 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double * RESTRICT cdta;
     double * RESTRICT dpopa;
 
+    double k[3] = {beta_p, beta_e, radius};
+
     if ( close_to_zero(length) )
     {
         // only to update the reference particle
         // the reference time is calculated with the design reference particle which
         // is at plattice
-        double reference_cdt = get_reference_cdt(l, j0, beta_e, radius. ref_bunch, false);
+        double reference_cdt = get_reference_cdt(l, j0, beta_e, radius, ref_lattice, false);
+
+        double kL[2] = {j0, 0.0};
 
         // real particles
         {
@@ -117,13 +126,12 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 GSVector yp(&ypa[part]);
                 GSVector dpop(&dpopa[part]);
 
-                FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, dpop, j0, beta_p, beta_e, radius);
+                FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
 
                 x.store(&xa[part]);
                 y.store(&ya[part]);
                 xp.store(&xpa[part]);
                 yp.store(&ypa[part]);
-                dpopa.store(&dpop[part]);
             }
 
             for (int part = block_last; part < local_num; ++part)
@@ -134,13 +142,12 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 double yp(ypa[part]);
                 double dpop(dpopa[part]);
 
-                FF_algorithm::thin_mcmillan_unit(x. xp, y, yp, dpop, j0, beta_p, beta_e, radius);
+                FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
 
                 xa[part] = x;
                 ya[part] = y;
                 xpa[part] = xp;
                 ypa[part] = yp;
-                dpopa[part] = dpop;
             }
         }
 
@@ -160,13 +167,12 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 GSVector yp(&ypa[part]);
                 GSVector dpop(&dpopa[part]);
 
-                FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, dpop, j0, beta_p, beta_e, radius);
+                FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
 
                 x.store(&xa[part]);
                 y.store(&ya[part]);
                 xp.store(&xpa[part]);
                 yp.store(&ypa[part]);
-                dpopa.store(&dpop[part]);
             }
 
             for (int part = block_last; part < local_s_num; ++part)
@@ -177,13 +183,12 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                 double yp(ypa[part]);
                 double dpop(dpopa[part]);
 
-                FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, dpop, j0, beta_p, beta_e, radius);
+                FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
 
                 xa[part] = x;
                 ya[part] = y;
                 xpa[part] = xp;
                 ypa[part] = yp;
-                dpopa[part] = dpop;
             }
         }
     }
@@ -201,10 +206,13 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         double pref = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
-        double reference_cdt = get_reference_cdt(l, j0, beta_e, ref_bunch, simple);
+        double reference_cdt = get_reference_cdt(l, j0, beta_e, radius, ref_lattice, simple);
 
         if (simple)
         {
+            // j0 = per unit length * l
+            double kL[2] = {j0, 0.0};
+
             // real particles
             {
                 bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
@@ -224,8 +232,7 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
                     // simple drift - kick - drift scheme, this is how CHEF does it
                     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-                    FF_algorithm::thin_mcmillan_unit(xp, b_hk);
-                    FF_algorithm::thin_mcmillan_unit(yp, b_vk);
+                    FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
                     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
 
                        x.store(&xa[part]);
@@ -246,8 +253,7 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     double dpop(dpopa[part]);
 
                     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-                    FF_algorithm::thin_mcmillan_unit(xp, b_hk);
-                    FF_algorithm::thin_mcmillan_unit(yp, b_vk);
+                    FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
                     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
 
                        xa[part] = x;
@@ -278,8 +284,7 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
                     // simple drift - kick - drift scheme, this is how CHEF does it
                     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-                    FF_algorithm::thin_mcmillan_unit(xp, b_hk);
-                    FF_algorithm::thin_mcmillan_unit(yp, b_vk);
+                    FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
                     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
 
                        x.store(&xa[part]);
@@ -300,8 +305,7 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     double dpop(dpopa[part]);
 
                     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
-                    FF_algorithm::thin_mcmillan_unit(xp, b_hk);
-                    FF_algorithm::thin_mcmillan_unit(yp, b_vk);
+                    FF_algorithm::thin_mcmillan_unit(x, xp, y, yp, kL, dpop, k);
                     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length * 0.5, pref, m, reference_cdt * 0.5);
 
                        xa[part] = x;
@@ -315,12 +319,9 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
         }
         else
         {
-            double b_hk_pul = b_hk / l;
-            double b_vk_pul = b_vk / l;
-
             double step_reference_cdt = reference_cdt / steps;
             double step_length = length / steps;
-            double step_strength[2] = { b_hk_pul * step_length, b_vk_pul * step_length };
+            double step_strength[2] = { j0_pul * step_length, 0.0 };
 
             // real particles
             {
@@ -343,7 +344,7 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_mcmillan_unit<GSVector>, 1>
                         ( x, xp, y, yp, cdt, dpop,
                           pref, m, step_reference_cdt,
-                          step_length, step_strength, steps );
+                          step_length, step_strength, steps, k );
 
                        x.store(&xa[part]);
                       xp.store(&xpa[part]);
@@ -365,7 +366,7 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     FF_algorithm::yoshida6<double, FF_algorithm::thin_mcmillan_unit<double>, 1>
                         ( x, xp, y, yp, cdt, dpop,
                           pref, m, step_reference_cdt,
-                          step_length, step_strength, steps );
+                          step_length, step_strength, steps, k );
 
                        xa[part] = x;
                       xpa[part] = xp;
@@ -397,7 +398,7 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     FF_algorithm::yoshida6<GSVector, FF_algorithm::thin_mcmillan_unit<GSVector>, 1>
                         ( x, xp, y, yp, cdt, dpop,
                           pref, m, step_reference_cdt,
-                          step_length, step_strength, steps );
+                          step_length, step_strength, steps, k );
 
                        x.store(&xa[part]);
                       xp.store(&xpa[part]);
@@ -416,10 +417,10 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
                     double cdt(cdta[part]);
                     double dpop(dpopa[part]);
 
-                    FF_algorithm::yoshida6<double, FF_algorithm::thin_mcmillan_unit>
+                    FF_algorithm::yoshida6<double, FF_algorithm::thin_mcmillan_unit<double>, 1>
                         ( x, xp, y, yp, cdt, dpop,
                           pref, m, step_reference_cdt,
-                          step_length, step_strength, steps );
+                          step_length, step_strength, steps, k );
 
                        xa[part] = x;
                       xpa[part] = xp;
@@ -454,27 +455,6 @@ void FF_mcmillan::apply(Lattice_element_slice const& slice, Bunch& bunch)
   !
   !*****************************************************************
 */
-
-template <type T> {
-class Thin_mcmillan_unit
-{
-private:
-        double beta_p;
-        double beta_e;
-        double radius;
-
-    public:
-        Thin_mcmillan_unit::thin_mcmillan_unit(double beta_p, double beta_e, double radius) :
-            beta_p(beta_p),
-            beta_e(beta_e),
-            radius(radius)
-        {}
-
-        void operator () (T &x, T &xp, T &y, T &yp, double *kL) {
-
-        }
-};
-}
 
 template<class Archive>
     void
