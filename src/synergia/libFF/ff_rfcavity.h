@@ -33,7 +33,7 @@ namespace rfcavity_impl
         using gsv_t = typename BunchT::gsv_t;
 
         typename BunchT::bp_t::parts_t p;
-        ConstParticleMasks m;
+        typename BunchT::bp_t::const_masks_t m;
         const RFCavityParams rp;
 
         KOKKOS_INLINE_FUNCTION
@@ -202,25 +202,20 @@ namespace FF_rfcavity
         ref_l.set_state(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, ref_l_dpop);
 
         // bunch particles
-        {
-            auto pg = ParticleGroup::regular;
+        auto apply = [&](ParticleGroup pg) {
+            if (!bunch.get_local_num(pg)) return;
+
             auto parts = bunch.get_local_particles(pg);
             auto masks = bunch.get_local_particle_masks(pg);
 
+            using exec = typename BunchT::exec_space;
+            auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
             PropRFCavity<BunchT> rfcavity{parts, masks, rp};
-            Kokkos::parallel_for(bunch.size_in_gsv(pg), rfcavity);
-        }
+            Kokkos::parallel_for(range, rfcavity);
+        };
 
-        // bunch spectator particles
-        {
-            auto pg = ParticleGroup::spectator;
-            auto parts = bunch.get_local_particles(pg);
-            auto masks = bunch.get_local_particle_masks(pg);
-
-            PropRFCavity<BunchT> rfcavity{parts, masks, rp};
-            Kokkos::parallel_for(bunch.size_in_gsv(pg), rfcavity);
-        }
-
+        apply(ParticleGroup::regular);
+        apply(ParticleGroup::spectator);
 
         // updated four momentum
         Four_momentum fm = ref_b.get_four_momentum();

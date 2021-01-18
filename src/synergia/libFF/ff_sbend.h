@@ -55,7 +55,7 @@ namespace sbend_impl
     struct PropSbend
     {
         typename BP::parts_t p;
-        ConstParticleMasks masks;
+        typename BP::const_masks_t masks;
         const SbendParams sp;
 
         const double dphi;
@@ -129,7 +129,7 @@ namespace sbend_impl
         using parts_t = typename BP::parts_t;
 
         typename BP::parts_t p;
-        ConstParticleMasks masks;
+        typename BP::const_masks_t masks;
         const SbendParams sp;
 
         const double dphi;
@@ -221,9 +221,10 @@ namespace sbend_impl
     {
         using gsv_t = typename BP::gsv_t;
         using parts_t = typename BP::parts_t;
+        using const_masks_t = typename BP::const_masks_t;
 
         parts_t p;
-        ConstParticleMasks masks;
+        const_masks_t masks;
         const SbendParams sp;
 
         const double step_angle;
@@ -336,9 +337,10 @@ namespace sbend_impl
     {
         using gsv_t = typename BP::gsv_t;
         using parts_t = typename BP::parts_t;
+        using const_masks_t = typename BP::const_masks_t;
 
         parts_t p;
-        ConstParticleMasks masks;
+        const_masks_t masks;
         const SbendParams sp;
 
         const double step_angle;
@@ -747,35 +749,53 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
     sp.ds_edge_k_x = 0.0;
     sp.ds_edge_k_y = 0.0;
 
+    using namespace Kokkos;
+    using exec = typename BunchT::exec_space;
+
     if (cf == 0)
     {
         prop_reference(ref_l, sp);
 
-        auto bp = bunch.get_bunch_particles(ParticleGroup::regular);
+        auto apply = [&](ParticleGroup pg) {
+            auto bp = bunch.get_bunch_particles(pg);
+            if (!bp.num_valid()) return;
 
 #if LIBFF_USE_GSV
-        PropSbendSimd<typename BunchT::bp_t> sbend(bp, sp);
-        Kokkos::parallel_for(bp.size_in_gsv(), sbend);
+            auto range = RangePolicy<exec>(0, bp.size_in_gsv());
+            PropSbendSimd<typename BunchT::bp_t> sbend(bp, sp);
+            Kokkos::parallel_for(range, sbend);
 #else
-        PropSbend<typename BunchT::bp_t> sbend(bp, sp);
-        Kokkos::parallel_for(bp.size(), sbend);
+            auto range = RangePolicy<exec>(0, bp.size());
+            PropSbend<typename BunchT::bp_t> sbend(bp, sp);
+            Kokkos::parallel_for(range, sbend);
 #endif
+        };
+
+        apply(ParticleGroup::regular);
+        apply(ParticleGroup::spectator);
     }
     else
     {
         // propagate reference
         prop_reference_cf(ref_l, sp);
 
-        // propagate bunch regular particles
-        auto bp = bunch.get_bunch_particles(ParticleGroup::regular);
+        auto apply = [&](ParticleGroup pg) {
+            auto bp = bunch.get_bunch_particles(pg);
+            if (!bp.num_valid()) return;
 
 #if LIBFF_USE_GSV
-        PropSbendCFSimd<typename BunchT::bp_t> sbend(bp, sp);
-        Kokkos::parallel_for(bp.size_in_gsv(), sbend);
+            auto range = RangePolicy<exec>(0, bp.size_in_gsv());
+            PropSbendCFSimd<typename BunchT::bp_t> sbend(bp, sp);
+            Kokkos::parallel_for(range, sbend);
 #else
-        PropSbendCF<typename BunchT::bp_t> sbend(bp, sp);
-        Kokkos::parallel_for(bp.size(), sbend);
+            auto range = RangePolicy<exec>(0, bp.size());
+            PropSbendCF<typename BunchT::bp_t> sbend(bp, sp);
+            Kokkos::parallel_for(range, sbend);
 #endif
+        };
+
+        apply(ParticleGroup::regular);
+        apply(ParticleGroup::spectator);
     }
 
     bunch.get_reference_particle().increment_trajectory(sp.length);

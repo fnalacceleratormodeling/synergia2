@@ -16,8 +16,8 @@ namespace solenoid_impl
     {
         using gsv_t = typename BunchT::gsv_t;
 
-        typename BunchT::bp_t::parts_t p;
-        ParticleMasks m;
+        typename BunchT::parts_t p;
+        typename BunchT::const_masks_t m;
 
         double kse;
 
@@ -51,8 +51,11 @@ namespace solenoid_impl
         auto parts = bunch.get_local_particles(pg);
         auto masks = bunch.get_local_particle_masks(pg);
 
+        using exec = typename BunchT::exec_space;
+        auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
+
         solenoid_edge_kicker<BunchT, KF> sk{parts, masks, kse};
-        Kokkos::parallel_for(bunch.size_in_gsv(pg), sk);
+        Kokkos::parallel_for(range, sk);
     }
 
     template<class BunchT>
@@ -60,8 +63,8 @@ namespace solenoid_impl
     {
         using gsv_t = typename BunchT::gsv_t;
 
-        typename BunchT::bp_t::parts_t p;
-        ParticleMasks m;
+        typename BunchT::parts_t p;
+        typename BunchT::const_masks_t m;
 
         double ksl;
         double ks;
@@ -109,12 +112,15 @@ namespace solenoid_impl
         auto parts = bunch.get_local_particles(pg);
         auto masks = bunch.get_local_particle_masks(pg);
 
+        using exec = typename BunchT::exec_space;
+        auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
+
         solenoid_unit_kicker<BunchT> sk{
             parts, masks, ksl, ks, length, 
             ref_p, mass, ref_cdt
         };
 
-        Kokkos::parallel_for(bunch.size_in_gsv(pg), sk);
+        Kokkos::parallel_for(range, sk);
     }
 
 

@@ -15,7 +15,7 @@ namespace quad_impl
     struct PropQuadThin
     {
         typename BP::parts_t p;
-        ConstParticleMasks masks;
+        typename BP::const_masks_t masks;
         double k[2];
         double xoff, yoff;
 
@@ -34,10 +34,48 @@ namespace quad_impl
     };
 
     template<class BP>
+    struct PropQuadThinSimd
+    {
+        using gsv_t = typename BP::gsv_t;
+
+        typename BP::parts_t p;
+        typename BP::const_masks_t masks;
+        double k[2];
+        gsv_t xoff, yoff;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int idx) const
+        {
+            int i = idx * gsv_t::size();
+
+            int m = 0;
+            for(int x=i; x<i+gsv_t::size(); ++x) m |= masks(x);
+
+            if (m)
+            {
+                gsv_t p0(&p(i, 0));
+                gsv_t p1(&p(i, 1));
+                gsv_t p2(&p(i, 2));
+                gsv_t p3(&p(i, 3));
+
+                p0 = p0 - xoff;
+                p2 = p2 - yoff;
+
+                FF_algorithm::thin_quadrupole_unit(
+                        p0, p1, p2, p3, k);
+
+                p1.store(&p(i, 1));
+                p3.store(&p(i, 3));
+            }
+        }
+    };
+
+
+    template<class BP>
     struct PropQuad
     {
         typename BP::parts_t p;
-        ConstParticleMasks masks;
+        typename BP::const_masks_t masks;
         int steps;
         double xoff, yoff;
         double ref_p, ref_m, step_ref_t, step_l, step_k[2];
@@ -92,7 +130,7 @@ namespace quad_impl
         using gsv_t = typename BP::gsv_t;
 
         typename BP::parts_t p;
-        ConstParticleMasks masks;
+        typename BP::const_masks_t masks;
         int steps;
         gsv_t xoff, yoff;
         double ref_p, ref_m, step_ref_t, step_l, step_k[2];
@@ -267,9 +305,19 @@ namespace FF_quadrupole
                 auto bp = bunch.get_bunch_particles(pg);
                 if (!bp.num_valid()) return;
 
-                PropQuadThin<typename BunchT::bp_t> pqt{ bp.parts, bp.masks, 
-                    {k[0], k[1]}, xoff, yoff };
-                Kokkos::parallel_for(bp.size(), pqt);
+                using exec = typename BunchT::exec_space;
+
+#if LIBFF_USE_GSV
+                auto range = Kokkos::RangePolicy<exec>(0, bp.size_in_gsv());
+                PropQuadThinSimd<typename BunchT::bp_t> pqt{ 
+                    bp.parts, bp.masks, {k[0], k[1]}, xoff, yoff };
+                Kokkos::parallel_for(range, pqt);
+#else
+                auto range = Kokkos::RangePolicy<exec>(0, bp.size());
+                PropQuadThin<typename BunchT::bp_t> pqt{ 
+                    bp.parts, bp.masks, {k[0], k[1]}, xoff, yoff };
+                Kokkos::parallel_for(range, pqt);
+#endif
             };
 
             // apply
@@ -292,14 +340,18 @@ namespace FF_quadrupole
                 auto bp = bunch.get_bunch_particles(pg);
                 if (!bp.num_valid()) return;
 
+                using exec = typename BunchT::exec_space;
+
 #if LIBFF_USE_GSV
+                auto range = Kokkos::RangePolicy<exec>(0, bp.size_in_gsv());
                 PropQuadSimd<typename BunchT::bp_t> pq(bp, steps, xoff, yoff, 
                         ref_p, ref_m, ref_t, length, k[0], k[1]);
-                Kokkos::parallel_for(bp.size_in_gsv(), pq);
+                Kokkos::parallel_for(range, pq);
 #else
+                auto range = Kokkos::RangePolicy<exec>(0, bp.size());
                 PropQuad<typename BunchT::bp_t> pq(bp, steps, xoff, yoff, 
                         ref_p, ref_m, ref_t, length, k[0], k[1]);
-                Kokkos::parallel_for(bp.size(), pq);
+                Kokkos::parallel_for(range, pq);
 #endif
             };
 

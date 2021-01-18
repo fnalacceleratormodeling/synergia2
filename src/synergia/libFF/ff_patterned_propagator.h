@@ -14,13 +14,14 @@ template< class BUNCH,
           int COMP = 1 >
 struct FF_patterned_propagator
 {
-    using bp_t    = typename BUNCH::bp_t;
+    using bp_t = typename BUNCH::bp_t;
     using parts_t = typename bp_t::parts_t;
+    using const_masks_t = typename bp_t::const_masks_t;
 
     struct thin_kicker
     {
         parts_t p;
-        ParticleMasks m;
+        const_masks_t m;
 
         double k[COMP*2];
 
@@ -54,7 +55,7 @@ struct FF_patterned_propagator
     struct simple_kicker
     {
         parts_t p;
-        ParticleMasks m;
+        const_masks_t m;
 
         double pref, mass, ref_cdt, len;
         double k[COMP*2];
@@ -109,7 +110,7 @@ struct FF_patterned_propagator
     struct yoshida_kicker
     {
         parts_t p;
-        ParticleMasks m;
+        const_masks_t m;
 
         double pref, mass, step_ref_cdt, step_len;
         double step_k[COMP*2];
@@ -158,8 +159,11 @@ struct FF_patterned_propagator
     {
         if(!bunch.get_local_num(pg)) return;
 
+        using exec = typename BUNCH::exec_space;
+        auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
+
         thin_kicker tk(bunch.get_bunch_particles(pg), k);
-        Kokkos::parallel_for(bunch.size_in_gsv(pg), tk);
+        Kokkos::parallel_for(range, tk);
     }
 
     static void apply_simple_kick(BUNCH& bunch, ParticleGroup pg,
@@ -168,12 +172,15 @@ struct FF_patterned_propagator
     {
         if(!bunch.get_local_num(pg)) return;
 
+        using exec = typename BUNCH::exec_space;
+        auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
+
         simple_kicker sk(
             bunch.get_bunch_particles(pg),
             pref, mass, ref_cdt, len, k
         );
 
-        Kokkos::parallel_for(bunch.size_in_gsv(pg), sk);
+        Kokkos::parallel_for(range, sk);
     }
 
 
@@ -188,13 +195,16 @@ struct FF_patterned_propagator
         double step_str[2*COMP];
         for(int i=0; i<2*COMP; ++i) step_str[i] = str[i]*step_len;
 
+        using exec = typename BUNCH::exec_space;
+        auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
+
         yoshida_kicker yk( 
             bunch.get_bunch_particles(pg),
             pref, mass, step_ref_cdt, 
             step_len, step_str, steps 
         );
 
-        Kokkos::parallel_for(bunch.size_in_gsv(pg), yk);
+        Kokkos::parallel_for(range, yk);
     }
 
     static void get_reference_cdt_zero(

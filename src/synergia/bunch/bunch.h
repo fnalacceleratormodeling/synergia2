@@ -41,6 +41,20 @@ public:
     using bp_t = bunch_particles_t<PART>;
     using gsv_t = typename bp_t::gsv_t;
 
+    using parts_t = typename bp_t::parts_t;
+    using masks_t = typename bp_t::masks_t;
+
+    using const_parts_t = typename bp_t::const_parts_t;
+    using const_masks_t = typename bp_t::const_masks_t;
+
+    using host_parts_t = typename bp_t::host_parts_t;
+    using host_masks_t = typename bp_t::host_masks_t;
+
+    using const_host_parts_t = typename bp_t::const_host_parts_t;
+    using const_host_masks_t = typename bp_t::const_host_masks_t;
+
+    using exec_space = typename bp_t::exec_space;
+
 public:
     /*! \enum State The state of the bunch is captured at a fixed  s (or z, longitudinal coordinate)
      or at a fixed time.  In the former case, particles are found within a range of different time
@@ -125,7 +139,7 @@ public:
     bunch_t(  Reference_particle const& reference_particle, 
               int total_num = 1,
               Commxx comm = Commxx(),
-              typename std::enable_if<U::is_trigon>::type* = 0);
+              typename std::enable_if<is_trigon<U>::value>::type* = 0);
 
     // default ctor for serialization only
     bunch_t();
@@ -194,28 +208,28 @@ public:
     get_local_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).parts; }
 
-    ParticleMasks
+    masks_t
     get_local_particle_masks(ParticleGroup pg = PG::regular)
     { return get_bunch_particles(pg).masks; }
 
-    ConstParticleMasks
+    const_masks_t
     get_local_particle_masks(ParticleGroup pg = PG::regular) const
     { return get_bunch_particles(pg).masks; }
 
     // get the host particle arrays and masks arrays
-    typename bunch_particles_t<PART>::host_parts_t
+    host_parts_t
     get_host_particles(ParticleGroup pg = PG::regular)       
     { return get_bunch_particles(pg).hparts; }
 
-    typename bunch_particles_t<PART>::const_host_parts_t
+    const_host_parts_t
     get_host_particles(ParticleGroup pg = PG::regular) const 
     { return get_bunch_particles(pg).hparts; }
 
-    HostParticleMasks
+    host_masks_t
     get_host_particle_masks(ParticleGroup pg = PG::regular)
     { return get_bunch_particles(pg).hmasks; }
 
-    ConstHostParticleMasks
+    const_host_masks_t
     get_host_particle_masks(ParticleGroup pg = PG::regular) const
     { return get_bunch_particles(pg).hmasks; }
 
@@ -458,7 +472,7 @@ public:
 
     // only for trigon bunches
     template<class U = PART>
-    std::enable_if_t<U::is_trigon, karray2d_row>
+    std::enable_if_t<is_trigon<U>::value, karray2d_row>
     get_jacobian(int idx, PG pg = PG::regular) const
     { return get_bunch_particles(pg).get_jacobian(idx); }
 
@@ -525,7 +539,7 @@ inline bunch_t<PART>::bunch_t(
         Reference_particle const& reference_particle, 
         int total_num, 
         Commxx bunch_comm,
-        typename std::enable_if<U::is_trigon>::type*)
+        typename std::enable_if<is_trigon<U>::value>::type*)
   : comm(std::make_shared<Commxx>(bunch_comm))
   , boundary(LB::open)
   , boundary_param(0.0)

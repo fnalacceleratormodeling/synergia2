@@ -10,7 +10,7 @@ namespace drift_impl
     struct PropDrift
     {
         typename BP::parts_t p;
-        ConstParticleMasks masks;
+        typename BP::const_masks_t masks;
 
         double len, ref_p, mass, ref_t;
 
@@ -31,7 +31,7 @@ namespace drift_impl
         using gsv_t = typename BP::gsv_t;
 
         typename BP::parts_t p;
-        ConstParticleMasks masks;
+        typename BP::const_masks_t masks;
 
         double len, ref_p, mass, ref_t;
 
@@ -82,24 +82,6 @@ namespace drift_impl
 
         return cdt;
     }
-
-    template<class BP>
-    inline void apply_impl(BP & bp, 
-            double length, double ref_p, double mass, double ref_cdt)
-    {
-        if (bp.num_valid())
-        {
-#if LIBFF_USE_GSV
-            PropDriftSimd<BP> 
-                drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
-            Kokkos::parallel_for(bp.size_in_gsv(), drift);
-#else
-            PropDrift<BP>
-                drift{bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
-            Kokkos::parallel_for(bp.size(), drift);
-#endif
-        }
-    }
 }
 
 
@@ -124,13 +106,31 @@ namespace FF_drift
         const double ref_p   = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
         const double ref_cdt = get_reference_cdt(length, ref_l);
 
-        // regular particles
-        apply_impl(bunch.get_bunch_particles(ParticleGroup::regular),
-                length, ref_p, mass, ref_cdt);
+        // apply method
+        auto apply_impl = [&](ParticleGroup pg) {
+            auto bp = bunch.get_bunch_particles(pg);
+            if (!bp.num_valid()) return;
 
-        // spectator particles
-        apply_impl(bunch.get_bunch_particles(ParticleGroup::spectator),
-                length, ref_p, mass, ref_cdt);
+            using namespace Kokkos;
+            using bp_t = typename BunchT::bp_t;
+            using exec = typename BunchT::exec_space;
+
+#if LIBFF_USE_GSV
+            auto range = RangePolicy<exec>(0, bp.size_in_gsv());
+            PropDriftSimd<bp_t> drift{
+                bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
+            parallel_for(range, drift);
+#else
+            auto range = RangePolicy<exec>(0, bp.size());
+            PropDrift<bp_t> drift{
+                bp.parts, bp.masks, length, ref_p, mass, ref_cdt};
+            parallel_for(range, drift);
+#endif
+        };
+
+        // apply on bunch
+        apply_impl(ParticleGroup::regular);
+        apply_impl(ParticleGroup::spectator);
 
         // trajectory
         bunch.get_reference_particle().increment_trajectory(length);

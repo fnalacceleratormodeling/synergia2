@@ -30,7 +30,7 @@ namespace mpole_impl
         using gsv_t = typename BP::gsv_t;
 
         typename BP::parts_t p;
-        ConstParticleMasks masks;
+        typename BP::const_masks_t masks;
         const MultipoleParams mp;
 
         KOKKOS_INLINE_FUNCTION
@@ -64,6 +64,7 @@ namespace mpole_impl
                     FF_algorithm::thin_octupole_unit( 
                             p0, p1, p2, p3, &mp.kl[6]);
 
+                // TODO: ...
 #if 0
                 for(int n=4; n<max_order; ++n)
                 {
@@ -196,14 +197,15 @@ namespace FF_multipole
 
         // bunch particles
         auto apply = [&](ParticleGroup pg) {
-            int valid = bunch.get_local_num(pg);
-            if (!valid) return;
+            if(!bunch.get_local_num(pg)) return;
 
             auto parts = bunch.get_local_particles(pg);
             auto masks = bunch.get_local_particle_masks(pg);
 
+            using exec = typename BunchT::exec_space;
+            auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
             PropMultipole<typename BunchT::bp_t> multipole{parts, masks, mp};
-            Kokkos::parallel_for(bunch.size_in_gsv(pg), multipole);
+            Kokkos::parallel_for(range, multipole);
         };
 
         apply(ParticleGroup::regular);

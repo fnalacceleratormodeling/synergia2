@@ -2,6 +2,7 @@
 #define BUNCH_PARTICLES_H
 
 
+#include "synergia/foundation/trigon_traits.h"
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/logger.h"
@@ -17,14 +18,35 @@ enum class ParticleGroup
     spectator = 1
 };
 
-typedef Kokkos::View<double*[7], Kokkos::LayoutLeft> Particles;
-typedef Kokkos::View<const double*[7], Kokkos::LayoutLeft> ConstParticles;
+typedef Kokkos::View<double*[7], 
+        Kokkos::LayoutLeft,
+        Kokkos::DefaultExecutionSpace::memory_space > Particles;
+
+typedef Kokkos::View<const double*[7], 
+        Kokkos::LayoutLeft,
+        Kokkos::DefaultExecutionSpace::memory_space > ConstParticles;
+
+typedef Kokkos::View<uint8_t*,
+        Kokkos::DefaultExecutionSpace::memory_space > ParticleMasks;
+
+typedef Kokkos::View<const uint8_t*,
+        Kokkos::DefaultExecutionSpace::memory_space> ConstParticleMasks;
+
+#if 0
+typedef Kokkos::View<double*[7], 
+        Kokkos::Device<Kokkos::OpenMP, Kokkos::HostSpace>> Particles;
+
+typedef Kokkos::View<const double*[7], 
+        Kokkos::Device<Kokkos::OpenMP, Kokkos::HostSpace>> ConstParticles;
+#endif
 
 typedef Particles::HostMirror HostParticles;
 typedef ConstParticles::HostMirror ConstHostParticles;
 
+#if 0
 typedef Kokkos::View<uint8_t*> ParticleMasks;
 typedef Kokkos::View<const uint8_t*> ConstParticleMasks;
+#endif
 
 typedef ParticleMasks::HostMirror HostParticleMasks;
 typedef ConstParticleMasks::HostMirror ConstHostParticleMasks;
@@ -83,15 +105,45 @@ public:
 
     using part_t = PART;
 
-    using parts_t = typename Kokkos::View<PART*[7], Kokkos::LayoutLeft>;
-    using const_parts_t = typename Kokkos::View<const PART*[7], Kokkos::LayoutLeft>;
+    using default_memspace = 
+        typename Kokkos::DefaultExecutionSpace::memory_space;
 
-    using host_parts_t = typename parts_t::HostMirror;
-    using const_host_parts_t = typename const_parts_t::HostMirror;
+    using memspace = 
+        typename std::conditional<is_trigon<PART>::value, 
+                 Kokkos::HostSpace, default_memspace>::type;
 
-    using gsv_t = typename std::conditional<
-        std::is_floating_point<PART>::value, 
-        GSVector, Vec<PART>>::type;
+    using parts_t = 
+        typename Kokkos::View<PART*[7], 
+                 Kokkos::LayoutLeft, memspace>;
+
+    using masks_t = 
+        typename Kokkos::View<uint8_t*, memspace>;
+
+    using host_parts_t = 
+        typename parts_t::HostMirror;
+
+    using host_masks_t = 
+        typename masks_t::HostMirror;
+
+    using const_parts_t = 
+        typename Kokkos::View<const PART*[7], 
+                 Kokkos::LayoutLeft, memspace>;
+
+    using const_masks_t = 
+        typename Kokkos::View<const uint8_t*, memspace>;
+        
+    using const_host_parts_t = 
+        typename const_parts_t::HostMirror;
+
+    using const_host_masks_t = 
+        typename const_masks_t::HostMirror;
+
+    using gsv_t = 
+        typename std::conditional<is_trigon<PART>::value, 
+                 Vec<PART>, GSVector>::type;
+
+    using exec_space = 
+        typename parts_t::execution_space;
 
 private:
 
@@ -165,16 +217,15 @@ private:
     // multiple ranks
     int poffset;
 
-
 public:
 
     parts_t parts;
-    ParticleMasks masks;
-    ParticleMasks discards;
+    masks_t masks;
+    masks_t discards;
 
     host_parts_t hparts;
-    HostParticleMasks hmasks;
-    HostParticleMasks hdiscards;
+    host_masks_t hmasks;
+    host_masks_t hdiscards;
 
 public:
 
@@ -269,7 +320,7 @@ public:
 
     // only available for trigons
     template<class U = PART>
-    std::enable_if_t<U::is_trigon, karray2d_row>
+    std::enable_if_t<is_trigon<U>::value, karray2d_row>
     get_jacobian(int idx) const
     {
         karray2d_row res("jacobian", 6, 6);
@@ -319,7 +370,6 @@ private:
         hdiscards = Kokkos::create_mirror_view(discards);
     }
 };
-
 
 // instantiated with a double is still the default BunchParticles
 typedef bunch_particles_t<double> BunchParticles;
@@ -404,9 +454,10 @@ namespace bunch_particles_impl
         { parts(i, 6) = i + offset; }
     };
 
+    template<typename masks_t>
     struct particle_masks_initializer
     {
-        ParticleMasks masks;
+        masks_t masks;
         const int num;
 
         KOKKOS_INLINE_FUNCTION
@@ -426,8 +477,9 @@ bunch_particles_t<PART>::default_ids(
     int request_num = (comm.rank() == 0) ? n_total : 0;
     int global_offset = pid_offset::get(request_num, comm);
 
+    auto range = Kokkos::RangePolicy<exec_space>(0, n_active);
     pid_assigner<parts_t> pia{parts, local_offset + global_offset};
-    Kokkos::parallel_for(n_active, pia);
+    Kokkos::parallel_for(range, pia);
 }
 
 template<typename PART>
@@ -495,8 +547,8 @@ bunch_particles_t<PART>::bunch_particles_t(
         // with possible paddings
         n_reserved = parts.stride(1);
 
-        masks = ParticleMasks(label+"_masks", n_reserved);
-        discards = ParticleMasks(label+"_discards", n_reserved);
+        masks = masks_t(label+"_masks", n_reserved);
+        discards = masks_t(label+"_discards", n_reserved);
 
         hparts = Kokkos::create_mirror_view(parts);
         hmasks = Kokkos::create_mirror_view(masks);
@@ -506,8 +558,12 @@ bunch_particles_t<PART>::bunch_particles_t(
         default_ids(offsets_t[mpi_rank], comm);
 
         // valid particles
-        particle_masks_initializer pmi{masks, n_valid};
-        Kokkos::parallel_for(n_reserved, pmi);
+        auto range = Kokkos::RangePolicy<exec_space>(0, n_reserved);
+        particle_masks_initializer<masks_t> pmi{masks, n_valid};
+        Kokkos::parallel_for(range, pmi);
+
+        // sync host arrays with device arrays
+        checkout_particles();
     } 
 }
 

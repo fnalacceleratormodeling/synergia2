@@ -591,7 +591,7 @@ bunch_particles_t<double>::read_file_legacy(Hdf5_file const& file, Commxx const&
     // particle_masks_initializer defined in header
     using namespace bunch_particles_impl;
 
-    particle_masks_initializer pmi{masks, n_valid};
+    particle_masks_initializer<masks_t> pmi{masks, n_valid};
     Kokkos::parallel_for(n_reserved, pmi);
 }
 

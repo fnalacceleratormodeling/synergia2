@@ -1,5 +1,6 @@
 if(${Kokkos_ENABLE_CUDA})
     set_source_files_properties(checkpoint_json.cc PROPERTIES COMPILE_FLAGS --host-only)
+    set_source_files_properties(lattice_simulator_host.cc PROPERTIES COMPILE_FLAGS --host-only)
 endif()
 
 
@@ -21,6 +22,7 @@ add_library(synergia_simulation
     #chef_propagator.cc 
     independent_operation.cc
     lattice_simulator.cc 
+    lattice_simulator_host.cc 
     operation_extractor.cc 
     #aperture.cc
     aperture_operation.cc 
