@@ -1,13 +1,89 @@
 #ifndef TRIGON_H
 #define TRIGON_H
 
+#include "synergia/foundation/trigon_traits.h"
+
 #include <algorithm>
 #include <array>
 #include <complex>
 #include <iostream> // jfa remove me!!!!
-#include <type_traits>
 #include <unordered_map>
 
+#include <Kokkos_Core.hpp>
+#include <Kokkos_UnorderedMap.hpp>
+
+template<class T, size_t SIZE>
+struct arr_t
+{
+    T data_[SIZE] = {};
+
+    KOKKOS_INLINE_FUNCTION
+    constexpr size_t size() const
+    { return SIZE; }
+
+    KOKKOS_INLINE_FUNCTION
+    void fill(T t)
+    { for(size_t i=0; i<SIZE; ++i) data_[i] = t; }
+
+    KOKKOS_INLINE_FUNCTION
+    T& at(size_t idx) { return data_[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
+    T const& at(size_t idx) const { return data_[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
+    T& operator[](size_t idx) { return data_[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
+    T const& operator[](size_t idx) const { return data_[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
+    T*       begin()       { return data_; }
+
+    KOKKOS_INLINE_FUNCTION
+    T const* begin() const { return data_; }
+
+    KOKKOS_INLINE_FUNCTION
+    T*       end()         { return data_ + SIZE; }
+
+    KOKKOS_INLINE_FUNCTION
+    T const* end() const   { return data_ + SIZE; }
+
+};
+
+namespace trigon_impl
+{
+    template<class T, size_t SIZE>
+    KOKKOS_INLINE_FUNCTION
+    void sort(arr_t<T, SIZE> & arr)
+    {
+        for(size_t i=0; i<SIZE-1; ++i)
+        {
+            for(size_t j=i+1; j<SIZE; ++j)
+            {
+                if (arr[i] > arr[j])
+                {
+                    T temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+        }
+    }
+
+    //__constant__ double map[100];
+}
+
+template<class T, size_t N>
+KOKKOS_INLINE_FUNCTION
+bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs)
+{
+    for(size_t i=0; i<N; ++i)
+        if (lhs[i] != rhs[i]) return false;
+    return true;
+}
+
+KOKKOS_INLINE_FUNCTION
 constexpr int
 factorial(int n)
 {
@@ -17,6 +93,7 @@ factorial(int n)
 template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon;
 
+KOKKOS_INLINE_FUNCTION
 constexpr unsigned int
 array_length(unsigned int i)
 {
@@ -24,14 +101,14 @@ array_length(unsigned int i)
 }
 
 template <unsigned int Power>
-using Index_t = std::array<size_t, array_length(Power)>;
+using Index_t = arr_t<size_t, array_length(Power)>;
 
 template <unsigned int Power, unsigned int Dim>
-using Indices_t = std::array<Index_t<Power>, Trigon<double, Power, Dim>::count>;
+using Indices_t = arr_t<Index_t<Power>, Trigon<double, Power, Dim>::count>;
 
 template <unsigned int Power, unsigned int Dim>
-typename std::enable_if<((Power == 1) || (Power == 0)),
-                        Indices_t<Power, Dim>>::type
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<((Power == 1) || (Power == 0)), Indices_t<Power, Dim>>
 indices()
 {
     Indices_t<Power, Dim> retval;
@@ -47,7 +124,8 @@ indices()
 }
 
 template <unsigned int Power, unsigned int Dim>
-typename std::enable_if<(Power > 1), Indices_t<Power, Dim>>::type
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<(Power > 1), Indices_t<Power, Dim>>
 indices()
 {
     Indices_t<Power - 1, Dim> subindices = indices<Power - 1, Dim>();
@@ -56,7 +134,7 @@ indices()
     for (size_t i = 0; i < Dim; ++i) {
         for (size_t j = 0; j < subindices.size(); ++j) {
             if (subindices[j][0] >= i) {
-                std::array<size_t, Power> entry;
+                arr_t<size_t, Power> entry;
                 entry[0] = i;
                 for (size_t k = 0; k < (Power - 1); ++k) {
                     entry[k + 1] = subindices[j][k];
@@ -74,7 +152,9 @@ template <unsigned int Length>
 struct Array_hash
 {
     constexpr static size_t max_dim = 8;
-    size_t operator()(std::array<size_t, Length> const& arr) const
+
+    KOKKOS_INLINE_FUNCTION
+    size_t operator()(arr_t<size_t, Length> const& arr) const
     {
         size_t sum = 0;
         size_t mult = 1;
@@ -87,10 +167,17 @@ struct Array_hash
 };
 
 template <unsigned int Power, unsigned int Dim>
-using Map_t =
-    std::unordered_map<std::array<size_t, Power>, size_t, Array_hash<Power>>;
+using Map_t = std::unordered_map<arr_t<size_t, Power>, size_t, 
+        Array_hash<Power>>;
+#if 0
+template <unsigned int Power, unsigned int Dim>
+using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t, 
+        Kokkos::DefaultExecutionSpace,
+        Array_hash<Power>>;
+#endif
 
 template <unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 const Map_t<Power, Dim>
 fill_index_to_canonical()
 {
@@ -104,52 +191,59 @@ fill_index_to_canonical()
 }
 
 template <unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 const Map_t<Power, Dim>&
 index_to_canonical()
 {
     static const Map_t<Power, Dim> map = fill_index_to_canonical<Power, Dim>();
     return map;
+    
+    //return Map_t<Power, Dim>();
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon
 {
 public:
-    constexpr static bool is_trigon = true;
+
+    static constexpr unsigned int count =
+        factorial(Dim+Power-1) / (factorial(Dim-1) * factorial(Power));
+
+    typedef arr_t<T, count> Terms_t;
 
     Trigon<T, Power - 1, Dim> lower;
-    static constexpr unsigned int count =
-        factorial(Dim + Power - 1) / (factorial(Dim - 1) * factorial(Power));
-    typedef std::array<T, count> Terms_t;
     Terms_t terms;
 
-    Trigon() { terms.fill(0); }
+    KOKKOS_INLINE_FUNCTION
+    Trigon() : lower() { terms.fill(0); }
 
-    Trigon(T val)
-        : lower(val)
-    {
-        terms.fill(0);
-    }
+    KOKKOS_INLINE_FUNCTION
+    Trigon(T val) : lower(val) { terms.fill(0); }
 
-    Trigon(T val, size_t index)
-        : lower(val)
+    KOKKOS_INLINE_FUNCTION
+    Trigon(T val, size_t index) : lower(val)
     {
         terms.fill(0);
         get_subpower<1>().terms[index] = 1; // jfa fixme
     }
 
+    KOKKOS_INLINE_FUNCTION
     static constexpr unsigned int power() { return Power; }
 
+    KOKKOS_INLINE_FUNCTION
     const T& value() const { return get_subpower<0>().terms[0]; }
 
+    KOKKOS_INLINE_FUNCTION
     T& value() { return get_subpower<0>().terms[0]; }
 
+    KOKKOS_INLINE_FUNCTION
     void set(T val)
     {
         terms.fill(0);
         lower.set(val);
     }
 
+    KOKKOS_INLINE_FUNCTION
     void set(T val, size_t index)
     {
         set(val);
@@ -157,6 +251,7 @@ public:
     }
 
     template <unsigned int Subpower>
+    KOKKOS_INLINE_FUNCTION
     typename std::enable_if<(Subpower < Power), Trigon<T, Subpower, Dim>&>::type
     get_subpower()
     {
@@ -164,6 +259,7 @@ public:
     }
 
     template <unsigned int Subpower>
+    KOKKOS_INLINE_FUNCTION
     const typename std::enable_if<(Subpower < Power),
                                   Trigon<T, Subpower, Dim> const&>::type
     get_subpower() const
@@ -172,6 +268,7 @@ public:
     }
 
     template <unsigned int Subpower>
+    KOKKOS_INLINE_FUNCTION
     typename std::enable_if<(Subpower == Power),
                             Trigon<T, Subpower, Dim>&>::type
     get_subpower()
@@ -180,6 +277,7 @@ public:
     }
 
     template <unsigned int Subpower>
+    KOKKOS_INLINE_FUNCTION
     const typename std::enable_if<(Subpower == Power),
                                   Trigon<T, Subpower, Dim> const&>::type
     get_subpower() const
@@ -187,21 +285,27 @@ public:
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     bool operator== (double rhs) const
     { return value() == rhs; }
 
+    KOKKOS_INLINE_FUNCTION
     bool operator< (double rhs) const
     { return value() < rhs; }
 
+    KOKKOS_INLINE_FUNCTION
     bool operator> (double rhs) const
     { return value() > rhs; }
 
+    KOKKOS_INLINE_FUNCTION
     bool operator<= (double rhs) const
     { return value() <= rhs; }
 
+    KOKKOS_INLINE_FUNCTION
     bool operator>= (double rhs) const
     { return value() >= rhs; }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim>& operator+=(Trigon<T, Power, Dim> const& t)
     {
         lower += t.lower;
@@ -211,12 +315,14 @@ public:
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim>& operator+=(T val)
     {
         lower += val;
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator+(Trigon<T, Power, Dim> const& t) const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -224,6 +330,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator+(T val) const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -231,6 +338,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator-() const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -241,6 +349,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim>& operator-=(Trigon<T, Power, Dim> const& t)
     {
         lower -= t.lower;
@@ -250,12 +359,14 @@ public:
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim>& operator-=(T val)
     {
         lower -= val;
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator-(Trigon<T, Power, Dim> const& t) const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -263,6 +374,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator-(T val) const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -271,11 +383,12 @@ public:
     }
 
     template <unsigned int P1, unsigned int P2>
-    std::array<std::array<unsigned int, Trigon<double, P2, Dim>::count>,
+    KOKKOS_INLINE_FUNCTION
+    arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
                Trigon<double, P1, Dim>::count>
     calculate_f()
     {
-        std::array<std::array<unsigned int, Trigon<double, P2, Dim>::count>,
+        arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
                    Trigon<double, P1, Dim>::count>
             retval;
 
@@ -297,24 +410,51 @@ public:
                     index3[m] = index2[n];
                 }
                 std::sort(index3.begin(), index3.end());
-                retval.at(i).at(j) =
-                    index_to_canonical<P1 + P2, Dim>().at(index3);
+                //trigon_impl::sort(index3);
+                retval.at(i).at(j) = index_to_canonical<P1 + P2, Dim>().at(index3);
             }
         }
         return retval;
     }
 
+#if 0
     template <unsigned int P1, unsigned int P2>
+    KOKKOS_INLINE_FUNCTION
     unsigned int f(unsigned int i, unsigned j)
     {
-        static std::array<
-            std::array<unsigned int, Trigon<double, P2, Dim>::count>,
+#if 1
+        static arr_t<
+            arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
             Trigon<double, P1, Dim>::count>
             mapping = calculate_f<P1, P2>();
         return mapping[i][j];
+#endif
+
+#if 0
+        auto mapping = calculate_f<P1, P2>();
+        return mapping[i][j];
+#endif
+    }
+#endif
+
+    template <unsigned int P2>
+    KOKKOS_INLINE_FUNCTION
+    unsigned int f(unsigned int i, unsigned j)
+    {
+#ifdef __CUDA_ARCH__
+        return 0;
+#else
+        static arr_t<
+            arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
+            Trigon<double, Power, Dim>::count>
+            mapping = calculate_f<Power, P2>();
+        return mapping[i][j];
+#endif
     }
 
+
     template <unsigned int New_power, typename Mult_trigon_t, typename Array_t>
+    KOKKOS_INLINE_FUNCTION
     void collect_products(Mult_trigon_t const& t, Array_t& new_terms)
     {
         // this x right = new
@@ -323,7 +463,8 @@ public:
             auto& right_terms(t.template get_subpower<right_power>().terms);
             for (size_t i = 0; i < terms.size(); ++i) {
                 for (size_t j = 0; j < right_terms.size(); ++j) {
-                    size_t k = f<Power, right_power>(i, j);
+                    //size_t k = f<Power, right_power>(i, j);
+                    size_t k = f<right_power>(i, j);
                     new_terms[k] += terms[i] * right_terms[j];
                 }
             }
@@ -331,6 +472,7 @@ public:
         lower.template collect_products<New_power>(t, new_terms);
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator*=(Trigon<T, Power, Dim> const& t)
     {
         if (Power > 1) {
@@ -352,6 +494,7 @@ public:
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator*=(T val)
     {
         for (auto&& c : terms) {
@@ -361,6 +504,7 @@ public:
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator*(Trigon<T, Power, Dim> const& t) const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -368,6 +512,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator*(T val) const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -375,6 +520,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator/=(Trigon<T, Power, Dim> const& t)
     {
         // this / t = new
@@ -401,6 +547,7 @@ public:
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator/=(T val)
     {
         for (auto&& c : terms) {
@@ -410,6 +557,7 @@ public:
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator/(Trigon<T, Power, Dim> const& t) const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -417,6 +565,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator/(T val) const
     {
         Trigon<T, Power, Dim> retval(*this);
@@ -428,10 +577,6 @@ public:
     friend std::ostream& operator<<(
             std::ostream& os, Trigon<U, P, D> const& trigon);
 };
-
-// general is_trigon type trait
-template<typename>
-struct is_trigon : std::false_type { };
 
 template<typename T, unsigned int P, unsigned int D>
 struct is_trigon<Trigon<T, P, D>> : std::true_type { };
@@ -450,50 +595,59 @@ operator<<(std::ostream& os, Trigon<T, Power, Dim> const& t)
     return os;
 }
 
-
 // power 0
 template <typename T, unsigned int Dim>
 class Trigon<T, 0, Dim>
 {
 public:
     static constexpr unsigned int count = 1;
-    typedef std::array<T, count> Terms_t;
+    typedef arr_t<T, count> Terms_t;
     Terms_t terms;
 
+    KOKKOS_INLINE_FUNCTION
     Trigon() { terms[0] = 0; }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon(T val) { terms[0] = val; }
 
+    KOKKOS_INLINE_FUNCTION
     static constexpr unsigned int power() { return 0; }
 
+    KOKKOS_INLINE_FUNCTION
     const T value() const { return terms[0]; }
 
+    KOKKOS_INLINE_FUNCTION
     void set(T val) { terms[0] = val; }
 
     template <unsigned int Subpower>
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, Subpower, Dim>& get_subpower()
     {
         return *this;
     }
 
     template <unsigned int Subpower>
+    KOKKOS_INLINE_FUNCTION
     const Trigon<T, Subpower, Dim>& get_subpower() const
     {
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim>& operator+=(Trigon<T, 0, Dim> const& t)
     {
         terms[0] += t.terms[0];
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim>& operator+=(T t)
     {
         terms[0] += t;
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator+(Trigon<T, 0, Dim> const& t) const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -501,6 +655,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator+(T t) const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -508,6 +663,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator-() const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -515,18 +671,21 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim>& operator-=(Trigon<T, 0, Dim> const& t)
     {
         terms[0] -= t.terms[0];
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim>& operator-=(T t)
     {
         terms[0] -= t;
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator-(Trigon<T, 0, Dim> const& t) const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -534,6 +693,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator-(T t) const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -542,6 +702,7 @@ public:
     }
 
     template <unsigned int New_power, typename Mult_trigon_t, typename Array_t>
+    KOKKOS_INLINE_FUNCTION
     void collect_products(Mult_trigon_t const& t, Array_t& new_terms)
     {
         // this x right = new
@@ -554,18 +715,21 @@ public:
         }
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator*=(Trigon<T, 0, Dim> const& t)
     {
         terms[0] *= t.terms[0];
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator*=(T val)
     {
         terms[0] *= val;
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator*(Trigon<T, 0, Dim> const& t) const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -573,6 +737,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator*(T val) const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -580,18 +745,21 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator/=(Trigon<T, 0, Dim> const& t)
     {
         terms[0] /= t.terms[0];
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator/=(T val)
     {
         terms[0] /= val;
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator/(Trigon<T, 0, Dim> const& t) const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -599,6 +767,7 @@ public:
         return retval;
     }
 
+    KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator/(T val) const
     {
         Trigon<T, 0, Dim> retval(*this);
@@ -616,6 +785,7 @@ operator<<(std::ostream& os, Trigon<T, 0, Dim> const& t)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 operator+(T val, Trigon<T, Power, Dim> const& t)
 {
@@ -625,6 +795,7 @@ operator+(T val, Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, Power, Dim>
 operator+(Trigon<T, Power, Dim> const& t1,
           Trigon<std::complex<T>, Power, Dim> const& t2)
@@ -638,6 +809,7 @@ operator+(Trigon<T, Power, Dim> const& t1,
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, Power, Dim>
 operator+(Trigon<std::complex<T>, Power, Dim> const& t1,
           Trigon<T, Power, Dim> const& t2)
@@ -646,6 +818,7 @@ operator+(Trigon<std::complex<T>, Power, Dim> const& t1,
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim>
 operator+(T val, Trigon<T, 0, Dim> const& t)
 {
@@ -655,6 +828,7 @@ operator+(T val, Trigon<T, 0, Dim> const& t)
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, 0, Dim> operator+(
     Trigon<T, 0, Dim> const& t1, Trigon<std::complex<T>, 0, Dim> const& t2)
 {
@@ -664,6 +838,7 @@ Trigon<std::complex<T>, 0, Dim> operator+(
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 operator-(T val, Trigon<T, Power, Dim> const& t)
 {
@@ -673,6 +848,7 @@ operator-(T val, Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim>
 operator-(T val, Trigon<T, 0, Dim> const& t)
 {
@@ -682,6 +858,7 @@ operator-(T val, Trigon<T, 0, Dim> const& t)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, Power, Dim>
 operator-(Trigon<T, Power, Dim> const& t1,
           Trigon<std::complex<T>, Power, Dim> const& t2)
@@ -695,6 +872,7 @@ operator-(Trigon<T, Power, Dim> const& t1,
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, Power, Dim>
 operator-(Trigon<std::complex<T>, Power, Dim> const& t1,
           Trigon<T, Power, Dim> const& t2)
@@ -708,6 +886,7 @@ operator-(Trigon<std::complex<T>, Power, Dim> const& t1,
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, 0, Dim> operator-(
     Trigon<T, 0, Dim> const& t1, Trigon<std::complex<T>, 0, Dim> const& t2)
 {
@@ -717,6 +896,7 @@ Trigon<std::complex<T>, 0, Dim> operator-(
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, 0, Dim> operator-(
     Trigon<std::complex<T>, 0, Dim> const& t1, Trigon<T, 0, Dim> const& t2)
 {
@@ -726,6 +906,7 @@ Trigon<std::complex<T>, 0, Dim> operator-(
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim> operator*(T val, Trigon<T, Power, Dim> const& t)
 {
     Trigon<T, Power, Dim> retval(t);
@@ -734,6 +915,7 @@ Trigon<T, Power, Dim> operator*(T val, Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, Power, Dim> operator*(std::complex<T> val,
                                               Trigon<T, Power, Dim> const& t)
 {
@@ -746,6 +928,7 @@ Trigon<std::complex<T>, Power, Dim> operator*(std::complex<T> val,
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, Power, Dim> operator*(
     Trigon<std::complex<T>, Power, Dim> const& t1,
     Trigon<T, Power, Dim> const& t2)
@@ -754,6 +937,7 @@ Trigon<std::complex<T>, Power, Dim> operator*(
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, Power, Dim> operator*(
     Trigon<T, Power, Dim> const& t1,
     Trigon<std::complex<T>, Power, Dim> const& t2)
@@ -762,6 +946,7 @@ Trigon<std::complex<T>, Power, Dim> operator*(
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim> operator*(T val, Trigon<T, 0, Dim> const& t)
 {
     Trigon<T, 0, Dim> retval(t);
@@ -770,6 +955,7 @@ Trigon<T, 0, Dim> operator*(T val, Trigon<T, 0, Dim> const& t)
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, 0, Dim> operator*(std::complex<T> val,
                                           Trigon<T, 0, Dim> const& t)
 {
@@ -779,6 +965,7 @@ Trigon<std::complex<T>, 0, Dim> operator*(std::complex<T> val,
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 operator/(T val, Trigon<T, Power, Dim> const& t)
 {
@@ -789,6 +976,7 @@ operator/(T val, Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim>
 operator/(T val, Trigon<T, 0, Dim> const& t)
 {
@@ -797,7 +985,9 @@ operator/(T val, Trigon<T, 0, Dim> const& t)
     return retval;
 }
 
+#if 0
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 typename std::enable_if<(Power == 1), void>::type
 calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
                   Trigon<T, Power - 1, Dim>& dest)
@@ -806,6 +996,7 @@ calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 typename std::enable_if<(Power > 1), void>::type
 calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
                   Trigon<T, Power - 1, Dim>& dest)
@@ -829,6 +1020,7 @@ calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
                 dest_index[k] = index;
             }
             std::sort(dest_index.begin(), dest_index.end());
+            //trigon_impl::sort(dest_index);
             dest.terms[index_to_canonical<Power - 1, Dim>().at(dest_index)] =
                 exponent * source.terms[i];
         }
@@ -837,6 +1029,7 @@ calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power - 1, Dim>
 partial_deriv(Trigon<T, Power, Dim> const& t, size_t index)
 {
@@ -844,8 +1037,10 @@ partial_deriv(Trigon<T, Power, Dim> const& t, size_t index)
     calculate_partial<T, Power, Dim>(t, index, retval);
     return retval;
 }
+#endif
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 real(Trigon<std::complex<T>, Power, Dim> const& t)
 {
@@ -858,6 +1053,7 @@ real(Trigon<std::complex<T>, Power, Dim> const& t)
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim> real(Trigon<std::complex<T>, 0, Dim> const& t)
 {
     Trigon<T, 0, Dim> retval;
@@ -866,6 +1062,7 @@ Trigon<T, 0, Dim> real(Trigon<std::complex<T>, 0, Dim> const& t)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 imag(Trigon<std::complex<T>, Power, Dim> const& t)
 {
@@ -878,6 +1075,7 @@ imag(Trigon<std::complex<T>, Power, Dim> const& t)
 }
 
 template <typename T, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim> imag(Trigon<std::complex<T>, 0, Dim> const& t)
 {
     Trigon<T, 0, Dim> retval;
@@ -886,6 +1084,7 @@ Trigon<T, 0, Dim> imag(Trigon<std::complex<T>, 0, Dim> const& t)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 exp(Trigon<T, Power, Dim> const& t)
 {
@@ -906,9 +1105,10 @@ exp(Trigon<T, Power, Dim> const& t)
 constexpr int max_power = 7;
 
 template <typename T>
-using Derivatives_t = std::array<T, max_power + 1>;
+using Derivatives_t = arr_t<T, max_power + 1>;
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 generic_transcendental(Trigon<T, Power, Dim> const& t,
                        Derivatives_t<T> const& derivatives)
@@ -928,6 +1128,7 @@ generic_transcendental(Trigon<T, Power, Dim> const& t,
 }
 
 template <typename T>
+KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 sin_derivatives(T x, unsigned int power)
 {
@@ -958,6 +1159,7 @@ sin_derivatives(T x, unsigned int power)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 sin(Trigon<T, Power, Dim> const& t)
 {
@@ -965,6 +1167,7 @@ sin(Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T>
+KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 cos_derivatives(T x, unsigned int power)
 {
@@ -995,6 +1198,7 @@ cos_derivatives(T x, unsigned int power)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 cos(Trigon<T, Power, Dim> const& t)
 {
@@ -1002,6 +1206,7 @@ cos(Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T>
+KOKKOS_INLINE_FUNCTION
 T
 qpow(T x, int i)
 {
@@ -1013,6 +1218,7 @@ qpow(T x, int i)
 }
 
 template <typename T>
+KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 tan_derivatives(T x, unsigned int power)
 {
@@ -1059,6 +1265,7 @@ tan(Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T>
+KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 sqrt_derivatives(T x, unsigned int power)
 {
@@ -1091,6 +1298,7 @@ sqrt_derivatives(T x, unsigned int power)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 sqrt(Trigon<T, Power, Dim> const& t)
 {
@@ -1098,6 +1306,7 @@ sqrt(Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T>
+KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 asin_derivatives(T x, unsigned int power)
 {
@@ -1137,6 +1346,7 @@ asin_derivatives(T x, unsigned int power)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 asin(Trigon<T, Power, Dim> const& t)
 {
@@ -1144,10 +1354,12 @@ asin(Trigon<T, Power, Dim> const& t)
 }
 
 template <typename T>
+KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 atan_derivatives(T x, unsigned int power)
 {
-    throw std::runtime_error("atan(trigon t) yet to be implemented");
+    //throw std::runtime_error("atan(trigon t) yet to be implemented");
+    return Derivatives_t<T>();
 
 #if 0
     Derivatives_t<T> retval;
@@ -1187,6 +1399,7 @@ atan_derivatives(T x, unsigned int power)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 atan(Trigon<T, Power, Dim> const& t)
 {
@@ -1195,6 +1408,7 @@ atan(Trigon<T, Power, Dim> const& t)
 
 
 template <typename T>
+KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 log_derivatives(T x, unsigned int power)
 {
@@ -1214,6 +1428,7 @@ log_derivatives(T x, unsigned int power)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 log(Trigon<T, Power, Dim> const& t)
 {
