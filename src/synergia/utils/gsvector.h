@@ -2,6 +2,8 @@
 #ifndef GSVECTOR_H_
 #define GSVECTOR_H_
 
+#include "synergia/foundation/trigon_traits.h"
+
 #if 1
 #undef GSV_SSE
 #undef GSV_AVX
@@ -69,7 +71,7 @@ struct Vec : public VecExpr<Vec<T>, T>
 
     template<typename U = T>
     KOKKOS_INLINE_FUNCTION
-    Vec(const T * t, typename std::enable_if<U::is_trigon>::type* = 0) 
+    Vec(const T * t, typename std::enable_if<is_trigon<U>::value>::type* = 0) 
     : data(*t) { }
 
     KOKKOS_INLINE_FUNCTION
@@ -86,7 +88,7 @@ struct Vec : public VecExpr<Vec<T>, T>
 
     template<typename U = T>
     KOKKOS_INLINE_FUNCTION
-    void store(T *p, typename std::enable_if<U::is_trigon>::type* = 0) const
+    void store(T *p, typename std::enable_if<is_trigon<U>::value>::type* = 0) const
     { *p = data; }
 
     KOKKOS_INLINE_FUNCTION
