@@ -443,11 +443,11 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
     if (bunch.size() > particle_bin.extent(0))
         Kokkos::resize(particle_bin, bunch.size(), 6);
 
-#ifdef Kokkos_ENABLE_OPENMP
-    deposit_charge_rectangular_2d_omp_reduce(rho2,
+#ifdef Kokkos_ENABLE_CUDA
+    deposit_charge_rectangular_2d_kokkos_scatter_view(rho2,
             doubled_domain, particle_bin, bunch);
 #else
-    deposit_charge_rectangular_2d_kokkos_scatter_view(rho2,
+    deposit_charge_rectangular_2d_omp_reduce(rho2,
             doubled_domain, particle_bin, bunch);
 #endif
 }

@@ -92,7 +92,8 @@ find_package(Eigen3 REQUIRED)
 list(APPEND extra_includes ${EIGEN3_INCLUDE_DIR})
 
 # fftw3
-if(${Kokkos_ENABLE_OPENMP})
+#if(${Kokkos_ENABLE_OPENMP})
+if(NOT ${Kokkos_ENABLE_CUDA})
     find_package(FFTW3 REQUIRED)
     list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
 
