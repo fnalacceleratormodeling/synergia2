@@ -105,8 +105,8 @@ Build python3 on Power9 (libffi needd to enable _ctypes):
 
     wget python.tar.gz && tar xf
     cd python
-    ./configure --prefix=$LOCAL_ROOT
-    CFLAGS='-I$LOCAL_ROOT/include' LDFLAGS='-L$LOCAL_ROOT/lib64 -lffi' make -j 32
+    LDFLAGS='-L${LOCAL_ROOT}/lib64' CFLAGS='-I${LOCAL_ROOT}/include' ./configure --prefix=$LOCAL_ROOT  --enable-optimizations --enable-shared
+    make -j 32
     make install
 
     wget mpi4py.tar.gz && tar xf
