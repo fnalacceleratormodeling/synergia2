@@ -81,8 +81,6 @@ void finalize_host_cuda_lock_arrays();
 }  // namespace Impl
 }  // namespace Kokkos
 
-#if defined(__CUDACC__)
-
 namespace Kokkos {
 namespace Impl {
 
@@ -113,10 +111,10 @@ __device__
 
 #define CUDA_SPACE_ATOMIC_MASK 0x1FFFF
 
-/// \brief Aquire a lock for the address
+/// \brief Acquire a lock for the address
 ///
-/// This function tries to aquire the lock for the hash value derived
-/// from the provided ptr. If the lock is successfully aquired the
+/// This function tries to acquire the lock for the hash value derived
+/// from the provided ptr. If the lock is successfully acquired the
 /// function returns true. Otherwise it returns false.
 __device__ inline bool lock_address_cuda_space(void* ptr) {
   size_t offset = size_t(ptr);
@@ -131,7 +129,7 @@ __device__ inline bool lock_address_cuda_space(void* ptr) {
 ///
 /// This function releases the lock for the hash value derived
 /// from the provided ptr. This function should only be called
-/// after previously successfully aquiring a lock with
+/// after previously successfully acquiring a lock with
 /// lock_address.
 __device__ inline void unlock_address_cuda_space(void* ptr) {
   size_t offset = size_t(ptr);
@@ -172,8 +170,6 @@ inline int eliminate_warning_for_lock_array() { return lock_array_copied; }
 #define KOKKOS_ENSURE_CUDA_LOCK_ARRAYS_ON_DEVICE() \
   KOKKOS_COPY_CUDA_LOCK_ARRAYS_TO_DEVICE()
 #endif
-
-#endif /* defined( __CUDACC__ ) */
 
 #endif /* defined( KOKKOS_ENABLE_CUDA ) */
 

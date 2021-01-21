@@ -48,7 +48,7 @@
 #include <impl/Kokkos_Timer.hpp>
 #include <cstdlib>
 
-typedef Kokkos::HostSpace::execution_space DefaultHostType;
+using DefaultHostType = Kokkos::HostSpace::execution_space;
 
 // Kokkos provides two different random number generators with a 64 bit and a
 // 1024 bit state. These generators are based on Vigna, Sebastiano (2014). "An
@@ -64,10 +64,10 @@ typedef Kokkos::HostSpace::execution_space DefaultHostType;
 // threads can grep their own. On CPU architectures the pool size is equal to
 // the thread number, on CUDA about 128k states are generated (enough to give
 // every potentially simultaneously running thread its own state). With a kernel
-// a thread is required to aquire a state from the pool and later return it. On
+// a thread is required to acquire a state from the pool and later return it. On
 // CPUs the Random number generator is deterministic if using the same number of
 // threads. On GPUs (i.e. using the CUDA backend it is not deterministic because
-// threads aquire states via atomics.
+// threads acquire states via atomics.
 
 // A Functor for generating uint64_t random numbers templated on the
 // GeneratorPool type
@@ -97,7 +97,7 @@ struct generate_random {
     for (int k = 0; k < samples; k++)
       vals(i * samples + k) = rand_gen.urand64();
 
-    // Give the state back, which will allow another thread to aquire it
+    // Give the state back, which will allow another thread to acquire it
     rand_pool.free_state(rand_gen);
   }
 };
@@ -108,8 +108,8 @@ int main(int argc, char* args[]) {
   } else {
     // Initialize Kokkos
     Kokkos::initialize(argc, args);
-    int size    = atoi(args[1]);
-    int samples = atoi(args[2]);
+    int size    = std::stoi(args[1]);
+    int samples = std::stoi(args[2]);
 
     // Create two random number generator pools one for 64bit states and one for
     // 1024 bit states Both take an 64 bit unsigned integer seed to initialize a

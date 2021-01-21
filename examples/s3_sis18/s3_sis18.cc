@@ -220,7 +220,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // reserve particle slots
     //bunch.reserve(6000000);
 
-#if 1
+#if 0
     // populate particle data
     karray1d means("means", 6);
     for (int i=0; i<6; ++i) means(i) = 0.0;
@@ -242,7 +242,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 #endif
 
 
-#if 0
+#if 1
     // or read from file
     //bunch.read_file_legacy("turn_particles_0000.h5");
     //bunch.write_file("bunch_particles_4M.h5");
