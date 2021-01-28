@@ -43,6 +43,8 @@ set(extra_includes)
 option(SIMPLE_TIMER "use the simple timer 2 profiling" Off)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" On)
 option(ALLOW_PADDING "add paddings to the particle array for memory alignment" On)
+option(Kokkos_ENABLE_OPENMP "enable openmp backend" On)
+option(Kokkos_ENABLE_CUDA "enable CUDA backend" Off)
 
 # only build the shared lib
 option(BUILD_SHARED_LIBS "Build shared libraries" TRUE)
