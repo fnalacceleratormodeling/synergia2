@@ -154,12 +154,10 @@ PYBIND11_MODULE(simulation, m)
                     PyDiagnostics* p = 
                         dynamic_cast<PyDiagnostics*>(diag.get());
 
-                    if (p) { 
-                        p->reg_self(); 
+                    if (p) p->reg_self(); 
 
-                        self.reg_diag_per_turn<std::shared_ptr<Diagnostics>>(
-                            diag, train_idx, bunch_idx, period);
-                    }
+                    self.reg_diag_per_turn<std::shared_ptr<Diagnostics>>(
+                        diag, train_idx, bunch_idx, period);
                 },
                 "Register a per turn diagnostics.",
                 "diag"_a, 
