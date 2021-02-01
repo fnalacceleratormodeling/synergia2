@@ -64,15 +64,12 @@ namespace mpole_impl
                     FF_algorithm::thin_octupole_unit( 
                             p0, p1, p2, p3, &mp.kl[6]);
 
-                // TODO: ...
-#if 0
                 for(int n=4; n<max_order; ++n)
                 {
                     if (mp.kn[n])
                         FF_algorithm::thin_magnet_unit(
-                                p(i,0), p(i,1), p(i,2), p(i,3), &mp.kl[n*2], n+1);
+                                p0, p1, p2, p3, &mp.kl[n*2], n+1);
                 }
-#endif
 
                 p1.store(&p(i,1));
                 p3.store(&p(i,3));

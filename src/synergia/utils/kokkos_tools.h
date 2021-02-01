@@ -8,30 +8,43 @@ namespace kt
     template< class ScalarType, int N >
     struct array_type 
     {
-        ScalarType arr[N];
+        ScalarType data[N];
 
         KOKKOS_INLINE_FUNCTION
         array_type() { init(); }
 
         KOKKOS_INLINE_FUNCTION
         array_type(const array_type & rhs) 
-        { for (int i=0; i<N; i++) arr[i] = rhs.arr[i]; }
+        { for (int i=0; i<N; i++) data[i] = rhs.data[i]; }
 
-        KOKKOS_INLINE_FUNCTION  // initialize arr[] to 0
+        KOKKOS_INLINE_FUNCTION  // initialize data[] to 0
         void init() 
-        { for (int i=0; i<N; i++) arr[i] = 0; }
+        { for (int i=0; i<N; i++) data[i] = 0; }
 
         KOKKOS_INLINE_FUNCTION
         array_type& operator += (const array_type& src) 
         {
-            for (int i=0; i<N; i++) arr[i] += src.arr[i];
+            for (int i=0; i<N; i++) data[i] += src.data[i];
             return *this;
         }
 
         KOKKOS_INLINE_FUNCTION
         void operator += (const volatile array_type& src) volatile 
-        { for (int i=0; i<N; i++) arr[i] += src.arr[i]; }
+        { for (int i=0; i<N; i++) data[i] += src.data[i]; }
     };
+
+    // alias
+    template< class ScalarType, int N >
+    using arr_t = array_type<ScalarType, N>;
+
+    template <typename T>
+    KOKKOS_INLINE_FUNCTION
+    T qpow(T x, int i)
+    {
+        T retval{1};
+        while (i--) { retval = retval * x; }
+        return retval;
+    }
 
     template<class T, int N>
     struct SumArray 

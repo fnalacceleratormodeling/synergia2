@@ -210,19 +210,19 @@ namespace
                 double recip_z2 = 1.0 / (z_coord[iz+1] - z_coord[iz]);
 
                 double xwl = xw_lead[iz]  + z1 * (xw_lead[iz+1] - xw_lead[iz])   * recip_z2;
-                sum.arr[0] += zdensity[j] * N_factor * xmom[j] * xwl;
+                sum.data[0] += zdensity[j] * N_factor * xmom[j] * xwl;
 
                 double xwt = xw_trail[iz] + z1 * (xw_trail[iz+1] - xw_trail[iz]) * recip_z2;
-                sum.arr[1] += zdensity[j] * N_factor * xwt;
+                sum.data[1] += zdensity[j] * N_factor * xwt;
 
                 double ywl = yw_lead[iz]  + z1 * (yw_lead[iz+1] - yw_lead[iz])   * recip_z2;
-                sum.arr[2] += zdensity[j] * N_factor * ymom[j] * ywl;
+                sum.data[2] += zdensity[j] * N_factor * ymom[j] * ywl;
 
                 double ywt = yw_trail[iz] + z1 * (yw_trail[iz+1] - yw_trail[iz]) * recip_z2;
-                sum.arr[3] += zdensity[j] * N_factor * ywt;
+                sum.data[3] += zdensity[j] * N_factor * ywt;
 
                 double zw = z_wake[iz] + z1 * (z_wake[iz+1] - z_wake[iz]) * recip_z2;
-                sum.arr[4] += zdensity[j] * N_factor * zw;
+                sum.data[4] += zdensity[j] * N_factor * zw;
             }
         }
     };
@@ -268,11 +268,11 @@ namespace
 
             if (ti == 0)
             {
-                wakes(z_grid*0+li) = sum.arr[0];
-                wakes(z_grid*1+li) = sum.arr[1];
-                wakes(z_grid*2+li) = sum.arr[2];
-                wakes(z_grid*3+li) = sum.arr[3];
-                wakes(z_grid*4+li) = sum.arr[4];
+                wakes(z_grid*0+li) = sum.data[0];
+                wakes(z_grid*1+li) = sum.data[1];
+                wakes(z_grid*2+li) = sum.data[2];
+                wakes(z_grid*3+li) = sum.data[3];
+                wakes(z_grid*4+li) = sum.data[4];
             }
         }
     };

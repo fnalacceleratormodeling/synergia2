@@ -9,6 +9,7 @@
 //#include "basic_toolkit/PhysicsConstants.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/utils/kokkos_tools.h"
 
 #include <Kokkos_Core.hpp>
 
@@ -19,6 +20,8 @@ inline bool close_to_zero(double v)
 
 namespace FF_algorithm
 {
+    using namespace kt;
+
     // default yoshida order and steps
     constexpr int default_steps = 6;
     constexpr int default_order = 4;
@@ -29,6 +32,16 @@ namespace FF_algorithm
     T invsqrt(T const& x) 
     { return 1.0 / sqrt(x); }
 
+#if 0
+    template <typename T>
+    KOKKOS_INLINE_FUNCTION
+    T qpow(T x, int i)
+    {
+        T retval = x;
+        while (--i) { retval *= x; }
+        return retval;
+    }
+#endif
 
     KOKKOS_INLINE_FUNCTION
     constexpr double quiet_nan()
@@ -733,50 +746,50 @@ namespace FF_algorithm
     {
         for(int k = 0; k < n; k += 4)
         {
-            xp += -kL[0] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k)
-                         / (factorial(n-k) * factorial(k));
+            xp = xp - T(kL[0] * (n-k)) * qpow(x, n-k-1) * qpow(y, k)
+                         / T(factorial(n-k) * factorial(k));
         }
 
         for(int k = 2; k < n; k += 4)
         {
-            xp += +kL[0] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k)
-                         / (factorial(n-k) * factorial(k));
+            xp = xp + T(kL[0] * (n-k)) * qpow(x, n-k-1) * qpow(y, k)
+                         / T(factorial(n-k) * factorial(k));
         }
 
         for(int k = 1; k < n; k += 4)
         {
-            xp += +kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k)
-                         / (factorial(n-k) * factorial(k));
+            xp = xp + T(kL[1] * (n-k)) * qpow(x, n-k-1) * qpow(y, k)
+                         / T(factorial(n-k) * factorial(k));
         }
 
         for(int k = 3; k < n; k += 4)
         {
-            xp += -kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k)
-                         / (factorial(n-k) * factorial(k));
+            xp = xp - T(kL[1] * (n-k)) * qpow(x, n-k-1) * qpow(y, k)
+                         / T(factorial(n-k) * factorial(k));
         }
 
         for(int k = 4; k <= n; k += 4)
         {
-            yp += -kL[0] * k * std::pow(x, n-k) * std::pow(y, k-1)
-                         / (factorial(n-k) * factorial(k));
+            yp = yp - T(kL[0] * k) * qpow(x, n-k) * qpow(y, k-1)
+                         / T(factorial(n-k) * factorial(k));
         }
 
         for(int k = 2; k <= n; k += 4)
         {
-            yp += +kL[0] * k * std::pow(x, n-k) * std::pow(y, k-1)
-                         / (factorial(n-k) * factorial(k));
+            yp = yp + T(kL[0] * k) * qpow(x, n-k) * qpow(y, k-1)
+                         / T(factorial(n-k) * factorial(k));
         }
 
         for(int k = 1; k <= n; k += 4)
         {
-            yp += +kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1)
-                         / (factorial(n-k) * factorial(k));
+            yp = yp + T(kL[1] * k) * qpow(x, n-k) * qpow(y, k-1)
+                         / T(factorial(n-k) * factorial(k));
         }
 
         for(int k = 3; k <= n; k += 4)
         {
-            yp += -kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1)
-                         / (factorial(n-k) * factorial(k));
+            yp = yp - T(kL[1] * k) * qpow(x, n-k) * qpow(y, k-1)
+                         / T(factorial(n-k) * factorial(k));
         }
     }
 
