@@ -9,7 +9,7 @@
 //#include "basic_toolkit/PhysicsConstants.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
-#include "synergia/utils/kokkos_tools.h"
+#include "synergia/utils/kokkos_types.h"
 
 #include <Kokkos_Core.hpp>
 
@@ -31,17 +31,6 @@ namespace FF_algorithm
     KOKKOS_INLINE_FUNCTION
     T invsqrt(T const& x) 
     { return 1.0 / sqrt(x); }
-
-#if 0
-    template <typename T>
-    KOKKOS_INLINE_FUNCTION
-    T qpow(T x, int i)
-    {
-        T retval = x;
-        while (--i) { retval *= x; }
-        return retval;
-    }
-#endif
 
     KOKKOS_INLINE_FUNCTION
     constexpr double quiet_nan()

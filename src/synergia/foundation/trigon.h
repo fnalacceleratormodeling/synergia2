@@ -4,13 +4,16 @@
 #include "synergia/foundation/trigon_traits.h"
 
 #include <algorithm>
-#include <array>
+//#include <array>
 #include <complex>
 #include <iostream> // jfa remove me!!!!
 #include <unordered_map>
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_UnorderedMap.hpp>
+
+#include "synergia/utils/kokkos_types.h"
+#include "synergia/utils/simple_timer.h"
 
 template<class T, size_t SIZE>
 struct arr_t
@@ -50,6 +53,12 @@ struct arr_t
     T const* end() const   { return data_ + SIZE; }
 
 };
+
+template <typename T, unsigned int Power, unsigned int Dim>
+class Trigon;
+
+template <typename T, unsigned int Power, unsigned int Dim>
+class TMapping;
 
 namespace trigon_impl
 {
@@ -215,10 +224,18 @@ public:
     Terms_t terms;
 
     KOKKOS_INLINE_FUNCTION
-    Trigon() : lower() { terms.fill(0); }
+    Trigon() : lower() 
+    { 
+        scoped_simple_timer("trigon_ctor()");
+        terms.fill(0); 
+    }
 
     KOKKOS_INLINE_FUNCTION
-    Trigon(T val) : lower(val) { terms.fill(0); }
+    Trigon(T val) : lower(val) 
+    { 
+        scoped_simple_timer("trigon_ctor(d)");
+        terms.fill(0); 
+    }
 
     KOKKOS_INLINE_FUNCTION
     Trigon(T val, size_t index) : lower(val)
@@ -309,6 +326,7 @@ public:
     Trigon<T, Power, Dim>& operator+=(Trigon<T, Power, Dim> const& t)
     {
         lower += t.lower;
+        scoped_simple_timer("trigon_+=(T)");
         for (size_t i = 0; i < terms.size(); ++i) {
             terms[i] += t.terms[i];
         }
@@ -325,6 +343,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator+(Trigon<T, Power, Dim> const& t) const
     {
+        scoped_simple_timer("trigon_+(T)");
         Trigon<T, Power, Dim> retval(*this);
         retval += t;
         return retval;
@@ -333,6 +352,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator+(T val) const
     {
+        scoped_simple_timer("trigon_+(d)");
         Trigon<T, Power, Dim> retval(*this);
         retval += val;
         return retval;
@@ -343,6 +363,7 @@ public:
     {
         Trigon<T, Power, Dim> retval(*this);
         retval.lower = -lower;
+        scoped_simple_timer("trigon_-()");
         for (size_t i = 0; i < terms.size(); ++i) {
             retval.terms[i] = -terms[i];
         }
@@ -353,6 +374,7 @@ public:
     Trigon<T, Power, Dim>& operator-=(Trigon<T, Power, Dim> const& t)
     {
         lower -= t.lower;
+        scoped_simple_timer("trigon_-=(T)");
         for (size_t i = 0; i < terms.size(); ++i) {
             terms[i] -= t.terms[i];
         }
@@ -369,6 +391,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator-(Trigon<T, Power, Dim> const& t) const
     {
+        scoped_simple_timer("trigon_-(T)");
         Trigon<T, Power, Dim> retval(*this);
         retval -= t;
         return retval;
@@ -377,6 +400,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator-(T val) const
     {
+        scoped_simple_timer("trigon_-(d)");
         Trigon<T, Power, Dim> retval(*this);
         retval -= val;
         return retval;
@@ -388,6 +412,7 @@ public:
                Trigon<double, P1, Dim>::count>
     calculate_f()
     {
+        scoped_simple_timer("trigon_cal_f");
         arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
                    Trigon<double, P1, Dim>::count>
             retval;
@@ -457,6 +482,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     void collect_products(Mult_trigon_t const& t, Array_t& new_terms)
     {
+        simple_timer_start("trigon_collect_products");
         // this x right = new
         constexpr unsigned int right_power = New_power - Power;
         if (right_power <= t.power()) {
@@ -469,6 +495,7 @@ public:
                 }
             }
         }
+        simple_timer_stop("trigon_collect_products");
         lower.template collect_products<New_power>(t, new_terms);
     }
 
@@ -476,12 +503,15 @@ public:
     Trigon<T, Power, Dim> operator*=(Trigon<T, Power, Dim> const& t)
     {
         if (Power > 1) {
+            simple_timer_start("trigon_*=(T)");
             Terms_t new_terms;
             new_terms.fill(0);
             collect_products<Power>(t, new_terms);
+            simple_timer_stop("trigon_*=(T)");
             lower *= t.lower;
             terms = new_terms;
         } else {
+            scoped_simple_timer("trigon_*=(T)");
             const T this_value = value();
             const T right_value = t.value();
             for (size_t i = 0; i < Dim; ++i) {
@@ -497,9 +527,11 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator*=(T val)
     {
+        simple_timer_start("trigon_*=(d)");
         for (auto&& c : terms) {
             c *= val;
         }
+        simple_timer_stop("trigon_*=(d)");
         lower *= val;
         return *this;
     }
@@ -507,6 +539,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator*(Trigon<T, Power, Dim> const& t) const
     {
+        scoped_simple_timer("trigon_*(T)");
         Trigon<T, Power, Dim> retval(*this);
         retval *= t;
         return retval;
@@ -515,6 +548,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator*(T val) const
     {
+        scoped_simple_timer("trigon_*(d)");
         Trigon<T, Power, Dim> retval(*this);
         retval *= val;
         return retval;
@@ -523,6 +557,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator/=(Trigon<T, Power, Dim> const& t)
     {
+        scoped_simple_timer("trigon_/=(T)");
         // this / t = new
         if (Power > 1) {
             lower /= t.lower;
@@ -550,6 +585,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator/=(T val)
     {
+        scoped_simple_timer("trigon_/=(d)");
         for (auto&& c : terms) {
             c /= val;
         }
@@ -560,6 +596,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator/(Trigon<T, Power, Dim> const& t) const
     {
+        scoped_simple_timer("trigon_/(T)");
         Trigon<T, Power, Dim> retval(*this);
         retval /= t;
         return retval;
@@ -568,10 +605,24 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Power, Dim> operator/(T val) const
     {
+        scoped_simple_timer("trigon_/(d)");
         Trigon<T, Power, Dim> retval(*this);
         retval /= val;
         return retval;
     }
+
+    KOKKOS_INLINE_FUNCTION
+    T operator()(arr_t<T, Dim> const& x) const
+    {
+        return T();
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    Trigon<T, Power, Dim> compose(TMapping<T, Power, Dim> const& x) const
+    {
+        Trigon<T, Power, Dim> retval(*this);
+        return retval;
+    };
 
     template <typename U, unsigned int P, unsigned int D>
     friend std::ostream& operator<<(
@@ -580,6 +631,12 @@ public:
 
 template<typename T, unsigned int P, unsigned int D>
 struct is_trigon<Trigon<T, P, D>> : std::true_type { };
+
+template<typename T, unsigned int Power, unsigned int Dim>
+struct TMapping
+{
+    arr_t<Trigon<T, Power, Dim>, Dim> comp;
+};
 
 // stream operator
 template <typename T, unsigned int Power, unsigned int Dim>
@@ -636,6 +693,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim>& operator+=(Trigon<T, 0, Dim> const& t)
     {
+        scoped_simple_timer("trigon_0");
         terms[0] += t.terms[0];
         return *this;
     }
@@ -643,6 +701,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim>& operator+=(T t)
     {
+        scoped_simple_timer("trigon_0");
         terms[0] += t;
         return *this;
     }
@@ -650,6 +709,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator+(Trigon<T, 0, Dim> const& t) const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval += t;
         return retval;
@@ -658,6 +718,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator+(T t) const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval += t;
         return retval;
@@ -666,6 +727,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator-() const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval.terms[0] = -terms[0];
         return retval;
@@ -674,6 +736,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim>& operator-=(Trigon<T, 0, Dim> const& t)
     {
+        scoped_simple_timer("trigon_0");
         terms[0] -= t.terms[0];
         return *this;
     }
@@ -681,6 +744,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim>& operator-=(T t)
     {
+        scoped_simple_timer("trigon_0");
         terms[0] -= t;
         return *this;
     }
@@ -688,6 +752,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator-(Trigon<T, 0, Dim> const& t) const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval -= t;
         return retval;
@@ -696,6 +761,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator-(T t) const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval -= t;
         return retval;
@@ -705,6 +771,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     void collect_products(Mult_trigon_t const& t, Array_t& new_terms)
     {
+        scoped_simple_timer("trigon_collect_products");
         // this x right = new
         constexpr unsigned int right_power = New_power;
         if (right_power <= t.power()) {
@@ -718,6 +785,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator*=(Trigon<T, 0, Dim> const& t)
     {
+        scoped_simple_timer("trigon_0");
         terms[0] *= t.terms[0];
         return *this;
     }
@@ -725,6 +793,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator*=(T val)
     {
+        scoped_simple_timer("trigon_0");
         terms[0] *= val;
         return *this;
     }
@@ -732,6 +801,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator*(Trigon<T, 0, Dim> const& t) const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval *= t;
         return retval;
@@ -740,6 +810,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator*(T val) const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval *= val;
         return retval;
@@ -748,6 +819,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator/=(Trigon<T, 0, Dim> const& t)
     {
+        scoped_simple_timer("trigon_0");
         terms[0] /= t.terms[0];
         return *this;
     }
@@ -755,6 +827,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator/=(T val)
     {
+        scoped_simple_timer("trigon_0");
         terms[0] /= val;
         return *this;
     }
@@ -762,6 +835,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator/(Trigon<T, 0, Dim> const& t) const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval /= t;
         return retval;
@@ -770,6 +844,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, 0, Dim> operator/(T val) const
     {
+        scoped_simple_timer("trigon_0");
         Trigon<T, 0, Dim> retval(*this);
         retval /= val;
         return retval;
@@ -789,6 +864,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 operator+(T val, Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(T+d)");
     Trigon<T, Power, Dim> retval(t);
     retval += val;
     return retval;
@@ -800,6 +876,7 @@ Trigon<std::complex<T>, Power, Dim>
 operator+(Trigon<T, Power, Dim> const& t1,
           Trigon<std::complex<T>, Power, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(T+CT)");
     Trigon<std::complex<T>, Power, Dim> retval;
     for (size_t i = 0; i < retval.terms.size(); ++i) {
         retval.terms[i] = t1.terms[i] + t2.terms[i];
@@ -814,6 +891,7 @@ Trigon<std::complex<T>, Power, Dim>
 operator+(Trigon<std::complex<T>, Power, Dim> const& t1,
           Trigon<T, Power, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(T+T)");
     return t2 + t1;
 }
 
@@ -822,6 +900,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim>
 operator+(T val, Trigon<T, 0, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(T0+d)");
     Trigon<T, 0, Dim> retval(t);
     retval += val;
     return retval;
@@ -832,6 +911,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, 0, Dim> operator+(
     Trigon<T, 0, Dim> const& t1, Trigon<std::complex<T>, 0, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(T0+CT0)");
     Trigon<std::complex<T>, 0, Dim> retval;
     retval.terms[0] = t1.terms[0] + t2.terms[0];
     return retval;
@@ -842,6 +922,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 operator-(T val, Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(T-d)");
     Trigon<T, Power, Dim> retval(-t);
     retval += val;
     return retval;
@@ -852,6 +933,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim>
 operator-(T val, Trigon<T, 0, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(T0-d)");
     Trigon<T, 0, Dim> retval(-t);
     retval += val;
     return retval;
@@ -863,6 +945,7 @@ Trigon<std::complex<T>, Power, Dim>
 operator-(Trigon<T, Power, Dim> const& t1,
           Trigon<std::complex<T>, Power, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(T-CT)");
     Trigon<std::complex<T>, Power, Dim> retval;
     for (size_t i = 0; i < retval.terms.size(); ++i) {
         retval.terms[i] = t1.terms[i] - t2.terms[i];
@@ -877,6 +960,7 @@ Trigon<std::complex<T>, Power, Dim>
 operator-(Trigon<std::complex<T>, Power, Dim> const& t1,
           Trigon<T, Power, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(CT-T)");
     Trigon<std::complex<T>, Power, Dim> retval;
     for (size_t i = 0; i < retval.terms.size(); ++i) {
         retval.terms[i] = t1.terms[i] - t2.terms[i];
@@ -890,6 +974,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, 0, Dim> operator-(
     Trigon<T, 0, Dim> const& t1, Trigon<std::complex<T>, 0, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(T0-CT0)");
     Trigon<std::complex<T>, 0, Dim> retval;
     retval.terms[0] = t1.terms[0] - t2.terms[0];
     return retval;
@@ -900,6 +985,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, 0, Dim> operator-(
     Trigon<std::complex<T>, 0, Dim> const& t1, Trigon<T, 0, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(CT0-T0)");
     Trigon<std::complex<T>, 0, Dim> retval;
     retval.terms[0] = t1.terms[0] - t2.terms[0];
     return retval;
@@ -909,6 +995,7 @@ template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim> operator*(T val, Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(T*d)");
     Trigon<T, Power, Dim> retval(t);
     retval *= val;
     return retval;
@@ -916,9 +1003,10 @@ Trigon<T, Power, Dim> operator*(T val, Trigon<T, Power, Dim> const& t)
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
-Trigon<std::complex<T>, Power, Dim> operator*(std::complex<T> val,
-                                              Trigon<T, Power, Dim> const& t)
+Trigon<std::complex<T>, Power, Dim> 
+operator*(std::complex<T> val, Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(CT*T)");
     Trigon<std::complex<T>, Power, Dim> retval;
     for (size_t i = 0; i < retval.terms.size(); ++i) {
         retval.terms[i] = val * t.terms[i];
@@ -929,19 +1017,21 @@ Trigon<std::complex<T>, Power, Dim> operator*(std::complex<T> val,
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
-Trigon<std::complex<T>, Power, Dim> operator*(
-    Trigon<std::complex<T>, Power, Dim> const& t1,
+Trigon<std::complex<T>, Power, Dim> 
+operator*( Trigon<std::complex<T>, Power, Dim> const& t1,
     Trigon<T, Power, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(CT*CT)");
     return t1 * (std::complex<T>(1.0, 0.0) * t2);
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
-Trigon<std::complex<T>, Power, Dim> operator*(
-    Trigon<T, Power, Dim> const& t1,
+Trigon<std::complex<T>, Power, Dim> 
+operator*( Trigon<T, Power, Dim> const& t1,
     Trigon<std::complex<T>, Power, Dim> const& t2)
 {
+    scoped_simple_timer("trigon_(T*CT)");
     return (std::complex<T>(1.0, 0.0) * t1) * t2;
 }
 
@@ -949,6 +1039,7 @@ template <typename T, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim> operator*(T val, Trigon<T, 0, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(T0*d)");
     Trigon<T, 0, Dim> retval(t);
     retval *= val;
     return retval;
@@ -959,6 +1050,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<std::complex<T>, 0, Dim> operator*(std::complex<T> val,
                                           Trigon<T, 0, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(CT0*cd)");
     Trigon<std::complex<T>, 0, Dim> retval;
     retval.terms[0] = val * t.terms[0];
     return retval;
@@ -969,6 +1061,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 operator/(T val, Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(d/T)");
     Trigon<T, Power, Dim> retval;
     retval.template get_subpower<0>().terms[0] = val;
     retval /= t;
@@ -980,6 +1073,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, 0, Dim>
 operator/(T val, Trigon<T, 0, Dim> const& t)
 {
+    scoped_simple_timer("trigon_(d/T0)");
     Trigon<T, 0, Dim> retval;
     retval.terms[0] = val / t.terms[0];
     return retval;
@@ -1054,7 +1148,8 @@ real(Trigon<std::complex<T>, Power, Dim> const& t)
 
 template <typename T, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
-Trigon<T, 0, Dim> real(Trigon<std::complex<T>, 0, Dim> const& t)
+Trigon<T, 0, Dim> 
+real(Trigon<std::complex<T>, 0, Dim> const& t)
 {
     Trigon<T, 0, Dim> retval;
     retval.terms[0] = t.terms[0].real();
@@ -1076,7 +1171,8 @@ imag(Trigon<std::complex<T>, Power, Dim> const& t)
 
 template <typename T, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
-Trigon<T, 0, Dim> imag(Trigon<std::complex<T>, 0, Dim> const& t)
+Trigon<T, 0, Dim> 
+imag(Trigon<std::complex<T>, 0, Dim> const& t)
 {
     Trigon<T, 0, Dim> retval;
     retval.terms[0] = t.terms[0].imag();
@@ -1088,6 +1184,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 exp(Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_exp");
     T val = t.value();
     Trigon<T, Power, Dim> x(t - val);
     Trigon<T, Power, Dim> xn(1);
@@ -1113,6 +1210,7 @@ Trigon<T, Power, Dim>
 generic_transcendental(Trigon<T, Power, Dim> const& t,
                        Derivatives_t<T> const& derivatives)
 {
+    scoped_simple_timer("trigon_generic_transcendental");
     T val = t.value();
     Trigon<T, Power, Dim> x(t - val);
     Trigon<T, Power, Dim> xn(1);
@@ -1163,6 +1261,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 sin(Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_sin");
     return generic_transcendental(t, sin_derivatives(t.value(), Power));
 }
 
@@ -1202,19 +1301,8 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 cos(Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_cos");
     return generic_transcendental(t, cos_derivatives(t.value(), Power));
-}
-
-template <typename T>
-KOKKOS_INLINE_FUNCTION
-T
-qpow(T x, int i)
-{
-    T retval = 1;
-    while (i--) {
-        retval *= x;
-    }
-    return retval;
 }
 
 template <typename T>
@@ -1222,6 +1310,9 @@ KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 tan_derivatives(T x, unsigned int power)
 {
+    // for qpow
+    using namespace kt;
+
     Derivatives_t<T> retval;
     T tanx(std::tan(x));
     T secx;
@@ -1261,6 +1352,7 @@ template <typename T, unsigned int Power, unsigned int Dim>
 Trigon<T, Power, Dim>
 tan(Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_tan");
     return generic_transcendental(t, tan_derivatives(t.value(), Power));
 }
 
@@ -1302,6 +1394,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 sqrt(Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_sqrt");
     return generic_transcendental(t, sqrt_derivatives(t.value(), Power));
 }
 
@@ -1310,6 +1403,9 @@ KOKKOS_INLINE_FUNCTION
 Derivatives_t<T>
 asin_derivatives(T x, unsigned int power)
 {
+    // qpow
+    using namespace kt;
+
     Derivatives_t<T> retval;
     retval[0] = std::asin(x);
     T x2(x * x);
@@ -1350,6 +1446,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 asin(Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_asin");
     return generic_transcendental(t, asin_derivatives(t.value(), Power));
 }
 
@@ -1432,6 +1529,7 @@ KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>
 log(Trigon<T, Power, Dim> const& t)
 {
+    scoped_simple_timer("trigon_log");
     return generic_transcendental(t, log_derivatives(t.value(), Power));
 }
 
