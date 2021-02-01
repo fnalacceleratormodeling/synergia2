@@ -10,6 +10,8 @@
 const double p0 = 1.5;
 const double m  = pconstants::mp;
 
+const double default_tolerance = 1e-14;
+
 struct propagator_fixture
 {
     Logger screen;
@@ -94,7 +96,8 @@ double de_to_dp(double de)
     return sqrt(1+de*de+2*de*sqrt(p0*p0+m*m)/p0) - 1.0;
 }
 
-void propagate_libff(std::string const& seq)
+void propagate_libff(std::string const& seq, 
+        double tolerance = default_tolerance)
 {
     std::cout << "libff propagate " << seq << "\n";
 
@@ -196,7 +199,6 @@ void propagate_libff(std::string const& seq)
     auto madx = read_madx_output(seq);
 
     // check
-    const double tolerance = 1e-14;
     for(int p=0; p<16; ++p)
     {
 #if 1
@@ -234,17 +236,22 @@ void propagate_libff(std::string const& seq)
     }
 }
 
-TEST_CASE("quad", "[libFF][Elements]")
-{ propagate_libff("quad"); }
-
 TEST_CASE("drift", "[libFF][Elements]")
 { propagate_libff("drift"); }
+
+TEST_CASE("quad", "[libFF][Elements]")
+{ propagate_libff("quad"); }
 
 TEST_CASE("sextupole", "[libFF][Elements]")
 { propagate_libff("sext"); }
 
 TEST_CASE("octupole", "[libFF][Elements]")
 { propagate_libff("oct"); }
+
+// long quad is tested with slightly reduced tolerance 
+// (1e-12 vs 1e-14)
+TEST_CASE("quad_long", "[libFF][Elements]")
+{ propagate_libff("quad_long", 1e-12); }
 
 TEST_CASE("sextupole_long", "[libFF][Elements]")
 { propagate_libff("sext_long"); }
