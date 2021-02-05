@@ -5,22 +5,38 @@
 
 namespace kt
 {
-    template< class ScalarType, size_t N >
+    template< class T, size_t N >
     struct array_type 
     {
-        ScalarType data[N] = {};
+        T data[N] = {};
 
         KOKKOS_INLINE_FUNCTION
-        ScalarType& operator[](size_t i)
+        constexpr size_t size() const
+        { return N; }
+
+        KOKKOS_INLINE_FUNCTION
+        T & operator[](size_t i)
         { return data[i]; }
 
         KOKKOS_INLINE_FUNCTION
-        ScalarType const& operator[](size_t i) const
+        T const& operator[](size_t i) const
         { return data[i]; }
 
         KOKKOS_INLINE_FUNCTION  // initialize data[] to 0
         void init() 
         { for (int i=0; i<N; i++) data[i] = 0; }
+
+        KOKKOS_INLINE_FUNCTION
+        T*       begin()       { return data; }
+
+        KOKKOS_INLINE_FUNCTION
+        T const* begin() const { return data; }
+
+        KOKKOS_INLINE_FUNCTION
+        T*       end()         { return data + N; }
+
+        KOKKOS_INLINE_FUNCTION
+        T const* end() const   { return data + N; }
 
         KOKKOS_INLINE_FUNCTION
         array_type& operator += (const array_type& src) 
@@ -35,8 +51,8 @@ namespace kt
     };
 
     // alias
-    template< class ScalarType, int N >
-    using arr_t = array_type<ScalarType, N>;
+    template< class T, int N >
+    using arr_t = array_type<T, N>;
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION
