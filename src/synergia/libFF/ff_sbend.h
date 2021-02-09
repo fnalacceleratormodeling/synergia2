@@ -660,6 +660,62 @@ namespace sbend_impl
         ref_l.set_state(x_l, xp_l, y_l, yp_l, cdt_l, dpop_l);
         sp.ref_cdt = cdt_l;
     }
+
+    // max multipole moments
+    constexpr const int max_mp_order = 8;
+
+    template<class BP>
+    struct PropThinPoleSimd
+    {
+        using gsv_t = typename BP::gsv_t;
+
+        typename BP::parts_t p;
+        typename BP::const_masks_t masks;
+        kt::arr_t<double, 2*max_mp_order> k;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int idx) const
+        {
+            int i = idx * gsv_t::size();
+
+            int m = 0;
+            for(int x=i; x<i+gsv_t::size(); ++x) m |= masks(x);
+
+            if (m)
+            {
+                gsv_t  x(&p(i, 0));
+                gsv_t xp(&p(i, 1));
+                gsv_t  y(&p(i, 2));
+                gsv_t yp(&p(i, 3));
+
+                if (k[2] || k[3])   
+                    FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k.data+2);
+
+                if (k[4] || k[5])   
+                    FF_algorithm::thin_sextupole_unit(x, xp, y, yp, k.data+4);
+
+                if (k[6] || k[7])   
+                    FF_algorithm::thin_octupole_unit(x, xp, y, yp, k.data+6);
+
+                if (k[8] || k[9])   
+                    FF_algorithm::thin_magnet_unit(x, xp, y, yp, k.data+8, 5);
+
+                if (k[10] || k[11]) 
+                    FF_algorithm::thin_magnet_unit(x, xp, y, yp, k.data+10, 6);
+
+                if (k[12] || k[13]) 
+                    FF_algorithm::thin_magnet_unit(x, xp, y, yp, k.data+12, 7);
+
+                if (k[14] || k[15]) 
+                    FF_algorithm::thin_magnet_unit(x, xp, y, yp, k.data+14, 8);
+
+                xp.store(&p(i, 1));
+                yp.store(&p(i, 3));
+            }
+        }
+    };
+
+
 }
 
 namespace FF_sbend
@@ -706,6 +762,36 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
     if (sp.k_l[0] != 0.0) cf = 1;
     if (sp.k_l[2] != 0.0) cf = 2;
     if (sp.k_l[4] != 0.0) cf = 3;
+
+    // error multipole terms
+    kt::arr_t<double, 2*max_mp_order> kn;
+
+    // multipole moments 
+    // kn[2] ... kn[2*max_mp_order-1]
+    bool has_mp = false;
+
+    std::string a_attr = "a0";
+    std::string b_attr = "b0";
+
+    for(int i=1; i<max_mp_order; ++i)
+    {
+        a_attr[1] = '0' + i;
+        b_attr[1] = '0' + i;
+
+        kn[i*2+0] = ele.get_double_attribute(b_attr, 0.0);
+        kn[i*2+1] = ele.get_double_attribute(a_attr, 0.0);
+
+        if (kn[i*2+0] || kn[i*2+1]) 
+        {
+            has_mp = true;
+
+            double coeff = FF_algorithm::factorial(i);
+
+            kn[i*2+0] *= a * coeff;
+            kn[i*2+1] *= a * coeff;
+        }
+    }
+
 
     sp.scale = ref_l.get_momentum() / 
         (ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]));
@@ -761,9 +847,41 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
             if (!bp.num_valid()) return;
 
 #if LIBFF_USE_GSV
-            auto range = RangePolicy<exec>(0, bp.size_in_gsv());
-            PropSbendSimd<typename BunchT::bp_t> sbend(bp, sp);
-            Kokkos::parallel_for(range, sbend);
+            if (has_mp)
+            {
+                auto range = RangePolicy<exec>(0, bp.size_in_gsv());
+
+                auto sp1 = sp;
+                auto sp2 = sp;
+
+                sp1.redge = false;
+                sp1.length *= 0.5;
+                sp1.angle *= 0.5;
+                sp1.ref_cdt *= 0.5;
+                sp1.e2 = 0.0;
+
+                sp2.ledge = false;
+                sp2.length *= 0.5;
+                sp2.angle *= 0.5;
+                sp2.ref_cdt *= 0.5;
+                sp2.e1 = 0.0;
+
+                PropSbendSimd<typename BunchT::bp_t> sbend1(bp, sp1);
+                Kokkos::parallel_for(range, sbend1);
+
+                PropThinPoleSimd<typename BunchT::bp_t> ptp{
+                    bp.parts, bp.masks, kn};
+                Kokkos::parallel_for(range, ptp);
+
+                PropSbendSimd<typename BunchT::bp_t> sbend2(bp, sp2);
+                Kokkos::parallel_for(range, sbend2);
+            }
+            else
+            {
+                auto range = RangePolicy<exec>(0, bp.size_in_gsv());
+                PropSbendSimd<typename BunchT::bp_t> sbend(bp, sp);
+                Kokkos::parallel_for(range, sbend);
+            }
 #else
             auto range = RangePolicy<exec>(0, bp.size());
             PropSbend<typename BunchT::bp_t> sbend(bp, sp);
