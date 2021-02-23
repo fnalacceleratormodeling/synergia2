@@ -9,6 +9,7 @@
 #undef GSV_AVX
 #undef GSV_V4D
 #undef GSV_MIC
+#undef GSV_AVX512
 #endif
 
 #define GSV_AVX
@@ -420,10 +421,11 @@ atan (VecExpr<E, T> const & u)
 
 class Vec2d;
 class Vec4d;
+class Vec8d;
 class vector4double;
 
 // headers
-#if defined(GSV_SSE) || defined(GSV_AVX)
+#if defined(GSV_SSE) || defined(GSV_AVX) || defined(GSV_AVX512)
 
   #if defined(__GNUC__)
     #pragma GCC diagnostic push
@@ -463,6 +465,19 @@ namespace detail
     { 
         KOKKOS_INLINE_FUNCTION
         static constexpr int size() { return 4; }
+
+        KOKKOS_INLINE_FUNCTION
+        static T ld(const double *p) { T t; t.load_a(p); return t; }
+
+        KOKKOS_INLINE_FUNCTION
+        static void st(double * p, const T & v) { v.store_a(p); }
+    };
+
+    template <class T>
+    struct VectorHelper<T, typename std::enable_if<std::is_same<T, Vec8d>::value>::type>
+    { 
+        KOKKOS_INLINE_FUNCTION
+        static constexpr int size() { return 8; }
 
         KOKKOS_INLINE_FUNCTION
         static T ld(const double *p) { T t; t.load_a(p); return t; }
@@ -510,12 +525,24 @@ operator << (std::ostream& out, T const& v)
     return out;
 }
 
+template<class T>
+inline 
+std::enable_if_t<std::is_same<T, Vec8d>::value, std::ostream&>
+operator << (std::ostream& out, T const& v)
+{
+    out << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << ", "
+        << v[4] << ", " << v[5] << ", " << v[6] << ", " << v[7];
+    return out;
+}
+
 
 // define the GSVector type
 #if defined(GSV_SSE)
   typedef Vec<Vec2d >        GSVector;
 #elif defined(GSV_AVX)
   typedef Vec<Vec4d >        GSVector;
+#elif defined(GSV_AVX512)
+  typedef Vec<Vec8d >        GSVector;
 #elif defined(GSV_QPX)
   typedef Vec<vector4double> GSVector;
 #else
