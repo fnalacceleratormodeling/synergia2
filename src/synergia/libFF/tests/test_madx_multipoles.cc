@@ -78,7 +78,8 @@ karray2d_row read_madx_output(std::string const& seq)
     return out;
 }
 
-void propagate_libff(std::string const& seq)
+void propagate_libff(std::string const& seq, 
+        double tolerance = 1e-15)
 {
     std::cout << "libff propagate " << seq << "\n";
 
@@ -156,17 +157,22 @@ void propagate_libff(std::string const& seq)
     auto madx = read_madx_output(seq);
 
     // check
-    const double tolerance = 1e-15;
     for(int p=0; p<16; ++p)
     {
         CHECK(parts(p, 0) == Approx(madx(p, 0)).margin(tolerance));
         CHECK(parts(p, 1) == Approx(madx(p, 1)).margin(tolerance));
         CHECK(parts(p, 2) == Approx(madx(p, 2)).margin(tolerance));
         CHECK(parts(p, 3) == Approx(madx(p, 3)).margin(tolerance));
-        CHECK(parts(p, 4) == Approx(madx(p, 4)).margin(tolerance));
+        CHECK(parts(p, 4) == -Approx(madx(p, 4)).margin(tolerance));
         CHECK(parts(p, 5) == Approx(madx(p, 5)).margin(tolerance));
     }
 }
+
+TEST_CASE("cfsbend_dipole", "[libFF][Elements]")
+{ propagate_libff("cfsbend_dipole", 1e-7); }
+
+TEST_CASE("cfsbend_sext", "[libFF][Elements]")
+{ propagate_libff("cfsbend_sext", 1e-7); }
 
 TEST_CASE("mpole_k1", "[libFF][Elements]")
 { propagate_libff("mpole_k1"); }
