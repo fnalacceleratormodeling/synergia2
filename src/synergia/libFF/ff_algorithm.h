@@ -448,7 +448,7 @@ namespace FF_algorithm
     T thin_cf_quadrupole_by (T const& x, T const& y, T const& r0, T const& alf)
     { return r0 * log(T(1.0) + alf); }
 
-   // the expressions in thin_cf_sectupole_b{x|y} come from
+    // the expressions in thin_cf_sectupole_b{x|y} come from
     // Zolkin, Sector magnets or transverse electromagnetic fields in cylindrical coordinates,
     // Phys.Rev.Accel.Beams 20 (2017) no.4, 043501 Table XIII
     template <typename T>
@@ -474,9 +474,18 @@ namespace FF_algorithm
 
         T vr0(r0);
         T alf = x / vr0;
+        T rho = uni + alf;
 
-        xp = xp - vk1n * (uni + alf) * thin_cf_quadrupole_by(x, y, vr0, alf);
-        yp = yp + vk1n * (uni + alf) * thin_cf_quadrupole_bx(x, y, vr0);
+        //xp = xp - vk1n * rho * thin_cf_quadrupole_by(x, y, vr0, alf);
+        //yp = yp + vk1n * rho * thin_cf_quadrupole_bx(x, y, vr0);
+
+        xp = xp - vk1n * rho * vr0 * log(rho)
+                + vk1s * rho * y
+                ;
+
+        yp = yp + vk1n * y
+                + vk1s * vr0 * (rho*rho - uni) * T(0.5)
+                ;
     }
 
     // combined function sbends kick up to sextupole
@@ -488,17 +497,202 @@ namespace FF_algorithm
         const T uni(1.0);
 
         T vk1n(kL[0]);
+        T vk1s(kL[1]);
+
         T vk2n(kL[2]);
+        T vk2s(kL[3]);
 
         T vr0(r0);
         T alf = x / vr0;
+        T rho = uni + alf;
 
         xp = xp - vk1n * (uni + alf) * thin_cf_quadrupole_by(x, y, vr0, alf)
-                - vk2n * (uni + alf) * thin_cf_sextupole_by(x, y, vr0, alf) * T(0.5);
+                + vk1s * rho * y
+                - vk2n * (uni + alf) * thin_cf_sextupole_by(x, y, vr0, alf) * T(0.5)
+                ;
 
         yp = yp + vk1n * (uni + alf) * thin_cf_quadrupole_bx(x, y, vr0)
-                + vk2n * (uni + alf) * thin_cf_sextupole_bx(x, y, vr0, alf) * T(0.5);
+                + vk1s * vr0 * (rho*rho - uni) * T(0.5)
+                + vk2n * (uni + alf) * thin_cf_sextupole_bx(x, y, vr0, alf) * T(0.5)
+                ;
     }
+
+    // F_rn_i is the F_rho of a normal multipole at order i
+    // F_yn_i is the F_ybar (ybar = y/r0) of a normal multipole at order i
+    // F_rs_i is the F_rho of a skew multipole at order i
+    // F_ys_i is the F_ybar (ybar = y/r0) of a skew multipole at order i
+    //
+    // See Zolkin, Sector magnets or transverse electromagnetic fields in cylindrical 
+    // coordinates, Phys.Rev.Accel.Beams 20 (2017) no.4, 043501 Table XII
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_rn_2(T const& rho, T const& y)
+    { return T(-1.0) * (y/rho); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_rn_3(T const& rho, T const& y)
+    { return T(-0.5) * (y/rho) * (rho*rho - T(1.0)); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_rn_4(T const& rho, T const& y)
+    { return T(-1.0/6.0) * (y/rho) * 
+        (T(-3.0/2.0)*(rho*rho-T(1.0)) - y*y + T(3.0)*rho*rho*log(rho)); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_rn_5(T const& rho, T const& y)
+    { return T(-1.0/12.0) * (y/rho) *
+        ((rho*rho-T(1.0))*(T(3.0/4.0)*(rho*rho+T(1.0))-y*y) - T(3.0)*rho*rho*log(rho)); }
+
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_yn_2(T const& rho, T const& y)
+    { return log(rho); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_yn_3(T const& rho, T const& y)
+    { return T(0.5) * (T(0.5)*(rho*rho-T(1.0)) - y*y - log(rho)); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_yn_4(T const& rho, T const& y)
+    { return T(-0.25)*(rho*rho-T(1.0)) + T(0.5)*(T(0.5)*(rho*rho+T(1.0)) - y*y)*log(rho); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_yn_5(T const& rho, T const& y)
+    { return T(0.125) * ( T(0.125)*(rho*rho*rho*rho+T(4.0)*rho*rho-T(5.0))
+                - (rho*rho-T(1.0))*y*y + y*y*y*y
+                - (T(0.5)+rho*rho-T(2.0)*y*y)*log(rho) ); }
+
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_rs_2(T const& rho, T const& y)
+    { return T(0.5) / rho * (rho*rho - T(1.0)); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_rs_3(T const& rho, T const& y)
+    { return T(0.5) / rho * 
+        (T(-0.5)*(rho*rho - T(1.0)) - y*y + rho*rho*log(rho)); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_rs_4(T const& rho, T const& y)
+    { return T(0.25) / rho *
+        (T(0.25)*(rho*rho*rho*rho-T(1.0)) - (rho*rho-T(1.0))*y*y - rho*rho*log(rho)); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_rs_5(T const& rho, T const& y)
+    { return T(0.125) / rho *
+        ( T(-0.625)*rho*rho*rho*rho + T(0.5)*rho*rho + T(0.125) 
+          + (rho*rho-T(1.0))*y*y + y*y*y*y
+          + (T(1.0)+T(0.5)*rho*rho-T(2.0)*y*y)*rho*rho*log(rho) ); }
+
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_ys_2(T const& rho, T const& y)
+    { return y; }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_ys_3(T const& rho, T const& y)
+    { return y * log(rho); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_ys_4(T const& rho, T const& y)
+    { return T(0.5) * y * (T(0.5)*(rho*rho-T(1.0)) - y*y/T(3.0) - log(rho)); }
+
+    template<typename T>
+    KOKKOS_INLINE_FUNCTION
+    T F_ys_5(T const& rho, T const& y)
+    { return T(-0.25) * y * (rho*rho-T(1.0)) + 
+        T(1.0/6.0) * (T(1.5)*(rho*rho+T(1.0))-y*y) * log(rho); }
+
+
+
+    // combined function sbends kick up to dectapole
+    template <typename T>
+    KOKKOS_INLINE_FUNCTION
+    void thin_cf_kick_5
+      (T const& x, T& xp, T const& y, T& yp, double r0, double const * kL)
+    {
+        const T uni(1.0);
+
+        T vr0(r0);
+
+        T rho = uni + x / vr0;
+        T ybar = y / vr0;
+
+        // quadrupole
+        if (kL[0] || kL[1])
+        {
+            T kn(kL[0]);
+            T ks(kL[1]);
+
+            xp = xp - kn * rho * vr0 * F_yn_2(rho, ybar)
+                    + ks * rho * vr0 * F_ys_2(rho, ybar)
+                    ;
+
+            yp = yp - kn * rho * vr0 * F_rn_2(rho, ybar)
+                    + ks * rho * vr0 * F_rs_2(rho, ybar)
+                    ;
+        }
+
+        // sextupole
+        if (kL[2] || kL[3])
+        {
+            T kn(kL[2]);
+            T ks(kL[3]);
+
+            xp = xp - kn * rho * vr0*vr0 * F_yn_3(rho, ybar)
+                    + ks * rho * vr0*vr0 * F_ys_3(rho, ybar)
+                    ;
+
+            yp = yp - kn * rho * vr0*vr0 * F_rn_3(rho, ybar)
+                    + ks * rho * vr0*vr0 * F_rs_3(rho, ybar)
+                    ;
+        }
+
+        // octupole
+        if (kL[4] || kL[5])
+        {
+            T kn(kL[4]);
+            T ks(kL[5]);
+
+            xp = xp - kn * rho * vr0*vr0*vr0 * F_yn_4(rho, ybar)
+                    + ks * rho * vr0*vr0*vr0 * F_ys_4(rho, ybar)
+                    ;
+
+            yp = yp - kn * rho * vr0*vr0*vr0 * F_rn_4(rho, ybar)
+                    + ks * rho * vr0*vr0*vr0 * F_rs_4(rho, ybar)
+                    ;
+        }
+
+        // decapole
+        if (kL[6] || kL[7])
+        {
+            T kn(kL[6]);
+            T ks(kL[7]);
+
+            xp = xp - kn * rho * vr0*vr0*vr0*vr0 * F_yn_5(rho, ybar)
+                    + ks * rho * vr0*vr0*vr0*vr0 * F_ys_5(rho, ybar)
+                    ;
+
+            yp = yp - kn * rho * vr0*vr0*vr0*vr0 * F_rn_5(rho, ybar)
+                    + ks * rho * vr0*vr0*vr0*vr0 * F_rs_5(rho, ybar)
+                    ;
+        }
+    }
+
 
 
     // quadrupole with simple n kicks algorithm. non-Yoshida
@@ -782,6 +976,15 @@ namespace FF_algorithm
         }
     }
 
+#if 0
+    // combined thin multipole kicks of n-th order
+    // n = 1, dipole; n = 2, quadrupole; n = 3, sextupole, etc.
+    template <typename T>
+    KOKKOS_INLINE_FUNCTION
+    void thin_multipole_kick
+      (T const& x, T& xp, T const& y, T& yp, double const * kL, int n)
+#endif
+ 
     template<class T>
     KOKKOS_INLINE_FUNCTION
     void nllens_unit

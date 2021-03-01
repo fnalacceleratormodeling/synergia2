@@ -22,7 +22,7 @@ namespace sbend_impl
 
         int    steps;
 
-        double k_l[6];
+        double k_l[10];  // up to decapole
         double scale;
 
         double strength;
@@ -230,7 +230,7 @@ namespace sbend_impl
         const double step_angle;
         const double step_ref_cdt;
 
-        const double step_kl[6];
+        const double step_kl[10];
 
         const Kokkos::complex<double> phase_e1;
         const Kokkos::complex<double> phase_e2;
@@ -251,7 +251,11 @@ namespace sbend_impl
                 sp.k_l[2] * sp.scale * sp.length / sp.steps,
                 sp.k_l[3] * sp.scale * sp.length / sp.steps,
                 sp.k_l[4] * sp.scale * sp.length / sp.steps,
-                sp.k_l[5] * sp.scale * sp.length / sp.steps }
+                sp.k_l[5] * sp.scale * sp.length / sp.steps,
+                sp.k_l[6] * sp.scale * sp.length / sp.steps,
+                sp.k_l[7] * sp.scale * sp.length / sp.steps,
+                sp.k_l[8] * sp.scale * sp.length / sp.steps,
+                sp.k_l[9] * sp.scale * sp.length / sp.steps }
 
             , phase_e1(fa::bend_edge_phase(sp.e1))
             , phase_e2(fa::bend_edge_phase(sp.e2))
@@ -302,7 +306,7 @@ namespace sbend_impl
 
                 // bend body
                 FF_algorithm::bend_yoshida6<typename BP::part_t,
-                    fa::thin_cf_kick_2<typename BP::part_t>, 2> ( 
+                    fa::thin_cf_kick_5<typename BP::part_t>, 5> ( 
                             p(i,0), p(i,1), p(i,2), 
                             p(i,3), p(i,4), p(i,5),
                             sp.pref_b, sp.m_b, step_ref_cdt,
@@ -346,7 +350,7 @@ namespace sbend_impl
         const double step_angle;
         const double step_ref_cdt;
 
-        const double step_kl[6];
+        const double step_kl[10];
 
         const Kokkos::complex<double> phase_e1;
         const Kokkos::complex<double> phase_e2;
@@ -367,7 +371,11 @@ namespace sbend_impl
                 sp.k_l[2] * sp.scale * sp.length / sp.steps,
                 sp.k_l[3] * sp.scale * sp.length / sp.steps,
                 sp.k_l[4] * sp.scale * sp.length / sp.steps,
-                sp.k_l[5] * sp.scale * sp.length / sp.steps }
+                sp.k_l[5] * sp.scale * sp.length / sp.steps,
+                sp.k_l[6] * sp.scale * sp.length / sp.steps,
+                sp.k_l[7] * sp.scale * sp.length / sp.steps,
+                sp.k_l[8] * sp.scale * sp.length / sp.steps,
+                sp.k_l[9] * sp.scale * sp.length / sp.steps }
 
             , phase_e1(fa::bend_edge_phase(sp.e1))
             , phase_e2(fa::bend_edge_phase(sp.e2))
@@ -430,7 +438,7 @@ namespace sbend_impl
 
                 // bend body
                 FF_algorithm::bend_yoshida6<gsv_t, 
-                    fa::thin_cf_kick_2<gsv_t>, 2> ( 
+                    fa::thin_cf_kick_5<gsv_t>, 5> ( 
                             p0, p1, p2, p3, p4, p5,
                             sp.pref_b, sp.m_b, step_ref_cdt,
                             step_kl, step_dphi, step_phase, step_term,
@@ -573,8 +581,8 @@ namespace sbend_impl
         double step_angle = sp.angle/sp.steps;
 
         // step strength for reference
-        double step_kl[6];
-        for (int i=0; i<6; ++i) step_kl[i] = sp.k_l[i] * step_length;
+        double step_kl[10];
+        for (int i=0; i<10; ++i) step_kl[i] = sp.k_l[i] * step_length;
 
         Kokkos::complex<double> phase_e1 = FF_algorithm::bend_edge_phase(sp.e1);
         Kokkos::complex<double> phase_e2 = FF_algorithm::bend_edge_phase(sp.e2);
@@ -625,8 +633,8 @@ namespace sbend_impl
                     sp.e1, phase_e1, sp.strength, pref_l, m_l);
         }
 
-        FF_algorithm::bend_yoshida6< double, 
-            FF_algorithm::thin_cf_kick_2<double>, 2> ( 
+        FF_algorithm::bend_yoshida6<double, 
+            FF_algorithm::thin_cf_kick_5<double>, 5> ( 
                     x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
                     pref_l, m_l, 0.0 /* step ref_cdt */,
                     step_kl, step_dphi, step_phase, step_term,
@@ -753,15 +761,22 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
     sp.k_l[0] = ele.get_double_attribute("k1", 0.0);
     sp.k_l[2] = ele.get_double_attribute("k2", 0.0);
     sp.k_l[4] = ele.get_double_attribute("k3", 0.0);
-    sp.k_l[1] = 0.0;
-    sp.k_l[3] = 0.0;
-    sp.k_l[5] = 0.0;
+    sp.k_l[6] = ele.get_double_attribute("k4", 0.0);
+    sp.k_l[8] = ele.get_double_attribute("k5", 0.0);
+
+    sp.k_l[1] = ele.get_double_attribute("k1s", 0.0);
+    sp.k_l[3] = ele.get_double_attribute("k2s", 0.0);
+    sp.k_l[5] = ele.get_double_attribute("k3s", 0.0);
+    sp.k_l[7] = ele.get_double_attribute("k4s", 0.0);
+    sp.k_l[9] = ele.get_double_attribute("k5s", 0.0);
 
     int cf = 0;  // combined function
 
-    if (sp.k_l[0] != 0.0) cf = 1;
-    if (sp.k_l[2] != 0.0) cf = 2;
-    if (sp.k_l[4] != 0.0) cf = 3;
+    if ((sp.k_l[0] != 0.0) || (sp.k_l[1] != 0.0)) cf = 1;
+    if ((sp.k_l[2] != 0.0) || (sp.k_l[3] != 0.0)) cf = 2;
+    if ((sp.k_l[4] != 0.0) || (sp.k_l[5] != 0.0)) cf = 3;
+    if ((sp.k_l[6] != 0.0) || (sp.k_l[7] != 0.0)) cf = 4;
+    if ((sp.k_l[8] != 0.0) || (sp.k_l[9] != 0.0)) cf = 5;
 
     // error multipole terms
     kt::arr_t<double, 2*max_mp_order> kn;
@@ -840,8 +855,6 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
 
     if (cf == 0)
     {
-        prop_reference(ref_l, sp);
-
         auto apply = [&](ParticleGroup pg) {
             auto bp = bunch.get_bunch_particles(pg);
             if (!bp.num_valid()) return;
@@ -857,14 +870,15 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
                 sp1.redge = false;
                 sp1.length *= 0.5;
                 sp1.angle *= 0.5;
-                sp1.ref_cdt *= 0.5;
                 sp1.e2 = 0.0;
 
                 sp2.ledge = false;
                 sp2.length *= 0.5;
                 sp2.angle *= 0.5;
-                sp2.ref_cdt *= 0.5;
                 sp2.e1 = 0.0;
+
+                prop_reference(ref_l, sp1);
+                prop_reference(ref_l, sp2);
 
                 PropSbendSimd<typename BunchT::bp_t> sbend1(bp, sp1);
                 Kokkos::parallel_for(range, sbend1);
@@ -878,6 +892,8 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
             }
             else
             {
+                prop_reference(ref_l, sp);
+
                 auto range = RangePolicy<exec>(0, bp.size_in_gsv());
                 PropSbendSimd<typename BunchT::bp_t> sbend(bp, sp);
                 Kokkos::parallel_for(range, sbend);
