@@ -159,6 +159,16 @@ void propagate_libff(std::string const& seq,
     // check
     for(int p=0; p<16; ++p)
     {
+#if 0
+        std::cout << "libff p=" << p << ": ";
+        for(int i=0; i<5; ++i) std::cout << parts(p, i) << ", ";
+        std::cout << "\n";
+
+        std::cout << "madx  p=" << p << ": ";
+        for(int i=0; i<5; ++i) std::cout << madx(p, i) << ", ";
+        std::cout << "\n";
+#endif
+
         CHECK(parts(p, 0) == Approx(madx(p, 0)).margin(tolerance));
         CHECK(parts(p, 1) == Approx(madx(p, 1)).margin(tolerance));
         CHECK(parts(p, 2) == Approx(madx(p, 2)).margin(tolerance));
@@ -171,8 +181,14 @@ void propagate_libff(std::string const& seq,
 TEST_CASE("cfsbend_dipole", "[libFF][Elements]")
 { propagate_libff("cfsbend_dipole", 1e-7); }
 
+TEST_CASE("cfsbend_dipole_skew", "[libFF][Elements]")
+{ propagate_libff("cfsbend_dipole_skew", 1e-7); }
+
 TEST_CASE("cfsbend_sext", "[libFF][Elements]")
 { propagate_libff("cfsbend_sext", 1e-7); }
+
+TEST_CASE("cfsbend_sext_skew", "[libFF][Elements]")
+{ propagate_libff("cfsbend_sext_skew", 1e-7); }
 
 TEST_CASE("mpole_k1", "[libFF][Elements]")
 { propagate_libff("mpole_k1"); }
