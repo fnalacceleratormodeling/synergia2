@@ -670,7 +670,7 @@ namespace sbend_impl
     }
 
     // max multipole moments
-    constexpr const int max_mp_order = 8;
+    constexpr const int max_mp_order = 5;
 
     template<class BP>
     struct PropThinPoleSimd
@@ -708,6 +708,7 @@ namespace sbend_impl
                 if (k[8] || k[9])   
                     FF_algorithm::thin_magnet_unit(x, xp, y, yp, k.data+8, 5);
 
+#if 0
                 if (k[10] || k[11]) 
                     FF_algorithm::thin_magnet_unit(x, xp, y, yp, k.data+10, 6);
 
@@ -716,6 +717,7 @@ namespace sbend_impl
 
                 if (k[14] || k[15]) 
                     FF_algorithm::thin_magnet_unit(x, xp, y, yp, k.data+14, 8);
+#endif
 
                 xp.store(&p(i, 1));
                 yp.store(&p(i, 3));
@@ -804,6 +806,15 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
 
             kn[i*2+0] *= a * coeff;
             kn[i*2+1] *= a * coeff;
+
+            if (sp.k_l[(i-1)*2+0] || sp.k_l[(i-1)*2+1])
+            {
+                throw std::runtime_error(
+                        "having both kn/ks and a/b coefficents are forbidden in sbends");
+            }
+
+            sp.k_l[(i-1)*2+0] = kn[i*2+0];
+            sp.k_l[(i-1)*2+1] = kn[i*2+1];
         }
     }
 
@@ -862,6 +873,8 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
 #if LIBFF_USE_GSV
             if (has_mp)
             {
+#if 0
+                // bend - multipole kick - bend
                 auto range = RangePolicy<exec>(0, bp.size_in_gsv());
 
                 auto sp1 = sp;
@@ -889,6 +902,15 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
 
                 PropSbendSimd<typename BunchT::bp_t> sbend2(bp, sp2);
                 Kokkos::parallel_for(range, sbend2);
+#else
+
+                // Yoshida (same to the CF sbends)
+                prop_reference_cf(ref_l, sp);
+
+                auto range = RangePolicy<exec>(0, bp.size_in_gsv());
+                PropSbendCFSimd<typename BunchT::bp_t> sbend(bp, sp);
+                Kokkos::parallel_for(range, sbend);
+#endif
             }
             else
             {
