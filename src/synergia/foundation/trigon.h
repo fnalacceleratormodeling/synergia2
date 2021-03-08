@@ -117,6 +117,27 @@ using Indices_t = arr_t<Index_t<Power>, Trigon<double, Power, Dim>::count>;
 
 template <unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
+std::enable_if_t<Power==0, Indices_t<Power, Dim>>
+indices()
+{
+    Indices_t<Power, Dim> retval;
+    retval[0][0] = 0;
+    return retval;
+}
+
+template <unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<Power==1, Indices_t<Power, Dim>>
+indices()
+{
+    Indices_t<Power, Dim> retval;
+    for (size_t i=0; i<Dim; ++i) retval[i][0] = i;
+    return retval;
+}
+
+#if 0
+template <unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 std::enable_if_t<((Power == 1) || (Power == 0)), Indices_t<Power, Dim>>
 indices()
 {
@@ -131,6 +152,7 @@ indices()
 
     return retval;
 }
+#endif
 
 template <unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
@@ -178,6 +200,7 @@ struct Array_hash
 template <unsigned int Power, unsigned int Dim>
 using Map_t = std::unordered_map<arr_t<size_t, Power>, size_t, 
         Array_hash<Power>>;
+
 #if 0
 template <unsigned int Power, unsigned int Dim>
 using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t, 
@@ -187,11 +210,22 @@ using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t,
 
 template <unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
+const Indices_t<Power, Dim>&
+canonical_to_index()
+{
+    static const Indices_t<Power, Dim> ind = indices<Power, Dim>();
+    return ind;
+}
+
+template <unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
 const Map_t<Power, Dim>
 fill_index_to_canonical()
 {
     Map_t<Power, Dim> map;
-    Indices_t<Power, Dim> the_indices = indices<Power, Dim>();
+    auto the_indices = canonical_to_index<Power, Dim>();
+    //auto the_indices = indices<Power, Dim>();
+
     for (size_t i = 0; i < the_indices.size(); ++i) {
         map[the_indices[i]] = i;
     }
@@ -206,8 +240,6 @@ index_to_canonical()
 {
     static const Map_t<Power, Dim> map = fill_index_to_canonical<Power, Dim>();
     return map;
-    
-    //return Map_t<Power, Dim>();
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
@@ -267,38 +299,27 @@ public:
 
     template <unsigned int Subpower>
     KOKKOS_INLINE_FUNCTION
-    typename std::enable_if<(Subpower < Power), Trigon<T, Subpower, Dim>&>::type
+    typename std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim>&>
     get_subpower()
-    {
-        return lower.template get_subpower<Subpower>();
-    }
+    { return lower.template get_subpower<Subpower>(); }
 
     template <unsigned int Subpower>
     KOKKOS_INLINE_FUNCTION
-    const typename std::enable_if<(Subpower < Power),
-                                  Trigon<T, Subpower, Dim> const&>::type
+    typename std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim> const&>
     get_subpower() const
-    {
-        return lower.template get_subpower<Subpower>();
-    }
+    { return lower.template get_subpower<Subpower>(); }
 
     template <unsigned int Subpower>
     KOKKOS_INLINE_FUNCTION
-    typename std::enable_if<(Subpower == Power),
-                            Trigon<T, Subpower, Dim>&>::type
+    typename std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim>&>
     get_subpower()
-    {
-        return *this;
-    }
+    { return *this; }
 
     template <unsigned int Subpower>
     KOKKOS_INLINE_FUNCTION
-    const typename std::enable_if<(Subpower == Power),
-                                  Trigon<T, Subpower, Dim> const&>::type
+    typename std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim> const&>
     get_subpower() const
-    {
-        return *this;
-    }
+    { return *this; }
 
     KOKKOS_INLINE_FUNCTION
     bool operator== (double rhs) const
@@ -411,10 +432,20 @@ public:
         for (unsigned int i = 0; i < Trigon<double, P1, Dim>::count; ++i) {
             for (unsigned int j = 0; j < Trigon<double, P2, Dim>::count; ++j) {
 
+#if 0
                 auto indices1(indices<P1, Dim>());
                 Index_t<P1> index1(indices1[i]);
                 auto indices2(indices<P2, Dim>());
                 Index_t<P2> index2(indices2[j]);
+#endif
+#if 0
+                Index_t<P1> index1 = canonical_to_index<P1, Dim>()[i];
+                Index_t<P2> index2 = canonical_to_index<P2, Dim>()[j];
+#endif
+#if 1
+                Index_t<P1> index1 = indices<P1, Dim>()[i];
+                Index_t<P2> index2 = indices<P2, Dim>()[j];
+#endif
 
                 Index_t<P1 + P2> index3;
 
@@ -599,7 +630,24 @@ public:
     KOKKOS_INLINE_FUNCTION
     T operator()(arr_t<T, Dim> const& x) const
     {
-        return T();
+        T val{};
+
+        // current power
+        auto inds = indices<Power, Dim>();
+        for(int i=0; i<terms.size(); ++i)
+        {
+            if (terms[i])
+            {
+                T t = terms[i];
+                for(auto idx : inds[i]) t *= x[idx];
+                val += t;
+            }
+        }
+
+        // lower power
+        val += lower(x);
+
+        return val;
     }
 
     KOKKOS_INLINE_FUNCTION
@@ -816,6 +864,11 @@ public:
         retval /= val;
         return retval;
     }
+
+    KOKKOS_INLINE_FUNCTION
+    T operator()(arr_t<T, Dim> const& x) const
+    { return terms[0]; }
+
 };
 
 template <typename T, unsigned int Dim>
