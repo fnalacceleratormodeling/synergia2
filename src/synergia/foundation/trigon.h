@@ -57,7 +57,7 @@ struct arr_t
 template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon;
 
-template <typename T, unsigned int Power, unsigned int Dim>
+template <typename TRIGON>
 class TMapping;
 
 namespace trigon_impl
@@ -246,6 +246,9 @@ template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon
 {
 public:
+
+    using data_type = T;
+    static constexpr unsigned int dim = Dim;
 
     static constexpr unsigned int count =
         factorial(Dim+Power-1) / (factorial(Dim-1) * factorial(Power));
@@ -650,11 +653,28 @@ public:
         return val;
     }
 
+    template<unsigned int P>
     KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> compose(TMapping<T, Power, Dim> const& x) const
+    Trigon<T, P, Dim> compose(TMapping<Trigon<T, P, Dim>> const& x) const
     {
-        Trigon<T, Power, Dim> retval(*this);
-        return retval;
+        Trigon<T, P, Dim> val;
+
+        // current power
+        auto inds = indices<Power, Dim>();
+        for(int i=0; i<terms.size(); ++i)
+        {
+            if (terms[i])
+            {
+                Trigon<T, P, Dim> t(terms[i]);
+                for(auto idx : inds[i]) t *= x[idx];
+                val += t;
+            }
+        }
+
+        // lower power
+        val += lower.compose(x);
+
+        return val;
     };
 
     template <typename U, unsigned int P, unsigned int D>
@@ -665,10 +685,33 @@ public:
 template<typename T, unsigned int P, unsigned int D>
 struct is_trigon<Trigon<T, P, D>> : std::true_type { };
 
-template<typename T, unsigned int Power, unsigned int Dim>
+template<typename TRIGON>
 struct TMapping
 {
-    arr_t<Trigon<T, Power, Dim>, Dim> comp;
+    arr_t<TRIGON, TRIGON::dim> comp;
+
+    KOKKOS_INLINE_FUNCTION
+    TRIGON& operator[](size_t idx) { return comp[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
+    TRIGON const& operator[](size_t idx) const { return comp[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
+    TMapping<TRIGON>
+    operator()(TMapping<TRIGON> const& x, 
+            arr_t<typename TRIGON::data_type, TRIGON::dim> const& ref = {0}) const
+    {
+        TMapping<TRIGON> ret;
+        TMapping<TRIGON> u = x;
+
+        for(int i=0; i<comp.size(); ++i) 
+            u[i] = x[i] - TRIGON(ref[i]);
+
+        for(int i=0; i<comp.size(); ++i) 
+            ret[i] = comp[i].compose(u);
+
+        return ret;
+    }
 };
 
 // stream operator
@@ -869,6 +912,10 @@ public:
     T operator()(arr_t<T, Dim> const& x) const
     { return terms[0]; }
 
+    template<unsigned int P>
+    KOKKOS_INLINE_FUNCTION
+    Trigon<T, P, Dim> compose(TMapping<Trigon<T, P, Dim>> const& x) const
+    { return Trigon<T, P, Dim>(terms[0]); };
 };
 
 template <typename T, unsigned int Dim>
