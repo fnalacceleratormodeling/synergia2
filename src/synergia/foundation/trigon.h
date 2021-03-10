@@ -10,7 +10,7 @@
 #include <unordered_map>
 
 #include <Kokkos_Core.hpp>
-#include <Kokkos_UnorderedMap.hpp>
+//#include <Kokkos_UnorderedMap.hpp>
 
 #include "synergia/utils/kokkos_types.h"
 #include "synergia/utils/simple_timer.h"
