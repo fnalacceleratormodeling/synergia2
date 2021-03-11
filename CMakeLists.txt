@@ -220,6 +220,7 @@ include_directories(${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos)
 
 if(${Kokkos_ENABLE_CUDA})
     add_definitions(-DKokkos_ENABLE_CUDA)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -expt-relaxed-constexpr")
 endif()
 
 if(${Kokkos_ENABLE_OPENMP})
