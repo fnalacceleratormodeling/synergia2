@@ -12,8 +12,10 @@
 #include <Kokkos_Core.hpp>
 //#include <Kokkos_UnorderedMap.hpp>
 
+#include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/kokkos_types.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/utils/json.h"
 
 template<class T, size_t SIZE>
 struct arr_t
@@ -677,9 +679,22 @@ public:
         return val;
     };
 
+    KOKKOS_INLINE_FUNCTION
+    syn::json to_json() const
+    { 
+        syn::json val{}; to_json_impl(val); 
+        return val; 
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    void to_json_impl(syn::json& val) const
+    {
+    }
+
     template <typename U, unsigned int P, unsigned int D>
     friend std::ostream& operator<<(
             std::ostream& os, Trigon<U, P, D> const& trigon);
+
 };
 
 template<typename T, unsigned int P, unsigned int D>
@@ -688,7 +703,14 @@ struct is_trigon<Trigon<T, P, D>> : std::true_type { };
 template<typename TRIGON>
 struct TMapping
 {
+    using trigon_t = TRIGON;
+    constexpr static unsigned int dim = TRIGON::dim;
+
     arr_t<TRIGON, TRIGON::dim> comp;
+
+    KOKKOS_INLINE_FUNCTION
+    TMapping() : comp()
+    { for(int i=0; i<dim; ++i) comp[i].set(0.0, i); }
 
     KOKKOS_INLINE_FUNCTION
     TRIGON& operator[](size_t idx) { return comp[idx]; }
@@ -699,7 +721,7 @@ struct TMapping
     KOKKOS_INLINE_FUNCTION
     TMapping<TRIGON>
     operator()(TMapping<TRIGON> const& x, 
-            arr_t<typename TRIGON::data_type, TRIGON::dim> const& ref = {0}) const
+            arr_t<typename TRIGON::data_type, dim> const& ref = {0}) const
     {
         TMapping<TRIGON> ret;
         TMapping<TRIGON> u = x;
@@ -711,6 +733,24 @@ struct TMapping
             ret[i] = comp[i].compose(u);
 
         return ret;
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    karray2d_row jacobian() const
+    {
+        karray2d_row ret("jacobian", dim, dim);
+        for(int i=0; i<dim; ++i)
+            for(int j=0; j<dim; ++j)
+                ret(i,j) = comp[i].template get_subpower<1>().terms[j];
+        return ret;
+    }
+
+    template <typename TRI>
+    friend std::ostream& operator<<(
+            std::ostream& os, TMapping<TRI> const& m)
+    {
+        for(auto const& t : m.comp) os << t;
+        return os;
     }
 };
 
@@ -1405,29 +1445,29 @@ Derivatives_t<T>
 sqrt_derivatives(T x, unsigned int power)
 {
     Derivatives_t<T> retval;
-    T invsqrtx;
+    T invx;
     retval[0] = std::sqrt(x);
     if (power > 0) {
-        invsqrtx = 1 / retval[0];
-        retval[1] = 0.5 * invsqrtx;
+        retval[1] = 0.5 / retval[0];
     }
     if (power > 1) {
-        retval[2] = -0.5 * invsqrtx * retval[1];
+        invx = 1 / x;
+        retval[2] = -0.5 * invx * retval[1];
     }
     if (power > 2) {
-        retval[3] = -1.5 * invsqrtx * retval[2];
+        retval[3] = -1.5 * invx * retval[2];
     }
     if (power > 3) {
-        retval[4] = -2.5 * invsqrtx * retval[3];
+        retval[4] = -2.5 * invx * retval[3];
     }
     if (power > 4) {
-        retval[5] = -3.5 * invsqrtx * retval[4];
+        retval[5] = -3.5 * invx * retval[4];
     }
     if (power > 5) {
-        retval[6] = -4.5 * invsqrtx * retval[5];
+        retval[6] = -4.5 * invx * retval[5];
     }
     if (power > 6) {
-        retval[7] = -5.5 * invsqrtx * retval[6];
+        retval[7] = -5.5 * invx * retval[6];
     }
     return retval;
 }
