@@ -54,6 +54,20 @@ struct arr_t
     KOKKOS_INLINE_FUNCTION
     T const* end() const   { return data_ + SIZE; }
 
+    // conversion
+    template<class U>
+    KOKKOS_INLINE_FUNCTION
+    void from(arr_t<U, SIZE> const& o)
+    { for(int i=0; i<SIZE; ++i) data_[i] = static_cast<T>(o.data_[i]); }
+
+    template<class U>
+    KOKKOS_INLINE_FUNCTION
+    arr_t<U, SIZE> to() const
+    { 
+        arr_t<U, SIZE> ret;
+        for(int i=0; i<SIZE; ++i) ret.data_[i] = static_cast<U>(data_[i]); 
+        return ret;
+    }
 };
 
 template <typename T, unsigned int Power, unsigned int Dim>
@@ -278,6 +292,12 @@ public:
         terms.fill(0);
         get_subpower<1>().terms[index] = 1; // jfa fixme
     }
+
+    // implicit conversion
+    template<class U>
+    KOKKOS_INLINE_FUNCTION
+    explicit Trigon(Trigon<U, Power, Dim> const& o)
+    : terms(), lower(o.lower) { terms.from(o.terms); }
 
     KOKKOS_INLINE_FUNCTION
     static constexpr unsigned int power() { return Power; }
@@ -679,21 +699,69 @@ public:
         return val;
     };
 
-    KOKKOS_INLINE_FUNCTION
+#ifdef __CUDA_ARCH__
+
+    syn::dummy_json to_json() const
+    { return syn::dummy_json{}; }
+
+#else
+
     syn::json to_json() const
     { 
-        syn::json val{}; to_json_impl(val); 
+        syn::json val = {
+            { "dim", Dim },
+            { "power", Power },
+            { "terms", syn::json::array() }
+        }; 
+
+        syn::json terms{};
+        to_json_impl(terms); 
+
+        val["terms"] = std::move(terms);
+
         return val; 
     }
 
-    KOKKOS_INLINE_FUNCTION
     void to_json_impl(syn::json& val) const
     {
+        // lower power
+        lower.to_json_impl(val);
+
+        // current power
+        syn::json v{};
+        v["power"] = Power;
+        v["terms"] = syn::json::array();
+
+        auto inds = indices<Power, Dim>();
+        for(int i=0; i<terms.size(); ++i)
+        {
+            arr_t<int, Dim> exp;
+            for(auto idx : inds[i]) ++exp[idx];
+
+            syn::json term = {
+                {"exp", syn::json::array()},
+                {"term", terms[i]}
+            };
+
+            for(int i=0; i<exp.size(); ++i) 
+                term["exp"][i] = exp[i];
+
+            v["terms"].emplace_back(std::move(term));
+        }
+
+        val.emplace_back(std::move(v));
     }
 
-    template <typename U, unsigned int P, unsigned int D>
-    friend std::ostream& operator<<(
-            std::ostream& os, Trigon<U, P, D> const& trigon);
+#endif
+
+    friend std::ostream& operator<<(std::ostream& os, 
+            Trigon<T, Power, Dim> const& t)
+    {
+        os << t.lower << "P(" << Power << "): (";
+        for(int i=0; i<t.count-1; ++i) os << t.terms[i] << ", ";
+        os << t.terms[t.count-1] << ")\n";
+        return os;
+    }
 
 };
 
@@ -705,8 +773,14 @@ struct TMapping
 {
     using trigon_t = TRIGON;
     constexpr static unsigned int dim = TRIGON::dim;
+    constexpr static unsigned int power = TRIGON::power();
 
     arr_t<TRIGON, TRIGON::dim> comp;
+
+    template<class U>
+    KOKKOS_INLINE_FUNCTION
+    explicit TMapping(TMapping<Trigon<U, power, dim>> const& o)
+    { comp.from(o.comp); }
 
     KOKKOS_INLINE_FUNCTION
     TMapping() : comp()
@@ -745,15 +819,31 @@ struct TMapping
         return ret;
     }
 
-    template <typename TRI>
-    friend std::ostream& operator<<(
-            std::ostream& os, TMapping<TRI> const& m)
+    friend std::ostream& operator<<(std::ostream& os, 
+            TMapping<TRIGON> const& m)
     {
         for(auto const& t : m.comp) os << t;
         return os;
     }
+
+#ifdef __CUDA_ARCH__
+    syn::dummy_json to_json() const
+    { return syn::dummy_json{}; }
+#else
+    syn::json to_json() const
+    { 
+        syn::json val = syn::json::array();
+        for(auto const& t : comp) 
+            val.emplace_back(t.to_json());
+        return val; 
+    }
+#endif
+
+
+
 };
 
+#if 0
 // stream operator
 template <typename T, unsigned int Power, unsigned int Dim>
 std::ostream& 
@@ -767,6 +857,7 @@ operator<<(std::ostream& os, Trigon<T, Power, Dim> const& t)
 
     return os;
 }
+#endif
 
 // power 0
 template <typename T, unsigned int Dim>
@@ -776,6 +867,12 @@ public:
     static constexpr unsigned int count = 1;
     typedef arr_t<T, count> Terms_t;
     Terms_t terms;
+
+    // implicit conversion
+    template<class U>
+    KOKKOS_INLINE_FUNCTION
+    explicit Trigon(Trigon<U, 0, Dim> const& o)
+    { terms.from(o.terms); }
 
     KOKKOS_INLINE_FUNCTION
     Trigon() { terms[0] = 0; }
@@ -956,6 +1053,49 @@ public:
     KOKKOS_INLINE_FUNCTION
     Trigon<T, P, Dim> compose(TMapping<Trigon<T, P, Dim>> const& x) const
     { return Trigon<T, P, Dim>(terms[0]); };
+
+
+#ifdef __CUDA_ARCH__
+
+    syn::dummy_json to_json() const
+    { return syn::dummy_json{}; }
+
+#else
+
+    syn::json to_json() const
+    { 
+        syn::json val = {
+            { "dim", Dim },
+            { "power", 0},
+            { "terms", syn::json::array() }
+        }; 
+
+        syn::json terms{};
+        to_json_impl(terms); 
+
+        val["terms"] = std::move(terms);
+
+        return val; 
+    }
+
+    void to_json_impl(syn::json& val) const
+    {
+        // current power
+        syn::json v{};
+        v["power"] = 0;
+        v["terms"][0] = {
+            {"exp", syn::json::array()},
+            {"term", terms[0]}
+        };
+
+        for(int i=0; i<Dim; ++i)
+            v["terms"][0]["exp"][i] = 0;
+
+        val.emplace_back(std::move(v));
+    }
+
+#endif
+
 };
 
 template <typename T, unsigned int Dim>
