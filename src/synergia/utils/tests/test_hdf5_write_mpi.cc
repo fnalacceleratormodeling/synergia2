@@ -7,8 +7,11 @@
 
 TEST_CASE("hdf5_file_dim_check_array_nothrow", "[Hdf5_file_write]")
 {
-    Hdf5_file file("hdf5_file_test_dim_array_nothrow.h5", 
-            Hdf5_file::truncate, Commxx());
+    std::stringstream ss;
+    ss << "hdf5_file_test_dim_array_nothrow_" 
+       << Commxx::world_size() << ".h5";
+
+    Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
     std::vector<int> vi(6);
     std::iota(vi.begin(), vi.end(), Commxx::world_rank() * 100);
@@ -19,8 +22,11 @@ TEST_CASE("hdf5_file_dim_check_array_nothrow", "[Hdf5_file_write]")
 
 TEST_CASE("hdf5_file_dim_check_array", "[Hdf5_file_write]")
 {
-    Hdf5_file file("hdf5_file_test_dim_array.h5", 
-            Hdf5_file::truncate, Commxx());
+    std::stringstream ss;
+    ss << "hdf5_file_test_dim_array_" 
+       << Commxx::world_size() << ".h5";
+
+    Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -36,8 +42,11 @@ TEST_CASE("hdf5_file_dim_check_array", "[Hdf5_file_write]")
 
 TEST_CASE("hdf5_file_dim_check_zero_sized", "[Hdf5_file_write]")
 {
-    Hdf5_file file("hdf5_file_test_dim_array_zero_sized.h5", 
-            Hdf5_file::truncate, Commxx());
+    std::stringstream ss;
+    ss << "hdf5_file_test_dim_array_zero_sized_" 
+       << Commxx::world_size() << ".h5";
+
+    Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -54,8 +63,11 @@ TEST_CASE("hdf5_file_dim_check_zero_sized", "[Hdf5_file_write]")
 
 TEST_CASE("hdf5_file_dim_check_kv_nothrow", "[Hdf5_file_write]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_nothrow.h5", 
-            Hdf5_file::truncate, Commxx());
+    std::stringstream ss;
+    ss << "hdf5_file_test_dim_kv_nothrow_" 
+       << Commxx::world_size() << ".h5";
+
+    Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
     karray2d_row arr1("arr1", 4, 3);
     arr1(2, 1) = 2.0;
@@ -67,8 +79,11 @@ TEST_CASE("hdf5_file_dim_check_kv_nothrow", "[Hdf5_file_write]")
 
 TEST_CASE("hdf5_file_dim_check_kv_1", "[Hdf5_file_write]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_1.h5", 
-            Hdf5_file::truncate, Commxx());
+    std::stringstream ss;
+    ss << "hdf5_file_test_dim_kv_1_" 
+       << Commxx::world_size() << ".h5";
+
+    Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -85,8 +100,11 @@ TEST_CASE("hdf5_file_dim_check_kv_1", "[Hdf5_file_write]")
 
 TEST_CASE("hdf5_file_dim_check_kv_2", "[Hdf5_file_write]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_2.h5", 
-            Hdf5_file::truncate, Commxx());
+    std::stringstream ss;
+    ss << "hdf5_file_test_dim_kv_2_" 
+       << Commxx::world_size() << ".h5";
+
+    Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -104,8 +122,11 @@ TEST_CASE("hdf5_file_dim_check_kv_2", "[Hdf5_file_write]")
 
 TEST_CASE("hdf5_file_dim_check_kv_zero_dim", "[Hdf5_file_write]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_zero_dim.h5", 
-            Hdf5_file::truncate, Commxx());
+    std::stringstream ss;
+    ss << "hdf5_file_test_dim_kv_zero_dim_" 
+       << Commxx::world_size() << ".h5";
+
+    Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -122,8 +143,11 @@ TEST_CASE("hdf5_file_dim_check_kv_zero_dim", "[Hdf5_file_write]")
 
 TEST_CASE("hdf5_file_dim_check_kv_diff_rank", "[Hdf5_file_write]")
 {
-    Hdf5_file file("hdf5_file_test_dim_kv_diff_rank.h5", 
-            Hdf5_file::truncate, Commxx());
+    std::stringstream ss;
+    ss << "hdf5_file_test_dim_kv_diff_rank_" 
+       << Commxx::world_size() << ".h5";
+
+    Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
     int mpi_rank = Commxx::world_rank();
     int mpi_size = Commxx::world_size();
@@ -158,8 +182,9 @@ TEST_CASE("hdf5_file_scalar_write", "[Hdf5_file_write]")
     int mpi_size = Commxx::world_size();
 
     {
-        Hdf5_file file("hdf5_file_scalar_write.h5", 
-                Hdf5_file::truncate, Commxx());
+        std::stringstream ss;
+        ss << "hdf5_file_scalar_write_" << mpi_size << ".h5";
+        Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
         int i = 3;
         // i1: 3, i2: [3,3,3,3]
@@ -179,8 +204,9 @@ TEST_CASE("hdf5_file_scalar_write", "[Hdf5_file_write]")
     }
 
     {
-        Hdf5_file file("hdf5_file_scalar_write.h5", 
-                Hdf5_file::read_only, Commxx());
+        std::stringstream ss;
+        ss << "hdf5_file_scalar_write_" << mpi_size << ".h5";
+        Hdf5_file file(ss.str(), Hdf5_file::read_only, Commxx());
 
         auto i1 = file.read<int>("i1");
         CHECK(i1 == 3);
@@ -211,8 +237,9 @@ TEST_CASE("hdf5_file_kv1d_write", "[Hdf5_file_write]")
     int mpi_size = Commxx::world_size();
 
     {
-        Hdf5_file file("hdf5_file_kv1d_write.h5", 
-                Hdf5_file::truncate, Commxx());
+        std::stringstream ss;
+        ss << "hdf5_file_kv1d_write_" << mpi_size << ".h5";
+        Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
         // r0: [0, 1, 2]
         // r1: [0, 1, 2]
@@ -267,8 +294,9 @@ TEST_CASE("hdf5_file_kv1d_write", "[Hdf5_file_write]")
     }
 
     {
-        Hdf5_file file("hdf5_file_kv1d_write.h5", 
-                Hdf5_file::read_only, Commxx());
+        std::stringstream ss;
+        ss << "hdf5_file_kv1d_write_" << mpi_size << ".h5";
+        Hdf5_file file(ss.str(), Hdf5_file::read_only, Commxx());
 
         // k1
         auto k1 = file.read<karray1d_row>("k1");
@@ -347,8 +375,9 @@ TEST_CASE("hdf5_file_kv2d_write", "[Hdf5_file_write]")
     int mpi_size = Commxx::world_size();
 
     {
-        Hdf5_file file("hdf5_file_kv2d_write.h5", 
-                Hdf5_file::truncate, Commxx());
+        std::stringstream ss;
+        ss << "hdf5_file_kv2d_write_" << mpi_size << ".h5";
+        Hdf5_file file(ss.str(), Hdf5_file::truncate, Commxx());
 
         // r0: [0, 1, 2]
         // r1: [0, 1, 2]
@@ -402,8 +431,9 @@ TEST_CASE("hdf5_file_kv2d_write", "[Hdf5_file_write]")
     }
 
     {
-        Hdf5_file file("hdf5_file_kv2d_write.h5", 
-                Hdf5_file::read_only, Commxx());
+        std::stringstream ss;
+        ss << "hdf5_file_kv2d_write_" << mpi_size << ".h5";
+        Hdf5_file file(ss.str(), Hdf5_file::read_only, Commxx());
 
         // k1
         auto k1 = file.read<karray2d_row>("k1");
