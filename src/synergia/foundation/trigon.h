@@ -12,6 +12,8 @@
 #include <Kokkos_Core.hpp>
 //#include <Kokkos_UnorderedMap.hpp>
 
+#include <Eigen/Eigen>
+
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/kokkos_types.h"
 #include "synergia/utils/simple_timer.h"
@@ -125,9 +127,15 @@ array_length(unsigned int i)
     return (i == 0) ? 1 : i;
 }
 
+// exp array with the dim of power, where the elements are the index of the
+// coordinates. E.g.,
+// [1, 2 ,3] is the exp array for a 3rd order term for xyz
+// [1, 1, 0] => x*x => x^2
+// [1, 2, 2] => x*y*y => xy^2
 template <unsigned int Power>
 using Index_t = arr_t<size_t, array_length(Power)>;
 
+// array holding the exp indices for each term in the terms array
 template <unsigned int Power, unsigned int Dim>
 using Indices_t = arr_t<Index_t<Power>, Trigon<double, Power, Dim>::count>;
 
@@ -652,6 +660,30 @@ public:
         return retval;
     }
 
+    // partial derivative
+    // [0, 0] => dTrigon/(dx dx)
+    // [0, 1] => dTrigon/(dx dy)
+    // [2, 2, 2] => dTrigon/(dz dz dz)
+    template<size_t DP>
+    KOKKOS_INLINE_FUNCTION
+    typename std::enable_if_t<(Power>DP && DP>1), Trigon<T, Power-DP, Dim>>
+    derivative(arr_t<unsigned int, DP> const& idx)
+    {
+        arr_t<unsigned int, DP-1> i2;
+        for(int i=0; i<DP-1; ++i) i2[i] = idx[i];
+        return partial_deriv(*this, idx[DP-1]).derivative(i2);
+    }
+
+    template<size_t DP>
+    KOKKOS_INLINE_FUNCTION
+    typename std::enable_if_t<(Power>DP && DP==1), Trigon<T, Power-DP, Dim>>
+    derivative(arr_t<unsigned int, DP> const& idx)
+    {
+        return partial_deriv(*this, idx[0]);
+    }
+
+
+    // evaluation
     KOKKOS_INLINE_FUNCTION
     T operator()(arr_t<T, Dim> const& x) const
     {
@@ -675,6 +707,7 @@ public:
         return val;
     }
 
+    // composition
     template<unsigned int P>
     KOKKOS_INLINE_FUNCTION
     Trigon<T, P, Dim> compose(TMapping<Trigon<T, P, Dim>> const& x) const
@@ -685,7 +718,7 @@ public:
         auto inds = indices<Power, Dim>();
         for(int i=0; i<terms.size(); ++i)
         {
-            if (terms[i])
+            if (abs(terms[i]))
             {
                 Trigon<T, P, Dim> t(terms[i]);
                 for(auto idx : inds[i]) t *= x[idx];
@@ -758,6 +791,7 @@ public:
             Trigon<T, Power, Dim> const& t)
     {
         os << t.lower << "P(" << Power << "): (";
+        //for(int i=0; i<t.count-1; ++i) os << std::setprecision(16) << t.terms[i] << ", ";
         for(int i=0; i<t.count-1; ++i) os << t.terms[i] << ", ";
         os << t.terms[t.count-1] << ")\n";
         return os;
@@ -767,97 +801,6 @@ public:
 
 template<typename T, unsigned int P, unsigned int D>
 struct is_trigon<Trigon<T, P, D>> : std::true_type { };
-
-template<typename TRIGON>
-struct TMapping
-{
-    using trigon_t = TRIGON;
-    constexpr static unsigned int dim = TRIGON::dim;
-    constexpr static unsigned int power = TRIGON::power();
-
-    arr_t<TRIGON, TRIGON::dim> comp;
-
-    template<class U>
-    KOKKOS_INLINE_FUNCTION
-    explicit TMapping(TMapping<Trigon<U, power, dim>> const& o)
-    { comp.from(o.comp); }
-
-    KOKKOS_INLINE_FUNCTION
-    TMapping() : comp()
-    { for(int i=0; i<dim; ++i) comp[i].set(0.0, i); }
-
-    KOKKOS_INLINE_FUNCTION
-    TRIGON& operator[](size_t idx) { return comp[idx]; }
-
-    KOKKOS_INLINE_FUNCTION
-    TRIGON const& operator[](size_t idx) const { return comp[idx]; }
-
-    KOKKOS_INLINE_FUNCTION
-    TMapping<TRIGON>
-    operator()(TMapping<TRIGON> const& x, 
-            arr_t<typename TRIGON::data_type, dim> const& ref = {0}) const
-    {
-        TMapping<TRIGON> ret;
-        TMapping<TRIGON> u = x;
-
-        for(int i=0; i<comp.size(); ++i) 
-            u[i] = x[i] - TRIGON(ref[i]);
-
-        for(int i=0; i<comp.size(); ++i) 
-            ret[i] = comp[i].compose(u);
-
-        return ret;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    karray2d_row jacobian() const
-    {
-        karray2d_row ret("jacobian", dim, dim);
-        for(int i=0; i<dim; ++i)
-            for(int j=0; j<dim; ++j)
-                ret(i,j) = comp[i].template get_subpower<1>().terms[j];
-        return ret;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, 
-            TMapping<TRIGON> const& m)
-    {
-        for(auto const& t : m.comp) os << t;
-        return os;
-    }
-
-#ifdef __CUDA_ARCH__
-    syn::dummy_json to_json() const
-    { return syn::dummy_json{}; }
-#else
-    syn::json to_json() const
-    { 
-        syn::json val = syn::json::array();
-        for(auto const& t : comp) 
-            val.emplace_back(t.to_json());
-        return val; 
-    }
-#endif
-
-
-
-};
-
-#if 0
-// stream operator
-template <typename T, unsigned int Power, unsigned int Dim>
-std::ostream& 
-operator<<(std::ostream& os, Trigon<T, Power, Dim> const& t)
-{
-    os << t.lower;
-
-    os << "P(" << Power << "): (";
-    for(int i=0; i<t.count; ++i) os << t.terms[i] << ", ";
-    os << ")\n";
-
-    return os;
-}
-#endif
 
 // power 0
 template <typename T, unsigned int Dim>
@@ -1054,6 +997,9 @@ public:
     Trigon<T, P, Dim> compose(TMapping<Trigon<T, P, Dim>> const& x) const
     { return Trigon<T, P, Dim>(terms[0]); };
 
+    friend std::ostream& 
+    operator<<(std::ostream& os, Trigon<T, 0, Dim> const& t)
+    { os << "\nP(0): (" << t.terms[0] << ")\n"; return os; }
 
 #ifdef __CUDA_ARCH__
 
@@ -1098,13 +1044,6 @@ public:
 
 };
 
-template <typename T, unsigned int Dim>
-std::ostream& 
-operator<<(std::ostream& os, Trigon<T, 0, Dim> const& t)
-{
-    os << "\nP(0): (" << t.terms[0] << ")\n";
-    return os;
-}
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
@@ -1307,7 +1246,7 @@ operator/(T val, Trigon<T, 0, Dim> const& t)
     return retval;
 }
 
-#if 0
+#if 1
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
 typename std::enable_if<(Power == 1), void>::type
@@ -1344,7 +1283,7 @@ calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
             std::sort(dest_index.begin(), dest_index.end());
             //trigon_impl::sort(dest_index);
             dest.terms[index_to_canonical<Power - 1, Dim>().at(dest_index)] =
-                exponent * source.terms[i];
+                T(exponent) * source.terms[i];
         }
     }
     calculate_partial<T, Power - 1, Dim>(source.lower, index, dest.lower);
@@ -1752,5 +1691,114 @@ log(Trigon<T, Power, Dim> const& t)
 {
     return generic_transcendental(t, log_derivatives(t.value(), Power));
 }
+
+
+
+template<typename TRIGON>
+struct TMapping
+{
+    using trigon_t = TRIGON;
+    constexpr static unsigned int dim = TRIGON::dim;
+    constexpr static unsigned int power = TRIGON::power();
+
+    //template<size_t ROW, size_t OPT>
+    using matrix_t = Eigen::Matrix<typename trigon_t::data_type, Eigen::Dynamic, dim>;
+
+    arr_t<TRIGON, TRIGON::dim> comp;
+
+    template<class U>
+    KOKKOS_INLINE_FUNCTION
+    explicit TMapping(TMapping<Trigon<U, power, dim>> const& o)
+    { comp.from(o.comp); }
+
+    KOKKOS_INLINE_FUNCTION
+    TMapping() : comp()
+    { for(int i=0; i<dim; ++i) comp[i].set(0.0, i); }
+
+    KOKKOS_INLINE_FUNCTION
+    TRIGON& operator[](size_t idx) { return comp[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
+    TRIGON const& operator[](size_t idx) const { return comp[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
+    TMapping<TRIGON>
+    operator()(TMapping<TRIGON> const& x, 
+            arr_t<typename TRIGON::data_type, dim> const& ref = {0}) const
+    {
+        TMapping<TRIGON> ret;
+        TMapping<TRIGON> u = x;
+
+        for(int i=0; i<comp.size(); ++i) 
+            u[i] = x[i] - TRIGON(ref[i]);
+
+        for(int i=0; i<comp.size(); ++i) 
+            ret[i] = comp[i].compose(u);
+
+        return ret;
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    karray2d_row jacobian() const
+    {
+        karray2d_row ret("jacobian", dim, dim);
+        for(int i=0; i<dim; ++i)
+            for(int j=0; j<dim; ++j)
+                ret(i,j) = comp[i].template get_subpower<1>().terms[j];
+        return ret;
+    }
+
+#ifdef __CUDA_ARCH__
+    syn::dummy_json to_json() const
+    { return syn::dummy_json{}; }
+#else
+    syn::json to_json() const
+    { 
+        syn::json val = syn::json::array();
+        for(auto const& t : comp) 
+            val.emplace_back(t.to_json());
+        return val; 
+    }
+#endif
+
+};
+
+#if 1
+template<class TRIGON>
+std::ostream& operator<<(
+        std::ostream& os, TMapping<TRIGON> const& m)
+{
+    for(auto const& t : m.comp) os << t;
+    return os;
+}
+
+
+template<typename TRIGON>
+TMapping<TRIGON> operator*(
+        typename TMapping<TRIGON>::matrix_t const& m,
+        TMapping<TRIGON> const& x)
+{
+    TMapping<TRIGON> z;
+
+    for(int i=0; i< m.rows(); ++i)
+    {
+        z[i] = m(i,0) * x[0];
+
+        int j = 1;
+        while(j < m.cols())
+        {
+            z[i] += m(i,j) * x[j];
+            ++j;
+        }
+    }
+
+    return z;
+}
+#endif
+
+
+
+
+
 
 #endif // TRIGON_H
