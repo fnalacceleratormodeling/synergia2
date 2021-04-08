@@ -1794,6 +1794,67 @@ struct TMapping
         return ret;
     }
 
+    // exp
+    KOKKOS_INLINE_FUNCTION
+    TRIGON operator^(TRIGON const& x)
+    {
+        TRIGON answer;
+        const int s = x.dim / 2; // space dim
+
+        for(int i=0; i<s; ++i)
+        {
+            //answer += comp[i] * partial_deriv(x, i);
+
+            auto xd = partial_deriv(x, i);
+            TRIGON xdp; xdp.lower = xd;
+
+            answer += comp[i] * xdp;
+        }
+
+        return answer;
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    TRIGON
+    exp_map(typename TRIGON::data_type const& t, TRIGON const& x)
+    {
+        constexpr int MX_MAXITER = 100;
+        typename TRIGON::data_type zero{};
+
+        double f = 1.0;
+        int count = 0;
+
+        TRIGON u = (t/f++) * ( (*this)^x );
+        TRIGON answer = x;
+
+        while( ++count<MX_MAXITER && u!=zero )
+        {
+            answer += u;
+            u = (t/f) * ( (*this)^u );
+            ++f;
+        }
+
+        if (count >= MX_MAXITER)
+        {
+            std::cout << "TMapping::exp_map() number of iteration has "
+                "exceeded " << MX_MAXITER << " without achieving "
+                "convergence. Results maybe incorrect.\n";
+        }
+
+        return answer;
+    }
+
+
+    KOKKOS_INLINE_FUNCTION
+    TMapping<TRIGON>
+    exp_map(typename TRIGON::data_type const& t, TMapping<TRIGON> const& m)
+    {
+        TMapping<TRIGON> z;
+        for(int i=0; i<dim; ++i) z[i] = exp_map(t, m[i]);
+        return z;
+    }
+
+
     KOKKOS_INLINE_FUNCTION
     void filter(unsigned int lower, unsigned int upper)
     {
