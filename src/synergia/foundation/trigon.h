@@ -1758,7 +1758,7 @@ struct TMapping
 
     KOKKOS_INLINE_FUNCTION
     TMapping() : comp()
-    { for(int i=0; i<dim; ++i) comp[i].set(0.0, i); }
+    { }
 
     KOKKOS_INLINE_FUNCTION
     TRIGON& operator[](size_t idx) { return comp[idx]; }
