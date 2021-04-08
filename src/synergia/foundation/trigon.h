@@ -354,6 +354,30 @@ public:
     get_subpower() const
     { return *this; }
 
+    template <typename F>
+    KOKKOS_INLINE_FUNCTION
+    void each_term(F f)
+    {
+        auto inds = indices<Power, Dim>();
+        for(int i=0; i<terms.size(); ++i) f(i, inds[i], terms[i]);
+        lower.each_term(f);
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    void set_term(unsigned int power, size_t idx, T const& val)
+    {
+        if (power == Power) terms[idx] = val;
+        else if (power < Power) lower.set_term(power, idx, val);
+    }
+
+    // keep terms with power in [lower, upper]
+    KOKKOS_INLINE_FUNCTION
+    void filter(unsigned int p_lower, unsigned int p_upper)
+    {
+        if (Power>p_upper || Power<p_lower) terms.fill(0);
+        lower.filter(p_lower, p_upper);
+    }
+
     KOKKOS_INLINE_FUNCTION
     bool operator== (double rhs) const
     { return value() == rhs; }
@@ -844,6 +868,27 @@ public:
     const Trigon<T, Subpower, Dim>& get_subpower() const
     {
         return *this;
+    }
+
+    template <typename F>
+    KOKKOS_INLINE_FUNCTION
+    void each_term(F f)
+    {
+        arr_t<size_t, 0> exp;
+        f(0, exp, terms[0]);
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    void set_term(unsigned int power, size_t idx, T const& val)
+    {
+        if (power==0 && idx==0) terms[idx] = val;
+    }
+
+    // keep terms with power in [lower, upper]
+    KOKKOS_INLINE_FUNCTION
+    void filter(unsigned int p_lower, unsigned int p_upper)
+    {
+        if (p_lower==0 && p_upper>=0) terms[0] = 0;
     }
 
     KOKKOS_INLINE_FUNCTION
@@ -1721,6 +1766,7 @@ struct TMapping
     KOKKOS_INLINE_FUNCTION
     TRIGON const& operator[](size_t idx) const { return comp[idx]; }
 
+    // compose
     KOKKOS_INLINE_FUNCTION
     TMapping<TRIGON>
     operator()(TMapping<TRIGON> const& x, 
@@ -1736,6 +1782,29 @@ struct TMapping
             ret[i] = comp[i].compose(u);
 
         return ret;
+    }
+
+    // subtract
+    KOKKOS_INLINE_FUNCTION
+    TMapping<TRIGON>
+    operator-(TMapping<TRIGON> const& x)
+    {
+        TMapping<TRIGON> ret;
+        for(int i=0; i<dim; ++i) ret[i] = comp[i] - x.comp[i];
+        return ret;
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    void filter(unsigned int lower, unsigned int upper)
+    {
+        for(auto & t : comp) t.filter(lower, upper);
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    TMapping<TRIGON>
+    expMap(typename TRIGON::data_type const& t, TMapping<TRIGON> const& m)
+    {
+        return *this;
     }
 
     KOKKOS_INLINE_FUNCTION
