@@ -1,6 +1,13 @@
 
+#ifndef SYNERGIA_SIMULATION_LATTICE_SIMULATOR_H
+#define SYNERGIA_SIMULATION_LATTICE_SIMULATOR_H
 
 #include "synergia/lattice/lattice.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/libFF/ff_element.h"
+
+#include "synergia/foundation/trigon.h"
+#include "synergia/foundation/normal_form.h"
 
 struct chromaticities_t
 {
@@ -58,4 +65,104 @@ namespace Lattice_simulator
 
     chromaticities_t
     get_chromaticities(Lattice const& lattice, double dpp);
+
+
+
+
+    template<unsigned int order = 2>
+    TMapping<Trigon<double, order, 6>>
+    get_one_turn_map(Lattice const& lattice, double dpp = 0.0);
+
+    template<unsigned int order>
+    NormalForm<order>
+    calculate_normal_form(Lattice const& lattice);
 }
+
+#ifdef __CUDA_ARCH__
+
+// no implementations for CUDA arch
+
+#else
+
+// implementations
+namespace Lattice_simulator
+{
+    template<unsigned int order>
+    TMapping<Trigon<double, order, 6>>
+    get_one_turn_map(Lattice const& lattice, double dpp)
+    {
+        using trigon_t = Trigon<double, order, 6>;
+
+        // get the reference particle
+        auto const& ref = lattice.get_reference_particle();
+
+        // closed orbit
+        auto probe = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
+
+        // comm world
+        Commxx comm;
+
+        // trigon bunch to get the one-turn-map
+        bunch_t<trigon_t> tb(ref, comm.size(), comm);
+
+        // design reference particle from the closed orbit
+        auto ref_l = ref;
+        ref_l.set_state(probe);
+        tb.set_design_reference_particle(ref_l);
+
+        auto tparts = tb.get_host_particles();
+
+        // init value
+        for(int i=0; i<6; ++i) 
+            tparts(0, i).set(probe[i], i);
+
+        // check in
+        tb.checkin_particles();
+
+        // propagate trigon
+        for(auto & ele : lattice.get_elements())
+        {
+            if (ele.get_type() == element_type::rfcavity)
+            {
+                Lattice_element dup = ele;
+                //dup.set_double_attribute("volt", 0.0);
+
+                FF_element::apply(dup, tb);
+            }
+            else
+            {
+                FF_element::apply(ele, tb);
+            }
+        }
+
+        // checkout particles
+        tb.checkout_particles();
+
+        // one-turn-map
+        TMapping<trigon_t> map;
+        for(int i=0; i<trigon_t::dim; ++i) map[i] = tparts(0, i);
+
+        return map;
+    }
+
+
+    template<unsigned int order>
+    NormalForm<order>
+    calculate_normal_form(Lattice const& lattice)
+    {
+        auto one_turn_map = get_one_turn_map<order>(lattice, 0.00);
+
+        auto ref = lattice.get_reference_particle();
+        double e0 = ref.get_total_energy();
+        double pc0 = ref.get_momentum();
+        double mass = ref.get_mass();
+
+        NormalForm<order> nf(one_turn_map, e0, pc0, mass);
+        return nf;
+    }
+}
+
+#endif // __CUDA_ARCH
+
+#endif // LATTICE_SIMULATOR_H
+

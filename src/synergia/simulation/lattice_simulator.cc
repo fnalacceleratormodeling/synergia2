@@ -1,3 +1,11 @@
+
+#ifdef __CUDA_ARCH__
+
+// no implementations for CUDA arch
+
+#else
+
+
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
@@ -441,4 +449,5 @@ Lattice_simulator::get_chromaticities(Lattice const& lattice, double dpp)
     return chroms;
 }
 
+#endif
 
