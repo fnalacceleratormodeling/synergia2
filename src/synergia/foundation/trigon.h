@@ -379,8 +379,20 @@ public:
     }
 
     KOKKOS_INLINE_FUNCTION
-    bool operator== (double rhs) const
-    { return value() == rhs; }
+    bool operator== (T rhs) const
+    { 
+        double const eps = 1e5 * std::numeric_limits<double>::epsilon();
+        if (abs(value() - rhs) > eps) return false;
+
+        for(auto const& v : terms)
+            if (abs(v-rhs) > eps) return false;
+
+        return (lower == rhs);
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    bool operator!= (T rhs) const
+    { return !((*this) == rhs); }
 
     KOKKOS_INLINE_FUNCTION
     bool operator< (double rhs) const
@@ -717,7 +729,7 @@ public:
         auto inds = indices<Power, Dim>();
         for(int i=0; i<terms.size(); ++i)
         {
-            if (terms[i])
+            if (abs(terms[i]))
             {
                 T t = terms[i];
                 for(auto idx : inds[i]) t *= x[idx];
@@ -870,6 +882,17 @@ public:
         return *this;
     }
 
+    KOKKOS_INLINE_FUNCTION
+    bool operator== (T rhs) const
+    { 
+        double const eps = 1e5 * std::numeric_limits<double>::epsilon();
+        return !(abs(terms[0] - rhs) > eps);
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    bool operator!= (T rhs) const
+    { return !((*this) == rhs); }
+
     template <typename F>
     KOKKOS_INLINE_FUNCTION
     void each_term(F f)
@@ -888,7 +911,7 @@ public:
     KOKKOS_INLINE_FUNCTION
     void filter(unsigned int p_lower, unsigned int p_upper)
     {
-        if (p_lower==0 && p_upper>=0) terms[0] = 0;
+        if (p_lower==0) terms[0] = 0;
     }
 
     KOKKOS_INLINE_FUNCTION
@@ -1766,6 +1789,16 @@ struct TMapping
     KOKKOS_INLINE_FUNCTION
     TRIGON const& operator[](size_t idx) const { return comp[idx]; }
 
+    // evaluation
+    KOKKOS_INLINE_FUNCTION
+    arr_t<typename TRIGON::data_type, dim>
+    operator()(arr_t<typename TRIGON::data_type, dim> const& x) const
+    {
+        arr_t<typename TRIGON::data_type, dim> val;
+        for(int i=0; i<dim; ++i) val[i] = comp[i](x);
+        return val;
+    }
+
     // compose
     KOKKOS_INLINE_FUNCTION
     TMapping<TRIGON>
@@ -1799,7 +1832,7 @@ struct TMapping
     TRIGON operator^(TRIGON const& x)
     {
         TRIGON answer;
-        const int s = x.dim / 2; // space dim
+        const int s = x.dim; // space dim
 
         for(int i=0; i<s; ++i)
         {
@@ -1824,8 +1857,9 @@ struct TMapping
         double f = 1.0;
         int count = 0;
 
-        TRIGON u = (t/f++) * ( (*this)^x );
         TRIGON answer = x;
+        TRIGON u = (t/f) * ( (*this)^x );
+        ++f;
 
         while( ++count<MX_MAXITER && u!=zero )
         {
@@ -1859,13 +1893,6 @@ struct TMapping
     void filter(unsigned int lower, unsigned int upper)
     {
         for(auto & t : comp) t.filter(lower, upper);
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    TMapping<TRIGON>
-    expMap(typename TRIGON::data_type const& t, TMapping<TRIGON> const& m)
-    {
-        return *this;
     }
 
     KOKKOS_INLINE_FUNCTION
