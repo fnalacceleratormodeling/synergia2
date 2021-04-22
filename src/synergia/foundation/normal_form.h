@@ -8,6 +8,10 @@
 template<unsigned int order>
 class NormalForm
 {
+    // max iterations for the eigen solver
+    constexpr static int EigenIterations = 100000;
+
+    // matrix types
     using Vector6D = Eigen::Vector<double, 6>;
     using Vector6C = Eigen::Vector<std::complex<double>, 6>;
 
@@ -31,6 +35,7 @@ class NormalForm
 
 public:
 
+    // trigon types
     using trigon_t = Trigon<double, order, 6>;
     using mapping_t = TMapping<trigon_t>;
 
@@ -52,6 +57,10 @@ public:
 
     std::array<double, 6>
     cnvDataFromNormalForm(std::array<std::complex<double>, 6> const& nform) const;
+
+private:
+
+    Matrix6C ev_ordering(Vector6C const& ev, Matrix6C const& B) const;
 
 private:
 
@@ -82,10 +91,12 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
 
     constexpr const int dim = trigon_t::dim;
 
+#if 0
     {
         std::ofstream of("map.json");
         of << one_turn_map.to_json();
     }
+#endif
 
     // chef index
     int c_ix  = 0;
@@ -186,8 +197,8 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     trigon_t realE = cde + e0;
     trigon_t dp = sqrt(realE*realE - mass*mass) - pc0;
 
-    std::cout << "realE = " << realE;
-    std::cout << "dp = " << dp;
+    //std::cout << "realE = " << realE;
+    //std::cout << "dp = " << dp;
 
     CanonToSyn[s_ix]  = cx;
     CanonToSyn[s_ipx] = cpx*pconstants::c/pc0;
@@ -202,7 +213,7 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
 
 #if 0
     std::cout << "M = " << M;
-    std::cout << "CanonToSyn = " << CanonToSyn;
+    //std::cout << "CanonToSyn = " << CanonToSyn;
 #endif
 
     // The combined transformation that we will use for the normal form
@@ -212,7 +223,7 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     mapping_t canonMap = SynToCanon(M(CanonToSyn));
 
 #if 0
-    std::cout << "canonMap = " << canonMap;
+    std::cout << "canonMap = \n" << canonMap << "\n";
 #endif
 
     // now the normal form
@@ -224,7 +235,17 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     auto kjac = canonMap.jacobian();
     Matrix6D A(kjac.data());
 
-    Eigen::EigenSolver<Matrix6D> eigensolver(A);
+#if 0
+    std::cout << "jacobian = \n" << A << "\n";
+#endif
+
+    Eigen::EigenSolver<Matrix6D> eigensolver;
+
+    eigensolver.setMaxIterations(EigenIterations);
+    eigensolver.compute(A);
+
+    if (eigensolver.info() == Eigen::NoConvergence)
+        throw std::runtime_error("eigensolver no convergence");
 
     if (eigensolver.info() != Eigen::Success)
         throw std::runtime_error("failed solving eigenvectors");
@@ -234,8 +255,8 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
 
 #if 0
     std::cout << "A = \n" << A << "\n";
-    //std::cout << "Eigenvalues = \n" << ev << "\n";
-    //std::cout << "Eigenvectors = \n" << B << "\n";
+    std::cout << "Eigenvalues = \n" << ev << "\n";
+    std::cout << "Eigenvectors = \n" << B << "\n";
 #endif
 
 #if 0
@@ -284,14 +305,19 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
         J(i, i-dim/2) = -1.0;
     }
 
-    // TODO: reordering B
-    Matrix6C Br;
+    // reordering B
+    Matrix6C Br = ev_ordering(ev, B);
+
+#if 0
     for(int i=0; i<6; ++i) Br(i,0) = B(i,0);
     for(int i=0; i<6; ++i) Br(i,1) = B(i,4);
     for(int i=0; i<6; ++i) Br(i,2) = B(i,2);
     for(int i=0; i<6; ++i) Br(i,3) = B(i,1);
     for(int i=0; i<6; ++i) Br(i,4) = B(i,5);
     for(int i=0; i<6; ++i) Br(i,5) = B(i,3);
+#endif
+
+    //std::cout << "Br = \n" << Br << "\n";
 
 #if 0
     // norm
@@ -532,7 +558,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
 #endif
 
 
-
     // the original near-identity transformation
     mapping_c_t id;
     for(int i=0; i<id.dim; ++i) id[i].set(0.0, i);
@@ -586,7 +611,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
         while(ll < k)
         {
             reg = N[ll].exp_map(-complex_1, reg);
-            //std::cout << "reg after exp_map() = \n" << reg << "\n";
             ++ll;
         }
 
@@ -670,8 +694,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
         std::cout << "reg = \n" << reg << "\n";
         std::cout << "doc[" << k << "] = \n" << doc << "\n";
 #endif
-
-        //if (k==1) exit(0);
 
         for(int d=0; d<dim; ++d)
         {
@@ -768,6 +790,8 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
 
         g_[i] = T[i].exp_map(1.0, id);
         g_[i].filter(0, i+2);
+
+        //std::cout << "f[" << i << "] = \n" << f_[i] << "\n";
     }
 
 
@@ -788,16 +812,16 @@ NormalForm<order>::stationaryActions(
         for(int j=0; j<3; ++j)
             bmom(i,j) = 2.0 * (E_(i,j) * std::conj(E_(i,j))).real();
 
-    std::cout << "bmom = " << bmom << "\n";
+    //std::cout << "bmom = " << bmom << "\n";
 
     auto inv_bmom = bmom.inverse();
 
-    std::cout << "inv_bmom = " << inv_bmom << "\n";
+    //std::cout << "inv_bmom = " << inv_bmom << "\n";
 
     double stdt = stdz/pconstants::c;
     Eigen::Vector3d moments(stdx*stdx, stdy*stdy, stdt*stdt);
 
-    std::cout << "moments = " << moments << "\n";
+    //std::cout << "moments = " << moments << "\n";
 
     auto mact = inv_bmom * moments;
 
@@ -816,7 +840,7 @@ NormalForm<order>::cnvDataToNormalForm(std::array<double, 6> const& hform) const
 
     for(int i=0; i<6; ++i)
     {
-        std::cout << hsymp[i] << "\t" << hftest[i] << "\n";
+        //std::cout << hsymp[i] << "\t" << hftest[i] << "\n";
         if( abs(hftest[i]-hf[i]) > 1e-6 )
             throw std::runtime_error("cnvDataToNormalForm: CanonToSyn error!");
     }
@@ -825,7 +849,7 @@ NormalForm<order>::cnvDataToNormalForm(std::array<double, 6> const& hform) const
     for(int i=0; i<6; ++i) u[i] = hsymp[i];
     u = invE_ * u;
 
-    std::cout << "u = \n" << u << "\n";
+    //std::cout << "u = \n" << u << "\n";
 
     arr_t<std::complex<double>, 6> a;
 
@@ -949,6 +973,126 @@ NormalForm<order>::cnvDataFromNormalForm(std::array<std::complex<double>, 6> con
     for(int i=0; i<6; ++i) hf[i] = hform[i];
 
     return hf;
+}
+
+template<unsigned int order>
+typename NormalForm<order>::Matrix6C 
+NormalForm<order>::ev_ordering(
+        typename NormalForm<order>::Vector6C const& ev,
+        typename NormalForm<order>::Matrix6C const& B ) const
+{
+    using Matrix = typename NormalForm<order>::Matrix6C;
+    using Vector = typename NormalForm<order>::Vector6C;
+
+    int Lidx[6];
+    int unused[6];
+
+    for(int i=0; i<6; ++i)
+    {
+        unused[i] = 1;
+        Lidx[i] = -1;
+    }
+
+    // first reorder to L1, L2, L3, L1*, L2*, L3*
+    for(int i=0; i<3; ++i)
+    {
+        // find first unused
+        for(int j=0; j<6; ++j)
+        {
+            if(unused[j]) 
+            {
+                Lidx[i] = j;
+                unused[j] = 0;
+                break;
+            }
+        }
+
+        // eigenvalue of the selected index
+        auto lambda1 = ev(Lidx[i]);
+        
+        // find the pairing eigenvalue
+        for(int j=0; j<6; ++j)
+        {
+            if (unused[j])
+            {
+                auto lambda2 = ev(j);
+
+                // put the matching index to i+3
+                if (abs(lambda1 - std::conj(lambda2)) < 1e-6)
+                {
+                    Lidx[i+3] = j;
+                    unused[j] = 0;
+                    break;
+                }
+            }
+        }
+
+        // do we find the matching one?
+        if (Lidx[i+3] < 0)
+            throw std::runtime_error("Failed to find matching eigenvalue");
+    }
+
+    // next find the largest x component and move to column 0 and 3
+    double max = 0.0;
+    int idx = 0;
+
+    for(int i=0; i<3; ++i)
+    {
+        double x = abs(B(0, Lidx[i]));
+
+        if (x > max)
+        {
+            max = x;
+            idx = i;
+        }
+    }
+
+    if (idx != 0)
+    {
+        int tmp = Lidx[0];
+        Lidx[0] = Lidx[idx];
+        Lidx[idx] = tmp;
+
+        tmp = Lidx[3];
+        Lidx[3] = Lidx[idx+3];
+        Lidx[idx+3] = tmp;
+    }
+
+    // then find the largest y component and move to column 1 and 4
+    max = 0.0;
+    
+    for(int i=1; i<3; ++i)
+    {
+        double y = abs(B(1, Lidx[i]));
+
+        if (y > max)
+        {
+            max = y;
+            idx = i;
+        }
+    }
+
+    if (idx != 1)
+    {
+        int tmp = Lidx[1];
+        Lidx[1] = Lidx[idx];
+        Lidx[idx] = tmp;
+
+        tmp = Lidx[4];
+        Lidx[4] = Lidx[idx+3];
+        Lidx[idx+3] = tmp;
+    }
+
+    Matrix Br;
+
+    for(int i=0; i<6; ++i) Br(i,0) = B(i, Lidx[0]);
+    for(int i=0; i<6; ++i) Br(i,1) = B(i, Lidx[1]);
+    for(int i=0; i<6; ++i) Br(i,2) = B(i, Lidx[2]);
+    for(int i=0; i<6; ++i) Br(i,3) = B(i, Lidx[3]);
+    for(int i=0; i<6; ++i) Br(i,4) = B(i, Lidx[4]);
+    for(int i=0; i<6; ++i) Br(i,5) = B(i, Lidx[5]);
+
+    return Br;
 }
 
 #endif
