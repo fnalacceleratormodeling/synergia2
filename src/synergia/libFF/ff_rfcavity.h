@@ -28,6 +28,43 @@ namespace rfcavity_impl
     };
 
     template<class BunchT>
+    struct PropThinRFCavity
+    {
+        using gsv_t = typename BunchT::gsv_t;
+
+        typename BunchT::bp_t::parts_t p;
+        typename BunchT::bp_t::const_masks_t m;
+        const RFCavityParams rp;
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int idx) const
+        {
+            int i = idx * gsv_t::size();
+            int mask = 0;
+            for(int x=i; x<i+gsv_t::size(); ++x) mask |= m(x);
+
+            if (mask)
+            {
+                gsv_t p1(&p(i, 1));
+                gsv_t p3(&p(i, 3));
+                gsv_t p4(&p(i, 4));
+                gsv_t p5(&p(i, 5));
+
+                FF_algorithm::thin_rfcavity_unit(
+                        p1, p3, p4, p5,
+                        rp.w_rf, rp.str, rp.phi_s, rp.m_b, rp.pref_b, rp.new_pref_b, 
+                        rp.mhp, rp.nh);
+
+                p1.store(&p(i, 1));
+                p3.store(&p(i, 3));
+                p4.store(&p(i, 4));
+                p5.store(&p(i, 5));
+            }
+        }
+    };
+
+
+    template<class BunchT>
     struct PropRFCavity
     {
         using gsv_t = typename BunchT::gsv_t;
@@ -210,8 +247,17 @@ namespace FF_rfcavity
 
             using exec = typename BunchT::exec_space;
             auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
-            PropRFCavity<BunchT> rfcavity{parts, masks, rp};
-            Kokkos::parallel_for(range, rfcavity);
+
+            if (close_to_zero(rp.length))
+            {
+                PropThinRFCavity<BunchT> rfcavity{parts, masks, rp};
+                Kokkos::parallel_for(range, rfcavity);
+            }
+            else
+            {
+                PropRFCavity<BunchT> rfcavity{parts, masks, rp};
+                Kokkos::parallel_for(range, rfcavity);
+            }
         };
 
         apply(ParticleGroup::regular);
