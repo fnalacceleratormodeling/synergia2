@@ -52,11 +52,11 @@ public:
     std::array<double, 3>
     stationaryActions(double stdx, double stdy, double stdz) const;
 
-    std::array<std::complex<double>, 6>
+    std::array<std::complex<double>, 3>
     cnvDataToNormalForm(std::array<double, 6> const& hform) const;
 
     std::array<double, 6>
-    cnvDataFromNormalForm(std::array<std::complex<double>, 6> const& nform) const;
+    cnvDataFromNormalForm(std::array<std::complex<double>, 3> const& nform) const;
 
 private:
 
@@ -829,7 +829,7 @@ NormalForm<order>::stationaryActions(
 }
 
 template<unsigned int order>
-std::array<std::complex<double>, 6>
+std::array<std::complex<double>, 3>
 NormalForm<order>::cnvDataToNormalForm(std::array<double, 6> const& hform) const
 {
     arr_t<double, 6> hf;
@@ -859,15 +859,15 @@ NormalForm<order>::cnvDataToNormalForm(std::array<double, 6> const& hform) const
         for(int j=0; j<6; ++j) u(j) = (f_[i][j])(a);
     }
 
-    std::array<std::complex<double>, 6> nform;
-    for(int i=0; i<6; ++i) nform[i] = u[i];
+    std::array<std::complex<double>, 3> nform;
+    for(int i=0; i<3; ++i) nform[i] = u[i];
 
     return nform;
 }
 
 template<unsigned int order>
 std::array<double, 6>
-NormalForm<order>::cnvDataFromNormalForm(std::array<std::complex<double>, 6> const& nform) const
+NormalForm<order>::cnvDataFromNormalForm(std::array<std::complex<double>, 3> const& nform) const
 {
     const int THROTTLE = 10;
     const int NAG = 1000;
@@ -878,7 +878,12 @@ NormalForm<order>::cnvDataFromNormalForm(std::array<std::complex<double>, 6> con
     bool throttled = false;
  
     Vector6C u;
-    for(int i=0; i<6; ++i) u(i) = nform[i];
+
+    for(int i=0; i<3; ++i) 
+    {
+        u(i) = nform[i];
+        u(i+3) = std::conj(nform[i]);
+    }
 
     arr_t<std::complex<double>, 6> a;
 
