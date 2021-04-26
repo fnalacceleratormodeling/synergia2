@@ -449,5 +449,42 @@ Lattice_simulator::get_chromaticities(Lattice const& lattice, double dpp)
     return chroms;
 }
 
-#endif
+karray2d_row
+Lattice_simulator::get_linear_one_turn_map(Lattice const& lattice)
+{
+    // 2nd order one-turn-map is sufficient for the jacobian
+    auto map = get_one_turn_map<2>(lattice);
+    return map.jacobian();
+}
+
+std::array<double, 3>
+Lattice_simulator::map_to_twiss(karray2d_row map)
+{
+    // map must be 2x2
+    if (map.extent(0)!=2 || map.extent(1)!=2)
+        throw std::runtime_error("map_to_twiss: wrong dimensions");
+
+    // [alpha, beta, psi]
+    std::array<double, 3> ret;
+
+    double cosmu = 0.5 * (map(0, 0) + map(1, 1));
+    double asinmu = 0.5 * (map(0, 0) - map(1, 1));
+
+    if (abs(cosmu) > 1.0)
+        throw std::runtime_error("map_to_twiss: map is unstable");
+
+    double mu = acos(cosmu);
+
+    // beta is positive
+    if (map(0,1) < 0.0) mu = 2.0*mconstants::pi - mu;
+
+    ret[0] = asinmu / sin(mu);
+    ret[1] = map(0,1) / sin(mu);
+    ret[2] = mu / (2.0 * mconstants::pi);
+
+    return ret;
+}
+
+
+#endif // __CUDA_ARCH__
 

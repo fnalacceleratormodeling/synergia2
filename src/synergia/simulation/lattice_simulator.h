@@ -67,11 +67,16 @@ namespace Lattice_simulator
     get_chromaticities(Lattice const& lattice, double dpp);
 
 
-
-
     template<unsigned int order = 2>
     TMapping<Trigon<double, order, 6>>
     get_one_turn_map(Lattice const& lattice, double dpp = 0.0);
+
+    karray2d_row
+    get_linear_one_turn_map(Lattice const& lattice);
+
+    // [alpha, beta, psi]
+    std::array<double, 3>
+    map_to_twiss(karray2d_row map);
 
     template<unsigned int order>
     NormalForm<order>
@@ -160,6 +165,7 @@ namespace Lattice_simulator
         NormalForm<order> nf(one_turn_map, e0, pc0, mass);
         return nf;
     }
+
 }
 
 #endif // __CUDA_ARCH
