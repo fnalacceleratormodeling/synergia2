@@ -485,6 +485,66 @@ Lattice_simulator::map_to_twiss(karray2d_row map)
     return ret;
 }
 
+double
+Lattice_simulator::get_bucket_length(Lattice const& lattice)
+{
+    double freq = 0.0;
+    double freq2 = 0.0;
+
+    double harmon = 0.0;
+    double harmon2 = 0.0;
+
+    bool iswf = false;
+    bool iswh = false;
+
+    double eps = 1e-6;
+
+    for(auto & ele : lattice.get_elements())
+    {
+        if (ele.get_type() == element_type::rfcavity)
+        {
+            if (ele.has_double_attribute("harmon"))
+            {
+                harmon = ele.get_double_attribute("harmon");
+
+                if (iswh && (abs(harmon-harmon2)>eps))
+                    throw std::runtime_error("get_bucket_length:" 
+                            " rf elements with different harmonic" 
+                            " number found!");
+
+                harmon2 = harmon;
+                iswh = true;
+            }
+
+            if (ele.has_double_attribute("freq"))
+            {
+                freq = ele.get_double_attribute("freq");
+
+                if (iswf && (abs(freq-freq2)>eps))
+                    throw std::runtime_error("get_bucket_length:" 
+                            " rf elements with different frequency" 
+                            " found!");
+
+                freq2 = freq;
+                iswf = true;
+            }
+        }
+    }
+
+    // use harmonic number
+    if (iswh) return lattice.get_length()/harmon;
+
+    // use frequency
+    if (iswf)
+    {
+        double beta = lattice.get_reference_particle().get_beta();
+        return pconstants::c * beta / freq;
+    }
+
+    // or return 0
+    return 0.0;
+}
+
 
 #endif // __CUDA_ARCH__
 

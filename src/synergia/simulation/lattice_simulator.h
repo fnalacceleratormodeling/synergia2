@@ -66,11 +66,12 @@ namespace Lattice_simulator
     chromaticities_t
     get_chromaticities(Lattice const& lattice, double dpp);
 
-
+    // get the full mapping of the one turn map
     template<unsigned int order = 2>
     TMapping<Trigon<double, order, 6>>
     get_one_turn_map(Lattice const& lattice, double dpp = 0.0);
 
+    // only the jacobian of the one turn map
     karray2d_row
     get_linear_one_turn_map(Lattice const& lattice);
 
@@ -81,6 +82,9 @@ namespace Lattice_simulator
     template<unsigned int order>
     NormalForm<order>
     calculate_normal_form(Lattice const& lattice);
+
+    double
+    get_bucket_length(Lattice const& lattice);
 }
 
 #ifdef __CUDA_ARCH__
