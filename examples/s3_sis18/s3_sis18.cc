@@ -1,10 +1,12 @@
 
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/foundation/pcg_distribution.h"
 
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/checkpoint.h"
 #include "synergia/simulation/lattice_simulator.h"
 
+#include "synergia/simulation/populate_stationary.h"
 #include "synergia/simulation/split_operator_stepper.h"
 //#include "synergia/simulation/independent_stepper_elements.h"
 
@@ -81,7 +83,7 @@ int run()
     // lattice.print(screen);
 
     // tune the lattice
-    Lattice_simulator::tune_circular_lattice(lattice);
+    LS::tune_circular_lattice(lattice);
 
     // get the reference particle
     auto const & ref = lattice.get_reference_particle();
@@ -178,6 +180,8 @@ int run()
 
 void run_and_save(std::string & prop_str, std::string & sim_str)
 {
+    namespace LS = Lattice_simulator;
+
     Logger screen(0, LV::DEBUG);
     Logger simlog(0, LV::INFO_STEP);
 
@@ -187,7 +191,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     lattice.set_all_string_attribute("extractor_type", "libff");
 
     // tune the lattice
-    Lattice_simulator::tune_circular_lattice(lattice);
+    LS::tune_circular_lattice(lattice);
 
     // get the reference particle
     auto const & ref = lattice.get_reference_particle();
@@ -209,7 +213,8 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
             //lattice.get_reference_particle(), 1024 * 1024 * 4, 2.94e10,
-            lattice.get_reference_particle(), 4194394, 2.94e10,
+            //lattice.get_reference_particle(), 4194394, 2.94e10,
+            lattice.get_reference_particle(), 1024*1024, 2.94e10,
             //lattice.get_reference_particle(), 16777216, 2.94e10,
             //lattice.get_reference_particle(), 0, 2.94e10,
             Commxx() );
@@ -219,6 +224,73 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 
     // reserve particle slots
     //bunch.reserve(6000000);
+
+
+    double beta = ref.get_beta();
+    double gamma = ref.get_gamma();
+
+    double emitx = 12.57e-6;
+    double emity = 9.3e-6;
+    double dpop = 2.4e-4/3.0;
+
+    auto map = LS::get_linear_one_turn_map(lattice);
+
+    auto map_x = Kokkos::subview(map, std::make_pair(0, 2), std::make_pair(0, 2));
+    auto rx = LS::map_to_twiss(map_x);
+
+    auto map_y = Kokkos::subview(map, std::make_pair(2, 4), std::make_pair(2, 4));
+    auto ry = LS::map_to_twiss(map_y);
+
+    auto map_z = Kokkos::subview(map, std::make_pair(4, 6), std::make_pair(4, 6));
+    auto rz = LS::map_to_twiss(map_z);
+
+    screen 
+        << "Lattice parameters\n"
+        << "alpha_x: " << rx[0] << ", alpha_y: " << ry[0] << "\n"
+        << "beta_x:  " << rx[1] << ", beta_y:  " << ry[1] << "\n"
+        << "q_x: " << rx[2] << ", q_y: " << ry[2] << ", q_s: " << rz[2] << "\n"
+        << "beta_cdt: " << rz[1] << ", beta_longitudinal: " << rz[1]*beta << "\n";
+
+
+    double bx = rx[1];
+    double by = ry[1];
+    double b_cdt = rz[1];
+
+    double stdx = sqrt(bx*emitx/4.0);
+    double stdy = sqrt(by*emity/4.0);
+    double std_cdt = dpop*b_cdt;
+
+    double half_bucket_length = LS::get_bucket_length(lattice) / 2.0;
+
+    screen
+        << "dpop = " << dpop << ", std_cdt = " << std_cdt << "\n\n";
+
+    screen
+        << "Beam parameters for bunch generation\n"
+        << "invariant emittance_H: " << emitx << " [m-rad]\n"
+        << "invariant emittance_V: " << emity << " [m-rad]\n"
+        << "Delta-p/p RMS: " << dpop << "\n"
+        << "RMS x: " << stdx << " [m]\n"
+        << "RMS y: " << stdy << " [m]\n"
+        << "RMS z: " << std_cdt*beta << " [m]"
+        << ", RMS c*dt: " << std_cdt << " [m]"
+        << ", RMS dt: " << std_cdt*1e9/pconstants::c << " [ns]\n"
+        << "half_bucket_length: " << half_bucket_length << " [m]\n";
+
+    // normal form for the lattice
+    auto nf = LS::calculate_normal_form<2>(lattice);
+
+    // actions
+    auto actions = nf.stationaryActions(stdx, stdy, std_cdt);
+
+    // min-max cdt
+    double min_cdt = -half_bucket_length / beta;
+    double max_cdt =  half_bucket_length / beta;
+
+    // populate
+    PCG_random_distribution dist(5);
+    populate_6d_stationary_clipped_longitudinal_gaussian(
+            dist, bunch, actions, min_cdt, max_cdt, nf);
 
 #if 0
     // populate particle data
@@ -242,7 +314,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 #endif
 
 
-#if 1
+#if 0
     // or read from file
     //bunch.read_file_legacy("turn_particles_0000.h5");
     //bunch.write_file("bunch_particles_4M.h5");
