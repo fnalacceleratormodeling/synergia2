@@ -5,8 +5,6 @@
 #include "synergia/utils/pcg/pcg_random.hpp"
 #include <random>
 
-#include <iostream>
-
 class PCG_random_distribution : public Distribution
 {
 private:
