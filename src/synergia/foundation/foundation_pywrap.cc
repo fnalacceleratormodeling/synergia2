@@ -83,11 +83,14 @@ void add_py_trigon_canonical_to_index(pybind11::module& m)
 
 
 template<class T, unsigned int P, unsigned int D>
-void add_py_trigon_class(pybind11::module& m, const char* name)
+void add_py_trigon_class(pybind11::module& m)
 {
     using trigon_t = Trigon<T, P, D>;
 
-    py::class_<trigon_t>(m, name)
+    std::stringstream ss;
+    ss << "Trigon_o" << P;
+
+    py::class_<trigon_t>(m, ss.str().c_str())
         .def( "count", 
                 [](trigon_t& self) { return trigon_t::count; } )
         .def( "dim", 
@@ -373,13 +376,13 @@ PYBIND11_MODULE(foundation, m)
 
     add_py_trigon_canonical_to_index(m);
 
-    add_py_trigon_class<double, 1, 6>(m, "Trigon_o1");
-    add_py_trigon_class<double, 2, 6>(m, "Trigon_o2");
-    add_py_trigon_class<double, 3, 6>(m, "Trigon_o3");
-    add_py_trigon_class<double, 4, 6>(m, "Trigon_o4");
-    add_py_trigon_class<double, 5, 6>(m, "Trigon_o5");
-    add_py_trigon_class<double, 6, 6>(m, "Trigon_o6");
-    add_py_trigon_class<double, 7, 6>(m, "Trigon_o7");
+    add_py_trigon_class<double, 1, 6>(m);
+    add_py_trigon_class<double, 2, 6>(m);
+    add_py_trigon_class<double, 3, 6>(m);
+    add_py_trigon_class<double, 4, 6>(m);
+    add_py_trigon_class<double, 5, 6>(m);
+    add_py_trigon_class<double, 6, 6>(m);
+    add_py_trigon_class<double, 7, 6>(m);
 
 
 #if 0
