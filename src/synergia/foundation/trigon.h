@@ -364,10 +364,28 @@ public:
     }
 
     KOKKOS_INLINE_FUNCTION
+    void set_term(size_t idx, T const& val)
+    { terms[idx] = val; }
+
+    KOKKOS_INLINE_FUNCTION
+    T get_term(size_t idx)
+    { return terms[idx]; }
+
+    KOKKOS_INLINE_FUNCTION
     void set_term(unsigned int power, size_t idx, T const& val)
     {
-        if (power == Power) terms[idx] = val;
+        if (power == Power) set_term(idx, val);
+        else if (power == 0) get_subpower<0>().set_term(idx, val);
         else if (power < Power) lower.set_term(power, idx, val);
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    T get_term(unsigned int power, size_t idx)
+    {
+        if (power == Power) return get_term(idx);
+        else if (power == 0) return get_subpower<0>().get_term(idx);
+        else if (power < Power) return lower.get_term(power, idx);
+        return T{};
     }
 
     // keep terms with power in [lower, upper]
@@ -871,16 +889,12 @@ public:
     template <unsigned int Subpower>
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Subpower, Dim>& get_subpower()
-    {
-        return *this;
-    }
+    { return *this; }
 
     template <unsigned int Subpower>
     KOKKOS_INLINE_FUNCTION
     const Trigon<T, Subpower, Dim>& get_subpower() const
-    {
-        return *this;
-    }
+    { return *this; }
 
     KOKKOS_INLINE_FUNCTION
     bool operator== (T rhs) const
@@ -896,16 +910,23 @@ public:
     template <typename F>
     KOKKOS_INLINE_FUNCTION
     void each_term(F f)
-    {
-        arr_t<size_t, 0> exp;
-        f(0, exp, terms[0]);
-    }
+    { f(0, arr_t<size_t, 0>(), terms[0]); }
+
+    KOKKOS_INLINE_FUNCTION
+    void set_term(size_t idx, T const& val)
+    { terms[0] = val; }
+
+    KOKKOS_INLINE_FUNCTION
+    T get_term(size_t idx)
+    { return terms[0]; }
 
     KOKKOS_INLINE_FUNCTION
     void set_term(unsigned int power, size_t idx, T const& val)
-    {
-        if (power==0 && idx==0) terms[idx] = val;
-    }
+    { set_term(idx, val); }
+
+    KOKKOS_INLINE_FUNCTION
+    T get_term(unsigned int power, size_t idx)
+    { return get_term(idx); }
 
     // keep terms with power in [lower, upper]
     KOKKOS_INLINE_FUNCTION

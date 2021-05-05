@@ -7,15 +7,133 @@
 #include "reference_particle.h"
 #include "distribution.h"
 #include "pcg_distribution.h"
-//#include "synergia/utils/numpy_multi_ref_converter.h"
-//#include "synergia/utils/comm_converter.h"
 #include "math_constants.h"
 #include "physical_constants.h"
+#include "trigon.h"
 
 
 namespace py = pybind11;
 using namespace py::literals;
 
+template<unsigned int P, unsigned int D>
+size_t 
+canonical_to_index(std::array<size_t, array_length(P)> const& ind)
+{
+    static auto map = fill_index_to_canonical<P, D>();
+
+    arr_t<size_t, array_length(P)> val;
+    for(int i=0; i<val.size(); ++i) val[i] = ind[i];
+
+    return map[val];
+}
+
+template<unsigned int P, unsigned int D>
+void add_py_trigon_index_to_canonical(pybind11::module& m)
+{
+    std::stringstream ss;
+    ss << "Trigon_index_to_canonical_o" << P;
+
+    m.def(ss.str().c_str(), [](size_t idx) {
+        static auto inds = indices<P, D>();
+        std::array<size_t, array_length(P)> ret;
+        for(int i=0; i<ret.size(); ++i) ret[i] = inds[idx][i];
+        return ret;
+    });
+}
+
+void add_py_trigon_canonical_to_index(pybind11::module& m)
+{
+    const char* name = "Trigon_canonical_to_index";
+
+    m.def(name, [](std::array<size_t, array_length(1)> ind) {
+        std::sort(ind.begin(), ind.end());
+        return canonical_to_index<1, 6>(ind);
+    });
+
+    m.def(name, [](std::array<size_t, array_length(2)> ind) {
+        std::sort(ind.begin(), ind.end());
+        return canonical_to_index<2, 6>(ind);
+    });
+
+    m.def(name, [](std::array<size_t, array_length(3)> ind) {
+        std::sort(ind.begin(), ind.end());
+        return canonical_to_index<3, 6>(ind);
+    });
+
+    m.def(name, [](std::array<size_t, array_length(4)> ind) {
+        std::sort(ind.begin(), ind.end());
+        return canonical_to_index<4, 6>(ind);
+    });
+
+    m.def(name, [](std::array<size_t, array_length(5)> ind) {
+        std::sort(ind.begin(), ind.end());
+        return canonical_to_index<5, 6>(ind);
+    });
+
+    m.def(name, [](std::array<size_t, array_length(6)> ind) {
+        std::sort(ind.begin(), ind.end());
+        return canonical_to_index<6, 6>(ind);
+    });
+
+    m.def(name, [](std::array<size_t, array_length(7)> ind) {
+        std::sort(ind.begin(), ind.end());
+        return canonical_to_index<7, 6>(ind);
+    });
+}
+
+
+template<class T, unsigned int P, unsigned int D>
+void add_py_trigon_class(pybind11::module& m, const char* name)
+{
+    using trigon_t = Trigon<T, P, D>;
+
+    py::class_<trigon_t>(m, name)
+        .def( "count", 
+                [](trigon_t& self) { return trigon_t::count; } )
+        .def( "dim", 
+                [](trigon_t& self) { return trigon_t::dim; } )
+        .def( "power", 
+                [](trigon_t& self) { return trigon_t::power(); } )
+
+        .def( py::init<>(), "Construct" )
+        .def( py::init<T>(), "Construct with a val", "val"_a )
+        .def( "value", 
+                (T const& (trigon_t::*)() const)&trigon_t::value)
+        .def( "set", 
+                (void (trigon_t::*)(T))&trigon_t::set, 
+                "val"_a )
+        .def( "set", 
+                (void (trigon_t::*)(T, size_t))&trigon_t::set, 
+                "val"_a, "index"_a )
+
+        .def( "get_term",
+                (T (trigon_t::*)(size_t))&trigon_t::get_term,
+                "idx"_a )
+
+        .def( "get_term",
+                [](trigon_t& self, std::array<size_t, array_length(P)> const& ind) { return self.get_term(canonical_to_index<P, D>(ind)); },
+                "indices"_a )
+            
+
+        .def( "get_term",
+                (T (trigon_t::*)(unsigned int, size_t))&trigon_t::get_term,
+                "power"_a, "idx"_a )
+
+
+        .def( "set_term",
+                (void (trigon_t::*)(size_t, T const&))&trigon_t::set_term,
+                "idx"_a, "val"_a )
+
+        .def( "set_term",
+                (void (trigon_t::*)(unsigned int, size_t, T const&))&trigon_t::set_term,
+                "power"_a, "idx"_a, "val"_a )
+
+        .def( "print_coeffs",
+                [](trigon_t& self) { std::cout << self; } )
+
+
+        ;
+}
 
 PYBIND11_MODULE(foundation, m)
 {
@@ -243,6 +361,25 @@ PYBIND11_MODULE(foundation, m)
         .def( py::init<unsigned long int, Commxx const&>(),
                 "seed"_a, "comm"_a )
         ;
+
+    // Trigon related classes and functions
+    add_py_trigon_index_to_canonical<1, 6>(m);
+    add_py_trigon_index_to_canonical<2, 6>(m);
+    add_py_trigon_index_to_canonical<3, 6>(m);
+    add_py_trigon_index_to_canonical<4, 6>(m);
+    add_py_trigon_index_to_canonical<5, 6>(m);
+    add_py_trigon_index_to_canonical<6, 6>(m);
+    add_py_trigon_index_to_canonical<7, 6>(m);
+
+    add_py_trigon_canonical_to_index(m);
+
+    add_py_trigon_class<double, 1, 6>(m, "Trigon_o1");
+    add_py_trigon_class<double, 2, 6>(m, "Trigon_o2");
+    add_py_trigon_class<double, 3, 6>(m, "Trigon_o3");
+    add_py_trigon_class<double, 4, 6>(m, "Trigon_o4");
+    add_py_trigon_class<double, 5, 6>(m, "Trigon_o5");
+    add_py_trigon_class<double, 6, 6>(m, "Trigon_o6");
+    add_py_trigon_class<double, 7, 6>(m, "Trigon_o7");
 
 
 #if 0
