@@ -19,12 +19,17 @@ template<unsigned int P, unsigned int D>
 size_t 
 canonical_to_index(std::array<size_t, array_length(P)> const& ind)
 {
+#ifdef __CUDA_ARCH__
+    return 0;
+#else
     static auto map = fill_index_to_canonical<P, D>();
 
     arr_t<size_t, array_length(P)> val;
     for(int i=0; i<val.size(); ++i) val[i] = ind[i];
 
+    std::sort(val.begin(), val.end());
     return map[val];
+#endif
 }
 
 template<unsigned int P, unsigned int D>
@@ -34,9 +39,12 @@ void add_py_trigon_index_to_canonical(pybind11::module& m)
     ss << "Trigon_index_to_canonical_o" << P;
 
     m.def(ss.str().c_str(), [](size_t idx) {
-        static auto inds = indices<P, D>();
         std::array<size_t, array_length(P)> ret;
+#ifdef __CUDA_ARCH__
+#else
+        static auto inds = indices<P, D>();
         for(int i=0; i<ret.size(); ++i) ret[i] = inds[idx][i];
+#endif
         return ret;
     });
 }
@@ -45,38 +53,31 @@ void add_py_trigon_canonical_to_index(pybind11::module& m)
 {
     const char* name = "Trigon_canonical_to_index";
 
-    m.def(name, [](std::array<size_t, array_length(1)> ind) {
-        std::sort(ind.begin(), ind.end());
+    m.def(name, [](std::array<size_t, array_length(1)> const& ind) {
         return canonical_to_index<1, 6>(ind);
     });
 
-    m.def(name, [](std::array<size_t, array_length(2)> ind) {
-        std::sort(ind.begin(), ind.end());
+    m.def(name, [](std::array<size_t, array_length(2)> const& ind) {
         return canonical_to_index<2, 6>(ind);
     });
 
-    m.def(name, [](std::array<size_t, array_length(3)> ind) {
-        std::sort(ind.begin(), ind.end());
+    m.def(name, [](std::array<size_t, array_length(3)> const& ind) {
         return canonical_to_index<3, 6>(ind);
     });
 
-    m.def(name, [](std::array<size_t, array_length(4)> ind) {
-        std::sort(ind.begin(), ind.end());
+    m.def(name, [](std::array<size_t, array_length(4)> const& ind) {
         return canonical_to_index<4, 6>(ind);
     });
 
-    m.def(name, [](std::array<size_t, array_length(5)> ind) {
-        std::sort(ind.begin(), ind.end());
+    m.def(name, [](std::array<size_t, array_length(5)> const& ind) {
         return canonical_to_index<5, 6>(ind);
     });
 
-    m.def(name, [](std::array<size_t, array_length(6)> ind) {
-        std::sort(ind.begin(), ind.end());
+    m.def(name, [](std::array<size_t, array_length(6)> const& ind) {
         return canonical_to_index<6, 6>(ind);
     });
 
-    m.def(name, [](std::array<size_t, array_length(7)> ind) {
-        std::sort(ind.begin(), ind.end());
+    m.def(name, [](std::array<size_t, array_length(7)> const& ind) {
         return canonical_to_index<7, 6>(ind);
     });
 }

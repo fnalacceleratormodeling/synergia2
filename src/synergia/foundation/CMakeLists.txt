@@ -22,8 +22,8 @@ if (BUILD_PYTHON_BINDINGS)
     #target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
 
     if(${Kokkos_ENABLE_CUDA})
-        set_source_files_properties(foundation_pywrap.cc 
-            PROPERTIES COMPILE_FLAGS --host-only)
+        #set_source_files_properties(foundation_pywrap.cc 
+        #    PROPERTIES COMPILE_FLAGS --host-only)
     endif()
 
     pybind11_add_module(foundation foundation_pywrap.cc)

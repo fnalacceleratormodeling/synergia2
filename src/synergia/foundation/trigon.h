@@ -4,7 +4,6 @@
 #include "synergia/foundation/trigon_traits.h"
 
 #include <algorithm>
-//#include <array>
 #include <complex>
 #include <iostream> // jfa remove me!!!!
 #include <unordered_map>
@@ -1973,9 +1972,6 @@ TMapping<TRIGON> operator*(
     return z;
 }
 #endif
-
-
-
 
 
 
