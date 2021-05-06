@@ -9,7 +9,9 @@
 #include "pcg_distribution.h"
 #include "math_constants.h"
 #include "physical_constants.h"
+
 #include "trigon.h"
+#include "normal_form.h"
 
 
 namespace py = pybind11;
@@ -39,13 +41,14 @@ void add_py_trigon_index_to_canonical(pybind11::module& m)
     ss << "Trigon_index_to_canonical_o" << P;
 
     m.def(ss.str().c_str(), [](size_t idx) {
-        std::array<size_t, array_length(P)> ret;
 #ifdef __CUDA_ARCH__
+        return std::array<size_t, array_length(P)>{0};
 #else
         static auto inds = indices<P, D>();
+        std::array<size_t, array_length(P)> ret{0};
         for(int i=0; i<ret.size(); ++i) ret[i] = inds[idx][i];
-#endif
         return ret;
+#endif
     });
 }
 
@@ -138,6 +141,23 @@ void add_py_trigon_class(pybind11::module& m)
 
         ;
 }
+
+template<typename TRIGON>
+void add_py_tmapping_class(pybind11::module& m)
+{
+    using tmapping_t = TMapping<TRIGON>;
+
+    std::stringstream ss;
+    ss << "TMapping_o" << tmapping_t::power;
+
+    py::class_<tmapping_t>(m, ss.str().c_str())
+        .def( py::init<>(), "Construct" )
+        .def( "component",
+                [](tmapping_t& self, size_t i) { return self.comp[i]; } )
+        ;
+}
+
+
 
 PYBIND11_MODULE(foundation, m)
 {
@@ -367,6 +387,8 @@ PYBIND11_MODULE(foundation, m)
         ;
 
     // Trigon related classes and functions
+    add_py_trigon_canonical_to_index(m);
+
     add_py_trigon_index_to_canonical<1, 6>(m);
     add_py_trigon_index_to_canonical<2, 6>(m);
     add_py_trigon_index_to_canonical<3, 6>(m);
@@ -375,8 +397,7 @@ PYBIND11_MODULE(foundation, m)
     add_py_trigon_index_to_canonical<6, 6>(m);
     add_py_trigon_index_to_canonical<7, 6>(m);
 
-    add_py_trigon_canonical_to_index(m);
-
+    // Trigon<T, Power, Dim>
     add_py_trigon_class<double, 1, 6>(m);
     add_py_trigon_class<double, 2, 6>(m);
     add_py_trigon_class<double, 3, 6>(m);
@@ -384,6 +405,15 @@ PYBIND11_MODULE(foundation, m)
     add_py_trigon_class<double, 5, 6>(m);
     add_py_trigon_class<double, 6, 6>(m);
     add_py_trigon_class<double, 7, 6>(m);
+
+    // TMapping<Trigon>
+    add_py_tmapping_class<Trigon<double, 1, 6>>(m);
+    add_py_tmapping_class<Trigon<double, 2, 6>>(m);
+    add_py_tmapping_class<Trigon<double, 3, 6>>(m);
+    add_py_tmapping_class<Trigon<double, 4, 6>>(m);
+    add_py_tmapping_class<Trigon<double, 5, 6>>(m);
+    add_py_tmapping_class<Trigon<double, 6, 6>>(m);
+    add_py_tmapping_class<Trigon<double, 7, 6>>(m);
 
 
 #if 0
