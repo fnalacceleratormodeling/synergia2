@@ -2,6 +2,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/complex.h>
 
 #include "four_momentum.h"
 #include "reference_particle.h"
@@ -87,12 +88,12 @@ void add_py_trigon_canonical_to_index(pybind11::module& m)
 
 
 template<class T, unsigned int P, unsigned int D>
-void add_py_trigon_class(pybind11::module& m)
+void add_py_trigon_class(pybind11::module& m, const char* name = "Trigon")
 {
     using trigon_t = Trigon<T, P, D>;
 
     std::stringstream ss;
-    ss << "Trigon_o" << P;
+    ss << name << "_o" << P;
 
     py::class_<trigon_t>(m, ss.str().c_str())
         .def( "count", 
@@ -143,12 +144,12 @@ void add_py_trigon_class(pybind11::module& m)
 }
 
 template<typename TRIGON>
-void add_py_tmapping_class(pybind11::module& m)
+void add_py_tmapping_class(pybind11::module& m, const char* name = "TMapping")
 {
     using tmapping_t = TMapping<TRIGON>;
 
     std::stringstream ss;
-    ss << "TMapping_o" << tmapping_t::power;
+    ss << name << "_o" << tmapping_t::power;
 
     py::class_<tmapping_t>(m, ss.str().c_str())
         .def( py::init<>(), "Construct" )
@@ -157,7 +158,36 @@ void add_py_tmapping_class(pybind11::module& m)
         ;
 }
 
+template<unsigned int order>
+void add_py_normal_form(pybind11::module& m)
+{
+    using nf_t = NormalForm<order>;
 
+    std::stringstream ss;
+    ss << "NormalForm_o" << order;
+
+    py::class_<nf_t>(m, ss.str().c_str())
+        .def( "stationary_actions",
+                &nf_t::stationaryActions,
+                "stdx"_a, "stdy"_a, "stdz"_a )
+
+        .def( "convert_xyz_to_normal",
+                &nf_t::cnvDataToNormalForm,
+                "hform"_a )
+
+        .def( "convert_normal_to_xyz",
+                &nf_t::cnvDataFromNormalForm,
+                "nform"_a )
+
+        .def( "get_f",
+                (typename nf_t::operators_t& (nf_t::*)())&nf_t::get_f,
+                py::return_value_policy::reference_internal )
+
+        .def( "get_g",
+                (typename nf_t::operators_t& (nf_t::*)())&nf_t::get_g,
+                py::return_value_policy::reference_internal )
+        ;
+}
 
 PYBIND11_MODULE(foundation, m)
 {
@@ -406,6 +436,14 @@ PYBIND11_MODULE(foundation, m)
     add_py_trigon_class<double, 6, 6>(m);
     add_py_trigon_class<double, 7, 6>(m);
 
+    add_py_trigon_class<std::complex<double>, 1, 6>(m, "CTrigon");
+    add_py_trigon_class<std::complex<double>, 2, 6>(m, "CTrigon");
+    add_py_trigon_class<std::complex<double>, 3, 6>(m, "CTrigon");
+    add_py_trigon_class<std::complex<double>, 4, 6>(m, "CTrigon");
+    add_py_trigon_class<std::complex<double>, 5, 6>(m, "CTrigon");
+    add_py_trigon_class<std::complex<double>, 6, 6>(m, "CTrigon");
+    add_py_trigon_class<std::complex<double>, 7, 6>(m, "CTrigon");
+
     // TMapping<Trigon>
     add_py_tmapping_class<Trigon<double, 1, 6>>(m);
     add_py_tmapping_class<Trigon<double, 2, 6>>(m);
@@ -414,6 +452,23 @@ PYBIND11_MODULE(foundation, m)
     add_py_tmapping_class<Trigon<double, 5, 6>>(m);
     add_py_tmapping_class<Trigon<double, 6, 6>>(m);
     add_py_tmapping_class<Trigon<double, 7, 6>>(m);
+
+    add_py_tmapping_class<Trigon<std::complex<double>, 1, 6>>(m, "CTMapping");
+    add_py_tmapping_class<Trigon<std::complex<double>, 2, 6>>(m, "CTMapping");
+    add_py_tmapping_class<Trigon<std::complex<double>, 3, 6>>(m, "CTMapping");
+    add_py_tmapping_class<Trigon<std::complex<double>, 4, 6>>(m, "CTMapping");
+    add_py_tmapping_class<Trigon<std::complex<double>, 5, 6>>(m, "CTMapping");
+    add_py_tmapping_class<Trigon<std::complex<double>, 6, 6>>(m, "CTMapping");
+    add_py_tmapping_class<Trigon<std::complex<double>, 7, 6>>(m, "CTMapping");
+
+    // NormalForm<order>
+    add_py_normal_form<1>(m);
+    add_py_normal_form<2>(m);
+    add_py_normal_form<3>(m);
+    add_py_normal_form<4>(m);
+    add_py_normal_form<5>(m);
+    add_py_normal_form<6>(m);
+    add_py_normal_form<7>(m);
 
 
 #if 0

@@ -57,6 +57,35 @@ PYBIND11_MODULE(simulation, m)
                 &Lattice_simulator::tune_circular_lattice,
                 "Tune a circular lattice.",
                 "lattice"_a, "tolerance"_a = 1.0e-13 )
+
+        .def( "calculate_normal_form_o1",
+                &Lattice_simulator::calculate_normal_form<1>, 
+                "lattice"_a )
+
+        .def( "calculate_normal_form_o2",
+                &Lattice_simulator::calculate_normal_form<2>, 
+                "lattice"_a )
+
+        .def( "calculate_normal_form_o3",
+                &Lattice_simulator::calculate_normal_form<3>, 
+                "lattice"_a )
+
+        .def( "calculate_normal_form_o4",
+                &Lattice_simulator::calculate_normal_form<4>, 
+                "lattice"_a )
+
+        .def( "calculate_normal_form_o5",
+                &Lattice_simulator::calculate_normal_form<5>, 
+                "lattice"_a )
+
+        .def( "calculate_normal_form_o6",
+                &Lattice_simulator::calculate_normal_form<6>, 
+                "lattice"_a )
+
+        .def( "calculate_normal_form_o7",
+                &Lattice_simulator::calculate_normal_form<7>, 
+                "lattice"_a )
+
         ;
 
     // Collective operator options (base class)

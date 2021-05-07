@@ -185,6 +185,11 @@ PYBIND11_MODULE(bunch, m)
         .def ( "print_statistics",
                 &Bunch::print_statistics )
 
+        .def( "print_particle",
+                &Bunch::print_particle,
+                "idx"_a, "logger"_a,
+                "particle_group"_a = ParticleGroup::regular )
+
         .def( "dump",
                 &Bunch::dump,
                 "Dump." )

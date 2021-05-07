@@ -42,6 +42,8 @@ public:
     using trigon_c_t = Trigon<std::complex<double>, order, 6>;
     using mapping_c_t = TMapping<trigon_c_t>;
 
+    using operators_t = std::array<mapping_c_t, order-1>;
+
     // e0: reference energy
     // pc0: reference momentum
     // mass: reference particle mass
@@ -57,6 +59,13 @@ public:
 
     std::array<double, 6>
     cnvDataFromNormalForm(std::array<std::complex<double>, 3> const& nform) const;
+
+    std::array<mapping_c_t, order-1>& get_f() { return f_; }
+    std::array<mapping_c_t, order-1> const& get_f() const { return f_; }
+
+    std::array<mapping_c_t, order-1>& get_g() { return g_; }
+    std::array<mapping_c_t, order-1> const& get_g() const { return g_; }
+
 
 private:
 
