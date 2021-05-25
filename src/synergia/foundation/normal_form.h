@@ -12,8 +12,8 @@ class NormalForm
     constexpr static int EigenIterations = 100000;
 
     // matrix types
-    using Vector6D = Eigen::Vector<double, 6>;
-    using Vector6C = Eigen::Vector<std::complex<double>, 6>;
+    using Vector6D = Eigen::Matrix<double, 6, 1>;
+    using Vector6C = Eigen::Matrix<std::complex<double>, 6, 1>;
 
     using Matrix6D = Eigen::Matrix<double,
           6, 6, Eigen::RowMajor>;
