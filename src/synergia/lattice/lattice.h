@@ -83,7 +83,10 @@ public:
     { reference_particle = ref; updated.ref = true; }
 
     /// Get the Lattice reference particle (const)
-    Reference_particle const & get_reference_particle() const
+    Reference_particle const& get_reference_particle() const
+    { return reference_particle; }
+
+    Reference_particle& get_reference_particle()
     { return reference_particle; }
 
     update_flags_t update();

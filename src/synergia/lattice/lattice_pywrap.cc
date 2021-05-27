@@ -186,7 +186,8 @@ PYBIND11_MODULE(lattice, m)
                 "element"_a )
 
         .def( "get_reference_particle",
-                &Lattice::get_reference_particle,
+                (Reference_particle& (Lattice::*)())&Lattice::get_reference_particle,
+                py::return_value_policy::reference_internal,
                 "Get the lattice reference particle" )
 
         .def( "set_reference_particle",
@@ -226,15 +227,31 @@ PYBIND11_MODULE(lattice, m)
         ;
 
 
-    using madx_reader_get_lattice_1 = Lattice (MadX_reader::*)(std::string const&, std::string const&);
+    using madx_reader_get_lattice_1 = 
+        Lattice (MadX_reader::*)(std::string const&);
+
+    using madx_reader_get_lattice_2 = 
+        Lattice (MadX_reader::*)(std::string const&, std::string const&);
 
     // MadX_reader
     py::class_<MadX_reader>(m, "MadX_reader")
         .def( py::init<>(), "Construct a MadX_reader" )
         .def( "get_lattice",
                 (madx_reader_get_lattice_1)&MadX_reader::get_lattice,
+                "Get the named lattice from an already parsed lattice",
+                "line_name"_a )
+        .def( "get_lattice",
+                (madx_reader_get_lattice_2)&MadX_reader::get_lattice,
                 "Parse and get the named lattice",
                 "line_name"_a,
+                "filename"_a )
+        .def( "parse",
+                &MadX_reader::parse,
+                "Parse a lattice string",
+                "lattice"_a )
+        .def( "parse_file",
+                &MadX_reader::parse_file,
+                "Parse a lattice file",
                 "filename"_a )
         ;
 }
