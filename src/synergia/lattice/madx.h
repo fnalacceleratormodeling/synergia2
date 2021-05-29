@@ -142,7 +142,7 @@ private:
   struct seq_element
   {
     seq_element(std::string const & label_, double at_, std::string const & from_)
-      : label(label_), at(at_), from_str(from_) { }
+      : label(label_), from_str(from_), at(at_), from(0.0) { }
 
     std::string label;
     std::string from_str;
