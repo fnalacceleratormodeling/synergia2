@@ -335,6 +335,20 @@ PYBIND11_MODULE(bunch, m)
                     py::buffer_info pm_info = p_means.request();
                     py::buffer_info pc_info = p_covars.request();
 
+                    if (pm_info.ndim != 1 || pm_info.shape[0] != 6)
+                    {
+                        throw std::runtime_error("populate_6d: "
+                                "mean must be an 1d array of 6 elements");
+                    }
+
+                    if (pc_info.ndim != 2 
+                            || pc_info.shape[0] != 6
+                            || pc_info.shape[1] != 6)
+                    {
+                        throw std::runtime_error("populate_6d: "
+                                "covariances must be a 2d array of 6x6");
+                    }
+
                     ka1d_unmanaged means((double*)pm_info.ptr, 
                             pm_info.shape[0]);
 
@@ -365,6 +379,27 @@ PYBIND11_MODULE(bunch, m)
                     py::buffer_info pm_info = p_means.request();
                     py::buffer_info pl_info = p_limits.request();
                     py::buffer_info pc_info = p_covars.request();
+
+                    if (pm_info.ndim != 1 || pm_info.shape[0] != 6)
+                    {
+                        throw std::runtime_error("populate_6d_truncated: "
+                                "mean must be an 1d array of 6 elements");
+                    }
+
+                    if (pl_info.ndim != 1 || pl_info.shape[0] != 6)
+                    {
+                        throw std::runtime_error("populate_6d_truncated: "
+                                "limits must be an 1d array of 6 elements");
+                    }
+
+                    if (pc_info.ndim != 2 
+                            || pc_info.shape[0] != 6
+                            || pc_info.shape[1] != 6)
+                    {
+                        throw std::runtime_error("populate_6d_truncated: "
+                                "covariances must be a 2d array of 6x6");
+                    }
+
 
                     ka1d_unmanaged means((double*)pm_info.ptr, pm_info.shape[0]);
                     ka1d_unmanaged limits((double*)pl_info.ptr, pl_info.shape[0]);
