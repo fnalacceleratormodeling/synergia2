@@ -14,6 +14,25 @@
 #include "synergia/simulation/independent_stepper_elements.h"
 
 
+namespace Lattice_simulator
+{
+    static double closed_orbit_tolerance 
+        = default_closed_orbit_tolerance;
+}
+
+
+void
+Lattice_simulator::set_closed_orbit_tolerance(double tolerance)
+{
+    closed_orbit_tolerance = tolerance;
+}
+
+double
+Lattice_simulator::get_closed_orbit_tolerance()
+{
+    return closed_orbit_tolerance;
+}
+
 
 std::array<double, 6>
 Lattice_simulator::tune_linear_lattice(Lattice & lattice)
@@ -22,12 +41,12 @@ Lattice_simulator::tune_linear_lattice(Lattice & lattice)
 }
 
 std::array<double, 6>
-Lattice_simulator::tune_circular_lattice(Lattice & lattice, double tolerance)
+Lattice_simulator::tune_circular_lattice(Lattice & lattice)
 {
     // calculate closed orbit
-    //auto state = calculate_closed_orbit(lattice, 0.0, tolerance);
-    //lattice.get_reference_particle().set_state(state);
-    
+    auto state = calculate_closed_orbit(lattice, 0.0);
+    lattice.get_reference_particle().set_state(state);
+
     return tune_rfcavities(lattice);
 }
 
@@ -51,6 +70,11 @@ Lattice_simulator::tune_rfcavities(Lattice & lattice)
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
             ref, Commxx().size(), 1e09);
+
+    // 
+    sim.get_bunch()
+        .get_design_reference_particle()
+        .set_state(ref.get_state());
 
     // propagate actions
     double accum_cdt = 0.0;
@@ -152,16 +176,20 @@ namespace
 }
 
 std::array<double, 6> 
-Lattice_simulator::calculate_closed_orbit(Lattice const& lattice,
-        double dpp, double tolerance)
+Lattice_simulator::calculate_closed_orbit(
+        Lattice const& lattice, double dpp)
 {
     // create params object, make a copy of the lattice
     Closed_orbit_params cop(dpp, lattice);
 
     const size_t ndim = 4; // solve closed orbit in x, xp, y, yp
 
+    // init coordinates
+    auto state = lattice.get_reference_particle().get_state();
+
     //const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrid;
     const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids;
+
     //const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_dnewton;
     gsl_multiroot_fsolver * solver = gsl_multiroot_fsolver_alloc(T, ndim);
 
@@ -170,7 +198,12 @@ Lattice_simulator::calculate_closed_orbit(Lattice const& lattice,
 
     // initialize the closed orbit
     for (int i=0; i<ndim; ++i)
+    {
         gsl_vector_set(co_try, i, 0.0);
+
+        // or use the memory from last found closed orbit?
+        //gsl_vector_set(co_try, i, state[i]);
+    }
 
     gsl_multiroot_function F;
     F.f = &propagate_co_try;
@@ -182,7 +215,8 @@ Lattice_simulator::calculate_closed_orbit(Lattice const& lattice,
     int niter=0;
     const int maxiter = 100;
 
-    do {
+    do 
+    {
         int rc;
         rc = gsl_multiroot_fsolver_iterate(solver);
 
@@ -190,7 +224,8 @@ Lattice_simulator::calculate_closed_orbit(Lattice const& lattice,
         {
         case GSL_ENOPROG:
             throw std::runtime_error(
-                    "Closed orbit solver unable to converge.  Is the tolerance too tight?");
+                    "Closed orbit solver unable to converge. "
+                    "Is the tolerance too tight?");
             break;
 
         case GSL_EBADFUNC:
@@ -204,13 +239,15 @@ Lattice_simulator::calculate_closed_orbit(Lattice const& lattice,
 
         gsl_multiroot_fsolver_f(solver);
 
-    } while ((gsl_multiroot_test_residual(solver->f, tolerance) == GSL_CONTINUE) 
-            && (++niter < maxiter));
+    } while ((gsl_multiroot_test_residual(solver->f, closed_orbit_tolerance) 
+                == GSL_CONTINUE) && (++niter < maxiter));
 
     if (niter == maxiter) 
     {
         std::stringstream sstr;
-        sstr << "Could not locate closed orbit after " << maxiter << " iterations";
+        sstr << "Could not locate closed orbit after " 
+             << maxiter << " iterations";
+
         throw std::runtime_error( sstr.str() );
     }
 
@@ -235,7 +272,8 @@ filter_transverse_tunes(double const* jac);
  
 // [tune_h, tune_v, c_delta_t]
 std::array<double, 3>
-Lattice_simulator::calculate_tune_and_cdt(Lattice const& lattice, double dpp)
+Lattice_simulator::calculate_tune_and_cdt(
+        Lattice const& lattice, double dpp)
 {
     // trigon bunch
     using trigon_t = Trigon<double, 2, 6>;
@@ -325,7 +363,8 @@ Lattice_simulator::calculate_tune_and_cdt(Lattice const& lattice, double dpp)
 
 
 chromaticities_t
-Lattice_simulator::get_chromaticities(Lattice const& lattice, double dpp)
+Lattice_simulator::get_chromaticities(
+        Lattice const& lattice, double dpp)
 {
     chromaticities_t chroms;
 
@@ -544,6 +583,273 @@ Lattice_simulator::get_bucket_length(Lattice const& lattice)
     // or return 0
     return 0.0;
 }
+
+
+// --------------------------------------------
+// adjust tunes
+// --------------------------------------------
+
+
+namespace
+{
+    double
+    get_AT_corrector_strength(Lattice_element const& elm)
+    {
+        // TODO: more element types
+        // ...
+        if (elm.get_type() == element_type::quadrupole)
+            return elm.get_double_attribute("k1", 0.0);
+
+        throw std::runtime_error(
+                "Bad element type passed to get_AT_corrector_strength: "
+                + elm.get_name());
+    }
+
+
+    void
+    set_AT_corrector_strength(Lattice_element& elm, double strength)
+    {
+        // TODO: more element types
+        // ...
+        if (elm.get_type() == element_type::quadrupole)
+            elm.set_double_attribute("k1", strength);
+    }
+
+    void
+    get_strengths_param(
+            std::vector<Lattice_element*> const& elms,
+            std::vector<double> & original_strengths,
+            double & param, bool & relative)
+    {
+        relative = false;
+
+        double lastval = get_AT_corrector_strength(*(elms[0]));
+        const double tolerance = 1.0e-12;
+
+        for (int i=0; i<elms.size(); ++i)
+        {
+            double val = get_AT_corrector_strength(*(elms[i]));
+            if (std::abs(val - lastval) > tolerance) relative = true;
+
+            original_strengths.at(i) = val;
+            lastval = val;
+        }
+
+        param = relative ? 1.0 : original_strengths[0];
+    }
+
+
+
+    struct Adjust_tunes_params
+    {
+        Lattice& lattice;
+
+        double h_nu_target;
+        double v_nu_target;
+
+        std::vector<Lattice_element*> h_elements;
+        std::vector<Lattice_element*> v_elements;
+
+        std::vector<double> h_original_strengths;
+        std::vector<double> v_original_strengths;
+
+        double h_param;
+        double v_param;
+
+        bool h_relative; 
+        bool v_relative;
+
+        Adjust_tunes_params(
+                Lattice& lattice,
+                double horizontal_tune, 
+                double vertical_tune,
+                std::vector<Lattice_element*> h_correctors,
+                std::vector<Lattice_element*> v_correctors)
+            : lattice(lattice)
+            , h_nu_target(horizontal_tune)
+            , v_nu_target(vertical_tune)
+            , h_elements(h_correctors)
+            , v_elements(v_correctors)
+            , h_original_strengths(h_correctors.size())
+            , v_original_strengths(v_correctors.size())
+            , h_param(1.0)
+            , v_param(1.0)
+            , h_relative(false)
+            , v_relative(false)
+        { 
+            get_strengths_param(h_elements, h_original_strengths, 
+                    h_param, h_relative);
+
+            get_strengths_param(v_elements, v_original_strengths, 
+                    v_param, v_relative);
+
+#if 0
+            if (verbosity > 1) 
+            {
+                logger << "Lattice_simulator::adjust_tunes: h_relative = "
+                        << h_relative << ", v_relative = " << v_relative
+                        << std::endl;
+            }
+#endif
+        }
+    };
+
+
+
+    int
+    adjust_tunes_function(
+            const gsl_vector* x, 
+            void* params, 
+            gsl_vector* f)
+    { 
+        Adjust_tunes_params * atparams = 
+            static_cast<Adjust_tunes_params*>(params);
+
+        double h_param = gsl_vector_get(x, 0);
+
+        for (int i=0; i<atparams->h_elements.size(); ++i)
+        {
+            double str = atparams->h_relative 
+                ? h_param * atparams->h_original_strengths[i] 
+                : h_param;
+
+            auto pe = atparams->h_elements[i];
+            set_AT_corrector_strength(*pe, str);
+        }
+
+        double v_param = gsl_vector_get(x, 1);
+
+        for (int i=0; i<atparams->v_elements.size(); ++i)
+        {
+            double str = atparams->v_relative 
+                ? v_param * atparams->v_original_strengths[i] 
+                : v_param;
+
+            auto pe = atparams->v_elements[i];
+            set_AT_corrector_strength(*pe, str);
+        }
+
+        auto nus = Lattice_simulator::calculate_tune_and_cdt(
+                atparams->lattice, 0.0);
+
+        double nu_h = nus[0];
+        double nu_v = nus[1];
+
+        gsl_vector_set(f, 0, nu_h - atparams->h_nu_target);
+        gsl_vector_set(f, 1, nu_v - atparams->v_nu_target);
+
+        return GSL_SUCCESS;
+    }
+}
+
+
+
+void
+Lattice_simulator::adjust_tunes(
+        Lattice& lattice,
+        double horizontal_tune, 
+        double vertical_tune,
+        double tolerance )
+{
+    std::vector<Lattice_element*> h_correctors;
+    std::vector<Lattice_element*> v_correctors;
+
+    for(auto & e : lattice.get_elements())
+    {
+        if (e.has_marker(marker_type::h_tunes_corrector))
+            h_correctors.push_back(&e);
+
+        if (e.has_marker(marker_type::v_tunes_corrector))
+            v_correctors.push_back(&e);
+    }
+
+    Adjust_tunes_params atparams(
+            lattice,
+            horizontal_tune, vertical_tune,
+            h_correctors, v_correctors );
+
+    const size_t n = 2;
+    gsl_multiroot_function f = { 
+        &adjust_tunes_function, n, (void*)&atparams };
+
+    gsl_vector * x = gsl_vector_alloc(n);
+    gsl_vector_set(x, 0, atparams.h_param);
+    gsl_vector_set(x, 1, atparams.v_param);
+
+    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids;
+    gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc(T, n);
+    gsl_multiroot_fsolver_set(s, &f, x);
+
+    int status;
+    size_t iter = 0;
+    const int max_iter = 100;
+
+    do 
+    { 
+        iter++;
+
+#if 0
+        if (verbosity > 1) 
+        {
+            logger << "Lattice_simulator::adjust_tunes: iteration " 
+                   << iter << std::endl;
+        }
+#endif
+
+        status = gsl_multiroot_fsolver_iterate(s);
+        if (status) break;
+
+        status = gsl_multiroot_test_residual(s->f, tolerance);
+
+    } while (status == GSL_CONTINUE && iter < max_iter);
+
+    gsl_multiroot_fsolver_free(s);
+    gsl_vector_free(x);
+
+    if (iter >= max_iter) 
+        throw std::runtime_error(
+                "Lattice_elements::adjust_tunes: "
+                "solver failed to converge" );
+#if 0
+    if (verbosity > 1) 
+    {
+        logger 
+            << "Lattice_simulator::adjust_tunes: "
+            << "begin new corrector quads" << std::endl;
+    }
+#endif
+
+#if 0
+    if (verbosity > 1) 
+    {
+        logger 
+            << "Lattice_simulator::adjust_tunes: "
+            << "end new corrector quads" << std::endl;
+    }
+#endif
+
+#if 0
+    if (verbosity > 0) 
+    {
+        logger 
+            << "Lattice_simulator::adjust_tunes: "
+            << "convergence achieved in " << iter 
+            << " iterations" << std::endl;
+
+        logger 
+            << std::setprecision(decimal_digits(tolerance)+2);
+
+        logger 
+            << "Lattice_simulator::adjust_tunes: "
+            << "final horizontal tune = " << get_horizontal_tune() 
+            << ", final vertical tune = " << get_vertical_tune() 
+            << std::endl;
+    }
+#endif
+
+}
+
+
 
 
 #endif // __CUDA_ARCH__

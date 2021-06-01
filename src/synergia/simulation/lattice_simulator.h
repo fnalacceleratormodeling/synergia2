@@ -27,6 +27,9 @@ namespace Lattice_simulator
 {
     constexpr const double default_closed_orbit_tolerance = 1.0e-13;
 
+    void   set_closed_orbit_tolerance(double tolerance);
+    double get_closed_orbit_tolerance();
+
     // Both tune_linear_lattice() and tune_circular_lattice() set the frequency of the 
     // rfcavities based on the momentum of the lattice reference particle.  
     //
@@ -46,45 +49,67 @@ namespace Lattice_simulator
     // return values is the state for calcualted closed orbit
     // note that all the rf cavities will be set to 0 strength during the tuning process
     std::array<double, 6> 
-    tune_linear_lattice(Lattice & lattice);
+    tune_linear_lattice(
+            Lattice & lattice);
 
     std::array<double, 6> 
-    tune_circular_lattice(Lattice & lattice, double tolerance=1.0e-13);
+    tune_circular_lattice(
+            Lattice & lattice);
 
     std::array<double, 6> 
-    tune_rfcavities(Lattice & lattice);
+    tune_rfcavities(
+            Lattice & lattice);
 
     // closed orbit
     std::array<double, 6> 
-    calculate_closed_orbit(Lattice const& lattice, double dpp = 0.0, 
-            double tolerance = default_closed_orbit_tolerance);
+    calculate_closed_orbit(
+            Lattice const& lattice, 
+            double dpp = 0.0);
 
     // [tune_h, tune_v, c_delta_t]
     std::array<double, 3>
-    calculate_tune_and_cdt(Lattice const& lattice, double dpp);
+    calculate_tune_and_cdt(
+            Lattice const& lattice, 
+            double dpp);
 
     chromaticities_t
-    get_chromaticities(Lattice const& lattice, double dpp);
+    get_chromaticities(
+            Lattice const& lattice, 
+            double dpp);
 
     // get the full mapping of the one turn map
     template<unsigned int order = 2>
     TMapping<Trigon<double, order, 6>>
-    get_one_turn_map(Lattice const& lattice, double dpp = 0.0);
+    get_one_turn_map(
+            Lattice const& lattice, 
+            double dpp = 0.0 );
 
     // only the jacobian of the one turn map
     karray2d_row
-    get_linear_one_turn_map(Lattice const& lattice);
+    get_linear_one_turn_map(
+            Lattice const& lattice);
 
     // [alpha, beta, psi]
     std::array<double, 3>
-    map_to_twiss(karray2d_row map);
+    map_to_twiss(
+            karray2d_row map);
 
     template<unsigned int order>
     NormalForm<order>
-    calculate_normal_form(Lattice const& lattice);
+    calculate_normal_form(
+            Lattice const& lattice);
 
     double
-    get_bucket_length(Lattice const& lattice);
+    get_bucket_length(
+            Lattice const& lattice);
+
+    void
+    adjust_tunes(
+            Lattice& lattice,
+            double horizontal_tune, 
+            double vertical_tune,
+            double tolerance );
+
 }
 
 #ifdef __CUDA_ARCH__

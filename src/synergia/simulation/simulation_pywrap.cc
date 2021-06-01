@@ -57,7 +57,7 @@ PYBIND11_MODULE(simulation, m)
         .def( "tune_circular_lattice", 
                 &Lattice_simulator::tune_circular_lattice,
                 "Tune a circular lattice.",
-                "lattice"_a, "tolerance"_a = 1.0e-13 )
+                "lattice"_a )
 
         .def( "calculate_normal_form_o1",
                 &Lattice_simulator::calculate_normal_form<1>, 
