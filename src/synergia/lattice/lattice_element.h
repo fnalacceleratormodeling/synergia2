@@ -64,6 +64,17 @@ namespace element_type_name
     constexpr char const* elens      = "elens";
 }
 
+enum class marker_type
+{
+    h_tunes_corrector,
+    v_tunes_corrector,
+
+    h_chrom_corrector,
+    v_chrom_corrector,
+
+    end
+};
+
 class Lattice;
 
 /// The Lattice_element class contains the description of a single
@@ -102,6 +113,9 @@ private:
     // attributes of the element (e.g., the strength and length)
     // is unaffected by the bunch propagation
     mutable double deposited_charge = 0.0;
+
+    // markers
+    std::array<bool, (int)marker_type::end> markers;
 
 public:
 
@@ -252,10 +266,28 @@ public:
     double
     get_bend_angle() const;
 
+
+    /// (re)set a marker for the element. examples of supported 
+    /// markers are,
+    ///   horizontal/vertical tunes corrector,
+    ///   horizontal/vertical chromaticity crrector
+    void set_marker(marker_type t);
+
+    void reset_marker(marker_type t)
+    { markers[(int)t] = false; }
+
+    bool has_marker(marker_type t) const
+    { return markers[(int)t]; }
+
     /// deposited charge
-    double get_deposited_charge() const { return deposited_charge; }
-    void   set_deposited_charge(double charge) const { deposited_charge = charge; }
-    void   deposit_charge(double charge) const { deposited_charge += charge; }
+    double get_deposited_charge() const 
+    { return deposited_charge; }
+
+    void   set_deposited_charge(double charge) const 
+    { deposited_charge = charge; }
+
+    void   deposit_charge(double charge) const 
+    { deposited_charge += charge; }
 
     /// Get the Lattice_element's revision number
     long int
@@ -312,6 +344,7 @@ private:
         ar(CEREAL_NVP(length_attribute_name));
         ar(CEREAL_NVP(bend_angle_attribute_name));
         ar(CEREAL_NVP(revision));
+        ar(CEREAL_NVP(markers));
     }
 };
 

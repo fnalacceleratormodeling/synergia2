@@ -55,6 +55,7 @@ Lattice_element::Lattice_element()
     , bend_angle_attribute_name("angle")
     , revision(0)
     , lattice_ptr(nullptr)
+    , markers{}
 {
 }
 
@@ -72,6 +73,7 @@ Lattice_element::Lattice_element(
     , bend_angle_attribute_name("angle")
     , revision(0)
     , lattice_ptr(nullptr)
+    , markers{}
 {
 }
 
@@ -87,6 +89,7 @@ Lattice_element::Lattice_element(Lsexpr const & lsexpr)
     , bend_angle_attribute_name("angle")
     , revision(0)
     , lattice_ptr(nullptr)
+    , markers{}
 {
     for (auto const& lse : lsexpr)
     {
@@ -444,6 +447,78 @@ Lattice_element::get_lattice() const
                     "Lattice_element::get_lattice: element not part of any lattice");
     }
     return *lattice_ptr;
+}
+
+namespace
+{
+    void
+    validate_tunes_corrector(Lattice_element const& e)
+    {
+        // quads, CFbends, multipoles
+    }
+
+    void
+    validate_chrom_corrector(Lattice_element const& e)
+    {
+        // sexts, CFbends, multipoles
+    }
+}
+
+void
+Lattice_element::set_marker(marker_type t)
+{
+    switch(t)
+    {
+    case marker_type::h_tunes_corrector:
+
+        if (has_marker(marker_type::v_tunes_corrector))
+            throw std::runtime_error("Lattice_element::set_marker(): "
+                    "v_tunes_corrector has been set for the element "
+                    + name + ", unable to set the h_tunes_corrector.");
+
+        validate_tunes_corrector(*this);
+
+        break;
+
+    case marker_type::v_tunes_corrector:
+
+        if (has_marker(marker_type::h_tunes_corrector))
+            throw std::runtime_error("Lattice_element::set_marker(): "
+                    "h_tunes_corrector has been set for the element "
+                    + name + ", unable to set the v_tunes_corrector.");
+
+        validate_tunes_corrector(*this);
+
+        break;
+
+    case marker_type::h_chrom_corrector:
+
+        if (has_marker(marker_type::v_chrom_corrector))
+            throw std::runtime_error("Lattice_element::set_marker(): "
+                    "v_chrom_corrector has been set for the element "
+                    + name + ", unable to set the h_chrom_corrector.");
+
+        validate_chrom_corrector(*this);
+
+        break;
+
+    case marker_type::v_chrom_corrector:
+
+        if (has_marker(marker_type::h_chrom_corrector))
+            throw std::runtime_error("Lattice_element::set_marker(): "
+                    "h_chrom_corrector has been set for the element "
+                    + name + ", unable to set the v_chrom_corrector.");
+
+        validate_chrom_corrector(*this);
+
+        break;
+
+    default:
+        break;
+    }
+
+    // set the marker
+    markers[(int)t] = true;
 }
 
 
