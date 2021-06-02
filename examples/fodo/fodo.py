@@ -5,6 +5,8 @@ from mpi4py import MPI
 import numpy as np
 import synergia
 
+macroparticles = 524288
+real_particles=2.94e10
 
 def get_lattice():
 
@@ -42,7 +44,7 @@ def create_simulator(ref_part):
 
     print('in create_simulator')
     sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
-            ref_part, 16384, 2.94e10)
+            ref_part, macroparticles, real_particles)
     print('simlator created with single bunch')
 
     bunch = sim.get_bunch()
@@ -56,19 +58,19 @@ def create_simulator(ref_part):
          [0, 0, -6.6846812465678249e-07, 1.9161816525115867e-07, 0, 0],
          [0, 0, 0, 0, 0.00016427607645871527, 0],
          [0, 0, 0, 0, 0, 1e-08]])
-    print('bunch_covariances.shape: ', bunch_covariances.shape)
+    #print('bunch_covariances.shape: ', bunch_covariances.shape)
     
     dist = synergia.foundation.PCG_random_distribution(1234567, synergia.utils.Commxx())
     #dist = synergia.foundation.Random_distribution(1234567, synergia.utils.Commxx())
 
-    print('before populate_6d')
+    #print('before populate_6d')
     #print_statistics(bunch)
     synergia.bunch.populate_6d( dist, 
         bunch, 
         bunch_means,
         bunch_covariances)
 
-    print('after populate_6d')
+    #print('after populate_6d')
     #print_statistics(bunch)
 
     return sim
@@ -105,10 +107,9 @@ def run():
         for elem in lattice.get_elements():
             elem.print_()
     sim = create_simulator(lattice.get_reference_particle())
-    print('after create_simulator')
+
     propagator = create_propagator(lattice)
 
-    print('before propagate')
     sim.get_bunch().print_statistics(screen);
 
     class context:
@@ -122,27 +123,28 @@ def run():
     sim.reg_prop_action_step_end(action)
 
     # diagnostics
-    diag_full2 = synergia.bunch.Diagnostics_full2("diag_full_py.h5")
+    diag_full2 = synergia.bunch.Diagnostics_full2("diag_full.h5")
     sim.reg_diag_per_turn(diag_full2)
 
-    diag_bt = synergia.bunch.Diagnostics_bulk_track("diag_bt_py.h5", 1000, 0)
+    diag_bt = synergia.bunch.Diagnostics_bulk_track("diag_track.h5", 1000, 0)
     sim.reg_diag_per_turn(diag_bt)
 
-    diag_part = synergia.bunch.Diagnostics_particles("diag_part_py.h5", 100)
+    diag_part = synergia.bunch.Diagnostics_particles("diag_part.h5", 100)
     sim.reg_diag_per_turn(diag_part)
 
     sim.reg_diag_per_turn(mydiag("mydiag.h5"))
-    #diag_dummy = synergia.bunch.Diagnostics_dummy()
-    #sim.reg_diag_per_turn(diag_dummy)
+    diag_dummy = synergia.bunch.Diagnostics_dummy()
+    sim.reg_diag_per_turn(diag_dummy)
 
     # logger
     simlog = synergia.utils.parallel_utils.Logger(0, 
             synergia.utils.parallel_utils.LoggerV.INFO_STEP)
 
     # propagate
-    propagator.propagate(sim, simlog, 1)
+    propagator.propagate(sim, simlog, 10)
 
     print("total steps = ", context.steps)
+
     print('after propagate')
     sim.get_bunch().print_statistics(screen);
 
