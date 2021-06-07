@@ -5,8 +5,12 @@ from mpi4py import MPI
 import numpy as np
 import synergia
 
-macroparticles = 524288
-real_particles=2.94e10
+macroparticles = 1048576
+real_particles=2.94e12
+turns = 10
+gridx = 32
+gridy = 32
+gridz = 128
 
 def get_lattice():
 
@@ -76,10 +80,10 @@ def create_simulator(ref_part):
     return sim
 
 def create_propagator(lattice):
-    sc_ops = synergia.collective.Space_charge_2d_open_hockney_options(64, 64, 64)
+    sc_ops = synergia.collective.Space_charge_3d_open_hockney_options(gridx, gridy, gridz)
     sc_ops.comm_group_size = 1
 
-    stepper = synergia.simulation.Split_operator_stepper(sc_ops, 4)
+    stepper = synergia.simulation.Split_operator_stepper_elements(sc_ops, 1)
     propagator = synergia.simulation.Propagator(lattice, stepper)
 
     return propagator
@@ -98,7 +102,8 @@ class mydiag(synergia.bunch.Diagnostics):
 def run():
 
     screen = synergia.utils.parallel_utils.Logger(0, 
-            synergia.utils.parallel_utils.LoggerV.DEBUG)
+            #synergia.utils.parallel_utils.LoggerV.DEBUG)
+                                                  synergia.utils.parallel_utils.LoggerV.INFO)
 
     lattice = get_lattice()
     print('Read lattice, length: ', lattice.get_length(), ', ', len(lattice.get_elements()), ' elements', file=screen)
@@ -138,10 +143,12 @@ def run():
 
     # logger
     simlog = synergia.utils.parallel_utils.Logger(0, 
-            synergia.utils.parallel_utils.LoggerV.INFO_STEP)
+            synergia.utils.parallel_utils.LoggerV.INFO_TURN)
+            #synergia.utils.parallel_utils.LoggerV.INFO)
+            #synergia.utils.parallel_utils.LoggerV.INFO_STEP)
 
     # propagate
-    propagator.propagate(sim, simlog, 10)
+    propagator.propagate(sim, simlog, turns)
 
     print("total steps = ", context.steps)
 
@@ -156,6 +163,8 @@ def main():
     print("running fodo.py: my rank =", MPI.COMM_WORLD.Get_rank())
     try:
         run()
+        logger = synergia.utils.Logger(0)
+        synergia.utils.simple_timer_print(logger)
     except:
         raise RuntimeError("Failure to launch fodo.run")
 

@@ -22,7 +22,8 @@ constexpr int gridx = 32;
 constexpr int gridy = 32;
 constexpr int gridz = 128;
 constexpr int turns = 10;
-constexpr int macroparticles = 1024*1024;
+constexpr int macroparticles = 1048576;
+constexpr double real_particles = 2.94e12;
 
 Lattice get_lattice()
 {
@@ -63,7 +64,7 @@ void print_bunch_statistics(Bunch const& bunch, Logger &logger)
 
 int run()
 {
-    Logger screen(0, LoggerV::INFO_TURN);
+    Logger screen(0, LoggerV::INFO);
     //Logger screen(0, LoggerV::DEBUG);
 
     Lattice lattice = get_lattice();
@@ -79,7 +80,7 @@ int run()
     sc_ops.comm_group_size = 1;
 
     // stepper
-    Split_operator_stepper_elements stepper(sc_ops, 4);
+    Split_operator_stepper_elements stepper(sc_ops, 1);
 
     // Propagator
     Propagator propagator(lattice, stepper);
@@ -87,9 +88,7 @@ int run()
 
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
-            //lattice.get_reference_particle(), 524288, 1e13,
-            lattice.get_reference_particle(), macroparticles, 1e13,
-                                                              
+            lattice.get_reference_particle(), macroparticles, real_particles,
             Commxx() );
 
     karray1d means("means", 6);
@@ -134,7 +133,8 @@ int run()
     bunch.checkout_particles();
     print_bunch_statistics(bunch, screen);
     // propagate
-    propagator.propagate(sim, screen, turns);
+    Logger proplogger = Logger(0, LoggerV::INFO_TURN);
+    propagator.propagate(sim, proplogger , turns);
 
     bunch.checkout_particles();
     screen << "Statistics after propagate" << std::endl;
