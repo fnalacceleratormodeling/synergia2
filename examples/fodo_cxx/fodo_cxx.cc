@@ -12,8 +12,17 @@
 #include "synergia/bunch/diagnostics_bulk_track.h"
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/lattice/madx_reader.h"
+#include "synergia/utils/logger.h"
+#include "synergia/utils/simple_timer.h"
 
 #include "synergia/collective/space_charge_3d_open_hockney.h"
+
+// quick definitions
+constexpr int gridx = 32;
+constexpr int gridy = 32;
+constexpr int gridz = 128;
+constexpr int turns = 10;
+constexpr int macroparticles = 1024*1024;
 
 Lattice get_lattice()
 {
@@ -66,7 +75,7 @@ int run()
     lattice.set_reference_particle(refpart);
 
     // space charge
-    Space_charge_3d_open_hockney_options sc_ops(32, 32, 64);
+    Space_charge_3d_open_hockney_options sc_ops(gridx, gridy, gridz);
     sc_ops.comm_group_size = 1;
 
     // stepper
@@ -79,7 +88,7 @@ int run()
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
             //lattice.get_reference_particle(), 524288, 1e13,
-            lattice.get_reference_particle(), 65536, 1e13,
+            lattice.get_reference_particle(), macroparticles, 1e13,
                                                               
             Commxx() );
 
@@ -125,7 +134,7 @@ int run()
     bunch.checkout_particles();
     print_bunch_statistics(bunch, screen);
     // propagate
-    propagator.propagate(sim, screen, 10);
+    propagator.propagate(sim, screen, turns);
 
     bunch.checkout_particles();
     screen << "Statistics after propagate" << std::endl;
@@ -141,6 +150,11 @@ int main(int argc, char ** argv)
 
     //layout_test();
     run();
+
+#ifdef SIMPLE_TIMER
+    Logger logger(0);
+    simple_timer_print(logger);
+#endif
 
     Kokkos::finalize();
     MPI_Finalize();
