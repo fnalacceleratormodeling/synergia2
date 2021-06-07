@@ -8,6 +8,7 @@
 
 #include "synergia/simulation/stepper.h"
 #include "synergia/simulation/split_operator_stepper.h"
+#include "synergia/simulation/split_operator_stepper_elements.h"
 #include "synergia/simulation/independent_stepper_elements.h"
 
 #include "synergia/simulation/checkpoint.h"
@@ -107,11 +108,16 @@ PYBIND11_MODULE(simulation, m)
                 "collective_options"_a )
         ;
 
+    // Split_operator_stepper_elements
+    py::class_<Split_operator_stepper_elements, Stepper>(m, "Split_operator_stepper_elements")
+        .def( py::init<CO_options const&, int>(),
+                "collective_options"_a, "num_steps"_a )
+        ;
+
     // Independent_stepper_elements
     py::class_<Independent_stepper_elements, Stepper>(m, "Independent_stepper_elements")
         .def( py::init<int>(), "steps_per_element"_a = 1 )
         ;
-
 
     // Bunch_simulator
     using action_step_t = std::function<void(Bunch_simulator&, Lattice&, int, int)>;
