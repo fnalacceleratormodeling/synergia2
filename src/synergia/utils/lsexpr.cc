@@ -1,5 +1,6 @@
 #include "lsexpr.h"
 #include <cstring>
+#include <limits>
 
 #include <iostream>
 
@@ -40,7 +41,7 @@ std::string
 Lsexpr::to_string(double d) const
 {
     std::stringstream ss;
-    const int precision = 15;
+    const int precision = std::numeric_limits<double>::max_digits10;
     ss.precision(precision);
     ss << d;
     return (ss.str());
