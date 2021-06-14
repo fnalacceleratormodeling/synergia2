@@ -75,6 +75,25 @@ enum class marker_type
     end
 };
 
+// Lattice Functions
+struct latt_func_t
+{
+    struct lf_val_t
+    {
+        double hor;
+        double ver;
+    };
+
+    double arcLength;
+
+    lf_val_t dispersion;
+    lf_val_t dPrime;
+    lf_val_t beta;
+    lf_val_t alpha;
+    lf_val_t psi;
+};
+
+// forward declaration
 class Lattice;
 
 /// The Lattice_element class contains the description of a single
@@ -116,6 +135,11 @@ private:
 
     // markers
     std::array<bool, (int)marker_type::end> markers;
+
+public:
+
+    // lattice functions
+    latt_func_t lf;
 
 public:
 

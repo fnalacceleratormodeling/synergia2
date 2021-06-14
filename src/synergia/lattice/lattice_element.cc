@@ -454,13 +454,17 @@ namespace
     void
     validate_tunes_corrector(Lattice_element const& e)
     {
-        // quads, CFbends, multipoles
+        // TODO: quads, CFbends, multipoles
+        // for now, quads without tilt or skew
+        // throw if not a valid corrector
     }
 
     void
     validate_chrom_corrector(Lattice_element const& e)
     {
-        // sexts, CFbends, multipoles
+        // TODO: sexts, CFbends, multipoles
+        // for now, sextupole and thin-sextupoles without tilt or skew
+        // throw if not a valid corrector
     }
 }
 
