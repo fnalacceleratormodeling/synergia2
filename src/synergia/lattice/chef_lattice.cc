@@ -445,55 +445,76 @@ slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 Chef_elements
 Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
 {
+    //std::cout << "\ngetting elements from slice: " << slice.as_string() << std::endl;
     Chef_elements all_elements = lattice_sptr->get_element_adaptor_map().get_adaptor(
             slice.get_lattice_element().get_type())->get_chef_elements(
             slice.get_lattice_element(), brho);
     Chef_elements retval;
     if (slice.is_whole()) {
+        //std::cout << "slice is whole" << std::endl;
         retval = all_elements;
     } else {
+        // the lattice element corresponds to a list of chef elements.  The lattice_element_slice
+        // could correspond to a subset of them and even start midway through the list.  The first
+        // order of business is to skip those chef elements that fully precede the slice.
+        // std::cout << "slice is not whole, peeling off parts of elements" << std::endl;
         const double tolerance = 1.0e-8;
         double left = slice.get_left();
         double right = slice.get_right();
         double s = 0.0;
+        //std::cout << "left: " << left << ", right: " << right << std::endl;
         Chef_elements::iterator c_it = all_elements.begin();
         bool complete = false;
         double element_left, element_right;
         double total_done = 0.0;
         while (!complete) {
+            //std::cout << "not complete, considering current element: " << chef_element_as_string(*c_it) << std::endl;
+            //std::cout << "total_done: " << std::setprecision(16) << total_done << ", need to reach " << right-left << std::endl;
             element_left = left - s + total_done;
             element_right = 0.0;
+            // element_left current position relative to start of slice
+            // s is the starting s position of this element relative to the start of the slice
             double chef_element_length = (*c_it)->Length();
+            //std::cout << "s: " << std::setprecision(16) << s << ", element_left: "  << element_left << ", element_right: " << element_right << ", chef_element_length: " << chef_element_length << std::endl;
             if (floating_point_leq(chef_element_length, element_left, tolerance)
                     && (total_done == 0.0)) {
+                //is this element fully contained before the slice?
                 s += chef_element_length;
+                // skip this chef element because the current slice starts after the element
                 ++c_it;
+                //std::cout << "need more length than this element" << std::endl;
                 if (c_it == all_elements.end()) {
                     throw(std::runtime_error(
                             "get_chef_section_from_slice iterated beyond end of element list"));
                 }
             } else {
+                //std::cout << "looks like we need more than current element" << std::endl;
                 if (chef_element_length == 0.0) {
                     retval.push_back(*c_it);
                     ++c_it;
+                    //std::cout << "current element has 0 length, skipping" << std::endl;
                 } else {
                     if (floating_point_leq(right, s + chef_element_length,
                             tolerance)) {
                         // take part of element
                         element_right = right - s;
+                        //std::cout << "take slice of element [" << std::setprecision(16) << element_left << "," << element_right << "]" << std::endl;
                         retval.push_back(
                                 slice_chef_element(*c_it, element_left,
                                         element_right, tolerance));
                         s += element_right - element_left;
                         total_done += element_right - element_left;
+                        //std::cout << "total_done: " << std::setprecision(16) << total_done << std::endl;
                     } else {
                         // take rest of element
                         element_right = chef_element_length;
+                        //std::cout << "take rest of element" << std::setprecision(16) << element_left << "," << element_right << "]" << std::endl;
                         retval.push_back(
                                 slice_chef_element(*c_it, element_left,
                                         element_right, tolerance));
                         s += chef_element_length;
                         total_done += element_right - element_left;
+                        //std::cout << "total_done: " << std::setprecision(16) << total_done << std::endl;
                         ++c_it;
                     }
                 }
