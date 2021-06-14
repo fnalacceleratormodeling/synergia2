@@ -13,6 +13,8 @@
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/independent_stepper_elements.h"
 
+#include "synergia/utils/multi_array_conversions.h"
+
 
 namespace Lattice_simulator
 {
@@ -663,8 +665,8 @@ namespace
                 Lattice& lattice,
                 double horizontal_tune, 
                 double vertical_tune,
-                std::vector<Lattice_element*> h_correctors,
-                std::vector<Lattice_element*> v_correctors)
+                std::vector<Lattice_element*> const& h_correctors,
+                std::vector<Lattice_element*> const& v_correctors)
             : lattice(lattice)
             , h_nu_target(horizontal_tune)
             , v_nu_target(vertical_tune)
@@ -849,6 +851,698 @@ Lattice_simulator::adjust_tunes(
 
 }
 
+
+// --------------------------------------------
+// Lattice Functions
+// --------------------------------------------
+
+
+void 
+Lattice_simulator::CourantSnyderLatticeFunctions(Lattice& lattice)
+{
+    constexpr const int order = 2;
+    using trigon_t = Trigon<double, order, 6>;
+
+    const int ix  = 0;
+    const int ipx = 1;
+    const int iy  = 2;
+    const int ipy = 3;
+
+    auto const& ref = lattice.get_reference_particle();
+    auto probe = calculate_closed_orbit(lattice);
+
+    auto map = get_one_turn_map<order>(lattice);
+    //auto jac = karray_to_matrix(map.jacobian());
+    auto jac = map.jacobian();
+
+    //JetParticle  jparticle(jp);
+    //Particle      particle(jp);
+
+    // .......... Check coupling ............................
+    //::checkForCoupling(mtrx);
+
+    // Calculate initial lattice functions ...
+    // ... first horizontal
+
+    double cs = ( jac(ix, ix) + jac(ipx, ipx) )/2.0;
+
+    if( fabs( cs ) > 1.0 ) 
+    {
+        std::stringstream ss;
+        ss << "*** ERROR ***                                     \n"
+           << "*** ERROR *** LattSim::CourantSnyderLatticeFunctions \n"
+           << "*** ERROR *** cos( psi_H ) = " << cs << "\n"
+           << "*** ERROR *** Lattice is unstable.                \n"
+           << "*** ERROR *** Cannot continue with calculation.   \n"
+           << "*** ERROR ***                                     \n"
+           << std::endl;
+
+        throw std::runtime_error(ss.str());
+    } 
+    
+    double sn = ( jac(ix, ipx) > 0.0 ) 
+        ? sqrt( 1.0 - cs*cs ) : - sqrt( 1.0 - cs*cs );
+
+    if( sn == 0.0 ) 
+    {
+        std::stringstream ss;
+        ss << "*** ERROR ***                                     \n"
+           << "*** ERROR *** LattSim::CourantSnyderLatticeFunctions \n"
+           << "*** ERROR *** Integer horizontal tune.            \n"
+           << "*** ERROR ***                                     \n"
+           << std::endl;
+
+        throw std::runtime_error(ss.str());
+    }
+
+    double beta_x = jac(ix, ipx) / sn;
+    double alpha_x = (jac(ix, ix) - jac(ipx, ipx)) / (2.0*sn);
+
+    // ... then vertical.
+    cs = (jac(iy, iy) + jac(ipy, ipy))/2.0;
+
+    if( fabs( cs ) <= 1.0 ) 
+    {
+        if( jac(iy, ipy) > 0.0 )  sn =  sqrt( 1.0 - cs*cs );
+        else                      sn = -sqrt( 1.0 - cs*cs );
+    }
+    else 
+    {
+        std::stringstream ss;
+        ss << "*** ERROR ***                                     \n"
+           << "*** ERROR *** LattSim::CourantSnyderLatticeFunctions \n"
+           << "*** ERROR *** cos( psi_V ) = " << cs << "\n"
+           << "*** ERROR *** Lattice is unstable.                \n"
+           << "*** ERROR *** Cannot continue with calculation.   \n"
+           << "*** ERROR ***                                     \n"
+           << std::endl;
+
+        throw std::runtime_error(ss.str());
+    }
+
+    if( sn == 0.0 ) 
+    {
+        std::stringstream ss;
+        ss << "*** ERROR ***                                     \n"
+           << "*** ERROR *** LattSim::CourantSnyderLatticeFunctions \n"
+           << "*** ERROR *** Integer vertical tune.              \n"
+           << "*** ERROR ***                                     \n"
+           << std::endl;
+
+        throw std::runtime_error(ss.str());
+    }
+
+    double beta_y = jac(iy, ipy) / sn;
+    double alpha_y = (jac(iy, iy) - jac(ipy, ipy)) / ( 2.0*sn );
+
+    double beta0H  = beta_x;
+    double beta0V  = beta_y;
+    double alpha0H = alpha_x;
+    double alpha0V = alpha_y;
+
+    double oldpsiH = 0.0;
+    double oldpsiV = 0.0;
+
+    double tb      = 0.0;
+    double t       = 0.0;
+    double lng     = 0.0;
+    double psi_x   = 0.0;
+    double psi_y   = 0.0;
+
+    // set to id map, ref points set to state
+    //jparticle.setState( particle.State() );
+
+    Commxx comm;
+    bunch_t<trigon_t> bunch(ref, comm.size(), comm);
+
+    // design reference particle from the closed orbit
+    auto ref_l = ref;
+    ref_l.set_state(probe);
+    bunch.set_design_reference_particle(ref_l);
+
+    auto tparts = bunch.get_host_particles();
+
+    // init value
+    for(int i=0; i<6; ++i) 
+        tparts(0, i).set(probe[i], i);
+
+    // check in
+    bunch.checkin_particles();
+
+    // propagate trigon
+    for(auto& elm : lattice.get_elements())
+    {
+        // At one time, dipoles with non-standard faces were discriminated 
+        // against and wouldn't have
+        // their phase advance calculated.
+        // bool is_regular = 
+        //     ( ( typeid(*lbe) != typeid(rbend)    ) &&
+        //     (   typeid(*lbe) != typeid(CF_rbend) ) &&
+        //     (   typeid(*lbe) != typeid(Slot)     ) &&
+        //     (   typeid(*lbe) != typeid(srot)     ) &&		   
+        //     (     (*lbe).hasStandardFaces()      )  );
+
+        bool is_regular = true;
+
+        //lng += elm.OrbitLength( particle );
+        lng += elm.get_length();
+        FF_element::apply(elm, bunch);
+
+        auto mtrx = bunch.get_jacobian(0);
+
+        tb = mtrx(ix,ix) * beta0H -  mtrx(ix,ipx) * alpha0H;
+        beta_x  = (tb * tb + mtrx(ix,ipx) * mtrx(ix,ipx))/beta0H;
+
+        alpha_x = -1.0*(tb*(mtrx(ipx,ix)*beta0H - mtrx(ipx,ipx)*alpha0H) 
+                + mtrx(ix,ipx)*mtrx(ipx,ipx))/beta0H;
+
+        if ( is_regular ) 
+        {
+             t = atan2(mtrx(ix,ipx),tb);
+
+             // numerical round off errs introduce unphisical jumps in phase 
+             // while(t < oldpsiH) t += M_TWOPI; 
+             while(t < oldpsiH*(1.-1.e-4)) t += mconstants::pi*2;
+
+             psi_x = oldpsiH = t;
+         }
+         else 
+         {
+             psi_x = oldpsiH;
+         }
+
+         tb = mtrx(iy,iy) * beta0V -  mtrx(iy,ipy) * alpha0V;
+         beta_y = (tb * tb + mtrx(iy,ipy) * mtrx(iy,ipy))/beta0V;
+
+         alpha_y = -1.0*(tb*(mtrx(ipy,iy)*beta0V - mtrx(ipy,ipy)*alpha0V) 
+                 + mtrx(iy,ipy)*mtrx(ipy,ipy))/beta0V;
+
+         if ( is_regular ) 
+         {
+             t = atan2(mtrx(iy,ipy),tb);
+
+             // numerical round off errs introduce unphisical jumps in phase 
+             // while(t < oldpsiV) t += M_TWOPI; 
+             while(t < oldpsiV*(1.-1.e-4)) t += mconstants::pi*2;
+
+             psi_y = oldpsiV = t;
+         }
+         else 
+         {
+             psi_y = oldpsiV;
+         } 
+
+         elm.lf.arcLength = lng;
+         elm.lf.beta.hor  = beta_x;
+         elm.lf.beta.ver  = beta_y;
+         elm.lf.alpha.hor = alpha_x;
+         elm.lf.alpha.ver = alpha_y;
+         elm.lf.psi.hor   = psi_x;
+         elm.lf.psi.ver   = psi_y;
+
+    }  // End loop on lbe ...
+
+}
+
+void
+Lattice_simulator::calc_dispersions(Lattice& lattice)
+{
+    const double dpp = 0.005;
+
+    constexpr const int order = 2;
+    using trigon_t = Trigon<double, order, 6>;
+
+    const int ix  = 0;
+    const int ipx = 1;
+    const int iy  = 2;
+    const int ipy = 3;
+
+    auto const& ref = lattice.get_reference_particle();
+
+    // Preliminary steps ...
+    auto probe1 = calculate_closed_orbit(lattice, 0.0);
+    auto probe2 = calculate_closed_orbit(lattice, dpp);
+
+    auto fstJac = get_one_turn_map<order>(lattice, 0.0).jacobian();
+    auto secJac = get_one_turn_map<order>(lattice, dpp).jacobian();
+
+    // propagate through elements
+    Commxx comm;
+    bunch_t<double> b1(ref, comm.size(), 1e9, comm);
+    bunch_t<double> b2(ref, comm.size(), 1e9, comm);
+
+    // design reference particle from the closed orbit
+    auto ref1 = ref;
+    ref1.set_state(probe1);
+    b1.set_design_reference_particle(ref1);
+
+    auto ref2 = ref;
+    ref2.set_state(probe2);
+    b2.set_design_reference_particle(ref2);
+
+    // local particle data
+    auto part1 = b1.get_host_particles();
+    auto part2 = b2.get_host_particles();
+
+    // init value
+    for(int i=0; i<6; ++i) 
+    {
+        part1(0, i) = probe1[i];
+        part2(0, i) = probe2[i];
+    }
+
+    // check in
+    b1.checkin_particles();
+    b2.checkin_particles();
+
+    // arcLength
+    double lng = 0.0;
+
+    // Attach initial dispersion data to the elements...
+    for(auto& elm : lattice.get_elements())
+    {
+        lng += elm.get_length();
+
+        FF_element::apply(elm, b1);
+        FF_element::apply(elm, b2);
+
+        b1.checkout_particles();
+        b2.checkout_particles();
+
+        std::array<double, 6> d;
+
+        for(int i=0; i<6; ++i)
+            d[i] = (part2(0, i) - part1(0, i)) / dpp;
+
+        elm.lf.dispersion.hor = d[ix];
+        elm.lf.dispersion.ver = d[iy];
+        elm.lf.dPrime.hor     = d[ipx];
+        elm.lf.dPrime.ver     = d[ipy];
+        elm.lf.arcLength      = lng;
+    }
+
+
+    // Attach tune and chromaticity to the beamline ........
+#if 0
+    Vector    firstNu(2), secondNu(2);
+    if( ( 0 == filterTransverseTunes( firstJacobian, firstNu   ) ) &&
+      ( 0 == filterTransverseTunes( secondJacobian, secondNu ) ) )
+    {
+    lr_.tune.hor = firstNu(0);
+    lr_.tune.ver = firstNu(1);
+    lr_.chromaticity.hor = ( secondNu(0) - firstNu(0) ) / dpp;
+    lr_.chromaticity.ver = ( secondNu(1) - firstNu(1) ) / dpp;
+    }
+    else {
+    (*pcerr) << "*** ERROR ***                                        \n"
+            "*** ERROR *** LattFuncSage::Disp_Calc                \n"
+            "*** ERROR ***                                        \n"
+            "*** ERROR *** Horrible error occurred while trying   \n"
+            "*** ERROR *** to filter the tunes.                   \n"
+            "*** ERROR ***                                        \n"
+         << endl;
+    ret = 111;
+
+    return ret;
+    }
+#endif
+}
+
+
+
+
+
+// --------------------------------------------
+// adjust chromaticities
+// --------------------------------------------
+
+namespace
+{
+    void 
+    change_chromaticityby(
+            double dh, double dv,  
+            std::vector<Lattice_element*> const& h_correctors,
+            std::vector<Lattice_element*> const& v_correctors)
+    { 
+#if 0
+        ensure_jet_environment(map_order);
+        BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+        BeamlineContext beamline_context(
+                reference_particle_to_chef_particle(
+                        lattice_sptr->get_reference_particle()), beamline_sptr);
+        beamline_context.handleAsRing();
+        set_chef_chrom_correctors(horizontal_correctors, *chef_lattice_sptr,
+                beamline_context, true);
+        set_chef_chrom_correctors(vertical_correctors, *chef_lattice_sptr,
+                beamline_context, false);
+        int status = beamline_context.changeChromaticityBy(dh, dv); 
+          if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
+                  throw std::runtime_error(
+                          "Lattice_simulator::adjust_chromaticities: no corrector elements found");
+          } 
+          else if (status != BeamlineContext::OKAY) {
+                  throw std::runtime_error(
+                          "Lattice_simulator::adjust_chromaticities: failed with unknown status");
+          }
+          
+         extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
+         extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
+         update();
+         have_chromaticities = false;
+#endif
+    }
+
+    struct ChromAdjuster
+    {
+        using MatrixD = Eigen::Matrix<double, 
+              Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+
+        const int N;
+        std::vector<Lattice_element*> correctors;
+        MatrixD f_;
+
+        ChromAdjuster(
+            std::vector<Lattice_element*> const& h_correctors,
+            std::vector<Lattice_element*> const& v_correctors)
+        : N(h_correctors.size() + v_correctors.size())
+        , correctors(N), f_(N, 2)
+        {
+            auto h_size = h_correctors.size();
+            auto v_size = v_correctors.size();
+
+            for(size_t i=0; i<h_size; ++i)
+            {
+                correctors[i] = h_correctors[i];
+                f_(i, 0) = 1.0;
+                f_(i, 1) = 0.0;
+            }
+
+            for(size_t i=0; i<v_size; ++i)
+            {
+                correctors[i+h_size] = v_correctors[i];
+                f_(i+h_size, 0) = 0.0;
+                f_(i+h_size, 1) = 1.0;
+            }
+        }
+
+        void change_chrom_by(double dh, double dv)
+        {
+#if 0
+            JetParticle  jpr(jp); 
+            JetParticle  jpr2(jp);
+            JetParticle  jpr3(jp);
+
+            // Calculate current lattice functions
+            LattFuncSage lfs( myBeamlinePtr_ );
+            lfs.attachLocalData(true);
+            myBeamlinePtr_->propagate(jpr);
+
+            lfs.CourantSnyderLatticeFunctions( jpr);
+            lfs.NewDisp_Calc   ( jpr2);
+#endif
+
+            MatrixD beta(2, N);
+            MatrixD delta_xi(2, 1);
+            double dsp;
+
+            // delta_xi = beta * _f * c
+            // w = _f * c
+            // delta strength_k = 2 * pi * brho * w_k / dps_k
+
+            bool gotDispersion = false;
+            bool gotBetas = false;
+
+            for( int j = 0; j < N; ++j) 
+            {
+                gotDispersion = false;
+                gotBetas      = false;
+
+#if 0
+                BarnacleList::iterator ptr = 
+                    correctors_[j]->dataHook.find( "Dispersion" );
+
+                if( ptr ==  correctors_[j]->dataHook.end() ) {     	
+                  ptr = correctors_[j]->dataHook.find( "Twiss" );
+                }
+
+                if( ptr != correctors_[j]->dataHook.end() ) { 
+                  dsp = boost::any_cast<LattFuncSage::lattFunc>(ptr->info).dispersion.hor;
+                  gotDispersion = true;
+                }
+                else {
+                  dsp = 0.0;  // Just to give it a value.
+                }
+
+                ptr = correctors_[j]->dataHook.find( "Twiss" );
+
+                // NOTE: possibly 2nd time this is done.
+                if(ptr !=  correctors_[j]->dataHook.end() ) 
+                {
+                    beta(0,j) =   boost::any_cast<LattFuncSage::lattFunc>(
+                            ptr->info).beta.hor * dsp;
+
+                    beta(1,j) = - boost::any_cast<LattFuncSage::lattFunc>(
+                            ptr->info).beta.ver * dsp;
+
+                    gotBetas = true;
+                }
+#endif
+               
+                if( !(gotBetas && gotDispersion) ) 
+                {
+                    throw std::runtime_error( 
+                            "ChromaticityAdjuster::changeChromaticityBy(): " 
+                            "Lattice functions or dispersion not yet "
+                            "calculated.");
+                }
+            }
+
+            // Adjust chromaticity
+            delta_xi(0,0) = dh;
+            delta_xi(1,0) = dv;
+         
+            double brho = 1.0; //jpr.ReferenceBRho();
+            MatrixD c_ = (2.0*mconstants::pi*brho)
+                * ( (beta*f_).inverse() * delta_xi );
+            MatrixD w  = f_* c_;
+         
+            for(int j=0; j<N; ++j)
+            {
+                double str = correctors[j]->get_double_attribute("k2");
+                str += w(j, 0);
+
+                correctors[j]->set_double_attribute("k2", str);
+            }
+
+        }
+    };
+
+
+}
+
+void
+Lattice_simulator::adjust_chromaticities(
+        Lattice& lattice,
+        double horizontal_chromaticity, 
+        double vertical_chromaticity,
+        double tolerance,
+        int max_steps )
+{
+    std::vector<Lattice_element*> h_correctors;
+    std::vector<Lattice_element*> v_correctors;
+
+    // extract the H/V correctors
+    for(auto & e : lattice.get_elements())
+    {
+        if (e.has_marker(marker_type::h_chrom_corrector))
+            h_correctors.push_back(&e);
+
+        if (e.has_marker(marker_type::v_chrom_corrector))
+            v_correctors.push_back(&e);
+    }
+
+    // Adjuster
+    ChromAdjuster ca(h_correctors, v_correctors);;
+
+    // current chromaticities
+    auto chroms = get_chromaticities(lattice);
+
+    double chr_h = chroms.horizontal_chromaticity;
+    double chr_v = chroms.vertical_chromaticity;
+
+    // delta = target - current
+    double dh = horizontal_chromaticity - chr_h;
+    double dv = vertical_chromaticity - chr_v;
+
+    int count = 0;
+
+    // loop
+    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance)) 
+            && (count < max_steps)) 
+    {
+        //int status = beamline_context.changeChromaticityBy(dh, dv);
+
+#if 1
+        //if (verbosity>0)
+        { 
+            std::cout 
+                << "  step = " << count 
+                << " chromaticity (H,V):  (" << chr_h<< ", " << chr_v<< ")"
+                << "   (Delta H, Delta V): (" << dh << ", " << dv << ")" 
+                <<    std::endl; 
+        }
+#endif 
+
+        ca.change_chrom_by(dh, dv);
+        //change_chromaticityby(dh, dv, h_correctors, v_correctors);
+
+        auto chroms = get_chromaticities(lattice);
+
+        chr_h = chroms.horizontal_chromaticity;
+        chr_v = chroms.vertical_chromaticity;
+
+        dh = horizontal_chromaticity - chr_h;
+        dv = vertical_chromaticity - chr_v;
+
+        count++; 
+    }
+
+#if 0
+    if (verbosity>0)
+    { 
+        logger
+            << " after steps=" << count 
+            << " chromaticity (H,V):  (" << chr_h<<", " <<chr_v<<")"
+            << "   (Delta H, Delta V): (" << dh << ", " << dv <<")"
+            <<    std::endl; 
+    }
+#endif
+
+
+    //extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
+    //extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
+    //update();
+
+#if 0
+    Logger flogger(0, "sextupole_correctors.txt", false, true);
+    flogger
+        << "! the sextupole correctors  for the chromaticity (H, V):  (" 
+        << chr_h << " ,  " << chr_v << " ) " 
+        << std::endl;
+
+    write_sextupole_correctors(h_correctors, v_correctors, *chef_lattice_sptr, flogger);
+
+    logger
+        << "sextupole correctors strength written in the file sextupole_correctors.txt"
+        <<std::endl;
+#endif
+
+    if (count == max_steps)  
+        throw std::runtime_error( 
+                "Lattice_simulator::adjust_chromaticities: "
+                "Convergence not achieved. Increase the maximum number of steps.");
+}
+
+
+ 
+#if 0
+    const int verbosity=1;
+    ensure_jet_environment(map_order);
+    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+    BeamlineContext beamline_context(
+            reference_particle_to_chef_particle(
+                    lattice_sptr->get_reference_particle()), beamline_sptr);
+    beamline_context.handleAsRing();
+    set_chef_chrom_correctors(horizontal_correctors, *chef_lattice_sptr,
+            beamline_context, true);
+    set_chef_chrom_correctors(vertical_correctors, *chef_lattice_sptr,
+            beamline_context, false);
+
+    double chr_h = get_horizontal_chromaticity();
+    double chr_v = get_vertical_chromaticity();
+
+    double dh = horizontal_chromaticity - chr_h;
+    double dv = vertical_chromaticity - chr_v;
+    int count = 0;
+
+    Logger logger(0);
+    if (verbosity>0){
+        logger<<"_________________________________________"<<std::endl;
+        logger <<" Initial chromaticiy (H,V):  ("<< chr_h<<", "
+                    <<chr_v<<")"<<std::endl;
+        logger <<" Desired chromaticity (H,V):  ("<< horizontal_chromaticity<<", "
+                    <<vertical_chromaticity<<")"<<std::endl;
+        logger<<"_________________________________________"<<std::endl;
+        logger<<"adjusting chromaticity:"<<std::endl;
+    }
+
+    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
+            && (count < max_steps)) {
+        int status = beamline_context.changeChromaticityBy(dh, dv);
+
+       if (verbosity>0){
+          logger<< "  step=" << count << " chromaticity (H,V):  (" << chr_h<<", "
+                 <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
+        }
+
+       change_chromaticityby(dh,dv, horizontal_correctors, vertical_correctors, logger, verbosity);
+        chr_h = get_horizontal_chromaticity();
+        chr_v = get_vertical_chromaticity();
+        dh = horizontal_chromaticity - chr_h;
+        dv = vertical_chromaticity - chr_v;
+        count++;
+    }
+
+    if (verbosity>0){
+      logger<< " after steps=" << count << " chromaticity (H,V):  (" << chr_h<<", "
+               <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl; 
+    }
+
+    extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
+    extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
+    update();
+
+    Logger flogger(0, "sextupole_correctors.txt", false, true);
+    flogger      << "! the sextupole correctors  for the chromaticity (H, V):  ("
+                << chr_h << " ,  " << chr_v << " ) " << std::endl;
+    write_sextupole_correctors(horizontal_correctors, vertical_correctors,
+                *chef_lattice_sptr, flogger);
+    logger<<"sextupole correctors strength written in the file  sextupole_correctors.txt"<<std::endl;
+    if (count == max_steps)  throw std::runtime_error(
+        "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
+}
+
+void 
+Lattice_simulator::change_chromaticityby(double dh, double dv,  Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, Logger & logger, int verbosity)
+{
+    
+    
+    ensure_jet_environment(map_order);
+    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+    BeamlineContext beamline_context(
+            reference_particle_to_chef_particle(
+                    lattice_sptr->get_reference_particle()), beamline_sptr);
+    beamline_context.handleAsRing();
+    set_chef_chrom_correctors(horizontal_correctors, *chef_lattice_sptr,
+            beamline_context, true);
+    set_chef_chrom_correctors(vertical_correctors, *chef_lattice_sptr,
+            beamline_context, false);
+    int status = beamline_context.changeChromaticityBy(dh, dv); 
+      if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
+              throw std::runtime_error(
+                      "Lattice_simulator::adjust_chromaticities: no corrector elements found");
+      } 
+      else if (status != BeamlineContext::OKAY) {
+              throw std::runtime_error(
+                      "Lattice_simulator::adjust_chromaticities: failed with unknown status");
+      }
+      
+     extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
+     extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
+     update();
+     have_chromaticities = false;
+#endif
 
 
 

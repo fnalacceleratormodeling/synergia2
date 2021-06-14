@@ -70,12 +70,12 @@ namespace Lattice_simulator
     std::array<double, 3>
     calculate_tune_and_cdt(
             Lattice const& lattice, 
-            double dpp);
+            double dpp = 0.0);
 
     chromaticities_t
     get_chromaticities(
             Lattice const& lattice, 
-            double dpp);
+            double dpp = 1e-5);
 
     // get the full mapping of the one turn map
     template<unsigned int order = 2>
@@ -103,12 +103,31 @@ namespace Lattice_simulator
     get_bucket_length(
             Lattice const& lattice);
 
+
+    // the calculated lattice functions will be
+    // written into the lattice elements
+    void 
+    CourantSnyderLatticeFunctions(
+            Lattice& lattice);
+
+    void
+    calc_dispersions(
+            Lattice& lattice);
+
     void
     adjust_tunes(
             Lattice& lattice,
             double horizontal_tune, 
             double vertical_tune,
-            double tolerance );
+            double tolerance = 1e-5);
+
+    void
+    adjust_chromaticities(
+            Lattice& lattice,
+            double horizontal_chromaticity,
+            double vertical_chromaticity,
+            double tolerance = 1e-4,
+            int max_steps = 6);
 
 }
 
