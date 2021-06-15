@@ -860,7 +860,7 @@ Lattice_simulator::adjust_tunes(
 void 
 Lattice_simulator::CourantSnyderLatticeFunctions(Lattice& lattice)
 {
-    constexpr const int order = 2;
+    constexpr const int order = 1;
     using trigon_t = Trigon<double, order, 6>;
 
     const int ix  = 0;
@@ -872,11 +872,7 @@ Lattice_simulator::CourantSnyderLatticeFunctions(Lattice& lattice)
     auto probe = calculate_closed_orbit(lattice);
 
     auto map = get_one_turn_map<order>(lattice);
-    //auto jac = karray_to_matrix(map.jacobian());
     auto jac = map.jacobian();
-
-    //JetParticle  jparticle(jp);
-    //Particle      particle(jp);
 
     // .......... Check coupling ............................
     //::checkForCoupling(mtrx);
@@ -969,9 +965,7 @@ Lattice_simulator::CourantSnyderLatticeFunctions(Lattice& lattice)
     double psi_x   = 0.0;
     double psi_y   = 0.0;
 
-    // set to id map, ref points set to state
-    //jparticle.setState( particle.State() );
-
+    // trigon bunch
     Commxx comm;
     bunch_t<trigon_t> bunch(ref, comm.size(), comm);
 
@@ -982,7 +976,8 @@ Lattice_simulator::CourantSnyderLatticeFunctions(Lattice& lattice)
 
     auto tparts = bunch.get_host_particles();
 
-    // init value
+    // init value set to id map, ref points set to state
+    // equivalent to jparticle.setState( particle.State() );
     for(int i=0; i<6; ++i) 
         tparts(0, i).set(probe[i], i);
 
@@ -1067,7 +1062,7 @@ Lattice_simulator::CourantSnyderLatticeFunctions(Lattice& lattice)
 void
 Lattice_simulator::calc_dispersions(Lattice& lattice)
 {
-    const double dpp = 0.005;
+    const double dpp = 0.0005;
 
     constexpr const int order = 2;
     using trigon_t = Trigon<double, order, 6>;
@@ -1083,8 +1078,11 @@ Lattice_simulator::calc_dispersions(Lattice& lattice)
     auto probe1 = calculate_closed_orbit(lattice, 0.0);
     auto probe2 = calculate_closed_orbit(lattice, dpp);
 
+#if 0
+    // only for calculate tune and chromaticity
     auto fstJac = get_one_turn_map<order>(lattice, 0.0).jacobian();
     auto secJac = get_one_turn_map<order>(lattice, dpp).jacobian();
+#endif
 
     // propagate through elements
     Commxx comm;
@@ -1178,53 +1176,22 @@ Lattice_simulator::calc_dispersions(Lattice& lattice)
 
 namespace
 {
-    void 
-    change_chromaticityby(
-            double dh, double dv,  
-            std::vector<Lattice_element*> const& h_correctors,
-            std::vector<Lattice_element*> const& v_correctors)
-    { 
-#if 0
-        ensure_jet_environment(map_order);
-        BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
-        BeamlineContext beamline_context(
-                reference_particle_to_chef_particle(
-                        lattice_sptr->get_reference_particle()), beamline_sptr);
-        beamline_context.handleAsRing();
-        set_chef_chrom_correctors(horizontal_correctors, *chef_lattice_sptr,
-                beamline_context, true);
-        set_chef_chrom_correctors(vertical_correctors, *chef_lattice_sptr,
-                beamline_context, false);
-        int status = beamline_context.changeChromaticityBy(dh, dv); 
-          if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
-                  throw std::runtime_error(
-                          "Lattice_simulator::adjust_chromaticities: no corrector elements found");
-          } 
-          else if (status != BeamlineContext::OKAY) {
-                  throw std::runtime_error(
-                          "Lattice_simulator::adjust_chromaticities: failed with unknown status");
-          }
-          
-         extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
-         extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
-         update();
-         have_chromaticities = false;
-#endif
-    }
-
     struct ChromAdjuster
     {
         using MatrixD = Eigen::Matrix<double, 
               Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
         const int N;
+        Lattice& lattice;
         std::vector<Lattice_element*> correctors;
         MatrixD f_;
 
         ChromAdjuster(
+            Lattice& lattice,    
             std::vector<Lattice_element*> const& h_correctors,
             std::vector<Lattice_element*> const& v_correctors)
         : N(h_correctors.size() + v_correctors.size())
+        , lattice(lattice)
         , correctors(N), f_(N, 2)
         {
             auto h_size = h_correctors.size();
@@ -1247,93 +1214,41 @@ namespace
 
         void change_chrom_by(double dh, double dv)
         {
-#if 0
-            JetParticle  jpr(jp); 
-            JetParticle  jpr2(jp);
-            JetParticle  jpr3(jp);
+            namespace LS = Lattice_simulator;
 
-            // Calculate current lattice functions
-            LattFuncSage lfs( myBeamlinePtr_ );
-            lfs.attachLocalData(true);
-            myBeamlinePtr_->propagate(jpr);
-
-            lfs.CourantSnyderLatticeFunctions( jpr);
-            lfs.NewDisp_Calc   ( jpr2);
-#endif
+            LS::CourantSnyderLatticeFunctions(lattice);
+            LS::calc_dispersions(lattice);
 
             MatrixD beta(2, N);
-            MatrixD delta_xi(2, 1);
-            double dsp;
 
             // delta_xi = beta * _f * c
             // w = _f * c
-            // delta strength_k = 2 * pi * brho * w_k / dps_k
-
-            bool gotDispersion = false;
-            bool gotBetas = false;
+            // delta chef_str = 2 * pi * brho * w_k / dsp_k
+            // (chef_str = k * brho / 2)
 
             for( int j = 0; j < N; ++j) 
             {
-                gotDispersion = false;
-                gotBetas      = false;
-
-#if 0
-                BarnacleList::iterator ptr = 
-                    correctors_[j]->dataHook.find( "Dispersion" );
-
-                if( ptr ==  correctors_[j]->dataHook.end() ) {     	
-                  ptr = correctors_[j]->dataHook.find( "Twiss" );
-                }
-
-                if( ptr != correctors_[j]->dataHook.end() ) { 
-                  dsp = boost::any_cast<LattFuncSage::lattFunc>(ptr->info).dispersion.hor;
-                  gotDispersion = true;
-                }
-                else {
-                  dsp = 0.0;  // Just to give it a value.
-                }
-
-                ptr = correctors_[j]->dataHook.find( "Twiss" );
-
-                // NOTE: possibly 2nd time this is done.
-                if(ptr !=  correctors_[j]->dataHook.end() ) 
-                {
-                    beta(0,j) =   boost::any_cast<LattFuncSage::lattFunc>(
-                            ptr->info).beta.hor * dsp;
-
-                    beta(1,j) = - boost::any_cast<LattFuncSage::lattFunc>(
-                            ptr->info).beta.ver * dsp;
-
-                    gotBetas = true;
-                }
-#endif
-               
-                if( !(gotBetas && gotDispersion) ) 
-                {
-                    throw std::runtime_error( 
-                            "ChromaticityAdjuster::changeChromaticityBy(): " 
-                            "Lattice functions or dispersion not yet "
-                            "calculated.");
-                }
+                double dsp = correctors[j]->lf.dispersion.hor;
+                beta(0,j) = correctors[j]->lf.beta.hor * dsp;
+                beta(1,j) = -correctors[j]->lf.beta.ver * dsp;
             }
 
             // Adjust chromaticity
-            delta_xi(0,0) = dh;
-            delta_xi(1,0) = dv;
+            MatrixD d_xi(2, 1);
+            d_xi(0,0) = dh;
+            d_xi(1,0) = dv;
          
-            double brho = 1.0; //jpr.ReferenceBRho();
-            MatrixD c_ = (2.0*mconstants::pi*brho)
-                * ( (beta*f_).inverse() * delta_xi );
+            MatrixD c_ = 4.0 * mconstants::pi * ((beta*f_).inverse()*d_xi);
             MatrixD w  = f_* c_;
          
             for(int j=0; j<N; ++j)
             {
+                double len = correctors[j]->get_length();
                 double str = correctors[j]->get_double_attribute("k2");
-                str += w(j, 0);
 
+                str += (len>0.0) ? w(j,0)/len : w(j,0);
                 correctors[j]->set_double_attribute("k2", str);
             }
-
         }
     };
 
@@ -1362,7 +1277,7 @@ Lattice_simulator::adjust_chromaticities(
     }
 
     // Adjuster
-    ChromAdjuster ca(h_correctors, v_correctors);;
+    ChromAdjuster ca(lattice, h_correctors, v_correctors);;
 
     // current chromaticities
     auto chroms = get_chromaticities(lattice);
@@ -1380,9 +1295,7 @@ Lattice_simulator::adjust_chromaticities(
     while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance)) 
             && (count < max_steps)) 
     {
-        //int status = beamline_context.changeChromaticityBy(dh, dv);
-
-#if 1
+#if 0
         //if (verbosity>0)
         { 
             std::cout 
@@ -1394,7 +1307,6 @@ Lattice_simulator::adjust_chromaticities(
 #endif 
 
         ca.change_chrom_by(dh, dv);
-        //change_chromaticityby(dh, dv, h_correctors, v_correctors);
 
         auto chroms = get_chromaticities(lattice);
 
@@ -1408,9 +1320,9 @@ Lattice_simulator::adjust_chromaticities(
     }
 
 #if 0
-    if (verbosity>0)
+    //if (verbosity>0)
     { 
-        logger
+        std::cout
             << " after steps=" << count 
             << " chromaticity (H,V):  (" << chr_h<<", " <<chr_v<<")"
             << "   (Delta H, Delta V): (" << dh << ", " << dv <<")"
@@ -1419,10 +1331,6 @@ Lattice_simulator::adjust_chromaticities(
 #endif
 
 
-    //extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
-    //extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
-    //update();
-
 #if 0
     Logger flogger(0, "sextupole_correctors.txt", false, true);
     flogger
@@ -1430,11 +1338,13 @@ Lattice_simulator::adjust_chromaticities(
         << chr_h << " ,  " << chr_v << " ) " 
         << std::endl;
 
-    write_sextupole_correctors(h_correctors, v_correctors, *chef_lattice_sptr, flogger);
+    write_sextupole_correctors(h_correctors, v_correctors, 
+            *chef_lattice_sptr, flogger);
 
     logger
-        << "sextupole correctors strength written in the file sextupole_correctors.txt"
-        <<std::endl;
+        << "sextupole correctors strength written in the file "
+        << "sextupole_correctors.txt"
+        << std::endl;
 #endif
 
     if (count == max_steps)  
@@ -1443,106 +1353,6 @@ Lattice_simulator::adjust_chromaticities(
                 "Convergence not achieved. Increase the maximum number of steps.");
 }
 
-
- 
-#if 0
-    const int verbosity=1;
-    ensure_jet_environment(map_order);
-    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
-    BeamlineContext beamline_context(
-            reference_particle_to_chef_particle(
-                    lattice_sptr->get_reference_particle()), beamline_sptr);
-    beamline_context.handleAsRing();
-    set_chef_chrom_correctors(horizontal_correctors, *chef_lattice_sptr,
-            beamline_context, true);
-    set_chef_chrom_correctors(vertical_correctors, *chef_lattice_sptr,
-            beamline_context, false);
-
-    double chr_h = get_horizontal_chromaticity();
-    double chr_v = get_vertical_chromaticity();
-
-    double dh = horizontal_chromaticity - chr_h;
-    double dv = vertical_chromaticity - chr_v;
-    int count = 0;
-
-    Logger logger(0);
-    if (verbosity>0){
-        logger<<"_________________________________________"<<std::endl;
-        logger <<" Initial chromaticiy (H,V):  ("<< chr_h<<", "
-                    <<chr_v<<")"<<std::endl;
-        logger <<" Desired chromaticity (H,V):  ("<< horizontal_chromaticity<<", "
-                    <<vertical_chromaticity<<")"<<std::endl;
-        logger<<"_________________________________________"<<std::endl;
-        logger<<"adjusting chromaticity:"<<std::endl;
-    }
-
-    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
-            && (count < max_steps)) {
-        int status = beamline_context.changeChromaticityBy(dh, dv);
-
-       if (verbosity>0){
-          logger<< "  step=" << count << " chromaticity (H,V):  (" << chr_h<<", "
-                 <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
-        }
-
-       change_chromaticityby(dh,dv, horizontal_correctors, vertical_correctors, logger, verbosity);
-        chr_h = get_horizontal_chromaticity();
-        chr_v = get_vertical_chromaticity();
-        dh = horizontal_chromaticity - chr_h;
-        dv = vertical_chromaticity - chr_v;
-        count++;
-    }
-
-    if (verbosity>0){
-      logger<< " after steps=" << count << " chromaticity (H,V):  (" << chr_h<<", "
-               <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl; 
-    }
-
-    extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
-    extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
-    update();
-
-    Logger flogger(0, "sextupole_correctors.txt", false, true);
-    flogger      << "! the sextupole correctors  for the chromaticity (H, V):  ("
-                << chr_h << " ,  " << chr_v << " ) " << std::endl;
-    write_sextupole_correctors(horizontal_correctors, vertical_correctors,
-                *chef_lattice_sptr, flogger);
-    logger<<"sextupole correctors strength written in the file  sextupole_correctors.txt"<<std::endl;
-    if (count == max_steps)  throw std::runtime_error(
-        "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
-}
-
-void 
-Lattice_simulator::change_chromaticityby(double dh, double dv,  Lattice_elements const& horizontal_correctors,
-        Lattice_elements const& vertical_correctors, Logger & logger, int verbosity)
-{
-    
-    
-    ensure_jet_environment(map_order);
-    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
-    BeamlineContext beamline_context(
-            reference_particle_to_chef_particle(
-                    lattice_sptr->get_reference_particle()), beamline_sptr);
-    beamline_context.handleAsRing();
-    set_chef_chrom_correctors(horizontal_correctors, *chef_lattice_sptr,
-            beamline_context, true);
-    set_chef_chrom_correctors(vertical_correctors, *chef_lattice_sptr,
-            beamline_context, false);
-    int status = beamline_context.changeChromaticityBy(dh, dv); 
-      if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
-              throw std::runtime_error(
-                      "Lattice_simulator::adjust_chromaticities: no corrector elements found");
-      } 
-      else if (status != BeamlineContext::OKAY) {
-              throw std::runtime_error(
-                      "Lattice_simulator::adjust_chromaticities: failed with unknown status");
-      }
-      
-     extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
-     extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
-     update();
-     have_chromaticities = false;
-#endif
 
 
 
