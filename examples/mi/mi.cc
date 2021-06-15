@@ -65,118 +65,59 @@ void print_statistics(Bunch & bunch, Logger & logger)
     logger << "\n";
 }
 
-#if 0
-int run()
+Lattice get_lattice()
 {
-    Logger screen(0, LV::DEBUG);
-    Logger simlog(0, LV::INFO_TURN);
+    static std::string fodo_madx(R"foo(
+beam, particle=proton,pc=3.0;
 
-#if 0
+o: drift, l=8.0;
+f: quadrupole, l=2.0, k1=0.071428571428571425;
+d: quadrupole, l=2.0, k1=-0.071428571428571425;
+
+fodo: sequence, l=20.0, refer=entry;
+fodo_1: f, at=0.0;
+fodo_2: o, at=2.0;
+fodo_3: d, at=10.0;
+fodo_4: o, at=12.0;
+endsequence;
+)foo");
+
     MadX_reader reader;
-    auto lattice = reader.get_lattice("machine", "sis18.madx");
-#endif
-
-    auto lsexpr = read_lsexpr_file("sis18-6.lsx");
-    Lattice lattice(lsexpr);
-
-    lattice.set_all_string_attribute("extractor_type", "libff");
-    // lattice.print(screen);
-
-    // tune the lattice
-    LS::tune_circular_lattice(lattice);
-
-    // get the reference particle
-    auto const & ref = lattice.get_reference_particle();
-
-    screen(LV::INFO) 
-        << "reference momentum = " << ref.get_momentum() << " GeV\n";
-
-    // space charge
-    Space_charge_2d_open_hockney_options sc_ops(64, 64, 64);
-    sc_ops.comm_group_size = 1;
-
-    // stepper
-    //Independent_stepper_elements stepper(1);
-    //Split_operator_stepper_elements stepper(1, sc_ops);
-    Split_operator_stepper stepper(sc_ops, 71);
-
-    // Propagator
-    Propagator propagator(lattice, stepper);
-    //propagator.print_steps(screen);
-
-    // bunch simulator
-    auto sim = Bunch_simulator::create_single_bunch_simulator(
-            //lattice.get_reference_particle(), 1024 * 1024 * 4, 2.94e10,
-            lattice.get_reference_particle(), 4194394, 2.94e10,
-            Commxx() );
-
-#if 0
-    // propagate actions
-    double cdt = 0.0;
-    sim.reg_prop_action_step_end( [&cdt](Bunch_simulator& sim, Lattice&, int, int step, void*) { 
-        cdt += sim.get_bunch().get_design_reference_particle().get_state()[4]; 
-    }, nullptr );
-#endif
-
-    // propagate options
-    sim.set_num_turns(1);
-
-    auto & bunch = sim.get_bunch();
-
-#if 0
-    // populate particle data
-    karray1d means("means", 6);
-    for (int i=0; i<6; ++i) means(i) = 0.0;
-
-    karray2d covariances("covariances", 6, 6);
-    for (int i=0; i<6; ++i)
-        for (int j=0; j<6; ++j)
-            covariances(i, j) = 0.0;
-
-    covariances(0,0) = 1e-2;
-    covariances(1,1) = 1e-2;
-    covariances(2,2) = 1e-2;
-    covariances(3,3) = 1e-2;
-    covariances(4,4) = 1e-2;
-    covariances(5,5) = 1e-2;
-
-    Random_distribution dist(5, Commxx());
-    populate_6d(dist, bunch, means, covariances);
-#endif
-
-#if 1
-    // or read from file
-    bunch.read_file("turn_particles_0000_4M.h5");
-#endif
-
-    // statistics before propagate
-    print_statistics(bunch, screen);
-
-#if 0
-    // diagnostics
-    Diagnostics_track diag_track(2, "part_2_track.h5");
-    sim.reg_diag_per_turn("track_2", diag_track);
-
-    Diagnostics_bulk_track diag_bulk_track(6, 0, "bulk_track.h5");
-    sim.reg_diag_per_turn("bulk_track", diag_bulk_track);
-#endif
-
-#if 0
-    Diagnostics_full2 diag_full2("diag_full.h5");
-    sim.reg_diag_per_turn("full2", diag_full2);
-    sim.reg_diag_per_turn("full3", Diagnostics_full2("diag_full3.h5"));
-#endif
-
-    // propagate
-    propagator.propagate(sim, simlog);
-
-    // statistics after propagate
-    print_statistics(bunch, screen);
-    simple_timer_print(screen);
-
-    return 0;
+    reader.parse(fodo_madx);
+    return reader.get_lattice("fodo");
 }
+
+void run()
+{
+    namespace LS = Lattice_simulator;
+
+    Logger screen(0, LV::DEBUG);
+    Logger simlog(0, LV::INFO_STEP);
+
+    auto lattice = get_lattice();
+
+    LS::CourantSnyderLatticeFunctions(lattice);
+    LS::calc_dispersions(lattice);
+
+    for(auto const& elm : lattice.get_elements())
+    {
+        std::cout 
+            << std::setprecision(15)
+#if 0
+            << elm.lf.beta.hor << ", " 
+            << elm.lf.beta.ver << ", "
+            << elm.lf.psi.hor << ", "
+            << elm.lf.psi.ver << ", "
 #endif
+            << elm.lf.dispersion.hor << ", "
+            << elm.lf.dispersion.ver << ", "
+            << elm.lf.dPrime.hor << ", "
+            << elm.lf.dPrime.ver << ", "
+
+            << elm.lf.arcLength << ", "
+            << "\n";
+    }
+}
 
 void run_and_save(std::string & prop_str, std::string & sim_str)
 {
@@ -245,14 +186,17 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 
     screen << "Finish setting RF voltage...\n";
 
-    auto tunes = LS::calculate_tune_and_cdt(lattice, 0.0);
-    auto chromes = LS::get_chromaticities(lattice, 1e-5);
+    auto tunes = LS::calculate_tune_and_cdt(lattice);
+    auto chromes = LS::get_chromaticities(lattice);
 
     screen
         << "Unadjusted x tune: " << tunes[0] << "\n"
         << "Unadjusted y tune: " << tunes[1] << "\n"
-        << "Unadjusted x chromaticity: " << chromes.horizontal_chromaticity << "\n"
-        << "Unadjusted y chromaticity: " << chromes.vertical_chromaticity << "\n";
+        << "Unadjusted x chromaticity: " 
+        << chromes.horizontal_chromaticity << "\n"
+        << "Unadjusted y chromaticity: " 
+        << chromes.vertical_chromaticity << "\n"
+        ;
 
 
     // mark the focusing and defocusing elements for H/V tune correctors
@@ -275,8 +219,17 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
                 else if (str<0.0) elm.set_marker(marker_type::v_tunes_corrector);
             }
         }
+
+        if (elm.get_type() == element_type::sextupole)
+        {
+            double str = elm.get_double_attribute("k2", 0.0);
+
+            if (str>0.0) elm.set_marker(marker_type::h_chrom_corrector);
+            else if (str<0.0) elm.set_marker(marker_type::v_chrom_corrector);
+        }
     }
 
+    // adjust tunes
     double xtune_adjust = 0.1;
     double ytune_adjust = 0.15;
 
@@ -292,6 +245,34 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
         ;
 
     LS::adjust_tunes(lattice, xtune, ytune, tune_tolerance);
+
+    // adjust chromaticities
+    double xchrom_adjust = 0.1;
+    double ychrom_adjust = 0.15;
+
+    double xchrom = chromes.horizontal_chromaticity + xchrom_adjust;
+    double ychrom = chromes.vertical_chromaticity + ychrom_adjust;
+
+    screen
+        << "Adjusting chromaticities to: \n"
+        << "    xchrom: " << xchrom << "\n"
+        << "    ychrom: " << ychrom << "\n"
+        ;
+
+    LS::adjust_chromaticities(lattice, xchrom, ychrom);
+
+    // tunes and chromaticities after adjustments
+    tunes = LS::calculate_tune_and_cdt(lattice);
+    chromes = LS::get_chromaticities(lattice);
+
+    screen
+        << "Adjusted x tune: " << tunes[0] << "\n"
+        << "Adjusted y tune: " << tunes[1] << "\n"
+        << "Adjusted x chromaticity: " 
+        << chromes.horizontal_chromaticity << "\n"
+        << "Adjusted y chromaticity: " 
+        << chromes.vertical_chromaticity << "\n"
+        ;
 
      
     return;
@@ -554,22 +535,10 @@ int main(int argc, char ** argv)
     Kokkos::initialize(argc, argv);
 
     //run();
-
-    //bs_save();
-    //bs_load();
+    //return 0;
 
     std::string prop_str, sim_str;
     run_and_save(prop_str, sim_str);
-
-    //auto d = syn::json::parse(prop_str);
-    //std::cout << d["value0"]["stepper_ptr"] << "\n";
-
-    //std::cout << prop_str << "\n";
-    //std::cout << sim_str << "\n";
-
-    //resume_and_save(prop_str, sim_str);
-    //checkpoint_resume();
-    //syn::resume();
 
     Kokkos::finalize();
     MPI_Finalize();
