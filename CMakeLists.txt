@@ -1,16 +1,12 @@
-
-project(SYNERGIA2)
-
-cmake_minimum_required(VERSION 3.10)
+project(SYNERGIA2 LANGUAGES CXX C)
+cmake_minimum_required(VERSION 3.16)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 enable_testing()
 
 # project specific cmake modules
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
-
-# C++ 14 standard
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 # versions
 set(SYNERGIA2_VERSION_MAJOR 2018) # year
@@ -57,12 +53,10 @@ set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS ${MPI_CXX_COMPILE_DEFINITION
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
 
 # mpi oversubscribe
-if(${MPI_VERSION} MATCHES "OpenRTE.* 3")
-    set(MPI_OVERSUBSCRIBE_FLAG "--oversubscribe")
-else ()
-    set(MPI_OVERSUBSCRIBE_FLAG "")
+message(MPI_VERSION is: ${MPI_VERSION})
+if(${MPI_VERSION} MATCHES "OpenRTE.*")
+    set(MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS} "--oversubscribe")
 endif()
-set(MPIEXEC_NUMPROC_FLAG ${MPI_OVERSUBSCRIBE_FLAG} ${MPIEXEC_NUMPROC_FLAG})
 
 # OpenMP
 if(${Kokkos_ENABLE_OPENMP})
