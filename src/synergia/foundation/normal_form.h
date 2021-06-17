@@ -450,8 +450,8 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     std::cout << "Dinv = \n" << Dinv << "\n\n";
 #endif
 
-    std::complex<double> lambda[D.cols()];
-    double nu[D.cols()];
+    std::array<std::complex<double>, D.cols()> lambda;
+    std::array<double, D.cols()> nu;
 
     for(int i=0; i<D.cols(); ++i)
     {
