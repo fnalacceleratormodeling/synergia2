@@ -11,10 +11,11 @@
 ///  in each phase space variable
 /// @param covariances the six-by-six covariance matrix
 void
-populate_6d( Distribution & dist, 
-             Bunch &bunch, 
-             const_karray1d means,
-             const_karray2d_row covariances );
+populate_6d( 
+        Distribution & dist, 
+        Bunch &bunch, 
+        const_karray1d means, 
+        const_karray2d_row covariances );
 
 /// Populate a bunch with a truncated Gaussian distribution in all six dimensions.
 /// @param dist the distribution generator
@@ -24,12 +25,27 @@ populate_6d( Distribution & dist,
 /// @param covariances the six-by-six covariance matrix
 /// @param limits an array of length six giving the cutoffs in units of the individual sigmas. A zero value means "do not truncate."
 void
-populate_6d_truncated( Distribution & dist, 
-                       Bunch & bunch, 
-                       const_karray1d means, 
-                       const_karray2d_row covariances, 
-                       const_karray1d limits );
+populate_6d_truncated( 
+        Distribution & dist, 
+        Bunch & bunch, 
+        const_karray1d means, 
+        const_karray2d_row covariances, 
+        const_karray1d limits );
 
+/// the 3 rms input parameters,arms, brms, crms, correspond to the  indices 
+/// rms _index[0], rms _index[1], rms _index[2]
+/// example: rms_index=[0,2,4]==> arms=xrms, brms=yrms, crms=zrms
+/// units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,
+karray2d_row
+get_correlation_matrix(
+        const_karray2d_row one_turn_map,
+        double arms, double brms, double crms, double beta, 
+        std::array<int, 3> const& rms_index = {0, 2, 4});
+
+
+// TODO: to be implemented...
+
+#if 0
 /// Populate a bunch with a Gaussian distribution in all four
 /// transverse dimensions. The time distribution is uniform, but the
 /// dp/p distribution is also Gaussian.
@@ -95,14 +111,7 @@ void
 populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   karray2d_row const& map,
                             double radiusx,  double radiusy,   double ctrms); 
 
-                            
-///the 3 rms input parameters,arms, brms, crms, correspond to the  indices 
-///         rms _index[0], rms _index[1], rms _index[2]
-///        example: rms_index=[0,2,4]==> arms=xrms, brms=yrms, crms=zrms
-///        units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,  '''                             
-karray2d
-get_correlation_matrix(karray2d const& map, double xrms, double yrms, double zrms, 
-                       double beta, std::vector<int> rms_index=std::vector<int >());    
+#endif
 
                        
 void

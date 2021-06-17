@@ -1,18 +1,13 @@
 #include <sstream>
 #include <stdexcept>
+
 #include "populate.h"
+#include "populate_host.h"
 #include "core_diagnostics.h"
-//#include "diagnostics.h"
-
-//#include "Eigen/Eigen"
-//#include "Eigen/Cholesky"
-
-//using namespace Eigen;
 
 #include "synergia/utils/floating_point.h"
-//#include "synergia/utils/multi_array_print.h"
-//#include "synergia/utils/multi_array_assert.h"
 #include "synergia/foundation/math_constants.h"
+
 using mconstants::pi;
 
 namespace 
@@ -37,64 +32,6 @@ namespace
     }
 }
 
-#if 0
-void
-adjust_moments( Bunch & bunch, 
-        const_karray1d means,
-        const_karray2d covariances )
-{
-    if (!is_symmetric66(covariances))
-        throw std::runtime_error("adjust_moments: covariance matrix must be symmetric");
-
-    // calculate_mean and mom2 are performed on device memory, so we need to
-    // copy the particle data from host to device first. checkout is not
-    // necessary since the core diagnostics do not change the particle data
-    bunch.checkin_particles();
-
-    karray1d bunch_mean = Core_diagnostics::calculate_mean(bunch);
-    karray2d bunch_mom2 = Core_diagnostics::calculate_mom2(bunch, bunch_mean);
-
-    Matrix<double, 6, 6, Eigen::ColMajor> C(covariances.data());
-    Matrix<double, 6, 6, Eigen::ColMajor> G(C.llt().matrixL());
-    Matrix<double, 6, 6, Eigen::ColMajor> X(bunch_mom2.data());
-    Matrix<double, 6, 6, Eigen::ColMajor> H(X.llt().matrixL());
-    Matrix<double, 6, 6, Eigen::ColMajor> A(G * H.inverse());
-
-    // jfa: dummy exists only to work around a bad interaction betwen
-    //      Eigen3 and g++ 4.1.2
-    std::stringstream dummy;
-    dummy << C;
-
-    int num_particles = bunch.get_local_num();
-    int num_particles_slots = bunch.size();
-
-    Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>
-            rho7(bunch.get_host_particles().data(), num_particles_slots, 7);
-
-    Matrix<double, 1, 6 > rhobar6(bunch_mean.data());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        rho7.block<1, 6>(part, 0) -= rhobar6;
-    }
-
-    rho7.block(0, 0, num_particles, 6) *= A.transpose();
-
-    Matrix<double, 1, 6> means6(means.data());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        rho7.block<1, 6>(part, 0) += means6;
-    }
-}
-#endif
-
-void
-adjust_moments_eigen( 
-        double const * means,
-        double const * covariances,
-        double const * bunch_mean,
-        double const * bunch_mom2,
-        int num_particles,
-        int num_particles_slots,
-        double * particles );
-
 void
 adjust_moments( Bunch & bunch, 
         const_karray1d means,
@@ -117,7 +54,7 @@ adjust_moments( Bunch & bunch,
     //auto strides = bunch.get_particle_strides();
     //int num_particles_slots = strides[1];
 
-    adjust_moments_eigen(
+    adjust_moments_host(
             means.data(),
             covariances.data(),
             bunch_mean.data(),
@@ -301,6 +238,33 @@ populate_6d_truncated( Distribution & dist,
     // check
     bunch.check_pz2_positive();
 }
+
+karray2d_row
+get_correlation_matrix(
+        const_karray2d_row one_turn_map,
+        double arms, double brms, double crms, double beta, 
+        std::array<int, 3> const& rms_index)
+{  
+
+    for(int idx : rms_index)
+    {
+        if (idx<0 || idx>5)
+            throw std::runtime_error(
+                    "only valid rms indices (x=0, xp=1, y=2, "
+                    "yp=3, z=4, dpp=5) are allowed");
+    } 
+
+    karray2d_row correlation_matrix("corr_matrix", 6, 6);
+
+    get_correlation_matrix_host(
+            correlation_matrix.data(),
+            one_turn_map.data(),
+            arms, brms, crms, beta,
+            rms_index);
+
+    return correlation_matrix;
+}
+
 
 #if 0
 void
@@ -518,92 +482,6 @@ populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   Co
   
   
   
-}
-
-
-MArray2d
-get_correlation_matrix(Const_MArray2d_ref one_turn_map, double arms, double brms, double crms, 
-                       double beta, std::vector<int> rms_index)
-{  
-
-  
-  if (rms_index.size() ==0) {
-    rms_index.push_back(Bunch::x);
-    rms_index.push_back(Bunch::y);
-    rms_index.push_back(Bunch::z);
-  }
-  
-  if (rms_index.size() !=3)
-      throw std::runtime_error(
-                "only 3 rms indices (from x, xp, y, yp, z, dpp) should be provided, correspondid to arms, brms and crms ");
-
-    int map_size=one_turn_map.size();
-    Eigen::MatrixXd eigen_map(map_size,map_size);
-    for (int i=0;i<map_size;++i){
-      for (int j=0;j<map_size;++j){
-        eigen_map(i,j)=one_turn_map[i][j];   
-      }
-    } 
-    EigenSolver<MatrixXd> es(eigen_map);
-    VectorXcd evals=es.eigenvalues();
-    MatrixXcd evect_matrix=es.eigenvectors();
- 
-    std::vector<MatrixXd> F;
-    std::vector<int>  remaining;
-    for (int j=5;j>-1;j--){
-         remaining.push_back(j);
-    }
-      
-    for (int i=0;i<3;i++){
-      //find complex conjugate among remaining eigenvectors
-       int first = remaining.back();
-       remaining.pop_back();
-        double best = 1.0e30;
-       int conj = -1;
-       for (int item=0;item<remaining.size();item++){           
-           VectorXcd sum=evect_matrix.col(first)+evect_matrix.col(remaining[item]);    
-           if (sum.imag().cwiseAbs().maxCoeff()<best){
-              best=sum.imag().cwiseAbs().maxCoeff();
-              conj=remaining[item];
-           }           
-       }
-       if (conj==-1) throw std::runtime_error( "failed to find a conjugate pair in _get_correlation_matrix");       
-       remaining.erase(std::remove(remaining.begin(), remaining.end(), conj), remaining.end());
-
-       MatrixXd tmp=(evect_matrix.col(first)*evect_matrix.col(first).conjugate().transpose()
-                      +evect_matrix.col(conj)*evect_matrix.col(conj).conjugate().transpose()).real();
-       F.push_back(tmp); 
-       //  F[i] is effectively 2*e[i] cross e^H[i].
-    }
-//      The correlation matrix is a linear combination of F[i] with
-//      appropriate coefficients such that the diagonal elements C[i,i] i=(0,2,4)
-//      come out to be the desired 2nd moments.
-      Eigen::MatrixXd S(3,3);
-      for (int i=0;i<3;i++){
-        for (int j=0;j<3;j++){
-           S(i,j)=F[j](rms_index[i],rms_index[i]);
-        }        
-      }
-     Eigen::MatrixXd Sinv=S.inverse();
-     
-     std::vector<double> units(6,1.);
-     units[4]=1./beta;
-     double cd1=arms*units[rms_index[0]]*arms*units[rms_index[0]];
-     double cd2=brms*units[rms_index[1]]*brms*units[rms_index[1]];
-     double cd3=crms*units[rms_index[2]]*crms*units[rms_index[2]];
-                
-    MArray2d correlation_matrix(boost::extents[6][6]); 
-    for (int i=0;i<6;i++){
-       for (int j=0;j<6;j++){
-         correlation_matrix[i][j]=0.;
-         for (int k=0;k<3;k++){           
-            correlation_matrix[i][j] += F[k](i,j) * (Sinv(k, 0)* cd1 + Sinv(k, 1) * cd2 + Sinv(k, 2) * cd3);           
-         }
-       }
-    }
-    
-   
-    return correlation_matrix;
 }
 #endif
 
