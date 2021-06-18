@@ -450,8 +450,9 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     std::cout << "Dinv = \n" << Dinv << "\n\n";
 #endif
 
-    std::array<std::complex<double>, D.ColsAtCompileTime> lambda;
-    std::array<double, D.ColsAtCompileTime> nu;
+    constexpr auto dcols = Matrix6C::ColsAtCompileTime;
+    std::array<std::complex<double>, dcols> lambda;
+    std::array<double, dcols> nu;
 
     for(int i=0; i<D.cols(); ++i)
     {
