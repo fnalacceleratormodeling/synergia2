@@ -2,7 +2,8 @@
 *.so
 *.o
 *.dylib
-.*.swp
+*.swp
+*.swo
 *~
 config.status
 local_paths.py
