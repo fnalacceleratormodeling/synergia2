@@ -229,6 +229,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
         }
     }
 
+#if 1
     // adjust tunes
     double xtune_adjust = 0.1;
     double ytune_adjust = 0.15;
@@ -273,6 +274,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
         << "Adjusted y chromaticity: " 
         << chromes.vertical_chromaticity << "\n"
         ;
+#endif
 
      
     return;

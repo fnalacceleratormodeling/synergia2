@@ -486,7 +486,6 @@ Lattice_simulator::get_chromaticities(
     chroms.vertical_chromaticity_prime 
         = 2.0*(16*qyp_p_qym_m2qy0 - qypp_p_qymm_m2qy0) /(24.0*dpp*dpp);
 
-
     return chroms;
 }
 
@@ -1056,7 +1055,6 @@ Lattice_simulator::CourantSnyderLatticeFunctions(Lattice& lattice)
          elm.lf.psi.ver   = psi_y;
 
     }  // End loop on lbe ...
-
 }
 
 void

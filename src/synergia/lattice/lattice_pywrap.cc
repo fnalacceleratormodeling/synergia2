@@ -40,6 +40,13 @@ PYBIND11_MODULE(lattice, m)
         .value("rcollimator",element_type::rcollimator)
         ;
 
+    py::enum_<marker_type>(m, "marker_type", py::arithmetic())
+        .value("h_tunes_corrector", marker_type::h_tunes_corrector)
+        .value("v_tunes_corrector", marker_type::v_tunes_corrector)
+        .value("h_chrom_corrector", marker_type::h_chrom_corrector)
+        .value("v_chrom_corrector", marker_type::v_chrom_corrector)
+        ;
+
     // Lattice_element
     py::class_<Lattice_element>(m, "Lattice_element")
         .def( py::init<>(),
@@ -138,6 +145,18 @@ PYBIND11_MODULE(lattice, m)
 
         .def( "get_double_attributes",
                 &Lattice_element::get_double_attributes )
+
+        .def( "set_marker",
+                &Lattice_element::set_marker,
+                "marker"_a )
+
+        .def( "reset_marker",
+                &Lattice_element::reset_marker,
+                "marker"_a )
+
+        .def( "has_marker",
+                &Lattice_element::has_marker,
+                "marker"_a )
 
         // print
         .def( "print_", 

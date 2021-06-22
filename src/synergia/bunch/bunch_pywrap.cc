@@ -411,6 +411,12 @@ PYBIND11_MODULE(bunch, m)
               } )
         ;
 
+    m.def( "get_correlation_matrix",
+            &get_correlation_matrix,
+            "one_turn_map"_a,
+            "arms"_a, "brms"_a, "crms"_a, "beta"_a,
+            "rms_index"_a = std::array<int,3>({0, 2, 4}) )
+        ;
 
 }
 

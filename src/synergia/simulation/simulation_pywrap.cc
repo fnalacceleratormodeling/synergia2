@@ -47,8 +47,39 @@ PYBIND11_MODULE(simulation, m)
         .def("print_steps", &Propagator::print_steps)
         ;
 
+    // chormaticities_t
+    py::class_<chromaticities_t>(m, "chromaticities_t")
+        .def_readonly("momentum_compaction", 
+                &chromaticities_t::momentum_compaction)
+
+        .def_readonly("horizontal_chromaticity", 
+                &chromaticities_t::horizontal_chromaticity)
+        
+        .def_readonly("horizontal_chromaticity_prime", 
+                &chromaticities_t::horizontal_chromaticity_prime)
+
+        .def_readonly("vertical_chromaticity", 
+                &chromaticities_t::vertical_chromaticity)
+
+        .def_readonly("vertical_chromaticity_prime", 
+                &chromaticities_t::vertical_chromaticity_prime)
+
+        .def_readonly("slip_factor", 
+                &chromaticities_t::slip_factor)
+
+        .def_readonly("slip_factor_prime", 
+                &chromaticities_t::slip_factor_prime)
+        ;
+
     // Lattice simulator -- only a namespace
     m.def_submodule("Lattice_simulator")
+        .def( "set_closed_orbit_tolerance",
+                &Lattice_simulator::set_closed_orbit_tolerance,
+                "tolerance"_a)
+
+        .def( "get_closed_orbit_tolerance",
+                &Lattice_simulator::get_closed_orbit_tolerance)
+
         .def( "tune_linear_lattice", 
                 &Lattice_simulator::tune_linear_lattice,
                 "Tune linear lattice.",
@@ -58,6 +89,22 @@ PYBIND11_MODULE(simulation, m)
                 &Lattice_simulator::tune_circular_lattice,
                 "Tune a circular lattice.",
                 "lattice"_a )
+
+        .def( "tune_rfcavities",
+                &Lattice_simulator::tune_rfcavities,
+                "lattice"_a )
+
+        .def( "calculate_closed_orbit",
+                &Lattice_simulator::calculate_closed_orbit,
+                "lattice"_a, "dpp"_a = 0.0)
+
+        .def( "calculate_tune_and_cdt",
+                &Lattice_simulator::calculate_tune_and_cdt,
+                "lattice"_a, "dpp"_a = 0.0)
+
+        .def( "get_chromaticities",
+                &Lattice_simulator::get_chromaticities,
+                "lattice"_a, "dpp"_a = 1.0e-5)
 
         .def( "calculate_normal_form_o1",
                 &Lattice_simulator::calculate_normal_form<1>, 
@@ -87,6 +134,24 @@ PYBIND11_MODULE(simulation, m)
                 &Lattice_simulator::calculate_normal_form<7>, 
                 "lattice"_a )
 
+        .def( "adjust_tunes",
+                &Lattice_simulator::adjust_tunes,
+                "lattice"_a,
+                "horizontal_tune"_a,
+                "vertical_tune"_a,
+                "tolerance"_a = 1e-5 )
+
+        .def( "adjust_chromaticities",
+                &Lattice_simulator::adjust_chromaticities,
+                "lattice"_a,
+                "horizontal_chromaticity"_a,
+                "vertical_chromaticity"_a,
+                "tolerance"_a = 1e-4,
+                "max_steps"_a = 6 )
+
+        .def( "get_linear_one_turn_map_ka",
+                &Lattice_simulator::get_linear_one_turn_map,
+                "lattice"_a )
         ;
 
     // Collective operator options (base class)

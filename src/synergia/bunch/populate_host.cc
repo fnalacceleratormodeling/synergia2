@@ -53,7 +53,7 @@ get_correlation_matrix_host(
         std::array<int, 3> const& rms_index)
 {  
 
-    Matrix<double, 6, 6, Eigen::RowMajor> c_matrix(correlation_matrix);
+    Matrix<double, 6, 6, Eigen::RowMajor> c_matrix;
     Matrix<double, 6, 6, Eigen::RowMajor> eigen_map(one_turn_map);
  
     EigenSolver<MatrixXd> es(eigen_map);
@@ -130,6 +130,9 @@ get_correlation_matrix_host(
                      (Sinv(k, 0) * cd1 + Sinv(k, 1) * cd2 + Sinv(k, 2) * cd3);           
          } 
      } 
+
+     for(int i=0; i<36; ++i) 
+         correlation_matrix[i] = c_matrix.data()[i];
 }
 
 
