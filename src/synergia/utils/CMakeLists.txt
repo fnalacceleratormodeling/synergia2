@@ -53,6 +53,9 @@ if (BUILD_PYTHON_BINDINGS)
     pybind11_add_module(pylsexpr lsexpr_pywrap.cc)
     target_link_libraries(pylsexpr PRIVATE lsexpr)
 
+    pybind11_add_module(utils utils_pywrap.cc)
+    target_link_libraries(utils PRIVATE kokkos)
+
     copy_file(__init__.py parallel_utils)
 endif ()
 

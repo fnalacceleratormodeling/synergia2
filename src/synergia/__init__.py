@@ -7,20 +7,22 @@ from mpi4py import MPI
 #import convertors
 from . import foundation
 from . import utils
+
+# Kokkos init
+utils.init()
+
 from . import bunch
 from . import lattice
 #from . import optics
 from . import simulation
 from . import collective
 
-# Kokkos init
-simulation.init()
 
 # Kokkos finalize
 def finalize():
     import gc
     gc.collect()
-    simulation.finalize()
+    utils.finalize()
 
 import atexit
 atexit.register(finalize)

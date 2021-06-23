@@ -14,12 +14,102 @@ void run()
     auto lsexpr = read_lsexpr_file("sis18-6.lsx");
     Lattice lattice(lsexpr);
 
+    // tune the lattice
+    lattice.set_all_string_attribute("extractor_type", "libff");
+    Lattice_simulator::tune_circular_lattice(lattice);
+
     // get the reference particle
     auto const& ref = lattice.get_reference_particle();
 
     screen << "reference momentum = " 
         << ref.get_momentum() << " GeV\n";
 
+
+#if 0
+    using Tri = Trigon<double, 3, 3>;
+    Tri x(0.0, 0);
+    Tri y(0.0, 1);
+    Tri z(0.0, 2);
+
+    auto f = exp(x)*exp(y);
+    auto g = kt::qpow(f, 3);
+    auto k = x + y + x*y + y*z + z*z;
+
+    screen << "x = " << x << "\n";
+    screen << "y = " << y << "\n";
+    screen << "f = exp(x)*exp(y) = " << f << "\n";
+    screen << "g = qpow(f,3) = " << g << "\n";
+    screen << "k = x+y+xy+yz+zz = " << k << "\n";
+
+
+    arr_t<double, 3> v{0.1, 0.2, 1.0};
+    std::cout << "f(v) = " << f(v) << "\n";
+    std::cout << "g(v) = " << g(v) << "\n";
+    std::cout << "k(v) = " << k(v) << "\n";
+
+    return;
+#endif
+
+#if 0
+    using Tri = Trigon<double, 3, 2>;
+    Tri x(0.0, 0);
+    Tri y(0.0, 1);
+
+    screen << "x = " << x << "\n";
+    screen << "y = " << y << "\n";
+
+    TMapping<Tri> a, b;
+    a[0] = x*y*y + exp(x+y);
+    a[1] = cos(y*x*x) / (x+2.0);
+
+    screen << "a[0] = " << a[0] << "\n";
+    screen << "a[1] = " << a[1] << "\n";
+
+    Tri xx(a[0].value(), 0);
+    Tri yy(a[1].value(), 1);
+
+    b[0] = sin(xx) * cos(yy);
+    b[1] = exp(xx*xx*xx) / (xx*yy);
+
+    screen << "b[0] = " << b[0] << "\n";
+    screen << "b[1] = " << b[1] << "\n";
+
+    auto c = b(a, {xx.value(), yy.value()});
+
+    screen << "c[0] = " << c[0] << "\n";
+    screen << "c[1] = " << c[1] << "\n";
+
+    Tri q = a[0];
+    Tri v = a[1];
+
+    Tri w = sin(q)*cos(v);
+    Tri z = exp(q*q*q) / (q*v);
+
+    screen << "w = " << w << "\n";
+    screen << "z = " << z << "\n";
+
+    return;
+#endif
+
+    auto nf = Lattice_simulator::calculate_normal_form<2>(lattice);
+    //auto ma = nf.stationaryActions(0.1, 0.1, 0.1);
+    //std::cout << "ma = " << ma[0] << ", " << ma[1] << ", " << ma[2] << "\n";
+
+    auto nfd = nf.cnvDataToNormalForm({0.1, 0.15, 0.2, 0.25, 0.05, 0.01});
+    auto hfd = nf.cnvDataFromNormalForm(nfd);
+
+    std::cout << "normal form = \n";
+    for(int i=0; i<6; ++i) std::cout << nfd[i] << "\n";
+    std::cout << "\n";
+
+    std::cout << "human form = \n";
+    for(int i=0; i<6; ++i) std::cout << hfd[i] << "\n";
+    std::cout << "\n";
+
+    return;
+ 
+
+#if 0
     // tunes and cdt
     auto res = Lattice_simulator::calculate_tune_and_cdt(lattice, 0);
 
@@ -38,16 +128,17 @@ void run()
     std::cout << "h_chrom_p = " << chroms.horizontal_chromaticity_prime << "\n";
     std::cout << "v_chrom = " << chroms.vertical_chromaticity << "\n";
     std::cout << "v_chrom_p = " << chroms.vertical_chromaticity_prime << "\n\n";
+#endif
 
     // closed orbit
-    auto probe = Lattice_simulator::calculate_closed_orbit(lattice);
+    auto probe = Lattice_simulator::calculate_closed_orbit(lattice, 0.01);
 
     std::cout << "closed orbit probe: ";
     for(int i=0; i<6; ++i) std::cout << probe[i] << ", ";
     std::cout << "\n";
 
     // trigon bunch
-    using trigon_t = Trigon<double, 1, 6>;
+    using trigon_t = Trigon<double, 7, 6>;
 
     Commxx comm;
     bunch_t<trigon_t> tb(ref, comm.size(), comm);

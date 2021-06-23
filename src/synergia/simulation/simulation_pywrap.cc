@@ -21,6 +21,7 @@ using namespace py::literals;
 
 PYBIND11_MODULE(simulation, m)
 {
+#if 0
     m.def( "init", [](){ 
             //MPI_Init(NULL, NULL);
             Kokkos::initialize(); 
@@ -30,6 +31,7 @@ PYBIND11_MODULE(simulation, m)
             //MPI_Finalize(); 
             Kokkos::finalize(); 
          });
+#endif
 
     m.def( "checkpoint_save",
             &syn::checkpoint_save,

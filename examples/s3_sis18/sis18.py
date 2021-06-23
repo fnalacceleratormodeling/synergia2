@@ -45,7 +45,19 @@ def create_simulator(ref_part):
             ref_part, 4194394, 2.94e10)
 
     bunch = sim.get_bunch()
-    bunch.read_file("bunch_particles_4M.h5")
+    #bunch.read_file("bunch_particles_4M.h5")
+
+    means = np.zeros([6], 'd') 
+    covars = np.load("correlation_matrix.npy")[()]
+
+    print("means: ", means)
+    print("covars: ", covars)
+
+    comm = synergia.utils.parallel_utils.Commxx()
+    #dist = synergia.foundation.Random_distribution(5, comm)
+    dist = synergia.foundation.PCG_random_distribution(5, comm)
+
+    synergia.bunch.populate_6d(dist, bunch, means, covars)
 
     return sim
 
@@ -146,6 +158,7 @@ def run():
 
     bunch = sim.get_bunch()
     bunch.read_file("turn_particles_0000_4M.h5")
+
 
     parts = bunch.get_host_particles()
     p = np.array(parts, copy=False)

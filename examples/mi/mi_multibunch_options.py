@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 from math import pi
-import synergia_workflow
+from synergia_workflow import options
 
-opts = synergia_workflow.Options("mi")
+opts = options.Options("mi")
 
 opts.add("seed", 4, "Pseudorandom number generator seed", int)
 opts.add("radius", 0.1, "aperture radius [m]", float)
@@ -101,4 +101,4 @@ opts.add("xml_save_lattice", False, "Save the lattice in xml form", bool)
 opts.add("lattice_simplify", True, "apply lattice simplification", bool)
 opts.add("scratch", None, "directory for temporary diagnostic files", str)
 #job_mgr = synergia_workflow.Job_manager("mi_multibunch.py", opts, ["mi20-egs-thinrf.lat","multipoles.npy","mi_orbit_bumps.py","mi_ila_aperture.py","read_bunch.py", "Wakes_MI.dat"])
-job_mgr = synergia_workflow.Job_manager("mi.py", opts, ["mi20.lsx", "covars.txt"])
+#job_mgr = synergia_workflow.Job_manager("mi.py", opts, ["mi20.lsx", "covars.txt"])
