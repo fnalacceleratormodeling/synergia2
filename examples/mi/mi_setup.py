@@ -276,6 +276,11 @@ def setup():
         # The lattice is tuned now, write it out
         #synergia.utils.write_lsexpr_file(lattice.as_lsexpr(), "mi20_ra_08182020_tuned.lsx")
 
+        # write the lattice in json
+        lattice_file = open("mi20_ra_08182020_tuned.json", "w")
+        lattice_file.write(lattice.as_json())
+        lattice_file.close()
+
         # Get the covariance matrix
         map = SIM.Lattice_simulator.get_linear_one_turn_map(lattice)
         print("one turn map from synergia2.5 infrastructure", file=logger)
@@ -334,4 +339,4 @@ def main():
     print("running mi_setup")
     setup()
 
-main()
+#main()

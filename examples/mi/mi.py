@@ -5,6 +5,8 @@ from mpi4py import MPI
 import numpy as np
 import synergia
 
+import mi_setup
+
 from mi_multibunch_options import opts
 
 def print_statistics(bunch):
@@ -19,13 +21,19 @@ def print_statistics(bunch):
     print("std = {}".format(std))
 
 def get_lattice_mi():
-    lsexpr = synergia.utils.pylsexpr.read_lsexpr_file("mi20_ra_08182020_tuned.lsx")
-    lattice = synergia.lattice.Lattice(lsexpr)
+    #lsexpr = synergia.utils.pylsexpr.read_lsexpr_file("mi20_ra_08182020_tuned.lsx")
+    #lattice = synergia.lattice.Lattice(lsexpr)
+
+    lattice_file = open("mi20_ra_08182020_tuned.json", "r")
+    lattice = synergia.lattice.Lattice.load_from_json(lattice_file.read())
+
     lattice.set_all_string_attribute("extractor_type", "libff")
     #synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
     return lattice
 
 def run_mi():
+
+    mi_setup.setup()
 
     # parse options
     #opts.parse_argv(sys.argv)
