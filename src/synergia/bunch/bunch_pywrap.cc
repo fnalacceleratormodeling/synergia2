@@ -1,7 +1,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
+#include <pybind11/numpy.h>
 
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/core_diagnostics.h"
@@ -412,10 +412,33 @@ PYBIND11_MODULE(bunch, m)
         ;
 
     m.def( "get_correlation_matrix",
-            &get_correlation_matrix,
-            "one_turn_map"_a,
-            "arms"_a, "brms"_a, "crms"_a, "beta"_a,
-            "rms_index"_a = std::array<int,3>({0, 2, 4}) )
+            []( py::array_t<double> map,
+                double arms, double brms, double crms, double beta,
+                std::array<int, 3> const& rms_index = {0, 2, 4} ) {
+
+                    if (map.ndim()!=2 || map.shape(0)!=6 || map.shape(1)!=6)
+                        throw std::runtime_error(
+                                "get_correlation_matrix(): "
+                                "one_turn_map must be an array of (6, 6)");
+                    
+                    using ka2d_unmanaged = Kokkos::View<double**, 
+                        Kokkos::LayoutRight, 
+                        Kokkos::HostSpace, 
+                        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                    ka2d_unmanaged ka_map(map.mutable_data(), 6, 6);
+
+                    auto matrix = get_correlation_matrix(ka_map, 
+                            arms, brms, crms, beta, rms_index);
+
+                    auto arr = py::array_t<double>({6, 6});
+
+                    for(int i=0; i<6; ++i)
+                        for(int j=0; j<6; ++j)
+                            arr.mutable_at(i,j) = matrix(i,j);
+
+                    return arr;
+            })
         ;
 
 }

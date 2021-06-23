@@ -2,6 +2,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
 
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/lattice_simulator.h"
@@ -149,9 +150,39 @@ PYBIND11_MODULE(simulation, m)
                 "tolerance"_a = 1e-4,
                 "max_steps"_a = 6 )
 
-        .def( "get_linear_one_turn_map_ka",
-                &Lattice_simulator::get_linear_one_turn_map,
-                "lattice"_a )
+        .def( "get_linear_one_turn_map", [](Lattice const& lattice) {
+
+                using namespace Lattice_simulator;
+                auto map = get_linear_one_turn_map(lattice);
+
+                auto arr = py::array_t<double>(
+                    {map.extent(0), map.extent(1)},
+                    {map.stride(0)*sizeof(double), map.stride(1)*sizeof(double)}
+                );
+
+                for(int i=0; i<map.extent(0); ++i)
+                    for(int j=0; j<map.extent(1); ++j)
+                        arr.mutable_at(i,j) = map(i,j);
+
+                return arr;
+
+#if 0
+                double *buf = new double[6*6];
+                for(int i=0; i<36; ++i) buf[i] = map.data()[i];
+
+                py::capsule free_when_done(buf, [](void* f) {
+                    double *b = reinterpret_cast<double*>(f);
+                    delete[] b;
+                });
+
+                return py::array_t<double>(
+                    { 6, 6 },
+                    { sizeof(double) * 6, sizeof(double) * 1 },
+                    buf,
+                    free_when_done
+                );
+#endif
+        })
         ;
 
     // Collective operator options (base class)
