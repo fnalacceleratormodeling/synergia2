@@ -5,14 +5,12 @@
 # All rights reserved. Use of this source code is governed by a
 # BSD-style license that can be found in the LICENSE file.
 
-cmake_minimum_required(VERSION 2.8.12)
-
 # Add a CMake parameter for choosing a desired Python version
 if(NOT PYBIND11_PYTHON_VERSION)
   set(PYBIND11_PYTHON_VERSION "" CACHE STRING "Python version to use for compiling modules")
 endif()
 
-set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4)
+set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4)
 find_package(PythonLibsNew ${PYBIND11_PYTHON_VERSION} REQUIRED)
 
 include(CheckCXXCompilerFlag)
@@ -157,6 +155,10 @@ function(pybind11_add_module target_name)
   # potential warnings or issues from having mixed hidden/non-hidden types.
   set_target_properties(${target_name} PROPERTIES CXX_VISIBILITY_PRESET "hidden")
   set_target_properties(${target_name} PROPERTIES CUDA_VISIBILITY_PRESET "hidden")
+
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_link_libraries(${target_name} PRIVATE ${PYTHON_LIBRARIES})
+  endif()
 
   if(WIN32 OR CYGWIN)
     # Link against the Python shared library on Windows

@@ -53,7 +53,7 @@ if (BUILD_PYTHON_BINDINGS)
 #        ${CHEF_LIBS} ${Boost_LIBRARIES})
 
     pybind11_add_module(simulation simulation_pywrap.cc)
-    target_link_libraries(simulation PRIVATE synergia_simulation)
+    target_link_libraries(simulation PRIVATE synergia_simulation synergia_pydiag)
 
     copy_file(__init__.py simulation)
 endif ()

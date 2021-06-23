@@ -9,12 +9,16 @@ class PyDiagnostics : public Diagnostics
 {
 public:
 
+    explicit
     PyDiagnostics(
             std::string const& type = "PyDiagnostics", 
             std::string const& filename = "py_diag.h5",
             bool serial = true)
         : Diagnostics(type, filename, serial), self()
     { }
+
+    // Declared here so that we can force instantiation of typeinfo in diagnostics_py.cc
+    ~PyDiagnostics() noexcept;
 
     // hold a reference to the python instance so it wont go out of scope
     void reg_self()

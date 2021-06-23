@@ -2,7 +2,7 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/diagnostics_py.h"
 
-
+PyDiagnostics::~PyDiagnostics() noexcept {}
 
 void PyDiagnostics::do_update(Bunch const& bunch)
 {
