@@ -242,6 +242,15 @@ PYBIND11_MODULE(lattice, m)
                 "Set the value of the named string attribute on all elements",
                 "name"_a, "value"_a, "increment_revision"_a = true )
 
+        .def( "as_json",
+                &Lattice::as_json,
+                "Returns the lattice object in a json string" )
+
+        .def_static( "load_from_json",
+                &Lattice::load_from_json,
+                "Create a lattice object from the json string",
+                "json_str"_a )
+
         .def( "__repr__", &Lattice::as_string )
         ;
 

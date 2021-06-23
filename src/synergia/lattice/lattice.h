@@ -150,6 +150,30 @@ public:
     void
     print(Logger & logger) const;
 
+public:
+
+    // serialization
+    std::string as_json() const
+    {
+        std::stringstream ss;
+        {
+            cereal::JSONOutputArchive ar(ss);
+            ar(*this);
+        }
+        return ss.str();
+    }
+
+    static Lattice load_from_json(std::string const& str)
+    {
+        std::stringstream ss(str);
+        cereal::JSONInputArchive ar(ss);
+
+        Lattice l;
+        ar(l);
+
+        return l;
+    }
+
 private:
 
     friend class cereal::access;
