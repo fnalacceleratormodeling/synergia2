@@ -277,8 +277,7 @@ def setup():
         #synergia.utils.write_lsexpr_file(lattice.as_lsexpr(), "mi20_ra_08182020_tuned.lsx")
 
         # Get the covariance matrix
-        map_ka = SIM.Lattice_simulator.get_linear_one_turn_map_ka(lattice)
-        map = np.array(map_ka)
+        map = SIM.Lattice_simulator.get_linear_one_turn_map(lattice)
         print("one turn map from synergia2.5 infrastructure", file=logger)
         print(np.array2string(map, max_line_width=200), file=logger)
 
@@ -320,10 +319,8 @@ def setup():
         #
         # get the correlation matrix for bunch generation
 
-        correlation_matrix_ka = synergia.bunch.get_correlation_matrix(
-                map_ka, stdx, stdy, stdz/beta, beta, (0, 2, 4))
-
-        correlation_matrix = np.array(correlation_matrix_ka)
+        correlation_matrix = synergia.bunch.get_correlation_matrix(
+                map, stdx, stdy, stdz/beta, beta, (0, 2, 4))
 
         np.save("correlation_matrix.npy", correlation_matrix)
         print(np.array2string(correlation_matrix, max_line_width=200), file=logger)
