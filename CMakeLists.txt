@@ -26,6 +26,37 @@ if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
 
+# Set up to assure fully-linked libraries.
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  # using Clang
+    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evalauted-expression -Wno-register")
+    message("Using clang++")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    # using Apples's clang
+    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evaluated-expression -Wno-register")
+    message("Using Apple clang++")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # using GCC
+    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result -Wno-register")
+    if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
+    endif()
+    message("Using g++")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    # using Intel C++
+    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
+    set(COMPILER_SPECIFIC_SHARED_LINKER_FLAGS "-Wl,-z,defs")
+    message("Using Intel C++")
+else()
+    message(WARNING "I can not tell what compiler is being used. Will proceed with generic settings.")
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall ${COMPILER_SPECIFIC_CXX_FLAGS}")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
+
+
 # misc
 include(CopyFile)
 include(MPITest)
