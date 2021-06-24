@@ -213,8 +213,8 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
             //lattice.get_reference_particle(), 1024 * 1024 * 4, 2.94e10,
-            lattice.get_reference_particle(), 4194394, 2.94e10,
-            //lattice.get_reference_particle(), 1024*1024, 2.94e10,
+            //lattice.get_reference_particle(), 4194394, 2.94e10,
+            lattice.get_reference_particle(), 1024*1024, 2.94e10,
             //lattice.get_reference_particle(), 16777216, 2.94e10,
             //lattice.get_reference_particle(), 0, 2.94e10,
             Commxx() );
@@ -226,7 +226,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     //bunch.reserve(6000000);
 
 
-#if 0
+#if 1
     double beta = ref.get_beta();
     double gamma = ref.get_gamma();
 
@@ -316,7 +316,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
 #endif
 
 
-#if 1
+#if 0
     // or read from file
     //bunch.read_file_legacy("turn_particles_0000.h5");
     //bunch.write_file("bunch_particles_4M.h5");
