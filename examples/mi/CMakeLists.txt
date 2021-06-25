@@ -10,5 +10,6 @@ copy_file(mi20_raw.lsx mi)
 
 copy_file(mi.py mi)
 copy_file(mi_setup.py mi)
+copy_file(mi_fixup.py mi)
 copy_file(mi_multibunch_options.py mi)
 

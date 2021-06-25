@@ -130,10 +130,11 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     // from opts
     double rf_voltage = 1.0/18; // RF cavity voltage in MV
 
-
-
     auto lsexpr = read_lsexpr_file("mi20_raw.lsx");
     Lattice lattice(lsexpr);
+
+    //MadX_reader reader;
+    //auto lattice = reader.get_lattice("ring_p_q100", "mi20_ra_08182020.lat");
 
     lattice.set_all_string_attribute("extractor_type", "libff");
 

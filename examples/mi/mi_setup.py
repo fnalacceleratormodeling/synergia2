@@ -8,7 +8,7 @@ import numpy as np
 
 import synergia.simulation as SIM 
 
-#import mi_fixup
+import mi_fixup
 
 from mi_multibunch_options import opts
 
@@ -124,9 +124,8 @@ def setup():
         # read the lattice and
         # turn on the RF by setting voltage, frequency and phase in RF cavities
 
-        """
         f = open('mi20_ra_08182020.lat')
-        #f = open('testlattice.lat')
+
         lattice_lines = f.readlines()
         print("read ", len(lattice_lines), ' lines')
         mi_fixup.remove_comments_and_continuation(lattice_lines)
@@ -137,10 +136,12 @@ def setup():
         m8_reader.parse_string('\n'.join(lattice_lines))
 
         lattice = m8_reader.get_lattice('ring_p_q100')
-        """
 
+        """
         lsexpr = synergia.utils.pylsexpr.read_lsexpr_file("mi20_raw.lsx")
         lattice = synergia.lattice.Lattice(lsexpr)
+        """
+
         lattice.set_all_string_attribute("extractor_type", "libff")
 
         print("lattice # elements: ", len(lattice.get_elements()))
