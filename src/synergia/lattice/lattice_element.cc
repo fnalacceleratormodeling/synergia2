@@ -207,6 +207,18 @@ Lattice_element::as_lsexpr() const
     return retval;
 }
 
+std::vector<std::string>
+Lattice_element::get_all_type_names()
+{
+    static std::vector<std::string> names;
+
+    if (names.empty())
+        for(auto const& type : type_map)
+            names.push_back(type.first);
+
+    return names;
+}
+
 std::string const &
 Lattice_element::get_type_name() const
 {

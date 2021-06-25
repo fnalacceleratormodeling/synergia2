@@ -158,6 +158,13 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice_element::has_marker,
                 "marker"_a )
 
+        .def( "add_ancestor",
+                &Lattice_element::add_ancestor,
+                "ancestor"_a )
+
+        .def_static( "get_all_type_names",
+                &Lattice_element::get_all_type_names )
+
         // print
         .def( "print_", 
                 &Lattice_element::print,

@@ -52,6 +52,9 @@ if (BUILD_PYTHON_BINDINGS)
     target_link_libraries(lattice PRIVATE synergia_lattice)
 
     copy_file(__init__.py lattice)
+    copy_file(mad8_parser.py lattice)
+    copy_file(mad8_reader.py lattice)
+
 endif ()
 
 install(TARGETS synergia_lattice DESTINATION ${LIB_INSTALL_DIR})

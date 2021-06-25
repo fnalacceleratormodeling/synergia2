@@ -143,6 +143,12 @@ public:
 
 public:
 
+    // get all element type names
+    static std::vector<std::string>
+    get_all_type_names();
+
+public:
+
     /// Construct a Lattice_element with an empty name and type.
     /// for serialization only
     Lattice_element();

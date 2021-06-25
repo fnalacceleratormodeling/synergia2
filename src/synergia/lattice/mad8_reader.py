@@ -2,13 +2,14 @@
 import os, sys, hashlib
 
 from synergia.lattice import Mad8_parser
-from synergia.lattice import Lattice_element, Mad8_adaptor_map, Lattice
+from synergia.lattice import Lattice_element, Lattice
 from synergia.utils import read_lsexpr_file, write_lsexpr_file
 from synergia.foundation import pconstants, Four_momentum, Reference_particle
 from mpi4py import MPI
 
 def islist(x):
-    return hasattr(x, "__iter__")
+    #return hasattr(x, "__iter__")
+    return isinstance(x, list)
 
 class Cache_entry:
     def __init__(self, hash_hex, index):
@@ -37,6 +38,7 @@ class Lattice_cache:
 
     def _read_cache(self):
         self.cache = {}
+        """
         if os.path.exists(self.cache_file_name):
             cache_file = open(self.cache_file_name, 'r')
             line_name = cache_file.readline().rstrip()
@@ -48,6 +50,7 @@ class Lattice_cache:
                 self.cache[line_name] = Cache_entry(hash_hex, index)
                 line_name = cache_file.readline().rstrip()
             cache_file.close()
+        """
 
     def is_readable(self):
         if not self.real_file:
@@ -110,16 +113,8 @@ class Mad8_reader:
     
         :param element_adaptor_map: The Element_adaptor_map class used to interpret 
                 the elements. If *None*, the Mad8_adaptor_map class is used."""
-    def __init__(self, element_adaptor_map=None):
-        if element_adaptor_map:
-            self.element_adaptor_map = element_adaptor_map
-        else:
-            self.element_adaptor_map = Mad8_adaptor_map()
+    def __init__(self):
         self.parser = None
-
-    def get_element_adaptor_map(self):
-        """Returns the Element_adaptor_map used by the reader."""
-        return self.element_adaptor_map
 
     def parse_string(self, string):
         """Parse a string containing a lattice description in Mad8 format."""
@@ -130,7 +125,7 @@ class Mad8_reader:
         """Parse a file containing a lattice description in Mad8 format."""
         try:
             the_file = open(filename, 'r')
-        except IOError, e:
+        except IOError(e):
             os.system("ls")
             msg = "Mad8_reader: unable to open: " + filename + "\n"
             msg += "current working directory: " + os.getcwd() + "\n"
@@ -140,8 +135,8 @@ class Mad8_reader:
     def _parser_check(self, filename, method):
         if not self.parser:
             if not filename:
-                raise RuntimeError, "Mad8_reader." + method + \
-            ": filename must be specified if no file or string has been parsed"
+                raise RuntimeError("Mad8_reader." + method + \
+            ": filename must be specified if no file or string has been parsed")
             self.parse(filename)
 
     def get_lines(self, filename=None):
@@ -153,11 +148,12 @@ class Mad8_reader:
 
     def _expand_type(self, short):
         retval = None
-        for long in self.element_adaptor_map.get_adaptor_names():
+        #for long in self.element_adaptor_map.get_adaptor_names():
+        for long in Lattice_element.get_all_type_names():
             if long.find(short) == 0:
                 if retval:
-                    raise RuntimeError, 'Mad8_reader: ambiguous abbreviated type "'\
-                        + short + '": matches "' + retval + '" and "' + long
+                    raise RuntimeError('Mad8_reader: ambiguous abbreviated type "'\
+                        + short + '": matches "' + retval + '" and "' + long)
                 else:
                     retval = long
         return retval
@@ -306,7 +302,8 @@ class Mad8_reader:
                 :param filename: if given, parse *filename* first
                 :param enable_cache_write: if True, write cache to the lattice_cache directory when appropriate.
                 :param enable_cache_write: if True, read cache from the lattice_cache directory when appropriate."""
-        lattice_cache = Lattice_cache(filename, line_name)
+        #lattice_cache = Lattice_cache(filename, line_name)
+        lattice_cache = None
         lattice = None
         if enable_cache_read and lattice_cache.is_readable():
             lattice = lattice_cache.read()
@@ -321,14 +318,17 @@ class Mad8_reader:
                     lattice_cache.write(lattice)
         return lattice
 
-    def get_lattice(self, line_names, filename=None, enable_cache_write=True,
-                    enable_cache_read=True):
+    def get_lattice(self, line_names, filename=None, enable_cache_write=False,
+                    enable_cache_read=False):
         """Retrieve a lattice
 
                 :param line_name: the name of the line to be used
                 :param filename: if given, parse *filename* first
                 :param enable_cache_write: if True, write cache to the lattice_cache directory when appropriate.
                 :param enable_cache_write: if True, read cache from the lattice_cache directory when appropriate."""
+
+
+        #if True:
         if not islist(line_names):
             return self._get_possibly_cached_lattice(line_names,
                                                filename,enable_cache_write,
@@ -352,5 +352,5 @@ if __name__ == "__main__":
         filename = 'fodo.lat'
 
     lattice = Mad8_reader().get_lattice(line, filename, False, False)
-    print "has reference particle:", lattice.has_reference_particle()
+    print("has reference particle:", lattice.has_reference_particle())
     lattice.print_()
