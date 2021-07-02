@@ -86,6 +86,10 @@ int run()
     Propagator propagator(lattice, stepper);
     // propagator.print_steps(screen);
 
+    // print slices
+    for(auto const& slice : propagator.get_lattice_element_slices())
+        screen << slice.as_string() << "\n";
+
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
             lattice.get_reference_particle(), macroparticles, real_particles,

@@ -115,6 +115,9 @@ def run():
 
     propagator = create_propagator(lattice)
 
+    for s in propagator.get_lattice_element_slices():
+        print(s)
+
     sim.get_bunch().print_statistics(screen);
 
     class context:
