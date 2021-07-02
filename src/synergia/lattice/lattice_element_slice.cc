@@ -68,7 +68,6 @@ Lattice_element_slice::Lattice_element_slice(
     whole = (left_edge && right_edge);
 }
 
-#if 0
 std::string
 Lattice_element_slice::as_string() const
 {
@@ -83,7 +82,7 @@ Lattice_element_slice::as_string() const
         sstream << "[" << left << "," << right << "] ";
     }
 
-    sstream << element_sptr->as_string();
+    sstream << element->as_string();
     return sstream.str();
 }
 
@@ -92,6 +91,5 @@ Lattice_element_slice::print() const
 {
     std::cout << as_string() << std::endl;
 }
-#endif
 
 

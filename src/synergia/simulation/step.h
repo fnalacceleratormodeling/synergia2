@@ -6,6 +6,7 @@
 #include "synergia/simulation/collective_operator_options.h"
 #include "synergia/simulation/bunch_simulator.h"
 
+class Propagator;
 
 class Step
 {
@@ -57,6 +58,8 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version);
 #endif
+
+    friend class Propagator;
 };
 
 #endif /* STEP_H_ */

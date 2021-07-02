@@ -10,6 +10,8 @@
 
 #include "synergia/utils/logger.h"
 
+class Propagator;
+
 class Operator
 {
 
@@ -130,6 +132,8 @@ public:
 
     std::vector<Lattice_element_slice> const & get_slices() const
     { return slices; }
+
+    friend class Propagator;
 };
 
 #endif /* OPERATOR_H_ */

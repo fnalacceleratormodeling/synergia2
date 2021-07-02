@@ -20,6 +20,168 @@ public:
 
     static const int FINAL_STEP = -1;
 
+    struct Slice_iterator
+    {
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = int;
+        using value_type = Lattice_element_slice;
+        using pointer    = Lattice_element_slice*;
+        using reference  = Lattice_element_slice&;
+
+        Slice_iterator(Propagator& p) : prop(p) { }
+
+        reference operator*() const { return *slice_it; }
+        pointer operator->() { return &(*slice_it); }
+
+        void first_slice()
+        {
+            step_it = prop.steps.begin();
+            step_end = prop.steps.end();
+
+            if (step_it == prop.steps.end()) return;
+
+            opr_it = step_it->operators.begin();
+            opr_end = step_it->operators.end();
+
+            if(is_valid_opr())
+            {
+                auto o = dynamic_cast<Independent_operator*>(opr_it->get());
+                slice_it = o->slices.begin();
+                slice_end = o->slices.end();
+                return;
+            }
+
+            advance_to_next_slice();
+        }
+
+        void end()
+        {
+            step_it = prop.steps.end();
+        }
+
+        Slice_iterator& operator++()
+        {
+            ++slice_it;
+
+            auto o = dynamic_cast<Independent_operator*>(opr_it->get());
+            if(slice_it == o->slices.end())
+                advance_to_next_slice();
+
+            return *this;
+        }
+
+        void advance_to_next_slice()
+        {
+            while(step_it != prop.steps.end())
+            {
+                if (opr_it == step_it->operators.end())
+                {
+                    ++step_it;
+                    if (step_it == prop.steps.end()) return;
+
+                    opr_it = step_it->operators.begin();
+                    opr_end = step_it->operators.end();
+                }
+                else
+                {
+                    ++opr_it;
+                }
+
+                if (is_valid_opr())
+                {
+                    auto o = dynamic_cast<Independent_operator*>(opr_it->get());
+                    slice_it = o->slices.begin();
+                    slice_end = o->slices.end();
+                    return;
+                }
+            }
+
+            // the step is now at the end if reached here
+        }
+
+        bool is_valid_opr()
+        {
+            if (opr_it == step_it->operators.end()) return false;
+
+            auto o = dynamic_cast<Independent_operator*>(opr_it->get());
+            if (o && o->slices.size()) return true;
+
+            return false;
+        }
+
+        // iterator++
+        Slice_iterator operator++(int)
+        {
+            Slice_iterator tmp = *this;
+            ++(*this);
+            return tmp;
+        }
+
+        friend bool 
+        operator==(const Slice_iterator& a, const Slice_iterator& b)
+        { 
+            if (&a.prop != &b.prop) 
+                return false;
+
+            if (a.step_it != b.step_it) 
+                return false;
+
+            if (a.step_it != a.step_end &&
+                b.step_it != b.step_end &&
+                a.opr_it  != b.opr_it)
+                return false;
+
+            if (a.step_it != a.step_end &&
+                b.step_it != b.step_end &&
+                a.opr_it  != a.opr_end &&
+                b.opr_it  != b.opr_end &&
+                a.slice_it!= b.slice_it)
+                return false;
+
+            return true;
+        }
+
+        friend bool 
+        operator!=(const Slice_iterator& a, const Slice_iterator& b)
+        { return !(a==b); }
+
+    private:
+
+        Propagator& prop;
+
+        std::vector<Step>::iterator step_it;
+        std::vector<Step>::iterator step_end;
+
+        std::vector<std::shared_ptr<Operator>>::iterator opr_it;
+        std::vector<std::shared_ptr<Operator>>::iterator opr_end;
+
+        std::vector<Lattice_element_slice>::iterator slice_it;
+        std::vector<Lattice_element_slice>::iterator slice_end;
+    };
+
+
+    struct Lattice_element_slices
+    { 
+        Lattice_element_slices(Propagator& p) 
+            : prop(p) { }
+
+        Slice_iterator begin()
+        {
+            Slice_iterator it(prop);
+            it.first_slice();
+            return it;
+        }
+
+        Slice_iterator end()
+        { 
+            Slice_iterator it(prop);
+            it.end();
+            return it;
+        }
+
+        Propagator& prop;
+    };
+
 private:
 
     Lattice lattice;
@@ -68,6 +230,10 @@ public:
 
     // max_turns: number of turns in this propagate. -1 run to the end
     void propagate(Bunch_simulator & simulator, Logger & logger, int max_turns = -1);
+
+    Lattice_element_slices
+    get_lattice_element_slices()
+    { return Lattice_element_slices(*this); }
 
     // print
     void print_steps(Logger & logger) const

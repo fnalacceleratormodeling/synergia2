@@ -38,16 +38,9 @@ public:
     Lattice_element const & get_lattice_element() const
     { return *element; }
 
-    std::string as_string() const
-    { return element->get_name(); }
-
-#if 0
-    Lattice_element       & get_lattice_element()
-    { return *element; }
-
     std::string as_string() const;
+
     void print() const;
-#endif
 };
 
 #endif /* LATTICE_ELEMENT_SLICE_H_ */
