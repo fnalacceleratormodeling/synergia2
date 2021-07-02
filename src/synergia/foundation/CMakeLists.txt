@@ -15,6 +15,7 @@ target_link_libraries(synergia_foundation
     lsexpr
     gsl
     gslcblas
+    Kokkos::kokkos
     )
 
 if (BUILD_PYTHON_BINDINGS)

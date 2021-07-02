@@ -37,7 +37,7 @@ add_library(synergia_hdf5_utils
 target_link_libraries(synergia_hdf5_utils 
     ${HDF5_LIBRARIES} 
     synergia_parallel_utils
-    kokkos
+    Kokkos::kokkos
     )
 
 if (BUILD_PYTHON_BINDINGS)
@@ -80,6 +80,7 @@ add_library(synergia_distributed_fft
 target_link_libraries(synergia_distributed_fft 
     ${FFT_LIB}
     synergia_parallel_utils
+    Kokkos::kokkos
     )
 
 add_library(synergia_command_line command_line_arg.cc)

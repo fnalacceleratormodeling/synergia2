@@ -14,7 +14,7 @@ target_link_libraries(trigon
     )
 
 add_executable(tmapping tmapping.cc)
-#target_link_libraries(tmapping)
+target_link_libraries(tmapping Kokkos::kokkos)
 
 
 copy_file(sis18.madx s3_sis18)

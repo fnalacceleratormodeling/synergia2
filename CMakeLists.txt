@@ -240,8 +240,6 @@ smart_include_directories("${extra_includes}")
 
 # kokkos
 add_subdirectory(src/synergia/utils/kokkos)
-include_directories(src/synergia/utils/kokkos/core/src)
-include_directories(${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos)
 
 if(${Kokkos_ENABLE_CUDA})
     add_definitions(-DKokkos_ENABLE_CUDA)
