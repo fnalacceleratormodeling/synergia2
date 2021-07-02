@@ -42,12 +42,21 @@ PYBIND11_MODULE(simulation, m)
     m.def( "checkpoint_load",
             &syn::checkpoint_load )
         ;
+
+    // Propagator::Lattice_element_slices
+    py::class_<Propagator::Lattice_element_slices>(m, "Lattice_element_slices")
+        .def("__iter__", [](Propagator::Lattice_element_slices& s){ 
+                return py::make_iterator(s.begin(), s.end());
+            }, py::keep_alive<0, 1>() )
+        ;
             
     // Propagator
     py::class_<Propagator>(m, "Propagator")
         .def(py::init<Lattice const&, Stepper const&>())
         .def("propagate", &Propagator::propagate)
         .def("print_steps", &Propagator::print_steps)
+        .def("get_lattice_element_slices", 
+                &Propagator::get_lattice_element_slices)
         ;
 
     // chormaticities_t

@@ -170,7 +170,8 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice_element::print,
                 "Print the lattice element" )
 
-        .def( "__repr__", &Lattice_element::as_string )
+        .def( "__repr__", 
+                &Lattice_element::as_string )
         ;
 
     // Lattice_element_slice
@@ -194,6 +195,13 @@ PYBIND11_MODULE(lattice, m)
         .def( "get_right", 
                 &Lattice_element_slice::get_right, 
                 "Get the end position of the slice" )
+
+        .def( "print_", 
+                &Lattice_element_slice::print,
+                "Print the lattice element slice" )
+
+        .def( "__repr__", 
+                &Lattice_element_slice::as_string )
         ;
 
     // Lattice
