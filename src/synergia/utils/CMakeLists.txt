@@ -10,8 +10,8 @@ set(synergia_parallel_utils_src
 add_library(synergia_parallel_utils        SHARED ${synergia_parallel_utils_src})
 add_library(synergia_parallel_utils_static STATIC ${synergia_parallel_utils_src})
 
-target_link_libraries(synergia_parallel_utils MPI::MPI_C)
-target_link_libraries(synergia_parallel_utils_static MPI::MPI_C)
+target_link_libraries(synergia_parallel_utils MPI::MPI_C Kokkos::kokkos)
+target_link_libraries(synergia_parallel_utils_static MPI::MPI_C Kokkos::kokkos)
 
 add_library(synergia_test_main STATIC catch_test_main.cc)
 target_link_libraries(synergia_test_main kokkos MPI::MPI_C)
@@ -84,9 +84,13 @@ target_link_libraries(synergia_distributed_fft
     )
 
 add_library(synergia_command_line command_line_arg.cc)
+target_link_libraries(synergia_command_line Kokkos::kokkos)
 
 add_library(lsexpr SHARED lsexpr.cc)
 add_library(lsexpr_static STATIC lsexpr.cc)
+
+target_link_libraries(lsexpr Kokkos::kokkos)
+target_link_libraries(lsexpr_static Kokkos::kokkos)
 
 install(TARGETS
     synergia_parallel_utils
