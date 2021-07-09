@@ -57,6 +57,8 @@ PYBIND11_MODULE(simulation, m)
         .def("print_steps", &Propagator::print_steps)
         .def("get_lattice_element_slices", 
                 &Propagator::get_lattice_element_slices)
+        .def("get_lattice_elements", 
+                &Propagator::get_lattice_elements)
         ;
 
     // chormaticities_t

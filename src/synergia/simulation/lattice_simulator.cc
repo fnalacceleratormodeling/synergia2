@@ -855,316 +855,33 @@ Lattice_simulator::adjust_tunes(
 // Lattice Functions
 // --------------------------------------------
 
-
 void 
 Lattice_simulator::CourantSnyderLatticeFunctions(Lattice& lattice)
 {
-    constexpr const int order = 1;
-    using trigon_t = Trigon<double, order, 6>;
-
-    const int ix  = 0;
-    const int ipx = 1;
-    const int iy  = 2;
-    const int ipy = 3;
-
-    auto const& ref = lattice.get_reference_particle();
-    auto probe = calculate_closed_orbit(lattice);
-
-    auto map = get_one_turn_map<order>(lattice);
-    auto jac = map.jacobian();
-
-    // .......... Check coupling ............................
-    //::checkForCoupling(mtrx);
-
-    // Calculate initial lattice functions ...
-    // ... first horizontal
-
-    double cs = ( jac(ix, ix) + jac(ipx, ipx) )/2.0;
-
-    if( fabs( cs ) > 1.0 ) 
-    {
-        std::stringstream ss;
-        ss << "*** ERROR ***                                     \n"
-           << "*** ERROR *** LattSim::CourantSnyderLatticeFunctions \n"
-           << "*** ERROR *** cos( psi_H ) = " << cs << "\n"
-           << "*** ERROR *** Lattice is unstable.                \n"
-           << "*** ERROR *** Cannot continue with calculation.   \n"
-           << "*** ERROR ***                                     \n"
-           << std::endl;
-
-        throw std::runtime_error(ss.str());
-    } 
-    
-    double sn = ( jac(ix, ipx) > 0.0 ) 
-        ? sqrt( 1.0 - cs*cs ) : - sqrt( 1.0 - cs*cs );
-
-    if( sn == 0.0 ) 
-    {
-        std::stringstream ss;
-        ss << "*** ERROR ***                                     \n"
-           << "*** ERROR *** LattSim::CourantSnyderLatticeFunctions \n"
-           << "*** ERROR *** Integer horizontal tune.            \n"
-           << "*** ERROR ***                                     \n"
-           << std::endl;
-
-        throw std::runtime_error(ss.str());
-    }
-
-    double beta_x = jac(ix, ipx) / sn;
-    double alpha_x = (jac(ix, ix) - jac(ipx, ipx)) / (2.0*sn);
-
-    // ... then vertical.
-    cs = (jac(iy, iy) + jac(ipy, ipy))/2.0;
-
-    if( fabs( cs ) <= 1.0 ) 
-    {
-        if( jac(iy, ipy) > 0.0 )  sn =  sqrt( 1.0 - cs*cs );
-        else                      sn = -sqrt( 1.0 - cs*cs );
-    }
-    else 
-    {
-        std::stringstream ss;
-        ss << "*** ERROR ***                                     \n"
-           << "*** ERROR *** LattSim::CourantSnyderLatticeFunctions \n"
-           << "*** ERROR *** cos( psi_V ) = " << cs << "\n"
-           << "*** ERROR *** Lattice is unstable.                \n"
-           << "*** ERROR *** Cannot continue with calculation.   \n"
-           << "*** ERROR ***                                     \n"
-           << std::endl;
-
-        throw std::runtime_error(ss.str());
-    }
-
-    if( sn == 0.0 ) 
-    {
-        std::stringstream ss;
-        ss << "*** ERROR ***                                     \n"
-           << "*** ERROR *** LattSim::CourantSnyderLatticeFunctions \n"
-           << "*** ERROR *** Integer vertical tune.              \n"
-           << "*** ERROR ***                                     \n"
-           << std::endl;
-
-        throw std::runtime_error(ss.str());
-    }
-
-    double beta_y = jac(iy, ipy) / sn;
-    double alpha_y = (jac(iy, iy) - jac(ipy, ipy)) / ( 2.0*sn );
-
-    double beta0H  = beta_x;
-    double beta0V  = beta_y;
-    double alpha0H = alpha_x;
-    double alpha0V = alpha_y;
-
-    double oldpsiH = 0.0;
-    double oldpsiV = 0.0;
-
-    double tb      = 0.0;
-    double t       = 0.0;
-    double lng     = 0.0;
-    double psi_x   = 0.0;
-    double psi_y   = 0.0;
-
-    // trigon bunch
-    Commxx comm;
-    bunch_t<trigon_t> bunch(ref, comm.size(), comm);
-
-    // design reference particle from the closed orbit
-    auto ref_l = ref;
-    ref_l.set_state(probe);
-    bunch.set_design_reference_particle(ref_l);
-
-    auto tparts = bunch.get_host_particles();
-
-    // init value set to id map, ref points set to state
-    // equivalent to jparticle.setState( particle.State() );
-    for(int i=0; i<6; ++i) 
-        tparts(0, i).set(probe[i], i);
-
-    // check in
-    bunch.checkin_particles();
-
-    // propagate trigon
-    for(auto& elm : lattice.get_elements())
-    {
-        // At one time, dipoles with non-standard faces were discriminated 
-        // against and wouldn't have
-        // their phase advance calculated.
-        // bool is_regular = 
-        //     ( ( typeid(*lbe) != typeid(rbend)    ) &&
-        //     (   typeid(*lbe) != typeid(CF_rbend) ) &&
-        //     (   typeid(*lbe) != typeid(Slot)     ) &&
-        //     (   typeid(*lbe) != typeid(srot)     ) &&		   
-        //     (     (*lbe).hasStandardFaces()      )  );
-
-        bool is_regular = true;
-
-        //lng += elm.OrbitLength( particle );
-        lng += elm.get_length();
-        FF_element::apply(elm, bunch);
-
-        auto mtrx = bunch.get_jacobian(0);
-
-        tb = mtrx(ix,ix) * beta0H -  mtrx(ix,ipx) * alpha0H;
-        beta_x  = (tb * tb + mtrx(ix,ipx) * mtrx(ix,ipx))/beta0H;
-
-        alpha_x = -1.0*(tb*(mtrx(ipx,ix)*beta0H - mtrx(ipx,ipx)*alpha0H) 
-                + mtrx(ix,ipx)*mtrx(ipx,ipx))/beta0H;
-
-        if ( is_regular ) 
-        {
-             t = atan2(mtrx(ix,ipx),tb);
-
-             // numerical round off errs introduce unphisical jumps in phase 
-             // while(t < oldpsiH) t += M_TWOPI; 
-             while(t < oldpsiH*(1.-1.e-4)) t += mconstants::pi*2;
-
-             psi_x = oldpsiH = t;
-         }
-         else 
-         {
-             psi_x = oldpsiH;
-         }
-
-         tb = mtrx(iy,iy) * beta0V -  mtrx(iy,ipy) * alpha0V;
-         beta_y = (tb * tb + mtrx(iy,ipy) * mtrx(iy,ipy))/beta0V;
-
-         alpha_y = -1.0*(tb*(mtrx(ipy,iy)*beta0V - mtrx(ipy,ipy)*alpha0V) 
-                 + mtrx(iy,ipy)*mtrx(ipy,ipy))/beta0V;
-
-         if ( is_regular ) 
-         {
-             t = atan2(mtrx(iy,ipy),tb);
-
-             // numerical round off errs introduce unphisical jumps in phase 
-             // while(t < oldpsiV) t += M_TWOPI; 
-             while(t < oldpsiV*(1.-1.e-4)) t += mconstants::pi*2;
-
-             psi_y = oldpsiV = t;
-         }
-         else 
-         {
-             psi_y = oldpsiV;
-         } 
-
-         elm.lf.arcLength = lng;
-         elm.lf.beta.hor  = beta_x;
-         elm.lf.beta.ver  = beta_y;
-         elm.lf.alpha.hor = alpha_x;
-         elm.lf.alpha.ver = alpha_y;
-         elm.lf.psi.hor   = psi_x;
-         elm.lf.psi.ver   = psi_y;
-
-    }  // End loop on lbe ...
+    CourantSnyderLatticeFunctions_impl(
+            lattice, lattice.get_elements());
+}
+ 
+void 
+Lattice_simulator::CourantSnyderLatticeFunctions(Propagator& prop)
+{
+    CourantSnyderLatticeFunctions_impl(
+            prop.get_lattice(), prop.get_lattice_element_slices());
 }
 
 void
 Lattice_simulator::calc_dispersions(Lattice& lattice)
 {
-    const double dpp = 0.0005;
-
-    constexpr const int order = 2;
-    using trigon_t = Trigon<double, order, 6>;
-
-    const int ix  = 0;
-    const int ipx = 1;
-    const int iy  = 2;
-    const int ipy = 3;
-
-    auto const& ref = lattice.get_reference_particle();
-
-    // Preliminary steps ...
-    auto probe1 = calculate_closed_orbit(lattice, 0.0);
-    auto probe2 = calculate_closed_orbit(lattice, dpp);
-
-#if 0
-    // only for calculate tune and chromaticity
-    auto fstJac = get_one_turn_map<order>(lattice, 0.0).jacobian();
-    auto secJac = get_one_turn_map<order>(lattice, dpp).jacobian();
-#endif
-
-    // propagate through elements
-    Commxx comm;
-    bunch_t<double> b1(ref, comm.size(), 1e9, comm);
-    bunch_t<double> b2(ref, comm.size(), 1e9, comm);
-
-    // design reference particle from the closed orbit
-    auto ref1 = ref;
-    ref1.set_state(probe1);
-    b1.set_design_reference_particle(ref1);
-
-    auto ref2 = ref;
-    ref2.set_state(probe2);
-    b2.set_design_reference_particle(ref2);
-
-    // local particle data
-    auto part1 = b1.get_host_particles();
-    auto part2 = b2.get_host_particles();
-
-    // init value
-    for(int i=0; i<6; ++i) 
-    {
-        part1(0, i) = probe1[i];
-        part2(0, i) = probe2[i];
-    }
-
-    // check in
-    b1.checkin_particles();
-    b2.checkin_particles();
-
-    // arcLength
-    double lng = 0.0;
-
-    // Attach initial dispersion data to the elements...
-    for(auto& elm : lattice.get_elements())
-    {
-        lng += elm.get_length();
-
-        FF_element::apply(elm, b1);
-        FF_element::apply(elm, b2);
-
-        b1.checkout_particles();
-        b2.checkout_particles();
-
-        std::array<double, 6> d;
-
-        for(int i=0; i<6; ++i)
-            d[i] = (part2(0, i) - part1(0, i)) / dpp;
-
-        elm.lf.dispersion.hor = d[ix];
-        elm.lf.dispersion.ver = d[iy];
-        elm.lf.dPrime.hor     = d[ipx];
-        elm.lf.dPrime.ver     = d[ipy];
-        elm.lf.arcLength      = lng;
-    }
-
-
-    // Attach tune and chromaticity to the beamline ........
-#if 0
-    Vector    firstNu(2), secondNu(2);
-    if( ( 0 == filterTransverseTunes( firstJacobian, firstNu   ) ) &&
-      ( 0 == filterTransverseTunes( secondJacobian, secondNu ) ) )
-    {
-    lr_.tune.hor = firstNu(0);
-    lr_.tune.ver = firstNu(1);
-    lr_.chromaticity.hor = ( secondNu(0) - firstNu(0) ) / dpp;
-    lr_.chromaticity.ver = ( secondNu(1) - firstNu(1) ) / dpp;
-    }
-    else {
-    (*pcerr) << "*** ERROR ***                                        \n"
-            "*** ERROR *** LattFuncSage::Disp_Calc                \n"
-            "*** ERROR ***                                        \n"
-            "*** ERROR *** Horrible error occurred while trying   \n"
-            "*** ERROR *** to filter the tunes.                   \n"
-            "*** ERROR ***                                        \n"
-         << endl;
-    ret = 111;
-
-    return ret;
-    }
-#endif
+    calc_dispersions_impl(
+            lattice, lattice.get_elements());
 }
 
-
+void
+Lattice_simulator::calc_dispersions(Propagator& prop)
+{
+    calc_dispersions_impl(
+            prop.get_lattice(), prop.get_lattice_element_slices());
+}
 
 
 

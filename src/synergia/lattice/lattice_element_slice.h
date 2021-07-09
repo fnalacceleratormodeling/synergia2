@@ -19,6 +19,11 @@ private:
 
 public:
 
+    // lattice functions
+    latt_func_t lf;
+
+public:
+
     explicit Lattice_element_slice(Lattice_element const & element);
 
     Lattice_element_slice(
@@ -31,6 +36,8 @@ public:
 
     double get_left()     const { return left; }
     double get_right()    const { return right; }
+
+    double get_length()   const { return right - left; }
 
     void   set_reference_ct(double ct) { ref_ct = ct; }
     double get_reference_ct() const { return ref_ct; }

@@ -186,6 +186,7 @@ private:
 
     Lattice lattice;
     std::vector<Step> steps;
+    Lattice_element_slices slices;
     
     std::unique_ptr<Stepper> stepper_ptr;
 
@@ -222,6 +223,7 @@ public:
             Stepper const& stepper = Independent_stepper_elements(1) )
         : lattice(lattice)
         , steps()
+        , slices(*this)
         , stepper_ptr(stepper.clone())
     {
         this->lattice.update();
@@ -231,9 +233,16 @@ public:
     // max_turns: number of turns in this propagate. -1 run to the end
     void propagate(Bunch_simulator & simulator, Logger & logger, int max_turns = -1);
 
-    Lattice_element_slices
+    Lattice_element_slices&
     get_lattice_element_slices()
-    { return Lattice_element_slices(*this); }
+    { return slices; }
+
+    std::list<Lattice_element> const&
+    get_lattice_elements()
+    { return lattice.get_elements(); }
+
+    Lattice&       get_lattice()       { return lattice; }
+    Lattice const& get_lattice() const { return lattice; }
 
     // print
     void print_steps(Logger & logger) const
@@ -268,7 +277,7 @@ public:
 private:
 
     // default ctor for serialization only
-    Propagator() : lattice(), steps(), stepper_ptr() { }
+    Propagator() : lattice(), steps(), slices(*this), stepper_ptr() { }
 
     friend class cereal::access;
 
