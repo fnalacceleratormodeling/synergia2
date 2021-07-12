@@ -12,4 +12,5 @@ copy_file(mi.py mi)
 copy_file(mi_setup.py mi)
 copy_file(mi_fixup.py mi)
 copy_file(mi_multibunch_options.py mi)
+copy_file(mi20_ra_08182020.lat mi)
 
