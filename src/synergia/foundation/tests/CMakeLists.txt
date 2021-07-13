@@ -1,3 +1,11 @@
+
+if (BUILD_PYTHON_BINDINGS)
+
+    add_py_test(test_simple.py)
+
+endif()
+
+#[[
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_test_executable(test_four_momentum test_four_momentum.cc)
@@ -34,4 +42,4 @@ set(CLEAN_FILES
     reference_particle.xml)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")
-
+]]

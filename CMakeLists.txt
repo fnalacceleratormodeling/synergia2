@@ -62,6 +62,7 @@ include(CopyFile)
 include(MPITest)
 include(AddPythonExtension)
 include(SmartIncludeDirectories)
+include(AddPythonTest)
 
 # include dirs
 set(extra_includes)
