@@ -9,6 +9,11 @@
 #include "synergia/utils/cereal.h"
 #include "synergia/utils/lsexpr.h"
 
+enum class element_format
+{
+    mad8,
+    madx,
+};
 
 enum class element_type
 {
@@ -107,6 +112,7 @@ class Lattice_element
 private:
 
     std::string  name;
+    element_format  format;
 
     std::string  stype;
     element_type type;
@@ -156,7 +162,10 @@ public:
     /// Construct a Lattice_element.
     /// @param name name
     /// @param type type
-    Lattice_element(std::string const & type, std::string const & name);
+    Lattice_element(
+            std::string const & type, 
+            std::string const & name,
+            element_format format = element_format::madx );
 
     /// Construct a Lattice_element from the Lsexpr representation
     /// @param lsexpr representation
@@ -176,6 +185,10 @@ public:
     /// Get the name
     std::string const &
     get_name() const;
+
+    /// Get the version info
+    element_format
+    get_format() const;
 
     /// Add an ancestor to the list of ancestors
     /// @param ancestor ancestor name
@@ -365,6 +378,7 @@ private:
     void serialize(Archive & ar)
     {
         ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(format));
         ar(CEREAL_NVP(stype));
         ar(CEREAL_NVP(type));
         ar(CEREAL_NVP(ancestors));

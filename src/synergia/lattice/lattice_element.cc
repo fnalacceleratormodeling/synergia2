@@ -45,6 +45,7 @@ namespace
 
 Lattice_element::Lattice_element() 
     : name("")
+    , format(element_format::madx)
     , stype("generic")
     , type(find_type(stype))
     , ancestors()
@@ -61,8 +62,10 @@ Lattice_element::Lattice_element()
 
 Lattice_element::Lattice_element(
         std::string const & type,
-        std::string const & name) 
+        std::string const & name,
+        element_format format ) 
     : name(name)
+    , format(format)
     , stype(type)
     , type(find_type(stype))
     , ancestors()
@@ -79,6 +82,7 @@ Lattice_element::Lattice_element(
 
 Lattice_element::Lattice_element(Lsexpr const & lsexpr)
     : name("")
+    , format(element_format::madx)
     , stype("generic")
     , type(find_type(stype))
     , ancestors()
@@ -235,6 +239,12 @@ std::string const &
 Lattice_element::get_name() const
 {
     return name;
+}
+
+element_format
+Lattice_element::get_format() const
+{
+    return format;
 }
 
 void

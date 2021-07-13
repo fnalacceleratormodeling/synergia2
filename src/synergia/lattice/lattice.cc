@@ -286,36 +286,3 @@ Lattice::print(Logger & logger) const
     logger(LoggerV::DEBUG) << as_string() << std::endl;
 }
 
-#if 0
-template<class Archive>
-    void
-    Lattice::serialize(Archive & ar, const unsigned int version)
-    {
-        ar  & CEREAL_NVP(name)
-            & CEREAL_NVP(reference_particle)
-            & CEREAL_NVP(elements)
-            & CEREAL_NVP(dirty);
-    }
-#endif
-
-#if 0
-template
-void
-Lattice::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-Lattice::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-Lattice::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Lattice::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-#endif

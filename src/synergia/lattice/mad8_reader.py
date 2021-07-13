@@ -2,7 +2,7 @@
 import os, sys, hashlib
 
 from synergia.lattice import Mad8_parser
-from synergia.lattice import Lattice_element, Lattice
+from synergia.lattice import Lattice_element, Lattice, element_format
 from synergia.utils import read_lsexpr_file, write_lsexpr_file
 from synergia.foundation import pconstants, Four_momentum, Reference_particle
 from mpi4py import MPI
@@ -165,8 +165,9 @@ class Mad8_reader:
                 :param filename: if not *None*, parse *filename* first"""
         self._parser_check(filename, "get_lattice_element")
         type = self._expand_type(self.parser.labels[label].name)
+        form = element_format.mad8
         attributes = self.parser.labels[label].attributes
-        element = Lattice_element(type, label)
+        element = Lattice_element(type, label, form)
         for attribute in attributes:
             if attributes[attribute] == None:
                 element.set_string_attribute(attribute, '')

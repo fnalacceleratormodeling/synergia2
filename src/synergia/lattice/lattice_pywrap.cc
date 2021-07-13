@@ -22,6 +22,11 @@ struct pybind11::detail::type_caster<std::list<Lattice_element>>
 // lattice python module
 PYBIND11_MODULE(lattice, m)
 {
+    py::enum_<element_format>(m, "element_format", py::arithmetic())
+        .value("mad8", element_format::mad8)
+        .value("madx", element_format::madx)
+        ;
+ 
     py::enum_<element_type>(m, "element_type", py::arithmetic())
         .value("generic",    element_type::generic)
         .value("drift",      element_type::drift)
@@ -52,9 +57,9 @@ PYBIND11_MODULE(lattice, m)
         .def( py::init<>(),
                 "Construct a generic lattice element" )
 
-        .def( py::init<std::string const&, std::string const&>(), 
-                "Construct a lattice element with type and name",
-                "type"_a, "name"_a )
+        .def( py::init<std::string const&, std::string const&, element_format>(), 
+                "Construct a lattice element with type, name, and format",
+                "type"_a, "name"_a, "format"_a = element_format::madx )
 
         .def( "get_type", 
                 &Lattice_element::get_type, 
@@ -67,6 +72,10 @@ PYBIND11_MODULE(lattice, m)
         .def( "get_name", 
                 &Lattice_element::get_name, 
                 "Returns lattice element name" )
+
+        .def( "get_format", 
+                &Lattice_element::get_format, 
+                "Returns lattice element format (madx or mad8)" )
 
         .def( "get_length",
                 &Lattice_element::get_length )
