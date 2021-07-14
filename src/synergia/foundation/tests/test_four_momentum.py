@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-import sys
-sys.path.append('..')
-
-from foundation import Four_momentum
-from nose.tools import *
+from synergia.foundation import Four_momentum
+import pytest
 
 mass = 3.0
 total_energy = 27.4
@@ -19,27 +16,27 @@ def test_construct2():
 
 def test_get_mass():
     f = Four_momentum(mass)
-    assert_almost_equal(f.get_mass(),mass)
+    assert(f.get_mass() == pytest.approx(mass))
 
 def test_set_get_total_energy():
     f = Four_momentum(mass)
     f.set_total_energy(value)
-    assert_almost_equal(f.get_total_energy(),value)
+    assert(f.get_total_energy() == pytest.approx(value))
 
 def test_set_get_kinetic_energy():
     f = Four_momentum(mass)
     f.set_kinetic_energy(value)
-    assert_almost_equal(f.get_kinetic_energy(),value)
+    assert(f.get_kinetic_energy() == pytest.approx(value))
 
 def test_set_get_total_energy():
     f = Four_momentum(mass)
     f.set_total_energy(value)
-    assert_almost_equal(f.get_total_energy(),value)
+    assert(f.get_total_energy() == pytest.approx(value))
 
 def test_set_get_beta():
     f = Four_momentum(mass)
     f.set_beta(beta_value)
-    assert_almost_equal(f.get_beta(),beta_value)
+    assert(f.get_beta() == pytest.approx(beta_value))
 
 def test_equal():
     tolerance = 1.0e-12

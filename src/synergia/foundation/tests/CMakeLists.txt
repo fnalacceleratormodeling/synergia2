@@ -2,6 +2,7 @@
 if (BUILD_PYTHON_BINDINGS)
 
     add_py_test(test_simple.py)
+    add_py_test(test_four_momentum.py)
 
 endif()
 
