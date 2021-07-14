@@ -82,7 +82,7 @@ archive_save( T const& object,
     bool fail=true;
     while ((try_no<5) && fail){
         try {
-            ensure_serialization_directory_exists(parallel);
+            //ensure_serialization_directory_exists(parallel);
             std::ofstream output_stream;
             output_stream.open(filename.c_str());
             int attempts=0;
@@ -102,12 +102,19 @@ archive_save( T const& object,
                 message += "\"";
                 throw std::runtime_error(message);
             }
-            A output_archive(output_stream);
-            int num_objects = 1;
-            output_archive << CEREAL_NVP(num_objects);
-            std::string object_typename(typeid(object).name());
-            output_archive << CEREAL_NVP(object_typename);
-            output_archive << CEREAL_NVP(object);
+
+            {
+                A ar(output_stream);
+
+                int num_objects = 1;
+                ar << CEREAL_NVP(num_objects);
+
+                std::string object_typename(typeid(object).name());
+                ar << CEREAL_NVP(object_typename);
+
+                ar(object);
+            }
+
             output_stream.close();
             fail=false;
         }
@@ -142,7 +149,7 @@ archive_load( T & object,
     input_archive >> CEREAL_NVP(num_objects);
     std::string object_typename;
     input_archive >> CEREAL_NVP(object_typename);
-    input_archive >> CEREAL_NVP(object);
+    input_archive(object);
     input_stream.close();
 }
 
@@ -172,6 +179,20 @@ void
 xml_load(T & object, std::string const& filename)
 {
     archive_load<T, cereal::XMLInputArchive> (object, filename);
+}
+
+template<typename T>
+void
+json_save(T const& object, std::string const& filename, bool parallel = false)
+{
+    archive_save<T, cereal::JSONOutputArchive> (object, filename, parallel);
+}
+
+template<typename T>
+void
+json_load(T & object, std::string const& filename)
+{
+    archive_load<T, cereal::JSONInputArchive> (object, filename);
 }
 
 #endif /* SERIALIZATION_FILES_H_ */
