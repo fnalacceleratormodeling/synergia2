@@ -5,6 +5,14 @@ if (BUILD_PYTHON_BINDINGS)
 
 endif()
 
+add_executable(test_four_momentum test_four_momentum.cc)
+target_link_libraries(test_four_momentum synergia_foundation synergia_test_main)
+add_mpi_test(test_four_momentum 1)
+
+add_executable(test_reference_particle test_reference_particle.cc)
+target_link_libraries(test_reference_particle synergia_foundation synergia_test_main)
+add_mpi_test(test_reference_particle 1)
+
 #[[
 add_definitions(-DBOOST_TEST_DYN_LINK)
 

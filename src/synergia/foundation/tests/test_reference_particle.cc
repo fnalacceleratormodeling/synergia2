@@ -1,11 +1,8 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include "synergia/utils/catch.hpp"
 
 #include "synergia/foundation/reference_particle.h"
-#include "synergia/utils/serialization.h"
-#include "synergia/utils/serialization_files.h"
-#include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture);
+//#include "synergia/utils/serialization.h"
+//#include "synergia/utils/serialization_files.h"
 
 const double tolerance = 1.0e-13;
 const double mass = 100.0;
@@ -15,19 +12,20 @@ const double step_length = 1.234;
 const int steps = 17;
 const int turns = 7;
 
-BOOST_AUTO_TEST_CASE(construct)
+TEST_CASE("construct")
 {
-    Reference_particle reference_particle(charge, mass, total_energy);
+    REQUIRE_NOTHROW(Reference_particle(charge, mass, total_energy));
 }
 
-BOOST_AUTO_TEST_CASE(construct2)
+TEST_CASE("construct2")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    Reference_particle reference_particle(charge, four_momentum);
+    REQUIRE_NOTHROW(Reference_particle(charge, four_momentum));
 }
 
-BOOST_AUTO_TEST_CASE(construct2_lsexpr)
+#if 0
+TEST_CASE(construct2_lsexpr)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -46,7 +44,7 @@ BOOST_AUTO_TEST_CASE(construct2_lsexpr)
     BOOST_CHECK_CLOSE(from_lsexpr.get_s_n(), 0, tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(construct3)
+TEST_CASE(construct3)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -57,7 +55,7 @@ BOOST_AUTO_TEST_CASE(construct3)
     Reference_particle reference_particle(charge, four_momentum, state);
 }
 
-BOOST_AUTO_TEST_CASE(construct3_lsexpr)
+TEST_CASE(construct3_lsexpr)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -83,7 +81,7 @@ BOOST_AUTO_TEST_CASE(construct3_lsexpr)
     BOOST_CHECK_CLOSE(from_lsexpr.get_s_n(), partial_s, tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(get_charge)
+TEST_CASE(get_charge)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -91,7 +89,7 @@ BOOST_AUTO_TEST_CASE(get_charge)
     BOOST_CHECK_EQUAL(reference_particle.get_charge(), charge);
 }
 
-BOOST_AUTO_TEST_CASE(get_four_momentum)
+TEST_CASE(get_four_momentum)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -100,7 +98,7 @@ BOOST_AUTO_TEST_CASE(get_four_momentum)
             four_momentum.get_total_energy(), tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(get_state)
+TEST_CASE(get_state)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -110,7 +108,7 @@ BOOST_AUTO_TEST_CASE(get_state)
     }
 }
 
-BOOST_AUTO_TEST_CASE(get_beta)
+TEST_CASE(get_beta)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -119,7 +117,7 @@ BOOST_AUTO_TEST_CASE(get_beta)
             four_momentum.get_beta(), tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(get_gamma)
+TEST_CASE(get_gamma)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -128,7 +126,7 @@ BOOST_AUTO_TEST_CASE(get_gamma)
             four_momentum.get_gamma(), tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(get_momentum)
+TEST_CASE(get_momentum)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -137,7 +135,7 @@ BOOST_AUTO_TEST_CASE(get_momentum)
             four_momentum.get_momentum(), tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(get_total_energy)
+TEST_CASE(get_total_energy)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -146,7 +144,7 @@ BOOST_AUTO_TEST_CASE(get_total_energy)
             four_momentum.get_total_energy(), tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(increment_trajectory)
+TEST_CASE(increment_trajectory)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -160,7 +158,7 @@ BOOST_AUTO_TEST_CASE(increment_trajectory)
             tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(start_repetition)
+TEST_CASE(start_repetition)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -178,7 +176,7 @@ BOOST_AUTO_TEST_CASE(start_repetition)
             steps*step_length, tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(set_trajectory)
+TEST_CASE(set_trajectory)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -191,7 +189,7 @@ BOOST_AUTO_TEST_CASE(set_trajectory)
     BOOST_CHECK_CLOSE(reference_particle.get_s_n(), partial_s, tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(set_four_momentum)
+TEST_CASE(set_four_momentum)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -204,7 +202,7 @@ BOOST_AUTO_TEST_CASE(set_four_momentum)
             new_total_energy, tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(set_state)
+TEST_CASE(set_state)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -229,7 +227,7 @@ kick_reference_particle_state(Reference_particle &rp)
     rp.set_state(new_state);
 }
 
-BOOST_AUTO_TEST_CASE(set_state_in_function)
+TEST_CASE(set_state_in_function)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -251,7 +249,7 @@ BOOST_AUTO_TEST_CASE(set_state_in_function)
     }
 }
 
-BOOST_AUTO_TEST_CASE(set_total_energy)
+TEST_CASE(set_total_energy)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -262,7 +260,7 @@ BOOST_AUTO_TEST_CASE(set_total_energy)
             new_total_energy,tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(copy)
+TEST_CASE(copy)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -281,7 +279,7 @@ BOOST_AUTO_TEST_CASE(copy)
     }
 }
 
-BOOST_AUTO_TEST_CASE(copy2)
+TEST_CASE(copy2)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -307,7 +305,7 @@ BOOST_AUTO_TEST_CASE(copy2)
     }
 }
 
-BOOST_AUTO_TEST_CASE(get_s)
+TEST_CASE(get_s)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -324,7 +322,7 @@ BOOST_AUTO_TEST_CASE(get_s)
 
 const double equal_tolerance = 1.0e-12;
 
-BOOST_AUTO_TEST_CASE(equal)
+TEST_CASE(equal)
 {
     Four_momentum four_momentum(mass);
     Reference_particle reference_particle1(charge, four_momentum);
@@ -338,7 +336,7 @@ BOOST_AUTO_TEST_CASE(equal)
     BOOST_CHECK(reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(equal_different_four_momentum)
+TEST_CASE(equal_different_four_momentum)
 {
     Four_momentum four_momentum1(mass, total_energy);
     Reference_particle reference_particle1(charge, four_momentum1);
@@ -347,7 +345,7 @@ BOOST_AUTO_TEST_CASE(equal_different_four_momentum)
     BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(equal_different_state)
+TEST_CASE(equal_different_state)
 {
     Four_momentum four_momentum(mass);
     Reference_particle reference_particle1(charge, four_momentum);
@@ -366,7 +364,7 @@ BOOST_AUTO_TEST_CASE(equal_different_state)
     BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(equal_different_charge)
+TEST_CASE(equal_different_charge)
 {
     Four_momentum four_momentum(mass);
     Reference_particle reference_particle1(charge, four_momentum);
@@ -381,7 +379,7 @@ BOOST_AUTO_TEST_CASE(equal_different_charge)
     BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(test_serialize)
+TEST_CASE(test_serialize)
 {
     Reference_particle reference_particle(charge, mass, total_energy);
     xml_save<Reference_particle > (reference_particle, "reference_particle.xml");
@@ -390,3 +388,4 @@ BOOST_AUTO_TEST_CASE(test_serialize)
     xml_load<Reference_particle > (loaded, "reference_particle.xml");
     BOOST_CHECK(reference_particle.equal(loaded, tolerance));
 }
+#endif

@@ -1,12 +1,8 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
-#include <stdexcept>
+#include "synergia/utils/catch.hpp"
 
 #include "synergia/foundation/four_momentum.h"
-#include "synergia/utils/serialization.h"
-#include "synergia/utils/serialization_files.h"
-#include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture);
+//#include "synergia/utils/serialization.h"
+#include "synergia/utils/cereal_files.h"
 
 const double tolerance = 1.0e-15;
 
@@ -16,209 +12,194 @@ const double my_gamma = 1.25; // 5/4
 const double beta = 0.6; // = sqrt(1-1/my_gamma^2) = 3/5
 const double total_energy = 125.0;
 
-BOOST_AUTO_TEST_CASE(construct)
+TEST_CASE("construct")
 {
-    Four_momentum four_momentum(mass);
+    REQUIRE_NOTHROW(Four_momentum(mass));
 }
 
-BOOST_AUTO_TEST_CASE(construct2)
+TEST_CASE("construct2")
 {
-    Four_momentum four_momentum(mass, total_energy);
+    REQUIRE_NOTHROW(Four_momentum(mass, total_energy));
 }
 
-BOOST_AUTO_TEST_CASE(lsexpr)
+TEST_CASE("lsexpr")
 {
     Four_momentum original(mass, total_energy);
     Lsexpr original_as_lsexpr(original.as_lsexpr());
     Four_momentum from_lsexpr(original_as_lsexpr);
-    BOOST_CHECK_CLOSE(from_lsexpr.get_mass(),mass,
-            tolerance);
-    BOOST_CHECK_CLOSE(from_lsexpr.get_total_energy(), total_energy,
-            tolerance);
+
+    CHECK(from_lsexpr.get_mass() == Approx(mass).margin(tolerance));
+    CHECK(from_lsexpr.get_total_energy() == Approx(total_energy).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(get_mass)
+TEST_CASE("get_mass")
 {
     Four_momentum four_momentum(mass);
-    BOOST_CHECK_CLOSE(four_momentum.get_mass(),mass,
-            tolerance);
+    CHECK(four_momentum.get_mass() == Approx(mass).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(get_total_energy)
+TEST_CASE("get_total_energy")
 {
     Four_momentum four_momentum(mass);
-    BOOST_CHECK_CLOSE(four_momentum.get_total_energy(),mass,
-            tolerance);
+    CHECK(four_momentum.get_total_energy() 
+            == Approx(mass).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(set_and_get_total_energy)
-{
-    Four_momentum four_momentum(mass);
-    four_momentum.set_total_energy(total_energy);
-    BOOST_CHECK_CLOSE(four_momentum.get_total_energy(),total_energy,
-            tolerance);
-}
-
-BOOST_AUTO_TEST_CASE(get_kinetic_energy)
+TEST_CASE("set_and_get_total_energy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    BOOST_CHECK_CLOSE(four_momentum.get_kinetic_energy(),
-            total_energy - mass,
-            tolerance);
+    CHECK(four_momentum.get_total_energy() 
+            == Approx(total_energy).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(get_momentum)
+TEST_CASE("get_kinetic_energy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    BOOST_CHECK_CLOSE(four_momentum.get_momentum(),
-            my_gamma * beta * mass,
-            tolerance);
+    CHECK(four_momentum.get_kinetic_energy() 
+            == Approx(total_energy - mass).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(get_gamma)
+TEST_CASE("get_momentum")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    BOOST_CHECK_CLOSE(four_momentum.get_gamma(),
-            my_gamma,
-            tolerance);
+    CHECK(four_momentum.get_momentum() 
+            == Approx(my_gamma*beta*mass).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(get_beta)
+TEST_CASE("get_gamma")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    BOOST_CHECK_CLOSE(four_momentum.get_beta(),
-            beta,
-            tolerance);
+    CHECK(four_momentum.get_gamma() 
+            == Approx(my_gamma).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(set_kinetic_energy)
+TEST_CASE("get_beta")
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    CHECK(four_momentum.get_beta() 
+            == Approx(beta).margin(tolerance));
+}
+
+TEST_CASE("set_kinetic_energy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_kinetic_energy(total_energy - mass);
-    BOOST_CHECK_CLOSE(four_momentum.get_total_energy(),total_energy,
-            tolerance);
+    CHECK(four_momentum.get_total_energy()
+            == Approx(total_energy).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(set_momentum)
+TEST_CASE("set_momentum")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_momentum(my_gamma * beta * mass);
-    BOOST_CHECK_CLOSE(four_momentum.get_total_energy(),total_energy,
-            tolerance);
+    CHECK(four_momentum.get_total_energy()
+            == Approx(total_energy).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(set_gamma)
+TEST_CASE("set_gamma")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_gamma(my_gamma);
-    BOOST_CHECK_CLOSE(four_momentum.get_total_energy(),total_energy,
-            tolerance);
+    CHECK(four_momentum.get_total_energy()
+            == Approx(total_energy).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(set_gamma_invalid)
+TEST_CASE("set_gamma_invalid")
 {
     Four_momentum four_momentum(mass);
     const double too_small = 0.8;
-    bool caught_error = false;
-    try {
-        four_momentum.set_gamma(too_small);
-    }
-    catch (std::range_error) {
-        caught_error = true;
-    }
-    BOOST_CHECK(caught_error);
+    CHECK_THROWS(four_momentum.set_gamma(too_small));
 }
 
-BOOST_AUTO_TEST_CASE(set_beta)
+TEST_CASE("set_beta")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_beta(beta);
-    BOOST_CHECK_CLOSE(four_momentum.get_total_energy(),total_energy,
-            tolerance);
+    CHECK(four_momentum.get_total_energy()
+            == Approx(total_energy).margin(tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(set_beta_invalid)
+TEST_CASE("set_beta_invalid")
 {
     Four_momentum four_momentum(mass);
     const double too_large = 4.0;
-    bool caught_error = false;
-    try {
-        four_momentum.set_beta(too_large);
-    }
-    catch (std::range_error) {
-        caught_error = true;
-    }
-    BOOST_CHECK(caught_error);
+    CHECK_THROWS(four_momentum.set_beta(too_large));
 }
 
-BOOST_AUTO_TEST_CASE(set_beta_invalid2)
+TEST_CASE("set_beta_invalid2")
 {
     Four_momentum four_momentum(mass);
     const double too_small = -0.5;
-    bool caught_error = false;
-    try {
-        four_momentum.set_beta(too_small);
-    }
-    catch (std::range_error) {
-        caught_error = true;
-    }
-    BOOST_CHECK(caught_error);
+    CHECK_THROWS(four_momentum.set_beta(too_small));
 }
 
 // tolerance for the equal member function
 const double equal_tolerance = 1.0e-12;
 
-BOOST_AUTO_TEST_CASE(equal_equal)
+TEST_CASE("equal_equal")
 {
     Four_momentum four_momentum1(mass, total_energy);
     Four_momentum four_momentum2(mass, total_energy);
-    BOOST_CHECK(four_momentum1.equal(four_momentum2, equal_tolerance));
+    CHECK(four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(equal_different_masses)
+TEST_CASE("equal_different_masses")
 {
     Four_momentum four_momentum1(mass, total_energy);
     Four_momentum four_momentum2(mass * 1.01, total_energy);
-    BOOST_CHECK(! four_momentum1.equal(four_momentum2, equal_tolerance));
+    CHECK(not four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(equal_different_energies)
+TEST_CASE("equal_different_energies")
 {
     Four_momentum four_momentum1(mass, total_energy);
     Four_momentum four_momentum2(mass, total_energy * 1.01);
-    BOOST_CHECK(! four_momentum1.equal(four_momentum2, equal_tolerance));
+    CHECK(not four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(equal_different_small_beta)
+TEST_CASE("equal_different_small_beta")
 {
     Four_momentum four_momentum1(mass);
     const double beta = 1.0e-6;
     four_momentum1.set_beta(beta);
     Four_momentum four_momentum2(mass);
     four_momentum2.set_beta(beta * 1.01);
-    BOOST_CHECK(! four_momentum1.equal(four_momentum2, equal_tolerance));
+    CHECK(not four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(equal_different_large_gamma)
+TEST_CASE("equal_different_large_gamma")
 {
     Four_momentum four_momentum1(mass);
     const double gamma = 1.0e10;
     four_momentum1.set_gamma(gamma);
     Four_momentum four_momentum2(mass);
     four_momentum2.set_gamma(gamma * 1.01);
-    BOOST_CHECK(! four_momentum1.equal(four_momentum2, equal_tolerance));
+    CHECK(not four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
-BOOST_AUTO_TEST_CASE(test_serialize)
+TEST_CASE("test_serialize_xml")
 {
     Four_momentum four_momentum(mass, total_energy);
     xml_save<Four_momentum > (four_momentum, "four_momentum.xml");
 
     Four_momentum loaded;
     xml_load<Four_momentum > (loaded, "four_momentum.xml");
-    BOOST_CHECK(four_momentum.equal(loaded, tolerance));
+    CHECK(four_momentum.equal(loaded, tolerance));
 }
+
+TEST_CASE("test_serialize_json")
+{
+    Four_momentum four_momentum(mass, total_energy);
+    json_save<Four_momentum > (four_momentum, "four_momentum.json");
+
+    Four_momentum loaded;
+    json_load<Four_momentum > (loaded, "four_momentum.json");
+    CHECK(four_momentum.equal(loaded, tolerance));
+}
+
+
