@@ -1,4 +1,3 @@
-
 set(synergia_parallel_utils_src
     parallel_utils.cc 
     commxx.cc 
@@ -54,7 +53,7 @@ if (BUILD_PYTHON_BINDINGS)
     target_link_libraries(pylsexpr PRIVATE lsexpr)
 
     pybind11_add_module(utils utils_pywrap.cc)
-    target_link_libraries(utils PRIVATE kokkos)
+    target_link_libraries(utils PRIVATE kokkoscore)
 
     copy_file(__init__.py parallel_utils)
 endif ()
@@ -91,6 +90,11 @@ add_library(lsexpr_static STATIC lsexpr.cc)
 
 target_link_libraries(lsexpr Kokkos::kokkos)
 target_link_libraries(lsexpr_static Kokkos::kokkos)
+
+add_executable(test_loading_kokkos test_loading_kokkos.cc)
+target_link_libraries(test_loading_kokkos PRIVATE dl)
+target_include_directories(test_loading_kokkos PRIVATE ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src)
+add_test(test_loading_kokkos test_loading_kokkos)
 
 install(TARGETS
     synergia_parallel_utils
