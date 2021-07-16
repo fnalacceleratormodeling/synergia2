@@ -24,171 +24,191 @@ TEST_CASE("construct2")
     REQUIRE_NOTHROW(Reference_particle(charge, four_momentum));
 }
 
-#if 0
-TEST_CASE(construct2_lsexpr)
+TEST_CASE("construct2_lsexpr")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle original(charge, four_momentum);
+
     Lsexpr original_as_lsexpr(original.as_lsexpr());
     Reference_particle from_lsexpr(original_as_lsexpr);
-    BOOST_CHECK_EQUAL(from_lsexpr.get_charge(), charge);
-    BOOST_CHECK_CLOSE(from_lsexpr.get_four_momentum().get_total_energy(),
-                      total_energy, tolerance);
-    for (int i = 0; i < 6; ++i) {
-        BOOST_CHECK_CLOSE(from_lsexpr.get_state()[i], 0.0, tolerance);
-    }
-    BOOST_CHECK_EQUAL(from_lsexpr.get_repetition(), 0);
-    BOOST_CHECK_CLOSE(from_lsexpr.get_repetition_length(),
-            0, tolerance);
-    BOOST_CHECK_CLOSE(from_lsexpr.get_s_n(), 0, tolerance);
+
+    CHECK(from_lsexpr.get_charge() == charge);
+    CHECK(from_lsexpr.get_four_momentum().get_total_energy()
+            == Approx(total_energy).margin(tolerance));
+
+    for (int i = 0; i < 6; ++i) 
+        CHECK(from_lsexpr.get_state()[i] 
+                == Approx(0.0).margin(tolerance));
+
+    CHECK(from_lsexpr.get_repetition() == 0);
+    CHECK(from_lsexpr.get_repetition_length() == Approx(0.0).margin(tolerance));
+    CHECK(from_lsexpr.get_s_n() == Approx(0.0).margin(tolerance));
 }
 
-TEST_CASE(construct3)
+TEST_CASE("construct3")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    MArray1d state(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        state[i] = 1.1 * i;
-    }
-    Reference_particle reference_particle(charge, four_momentum, state);
+
+    std::array<double, 6> state;
+    for (int i = 0; i < 6; ++i) state[i] = 1.1 * i;
+
+    REQUIRE_NOTHROW(Reference_particle(charge, four_momentum, state));
 }
 
-TEST_CASE(construct3_lsexpr)
+TEST_CASE("construct3_lsexpr")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    MArray1d state(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        state[i] = 1.1 * i;
-    }
+
+    std::array<double, 6> state;
+    for (int i = 0; i < 6; ++i) state[i] = 1.1 * i;
+
     Reference_particle original(charge, four_momentum, state);
+
     const double partial_s = 3 * step_length;
     original.set_trajectory(turns, steps * step_length, partial_s);
+
     Lsexpr original_as_lsexpr(original.as_lsexpr());
     Reference_particle from_lsexpr(original_as_lsexpr);
-    BOOST_CHECK_EQUAL(from_lsexpr.get_charge(), charge);
-    BOOST_CHECK_CLOSE(from_lsexpr.get_four_momentum().get_total_energy(),
-                      total_energy, tolerance);
-    for (int i = 0; i < 6; ++i) {
-        BOOST_CHECK_CLOSE(original.get_state()[i],
-                          from_lsexpr.get_state()[i], tolerance);
-    }
-    BOOST_CHECK_EQUAL(from_lsexpr.get_repetition(), turns);
-    BOOST_CHECK_CLOSE(from_lsexpr.get_repetition_length(),
-            steps*step_length, tolerance);
-    BOOST_CHECK_CLOSE(from_lsexpr.get_s_n(), partial_s, tolerance);
+
+
+    CHECK(from_lsexpr.get_charge() == charge);
+    CHECK(from_lsexpr.get_four_momentum().get_total_energy()
+            == Approx(total_energy).margin(tolerance));
+
+    for (int i = 0; i < 6; ++i) 
+        CHECK(from_lsexpr.get_state()[i] 
+                == Approx(original.get_state()[i]).margin(tolerance));
+
+    CHECK(from_lsexpr.get_repetition() == turns);
+    CHECK(from_lsexpr.get_repetition_length()
+            == Approx(steps*step_length).margin(tolerance));
+    CHECK(from_lsexpr.get_s_n()
+            == Approx(partial_s).margin(tolerance));
 }
 
-TEST_CASE(get_charge)
+TEST_CASE("get_charge")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    BOOST_CHECK_EQUAL(reference_particle.get_charge(), charge);
+    CHECK(reference_particle.get_charge() == charge);
 }
 
-TEST_CASE(get_four_momentum)
+TEST_CASE("get_four_momentum")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
-            four_momentum.get_total_energy(), tolerance);
+    CHECK(reference_particle.get_four_momentum().get_total_energy()
+            == Approx(four_momentum.get_total_energy()).margin(tolerance));
 }
 
-TEST_CASE(get_state)
+TEST_CASE("get_state")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, total_energy);
-    for (int i = 0; i < 6; ++i) {
-        BOOST_CHECK_CLOSE(reference_particle.get_state()[i], 0.0, tolerance);
-    }
+
+    for (int i = 0; i < 6; ++i)
+        CHECK(reference_particle.get_state()[i] 
+                == Approx(0.0).margin(tolerance));
 }
 
-TEST_CASE(get_beta)
+TEST_CASE("get_beta")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    BOOST_CHECK_CLOSE(reference_particle.get_beta(),
-            four_momentum.get_beta(), tolerance);
+    CHECK(reference_particle.get_beta()
+            == Approx(four_momentum.get_beta()).margin(tolerance));
 }
 
-TEST_CASE(get_gamma)
+TEST_CASE("get_gamma")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    BOOST_CHECK_CLOSE(reference_particle.get_gamma(),
-            four_momentum.get_gamma(), tolerance);
+    CHECK(reference_particle.get_gamma()
+            == Approx(four_momentum.get_gamma()).margin(tolerance));
 }
 
-TEST_CASE(get_momentum)
+TEST_CASE("get_momentum")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    BOOST_CHECK_CLOSE(reference_particle.get_momentum(),
-            four_momentum.get_momentum(), tolerance);
+    CHECK(reference_particle.get_momentum()
+            == Approx(four_momentum.get_momentum()).margin(tolerance));
 }
 
-TEST_CASE(get_total_energy)
+TEST_CASE("get_total_energy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    BOOST_CHECK_CLOSE(reference_particle.get_total_energy(),
-            four_momentum.get_total_energy(), tolerance);
+    CHECK(reference_particle.get_total_energy()
+            == Approx(four_momentum.get_total_energy()).margin(tolerance));
 }
 
-TEST_CASE(increment_trajectory)
+TEST_CASE("increment_trajectory")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
+
+    for (int step = 0; step < steps; ++step)
+        reference_particle.increment_trajectory(step_length);
+
+    CHECK(reference_particle.get_s_n()
+            == Approx(steps*step_length).margin(tolerance));
+
+    CHECK(reference_particle.get_s()
+            == Approx(steps*step_length).margin(tolerance));
+}
+
+TEST_CASE("start_repetition")
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+
+    Reference_particle reference_particle(charge, four_momentum);
+    reference_particle.start_repetition();
+
+    CHECK(reference_particle.get_repetition() == 0);
+    CHECK(reference_particle.get_s_n() == 0);
+
     for (int step = 0; step < steps; ++step) {
         reference_particle.increment_trajectory(step_length);
     }
-    BOOST_CHECK_CLOSE(reference_particle.get_s_n(), steps*step_length,
-            tolerance);
-    BOOST_CHECK_CLOSE(reference_particle.get_s(), steps*step_length,
-            tolerance);
+
+    reference_particle.start_repetition();
+
+    CHECK(reference_particle.get_repetition() == 1);
+    CHECK(reference_particle.get_s_n() == 0.0);
+    CHECK(reference_particle.get_repetition_length()
+            == Approx(steps*step_length).margin(tolerance));
 }
 
-TEST_CASE(start_repetition)
+TEST_CASE("set_trajectory")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    reference_particle.start_repetition();
-    BOOST_CHECK_EQUAL(reference_particle.get_repetition(), 0);
-    BOOST_CHECK_EQUAL(reference_particle.get_s_n(), 0);
-    for (int step = 0; step < steps; ++step) {
-        reference_particle.increment_trajectory(step_length);
-    }
-    reference_particle.start_repetition();
-    BOOST_CHECK_EQUAL(reference_particle.get_repetition(), 1);
-    BOOST_CHECK_EQUAL(reference_particle.get_s_n(), 0.0);
-    BOOST_CHECK_CLOSE(reference_particle.get_repetition_length(),
-            steps*step_length, tolerance);
-}
 
-TEST_CASE(set_trajectory)
-{
-    Four_momentum four_momentum(mass);
-    four_momentum.set_total_energy(total_energy);
-    Reference_particle reference_particle(charge, four_momentum);
     const double partial_s = 3 * step_length;
     reference_particle.set_trajectory(turns, steps * step_length, partial_s);
-    BOOST_CHECK_EQUAL(reference_particle.get_repetition(), turns);
-    BOOST_CHECK_CLOSE(reference_particle.get_repetition_length(),
-            steps*step_length, tolerance);
-    BOOST_CHECK_CLOSE(reference_particle.get_s_n(), partial_s, tolerance);
+
+    CHECK(reference_particle.get_repetition() == turns);
+    CHECK(reference_particle.get_repetition_length()
+            == Approx(steps*step_length).margin(tolerance));
+    CHECK(reference_particle.get_s_n()
+            == Approx(partial_s).margin(tolerance));
 }
 
+#if 0
 TEST_CASE(set_four_momentum)
 {
     Four_momentum four_momentum(mass);
@@ -198,7 +218,7 @@ TEST_CASE(set_four_momentum)
     Four_momentum new_four_momentum(mass);
     new_four_momentum.set_total_energy(new_total_energy);
     reference_particle.set_four_momentum(new_four_momentum);
-    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
+    CHECK(reference_particle.get_four_momentum().get_total_energy(),
             new_total_energy, tolerance);
 }
 
@@ -213,7 +233,7 @@ TEST_CASE(set_state)
     }
     reference_particle.set_state(new_state);
     for (int i = 0; i < 6; ++i) {
-        BOOST_CHECK_CLOSE(reference_particle.get_state()[i],new_state[i],
+        CHECK(reference_particle.get_state()[i],new_state[i],
                 tolerance);
     }
 }
@@ -240,10 +260,10 @@ TEST_CASE(set_state_in_function)
     kick_reference_particle_state(reference_particle);
     for (int i = 0; i < 6; ++i) {
         if ((i != 1) && (i != 3)) {
-            BOOST_CHECK_CLOSE(reference_particle.get_state()[i],start_state[i],
+            CHECK(reference_particle.get_state()[i],start_state[i],
                               tolerance);
         } else {
-            BOOST_CHECK_CLOSE(reference_particle.get_state()[i], start_state[i]+1.0e-2,
+            CHECK(reference_particle.get_state()[i], start_state[i]+1.0e-2,
                               tolerance);
         }
     }
@@ -256,7 +276,7 @@ TEST_CASE(set_total_energy)
     Reference_particle reference_particle(charge, four_momentum);
     double new_total_energy = total_energy * 1.1;
     reference_particle.set_total_energy(new_total_energy);
-    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
+    CHECK(reference_particle.get_four_momentum().get_total_energy(),
             new_total_energy,tolerance);
 }
 
@@ -271,10 +291,10 @@ TEST_CASE(copy)
     Reference_particle
             original_reference_particle(charge, four_momentum, state);
     Reference_particle reference_particle(original_reference_particle);
-    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),total_energy,
+    CHECK(reference_particle.get_four_momentum().get_total_energy(),total_energy,
             tolerance);
     for (int i = 0; i < 6; ++i) {
-        BOOST_CHECK_CLOSE(reference_particle.get_state()[i],state[i],
+        CHECK(reference_particle.get_state()[i],state[i],
                 tolerance);
     }
 }
@@ -294,14 +314,14 @@ TEST_CASE(copy2)
         new_state[i] = 1.1 * i;
     }
     original_reference_particle.set_state(new_state);
-    BOOST_CHECK_CLOSE(original_reference_particle.get_four_momentum().get_total_energy(),
+    CHECK(original_reference_particle.get_four_momentum().get_total_energy(),
             new_total_energy,tolerance);
-    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
+    CHECK(reference_particle.get_four_momentum().get_total_energy(),
             total_energy,tolerance);
     for (int i = 0; i < 6; ++i) {
-        BOOST_CHECK_CLOSE(original_reference_particle.get_state()[i],
+        CHECK(original_reference_particle.get_state()[i],
                 new_state[i],tolerance);
-        BOOST_CHECK_CLOSE(reference_particle.get_state()[i],0.0,tolerance);
+        CHECK(reference_particle.get_state()[i],0.0,tolerance);
     }
 }
 
@@ -316,7 +336,7 @@ TEST_CASE(get_s)
             reference_particle.increment_trajectory(step_length);
         }
     }
-    BOOST_CHECK_CLOSE(reference_particle. get_s(),
+    CHECK(reference_particle. get_s(),
             turns * steps * step_length, tolerance);
 }
 
