@@ -2,48 +2,9 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/core_diagnostics.h"
 
-#include <iostream>
 #include <stdexcept>
 #include <cmath>
 #include <algorithm>
-#include <sstream>
-
-
-#if 0
-void
-Bunch::assign_spectator_ids(int local_offset)
-{
-
-#if 0
-    int global_offset, request_num;
-    if (comm_sptr->get_rank() == 0) {
-        request_num = total_s_num;
-    } else {
-        request_num = 0;
-    }
-    global_offset = particle_id_offset.get(request_num, *comm_sptr);
-#endif
-
-    int global_offset = 0;
-    for (int i = 0; i < local_s_num; ++i) {
-        (*local_s_particles)[i][id] = i + local_offset + global_offset;
-    }
-}
-#endif
-
-
-#if 0
-std::string
-Bunch::get_local_particles_serialization_path() const
-{
-    std::stringstream sstream;
-    sstream << "local_particles_";
-    sstream << bucket_index;
-    sstream << ".h5";
-    return get_serialization_path(sstream.str());
-}
-#endif
-
 
 template<>
 Bunch::bunch_t(
@@ -167,16 +128,6 @@ Bunch::inject(Bunch const& o)
     if (old_total == 0) real_num = o.get_real_num();
 }
 
-#if 0
-Diagnostics_worker & 
-Bunch::get_diag(std::string const & name)
-{ 
-    auto it = diags.find(name);
-    if (it == diags.end()) throw std::runtime_error("cannot find diagnostics " + name);
-    return it->second;
-}
-#endif
-
 template<>
 void
 Bunch::print_statistics(Logger& logger) const
@@ -210,11 +161,5 @@ Bunch::print_statistics(Logger& logger) const
         << std::resetiosflags(std::ios::showpos | std::ios::scientific)
         << "\n";
 
-#if 0
-    for (int p=0; p<4; ++p) print_particle(p, logger);
-    logger << "\n";
-#endif
 }
-
-
 

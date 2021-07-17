@@ -108,10 +108,6 @@ private:
     int bucket_index;  // which bucket its occupying
     int array_index;   // array index in the train's bunch array
 
-private:
-
-    //std::string get_local_particles_serialization_path() const;
-
 public:
     //!
     //! Constructor:
