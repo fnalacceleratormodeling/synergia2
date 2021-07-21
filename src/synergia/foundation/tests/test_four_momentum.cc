@@ -1,7 +1,6 @@
 #include "synergia/utils/catch.hpp"
 
 #include "synergia/foundation/four_momentum.h"
-//#include "synergia/utils/serialization.h"
 #include "synergia/utils/cereal_files.h"
 
 const double tolerance = 1.0e-15;

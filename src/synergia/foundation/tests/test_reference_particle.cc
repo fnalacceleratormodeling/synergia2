@@ -1,8 +1,7 @@
 #include "synergia/utils/catch.hpp"
 
 #include "synergia/foundation/reference_particle.h"
-//#include "synergia/utils/serialization.h"
-//#include "synergia/utils/serialization_files.h"
+#include "synergia/utils/cereal_files.h"
 
 const double tolerance = 1.0e-13;
 const double mass = 100.0;
@@ -208,204 +207,243 @@ TEST_CASE("set_trajectory")
             == Approx(partial_s).margin(tolerance));
 }
 
-#if 0
-TEST_CASE(set_four_momentum)
+TEST_CASE("set_four_momentum")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
+
     double new_total_energy = total_energy * 1.1;
     Four_momentum new_four_momentum(mass);
     new_four_momentum.set_total_energy(new_total_energy);
     reference_particle.set_four_momentum(new_four_momentum);
-    CHECK(reference_particle.get_four_momentum().get_total_energy(),
-            new_total_energy, tolerance);
+
+    CHECK(reference_particle.get_four_momentum().get_total_energy()
+            == Approx(new_total_energy).margin(tolerance));
 }
 
-TEST_CASE(set_state)
+TEST_CASE("set_state")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    MArray1d new_state(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        new_state[i] = 1.1 * i;
-    }
+
+    std::array<double, 6> new_state;
+    for (int i = 0; i < 6; ++i) new_state[i] = 1.1 * i;
+
     reference_particle.set_state(new_state);
+
     for (int i = 0; i < 6; ++i) {
-        CHECK(reference_particle.get_state()[i],new_state[i],
-                tolerance);
+        CHECK(reference_particle.get_state()[i]
+                == Approx(new_state[i]).margin(tolerance));
     }
 }
 
 void
 kick_reference_particle_state(Reference_particle &rp)
 {
-    MArray1d new_state(rp.get_state());
+    auto new_state = rp.get_state();
     new_state[1] += 1.0e-2;
     new_state[3] += 1.0e-2;
+
     rp.set_state(new_state);
 }
 
-TEST_CASE(set_state_in_function)
+TEST_CASE("set_state_in_function")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    MArray1d start_state(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        start_state[i] = 1.1 * i;
-    }
+
+    std::array<double, 6> start_state;
+    for (int i = 0; i < 6; ++i) start_state[i] = 1.1 * i;
+
     reference_particle.set_state(start_state);
     kick_reference_particle_state(reference_particle);
-    for (int i = 0; i < 6; ++i) {
-        if ((i != 1) && (i != 3)) {
-            CHECK(reference_particle.get_state()[i],start_state[i],
-                              tolerance);
-        } else {
-            CHECK(reference_particle.get_state()[i], start_state[i]+1.0e-2,
-                              tolerance);
+
+    for (int i = 0; i < 6; ++i) 
+    {
+        if ((i != 1) && (i != 3)) 
+        {
+            CHECK(reference_particle.get_state()[i]
+                    == Approx(start_state[i]).margin(tolerance));
+        } 
+        else 
+        {
+            CHECK(reference_particle.get_state()[i]
+                    == Approx(start_state[i]+1.0e-2).margin(tolerance));
         }
     }
 }
 
-TEST_CASE(set_total_energy)
+TEST_CASE("set_total_energy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
+
     double new_total_energy = total_energy * 1.1;
     reference_particle.set_total_energy(new_total_energy);
-    CHECK(reference_particle.get_four_momentum().get_total_energy(),
-            new_total_energy,tolerance);
+
+    CHECK(reference_particle.get_four_momentum().get_total_energy()
+            == Approx(new_total_energy).margin(tolerance));
 }
 
-TEST_CASE(copy)
+TEST_CASE("copy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    MArray1d state(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        state[i] = 1.1 * i;
-    }
-    Reference_particle
-            original_reference_particle(charge, four_momentum, state);
+
+    std::array<double, 6> state;
+    for (int i = 0; i < 6; ++i) state[i] = 1.1 * i;
+
+    Reference_particle original_reference_particle(charge, four_momentum, state);
     Reference_particle reference_particle(original_reference_particle);
-    CHECK(reference_particle.get_four_momentum().get_total_energy(),total_energy,
-            tolerance);
-    for (int i = 0; i < 6; ++i) {
-        CHECK(reference_particle.get_state()[i],state[i],
-                tolerance);
+
+    CHECK(reference_particle.get_four_momentum().get_total_energy()
+            == Approx(total_energy).margin(tolerance));
+
+    for (int i = 0; i < 6; ++i) 
+    {
+        CHECK(reference_particle.get_state()[i]
+                == Approx(state[i]).margin(tolerance));
     }
 }
 
-TEST_CASE(copy2)
+TEST_CASE("copy2")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle original_reference_particle(charge, four_momentum);
     Reference_particle reference_particle(original_reference_particle);
+
     double new_total_energy = total_energy * 1.1;
     Four_momentum new_four_momentum(reference_particle.get_four_momentum());
     new_four_momentum.set_total_energy(new_total_energy);
     original_reference_particle.set_four_momentum(new_four_momentum);
-    MArray1d new_state(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        new_state[i] = 1.1 * i;
-    }
+
+    std::array<double, 6> new_state;
+    for (int i = 0; i < 6; ++i) new_state[i] = 1.1 * i;
+
     original_reference_particle.set_state(new_state);
-    CHECK(original_reference_particle.get_four_momentum().get_total_energy(),
-            new_total_energy,tolerance);
-    CHECK(reference_particle.get_four_momentum().get_total_energy(),
-            total_energy,tolerance);
-    for (int i = 0; i < 6; ++i) {
-        CHECK(original_reference_particle.get_state()[i],
-                new_state[i],tolerance);
-        CHECK(reference_particle.get_state()[i],0.0,tolerance);
+
+    CHECK(original_reference_particle.get_four_momentum().get_total_energy()
+            == Approx(new_total_energy).margin(tolerance));
+
+    CHECK(reference_particle.get_four_momentum().get_total_energy()
+            == Approx(total_energy).margin(tolerance));
+
+    for (int i = 0; i < 6; ++i) 
+    {
+        CHECK(original_reference_particle.get_state()[i]
+                == Approx(new_state[i]).margin(tolerance));
+        CHECK(reference_particle.get_state()[i]
+                == Approx(0.0).margin(tolerance));
     }
 }
 
-TEST_CASE(get_s)
+TEST_CASE("get_s")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
-    for (int turn = 0; turn < turns; ++turn) {
+
+    for (int turn = 0; turn < turns; ++turn) 
+    {
         reference_particle.start_repetition();
-        for (int step = 0; step < steps; ++step) {
+
+        for (int step = 0; step < steps; ++step) 
+        {
             reference_particle.increment_trajectory(step_length);
         }
     }
-    CHECK(reference_particle. get_s(),
-            turns * steps * step_length, tolerance);
+
+    CHECK(reference_particle. get_s()
+            == Approx(turns * steps * step_length).margin(tolerance));
 }
 
 const double equal_tolerance = 1.0e-12;
 
-TEST_CASE(equal)
+TEST_CASE("equal")
 {
     Four_momentum four_momentum(mass);
     Reference_particle reference_particle1(charge, four_momentum);
-    MArray1d new_state(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        new_state[i] = 1.1 * i;
-    }
+
+    std::array<double, 6> new_state;
+    for (int i = 0; i < 6; ++i) new_state[i] = 1.1 * i;
+
     reference_particle1.set_state(new_state);
     Reference_particle reference_particle2(charge, four_momentum);
     reference_particle2.set_state(new_state);
-    BOOST_CHECK(reference_particle1.equal(reference_particle2, equal_tolerance));
+
+    CHECK(reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 
-TEST_CASE(equal_different_four_momentum)
+TEST_CASE("equal_different_four_momentum")
 {
     Four_momentum four_momentum1(mass, total_energy);
     Reference_particle reference_particle1(charge, four_momentum1);
+
     Four_momentum four_momentum2(mass, total_energy * 1.1);
     Reference_particle reference_particle2(charge, four_momentum2);
-    BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
+
+    CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 
-TEST_CASE(equal_different_state)
+TEST_CASE("equal_different_state")
 {
     Four_momentum four_momentum(mass);
     Reference_particle reference_particle1(charge, four_momentum);
-    MArray1d state1(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        state1[i] = 1.1 * i;
-    }
+
+    std::array<double, 6> state1;
+    for (int i = 0; i < 6; ++i) state1[i] = 1.1 * i;
+
     reference_particle1.set_state(state1);
+
     Reference_particle reference_particle2(charge, four_momentum);
-    MArray1d state2(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        state2[i] = state1[i];
-    }
+
+    std::array<double, 6> state2;
+    for (int i = 0; i < 6; ++i) state2[i] = state1[i];
     state2[1] *= 1.1;
+
     reference_particle2.set_state(state2);
-    BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
+
+    CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 
-TEST_CASE(equal_different_charge)
+TEST_CASE("equal_different_charge")
 {
     Four_momentum four_momentum(mass);
     Reference_particle reference_particle1(charge, four_momentum);
-    MArray1d new_state(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        new_state[i] = 1.1 * i;
-    }
+
+    std::array<double, 6> new_state;
+    for (int i = 0; i < 6; ++i) new_state[i] = 1.1 * i;
+
     int charge2 = -1;
     reference_particle1.set_state(new_state);
+
     Reference_particle reference_particle2(charge2, four_momentum);
     reference_particle2.set_state(new_state);
-    BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
+
+    CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 
-TEST_CASE(test_serialize)
+TEST_CASE("test_serialize_xml")
 {
     Reference_particle reference_particle(charge, mass, total_energy);
     xml_save<Reference_particle > (reference_particle, "reference_particle.xml");
 
     Reference_particle loaded;
     xml_load<Reference_particle > (loaded, "reference_particle.xml");
-    BOOST_CHECK(reference_particle.equal(loaded, tolerance));
+    CHECK(reference_particle.equal(loaded, tolerance));
 }
-#endif
+
+TEST_CASE("test_serialize_json")
+{
+    Reference_particle reference_particle(charge, mass, total_energy);
+    json_save<Reference_particle > (reference_particle, "reference_particle.json");
+
+    Reference_particle loaded;
+    json_load<Reference_particle > (loaded, "reference_particle.json");
+    CHECK(reference_particle.equal(loaded, tolerance));
+}
