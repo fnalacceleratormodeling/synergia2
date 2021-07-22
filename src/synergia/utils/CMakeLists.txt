@@ -46,13 +46,13 @@ if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(pylsexpr lsexpr_wrap.cc)
     #target_link_libraries(pylsexpr lsexpr ${Boost_LIBRARIES})
 
-    pybind11_add_module(parallel_utils parallel_utils_pywrap.cc)
+    pybind11_add_module(parallel_utils MODULE NO_EXTRAS parallel_utils_pywrap.cc)
     target_link_libraries(parallel_utils PRIVATE synergia_parallel_utils)
 
-    pybind11_add_module(pylsexpr lsexpr_pywrap.cc)
+    pybind11_add_module(pylsexpr MODULE NO_EXTRAS lsexpr_pywrap.cc)
     target_link_libraries(pylsexpr PRIVATE lsexpr)
 
-    pybind11_add_module(utils utils_pywrap.cc)
+    pybind11_add_module(utils MODULE NO_EXTRAS utils_pywrap.cc)
     target_link_libraries(utils PRIVATE kokkoscore)
 
     copy_file(__init__.py parallel_utils)

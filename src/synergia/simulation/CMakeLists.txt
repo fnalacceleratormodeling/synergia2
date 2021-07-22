@@ -52,7 +52,7 @@ if (BUILD_PYTHON_BINDINGS)
 #        synergia_lattice synergia_simulation
 #        ${CHEF_LIBS} ${Boost_LIBRARIES})
 
-    pybind11_add_module(simulation simulation_pywrap.cc)
+    pybind11_add_module(simulation MODULE NO_EXTRAS simulation_pywrap.cc)
     target_link_libraries(simulation PRIVATE synergia_simulation synergia_pydiag)
 
     copy_file(__init__.py simulation)

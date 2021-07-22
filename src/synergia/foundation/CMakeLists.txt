@@ -27,7 +27,7 @@ if (BUILD_PYTHON_BINDINGS)
         #    PROPERTIES COMPILE_FLAGS --host-only)
     endif()
 
-    pybind11_add_module(foundation foundation_pywrap.cc)
+    pybind11_add_module(foundation MODULE NO_EXTRAS foundation_pywrap.cc)
     target_link_libraries(foundation PRIVATE synergia_foundation)
 
     copy_file(__init__.py foundation)
