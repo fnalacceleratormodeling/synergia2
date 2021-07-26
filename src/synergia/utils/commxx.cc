@@ -242,9 +242,15 @@ Commxx Commxx::group(std::vector<int> const & ranks) const
 
 bool operator== (Commxx const & comm1, Commxx const & comm2)
 {
+    // both null
     if (comm1.is_null() && comm2.is_null())
         return true;
 
+    // one is null, the other is not
+    if (comm1.is_null() || comm2.is_null())
+        return false;
+
+    // both not null
     int result;
     MPI_Comm_compare((MPI_Comm)comm1, (MPI_Comm)comm2, &result);
     return result == MPI_IDENT;
