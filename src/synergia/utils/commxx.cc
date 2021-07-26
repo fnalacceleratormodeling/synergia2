@@ -147,6 +147,9 @@ Commxx::Commxx(std::shared_ptr<const Commxx> const& parent, int color, int key)
 int
 Commxx::get_rank() const
 {
+    if (type == comm_type::null)
+        throw std::runtime_error("Cannot get_rank() for a null commxx");
+
     int error, rank;
     error = MPI_Comm_rank(*comm, &rank);
     if (error != MPI_SUCCESS) {
@@ -158,6 +161,9 @@ Commxx::get_rank() const
 int
 Commxx::get_size() const
 {
+    if (type == comm_type::null)
+        throw std::runtime_error("Cannot get_size() for a null commxx");
+
     int error, size;
     error = MPI_Comm_size(*comm, &size);
     if (error != MPI_SUCCESS) {
