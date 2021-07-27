@@ -138,7 +138,7 @@ def hdf5_read_any(hdf5_file, member):
         sys.exit(1)
 
     #dims = hdf5_file.get_dims(member)
-    datavalue = hdf5_file.get(member)
+    datavalue = hdf5_file.get(member)[()]
     dims = datavalue.shape
     return datavalue.value
 
@@ -150,8 +150,8 @@ def do_plot(inputfile, options, plotparams, multiple_files):
     for plot in options.plots:
         params = plotparams[plot]
         #x = hdf5_read_any(f, options.ind_var)
-        x = f.get(options.ind_var)
-        ymaster = f.get(params.y_attr)
+        x = f.get(options.ind_var)[()]
+        ymaster = f.get(params.y_attr)[()]
         if (params.y_index1 == None) and (params.y_index2 == None):
             y = ymaster
         elif (params.y_index2 == None):
