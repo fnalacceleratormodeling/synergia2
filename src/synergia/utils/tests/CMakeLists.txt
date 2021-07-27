@@ -36,3 +36,10 @@ add_executable(test_kokkos test_kokkos.cc)
 target_link_libraries(test_kokkos synergia_test_main)
 
 add_mpi_test(test_kokkos 1)
+
+add_executable(test_commxx_mpi test_commxx_mpi.cc)
+target_link_libraries(test_commxx_mpi synergia_parallel_utils synergia_test_main)
+add_mpi_test(test_commxx_mpi 1)
+add_mpi_test(test_commxx_mpi 2)
+add_mpi_test(test_commxx_mpi 3)
+add_mpi_test(test_commxx_mpi 4)

@@ -1,30 +1,364 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include "synergia/utils/catch.hpp"
+
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/cereal_files.h"
-#include "synergia/utils/boost_test_mpi_fixture.h"
-BOOST_GLOBAL_FIXTURE(MPI_fixture);
 
-BOOST_AUTO_TEST_CASE(construct1)
+
+
+TEST_CASE("default construct", "[commxx]")
 {
-    Commxx commxx;
+    REQUIRE_NOTHROW(Commxx());
 }
 
-BOOST_AUTO_TEST_CASE(construct2)
+TEST_CASE("construct with type", "[commxx]")
 {
-    bool per_host = true;
-    Commxx commxx(per_host);
+    REQUIRE_NOTHROW(Commxx(comm_type::world));
+    REQUIRE_NOTHROW(Commxx(comm_type::null));
+
+    // creating a comm_type::regular is not allowed
+    REQUIRE_THROWS(Commxx(comm_type::regular));
 }
 
-BOOST_AUTO_TEST_CASE(construct3)
+TEST_CASE("static construct", "[commxx]")
 {
-    Commxx_sptr parent_sptr(new Commxx);
-    std::vector<int > ranks(1);
-    ranks.at(0) = 0;
-    Commxx commxx(parent_sptr, ranks);
+    SECTION("null")
+    {
+        auto null = Commxx::Null;
+        Commxx comm(comm_type::null);
+
+        REQUIRE(null == comm);
+    }
+
+    SECTION("world")
+    {
+        auto world = Commxx::World;
+        Commxx comm(comm_type::world);
+
+        REQUIRE(world == comm);
+    }
 }
 
-BOOST_AUTO_TEST_CASE(construct4)
+TEST_CASE("construct world", "[commxx]")
+{
+    SECTION("world")
+    {
+        Commxx comm(comm_type::world);
+        CHECK(comm == MPI_COMM_WORLD);
+    }
+
+    SECTION("default world")
+    {
+        Commxx comm;
+        CHECK(comm == MPI_COMM_WORLD);
+    }
+}
+
+TEST_CASE("construct null", "[commxx]")
+{
+    Commxx comm(comm_type::null);
+    CHECK(comm == MPI_COMM_NULL);
+}
+
+TEST_CASE("get_type")
+{
+    SECTION("world")
+    {
+        Commxx comm(comm_type::world);
+        CHECK(comm.get_type() == comm_type::world);
+    }
+
+    SECTION("null")
+    {
+        Commxx comm(comm_type::null);
+        CHECK(comm.get_type() == comm_type::null);
+    }
+}
+
+TEST_CASE("compare")
+{
+    SECTION("null to null")
+    {
+        auto comm1 = Commxx::Null;
+        auto comm2 = Commxx::Null;
+        REQUIRE(comm1 == comm2);
+    }
+
+    SECTION("null to world")
+    {
+        auto comm1 = Commxx::Null;
+        auto comm2 = Commxx::World;
+        REQUIRE(comm1 != comm2);
+    }
+
+    SECTION("world to world")
+    {
+        auto comm1 = Commxx::World;
+        auto comm2 = Commxx::World;
+        REQUIRE(comm1 == comm2);
+    }
+}
+
+TEST_CASE("get_size")
+{
+    SECTION("null")
+    {
+        Commxx comm(comm_type::null);
+        REQUIRE_THROWS(comm.get_size());
+        REQUIRE_THROWS(comm.size());
+    }
+
+    SECTION("world")
+    {
+        // get size from MPI_COMM_WORLD
+        int world_size;
+        MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+        Commxx comm(comm_type::world);
+        REQUIRE_NOTHROW(comm.get_size());
+        REQUIRE_NOTHROW(comm.size());
+
+        CHECK(world_size == comm.get_size());
+        CHECK(world_size == comm.size());
+    }
+}
+
+TEST_CASE("get_rank")
+{
+    SECTION("null")
+    {
+        Commxx comm(comm_type::null);
+        REQUIRE_THROWS(comm.get_rank());
+        REQUIRE_THROWS(comm.rank());
+    }
+
+    SECTION("world")
+    {
+        // get size from MPI_COMM_WORLD
+        int world_rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+        Commxx comm(comm_type::world);
+        REQUIRE_NOTHROW(comm.get_rank());
+        REQUIRE_NOTHROW(comm.rank());
+
+        REQUIRE(world_rank == comm.get_rank());
+        REQUIRE(world_rank == comm.rank());
+    }
+}
+
+TEST_CASE("is_null")
+{
+    SECTION("null")
+    {
+        Commxx comm(comm_type::null);
+        REQUIRE(comm.is_null());
+    }
+
+    SECTION("world")
+    {
+        Commxx comm(comm_type::world);
+        REQUIRE(!comm.is_null());
+    }
+}
+
+TEST_CASE("is_root")
+{
+    SECTION("null")
+    {
+        Commxx comm(comm_type::null);
+        REQUIRE(comm.is_root());
+    }
+
+    SECTION("world")
+    {
+        Commxx comm(comm_type::world);
+        REQUIRE(comm.is_root());
+    }
+}
+
+TEST_CASE("get_parent")
+{
+    SECTION("null")
+    {
+        Commxx comm(comm_type::null);
+        REQUIRE_THROWS(comm.parent());
+    }
+
+    SECTION("world")
+    {
+        Commxx comm(comm_type::world);
+        REQUIRE_THROWS(comm.parent());
+    }
+}
+
+TEST_CASE("has_this_rank")
+{
+    SECTION("null")
+    {
+        Commxx comm(comm_type::null);
+        REQUIRE(!comm.has_this_rank());
+    }
+
+    SECTION("world")
+    {
+        Commxx comm(comm_type::world);
+        REQUIRE(comm.has_this_rank());
+    }
+}
+
+TEST_CASE("dup")
+{
+    SECTION("null")
+    {
+        // cannot dup on a null communicator
+        auto comm = Commxx::Null;
+        REQUIRE_THROWS(comm.dup());
+    }
+
+    SECTION("world non-shared_ptr")
+    {
+        // dup on a non shared_ptr is not allowed
+        auto comm = Commxx::World;
+        REQUIRE_THROWS(comm.dup());
+    }
+
+    SECTION("world")
+    {
+        auto comm1_ptr = std::make_shared<Commxx>(comm_type::world);
+        REQUIRE_NOTHROW(comm1_ptr->dup());
+
+        auto comm2 = comm1_ptr->dup();
+        auto const& comm1 = *comm1_ptr;
+
+        // duplicated communicator is not the same as the original one
+        CHECK(comm1 != comm2);
+
+        // but the size and rank of each processor should be the same
+        CHECK(comm1.size() == comm2.size());
+        CHECK(comm1.rank() == comm2.rank());
+
+        // compare the groups of two communicator
+        MPI_Group g1;
+        MPI_Group g2;
+
+        MPI_Comm_group(comm1, &g1);
+        MPI_Comm_group(comm2, &g2);
+
+        int result;
+        int res = MPI_Group_compare(g1, g2, &result);
+
+        // the groups should be MPI_IDENT, meaning the member and
+        // ordering are exactly the same
+        REQUIRE(res == MPI_SUCCESS);
+        CHECK(result == MPI_IDENT);
+
+        MPI_Group_free(&g1);
+        MPI_Group_free(&g2);
+    }
+}
+
+TEST_CASE("split with color only")
+{
+    SECTION("null")
+    {
+        // cannot split a null comm
+        auto comm = Commxx::Null;
+        REQUIRE_THROWS(comm.split(0));
+    }
+
+    SECTION("world non-shared_ptr")
+    {
+        // split on a non shared_ptr is not allowed
+        auto comm = Commxx::World;
+        REQUIRE_THROWS(comm.split(0));
+    }
+
+    SECTION("world")
+    {
+        auto comm1_ptr = std::make_shared<Commxx>(comm_type::world);
+        auto const& comm1 = *comm1_ptr;
+
+        auto world_size = Commxx::world_size();
+        auto world_rank = Commxx::world_rank();
+
+        SECTION("no throw")
+        {
+            REQUIRE_NOTHROW(comm1_ptr->split(0));
+        }
+
+        SECTION("same color")
+        {
+            // this is effective just a dup
+            auto comm2 = comm1_ptr->split(0);
+
+            CHECK(comm2.size() == world_size);
+            CHECK(comm2.rank() == world_rank);
+        }
+
+        SECTION("one color per rank")
+        {
+            int color = world_rank;
+            auto comm2 = comm1_ptr->split(color);
+
+            CHECK(comm2.size() == 1);
+            CHECK(comm2.rank() == 0);
+        }
+
+        if (world_size == 3)
+        {
+            SECTION("split [0 1 1]")
+            {
+                // workd_rank:       0  1  2
+                // color:            0  1  1
+                // size after split: 1  2  2
+                // rank after split: 0  0  1
+                int color[3] = {0, 1, 1};
+                int size[3]  = {1, 2, 2};
+                int rank[3]  = {0, 0, 1};
+
+                auto comm2 = comm1_ptr->split(color[world_rank]);
+                CHECK(comm2.size() == size[world_rank]);
+                CHECK(comm2.rank() == rank[world_rank]);
+            }
+        }
+        else if (world_size == 4)
+        {
+            SECTION("split [0 0 1 1]")
+            {
+                // workd_rank:       0  1  2  3
+                // color:            0  0  1  1
+                // size after split: 2  2  2  2
+                // rank after split: 0  1  0  1
+                int color[4] = {0, 0, 1, 1};
+                int size[4]  = {2, 2, 2, 2};
+                int rank[4]  = {0, 1, 0, 1};
+
+                auto comm2 = comm1_ptr->split(color[world_rank]);
+                CHECK(comm2.size() == size[world_rank]);
+                CHECK(comm2.rank() == rank[world_rank]);
+            }
+
+            SECTION("split [0 1 1 1]")
+            {
+                // workd_rank:       0  1  2  3
+                // color:            0  1  1  1
+                // size after split: 1  3  3  3
+                // rank after split: 0  0  1  2
+                int color[4] = {0, 1, 1, 1};
+                int size[4]  = {1, 3, 3, 3};
+                int rank[4]  = {0, 0, 1, 2};
+
+                auto comm2 = comm1_ptr->split(color[world_rank]);
+                CHECK(comm2.size() == size[world_rank]);
+                CHECK(comm2.rank() == rank[world_rank]);
+            }
+        }
+    }
+}
+
+
+#if 0
+TEST_CASE("construct4")
 {
     Commxx_sptr parent_sptr(new Commxx);
     std::vector<int > ranks(1);
@@ -33,7 +367,7 @@ BOOST_AUTO_TEST_CASE(construct4)
     Commxx(parent_sptr, ranks, per_host);
 }
 
-BOOST_AUTO_TEST_CASE(get_rank)
+TEST_CASE("get_rank")
 {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -42,7 +376,7 @@ BOOST_AUTO_TEST_CASE(get_rank)
     BOOST_CHECK_EQUAL(rank, commxx_rank);
 }
 
-BOOST_AUTO_TEST_CASE(get_size)
+TEST_CASE("get_size")
 {
     int size;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -51,19 +385,19 @@ BOOST_AUTO_TEST_CASE(get_size)
     BOOST_CHECK_EQUAL(size, commxx_size);
 }
 
-BOOST_AUTO_TEST_CASE(has_this_rank1)
+TEST_CASE("has_this_rank1")
 {
     Commxx commxx;
     BOOST_CHECK(commxx.has_this_rank());
 }
 
-BOOST_AUTO_TEST_CASE(has_this_rank2)
+TEST_CASE("has_this_rank2")
 {
     Commxx commxx(true);
     BOOST_CHECK(commxx.has_this_rank());
 }
 
-BOOST_AUTO_TEST_CASE(has_this_rank3)
+TEST_CASE("has_this_rank3")
 {
     Commxx_sptr parent_sptr(new Commxx);
     std::vector<int > ranks(1);
@@ -73,8 +407,10 @@ BOOST_AUTO_TEST_CASE(has_this_rank3)
 
     BOOST_CHECK_EQUAL(commxx.has_this_rank(), (parent_sptr->get_rank() == only_rank));
 }
+#endif
 
-BOOST_AUTO_TEST_CASE(get)
+#if 0
+TEST_CASE("get")
 {
     MPI_Comm comm = Commxx().get();
     int result;
@@ -82,7 +418,7 @@ BOOST_AUTO_TEST_CASE(get)
     BOOST_CHECK(result == MPI_IDENT);
 }
 
-BOOST_AUTO_TEST_CASE(serialize1)
+TEST_CASE("serialize1")
 {
     const std::string serialize_file_name("commxx1.xml");
     {
@@ -99,7 +435,7 @@ BOOST_AUTO_TEST_CASE(serialize1)
     }
 }
 
-BOOST_AUTO_TEST_CASE(serialize2)
+TEST_CASE("serialize2")
 {
     const std::string serialize_file_name("commxx2.xml");
     {
@@ -116,7 +452,7 @@ BOOST_AUTO_TEST_CASE(serialize2)
     }
 }
 
-BOOST_AUTO_TEST_CASE(serialize3)
+TEST_CASE("serialize3")
 {
     const std::string serialize_file_name("commxx3.xml");
     {
@@ -136,7 +472,7 @@ BOOST_AUTO_TEST_CASE(serialize3)
     }
 }
 
-BOOST_AUTO_TEST_CASE(serialize4)
+TEST_CASE("serialize4")
 {
     const std::string serialize_file_name("commxx4.xml");
     {
@@ -157,7 +493,7 @@ BOOST_AUTO_TEST_CASE(serialize4)
     }
 }
 
-BOOST_AUTO_TEST_CASE(generate_subcomms_)
+TEST_CASE("generate_subcomms_")
 {
     Commxx_sptr parent_sptr(new Commxx);
     int world_size = parent_sptr->get_size();
@@ -183,7 +519,7 @@ BOOST_AUTO_TEST_CASE(generate_subcomms_)
     }
 }
 /*
-BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_world)
+TEST_CASE("make_optimal_spc_comm_world")
 {
     Commxx_sptr parent_sptr(new Commxx);
     int world_size = parent_sptr->get_size();
@@ -197,7 +533,7 @@ BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_world)
     }      
 }*/
 
-BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm)
+TEST_CASE("make_optimal_spc_comm_subcomm")
 {
     Commxx_sptr parent_sptr(new Commxx);
     int optimal_number=3;
@@ -217,7 +553,7 @@ BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm)
     }      
 }
 
-BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm_equally_spread)
+TEST_CASE("make_optimal_spc_comm_subcomm_equally_spread")
 {
     Commxx_sptr parent_sptr(new Commxx);
     int world_size = parent_sptr->get_size();
@@ -235,3 +571,4 @@ BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm_equally_spread)
        }
     }//optimal number     
 }
+#endif
