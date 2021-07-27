@@ -306,7 +306,7 @@ TEST_CASE("split with color only")
 
         if (world_size == 3)
         {
-            SECTION("split [0 1 1]")
+            SECTION("split color [0 1 1]")
             {
                 // workd_rank:       0  1  2
                 // color:            0  1  1
@@ -323,7 +323,7 @@ TEST_CASE("split with color only")
         }
         else if (world_size == 4)
         {
-            SECTION("split [0 0 1 1]")
+            SECTION("split color [0 0 1 1]")
             {
                 // workd_rank:       0  1  2  3
                 // color:            0  0  1  1
@@ -338,7 +338,7 @@ TEST_CASE("split with color only")
                 CHECK(comm2.rank() == rank[world_rank]);
             }
 
-            SECTION("split [0 1 1 1]")
+            SECTION("split color [0 1 1 1]")
             {
                 // workd_rank:       0  1  2  3
                 // color:            0  1  1  1
@@ -349,6 +349,120 @@ TEST_CASE("split with color only")
                 int rank[4]  = {0, 0, 1, 2};
 
                 auto comm2 = comm1_ptr->split(color[world_rank]);
+                CHECK(comm2.size() == size[world_rank]);
+                CHECK(comm2.rank() == rank[world_rank]);
+            }
+        }
+    }
+}
+
+TEST_CASE("split with color and key")
+{
+    SECTION("null")
+    {
+        // cannot split a null comm
+        auto comm = Commxx::Null;
+        REQUIRE_THROWS(comm.split(0, 0));
+    }
+
+    SECTION("world non-shared_ptr")
+    {
+        // split on a non shared_ptr is not allowed
+        auto comm = Commxx::World;
+        REQUIRE_THROWS(comm.split(0, 0));
+    }
+
+    SECTION("world")
+    {
+        auto comm1_ptr = std::make_shared<Commxx>(comm_type::world);
+        auto const& comm1 = *comm1_ptr;
+
+        auto world_size = Commxx::world_size();
+        auto world_rank = Commxx::world_rank();
+
+        SECTION("no throw")
+        {
+            REQUIRE_NOTHROW(comm1_ptr->split(0, world_rank));
+        }
+
+        SECTION("same color, ascending key")
+        {
+            // this is effective just a dup
+            auto comm2 = comm1_ptr->split(0, world_rank);
+
+            CHECK(comm2.size() == world_size);
+            CHECK(comm2.rank() == world_rank);
+        }
+
+        SECTION("same color, descending key")
+        {
+            // this is effective just a dup
+            auto comm2 = comm1_ptr->split(0, world_size - world_rank - 1);
+
+            CHECK(comm2.size() == world_size);
+            CHECK(comm2.rank() == world_size - world_rank - 1);
+        }
+
+        SECTION("one color per rank")
+        {
+            int color = world_rank;
+            auto comm2 = comm1_ptr->split(color, world_rank);
+
+            CHECK(comm2.size() == 1);
+            CHECK(comm2.rank() == 0);
+        }
+
+        if (world_size == 3)
+        {
+            SECTION("split color/key [0/0 1/2 1/1]")
+            {
+                // workd_rank:       0  1  2
+                // color:            0  1  1
+                // key:              0  2  1
+                // size after split: 1  2  2
+                // rank after split: 0  1  0
+                int color[3] = {0, 1, 1};
+                int key[3]   = {0, 2, 1};
+                int size[3]  = {1, 2, 2};
+                int rank[3]  = {0, 1, 0};
+
+                auto comm2 = comm1_ptr->split(color[world_rank], key[world_rank]);
+                CHECK(comm2.size() == size[world_rank]);
+                CHECK(comm2.rank() == rank[world_rank]);
+            }
+        }
+        else if (world_size == 4)
+        {
+            SECTION("split color/key [0/0 0/1 1/2 1/1]")
+            {
+                // workd_rank:       0  1  2  3
+                // color:            0  0  1  1
+                // key:              0  1  2  1
+                // size after split: 2  2  2  2
+                // rank after split: 0  1  1  0
+                int color[4] = {0, 0, 1, 1};
+                int key[4]   = {0, 1, 2, 1};
+                int size[4]  = {2, 2, 2, 2};
+                int rank[4]  = {0, 1, 1, 0};
+
+                auto comm2 = comm1_ptr->split(color[world_rank], key[world_rank]);
+                CHECK(comm2.size() == size[world_rank]);
+                CHECK(comm2.rank() == rank[world_rank]);
+            }
+
+            SECTION("split color/key [0/0 1/3 1/2 1/1]")
+            {
+                // workd_rank:       0  1  2  3
+                // color:            0  1  1  1
+                // key:              0  3  2  1
+                // size after split: 1  3  3  3
+                // rank after split: 0  2  1  0
+                int color[4] = {0, 1, 1, 1};
+                int key[4]   = {0, 3, 2, 1};
+                int size[4]  = {1, 3, 3, 3};
+                int rank[4]  = {0, 2, 1, 0};
+
+                auto comm2 = comm1_ptr->split(color[world_rank], key[world_rank]);
                 CHECK(comm2.size() == size[world_rank]);
                 CHECK(comm2.rank() == rank[world_rank]);
             }
