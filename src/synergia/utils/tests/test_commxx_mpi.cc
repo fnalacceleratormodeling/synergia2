@@ -571,6 +571,115 @@ TEST_CASE("divide")
     }
 }
 
+TEST_CASE("group")
+{
+    SECTION("null")
+    {
+        // cannot group a null comm
+        auto comm = Commxx::Null;
+        REQUIRE_THROWS(comm.group({}));
+    }
+
+    SECTION("world non-shared_ptr")
+    {
+        // group on a non shared_ptr is not allowed
+        auto comm = Commxx::World;
+        REQUIRE_THROWS(comm.group({}));
+    }
+
+    SECTION("world")
+    {
+        auto comm1_ptr = std::make_shared<Commxx>(comm_type::world);
+        auto const& comm1 = *comm1_ptr;
+
+        auto world_size = Commxx::world_size();
+        auto world_rank = Commxx::world_rank();
+
+        SECTION("empty group")
+        {
+            std::vector<int> group = {};
+
+            REQUIRE_NOTHROW(comm1_ptr->group(group));
+            auto comm2 = comm1_ptr->group(group);
+
+            CHECK(comm2.is_null());
+        }
+
+        SECTION("group with ranks out of range")
+        {
+            std::vector<int> group = {100, 102};
+
+            REQUIRE_NOTHROW(comm1_ptr->group(group));
+            auto comm2 = comm1_ptr->group(group);
+
+            CHECK(comm2.is_null());
+        }
+
+        SECTION("group of 1")
+        {
+            std::vector<int> group = {2};
+
+            REQUIRE_NOTHROW(comm1_ptr->group(group));
+            auto comm2 = comm1_ptr->group(group);
+
+            if (world_rank == 2)
+            {
+                CHECK(comm2.size() == 1);
+                CHECK(comm2.rank() == 0);
+            }
+            else
+            {
+                CHECK(comm2.is_null());
+            }
+        }
+
+        SECTION("group of 2")
+        {
+            std::vector<int> ranks = {2, 1};
+
+            REQUIRE_NOTHROW(comm1_ptr->group(ranks));
+            auto comm2 = comm1_ptr->group(ranks);
+
+            int size[5] = {0, 0, 1, 2, 2};
+
+            if (world_rank == 1)
+            {
+                CHECK(comm2.size() == size[world_size]);
+                CHECK(comm2.rank() == 0);
+            }
+            else if (world_rank == 2)
+            {
+                CHECK(comm2.size() == size[world_size]);
+                CHECK(comm2.rank() == 1);
+            }
+            else
+            {
+                CHECK(comm2.is_null());
+            }
+        }
+    }
+}
+
+
+TEST_CASE("combined")
+{
+    auto world_size = Commxx::world_size();
+    auto world_rank = Commxx::world_rank();
+
+    if (world_size == 4)
+    {
+        auto comm1_ptr = std::make_shared<Commxx>(comm_type::world);
+        auto const& comm1 = *comm1_ptr;
+
+        int color = world_rank<2 ? 0 : 1;
+
+        auto comm2_ptr = std::make_shared<Commxx>(comm1_ptr->split(color));
+        auto comm3_ptr = std::make_shared<Commxx>(comm2_ptr->divide(1));
+
+        CHECK(comm3_ptr->size() == 1);
+        CHECK(comm3_ptr->rank() == 0);
+    }
+}
 
 
 #if 0
