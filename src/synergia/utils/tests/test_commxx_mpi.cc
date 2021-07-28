@@ -517,6 +517,7 @@ TEST_CASE("divide")
         SECTION("subgroup size > world_size")
         {
             // effectively a dup
+            REQUIRE_NOTHROW(comm1_ptr->divide(world_size+1));
             auto comm2 = comm1_ptr->divide(world_size+1);
 
             CHECK(comm2.size() == world_size);
@@ -526,22 +527,50 @@ TEST_CASE("divide")
         SECTION("subgroup size = world_size")
         {
             // also effectively a dup
+            REQUIRE_NOTHROW(comm1_ptr->divide(world_size));
             auto comm2 = comm1_ptr->divide(world_size);
 
             CHECK(comm2.size() == world_size);
             CHECK(comm2.rank() == world_rank);
         }
 
-        if (world_size == 2 || world_size == 4)
+        if (world_size == 2)
         {
             SECTION("divide into 2 groups")
             {
-                //auto comm2 = comm1_ptr->divide(
+                int subgroup_size = world_size/2;
+
+                REQUIRE_NOTHROW(comm1_ptr->divide(subgroup_size));
+                auto comm2 = comm1_ptr->divide(subgroup_size);
+
+                CHECK(comm2.size() == subgroup_size);
+                CHECK(comm2.rank() == 0);
             }
         }
+        else if (world_size == 3)
+        {
+            SECTION("uneven divide")
+            {
+                REQUIRE_THROWS(comm1_ptr->divide(2));
+            }
+        }
+        else if (world_size == 4)
+        {
+            SECTION("divide into 2 groups")
+            {
+                int subgroup_size = world_size/2;
 
+                REQUIRE_NOTHROW(comm1_ptr->divide(subgroup_size));
+                auto comm2 = comm1_ptr->divide(subgroup_size);
+
+                int ranks[4] = {0, 1, 0, 1};
+                CHECK(comm2.size() == subgroup_size);
+                CHECK(comm2.rank() == ranks[world_rank]);
+            }
+        }
     }
 }
+
 
 
 #if 0
