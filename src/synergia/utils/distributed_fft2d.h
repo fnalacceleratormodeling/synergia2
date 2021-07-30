@@ -11,7 +11,7 @@ class Distributed_fft2d_base
 
 protected:
 
-    std::array<int, 3> shape;
+    std::array<int, 2> shape;
     Commxx comm;
 
     int lower;
@@ -29,7 +29,7 @@ public:
     int get_lower() const { return lower; }
     int get_upper() const { return lower + nx; }
 
-    std::array<int, 3> const& 
+    std::array<int, 2> const& 
     get_shape() const 
     { return shape; }
 

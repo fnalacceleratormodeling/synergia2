@@ -13,7 +13,7 @@ Distributed_fft2d::Distributed_fft2d()
 }
 
 void Distributed_fft2d::construct(
-        std::array<int, 3> const & new_shape, 
+        std::array<int, 2> const & new_shape, 
         Commxx const& new_comm)
 {
     if (data || workspace)

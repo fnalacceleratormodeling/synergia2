@@ -1,9 +1,6 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include "synergia/utils/catch.hpp"
 #include "synergia/utils/distributed_fft2d.h"
-#include "synergia/utils/boost_test_mpi_fixture.h"
-#include "synergia/utils/multi_array_check_equal.h"
-#include "synergia/foundation/math_constants.h"
+
 #include <complex>
 #include <cmath>
 
@@ -16,8 +13,6 @@
 // define FAILME nonzero to force failures
 #define FAILME 0
 
-BOOST_GLOBAL_FIXTURE(MPI_fixture);
-
 const int shape0 = 16;
 const int shape1 = 8;
 
@@ -28,10 +23,6 @@ struct Shape_struct
     {
         shape[0] = shape0;
         shape[1] = shape1;
-    }
-    ~Shape_struct()
-    {
-
     }
     std::vector<int > shape;
 };
@@ -60,10 +51,6 @@ struct Shape_struct2
       shape[0] = 16;
       shape[1] = 8;
     }
-    ~Shape_struct2()
-    {
-
-    }
     std::vector<int > shape;
 };
 
@@ -83,15 +70,17 @@ struct Fixture2
     Distributed_fft2d distributed_fft2d;
 };
 
-BOOST_FIXTURE_TEST_CASE(construct, Fixture)
+
+TEST_CASE("roundtrip normalization")
 {
+    Distributed_fft2d fft;
+    fft.construct({16, 8}, Commxx::World);
 }
 
-BOOST_FIXTURE_TEST_CASE(construct_measure, Fixture)
+
+
+BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
-    Commxx_sptr comm_sptr(new Commxx());
-    Distributed_fft2d distributed_fft2d_measure(shape, comm_sptr,
-            FFTW_MEASURE);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_comm, Fixture)

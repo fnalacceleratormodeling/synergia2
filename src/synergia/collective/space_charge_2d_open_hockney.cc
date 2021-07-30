@@ -386,7 +386,7 @@ Space_charge_2d_open_hockney::construct_workspaces(
                 .get_comm()
                 .divide(options.comm_group_size);
 
-            ffts[t][b].construct(s, comm);
+            ffts[t][b].construct({s[0], s[1]}, comm);
         }
     }
 }

@@ -20,7 +20,7 @@ public:
     virtual ~Distributed_fft2d();
 
     void construct(
-            std::array<int, 3> const& shape, 
+            std::array<int, 2> const& shape, 
             Commxx const& comm);
 
     void transform(
