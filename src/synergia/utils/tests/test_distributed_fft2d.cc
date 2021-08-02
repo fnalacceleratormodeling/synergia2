@@ -86,8 +86,12 @@ TEST_CASE("transform_roundtrip")
 
     fft.construct({shape0, shape1}, comm);
 
-    karray1d src("src", shape0*shape1*2);
+
+    karray1d_dev d_src("src", shape0*shape1*2);
+    karray1d_dev d_dst("dest", shape0*shape1*2);
+
     karray1d orig("orig", shape0*shape1*2);
+    karray1d src = Kokkos::create_mirror_view(d_src);
 
     for(int j=0; j<shape0; ++j)
     {
@@ -101,10 +105,7 @@ TEST_CASE("transform_roundtrip")
         }
     }
 
-    karray1d_dev d_src = Kokkos::create_mirror_view(src);
     Kokkos::deep_copy(d_src, src);
-
-    karray1d_dev d_dst("dest", shape0*shape1*2);
 
     fft.transform(d_src, d_dst);
     fft.inv_transform(d_dst, d_src);
@@ -148,11 +149,11 @@ TEST_CASE("transform_realtest")
 
     fft.construct({shape0, shape1}, comm);
 
-    karray1d orig("orig", shape0*shape1*2);
-    karray1d dest("dest", shape0*shape1*2);
+    karray1d_dev d_orig("orig", shape0*shape1*2);
+    karray1d_dev d_dest("dest", shape0*shape1*2);
 
-    karray1d_dev d_orig = Kokkos::create_mirror_view(orig);
-    karray1d_dev d_dest = Kokkos::create_mirror_view(dest);
+    karray1d orig = Kokkos::create_mirror_view(d_orig);
+    karray1d dest = Kokkos::create_mirror_view(d_dest);
 
     int lower = fft.get_lower();
     int upper = fft.get_upper();
