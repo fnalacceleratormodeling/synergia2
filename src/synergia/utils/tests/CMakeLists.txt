@@ -52,4 +52,9 @@ add_mpi_test(test_commxx_serdes 3)
 add_mpi_test(test_commxx_serdes 4)
 
 
-
+add_executable(test_distributed_fft2d test_distributed_fft2d.cc)
+target_link_libraries(test_distributed_fft2d synergia_distributed_fft synergia_test_main)
+add_mpi_test(test_distributed_fft2d 1)
+add_mpi_test(test_distributed_fft2d 2)
+add_mpi_test(test_distributed_fft2d 3)
+add_mpi_test(test_distributed_fft2d 4)
