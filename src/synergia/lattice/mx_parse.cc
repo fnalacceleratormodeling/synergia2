@@ -649,11 +649,13 @@ struct synergia::madx_tree_parser
 
     line_seq  = 
            lit('(') 
+        >> (*lit(','))  // allows 0 or multiple ',' in front
         >> (
              ( -char_('-') >> -( int_ >> '*' ) >> line_member ) 
                                  [phx::bind(&ins_seq_member, _val, _1, _2, _3)]
-           % (-lit(','))
+           % (*lit(','))
            ) 
+        >> (*lit(','))  // allows for ',' in the tail
         >> lit(')')
         ;
 
