@@ -1,8 +1,7 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
-#include <boost/math/constants/constants.hpp>
+#include "synergia/utils/catch.hpp"
 
 #include <iostream>
+#include <boost/math/constants/constants.hpp>
 
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/lattice/mx_parse.h"
@@ -12,6 +11,94 @@ using namespace synergia;
 
 const double tolerance = 1.0e-12;
 
+TEST_CASE("line_expansion")
+{
+    using namespace synergia;
+
+    std::string str = R"(
+        a: rbend; 
+        b: rbend; 
+        c: rbend; 
+        d: rbend; 
+        e: rbend; 
+        f: rbend; 
+        g: rbend; 
+        h: rbend;
+	    r: line=(g,h); 
+        s: line=(c,r,d); 
+        t: line=(,,, 2*s 2*(e,f),,-s,,,, ,-(a,b),,);
+    )";
+
+    MadX   mx;
+
+    REQUIRE_NOTHROW( parse_madx( str, mx ) );
+    REQUIRE( mx.line_count() == 3 );
+
+    MadX_line line = mx.line("t");
+
+    CHECK( line.element_count() == 18 );
+    CHECK( line.element_name(0) == "c" );
+    CHECK( line.element_name(1) == "g" );
+    CHECK( line.element_name(2) == "h" );
+    CHECK( line.element_name(3) == "d" );
+    CHECK( line.element_name(4) == "c" );
+    CHECK( line.element_name(5) == "g" );
+    CHECK( line.element_name(6) == "h" );
+    CHECK( line.element_name(7) == "d" );
+    CHECK( line.element_name(8) == "e" );
+    CHECK( line.element_name(9) == "f" );
+    CHECK( line.element_name(10) == "e" );
+    CHECK( line.element_name(11) == "f" );
+    CHECK( line.element_name(12) == "d" );
+    CHECK( line.element_name(13) == "h" );
+    CHECK( line.element_name(14) == "g" );
+    CHECK( line.element_name(15) == "c" );
+    CHECK( line.element_name(16) == "b" );
+    CHECK( line.element_name(17) == "a" );
+}
+
+
+TEST_CASE("line_expansion2")
+{
+    using namespace synergia;
+
+    std::string str = R"(
+        bpm: drift, l=0.01;
+
+        fq1: quadrupole, l=1.0, k1=0.02;
+        d1: drift, l=1.0;
+        dq2: quadrupole, l=1.0, k1=-0.02;
+        d2: drift, l=1.0;
+        d3: drift, l=1.0;
+        bpm2: bpm;
+
+        line1 : line=(fq1, bpm1, d1);
+        bpm1: bpm;
+
+        line2: line=(dq2, d2, bpm1, d3);
+
+        trouble: line=(line1, line2);
+    )";
+
+    MadX   mx;
+
+    REQUIRE_NOTHROW( parse_madx( str, mx ) );
+
+    MadX_line line = mx.line("trouble");
+    line.print();
+
+    CHECK( line.element_count() == 7 );
+    CHECK( line.element_name(0) == "fq1" );
+    CHECK( line.element_name(1) == "bpm1" );
+    CHECK( line.element_name(2) == "d1" );
+    CHECK( line.element_name(3) == "dq2" );
+    CHECK( line.element_name(4) == "d2" );
+    CHECK( line.element_name(5) == "bpm1" );
+    CHECK( line.element_name(6) == "d3" );
+}
+
+
+#if 0
 BOOST_AUTO_TEST_CASE(construct)
 {
 }
@@ -577,4 +664,5 @@ int main()
   tree.print();
 #endif
 }
+#endif
 #endif
