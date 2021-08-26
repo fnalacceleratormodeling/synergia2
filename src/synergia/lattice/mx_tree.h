@@ -127,6 +127,9 @@ public:
   void interpret(MadX & mx);
   void print() const;
 
+  mx_statement_type get_type() const
+  { return type; }
+
 private:
   boost::any value;
   mx_statement_type type;

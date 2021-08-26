@@ -32,6 +32,7 @@ namespace
         { element_type_name::nllens,     element_type::nllens},
         { element_type_name::solenoid,   element_type::solenoid},
         { element_type_name::elens,      element_type::elens},
+        { element_type_name::foil,       element_type::foil},
     };
 
     element_type find_type(std::string const & stype)

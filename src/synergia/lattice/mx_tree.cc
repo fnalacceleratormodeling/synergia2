@@ -845,8 +845,15 @@ void mx_tree::interpret(MadX & mx)
   for( mx_statements_t::iterator it = statements.begin()
      ; it != statements.end(); ++it )
   {
-    it->interpret(mx);
+    if (it->get_type() == MX_COMMAND) it->interpret(mx);
   }
+
+  for( mx_statements_t::iterator it = statements.begin()
+     ; it != statements.end(); ++it )
+  {
+    if (it->get_type() != MX_COMMAND) it->interpret(mx);
+  }
+
 }
 
 void mx_tree::print() const

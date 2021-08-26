@@ -42,6 +42,8 @@ enum class element_type
     nllens,
     solenoid,
     elens,
+
+    foil,
 };
 
 namespace element_type_name
@@ -67,6 +69,7 @@ namespace element_type_name
     constexpr char const* nllens     = "nllens";
     constexpr char const* solenoid   = "solenoid";
     constexpr char const* elens      = "elens";
+    constexpr char const* foil       = "foil";
 }
 
 enum class marker_type
