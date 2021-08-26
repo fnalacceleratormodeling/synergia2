@@ -15,6 +15,7 @@
 #include "synergia/libFF/ff_rfcavity.h"
 #include "synergia/libFF/ff_elens.h"
 #include "synergia/libFF/ff_nllens.h"
+#include "synergia/libFF/ff_foil.h"
 
 namespace FF_element
 {
@@ -48,6 +49,8 @@ namespace FF_element
         case element_type::marker:     FF_drift::apply(slice, b); break;
         case element_type::instrument: FF_drift::apply(slice, b); break;
         case element_type::rcollimator:FF_drift::apply(slice, b); break;
+
+        case element_type::foil:       FF_foil::apply(slice, b); break;
 
         default: 
             throw std::runtime_error("FF_element::apply() unknown element");

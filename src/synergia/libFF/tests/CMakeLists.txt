@@ -21,6 +21,13 @@ target_link_libraries(test_madx_elements
     kokkos)
 add_mpi_test(test_madx_elements 1)
 
+add_executable(test_foils test_foils.cc)
+target_link_libraries(test_foils
+    synergia_simulation 
+    synergia_test_main
+    kokkos)
+add_mpi_test(test_foils 1)
+
 
 add_subdirectory(lattices)
 
