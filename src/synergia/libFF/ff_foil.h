@@ -773,6 +773,8 @@ namespace FF_foil
     {
         using namespace foil_impl;
 
+        scoped_simple_timer timer("libFF_foil");
+
         const double  length = slice.get_right() - slice.get_left();
         const double    mass = bunch.get_mass();
 

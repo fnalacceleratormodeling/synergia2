@@ -135,8 +135,18 @@ TEST_CASE("foil")
     ele.set_double_attribute("thick",  600);
 
     FF_element::apply(ele, tb);
+
+    Lattice_element quad("quadrupole", "q");
+    ele.set_double_attribute("l",  1.0);
+    ele.set_double_attribute("k1",  0.3);
+
+    FF_element::apply(quad, tb);
  
     // checkout particles
     tb.checkout_particles();
+
+    // print timer
+    Logger screen(0, LoggerV::DEBUG);
+    simple_timer_print(screen);
 }
 
