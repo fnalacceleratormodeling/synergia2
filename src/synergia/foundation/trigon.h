@@ -1350,12 +1350,15 @@ typename std::enable_if<(Power > 1), void>::type
 calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
                   Trigon<T, Power - 1, Dim>& dest)
 {
-    auto source_indices(indices<Power, Dim>());
-    for (size_t i = 0; i < source_indices.size(); ++i) {
-        auto& source_index(source_indices[i]);
+    auto source_indices = indices<Power, Dim>();
+
+    for (size_t i = 0; i < source_indices.size(); ++i) 
+    {
+        auto& source_index = source_indices[i];
         Index_t<Power - 1> dest_index;
         size_t exponent = 0;
         size_t k = 0;
+
         for (size_t j = 0; j < source_index.size(); ++j) {
             if (source_index[j] == index) {
                 exponent += 1;
@@ -1364,6 +1367,7 @@ calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
                 ++k;
             }
         }
+
         if (exponent > 0) {
             for (size_t j = 0; j < (exponent - 1); ++j, ++k) {
                 dest_index[k] = index;
@@ -1374,6 +1378,7 @@ calculate_partial(Trigon<T, Power, Dim> const& source, size_t index,
                 T(exponent) * source.terms[i];
         }
     }
+
     calculate_partial<T, Power - 1, Dim>(source.lower, index, dest.lower);
 }
 
