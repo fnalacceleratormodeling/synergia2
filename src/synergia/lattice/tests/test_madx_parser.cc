@@ -87,7 +87,7 @@ TEST_CASE("line_expansion2")
     REQUIRE_NOTHROW( parse_madx( str, mx ) );
 
     MadX_line line = mx.line("trouble");
-    line.print();
+    //line.print();
 
     CHECK( line.element_count() == 7 );
     CHECK( line.element_name(0) == "fq1" );
@@ -97,6 +97,31 @@ TEST_CASE("line_expansion2")
     CHECK( line.element_name(4) == "d2" );
     CHECK( line.element_name(5) == "bpm1" );
     CHECK( line.element_name(6) == "d3" );
+}
+
+TEST_CASE("foil element")
+{
+    using namespace synergia;
+
+    std::string str = R"(
+        f: foil, xmin=-0.05, xmax=0.05, ymin=-0.03, ymax=0.03, thick=600;
+    )";
+
+    MadX   mx;
+
+    REQUIRE_NOTHROW( parse_madx( str, mx ) );
+
+    auto foil = mx.command("f");
+
+    CHECK(foil.is_element());
+    CHECK(!foil.is_reference());
+    CHECK(!foil.is_command());
+
+    CHECK(foil.attribute_as_number("xmin") == Approx(-0.05).margin(tolerance));
+    CHECK(foil.attribute_as_number("xmax") == Approx( 0.05).margin(tolerance));
+    CHECK(foil.attribute_as_number("ymin") == Approx(-0.03).margin(tolerance));
+    CHECK(foil.attribute_as_number("ymax") == Approx( 0.03).margin(tolerance));
+    CHECK(foil.attribute_as_number("thick") == Approx(600).margin(tolerance));
 }
 
 
