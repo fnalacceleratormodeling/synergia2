@@ -448,6 +448,7 @@ struct synergia::madx_tree_parser
            ("marker"     , mx_keyword("marker"     , MX_KW_ELEMENT) )
            ("constfoc"   , mx_keyword("constfoc"   , MX_KW_ELEMENT) )
            ("elens"      , mx_keyword("elens"      , MX_KW_ELEMENT) )
+           ("foil"       , mx_keyword("foil"       , MX_KW_ELEMENT) )
       ;
     }
   } element_keywords;
