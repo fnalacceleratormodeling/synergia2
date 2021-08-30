@@ -6,6 +6,8 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/lattice/mx_parse.h"
 
+#include "synergia/utils/boost_test_to_catch2_macros.h"
+
 using namespace std;
 using namespace synergia;
 
@@ -98,12 +100,12 @@ TEST_CASE("line_expansion2")
 }
 
 
-#if 0
-BOOST_AUTO_TEST_CASE(construct)
+#if 1
+TEST_CASE("construct")
 {
 }
 
-BOOST_AUTO_TEST_CASE(blank_line)
+TEST_CASE("blank_line")
 {
   string str = "";
   MadX   mx;
@@ -111,7 +113,7 @@ BOOST_AUTO_TEST_CASE(blank_line)
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
 }
 
-BOOST_AUTO_TEST_CASE(garbage)
+TEST_CASE("garbage")
 {
   string str = "your momma uses portions->of madx syntax";
   MadX   mx;
@@ -120,7 +122,7 @@ BOOST_AUTO_TEST_CASE(garbage)
 }
 
 #if 0
-BOOST_AUTO_TEST_CASE(comment1)
+TEST_CASE("comment1")
 {
   string str = "//your momma uses portions->of madx syntax";
   MadX   mx;
@@ -128,7 +130,7 @@ BOOST_AUTO_TEST_CASE(comment1)
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
 }
 
-BOOST_AUTO_TEST_CASE(comment2)
+TEST_CASE("comment2")
 {
   string str = "!your momma uses portions->of madx syntax";
   MadX   mx;
@@ -137,7 +139,7 @@ BOOST_AUTO_TEST_CASE(comment2)
 }
 #endif
 
-BOOST_AUTO_TEST_CASE(variable_assignment)
+TEST_CASE("variable_assignment")
 {
   string str = "x=1;";
   MadX   mx;
@@ -147,7 +149,7 @@ BOOST_AUTO_TEST_CASE(variable_assignment)
 }
 
 
-BOOST_AUTO_TEST_CASE(mod_variable_assignment)
+TEST_CASE("mod_variable_assignment")
 {
   string str = "x:=1;";
   MadX   mx;
@@ -156,7 +158,7 @@ BOOST_AUTO_TEST_CASE(mod_variable_assignment)
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
-BOOST_AUTO_TEST_CASE(keyword_leading_values)
+TEST_CASE("keyword_leading_values")
 {
   // n.b. "pine" starts with "pi"
   string str = "xpine = 3; v = xpine; endmark: marker;";
@@ -173,7 +175,7 @@ BOOST_AUTO_TEST_CASE(keyword_leading_values)
   BOOST_CHECK_EQUAL( cmd.name(), "marker" );
 }
 
-BOOST_AUTO_TEST_CASE(mad_constants)
+TEST_CASE("mad_constants")
 {
   string str = "a = pi; b = twopi; c = degrad; d = raddeg; ee = e; "
                "f = emass; g = pmass; h = mumass; i = clight; j = qelect; ";
@@ -196,7 +198,7 @@ BOOST_AUTO_TEST_CASE(mad_constants)
 
 
 
-BOOST_AUTO_TEST_CASE(newline_separation)
+TEST_CASE("newline_separation")
 {
   string str = "x=1;\n y=2;";
   MadX   mx;
@@ -206,7 +208,7 @@ BOOST_AUTO_TEST_CASE(newline_separation)
   BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 2 );
 }
 
-BOOST_AUTO_TEST_CASE(semicolon_separation)
+TEST_CASE("semicolon_separation")
 {
   string str = "x=1;y=2;";
   MadX   mx;
@@ -216,7 +218,7 @@ BOOST_AUTO_TEST_CASE(semicolon_separation)
   BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 2 );
 }
 
-BOOST_AUTO_TEST_CASE(floating_point)
+TEST_CASE("floating_point")
 {
   // 7/32 has an exact floating point representation
   string str = "x=1.234;y=0.21875; ze2=.21875e2; wep2=.21875E2; wep02=.21875e+02;";
@@ -230,7 +232,7 @@ BOOST_AUTO_TEST_CASE(floating_point)
   BOOST_CHECK_EQUAL( mx.variable_as_number("wep02"), 21.875);
 }
 
-BOOST_AUTO_TEST_CASE(variable_assignment_expression)
+TEST_CASE("variable_assignment_expression")
 {
   string str = "foo.bar=pi*sin(1.2e-4)^0.69;";
   MadX   mx;
@@ -241,7 +243,7 @@ BOOST_AUTO_TEST_CASE(variable_assignment_expression)
                      tolerance );
 }
 
-BOOST_AUTO_TEST_CASE(caps_variable_assignment)
+TEST_CASE("caps_variable_assignment")
 {
   string str = "X=1;Y=X;";
   MadX   mx;
@@ -253,7 +255,7 @@ BOOST_AUTO_TEST_CASE(caps_variable_assignment)
 // ==========================================================================
 // commands
 
-BOOST_AUTO_TEST_CASE(command)
+TEST_CASE("command")
 {
   string str = "beam;";
   MadX   mx;
@@ -267,7 +269,7 @@ BOOST_AUTO_TEST_CASE(command)
 }
 
 #if 0
-BOOST_AUTO_TEST_CASE(upper_command)
+TEST_CASE("upper_command")
 {
   string str = "BEAM;";
   MadX   mx;
@@ -281,7 +283,7 @@ BOOST_AUTO_TEST_CASE(upper_command)
 }
 #endif
 
-BOOST_AUTO_TEST_CASE(command_attrs)
+TEST_CASE("command_attrs")
 {
   string str = "beam,a=1,B=3*(4+5);";
   MadX   mx;
@@ -297,7 +299,7 @@ BOOST_AUTO_TEST_CASE(command_attrs)
 }
 
 #if 0
-BOOST_AUTO_TEST_CASE(command_str_attrs1)
+TEST_CASE("command_str_attrs1")
 {
   string str = "title, S = \"Tevatron Collider Run II Lattice\";";
   MadX   mx;
@@ -311,7 +313,7 @@ BOOST_AUTO_TEST_CASE(command_str_attrs1)
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("s"), "Tevatron Collider Run II Lattice" );
 }
 
-BOOST_AUTO_TEST_CASE(command_str_attrs2)
+TEST_CASE("command_str_attrs2")
 {
   string str = "title, S = 'Tevatron Collider Run II Lattice';";
   MadX   mx;
@@ -326,7 +328,7 @@ BOOST_AUTO_TEST_CASE(command_str_attrs2)
 }
 #endif
 
-BOOST_AUTO_TEST_CASE(command_particle_attrs)
+TEST_CASE("command_particle_attrs")
 {
   string str = "beAM, particle=proton;";
   MadX   mx;
@@ -340,7 +342,7 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("particle"), "proton");
 }
 
-BOOST_AUTO_TEST_CASE(command_special_attrs1)
+TEST_CASE("command_special_attrs1")
 {
   string str = "mp: multipole, knl:={0, 1, 1}, type=octpn;";
   MadX   mx;
@@ -354,7 +356,7 @@ BOOST_AUTO_TEST_CASE(command_special_attrs1)
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "octpn");
 }
 
-BOOST_AUTO_TEST_CASE(command_special_attrs2)
+TEST_CASE("command_special_attrs2")
 {
   string str = "mp: multipole, knl:={0, 1, 1}, TYPE=wgl;";
   MadX   mx;
@@ -368,7 +370,7 @@ BOOST_AUTO_TEST_CASE(command_special_attrs2)
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "wgl");
 }
 
-BOOST_AUTO_TEST_CASE(command_special_attrs3)
+TEST_CASE("command_special_attrs3")
 {
   string str = "mp: multipole, knl:={0, 1, 1}, type=\"special\";";
   MadX   mx;
@@ -382,7 +384,7 @@ BOOST_AUTO_TEST_CASE(command_special_attrs3)
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "special");
 }
 
-BOOST_AUTO_TEST_CASE(command_omitted_comma)
+TEST_CASE("command_omitted_comma")
 {
   string str = "call file = './foo.dbx';";
   MadX   mx;
@@ -394,7 +396,7 @@ BOOST_AUTO_TEST_CASE(command_omitted_comma)
   BOOST_CHECK_EQUAL( mx.variable_as_number("b"), 2 );
 }
 
-BOOST_AUTO_TEST_CASE(command_beam_particle)
+TEST_CASE("command_beam_particle")
 {
   string str = " BEAM, PARTICLE=Proton, MASS=0.93827, CHARGE=1., ENERGY=0.93827 + 0.160;";
   MadX   mx;
@@ -409,7 +411,7 @@ BOOST_AUTO_TEST_CASE(command_beam_particle)
   BOOST_CHECK_EQUAL( cmd.attribute_as_number("energy"), 0.93827 + 0.160 );
 }
 
-BOOST_AUTO_TEST_CASE(command_beam_particle_abbreviate)
+TEST_CASE("command_beam_particle_abbreviate")
 {
   string str = " BEAM, PARTICLE=Prot, MASS=0.93827, CHARGE=1., ENERGY=0.93827 + 0.160;";
   MadX   mx;
@@ -424,7 +426,7 @@ BOOST_AUTO_TEST_CASE(command_beam_particle_abbreviate)
   BOOST_CHECK_EQUAL( cmd.attribute_as_number("energy"), 0.93827 + 0.160 );
 }
 
-BOOST_AUTO_TEST_CASE(command_assign)
+TEST_CASE("command_assign")
 {
   string str = "q1: quadrupole,l=3.14;";
   MadX   mx;
@@ -438,7 +440,7 @@ BOOST_AUTO_TEST_CASE(command_assign)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("l"), 3.14, tolerance );
 }
 
-BOOST_AUTO_TEST_CASE(subscripted_ident)
+TEST_CASE("subscripted_ident")
 {
   string str = "foo: quadrupole, a=1; x=foo->a;";
   MadX   mx;
@@ -447,7 +449,7 @@ BOOST_AUTO_TEST_CASE(subscripted_ident)
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
-BOOST_AUTO_TEST_CASE(vector_attribute)
+TEST_CASE("vector_attribute")
 {
     string str = "mpfi1: multipole,knl:={ 0, 1.1, 2.2, 3.3, 4.4, 5.5 };";
     MadX mx;
@@ -465,7 +467,7 @@ BOOST_AUTO_TEST_CASE(vector_attribute)
     BOOST_CHECK_CLOSE(knl.at(5), 5.5, tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(continuation)
+TEST_CASE("continuation")
 {
   string str = "q1: quadrupole,l=\n3.14,k1=0.2;";
   MadX   mx;
@@ -480,7 +482,7 @@ BOOST_AUTO_TEST_CASE(continuation)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("k1"), 0.2, tolerance );
 }
 
-BOOST_AUTO_TEST_CASE(continuation2)
+TEST_CASE("continuation2")
 {
   string str = "q2: quadrupole,l=! )junk)\n3.14,k1=0.2;";
   MadX   mx;
@@ -495,7 +497,7 @@ BOOST_AUTO_TEST_CASE(continuation2)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("k1"), 0.2, tolerance );
 }
 
-BOOST_AUTO_TEST_CASE(continuation3)
+TEST_CASE("continuation3")
 {
   string str = "q3: quadrupole,l=3.14,\nk1=0.2;";
   MadX   mx;
@@ -510,7 +512,7 @@ BOOST_AUTO_TEST_CASE(continuation3)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("k1"), 0.2, tolerance );
 }
 
-BOOST_AUTO_TEST_CASE(tkicker)
+TEST_CASE("tkicker")
 {
   string str = "tk: tkicker, hkick=0.01;";
   MadX   mx;
@@ -524,7 +526,7 @@ BOOST_AUTO_TEST_CASE(tkicker)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("hkick"), 0.01, tolerance );
 }
 
-BOOST_AUTO_TEST_CASE(constfoc)
+TEST_CASE("constfoc")
 {
   string str = "cf: constfoc, betaH=0.01, betaV=0.02, betaL=0.03, nuL=0.04;";
   MadX   mx;
@@ -541,7 +543,7 @@ BOOST_AUTO_TEST_CASE(constfoc)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("nuL"), 0.04, tolerance );
 }
 
-BOOST_AUTO_TEST_CASE(comment_at_tail)
+TEST_CASE("comment_at_tail")
 {
   string str = "tk: tkicker, hkick=0.01;!afdsak";
   MadX   mx;
@@ -549,7 +551,7 @@ BOOST_AUTO_TEST_CASE(comment_at_tail)
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
 }
 
-BOOST_AUTO_TEST_CASE(parse_file)
+TEST_CASE("parse_file")
 {
   MadX   mx;
 
@@ -558,38 +560,7 @@ BOOST_AUTO_TEST_CASE(parse_file)
 }
 
 
-BOOST_AUTO_TEST_CASE(line_expansion)
-{
-  string str = "a:rbend; b:rbend; c:rbend; d:rbend; e:rbend; f:rbend; g:rbend; h:rbend;"
-	"r:line=(g,h); s:line=(c,r,d); t:line=(2*s,2*(e,f),-s,-(a,b));";
-  MadX   mx;
-
-  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.line_count(), 3 );
-
-  MadX_line line = mx.line("t");
-  BOOST_CHECK_EQUAL( line.element_count(), 18 );
-  BOOST_CHECK_EQUAL( line.element_name(0), "c" );
-  BOOST_CHECK_EQUAL( line.element_name(1), "g" );
-  BOOST_CHECK_EQUAL( line.element_name(2), "h" );
-  BOOST_CHECK_EQUAL( line.element_name(3), "d" );
-  BOOST_CHECK_EQUAL( line.element_name(4), "c" );
-  BOOST_CHECK_EQUAL( line.element_name(5), "g" );
-  BOOST_CHECK_EQUAL( line.element_name(6), "h" );
-  BOOST_CHECK_EQUAL( line.element_name(7), "d" );
-  BOOST_CHECK_EQUAL( line.element_name(8), "e" );
-  BOOST_CHECK_EQUAL( line.element_name(9), "f" );
-  BOOST_CHECK_EQUAL( line.element_name(10), "e" );
-  BOOST_CHECK_EQUAL( line.element_name(11), "f" );
-  BOOST_CHECK_EQUAL( line.element_name(12), "d" );
-  BOOST_CHECK_EQUAL( line.element_name(13), "h" );
-  BOOST_CHECK_EQUAL( line.element_name(14), "g" );
-  BOOST_CHECK_EQUAL( line.element_name(15), "c" );
-  BOOST_CHECK_EQUAL( line.element_name(16), "b" );
-  BOOST_CHECK_EQUAL( line.element_name(17), "a" );
-}
-
-BOOST_AUTO_TEST_CASE(matrix)
+TEST_CASE("matrix")
 {
   string str = "m1: matrix, type=abc, L=1.2, kick1=0.001, kick2=0.001, kick3=0.002, kick4=0.002, kick5=0.003, kick6=0.003, rm11=1.1, rm12=1.2, rm32=3.2, rm54=5.4, tm111=1.11, tm321=3.21;";
 
@@ -618,7 +589,7 @@ BOOST_AUTO_TEST_CASE(matrix)
 }
 
 #if 0
-BOOST_AUTO_TEST_CASE(continuation4)
+TEST_CASE("continuation4")
 {
   string str = "twiss, save,   betx=28.871,alfx=-0.069,mux=0.0,dx=2.682,dpx=-0.073,\nbety= 5.264,alfy=-0.006,muy=0.0,dy=0.0,dpy=0.0;";
   MadX   mx;

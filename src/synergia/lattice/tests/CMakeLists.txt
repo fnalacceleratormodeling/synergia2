@@ -5,4 +5,6 @@ target_link_libraries(test_madx_parser
     kokkos)
 add_mpi_test(test_madx_parser 1)
 
+copy_file(foo.dbx test_madx_parser)
+
 
