@@ -16,23 +16,11 @@ add_library(synergia_lattice
     lattice_element_processor.cc 
     lattice.cc
     lattice_element_slice.cc
-    #lattice.cc 
-    #chef_lattice.cc 
-    #chef_lattice_section.cc 
-    #chef_utils.cc
-    #element_adaptor.cc 
-    #mad8_adaptors.cc 
-    #madx_adaptors.cc
-    #element_adaptor_map.cc 
-    #mad8_adaptor_map.cc 
-    #madx_adaptor_map.cc
-    #lattice_diagnostics.cc
     madx.cc 
     mx_expr.cc  
     mx_parse.cc  
     mx_tree.cc
     madx_reader.cc 
-    #diagnostics_apertures_loss.cc
     )
 
 target_link_libraries(synergia_lattice 
