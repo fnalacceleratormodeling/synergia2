@@ -1,3 +1,11 @@
+
+if (BUILD_PYTHON_BINDINGS)
+
+    add_py_test(test_lattice.py)
+
+endif()
+
+
 add_executable(test_madx_parser test_madx_parser.cc)
 target_link_libraries(test_madx_parser
     synergia_lattice
