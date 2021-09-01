@@ -5,6 +5,12 @@ if (BUILD_PYTHON_BINDINGS)
 
 endif()
 
+add_executable(test_lattice test_lattice.cc)
+target_link_libraries(test_lattice
+    synergia_lattice
+    synergia_test_main)
+add_mpi_test(test_lattice 1)
+
 
 add_executable(test_madx_parser test_madx_parser.cc)
 target_link_libraries(test_madx_parser
