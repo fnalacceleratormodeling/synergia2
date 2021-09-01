@@ -348,10 +348,6 @@ public:
     set_lattice(Lattice & lattice);
 
     /// Get a reference to the parent lattice
-    Lattice &
-    get_lattice();
-
-    /// Get a reference to the parent lattice
     Lattice const &
     get_lattice() const;
 
