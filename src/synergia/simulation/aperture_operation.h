@@ -42,7 +42,8 @@ struct Dummy_aperture
     { }
 
     KOKKOS_INLINE_FUNCTION
-    bool discard(ConstParticles const& parts, int p) const
+    bool discard(ConstParticles const&, 
+            ConstParticleMasks const&, int p) const
     { return false; }
 };
 
@@ -57,7 +58,8 @@ struct Finite_aperture
     { }
 
     KOKKOS_INLINE_FUNCTION
-    bool discard(ConstParticles const& parts, int p) const
+    bool discard(ConstParticles const& parts, 
+            ConstParticleMasks const&, int p) const
     {
 #if 1
         if (  !std::isfinite(parts(p, 0)) 
@@ -105,7 +107,8 @@ struct Circular_aperture
     }
 
     KOKKOS_INLINE_FUNCTION
-    bool discard(ConstParticles const& parts, int p) const
+    bool discard(ConstParticles const& parts, 
+            ConstParticleMasks const&, int p) const
     {
         double xrel = parts(p, 0) - xoff;
         double yrel = parts(p, 2) - yoff;
@@ -138,7 +141,8 @@ struct Elliptical_aperture
     }
 
     KOKKOS_INLINE_FUNCTION
-    bool discard(ConstParticles const& parts, int p) const
+    bool discard(ConstParticles const& parts, 
+            ConstParticleMasks const&, int p) const
     {
         double xrel = parts(p, 0) - xoff;
         double yrel = parts(p, 2) - yoff;

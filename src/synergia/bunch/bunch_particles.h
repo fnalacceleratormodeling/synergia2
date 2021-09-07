@@ -393,7 +393,7 @@ namespace bunch_particles_impl
         {
             discards(i) = 0;
 
-            if (masks(i) && ap.discard(parts, i))
+            if (masks(i) && ap.discard(parts, masks, i))
             {
                 discards(i) = 1;
                 masks(i) = 0;

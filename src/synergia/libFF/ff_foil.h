@@ -530,9 +530,7 @@ namespace foil_impl
         KOKKOS_INLINE_FUNCTION
         void operator()(const int i) const
         {
-            // 0xff is marked locally when a particle is lost during the
-            // foil scattering
-            if (masks(i) == 0 /*|| masks(i) == 0xff*/) return;
+            if (masks(i) == 0) return;
 
             auto x    = parts(i,0);
             auto xp   = parts(i,1);
@@ -632,6 +630,9 @@ namespace foil_impl
                     {
                         foil_flag = false;
                         zrl = -1.0;
+
+                        // 0xff is marked locally when a particle is 
+                        // lost during the foil scattering
                         masks(i) = 0xff;
                     }
                     else
@@ -761,6 +762,22 @@ namespace foil_impl
         } // end of operator()
 
     };
+
+
+    struct Foil_aperture
+    {
+        constexpr static const char *type = "foil";
+
+        Foil_aperture(Lattice_element const& ele)
+        { }
+
+        KOKKOS_INLINE_FUNCTION
+        bool discard(ConstParticles const& parts, 
+                ConstMasks const& masks, int p) const
+        { return masks(p) == 0xff; }
+    };
+
+
 }
 
 
@@ -828,12 +845,11 @@ namespace FF_foil
             // advance the ref_part
             bunch.get_reference_particle().increment_trajectory(length);
 
-            // TODO: aperture to fiter out all particles with mask value 0xff
-            // Foil_aperture ap;
-            // int ndiscarded = bunch.apply_aperture(ap)
-            // double charge = ndiscarded * 
-            //     bunch.get_real_num() / bunch.get_total_num();
-            // slice.get_lattice_element().deposit_charge(charge);
+            // aperture to fiter out all particles with mask value 0xff
+            Foil_aperture ap;
+            int ndiscarded = bunch.apply_aperture(ap)
+            double charge = ndiscarded * bunch.get_real_num() / bunch.get_total_num();
+            slice.get_lattice_element().deposit_charge(charge);
         }
 
         Kokkos::fence();

@@ -8,7 +8,8 @@ namespace
         double half_length;
 
         KOKKOS_INLINE_FUNCTION
-        bool discard(ConstParticles const& parts, int p) const
+        bool discard(ConstParticles const& parts, 
+                ConstParticleMasks const&, int p) const
         {
            if  (std::abs(parts(p, 4)) > half_length) return true;
            else return false;
