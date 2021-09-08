@@ -322,7 +322,7 @@ namespace foil_impl
             double t, double p, double& dpx, double& dpy)
     {
         double va, vb, va2, vb2, r2=10., theta;
-        long idum = -(unsigned)time(0);
+        //long idum = -(unsigned)time(0);
         theta = acos(1 - t/(2*p*p));
         double dp[2] = {0.0, 0.0};
 
@@ -494,6 +494,8 @@ namespace foil_impl
         double length;
         double dlength;
 
+        //karray1d_dev stat;
+
         KOKKOS_INLINE_FUNCTION
         PropFoilFullScatter(int seed, 
                 typename BP::parts_t parts,
@@ -501,7 +503,8 @@ namespace foil_impl
                 double xmin, double xmax, 
                 double ymin, double ymax, 
                 double thick, 
-                double pref, double m)
+                double pref, double m/*,
+                karray1d_dev stat*/)
         : rand_pool(seed)
         , parts(parts)
         , masks(masks)
@@ -518,6 +521,7 @@ namespace foil_impl
         , b_pN(14.5 * pow(a, 2.0/3.0))
         , length(thick / (1.0e5 * density))
         , dlength(length * 1.0e-4)
+        //, stat(stat)
         {
         }
 
@@ -646,6 +650,8 @@ namespace foil_impl
 
                 if(stepsize <= rl) 
                 { 
+                    //Kokkos::atomic_increment(&stat(0));
+
                     //Take the step and allow nuclear scatter
                     if (take_step(rand_gen, x, xp, y, yp, dpop, 
                                 pref, m, z, a, density, stepsize))
@@ -701,6 +707,7 @@ namespace foil_impl
                         // Nuclear Elastic Scattering
                         if((choice >= 0.) && (choice <= e_frac))
                         {
+                            //Kokkos::atomic_increment(&stat(1));
                             //std::cout << "elastic\n";
 
                             double t = 0.0;
@@ -727,6 +734,7 @@ namespace foil_impl
                         // Rutherford Coulomb scattering
                         if((choice > e_frac) && (choice <= (1 - i_frac)))
                         {
+                            //Kokkos::atomic_increment(&stat(2));
                             //std::cout << "coulomb\n";
 
                             rcross = ruth_scatt_jackson(
@@ -746,6 +754,7 @@ namespace foil_impl
                         // Nuclear Inelastic absorption
                         if( (choice > (1.-i_frac)) && (choice <= 1.))
                         {
+                            //Kokkos::atomic_increment(&stat(3));
                             //std::cout << "absorb\n";
 
                             foil_flag = false;
@@ -825,17 +834,31 @@ namespace FF_foil
                 auto bp = bunch.get_bunch_particles(pg);
                 if (!bp.num_valid()) return;
 
-                using exec = typename BunchT::exec_space;
+                //karray1d_dev d_stat("stat", 10);
+                //auto h_stat = create_mirror_view(d_stat);
 
+                using exec = typename BunchT::exec_space;
                 auto range = Kokkos::RangePolicy<exec>(0, bp.size());
 
                 PropFoilFullScatter<typename BunchT::bp_t> pfc(
                         seed,
                         bp.parts, bp.masks,
                         xmin, xmax, ymin, ymax, thick, // geometry
-                        pref, mass);
+                        pref, mass/*,
+                        d_stat*/
+                        );
 
                 Kokkos::parallel_for(range, pfc);
+
+#if 0
+                Kokkos::deep_copy(h_stat, d_stat);
+                std::cout << "stat = " 
+                    << h_stat(0) << ", "
+                    << h_stat(1) << ", "
+                    << h_stat(2) << ", "
+                    << h_stat(3) << ", "
+                    << "\n";
+#endif
             };
 
             // apply
