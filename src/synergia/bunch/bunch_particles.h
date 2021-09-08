@@ -68,7 +68,12 @@ namespace cereal
         int slots;
         ar(label, slots);
 
+#ifdef NO_PADDING
+        auto alloc = Kokkos::view_alloc(label);
+#else
         auto alloc = Kokkos::view_alloc(label, Kokkos::AllowPadding);
+#endif
+
         p = Particles(alloc, slots);
 
         if (p.stride(1) != slots)
