@@ -194,7 +194,7 @@ def main():
     print("run sis_18")
     print("my rank =", MPI.COMM_WORLD.Get_rank())
     run2()
-    checkpoint_resume()
+    #checkpoint_resume()
 
 main()
 

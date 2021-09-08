@@ -21,4 +21,5 @@ copy_file(sis18.madx s3_sis18)
 copy_file(sis18-6.lsx s3_sis18)
 copy_file(sis18.py s3_sis18)
 copy_file(resume.py s3_sis18)
+copy_file(correlation_matrix.npy s3_sis18)
 
