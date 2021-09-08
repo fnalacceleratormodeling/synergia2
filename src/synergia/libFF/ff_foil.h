@@ -768,12 +768,12 @@ namespace foil_impl
     {
         constexpr static const char *type = "foil";
 
-        Foil_aperture(Lattice_element const& ele)
+        Foil_aperture()
         { }
 
         KOKKOS_INLINE_FUNCTION
         bool discard(ConstParticles const& parts, 
-                ConstMasks const& masks, int p) const
+                ConstParticleMasks const& masks, int p) const
         { return masks(p) == 0xff; }
     };
 
@@ -847,7 +847,7 @@ namespace FF_foil
 
             // aperture to fiter out all particles with mask value 0xff
             Foil_aperture ap;
-            int ndiscarded = bunch.apply_aperture(ap)
+            int ndiscarded = bunch.apply_aperture(ap);
             double charge = ndiscarded * bunch.get_real_num() / bunch.get_total_num();
             slice.get_lattice_element().deposit_charge(charge);
         }
