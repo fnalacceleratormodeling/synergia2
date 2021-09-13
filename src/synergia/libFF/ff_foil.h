@@ -1,9 +1,10 @@
 #ifndef FF_FOIL_H
 #define FF_FOIL_H
 
+#include <Kokkos_Random.hpp>
+
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/utils/simple_timer.h"
-#include <Kokkos_Random.hpp>
 
 namespace foil_impl
 {
@@ -503,8 +504,8 @@ namespace foil_impl
                 double xmin, double xmax, 
                 double ymin, double ymax, 
                 double thick, 
-                double pref, double m/*,
-                karray1d_dev stat*/)
+                double pref, 
+                double m)
         : rand_pool(seed)
         , parts(parts)
         , masks(masks)
@@ -521,7 +522,7 @@ namespace foil_impl
         , b_pN(14.5 * pow(a, 2.0/3.0))
         , length(thick / (1.0e5 * density))
         , dlength(length * 1.0e-4)
-        //, stat(stat)
+        //, stat("stat", 3)
         {
         }
 
@@ -773,6 +774,116 @@ namespace foil_impl
     };
 
 
+    template<class BP>
+    struct PropFoilSimpleScatter
+    {
+        Kokkos::Random_XorShift64_Pool<> rand_pool;
+
+        typename BP::parts_t parts;
+        typename BP::masks_t masks;
+
+        const int ma_;
+
+        double xmin;
+        double xmax;
+        double ymin;
+        double ymax;
+
+        double length;
+        double theta_scat_min;
+        double lscatter;
+
+        //karray1d_dev stat;
+
+        KOKKOS_INLINE_FUNCTION
+        PropFoilSimpleScatter(int seed, 
+                typename BP::parts_t parts,
+                typename BP::masks_t masks,
+                double xmin, double xmax, 
+                double ymin, double ymax, 
+                double thick, 
+                double theta_scat_min,
+                double lscatter)
+        : rand_pool(seed)
+        , parts(parts)
+        , masks(masks)
+        , ma_(0)
+        , xmin(xmin)
+        , xmax(xmax)
+        , ymin(ymin)
+        , ymax(ymax)
+        , length(thick / (1.0e3 * get_rho(/*ma_*/)))
+        , theta_scat_min(theta_scat_min)
+        , lscatter(lscatter)
+        //, stat("stat", 101)
+        {
+        }
+
+        KOKKOS_INLINE_FUNCTION
+        bool check_foil_flag(double x, double y) const
+        {
+            return x>=xmin && x<=xmax && y>=ymin && y<=ymax;
+        }
+
+        KOKKOS_INLINE_FUNCTION
+        void operator()(const int i) const
+        {
+            if (masks(i) == 0) return;
+
+            auto x = parts(i,0);
+            auto y = parts(i,2);
+            
+            bool foil_flag = check_foil_flag(x, y);
+
+            if (!foil_flag)
+                return;
+            
+            //If in the foil, tally the hit and start tracking
+            double zrl = length;  // distance remaining in foil in cm//
+            double thetaX = 0.;
+            double thetaY = 0.;
+
+            // random number
+            Kokkos::Random_XorShift64_Pool<>::generator_type 
+                rand_gen = rand_pool.get_state();
+
+            // Generate interaction points until particle exits foil
+            while (zrl >= 0.0)
+            {
+                //random1 = Random::ran1(idum);
+                double random1 = rand_gen.drand();
+
+                zrl += lscatter * log(random1);
+                if(zrl < 0.0) break; // exit foil
+                
+                // Generate random angles
+                //random1 = Random::ran1(idum);
+                random1 = rand_gen.drand();
+                double phi = 2*mconstants::pi * random1;
+
+                //random1 = Random::ran1(idum);
+                random1 = rand_gen.drand();
+                double theta = theta_scat_min * sqrt(random1 / (1. - random1));
+
+                thetaX += theta * cos(phi);
+                thetaY += theta * sin(phi);
+
+#if 0
+                //std::cout << theta*theta << "\n";
+                Kokkos::atomic_add(&stat(100), theta*theta);
+
+                int bin = (int)(theta/0.1e-5);
+                if (bin<100) Kokkos::atomic_increment(&stat(bin));
+#endif
+            }
+
+            parts(i,1) += thetaX;
+            parts(i,3) += thetaY;
+
+            rand_pool.free_state(rand_gen);
+        }
+    };
+
     struct Foil_aperture
     {
         constexpr static const char *type = "foil";
@@ -801,7 +912,7 @@ namespace FF_foil
 
         scoped_simple_timer timer("libFF_foil");
 
-        const double  length = slice.get_right() - slice.get_left();
+        //const double  length = slice.get_right() - slice.get_left();
         const double    mass = bunch.get_mass();
 
         // element
@@ -812,69 +923,108 @@ namespace FF_foil
         const double ymin = ele.get_double_attribute("ymin", 0.0);
         const double ymax = ele.get_double_attribute("ymax", 0.0);
 
-        //double thick = 600e-6 / 3.520;
-        //double thick = 600e-3 * 1e8;
         const double thick = ele.get_double_attribute("thick", 0.0);
 
-        const int seed = 5;
+        // use simple scatter or full scatter
+        bool is_simple = false;
+        const double simple = ele.get_double_attribute("simple", 0);
+        if (simple != 0) is_simple = true;
 
-        Reference_particle const & ref_b = bunch.get_reference_particle();
+        // random seed
+        const int seed = 123;
+
+        // ref
+        Reference_particle const& ref_b = bunch.get_reference_particle();
         const double pref = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
 
-        if (close_to_zero(thick))
-        {
-            // do nothing
-        }
-        else
-        {
-            //std::cout << "scattering...\n";
+        // propagate the bunch particles
+        auto apply = [&](ParticleGroup pg) {
+            auto bp = bunch.get_bunch_particles(pg);
+            if (!bp.num_valid()) return;
 
-            // propagate the bunch particles
-            auto apply = [&](ParticleGroup pg) {
-                auto bp = bunch.get_bunch_particles(pg);
-                if (!bp.num_valid()) return;
+            using exec = typename BunchT::exec_space;
+            auto range = Kokkos::RangePolicy<exec>(0, bp.size());
 
-                //karray1d_dev d_stat("stat", 10);
-                //auto h_stat = create_mirror_view(d_stat);
+            if (is_simple)
+            {
+                double BohrRadius=0.52917706e-8;  // hydrogenic Bohr radius in cm
+                double hBar = 1.0545887e-27;      // Planck's constant in erg-sec
+                double echarge = 4.803242e-10;    // in esu or statcoulombs
+                double nAvogadro = 6.022045e23;
+                double deg2Rad = 1.74532925e-2;
+                double rhofoil = 2.265;
+                double muScatter = 1.35;
 
-                using exec = typename BunchT::exec_space;
-                auto range = Kokkos::RangePolicy<exec>(0, bp.size());
+                double length = thick / (1.0e3 * get_rho(/*ma_*/));
 
+                // Momentum in g*cm/sec
+                double pInj0 = 1.6726e-22 * mass / pconstants::proton_mass * 
+                    ref_b.get_beta() * ref_b.get_gamma() * pconstants::c;
+
+                // Thomas-Fermi atom radius (cm):
+                double TFRadius = muScatter *  BohrRadius *
+                    pow(get_z(/*ma_*/), -0.33333);
+
+                // Minimum scattering angle:
+                double thetaScatMin =  hBar / (pInj0 * TFRadius);
+
+                // Theta max as per Jackson (13.102)
+                double thetaScatMax = 274.e5 * pconstants::electron_mass * 
+                    pconstants::c / (pInj0 * pow(get_a(/*ma_*/), 0.33333));
+
+                double pv = 1.e2 * pInj0 * ref_b.get_beta() * pconstants::c;
+                double term = get_z(/*ma_*/) * echarge * echarge / pv;
+                double sigmacoul = 4*mconstants::pi * term * term / 
+                    (thetaScatMin * thetaScatMin);
+
+                // Scattering area per area
+                double nscatters = nAvogadro * (get_rho(/*ma_*/)/1000.0) / 
+                    get_a(/*ma_*/) * length * sigmacoul;
+
+                // Mean free path
+                double lscatter = length/nscatters;
+
+                PropFoilSimpleScatter<typename BunchT::bp_t> psc(
+                        seed,
+                        bp.parts, bp.masks,
+                        xmin, xmax, ymin, ymax, thick, // geometry
+                        lscatter, thetaScatMin
+                        );
+
+                Kokkos::parallel_for(range, psc);
+            }
+            else
+            {
                 PropFoilFullScatter<typename BunchT::bp_t> pfc(
                         seed,
                         bp.parts, bp.masks,
                         xmin, xmax, ymin, ymax, thick, // geometry
-                        pref, mass/*,
-                        d_stat*/
+                        pref, mass
                         );
 
                 Kokkos::parallel_for(range, pfc);
+            }
+        };
 
-#if 0
-                Kokkos::deep_copy(h_stat, d_stat);
-                std::cout << "stat = " 
-                    << h_stat(0) << ", "
-                    << h_stat(1) << ", "
-                    << h_stat(2) << ", "
-                    << h_stat(3) << ", "
-                    << "\n";
-#endif
-            };
+        // apply
+        apply(ParticleGroup::regular);
+        apply(ParticleGroup::spectator);
 
-            // apply
-            apply(ParticleGroup::regular);
-            apply(ParticleGroup::spectator);
+        // advance the ref_part
+        //bunch.get_reference_particle().increment_trajectory(length);
 
-            // advance the ref_part
-            bunch.get_reference_particle().increment_trajectory(length);
-
+        if (!is_simple)
+        {
             // aperture to fiter out all particles with mask value 0xff
+            // seems only happen in the full scatter
             Foil_aperture ap;
             int ndiscarded = bunch.apply_aperture(ap);
-            double charge = ndiscarded * bunch.get_real_num() / bunch.get_total_num();
+            double charge = ndiscarded * bunch.get_real_num() 
+                / bunch.get_total_num();
             slice.get_lattice_element().deposit_charge(charge);
         }
 
+        // fencing
         Kokkos::fence();
     }
 

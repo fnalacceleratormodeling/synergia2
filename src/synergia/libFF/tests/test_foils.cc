@@ -133,6 +133,7 @@ TEST_CASE("foil")
     ele.set_double_attribute("ymin", -0.05);
     ele.set_double_attribute("ymax",  0.05);
     ele.set_double_attribute("thick",  600);
+    ele.set_double_attribute("simple",  1);
 
     FF_element::apply(ele, tb);
 
