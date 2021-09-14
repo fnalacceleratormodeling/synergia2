@@ -127,10 +127,11 @@ Build python3 on Power9 (libffi needd to enable _ctypes):
 ## 4. MacOS:
 
     brew install gcc hdf5 eigen fftw3
+    pip3 install numpy mpi4py pytest pyparsing
 
 MacOS with gcc:
 
-    CC=gcc-9 CXX=g++-9 cmake -DKokkos_ENABLE_OPENMP=on -DCMAKE_OSX_SYSROOT="/" -DCMAKE_OSX_DEPLOYMENT_TARGET="" /path/to/synergia/
+    CC=gcc-9 CXX=g++-9 cmake -DKokkos_ENABLE_OPENMP=on /path/to/synergia/
 
 MacOS with apple clang (openmp missing, possible with '-Xpreprocessor -fopenmp -lomp'):
 
