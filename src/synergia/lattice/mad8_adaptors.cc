@@ -1188,7 +1188,12 @@ Hkicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     alignmentData aligner;
 
     double kicklen = lattice_element.get_double_attribute("l");
-    double kick = lattice_element.get_double_attribute("kick");
+    double kick = 0.0;
+    if (lattice_element.has_double_attribute("hkick")) {
+        kick = lattice_element.get_double_attribute("hkick");
+    } else if (lattice_element.has_double_attribute("kick")) {
+        kick = lattice_element.get_double_attribute("kick");
+    }
     double tilt = lattice_element.get_double_attribute("tilt");
 
     bmlnElmnt* bmln_elmnt = new hkick(lattice_element.get_name().c_str());

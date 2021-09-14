@@ -106,8 +106,12 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
     // hk and vk are the hk/vk under lattice reference momentum
     double l = slice.get_lattice_element().get_double_attribute("l", 0.0);
-    double k = slice.get_lattice_element().get_double_attribute("kick");
-
+    double k=0.0;
+    if (slice.get_lattice_element().has_double_attribute("hkick")) {
+        k = slice.get_lattice_element().get_double_attribute("hkick");
+    } else if (slice.get_lattice_element().has_double_attribute("kick")) {
+        k = slice.get_lattice_element().get_double_attribute("kick");
+    }
     Reference_particle       & ref_lattice = bunch.get_design_reference_particle();
     Reference_particle const & ref_bunch   = bunch.get_reference_particle();
 
