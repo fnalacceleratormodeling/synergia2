@@ -4,15 +4,15 @@
 
 #include "synergia/foundation/trigon_traits.h"
 
-#if 1
+#if 0
 #undef GSV_SSE
 #undef GSV_AVX
 #undef GSV_V4D
 #undef GSV_MIC
 #undef GSV_AVX512
-#endif
 
 #define GSV_AVX
+#endif
 
 // no simd when build for CUDA
 #ifdef Kokkos_ENABLE_CUDA

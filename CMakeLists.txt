@@ -77,6 +77,9 @@ option(Kokkos_ENABLE_CUDA "enable CUDA backend" Off)
 # only build the shared lib
 option(BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 
+# option for gsvector setting
+set(GSV "AVX" CACHE STRING "set gsvector vectorization type (DOUBLE|SSE|AVX|AVX512)")
+
 # find MPI -- do not build the C++ bindings
 set(MPI_CXX_SKIP_MPICXX TRUE CACHE BOOL "disable the MPI2-C++ bindings")
 find_package(MPI REQUIRED COMPONENTS C CXX) # CXX means we need to call C-APIs in C++ code
@@ -186,6 +189,21 @@ else()
     message(STATUS "Particle array padding disabled")
     add_definitions(-DNO_PADDING)
 endif()
+
+# GSVector settings
+if(GSV STREQUAL "SSE")
+    message(STATUS "using SSE for gsvector")
+    add_definitions(-DGSV_SSE)
+elseif(GSV STREQUAL "AVX")
+    message(STATUS "using AVX for gsvector")
+    add_definitions(-DGSV_AVX)
+elseif(GSV STREQUAL "AVX512")
+    message(STATUS "using AVX512 for gsvector")
+    add_definitions(-DGSV_AVX512)
+else()
+    message(STATUS "using double for gsvector")
+endif()
+
 
 # Additional CXXFLAGS
 if (EXTRA_CXX_FLAGS)
