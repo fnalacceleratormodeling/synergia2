@@ -445,7 +445,7 @@ namespace Lattice_simulator
 
     template<class ELMS>
     void
-    Lattice_simulator::calc_dispersions_impl(Lattice& lattice, ELMS& elms)
+    calc_dispersions_impl(Lattice& lattice, ELMS& elms)
     {
         const double dpp = 0.0005;
 
