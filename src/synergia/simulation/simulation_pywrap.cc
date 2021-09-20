@@ -163,6 +163,14 @@ PYBIND11_MODULE(simulation, m)
                 "tolerance"_a = 1e-4,
                 "max_steps"_a = 6 )
 
+        .def("CourantSnyderLatticeFunctions",
+                (void(*)(Lattice&))(&Lattice_simulator::CourantSnyderLatticeFunctions),
+                "lattice"_a)
+
+        .def("calc_dispersions",
+                (void(*)(Lattice&))&Lattice_simulator::calc_dispersions,
+                "lattice"_a)
+
         .def( "get_linear_one_turn_map", [](Lattice const& lattice) {
 
                 using namespace Lattice_simulator;

@@ -52,6 +52,21 @@ PYBIND11_MODULE(lattice, m)
         .value("v_chrom_corrector", marker_type::v_chrom_corrector)
         ;
 
+    py::class_<latt_func_t::lf_val_t>(m, "lf_val_t")
+        .def_readwrite("hor", &latt_func_t::lf_val_t::hor)
+        .def_readwrite("hor", &latt_func_t::lf_val_t::ver)
+        ;
+
+
+    py::class_<latt_func_t>(m, "latt_func_t")
+        .def_readwrite("arcLength",  &latt_func_t::arcLength)
+        .def_readwrite("dispersion", &latt_func_t::dispersion)
+        .def_readwrite("dPrime",     &latt_func_t::dPrime)
+        .def_readwrite("beta",       &latt_func_t::beta)
+        .def_readwrite("alpha",      &latt_func_t::alpha)
+        .def_readwrite("psi",        &latt_func_t::psi)
+        ;
+
     // Lattice_element
     py::class_<Lattice_element>(m, "Lattice_element")
         .def( py::init<>(),
@@ -173,6 +188,9 @@ PYBIND11_MODULE(lattice, m)
 
         .def_static( "get_all_type_names",
                 &Lattice_element::get_all_type_names )
+
+        .def_readwrite( "lf", 
+                &Lattice_element::lf )
 
         // print
         .def( "print_", 
