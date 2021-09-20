@@ -3,24 +3,44 @@
 
 #include <Kokkos_Core.hpp>
 
-int main()
+int
+main()
 {
     void* lib_kokkoscore = dlopen("libkokkoscore.so", RTLD_NOW);
-    void* pfun = nullptr;
-    if (lib_kokkoscore) {
-      // Try calling the Kokkos::initialize() function used in the Python code from a
-      // C++ program that is not linked to the library.
-      pfun = dlsym(lib_kokkoscore, "_ZN6Kokkos10initializeENS_13InitArgumentsE");
-      if (!pfun) {
-        printf("Failed to find Kokkos::initialize\n");
-      } else {
-	using fun_t = void(*)(Kokkos::InitArguments);
-	auto call_ctor = reinterpret_cast<fun_t>(pfun);
-	(*call_ctor)(Kokkos::InitArguments());
-      }
+    if (!lib_kokkoscore) {
+        printf("Failed to load libkokkoscore.so\n");
+        return 1;
     }
-    if (lib_kokkoscore) dlclose(lib_kokkoscore);
-    if (lib_kokkoscore == nullptr) return 1;
-    if (pfun == nullptr) return 2;
+
+    void* p_initialize =
+        dlsym(lib_kokkoscore, "_ZN6Kokkos10initializeENS_13InitArgumentsE");
+
+    if (!p_initialize) {
+        printf("Failed to find Kokkos::initialize\n");
+        dlclose(lib_kokkoscore);
+        return 2;
+    }
+
+    void* p_finalize = dlsym(lib_kokkoscore, "_ZN6Kokkos8finalizeEv");
+    if (!p_finalize) {
+        printf("Failed to find Kokkos::finalize\n");
+        dlclose(lib_kokkoscore);
+        return 3;
+    }
+
+    // Try calling the Kokkos::initialize() function used in the Python code
+    // from a C++ program that is not linked to the library. Make sure to call
+    // Kokkos::finalize() to clean up after ourselves.
+    using initialization_fun_t = void (*)(Kokkos::InitArguments);
+    using finalization_fun_t = void (*)();
+
+    auto call_ctor = reinterpret_cast<initialization_fun_t>(p_initialize);
+    auto call_finalize = reinterpret_cast<finalization_fun_t>(p_finalize);
+
+    (*call_ctor)(Kokkos::InitArguments());
+    (*call_finalize)();
+
+    dlclose(lib_kokkoscore);
+    printf("dlclose(lib_kokkoscore) completed\n");
     return 0;
 }
