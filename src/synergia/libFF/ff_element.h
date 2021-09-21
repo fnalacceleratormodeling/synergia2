@@ -22,7 +22,8 @@ namespace FF_element
     template<class BUNCH>
     void apply(Lattice_element_slice const& slice, BUNCH & b)
     {
-        auto t = slice.get_lattice_element().get_type();
+        auto const& elm = slice.get_lattice_element();
+        auto t = elm.get_type();
 
         switch(t)
         {
@@ -53,7 +54,11 @@ namespace FF_element
         case element_type::foil:       FF_foil::apply(slice, b); break;
 
         default: 
-            throw std::runtime_error("FF_element::apply() unknown element");
+            throw std::runtime_error(
+                    "FF_element::apply() unknown element type = " + 
+                        elm.get_type_name() +
+                    ", element name = " + 
+                        elm.get_name() );
         }
     }
 
