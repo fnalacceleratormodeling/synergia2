@@ -54,7 +54,7 @@ PYBIND11_MODULE(lattice, m)
 
     py::class_<latt_func_t::lf_val_t>(m, "lf_val_t")
         .def_readwrite("hor", &latt_func_t::lf_val_t::hor)
-        .def_readwrite("hor", &latt_func_t::lf_val_t::ver)
+        .def_readwrite("ver", &latt_func_t::lf_val_t::ver)
         ;
 
 
