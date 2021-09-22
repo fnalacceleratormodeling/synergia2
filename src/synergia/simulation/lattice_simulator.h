@@ -245,7 +245,7 @@ namespace Lattice_simulator
     void 
     CourantSnyderLatticeFunctions_impl(Lattice& lattice, ELMS & elms)
     {
-        constexpr const int order = 1;
+        constexpr const int order = 2;
         using trigon_t = Trigon<double, order, 6>;
 
         const int ix  = 0;
