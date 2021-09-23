@@ -29,7 +29,7 @@ namespace storage_order
 struct Hdf5_exception : public std::exception
 {
     Hdf5_exception(std::string const & msg = "")
-        : hdf5_msg(), user_msg(msg)
+        : hdf5_msg(), user_msg(msg), what_msg()
     { 
         std::stringstream buf;
 
@@ -37,19 +37,18 @@ struct Hdf5_exception : public std::exception
         H5Ewalk(H5E_DEFAULT, H5E_WALK_UPWARD, &Hdf5_exception::err_walk, &buf);
 
         hdf5_msg = buf.str();
-    }
 
-    ~Hdf5_exception() throw() { }
-
-    virtual const char * what() const throw()
-    {
-        std::string res = std::string("\n")
+        what_msg = std::string("\n")
             + "===================================\n" 
             + "USER MESSAGE:\n  " + user_msg + "\n\n"
             + "HDF5 MESSAGE:\n"   + hdf5_msg
             + "===================================\n";
-        return res.c_str();
     }
+
+    ~Hdf5_exception() throw() { }
+
+    const char* what() const noexcept override
+    { return what_msg.c_str(); }
 
 private:
 
@@ -79,6 +78,7 @@ private:
 
     std::string hdf5_msg;
     std::string user_msg;
+    std::string what_msg;
 };
 
 // handles the closing of resources in the RAII way
