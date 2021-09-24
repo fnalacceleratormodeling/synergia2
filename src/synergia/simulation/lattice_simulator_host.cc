@@ -5,9 +5,17 @@
 
 #include "synergia/foundation/math_constants.h"
 
+using Vector = Eigen::Matrix<std::complex<double>, 6, 1>;
+using Matrix = Eigen::Matrix<std::complex<double>, 6, 6, Eigen::RowMajor>;
+
+Vector 
+ev_ordering(Vector const& ev, Matrix const& B);
+
 std::array<double, 2>
 filter_transverse_tunes(double const* jac_arr)
 {
+    constexpr static int EigenIterations = 100000;
+
     using MatrixD = Eigen::Matrix<double, 
           Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
@@ -24,7 +32,21 @@ filter_transverse_tunes(double const* jac_arr)
          jac(ipy, ix ) || jac(ipx, iy ) ||
          jac(ipy, ipx) || jac(ipx, ipy) )
     {
-        auto lambda = jac.eigenvalues();
+        Eigen::EigenSolver<MatrixD> eigensolver;
+
+        eigensolver.setMaxIterations(EigenIterations);
+        eigensolver.compute(jac);
+
+        if (eigensolver.info() == Eigen::NoConvergence)
+            throw std::runtime_error("eigensolver no convergence");
+
+        if (eigensolver.info() != Eigen::Success)
+            throw std::runtime_error("failed solving eigenvectors");
+
+        auto eigen_val = eigensolver.eigenvalues();
+        auto eigen_vec = eigensolver.eigenvectors();
+
+        auto lambda = ev_ordering(eigen_val, eigen_vec);
 
         for(int i=0; i<6; ++i) 
         {
@@ -39,8 +61,8 @@ filter_transverse_tunes(double const* jac_arr)
             }
         }
 
-        if( (abs(lambda(0) - std::conj(lambda(1))) > 1.0e-4)  ||
-            (abs(lambda(3) - std::conj(lambda(4))) > 1.0e-4) ) 
+        if( (abs(lambda(0) - std::conj(lambda(3))) > 1.0e-4)  ||
+            (abs(lambda(1) - std::conj(lambda(4))) > 1.0e-4) ) 
         {
             std::stringstream ss;
             ss << "filterTransverseTunes: "
@@ -51,7 +73,7 @@ filter_transverse_tunes(double const* jac_arr)
         }
        
         double csH = lambda(0).real();
-        double csV = lambda(3).real();
+        double csV = lambda(1).real();
 
         if( fabs( csH - csV ) < 1.0e-4 ) 
         {
@@ -268,6 +290,114 @@ filter_transverse_tunes(double const* jac_arr)
 
     return nu;
 }
+
+Vector
+ev_ordering(Vector const& ev, Matrix const& B)
+{
+    int Lidx[6]; int unused[6];
+
+    for(int i=0; i<6; ++i)
+    {
+        unused[i] = 1;
+        Lidx[i] = -1;
+    }
+
+    // first reorder to L1, L2, L3, L1*, L2*, L3*
+    for(int i=0; i<3; ++i)
+    {
+        // find first unused
+        for(int j=0; j<6; ++j)
+        {
+            if(unused[j]) 
+            {
+                Lidx[i] = j;
+                unused[j] = 0;
+                break;
+            }
+        }
+
+        // eigenvalue of the selected index
+        auto lambda1 = ev(Lidx[i]);
+        
+        // find the pairing eigenvalue
+        for(int j=0; j<6; ++j)
+        {
+            if (unused[j])
+            {
+                auto lambda2 = ev(j);
+
+                // put the matching index to i+3
+                if (abs(lambda1 - std::conj(lambda2)) < 1e-6)
+                {
+                    Lidx[i+3] = j;
+                    unused[j] = 0;
+                    break;
+                }
+            }
+        }
+
+        // do we find the matching one?
+        if (Lidx[i+3] < 0)
+            throw std::runtime_error("Failed to find matching eigenvalue");
+    }
+
+    // next find the largest x component and move to column 0 and 3
+    double max = 0.0;
+    int idx = 0;
+
+    for(int i=0; i<3; ++i)
+    {
+        double x = abs(B(0, Lidx[i]));
+
+        if (x > max)
+        {
+            max = x;
+            idx = i;
+        }
+    }
+
+    if (idx != 0)
+    {
+        int tmp = Lidx[0];
+        Lidx[0] = Lidx[idx];
+        Lidx[idx] = tmp;
+
+        tmp = Lidx[3];
+        Lidx[3] = Lidx[idx+3];
+        Lidx[idx+3] = tmp;
+    }
+
+    // then find the largest y component and move to column 1 and 4
+    max = 0.0;
+    
+    for(int i=1; i<3; ++i)
+    {
+        double y = abs(B(1, Lidx[i]));
+
+        if (y > max)
+        {
+            max = y;
+            idx = i;
+        }
+    }
+
+    if (idx != 1)
+    {
+        int tmp = Lidx[1];
+        Lidx[1] = Lidx[idx];
+        Lidx[idx] = tmp;
+
+        tmp = Lidx[4];
+        Lidx[4] = Lidx[idx+3];
+        Lidx[idx+3] = tmp;
+    }
+
+    Vector ev2;
+    for(int i=0; i<6; ++i) ev2(i) = ev(Lidx[i]);
+
+    return ev2;
+}
+
 
 
 

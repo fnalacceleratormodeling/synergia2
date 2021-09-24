@@ -168,10 +168,11 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     std::cout << "eigenvalues2 = \n" << jac2.eigenvalues() << "\n";
 #endif
 
+#if 0
     std::cout << "e0 = " << e0 << "\n";
     std::cout << "pc0 = " << pc0 << "\n";
     std::cout << "mass = " << mass << "\n";
-
+#endif
 
     // coordinates for synergia particle
     trigon_t    x(0.0, s_ix);
