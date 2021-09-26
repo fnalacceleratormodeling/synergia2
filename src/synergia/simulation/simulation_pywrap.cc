@@ -171,39 +171,62 @@ PYBIND11_MODULE(simulation, m)
                 (void(*)(Lattice&))&Lattice_simulator::calc_dispersions,
                 "lattice"_a)
 
-        .def( "get_linear_one_turn_map", [](Lattice const& lattice) {
+        .def( "get_linear_one_turn_map", 
+                [](Lattice const& lattice, int order) {
+                    using namespace Lattice_simulator;
 
-                using namespace Lattice_simulator;
-                auto map = get_linear_one_turn_map(lattice);
+                    karray2d_row map;
 
-                auto arr = py::array_t<double>(
-                    {map.extent(0), map.extent(1)},
-                    {map.stride(0)*sizeof(double), map.stride(1)*sizeof(double)}
-                );
+                    if (order == 1) 
+                        map = get_one_turn_map<1>(lattice).jacobian();
+                    else if (order == 2) 
+                        map = get_one_turn_map<2>(lattice).jacobian();
+                    else if (order == 3) 
+                        map = get_one_turn_map<3>(lattice).jacobian();
+                    else if (order == 4) 
+                        map = get_one_turn_map<4>(lattice).jacobian();
+                    else if (order == 5) 
+                        map = get_one_turn_map<5>(lattice).jacobian();
+                    else if (order == 6) 
+                        map = get_one_turn_map<6>(lattice).jacobian();
+                    else if (order == 7) 
+                        map = get_one_turn_map<7>(lattice).jacobian();
+                    else 
+                        throw std::runtime_error("invalid order");
 
-                for(int i=0; i<map.extent(0); ++i)
-                    for(int j=0; j<map.extent(1); ++j)
-                        arr.mutable_at(i,j) = map(i,j);
+                    //auto map = get_linear_one_turn_map(lattice);
 
-                return arr;
+                    auto arr = py::array_t<double>(
+                        {map.extent(0), map.extent(1)},
+                        {map.stride(0)*sizeof(double), 
+                         map.stride(1)*sizeof(double)}
+                    );
+
+                    for(int i=0; i<map.extent(0); ++i)
+                        for(int j=0; j<map.extent(1); ++j)
+                            arr.mutable_at(i,j) = map(i,j);
+
+                    return arr;
 
 #if 0
-                double *buf = new double[6*6];
-                for(int i=0; i<36; ++i) buf[i] = map.data()[i];
+                    double *buf = new double[6*6];
+                    for(int i=0; i<36; ++i) buf[i] = map.data()[i];
 
-                py::capsule free_when_done(buf, [](void* f) {
-                    double *b = reinterpret_cast<double*>(f);
-                    delete[] b;
-                });
+                    py::capsule free_when_done(buf, [](void* f) {
+                        double *b = reinterpret_cast<double*>(f);
+                        delete[] b;
+                    });
 
-                return py::array_t<double>(
-                    { 6, 6 },
-                    { sizeof(double) * 6, sizeof(double) * 1 },
-                    buf,
-                    free_when_done
-                );
+                    return py::array_t<double>(
+                        { 6, 6 },
+                        { sizeof(double) * 6, sizeof(double) * 1 },
+                        buf,
+                        free_when_done
+                    );
 #endif
-        })
+                },
+                "lattice"_a,
+                "order"_a = 2)
         ;
 
     // Collective operator options (base class)
