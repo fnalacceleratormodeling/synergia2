@@ -194,7 +194,8 @@ PYBIND11_MODULE(simulation, m)
                     else 
                         throw std::runtime_error("invalid order");
 
-                    //auto map = get_linear_one_turn_map(lattice);
+                    // get_linear_one_turn_map() is fixed to order 2
+                    // auto map = get_linear_one_turn_map(lattice);
 
                     auto arr = py::array_t<double>(
                         {map.extent(0), map.extent(1)},
