@@ -71,11 +71,12 @@ coords['x'] = 0
 coords['xp'] = 1
 coords['y'] = 2
 coords['yp'] = 3
-coords['z'] = 4
-coords['zp'] = 5
+coords['cdt'] = 4
+coords['dpop'] = 5
 coords['pz'] = 7
 coords['energy'] = 8
 coords['t'] = 9
+coords['z'] = 10
 
 class Options:
     def __init__(self):
@@ -165,6 +166,9 @@ def do_plots(options):
     npart = particles.shape[0]
     mass = h5.get('mass')[()]
     p_ref = h5.get('pz')[()]
+    betagamma = p_ref/mass
+    gamma = numpy.sqrt(betagamma**2 + 1)
+    beta = betagamma/gamma
     #print "p_ref: ", p_ref
     #print "mass: ", mass
     pz = (p_ref * (1.0 + particles[:,5])).reshape(npart, 1)
@@ -172,7 +176,8 @@ def do_plots(options):
     energy = numpy.sqrt(pz*pz + mass**2).reshape(npart, 1)
     time = (particles[:,4]*1.0e9/c).reshape(npart,1)
     #print "energy.shape: ", energy.shape
-    particles = numpy.hstack((particles, pz, energy,time))
+    z = (particles[:,4]*beta).reshape(npart,1)
+    particles = numpy.hstack((particles, pz, energy,time, z))
     
     pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
     selected_particles = ((particles[:, coords[options.hcoord]] >= options.minh) *
