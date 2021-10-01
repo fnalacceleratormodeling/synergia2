@@ -1,0 +1,3 @@
+[submodule "src/synergia/utils/kokkos"]
+	path = src/synergia/utils/kokkos
+	url = https://github.com/fnalacceleratormodeling/kokkos.git
