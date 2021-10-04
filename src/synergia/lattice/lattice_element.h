@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <array>
 
 #include "synergia/utils/cereal.h"
 #include "synergia/utils/lsexpr.h"
