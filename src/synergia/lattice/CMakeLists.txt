@@ -1,10 +1,3 @@
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_parser.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_reader.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/simplify.py 
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 if(${Kokkos_ENABLE_CUDA})
     set_source_files_properties(mx_parse.cc PROPERTIES COMPILE_FLAGS --host-only)
     set_source_files_properties(mx_tree.cc PROPERTIES COMPILE_FLAGS --host-only)
@@ -26,15 +19,13 @@ add_library(synergia_lattice
 target_link_libraries(synergia_lattice 
     synergia_foundation 
     synergia_bunch
-    #${CHEF_LIBS} 
-    #${Boost_REGEX_LIBRARY} 
-    #${Boost_SERIALIZATION_LIBRARY}
+    )
+
+target_link_options(synergia_lattice
+    PRIVATE "LINKER:-z,defs"
     )
 
 if (BUILD_PYTHON_BINDINGS)
-    #add_python_extension(lattice lattice_wrap.cc)
-    #target_link_libraries(lattice synergia_lattice synergia_foundation synergia_bunch
-    #    ${CHEF_LIBS} ${Boost_LIBRARIES})
 
     pybind11_add_module(lattice MODULE NO_EXTRAS lattice_pywrap.cc)
     target_link_libraries(lattice PRIVATE synergia_lattice)
@@ -42,6 +33,7 @@ if (BUILD_PYTHON_BINDINGS)
     copy_file(__init__.py lattice)
     copy_file(mad8_parser.py lattice)
     copy_file(mad8_reader.py lattice)
+    copy_file(simplify.py lattice)
 
 endif ()
 

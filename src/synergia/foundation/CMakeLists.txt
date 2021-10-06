@@ -3,24 +3,22 @@ add_library(synergia_foundation
     four_momentum.cc 
     reference_particle.cc
     distribution.cc 
-    #multi_diagnostics.cc
-    #diagnostics_write_helper.cc
     )
 
 target_link_libraries(synergia_foundation 
     ${GSL_CONFIG_LIBS}
     synergia_parallel_utils 
-    #synergia_hdf5_utils 
-    #synergia_serialization
     lsexpr
     gsl
     gslcblas
     Kokkos::kokkos
     )
 
+target_link_options(synergia_foundation
+    PRIVATE "LINKER:-z,defs"
+    )
+
 if (BUILD_PYTHON_BINDINGS)
-    #add_python_extension(foundation foundation_wrap.cc)
-    #target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
 
     if(${Kokkos_ENABLE_CUDA})
         #set_source_files_properties(foundation_pywrap.cc 

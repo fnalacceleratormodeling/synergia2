@@ -21,6 +21,10 @@ target_link_libraries(synergia_collective
     #synergia_simulation 
     )
 
+target_link_options(synergia_collective
+    PRIVATE "LINKER:-z,defs"
+    )
+
 if (BUILD_PYTHON_BINDINGS)
     #add_python_extension(collective collective_wrap.cc)
     #target_link_libraries(collective synergia_collective synergia_bunch

@@ -1,6 +1,3 @@
-#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
-#    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 if(${Kokkos_ENABLE_CUDA})
     set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS --host-only)
     set_source_files_properties(diagnostics_full2_host.cc PROPERTIES COMPILE_FLAGS --host-only)
@@ -36,6 +33,10 @@ target_link_libraries(synergia_bunch
     synergia_foundation 
     synergia_serialization 
     kokkos
+    )
+
+target_link_options(synergia_bunch
+    PRIVATE "LINKER:-z,defs"
     )
 
 if (BUILD_PYTHON_BINDINGS)

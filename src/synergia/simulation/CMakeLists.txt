@@ -42,20 +42,20 @@ target_link_libraries(synergia_simulation
     synergia_foundation 
     synergia_bunch
     synergia_lattice 
-    #synergia_libFF 
     synergia_collective
     )
 
+target_link_options(synergia_simulation
+    PRIVATE "LINKER:-z,defs"
+    )
+
 if (BUILD_PYTHON_BINDINGS)
-#    add_python_extension(simulation simulation_wrap.cc)
-#    target_link_libraries(simulation synergia_foundation synergia_bunch
-#        synergia_lattice synergia_simulation
-#        ${CHEF_LIBS} ${Boost_LIBRARIES})
 
     pybind11_add_module(simulation MODULE NO_EXTRAS simulation_pywrap.cc)
     target_link_libraries(simulation PRIVATE synergia_simulation synergia_pydiag)
 
     copy_file(__init__.py simulation)
+
 endif ()
 
 install(TARGETS synergia_simulation 
