@@ -764,6 +764,13 @@ Lattice_simulator::adjust_tunes(
             v_correctors.push_back(&e);
     }
 
+    if (!h_correctors.size()) {
+        throw std::runtime_error("No h_tunes_correctors defined");
+    }
+    if (!v_correctors.size()) {
+        throw std::runtime_error("No v_tunes_correctors defined");
+    }
+
     Adjust_tunes_params atparams(
             lattice,
             horizontal_tune, vertical_tune,
