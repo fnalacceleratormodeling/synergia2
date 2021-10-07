@@ -22,7 +22,7 @@ target_link_libraries(synergia_collective
     )
 
 target_link_options(synergia_collective
-    PRIVATE "LINKER:-z,defs"
+    PRIVATE ${LINKER_OPTIONS}
     )
 
 if (BUILD_PYTHON_BINDINGS)

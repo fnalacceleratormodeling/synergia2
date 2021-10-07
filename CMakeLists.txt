@@ -40,14 +40,19 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # using GCC
     set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result -Wno-register")
+    if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(LINKER_OPTIONS "LINKER:-z,defs")
+    endif() 
     message(STATUS "Using g++")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     # using Intel C++
     set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
+    set(LINKER_OPTIONS "LINKER:-z,defs")
     message(STATUS "Using Intel C++")
 else()
     message(WARNING "I can not tell what compiler is being used. Will proceed with generic settings.")
 endif()
+
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILER_SPECIFIC_CXX_FLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")

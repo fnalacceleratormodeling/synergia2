@@ -36,7 +36,7 @@ target_link_libraries(synergia_bunch
     )
 
 target_link_options(synergia_bunch
-    PRIVATE "LINKER:-z,defs"
+    PRIVATE ${LINKER_OPTIONS}
     )
 
 if (BUILD_PYTHON_BINDINGS)

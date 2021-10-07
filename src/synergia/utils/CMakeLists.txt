@@ -12,15 +12,15 @@ add_library(synergia_parallel_utils_static STATIC ${synergia_parallel_utils_src}
 target_link_libraries(synergia_parallel_utils MPI::MPI_C Kokkos::kokkos)
 target_link_libraries(synergia_parallel_utils_static MPI::MPI_C Kokkos::kokkos)
 
-target_link_options(synergia_parallel_utils PRIVATE "LINKER:-z,defs")
-target_link_options(synergia_parallel_utils_static PRIVATE "LINKER:-z,defs")
+target_link_options(synergia_parallel_utils PRIVATE ${LINKER_OPTIONS})
+target_link_options(synergia_parallel_utils_static PRIVATE ${LINKER_OPTIONS})
 
 add_library(synergia_test_main STATIC catch_test_main.cc)
 target_link_libraries(synergia_test_main kokkos MPI::MPI_C)
 
 add_library(synergia_serialization cereal_files.cc)
 target_link_libraries(synergia_serialization synergia_parallel_utils)
-target_link_options(synergia_serialization PRIVATE "LINKER:-z,defs")
+target_link_options(synergia_serialization PRIVATE ${LINKER_OPTIONS})
 
 add_library(synergia_hdf5_utils 
     hdf5_file.cc
@@ -32,7 +32,7 @@ target_link_libraries(synergia_hdf5_utils
     Kokkos::kokkos
     )
 target_link_options(synergia_hdf5_utils 
-    PRIVATE "LINKER:-z,defs"
+    PRIVATE ${LINKER_OPTIONS}
     )
 
 if (BUILD_PYTHON_BINDINGS)
@@ -78,17 +78,21 @@ target_link_libraries(synergia_distributed_fft
     Kokkos::kokkos
     )
 
+target_link_options(synergia_distributed_fft 
+    PRIVATE ${LINKER_OPTIONS}
+    )
+
 add_library(synergia_command_line command_line_arg.cc)
 target_link_libraries(synergia_command_line Kokkos::kokkos)
-target_link_options(synergia_command_line PRIVATE "LINKER:-z,defs")
+target_link_options(synergia_command_line PRIVATE ${LINKER_OPTIONS})
 
 add_library(lsexpr SHARED lsexpr.cc)
 add_library(lsexpr_static STATIC lsexpr.cc)
 
 target_link_libraries(lsexpr Kokkos::kokkos)
 target_link_libraries(lsexpr_static Kokkos::kokkos)
-target_link_options(lsexpr PRIVATE "LINKER:-z,defs")
-target_link_options(lsexpr_static PRIVATE "LINKER:-z,defs")
+target_link_options(lsexpr PRIVATE ${LINKER_OPTIONS})
+target_link_options(lsexpr_static PRIVATE ${LINKER_OPTIONS})
 
 add_executable(test_loading_kokkos test_loading_kokkos.cc)
 target_link_libraries(test_loading_kokkos PRIVATE dl)
