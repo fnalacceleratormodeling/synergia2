@@ -254,6 +254,12 @@ Lattice::get_elements()
     return elements;
 }
 
+void
+Lattice::reset_all_markers()
+{
+    for(auto& e : elements) 
+        e.reset_markers();
+}
 
 double
 Lattice::get_length() const

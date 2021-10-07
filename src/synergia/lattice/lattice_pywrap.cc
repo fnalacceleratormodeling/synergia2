@@ -178,6 +178,9 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice_element::reset_marker,
                 "marker"_a )
 
+        .def( "reset_markers",
+                &Lattice_element::reset_markers )
+
         .def( "has_marker",
                 &Lattice_element::has_marker,
                 "marker"_a )
@@ -259,6 +262,10 @@ PYBIND11_MODULE(lattice, m)
                 //py::overload_cast<>(&Lattice::get_elements),
                 py::return_value_policy::reference_internal,
                 "Get the list of all lattice elements" )
+
+        .def( "reset_all_markers",
+                &Lattice::reset_all_markers,
+                "Clear the h/v tunes and chromaticity corrector markers for all elements" )
 
         .def( "get_length",
                 &Lattice::get_length,
