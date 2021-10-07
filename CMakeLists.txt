@@ -120,10 +120,6 @@ endif()
 find_package(GSL REQUIRED)
 list(APPEND extra_includes ${GSL_INCLUDE_DIR})
 
-# Eigen3
-find_package(Eigen3 REQUIRED)
-list(APPEND extra_includes ${EIGEN3_INCLUDE_DIR})
-
 # fftw3
 #if(${Kokkos_ENABLE_OPENMP})
 if(NOT ${Kokkos_ENABLE_CUDA})
@@ -221,6 +217,8 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
     "${SYNERGIA2_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
 
+
+include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils)
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 

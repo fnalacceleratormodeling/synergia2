@@ -4,3 +4,6 @@
 [submodule "src/synergia/utils/pybind11"]
 	path = src/synergia/utils/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "src/synergia/utils/eigen"]
+	path = src/synergia/utils/eigen
+	url = https://gitlab.com/libeigen/eigen.git
