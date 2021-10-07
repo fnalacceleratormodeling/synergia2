@@ -7,3 +7,6 @@
 [submodule "src/synergia/utils/eigen"]
 	path = src/synergia/utils/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "src/synergia/utils/cereal"]
+	path = src/synergia/utils/cereal
+	url = https://github.com/USCiLab/cereal.git

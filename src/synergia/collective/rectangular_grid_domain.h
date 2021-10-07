@@ -1,8 +1,8 @@
 #ifndef RECTANGULAR_GRID_DOMAIN_H_
 #define RECTANGULAR_GRID_DOMAIN_H_
 
-#include "fast_int_floor.h"
-#include "rectangular_grid.h"
+#include "synergia/collective/rectangular_grid.h"
+#include "synergia/utils/fast_int_floor.h"
 #include <array>
 
 class Rectangular_grid_domain

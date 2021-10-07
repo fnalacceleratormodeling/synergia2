@@ -219,7 +219,8 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
 
 
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
-include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils)
+include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/cereal/include)
+include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils)  # for boost headers
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 
 
