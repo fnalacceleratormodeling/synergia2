@@ -7,23 +7,28 @@
 
 ## 0b. Clone repository
 
-    # git 2.13 and later
+Git 2.13 and later,
+
     git clone -b devel3-modules --recurse-submodules https://bitbucket.org/fnalacceleratormodeling/synergia2.git
 
-    # git 1.6 and later
+Git 1.6 and later,
+
     git clone -b devel3-modules --recursive https://bitbucket.org/fnalacceleratormodeling/synergia2.git
 
-    # or manually init and update submodules
+Or manually init and update submodules,
+
     git clone -b devel3-modules https://bitbucket.org/fnalacceleratormodeling/synergia2.git
     cd synergia2
     git submodule update --init --recursive
 
 ## 0c. Update local repo
 
-    # in one command
+In one command
+
     git pull --recurse-submodules
 
-    # or,
+or,
+
     git pull
     git submodule update
 
@@ -41,8 +46,8 @@
 
 Kokkos options:
 
-    cmake -DKokkos_ENABLE_OPENMP=on
-    cmake -DKokkos_ENABLE_CUDA=off
+    cmake -DKokkos_ENABLE_OPENMP=on/off
+    cmake -DKokkos_ENABLE_CUDA=on/off
     ...
 
 Enable Python bindings:
@@ -53,10 +58,9 @@ Enable simple timer profiling:
 
     cmake -DSIMPLE_TIMER=on
 
-### Options for OpenMP Build
+### Options for OpenMP only Build
 
     cmake -DKokkos_ENABLE_OPENMP=on
-    cmake -DKokkos_ENABLE_CUDA=off
 
 ### Options for GPU/CUDA build
 
@@ -64,9 +68,8 @@ Enable simple timer profiling:
 
     export PATH=/usr/local/cuda/bin:$PATH
 
-Kokkos options
+Kokkos options (it is possible to have both openmp and cuda enabled)
 
-    # it is possible to have both openmp and cuda enabled
     cmake -DKokkos_ENABLE_OPENMP=on
     cmake -DKokkos_ENABLE_CUDA=on
 
@@ -84,7 +87,7 @@ Paddings need to be turned off in the CUDA build due to a Kokkos bug https://git
     sudo apt install libopenmp-dev libfftw3-mpi-dev libgsl-dev libhdf5-openmpi-dev libpython3-dev
     cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
 
-## 2. Cori - KNL (obsolete, needs update): 
+## 3. Cori - KNL (obsolete, needs update): 
 
     module load cmake
     module switch craype-haswell craype-mic-knl
@@ -99,7 +102,7 @@ Paddings need to be turned off in the CUDA build due to a Kokkos bug https://git
     CC=cc CXX=CC cmake -DEIGEN3_INCLUDE_DIR:PATH=~/local/include/eigen3 -DFFTW3_LIBRARY_DIRS:PATH=${FFTW_ROOT}/lib -DKokkos_ENABLE_OPENMP=on ../synergia2/
 
 
-## 3. Power9 (obsolete, needs update):
+## 4. Power9 (obsolete, needs update):
 
     export SYN_SRC=/path/to/synergia
     export LOCAL_ROOT=/data/qlu/local
@@ -146,7 +149,7 @@ Build python3 on Power9 (libffi needd to enable _ctypes):
 
 
 
-## 4. MacOS (Intel/M1 Mac):
+## 5. MacOS (Intel/M1 Mac):
 
     brew install gcc hdf5 fftw3 libomp
     pip3 install numpy mpi4py pytest pyparsing
