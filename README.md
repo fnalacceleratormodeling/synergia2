@@ -1,19 +1,39 @@
 
 # Build Instructions
 
-## 0. Path for non-system packages
+## 0a. Path for non-system packages
 
     export LOCAL_ROOT=/path/to/local/packages
 
+## 0b. Clone repository
+
+    # git 2.13 and later
+    git clone -b devel3-modules --recurse-submodules https://bitbucket.org/fnalacceleratormodeling/synergia2.git
+
+    # git 1.6 and later
+    git clone -b devel3-modules --recursive https://bitbucket.org/fnalacceleratormodeling/synergia2.git
+
+    # or manually init and update submodules
+    git clone -b devel3-modules https://bitbucket.org/fnalacceleratormodeling/synergia2.git
+    cd synergia2
+    git submodule update --init --recursive
+
+## 0c. Update local repo
+
+    # in one command
+    git pull --recurse-submodules
+
+    # or,
+    git pull
+    git submodule update
 
 ## 1. General Linux:
 
     CC=gcc CXX=g++ \
     cmake -DCMAKE_INSTALL_PREFIX=$LOCAL_ROOT \
-      -DFFTW3_LIBRARY_DIRS=$LOCAL_ROOT/lib \
-      -DEIGEN3_INCLUDE_DIR=$LOCAL_ROOT/include/eigen3 \
-      -DHDF5_ROOT=$LOCAL_ROOT \
       -DCMAKE_BUILD_TYPE=Release \
+      -DFFTW3_LIBRARY_DIRS=$LOCAL_ROOT/lib \
+      -DHDF5_ROOT=$LOCAL_ROOT \
       -DKokkos_ENABLE_OPENMP=on \
       /path/to/synergia/
 
@@ -46,23 +66,25 @@ Enable simple timer profiling:
 
 Kokkos options
 
-    cmake -DKokkos_ENABLE_OPENMP=off
+    # it is possible to have both openmp and cuda enabled
+    cmake -DKokkos_ENABLE_OPENMP=on
     cmake -DKokkos_ENABLE_CUDA=on
 
 Use `nvcc_wrapper` as the default cxx compiler, and set the GPU architecture in the `CXX_FLAGS`. `nvcc_wrapper` can be found in Synergia source tree under `src/synergia/utils/kokkos/bin/nvcc_wrapper`
 
     cmake -DCMAKE_CXX_COMPILER=/path/to/nvcc_wrapper
-    cmake -DCMAKE_CXX_FLAGS="-arch=sm_70"
-
 
 Paddings need to be turned off in the CUDA build due to a Kokkos bug https://github.com/kokkos/kokkos/issues/2995
 
     cmake -DALLOW_PADDING=off
 
 
+## 2. Ubuntu20.04
 
+    sudo apt install libopenmp-dev libfftw3-mpi-dev libgsl-dev libhdf5-openmpi-dev libpython3-dev
+    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
 
-## 2. Cori - KNL:
+## 2. Cori - KNL (obsolete, needs update): 
 
     module load cmake
     module switch craype-haswell craype-mic-knl
@@ -77,7 +99,7 @@ Paddings need to be turned off in the CUDA build due to a Kokkos bug https://git
     CC=cc CXX=CC cmake -DEIGEN3_INCLUDE_DIR:PATH=~/local/include/eigen3 -DFFTW3_LIBRARY_DIRS:PATH=${FFTW_ROOT}/lib -DKokkos_ENABLE_OPENMP=on ../synergia2/
 
 
-## 3. Power9:
+## 3. Power9 (obsolete, needs update):
 
     export SYN_SRC=/path/to/synergia
     export LOCAL_ROOT=/data/qlu/local
@@ -124,19 +146,16 @@ Build python3 on Power9 (libffi needd to enable _ctypes):
 
 
 
-## 4. MacOS:
+## 4. MacOS (Intel/M1 Mac):
 
-    brew install gcc hdf5 eigen fftw3
+    brew install gcc hdf5 fftw3 libomp
     pip3 install numpy mpi4py pytest pyparsing
 
 MacOS with gcc:
 
-    CC=gcc-9 CXX=g++-9 cmake -DKokkos_ENABLE_OPENMP=on /path/to/synergia/
+    CC=gcc-9 CXX=g++-9 cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
 
-MacOS with apple clang (openmp missing, possible with '-Xpreprocessor -fopenmp -lomp'):
+MacOS with apple clang:
 
-    cmake /path/to/synergia
+    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
 
-4.3 MacOS with Python 3 (homebrew):
-
-    cmake -DPYTHON_EXECUTABLE=/usr/local/bin/python3
