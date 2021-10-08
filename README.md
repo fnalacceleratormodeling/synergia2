@@ -53,6 +53,10 @@ Kokkos options:
 Enable Python bindings:
 
     cmake -DBUILD_PYTHON_BINDINGS=on
+    
+Vectorization flags (on M1 Mac must set `-DGSV=DOUBLE`):
+
+    cmake -DGSV=DOUBLE|SSE|AVX|AVX512
 
 Enable simple timer profiling:
 
