@@ -136,8 +136,8 @@ def do_plots(options):
         plot_index = 1
         for coord in options.coords:
             #x = f.read_array1d("s")
-            x = h5.get("s")
-            y = particle_coords[:,coords[coord]]
+            x = h5.get("s")[()]
+            y = particle_coords[:,coords[coord]][()]
             if not options.oneplot:
                 pyplot.subplot(rows, cols, plot_index)
             plot2d(x, y, coord, index)
