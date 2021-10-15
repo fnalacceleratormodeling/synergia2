@@ -323,6 +323,9 @@ public:
     void reset_marker(marker_type t)
     { markers[(int)t] = false; }
 
+    void reset_markers()
+    { for(auto& m : markers) m = false; }
+
     bool has_marker(marker_type t) const
     { return markers[(int)t]; }
 

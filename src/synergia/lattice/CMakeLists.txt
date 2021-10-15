@@ -40,26 +40,14 @@ endif ()
 install(TARGETS synergia_lattice DESTINATION ${LIB_INSTALL_DIR})
 
 install(FILES
-    chef_elements.h
-    chef_lattice.h
-    chef_lattice_section.h
-    chef_lattice_section_fwd.h
-    chef_utils.h
-    element_adaptor.h
-    element_adaptor_map.h
     lattice_element.h
     lattice_element_slice.h
     lattice.h
-    mad8_adaptor_map.h
-    mad8_adaptors.h
     madx.h
-    madx_adaptor_map.h
-    madx_adaptors.h
     madx_reader.h
     mx_expr.h
     mx_parse.h
     mx_tree.h
-    diagnostics_apertures_loss.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/lattice)
 
 if (BUILD_PYTHON_BINDINGS)

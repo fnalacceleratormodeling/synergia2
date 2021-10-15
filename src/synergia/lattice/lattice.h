@@ -132,6 +132,10 @@ public:
     std::list<Lattice_element> &
     get_elements();
 
+    /// Clear the h/v tunes and chromaticity markers for all lattice elements
+    void
+    reset_all_markers();
+
     /// Get the combined length of all the elements in the Lattice
     double
     get_length() const;
