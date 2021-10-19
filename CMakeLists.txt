@@ -20,13 +20,6 @@ set(SYNERGIA_MAJOR_VERSION 3)
 set(SYNERGIA_MINOR_VERSION 1)
 set(SYNERGIA_SUBMINOR_VERSION 00)
 
-
-# needed to avoid warnings about rpath policy on Mac OSX
-# no known difference between "OLD" and "NEW" policies for us
-if(POLICY CMP0042)
-    cmake_policy(SET CMP0042 NEW)
-endif()
-
 # Set up to assure fully-linked libraries.
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
