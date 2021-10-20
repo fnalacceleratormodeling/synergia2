@@ -60,7 +60,7 @@ if (BUILD_PYTHON_BINDINGS)
         __init__.py
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/collective)
     install(TARGETS
-        #collective
+        collective
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/collective)
 endif ()
 

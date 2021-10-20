@@ -152,7 +152,8 @@ if (BUILD_PYTHON_BINDINGS)
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
     install(TARGETS
         parallel_utils
-        #pylsexpr
+        pylsexpr
+        utils
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 endif ()
 

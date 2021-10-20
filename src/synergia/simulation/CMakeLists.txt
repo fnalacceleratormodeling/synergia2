@@ -94,13 +94,13 @@ install(FILES
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/simulation
     )
 
-#if (BUILD_PYTHON_BINDINGS)
-#    install(FILES
-#        __init__.py
-#        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
-#    install(TARGETS
-#        simulation
-#        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
-#endif ()
+if (BUILD_PYTHON_BINDINGS)
+    install(FILES
+        __init__.py
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
+    install(TARGETS
+        simulation
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/simulation)
+endif ()
 
 add_subdirectory(tests)

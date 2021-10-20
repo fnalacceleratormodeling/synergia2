@@ -58,9 +58,9 @@ if (BUILD_PYTHON_BINDINGS)
         simplify.py
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/lattice)
 
-    #install(
-    #    TARGETS lattice
-    #    DESTINATION ${PYTHON_INSTALL_DIR}/synergia/lattice )
+    install(
+        TARGETS lattice
+        DESTINATION ${PYTHON_INSTALL_DIR}/synergia/lattice )
 
 endif ()
 

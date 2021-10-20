@@ -61,7 +61,15 @@ if (BUILD_PYTHON_BINDINGS)
     pybind11_add_module(bunch MODULE NO_EXTRAS bunch_pywrap.cc)
     target_link_libraries(bunch PRIVATE synergia_bunch synergia_pydiag)
 
-    copy_file(__init__.py bunch)
+    install(FILES
+            __init__.py
+            DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
+    install(TARGETS
+            bunch
+            synergia_pydiag
+            DESTINATION ${LIB_INSTALL_DIR})
+
+    #copy_file(__init__.py bunch)
 endif ()
 
 

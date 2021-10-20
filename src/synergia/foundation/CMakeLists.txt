@@ -47,7 +47,7 @@ if (BUILD_PYTHON_BINDINGS)
         __init__.py
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/foundation)
     install(TARGETS
-        #foundation
+        foundation
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/foundation)
 endif ()
 
