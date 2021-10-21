@@ -3,7 +3,6 @@ target_link_libraries(normal_form
     synergia_simulation 
     synergia_lattice
     synergia_bunch 
-    synergia_pydiag
     )
 
 copy_file(channel.madx normal_form)
