@@ -88,7 +88,7 @@ Paddings need to be turned off in the CUDA build due to a Kokkos bug https://git
 
 ## 2. Ubuntu20.04
 
-    sudo apt install libopenmp-dev libfftw3-mpi-dev libgsl-dev libhdf5-openmpi-dev libpython3-dev
+    sudo apt install libopenmpi-dev libfftw3-mpi-dev libgsl-dev libhdf5-openmpi-dev libpython3-dev
     cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
 
 ## 3. Cori - KNL (obsolete, needs update): 
