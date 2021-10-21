@@ -9,15 +9,15 @@
 
 Git 2.13 and later,
 
-    git clone -b devel3-modules --recurse-submodules https://bitbucket.org/fnalacceleratormodeling/synergia2.git
+    git clone -b devel3 --recurse-submodules https://bitbucket.org/fnalacceleratormodeling/synergia2.git
 
 Git 1.6 and later,
 
-    git clone -b devel3-modules --recursive https://bitbucket.org/fnalacceleratormodeling/synergia2.git
+    git clone -b devel3 --recursive https://bitbucket.org/fnalacceleratormodeling/synergia2.git
 
 Or manually init and update submodules,
 
-    git clone -b devel3-modules https://bitbucket.org/fnalacceleratormodeling/synergia2.git
+    git clone -b devel3 https://bitbucket.org/fnalacceleratormodeling/synergia2.git
     cd synergia2
     git submodule update --init --recursive
 
