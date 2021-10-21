@@ -52,6 +52,10 @@ public:
     Lsexpr
     as_lsexpr() const;
 
+    /// MadX beam command
+    std::string
+    as_madx() const;
+
     /// Set the four momentum.
     /// @param four_momentum in the lab frame
     void

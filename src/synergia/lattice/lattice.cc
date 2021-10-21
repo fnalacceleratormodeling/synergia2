@@ -1,11 +1,8 @@
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/lattice_element_processor.h"
 
-//#include "mad8_adaptor_map.h"
-//#include "madx_adaptor_map.h"
-
-#include <iostream>
 #include <sstream>
+#include <unordered_set>
 #include <stdexcept>
 
 Lattice::Lattice() 
@@ -290,5 +287,59 @@ void
 Lattice::print(Logger & logger) const
 {
     logger(LoggerV::DEBUG) << as_string() << std::endl;
+}
+
+void 
+Lattice::export_madx_file(std::string const& filename) const
+{
+    std::ofstream mxfile(filename);
+
+    if (!mxfile.is_open())
+    {
+        throw std::runtime_error(
+                "Lattice::as_madx_file() unable to create file");
+    }
+
+    // "beam, pc={{momentum}}, particle={{particle}}"
+    mxfile << reference_particle.as_madx() << "\n\n";
+
+    // "{{element_label}} : {{element_type}}, {{attr}}={{val}}..."
+    std::unordered_set<std::string> elm_names;
+    for(auto const& e : elements)
+    {
+        mxfile << e.as_madx() << "\n";
+        elm_names.insert(e.get_name());
+    }
+
+    double pos = 0.0;
+    int idx = 0;
+
+    // "{{name}}: sequence, refer=entry"
+    mxfile << "\n" << name << ": sequence, l = " 
+           << get_length() << ", refer = entry;\n";
+
+    // "{{element_label}} : {{element}}, at={{pos}}..."
+    for(auto const& e : elements)
+    {
+        std::stringstream label;
+        label << name << "_" << idx;
+
+        while(elm_names.count(label.str()))
+            label << "_dup";
+
+        elm_names.insert(label.str());
+
+        mxfile << label.str() << ": " 
+               << e.get_name() << ", at=" << pos << ";\n";
+
+        pos += e.get_length();
+        ++idx;
+    }
+
+    // "endsequence;"
+    mxfile << "endsequence;\n";
+
+    // done
+    mxfile.close();
 }
 

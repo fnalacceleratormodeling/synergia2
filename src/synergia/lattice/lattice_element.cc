@@ -605,3 +605,33 @@ Lattice_element::print() const
     std::cout << as_string() << std::endl;
 }
 
+std::string
+Lattice_element::as_madx() const
+{
+    std::stringstream ss;
+    ss << name << ": " << stype;
+
+    for(auto const& attr : double_attributes)
+        ss << ", " << attr.first << "=" << attr.second;
+
+    for(auto const& attr : string_attributes)
+        ss << ", " << attr.first << "=" << attr.second;
+
+    for(auto const& attr : vector_attributes)
+    {
+        ss << ", " << attr.first << "={";
+
+        for(int i = 0; i<attr.second.size(); ++i)
+        {
+            ss << attr.second[i];
+            if (i < attr.second.size()-1) ss << ",";
+        }
+
+        ss << "}";
+    }
+
+    ss << ";";
+
+    return ss.str();
+}
+

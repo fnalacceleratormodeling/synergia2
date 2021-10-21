@@ -1,4 +1,5 @@
 #include "reference_particle.h"
+#include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/floating_point.h"
 
 Reference_particle::Reference_particle() 
@@ -109,6 +110,35 @@ Lsexpr Reference_particle::as_lsexpr() const
     }
 
     return retval;
+}
+
+std::string
+Reference_particle::as_madx() const
+{
+    std::stringstream ss;
+    ss << "beam, pc=" << get_momentum();
+
+    // particle type
+    double mass = get_mass();
+    int charge = get_charge();
+
+    if (mass==pconstants::mp && charge==pconstants::proton_charge)
+        ss << ", particle=proton";
+    else if (mass==pconstants::mp && charge==pconstants::antiproton_charge)
+        ss << ", particle=antiproton";
+    else if (mass==pconstants::me && charge==pconstants::electron_charge)
+        ss << ", particle=electron";
+    else if (mass==pconstants::me && charge==pconstants::positron_charge)
+        ss << ", particle=positron";
+    else if (mass==pconstants::mmu && charge==pconstants::muon_charge)
+        ss << ", particle=negmuon";
+    else if (mass==pconstants::mmu && charge==pconstants::antimuon_charge)
+        ss << ", particle=posmuon";
+    else
+        ss << ", mass=" << mass << ", charge=" << charge;
+
+    ss << ";";
+    return ss.str();
 }
 
 void

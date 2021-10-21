@@ -178,6 +178,10 @@ public:
         return l;
     }
 
+    // export madx file
+    void export_madx_file(std::string const& filename) const;
+
+
 private:
 
     friend class cereal::access;

@@ -37,6 +37,8 @@ def get_lattice():
 
     lattice.set_all_string_attribute("extractor_type", "libff")
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
+    lattice.export_madx_file("exported_lattice.madx")
+
     return lattice
 
 def create_simulator(ref_part):

@@ -300,6 +300,11 @@ PYBIND11_MODULE(lattice, m)
                 "Create a lattice object from the json string",
                 "json_str"_a )
 
+        .def( "export_madx_file",
+                &Lattice::export_madx_file,
+                "Export the lattice to a MadX file",
+                "filename"_a )
+
         .def( "__repr__", &Lattice::as_string )
         ;
 
