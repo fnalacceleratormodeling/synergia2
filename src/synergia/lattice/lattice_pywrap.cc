@@ -305,6 +305,11 @@ PYBIND11_MODULE(lattice, m)
                 "Export the lattice to a MadX file",
                 "filename"_a )
 
+        .def_static( "import_madx_file",
+                &Lattice::import_madx_file,
+                "Import a line or a sequence from MadX file",
+                "filename"_a, "line"_a )
+
         .def( "__repr__", &Lattice::as_string )
         ;
 

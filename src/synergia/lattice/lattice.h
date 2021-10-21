@@ -181,6 +181,10 @@ public:
     // export madx file
     void export_madx_file(std::string const& filename) const;
 
+    // read from madx file
+    static Lattice import_madx_file(
+            std::string const& filename,
+            std::string const& line);
 
 private:
 

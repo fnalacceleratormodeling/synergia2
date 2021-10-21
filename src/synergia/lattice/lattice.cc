@@ -1,5 +1,6 @@
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/lattice_element_processor.h"
+#include "synergia/lattice/madx_reader.h"
 
 #include <sstream>
 #include <unordered_set>
@@ -342,4 +343,13 @@ Lattice::export_madx_file(std::string const& filename) const
     // done
     mxfile.close();
 }
+
+Lattice
+Lattice::import_madx_file(
+        std::string const& filename, 
+        std::string const& line)
+{
+    return MadX_reader().get_lattice(line, filename);
+}
+
 

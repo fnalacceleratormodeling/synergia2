@@ -31,9 +31,12 @@ def get_lattice():
     #lsexpr = synergia.utils.pylsexpr.read_lsexpr_file("sis18-6.lsx")
     #lattice = synergia.lattice.Lattice(lsexpr)
 
-    reader = synergia.lattice.MadX_reader()
-    reader.parse_file("sis18.madx")
-    lattice = reader.get_lattice("machine")
+    #reader = synergia.lattice.MadX_reader()
+    #reader.parse_file("sis18.madx")
+    #lattice = reader.get_lattice("machine")
+
+    lattice = synergia.lattice.Lattice.import_madx_file(
+            "sis18.madx", "machine")
 
     lattice.set_all_string_attribute("extractor_type", "libff")
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
