@@ -51,7 +51,12 @@ if (BUILD_PYTHON_BINDINGS)
     pybind11_add_module(utils MODULE NO_EXTRAS utils_pywrap.cc)
     target_link_libraries(utils PRIVATE kokkoscore)
 
-    copy_file(__init__.py parallel_utils)
+    install(FILES
+            __init__.py
+            DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
+    install(TARGETS
+            parallel_utils
+            DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 endif ()
 
 if(${Kokkos_ENABLE_CUDA})
@@ -103,7 +108,7 @@ install(TARGETS
     synergia_parallel_utils
     synergia_hdf5_utils
     synergia_distributed_fft
-    #synergia_serialization
+    synergia_serialization
     synergia_command_line
     lsexpr
     DESTINATION ${LIB_INSTALL_DIR})
