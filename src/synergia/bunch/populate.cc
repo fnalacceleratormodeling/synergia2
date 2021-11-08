@@ -74,15 +74,10 @@ namespace
     {
         for (int j = 0; j < 6; ++j) 
         {
-            int np = particles.extent(0);
-
-            for(int p=0; p<np; ++p)
-                particles(p, j) = dist.get_unit_gaussian();
-
             const double scale = sqrt( covariances(j, j) );
 
-            for (int i = start; i < end; ++i)
-                particles(i, j) *= scale;
+            for(int p=start; p<end; ++p)
+                particles(p, j) = dist.get_unit_gaussian() * scale;
         }
     }
 
@@ -149,6 +144,13 @@ populate_6d( Distribution & dist,
         const_karray1d means,
         const_karray2d_row covariances )
 {
+    if (bunch.size() != bunch.get_local_num())
+    {
+        throw std::runtime_error(
+                "populate_6d: "
+                "cannot populate bunches that has already lost particles." );
+    }
+
     karray1d limits("limits", 6);
     for(int i=0; i<6; ++i) limits[i] = 0.0;
 
