@@ -293,7 +293,7 @@ namespace quad_impl
         x += xoff;
         y += yoff;
 
-        ref.set_state(x, xp, y, yp, 0.0, dpop);
+        ref.set_state(x, xp, y, yp, cdt, dpop);
 
         return cdt;
     }
