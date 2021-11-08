@@ -136,6 +136,16 @@ PYBIND11_MODULE(bunch, m)
                 "capacity"_a, 
                 "particle_group"_a = ParticleGroup::regular )
 
+        .def( "get_local_num",
+                &Bunch::get_local_num,
+                "Get the number of valid particles in current rank",
+                "particle_group"_a = ParticleGroup::regular )
+
+        .def( "get_total_num",
+                &Bunch::get_total_num,
+                "Get the number of particles in the bunch across all rank",
+                "particle_group"_a = ParticleGroup::regular )
+
         .def ( "set_longitudinal_boundary",
                 &Bunch::set_longitudinal_boundary,
                 "Set the longitudinal boundary of the bunch",
@@ -178,6 +188,13 @@ PYBIND11_MODULE(bunch, m)
                 &Bunch::diag_update_and_write,
                 "Performs the update and write on the named diagnostics.",
                 "name"_a )
+
+        .def( "set_bucket_index",
+                &Bunch::set_bucket_index,
+                "index"_a )
+
+        .def( "is_bucket_index_assigned",
+                &Bunch::is_bucket_index_assigned )
 
         .def ( "inject",
                 &Bunch::inject )
