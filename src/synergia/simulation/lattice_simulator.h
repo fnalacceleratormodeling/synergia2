@@ -104,6 +104,10 @@ namespace Lattice_simulator
     get_bucket_length(
             Lattice const& lattice);
 
+    double
+    get_rf_frequency(
+            Lattice const& lattice);
+
 
     // the calculated lattice functions will be
     // written into the lattice elements

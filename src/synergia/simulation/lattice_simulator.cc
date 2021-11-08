@@ -585,6 +585,37 @@ Lattice_simulator::get_bucket_length(Lattice const& lattice)
     return 0.0;
 }
 
+double
+Lattice_simulator::get_rf_frequency(Lattice const& lattice)
+{
+    double freq = 0.0;
+    double freq2 = 0.0;
+
+    bool iswf = false;
+    double eps = 1e-6;
+
+    for(auto & ele : lattice.get_elements())
+    {
+        if (ele.get_type() == element_type::rfcavity)
+        {
+            if (ele.has_double_attribute("freq"))
+            {
+                freq = ele.get_double_attribute("freq");
+
+                if (iswf && abs(freq-freq2)>eps)
+                    throw std::runtime_error("get_rf_frequency:" 
+                            " rf elements with different frequency" 
+                            " found!");
+
+                freq2 = freq;
+                iswf = true;
+            }
+        }
+    }
+
+    return freq * 1e6;
+}
+
 
 // --------------------------------------------
 // adjust tunes

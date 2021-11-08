@@ -171,6 +171,14 @@ PYBIND11_MODULE(simulation, m)
                 (void(*)(Lattice&))&Lattice_simulator::calc_dispersions,
                 "lattice"_a)
 
+        .def("get_bucket_length",
+                &Lattice_simulator::get_bucket_length,
+                "lattice"_a )
+
+        .def("get_rf_frequency",
+                &Lattice_simulator::get_rf_frequency,
+                "lattice"_a )
+
         .def( "get_linear_one_turn_map", 
                 [](Lattice const& lattice, int order) {
                     using namespace Lattice_simulator;
