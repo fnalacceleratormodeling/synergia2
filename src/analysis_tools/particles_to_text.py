@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import sys, os.path
-from synergia.utils import Hdf5_file
+import numpy
+import h5py
+#from synergia.utils import Hdf5_file
 
 class Options:
     def __init__(self):
@@ -13,11 +15,11 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synpart2txt [option] <filename>"
-    print "available options are:"
-    print "    --long-header : add long header describing units and column labels"
-    print "    --short-header : add short header of column labels"
-    print "    --no-header : just include coordinates"
+    print("usage: synpart2txt [option] <filename>")
+    print("available options are:")
+    print("    --long-header : add long header describing units and column labels")
+    print("    --short-header : add short header of column labels")
+    print("    --no-header : just include coordinates")
     sys.exit(0)
 
 def handle_args(args):
@@ -50,7 +52,8 @@ def handle_args(args):
     return options
 
 def do_conversion(options):
-    ifile = Hdf5_file(options.filename, Hdf5_file.read_only)
+    #ifile = Hdf5_file(options.filename, Hdf5_file.read_only)
+    ifile = h5py.File(options.filename)
     ofilename = os.path.splitext(options.filename)[0] + '.txt'
     ofile = open(ofilename, 'w')
     if options.header > 1:
@@ -60,14 +63,15 @@ def do_conversion(options):
 # yp = py/pref
 # dp = (delta ptotal)/pref
 ''')
-        pz = ifile.read_double('pz')
+        #pz = ifile.read_double('pz')
+        pz = ifile.get('pz')[()]
         ofile.write('# pref = %g [GeV/c]\n' % pz)
     if options.header > 0:
         ofile.write('#')
         for col in ['x', 'xp', 'y', 'py', 'cdt', 'dp', 'id']:
             ofile.write('%24s' % col)
         ofile.write('\n')
-    particles = ifile.read_array2d('particles')
+    particles = ifile.get('particles')
     for pnum in range(particles.shape[0]):
         part = particles[pnum,:]
         ofile.write(' ')
