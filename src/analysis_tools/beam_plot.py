@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import numpy
 import math
 import pylab
 from matplotlib import pyplot
 from mpl_toolkits.axes_grid import make_axes_locatable
-from synergia.utils import Hdf5_file
+import h5py
+#from synergia.utils import Hdf5_file
 
 
 def plot_density(x, y, label, bins):
@@ -43,7 +45,7 @@ def plot_density(x, y, label, bins):
             # matplotlib chooses number of contours
             axScatter.contourf(X, Y, H.transpose())
 
-    axScatter.set_axis_bgcolor((0, 0, 0.5))
+    axScatter.set_facecolor((0, 0, 0.5)) if hasattr(axScatter, 'set_facecolor') else axScatter.set_axis_bgcolor((0, 0, 0.5))
     axHistx.hist(x, bins=bins)
     axHisty.hist(y, bins=bins, orientation='horizontal')
 #    axScatter.plot(x, y, '.', label=fancylabel)
@@ -69,11 +71,12 @@ coords['x'] = 0
 coords['xp'] = 1
 coords['y'] = 2
 coords['yp'] = 3
-coords['z'] = 4
-coords['zp'] = 5
+coords['cdt'] = 4
+coords['dpop'] = 5
 coords['pz'] = 7
 coords['energy'] = 8
 coords['t'] = 9
+coords['z'] = 10
 
 class Options:
     def __init__(self):
@@ -96,25 +99,25 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synbeamplot <filename> [option1] ... [optionn] <h coord> <v coord>"
-    print "available options are:"
-    print "    --nohist : do not show histograms (not on by default)"
-    print "    --bins=<num> : number of bins in each direction"
-    print "    --minh=<num> : minimum limit on horizontal axis data"
-    print "    --maxh=<num> : maximum limit on horizontal axis data"
-    print "    --minv=<num> : minimum limit on vertical axis data"
-    print "    --maxv=<num> : maximum limit on vertical axis data"
-    print "    --contour    : draw contours instead of color density"
-    print "    --contour=<num>: draw <num> levels of contours"
-    print "    --output=<file> : save output to file (not on by default)"
-    print "    --show : show plots on screen (on by default unless --output flag is present"
-    print "available coords are:"
-    print "   ",
-    coord_list = coords.keys()
+    print("usage: synbeamplot <filename> [option1] ... [optionn] <h coord> <v coord>")
+    print("available options are:")
+    print("    --nohist : do not show histograms (not on by default)")
+    print("    --bins=<num> : number of bins in each direction")
+    print("    --minh=<num> : minimum limit on horizontal axis data")
+    print("    --maxh=<num> : maximum limit on horizontal axis data")
+    print("    --minv=<num> : minimum limit on vertical axis data")
+    print("    --maxv=<num> : maximum limit on vertical axis data")
+    print("    --contour    : draw contours instead of color density")
+    print("    --contour=<num>: draw <num> levels of contours")
+    print("    --output=<file> : save output to file (not on by default)")
+    print("    --show : show plots on screen (on by default unless --output flag is present")
+    print("available coords are:")
+    print("   ", end=' ')
+    coord_list = list(coords.keys())
     coord_list.sort()
     for coord in coord_list:
-        print coord,
-    print
+        print(coord, end=' ')
+    print()
     sys.exit(0)
 
 def handle_args(args):
@@ -157,11 +160,15 @@ def handle_args(args):
 
 def do_plots(options):
     c = 299792458.0
-    f = Hdf5_file(options.inputfile, Hdf5_file.read_only)
-    particles = f.read_array2d('particles')
+    h5 = h5py.File(options.inputfile, 'r')
+    #f = Hdf5_file(options.inputfile, 'r')
+    particles = h5.get('particles')
     npart = particles.shape[0]
-    mass = f.read_double('mass')
-    p_ref = f.read_double('pz')
+    mass = h5.get('mass')[()]
+    p_ref = h5.get('pz')[()]
+    betagamma = p_ref/mass
+    gamma = numpy.sqrt(betagamma**2 + 1)
+    beta = betagamma/gamma
     #print "p_ref: ", p_ref
     #print "mass: ", mass
     pz = (p_ref * (1.0 + particles[:,5])).reshape(npart, 1)
@@ -169,7 +176,8 @@ def do_plots(options):
     energy = numpy.sqrt(pz*pz + mass**2).reshape(npart, 1)
     time = (particles[:,4]*1.0e9/c).reshape(npart,1)
     #print "energy.shape: ", energy.shape
-    particles = numpy.hstack((particles, pz, energy,time))
+    z = (particles[:,4]*beta).reshape(npart,1)
+    particles = numpy.hstack((particles, pz, energy,time, z))
     
     pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
     selected_particles = ((particles[:, coords[options.hcoord]] >= options.minh) *
