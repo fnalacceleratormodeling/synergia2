@@ -24,7 +24,7 @@ set(SYNERGIA_SUBMINOR_VERSION 00)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   # using Clang
-    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evalauted-expression -Wno-register")
+    set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evaluated-expression -Wno-register")
     message(STATUS "Using clang++")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     # using Apples's clang
