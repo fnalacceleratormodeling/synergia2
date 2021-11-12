@@ -3,19 +3,17 @@
 from __future__ import print_function
 import sys
 import numpy
+import h5py
 import math
 import pylab
 from matplotlib import pyplot
-from mpl_toolkits.axes_grid import make_axes_locatable
-import h5py
-#from synergia.utils import Hdf5_file
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
-
-def plot_density(x, y, label, bins):
+def plot_density(x, y, label, options):
     fancylabel = label.replace('_', ' ')
 
-    fig = pyplot.figure(1)
-    axScatter = pyplot.subplot(111)
+    fig,axScatter  = pyplot.subplots(1,1)
+    fig.suptitle('Synergia Phase Space Distribution')
     divider = make_axes_locatable(axScatter)
     axHistx = divider.new_vertical(1.2, pad=0.1, sharex=axScatter)
     axHisty = divider.new_horizontal(1.2, pad=0.1, sharey=axScatter)
@@ -25,7 +23,7 @@ def plot_density(x, y, label, bins):
     pyplot.setp(axHistx.get_xticklabels() + axHisty.get_yticklabels(),
          visible=False)
 
-    H, xedges, yedges = numpy.histogram2d(x, y, bins=bins)
+    H, xedges, yedges = numpy.histogram2d(x, y, bins=options.bins)
     for i in range(0, H.shape[0]):
         for j in range(0, H.shape[1]):
             if H[i, j] > 0:
@@ -46,8 +44,8 @@ def plot_density(x, y, label, bins):
             axScatter.contourf(X, Y, H.transpose())
 
     axScatter.set_facecolor((0, 0, 0.5)) if hasattr(axScatter, 'set_facecolor') else axScatter.set_axis_bgcolor((0, 0, 0.5))
-    axHistx.hist(x, bins=bins)
-    axHisty.hist(y, bins=bins, orientation='horizontal')
+    axHistx.hist(x, bins=options.bins)
+    axHisty.hist(y, bins=options.bins, orientation='horizontal')
 #    axScatter.plot(x, y, '.', label=fancylabel)
 
     # if limits were specified, set the axis limits to match
@@ -179,14 +177,13 @@ def do_plots(options):
     z = (particles[:,4]*beta).reshape(npart,1)
     particles = numpy.hstack((particles, pz, energy,time, z))
     
-    pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
     selected_particles = ((particles[:, coords[options.hcoord]] >= options.minh) *
                        (particles[:, coords[options.hcoord]] < options.maxh) *
                        (particles[:, coords[options.vcoord]] >= options.minv) *
                        (particles[:, coords[options.vcoord]] < options.maxv))
 
     plot_density(particles[selected_particles, coords[options.hcoord]],
-                 particles[selected_particles, coords[options.vcoord]], 'foobar', options.bins)
+                 particles[selected_particles, coords[options.vcoord]], 'foobar', options)
     if options.outputfile:
         pyplot.savefig(options.outputfile)
     if options.show:
