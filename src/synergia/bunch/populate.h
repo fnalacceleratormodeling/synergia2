@@ -43,9 +43,7 @@ get_correlation_matrix(
         std::array<int, 3> const& rms_index = {0, 2, 4});
 
 
-// TODO: to be implemented...
 
-#if 0
 /// Populate a bunch with a Gaussian distribution in all four
 /// transverse dimensions. The time distribution is uniform, but the
 /// dp/p distribution is also Gaussian.
@@ -57,8 +55,15 @@ get_correlation_matrix(
 /// @param cdt the total range of the longitudinal coordinate will be
 ///  [-cdt/2,cdt/2] [m]
 void
-populate_transverse_gaussian(Distribution &dist, Bunch &bunch,
-        karray1d const& means, karray2d_row const& covariances, double cdt);
+populate_transverse_gaussian(
+        Distribution& dist, 
+        Bunch& bunch,
+        const_karray1d means, 
+        const_karray2d_row covariances, 
+        double cdt);
+
+// TODO: to be implemented...
+#if 0
 
 /// Populate a bunch with a uniform cylindrical spatial distribution. The
 /// momentum-like variables are Gaussian distributed and uncorrelated.

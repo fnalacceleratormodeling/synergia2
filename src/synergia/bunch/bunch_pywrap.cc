@@ -428,6 +428,51 @@ PYBIND11_MODULE(bunch, m)
               } )
         ;
 
+    m.def( "populate_transverse_gaussian", 
+            []( Distribution& dist, 
+                Bunch& bunch,
+                py::buffer p_means,
+                py::buffer p_covars,
+                double cdt ) {
+
+                    using ka1d_unmanaged = Kokkos::View<double*, 
+                        Kokkos::HostSpace, 
+                        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                    using ka2d_unmanaged = Kokkos::View<double**, 
+                        Kokkos::LayoutRight, 
+                        Kokkos::HostSpace, 
+                        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                    py::buffer_info pm_info = p_means.request();
+                    py::buffer_info pc_info = p_covars.request();
+
+                    if (pm_info.ndim != 1 || pm_info.shape[0] != 6)
+                    {
+                        throw std::runtime_error("populate_transverse_gaussian: "
+                                "mean must be an 1d array of 6 elements");
+                    }
+
+                    if (pc_info.ndim != 2 
+                            || pc_info.shape[0] != 6
+                            || pc_info.shape[1] != 6)
+                    {
+                        throw std::runtime_error("populate_transverse_gaussian: "
+                                "covariances must be a 2d array of 6x6");
+                    }
+
+                    ka1d_unmanaged means((double*)pm_info.ptr, 
+                            pm_info.shape[0]);
+
+                    ka2d_unmanaged covars((double*)pc_info.ptr, 
+                            pc_info.shape[0], pc_info.shape[1]);
+
+                    populate_transverse_gaussian(dist, bunch, means, covars, cdt);
+              } )
+        ;
+
+
+
     m.def( "get_correlation_matrix",
             []( py::array_t<double> map,
                 double arms, double brms, double crms, double beta,

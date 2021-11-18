@@ -268,31 +268,54 @@ get_correlation_matrix(
 }
 
 
-#if 0
 void
-populate_transverse_gaussian(Distribution &dist, Bunch &bunch,
-        Const_MArray1d_ref means, Const_MArray2d_ref covariances, double cdt)
+populate_transverse_gaussian(
+        Distribution& dist, 
+        Bunch& bunch,
+        const_karray1d means, 
+        const_karray2d_row covariances, 
+        double cdt)
 {
-    MArray2d_ref particles(bunch.get_local_particles());
-    for (int i = 0; i < 4; ++i) {
-        dist.fill_unit_gaussian(particles[boost::indices[range()][i]]);
-    }
-    dist.fill_uniform(particles[boost::indices[range()][4]], 0.0, 1.0);
-    dist.fill_unit_gaussian(particles[boost::indices[range()][5]]);
+    // deep copy from device to host
+    bunch.checkout_particles();
+    auto particles = bunch.get_host_particles();
 
-    MArray1d means_modified(means);
+    for(int i=0; i<4; ++i)
+    {
+        for(int p=0; p<bunch.size(); ++p)
+            particles(p, i) = dist.get_unit_gaussian();
+    }
+
+    // cdt
+    for(int p=0; p<bunch.size(); ++p)
+        particles(p, 4) = dist.get_uniform(0.0, 1.0);
+
+    // dpop
+    for(int p=0; p<bunch.size(); ++p)
+        particles(p, 5) = dist.get_unit_gaussian();
+
+    // copy of original means and covariances
+    karray1d means_modified = means;
+    karray2d_row covariances_modified = covariances;
+
+    Kokkos::deep_copy(means_modified, means);
+    Kokkos::deep_copy(covariances_modified, covariances);
+
     means_modified[4] = 0.0;
 
     // Symmetry requires no correlations with the cdt coordinate. Make a copy
     // of the covariance matrix and manually set all correlations to zero.
-    MArray2d covariances_modified(covariances);
-    for (int k = 0; k < 6; ++k) {
-        covariances_modified[k][4] = covariances_modified[4][k] = 0.0;
-    }
-    covariances_modified[4][4] = cdt * cdt / 12.0;
+    for (int k = 0; k < 6; ++k) 
+        covariances_modified(k, 4) = covariances_modified(4, k) = 0.0;
+
+    covariances_modified(4, 4) = cdt*cdt/12.0;
     adjust_moments(bunch, means_modified, covariances_modified);
+
+    // copy to device
+    bunch.checkin_particles();
 }
 
+#if 0
 void
 populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
         double cdt, double stdxp, double stdyp, double stddpop)
