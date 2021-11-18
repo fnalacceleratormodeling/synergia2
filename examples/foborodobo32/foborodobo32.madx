@@ -48,9 +48,14 @@ d: quadrupole, l=quadlength, k1=(-strength);
 b: sbend,      l=bendlength, angle=bendangle;
 r: rfcavity,l=cavlen, volt=hvoltage, harmon=harmno, lag=0.0;
 
+! chromaticity adjusters
+sf: sextupole, l=0, k2=0.0;
+sd: sextupole, l=0, k2=-0.0;
+
+
 ! ------------------
 ! Lattices
 ! ------------------
-fobodobo:  line=( f, o, b, o, d, o, b, o );
-fobrdobo:  line=( f, o, b, os, r, os, d, o, b, o);
+fobodobo:  line=( f, sf, o, b, o, d, sd, o, b, o );
+fobrdobo:  line=( f, sf,  o, b, os, r, os, d, sd, o, b, o);
 model:     line=( fobrdobo,31*fobodobo );

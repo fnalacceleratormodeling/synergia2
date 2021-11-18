@@ -3,9 +3,10 @@ import sys
 import os
 import numpy as np
 import synergia
-
+import synergia.simulation as SIM
 from foborodobo32_options import opts
-
+ET = synergia.lattice.element_type
+MT = synergia.lattice.marker_type
 #####################################
 
 # quick and dirty twiss parameter calculator from 2x2 courant-snyder map array
@@ -14,7 +15,7 @@ def map2twiss(csmap):
     asinmu = 0.5*(csmap[0,0]-csmap[1,1])
 
     if abs(cosmu) > 1.0:
-        raise RuntimeError, "map is unstable"
+        raise RuntimeError("map is unstable")
 
     mu =np.arccos(cosmu)
 
@@ -29,20 +30,80 @@ def map2twiss(csmap):
     return (alpha, beta, tune)
 
 #######################################################
-# get focussing and defocussing quadrupoles for adjust tune
-def get_fd_quads(lattice):
-    f_quads = []
-    d_quads = []
+
+def print_statistics(bunch, fout=sys.stdout):
+
+    parts = bunch.get_particles_numpy()
+    print(parts.shape,  ", ", parts.size , file=fout)
+    print("shape: {0}, {1}".format(parts.shape[0], parts.shape[1]))
+
+    mean = synergia.bunch.Core_diagnostics.calculate_mean(bunch)
+    std = synergia.bunch.Core_diagnostics.calculate_std(bunch, mean)
+    print("mean = {}".format(mean), file=fout)
+    print("std = {}".format(std), file=fout)
+
+#######################################################
+
+
+
+# mark focussing and defocussing quadrupoles in lattice for adjust tune
+def mark_fd_quads(lattice):
+    nh = 0
+    nv = 0
     for elem in lattice.get_elements():
-        if elem.get_type() == "quadrupole":
+        if elem.get_type() == ET.quadrupole:
             if elem.get_double_attribute("k1") > 0.0:
-                f_quads.append(elem)
+                elem.set_marker(MT.h_tunes_corrector)
+                elem.reset_marker(MT.v_tunes_corrector)
+                nh = nh+1
             elif elem.get_double_attribute("k1") < 0.0:
-                d_quads.append(elem)
-    return (f_quads, d_quads)
+                elem.reset_marker(MT.h_tunes_corrector)
+                elem.set_marker(MT.v_tunes_corrector)
+                nv = nv+1
+    return (nh, nv)
 
 ################################################################################
 
+# mark focussing and defocussing quadrupoles in lattice for adjust tune
+def mark_fd_sext(lattice):
+    nh = 0
+    nv = 0
+    for elem in lattice.get_elements():
+        if elem.get_type() == ET.sextupole:
+            if elem.get_name() == "sf":
+                elem.set_marker(MT.h_chrom_corrector)
+                elem.reset_marker(MT.v_chrom_corrector)
+                nh = nh+1
+            elif elem.get_name() == "sd":
+                elem.reset_marker(MT.h_chrom_corrector)
+                elem.set_marker(MT.v_chrom_corrector)
+                nv = nv+1
+    return (nh, nv)
+
+################################################################################
+
+# mark focussing and defocussing quadrupoles in lattice for adjust tune
+def print_fd_sext(lattice, f):
+    nh = 0
+    nv = 0
+    print('k2 values for horizontal chromaticity correctors')
+    for elem in lattice.get_elements():
+        if elem.has_marker(MT.h_chrom_corrector):
+            if nh != 0:
+                print(', ', end='', file=f)
+            print(elem.get_double_attribute('k2'), end='', file=f)
+            nh = nh + 1
+    print(file=f)
+    print('k2 values for vertical chromaticity correctors', file=f)
+    for elem in lattice.get_elements():
+        if elem.has_marker(MT.v_chrom_corrector):
+            if nv != 0:
+                print(', ', end='', file=f)
+            print(elem.get_double_attribute('k2'), end='', file=f)
+            nv = nv + 1
+    print(file=f)
+
+################################################################################
 def print_bunch_stats(bunch, fo):
     coord_names = ("x", "xp", "y", "yp", "c*dt", "dp/p")
 
@@ -59,250 +120,309 @@ def print_bunch_stats(bunch, fo):
 
 ################################################################################
 
-logger = synergia.utils.Logger(0)
+def get_lattice():
+    # read the lattice in from a MadX sequence file
+    lattice = synergia.lattice.MadX_reader().get_lattice("model", "foborodobo32.madx")
+    lattice.set_all_string_attribute("extractor_type", "libff")
+    return lattice
 
-# read the lattice in from a MadX sequence file
-lattice = synergia.lattice.MadX_reader().get_lattice("model", "foborodobo32.madx")
+################################################################################
 
-# set the momentum of the beam.  This could have been in a beam statement
-# in the lattice file, but this gives the option of setting it on the
-# command line by creating a reference particle with the desired momentum.
+def enable_rf(lattice, logger):
 
-# create the Reference particle object with the correct momentum
-momentum = opts.momentum
-four_momentum = synergia.foundation.Four_momentum(synergia.foundation.pconstants.mp)
-four_momentum.set_momentum(momentum)
+    refpart = lattice.get_reference_particle()
+    energy = refpart.get_total_energy()
+    momentum = refpart.get_momentum()
+    gamma = refpart.get_gamma()
+    beta = refpart.get_beta()
 
-refpart = synergia.foundation.Reference_particle(1, four_momentum)
+    # set RF parameters. The RF voltage and phase (lag) are set to give a
+    # synchrotron tune and a stable bucket.
+    harmon = opts.harmon
+    freq = harmon * beta * synergia.foundation.pconstants.c/lattice.get_length()
+    bucket_length = lattice.get_length()/harmon
 
-# set it into the lattice object
-lattice.set_reference_particle(refpart)
+    rf_volt = opts.rf_volt
+    rf_lag = opts.lag
 
-energy = refpart.get_total_energy()
-momentum = refpart.get_momentum()
-gamma = refpart.get_gamma()
-beta = refpart.get_beta()
+    print("Harmonic number: ", opts.harmon, file=logger)
+    print("bucket length: ", bucket_length, file=logger)
+    print("RF frequency: ", freq, " Hz", file=logger)
+    print("RF voltage: ", rf_volt, " MV", file=logger)
 
-print >>logger, "energy: ", energy
-print >>logger, "momentum: ", momentum
-print >>logger, "gamma: ", gamma
-print >>logger, "beta: ", beta
-
-length = lattice.get_length()
-print >>logger, "lattice length: ", length
-
-# set RF parameters. The RF voltage and phase (lag) are set to give a
-# synchrotron tune and a stable bucket.
-harmon = 32.0
-freq = harmon * beta * synergia.foundation.pconstants.c/length
-
-rf_volt = opts.rf_volt
-rf_lag = opts.lag
-
-print >>logger, "RF frequency: ", freq, " Hz"
-print >>logger, "RF voltage: ", rf_volt, " MV"
-
-for elem in lattice.get_elements():
-    if elem.get_type() == "rfcavity":
-        elem.set_double_attribute("volt", rf_volt)
-        elem.set_double_attribute("lag", rf_lag)
-        elem.set_double_attribute("freq", freq*1.0e-6)
-        print >>logger, "rfcavity: ", elem.print_()
-
-f = open("foborodobo32_lattice.out", "w")
-print >>f, lattice.as_string()
-f.close()
-
-# the lattice_simulator object lets us do some computations for
-# lattice functions and other parameters.
-lattice_simulator = synergia.simulation.Lattice_simulator(lattice, 1)
-
-myrank = 0
-map = lattice_simulator.get_linear_one_turn_map()
-print >>logger, "one turn map from synergia2.5 infrastructure"
-print >>logger, np.array2string(map, max_line_width=200)
-
-[l, v] = np.linalg.eig(map)
-
-#print "l: ", l
-#print "v: ", v
-
-print >>logger, "eigenvalues: "
-for z in l:
-    print >>logger, "|z|: ", abs(z), " z: ", z, " tune: ", np.log(z).imag/(2.0*np.pi)
-
-[ax, bx, qx] = map2twiss(map[0:2,0:2])
-[ay, by, qy] = map2twiss(map[2:4, 2:4])
-[az, bz, qz] = map2twiss(map[4:6,4:6])
-
-print >>logger, "Lattice parameters (assuming uncoupled map)"
-print >>logger, "alpha_x: ", ax, " alpha_y: ", ay
-print >>logger, "beta_x: ", bx, " beta_y: ", by
-print >>logger, "q_x: ", qx, " q_y: ", qy
-print >>logger, "q_z: ", qz, " beta_z: ", bz
+    for elem in lattice.get_elements():
+        if elem.get_type() == ET.rfcavity:
+            elem.set_double_attribute("volt", rf_volt)
+            elem.set_double_attribute("lag", rf_lag)
+            elem.set_double_attribute("freq", freq*1.0e-6)
+            print("rfcavity: ", elem, file=logger)
 
 
-#lattice_simulator.print_lattice_functions()
+################################################################################
 
-alpha_c = lattice_simulator.get_momentum_compaction()
-slip_factor = alpha_c - 1/gamma**2
-print >>logger, "alpha_c: ", alpha_c, ", slip_factor: ", slip_factor
+def main():
 
-f_quads, d_quads = get_fd_quads(lattice)
-print "len(f_quads): ", len(f_quads), " len(d_quads): ", len(d_quads)
+    logger = synergia.utils.Logger(0)
 
-(orig_xtune, orig_ytune) = lattice_simulator.get_both_tunes()
-print >>logger, "Original base tunes, x: ", orig_xtune, " y: ", orig_ytune
+    lattice = get_lattice()
+    print('Read lattice, length = {}, {} elements'.format(lattice.get_length(), len(lattice.get_elements())), file=logger)
 
-# adjust tunes if requested by the xtune and/or the ytune parameter using
-# the list of focussing or defocussing quadruples as adjusters.
+    # set the momentum of the beam.  This could have been in a beam statement
+    # in the lattice file, but this gives the option of setting it on the
+    # command line by creating a reference particle with the desired momentum.
 
-do_adjust_tunes = False
-if opts.xtune or opts.ytune:
-    do_adjust_tunes = True
-    if opts.xtune:
-        target_xtune = opts.xtune
+    # create the Reference particle object with the correct momentum
+    momentum = opts.momentum
+    four_momentum = synergia.foundation.Four_momentum(synergia.foundation.pconstants.mp)
+    four_momentum.set_momentum(momentum)
+
+    refpart = synergia.foundation.Reference_particle(1, four_momentum)
+
+    # set it into the lattice object
+    lattice.set_reference_particle(refpart)
+
+    energy = refpart.get_total_energy()
+    momentum = refpart.get_momentum()
+    gamma = refpart.get_gamma()
+    beta = refpart.get_beta()
+
+    print("energy: ", energy, file=logger)
+    print("momentum: ", momentum, file=logger)
+    print("gamma: ", gamma, file=logger)
+    print("beta: ", beta, file=logger)
+
+    if opts.enable_rf:
+        enable_rf(lattice, logger)
+
+    f = open("foborodobo32_lattice.out", "w")
+    print(lattice, file=f)
+    f.close()
+
+    num_bunches = opts.num_bunches
+    bucket_length = lattice.get_length()/opts.harmon
+    
+    macro_particles = opts.macro_particles
+    real_particles = opts.real_particles
+    print("macro_particles: ", macro_particles, file=logger)
+    print("real_particles: ", real_particles, file=logger)
+
+    sim = synergia.simulation.Bunch_simulator.create_bunch_train_simulator(
+        refpart, macro_particles, real_particles, num_bunches, bucket_length)
+
+    if opts.periodic:
+        sim.set_longitudinal_boundary(
+                synergia.bunch.LongitudinalBoundary.periodic, bucket_length)
+
+    comm = synergia.utils.parallel_utils.Commxx()
+
+    map = SIM.Lattice_simulator.get_linear_one_turn_map(lattice)
+
+    print('map:', file=logger)
+    print(np.array2string(map, max_line_width=200), file=logger)
+
+    [l, v] = np.linalg.eig(map)
+    print("eigenvalues: ", file=logger)
+    for z in l:
+        print("|z|: ", abs(z), " z: ", z, " tune: ", np.log(z).imag/(2.0*np.pi), file=logger)
+
+    [ax, bx, qx] = map2twiss(map[0:2,0:2])
+    [ay, by, qy] = map2twiss(map[2:4, 2:4])
+    [az, bz, qz] = map2twiss(map[4:6,4:6])
+
+    print("Lattice parameters (assuming uncoupled map)", file=logger)
+    print("alpha_x: ", ax, " alpha_y: ", ay, file=logger)
+    print("beta_x: ", bx, " beta_y: ", by, file=logger)
+    print("q_x: ", qx, " q_y: ", qy, file=logger)
+    print("q_z: ", qz, " beta_z: ", bz, file=logger)
+
+    (orig_xtune, orig_ytune, orig_cdt) = SIM.Lattice_simulator.calculate_tune_and_cdt(lattice)
+    print("Original base tunes, x: ", orig_xtune, " y: ", orig_ytune, file=logger)
+
+    do_adjust_tunes = False
+    if opts.xtune or opts.ytune:
+        do_adjust_tunes = True
+        nh, nv = mark_fd_quads(lattice)
+        print(nh, ' horizontal correctors')
+        print(nv, ' vertical correctors')
+
+        if opts.xtune:
+            target_xtune = opts.xtune
+        else:
+            target_xtune = orig_xtune
+        if opts.ytune:
+            target_ytune = opts.ytune
+        else:
+            target_ytune = orig_ytune
+
+    if do_adjust_tunes:
+        print("adjusting tunes, x: ", target_xtune," y: ", target_ytune, file=logger)
+        SIM.Lattice_simulator.adjust_tunes(lattice, target_xtune, target_ytune, 1.0e-6)
+        (new_xtune, new_ytune, new_cdt) = SIM.Lattice_simulator.calculate_tune_and_cdt(lattice)
+        print("Adjusted tunes, x: ", new_xtune, " y: ", new_ytune, file=logger)
+        
+
+    chrom = SIM.Lattice_simulator.get_chromaticities(lattice)
+    hchrom = chrom.horizontal_chromaticity
+    vchrom = chrom.vertical_chromaticity
+    print('initial horizontal chromaticity: ', hchrom, file=logger)
+    print('initial vertical chromaticity: ', vchrom, file=logger)
+
+    adjust_chromaticity = False
+    if opts.set_hchrom or opts.set_vchrom:
+        nh, nv = mark_fd_sext(lattice)
+        print('number sextupole correctors: ', nh, nv, file=logger)
+        if not nh and not nv:
+            raise RuntimeError('No sextupole correctors available')
+        print('initial correctors', file=logger)
+        print_fd_sext(lattice, logger)
+        adjust_chromaticity = True
+        if opts.set_hchrom:
+            target_hchrom = opts.set_hchrom
+        else:
+            target_hchrom = hchrom
+        if opts.set_vchrom:
+            target_vchrom = opts.set_vchrom
+        else:
+            target_vchrom = vchrom
+
+        print('adjusting chromaticities to: h: ', target_hchrom, ', v: ', target_vchrom, file=logger)
+        SIM.Lattice_simulator.adjust_chromaticities(lattice, target_hchrom, target_vchrom)
+        # read back new chromaticity
+        chrom = SIM.Lattice_simulator.get_chromaticities(lattice)
+        hchrom = chrom.horizontal_chromaticity
+        vchrom = chrom.vertical_chromaticity
+        print('final correctors', file=logger)
+        print_fd_sext(lattice, logger)
+
+    alpha_c = chrom.momentum_compaction
+    slip_factor = chrom.slip_factor
+    print('final horizontal chromaticity: ', hchrom, file=logger)
+    print('final vertical chromaticity: ', vchrom, file=logger)
+    print("alpha_c: ", alpha_c, ", slip_factor: ", slip_factor, file=logger)
+
+    dist = synergia.foundation.Random_distribution(opts.seed, comm) 
+
+    stdx = opts.stdx
+    stdy = opts.stdy
+    stdz = opts.stdz
+
+    print("stdx: ", stdx, file=logger)
+    print("stdy: ", stdy, file=logger)
+    print("stdz: ", stdz, file=logger)
+
+    # generate a 6D matched bunch using either normal forms or a 6D moments procedure
+
+    if opts.matching == "6dmoments":
+        print("Matching with 6d moments", file=logger)
+
+        covars = synergia.bunch.get_correlation_matrix(map, stdx, stdy, stdz, beta, (0,2,4))
+        means = np.zeros(6, dtype='d')
+        print(file=logger)
+        print('covariance matrix:', file=logger)
+        print(np.array2string(covars), file=logger, flush=True)
+        for b in range(num_bunches):
+            bunch = sim.get_bunch(0, b)
+            synergia.bunch.populate_6d(dist, bunch, means, covars)
+            print_statistics(bunch, logger)
+
+        
     else:
-        target_xtune = orig_xtune
-    if opts.ytune:
-        target_ytune = opts.ytune
+        # no other matchint options for now
+        pass
+
+    gridx = opts.gridx
+    gridy = opts.gridy
+    gridz = opts.gridz
+
+    steps = opts.steps
+    turns = opts.turns
+
+    grid = [gridx, gridy, gridz]
+
+    # space charge
+    if opts.spacecharge:
+        # space charge active
+        comm_group_size = opts.comm_group_size
+
+        if ops.spacecharge == "3dopen-hockney":
+            sc_ops = synergia.collective.Space_charge_3d_open_hockney_options(gridx, gridy, gridz)
+            sc_ops.comm_group_size = comm_group_size
+
+        elif solver == "2dopen-hockney":
+            sc_ops = synergia.collective.Space_charge_2d_open_hockney_options(gridx, gridy, gridz)
+            sc_ops.comm_group_size = comm_group_size
+
+        #elif solver == "2dbassetti-erskine":
+        #    space_charge = synergia.collective.Space_charge_2d_bassetti_erskine()
+
+        elif solver == "rectangular":
+            space_charge = synergia.collective.Space_charge_rectangular(grid, opts.pipe_size)
+            sc_ops.comm_group_size = comm_group_size
+
+        else:
+            sys.stderr.write("foborodobo32.py: solver must be either 3dopen-hockney, 2dopen-hockney, or rectangular\n")
+            sys.exit(1)
+
+        stepper = synergia.simulation.Split_operator_stepper(sc_ops, steps)
+
     else:
-        target_ytune = orig_ytune
+        # space charge not active
 
-if do_adjust_tunes:
-    print >>logger, "adjusting tunes, x: ", opts.xtune," y: ", opts.ytune
-    lattice_simulator.adjust_tunes(target_xtune, target_ytune, f_quads, d_quads, 1.0e-6, 1)
+        if opts.stepper == "splitoperator":
+            sc_ops = synergia.collective.Dummy_CO_options()
+            stepper = synergia.simulation.Split_operator_stepper(sc_ops, steps)
 
-hchrom = lattice_simulator.get_horizontal_chromaticity()
-vchrom = lattice_simulator.get_vertical_chromaticity()
+        #elif opts.stepper == "independent":
+        #    stepper = synergia.simulation.Independent_stepper(steps)
 
-print >>logger, "horizontal chromaticity: %.16g"%hchrom
-print >>logger, "vertical chromaticity: %.16g"%vchrom
+        elif opts.stepper == "elements":
+            stepper = synergia.simulation.Independent_stepper_elements(steps)
 
-chef_beamline = lattice_simulator.get_chef_lattice().get_beamline()
-f = open("foborodobo32_beamline.out","w")
-print >>f, synergia.lattice.chef_beamline_as_string(chef_beamline)
-f.close()
+        else:
+            sys.stderr.write("mi.py: stepper must be either splitopertor,independent, or elements\n")
+            sys.exit(1)
 
-stdx = opts.stdx
-stdy = opts.stdy
-stdz = opts.stdz
+    # propagator
+    propagator = synergia.simulation.Propagator(lattice, stepper)
 
-print >>logger, "stdx: ", stdx
-print >>logger, "stdy: ", stdy
-print >>logger, "stdz: ", stdz
+    # diagnostics for the bunches
+    for bunch_num in range(num_bunches):
 
-macro_particles = opts.macro_particles
-real_particles = opts.real_particles
-print >>logger, "macro_particles: ", macro_particles
-print >>logger, "real_particles: ", real_particles
+        # diagnostics always on
+        sim.reg_diag_per_turn(synergia.bunch.Diagnostics_full2("diag_b%03d.h5"%bunch_num),
+                              0, bunch_num)
 
-comm = synergia.utils.Commxx()
+        if opts.step_basic:
+            sim.reg_diag_per_step(synergia.bunch.Diagnostics_basic("mi_step_basic_b%03d.h5"%bunch_num),
+                    0, bunch_num)
 
-# generate a 6D matched bunch using either normal forms or a 6D moments procedure
-if opts.matching == "6dmoments":
-    print >>logger, "Matching with 6d moments"
-    bunch = synergia.optics.generate_matched_bunch(lattice_simulator, stdx, stdy, stdz, real_particles, macro_particles, rms_index=[0,2,4], periodic=False)
-else:
-    print >>logger, "Matching with normal form"
-    actions = lattice_simulator.get_stationary_actions(stdx, stdy, stdz/beta)
-    bunch = synergia.bunch.Bunch(refpart, macro_particles, real_particles, comm)
-    seed = opts.seed
-    dist = synergia.foundation.Random_distribution(seed, comm)
-    synergia.simulation.populate_6d_stationary_gaussian(dist, bunch, actions, lattice_simulator)
+        if opts.particles:
+            if opts.particles_period == 0:
+                sim.reg_diag_per_turn(synergia.bunch.Diagnostics_particles("particles_b%03d.h5"%bunch_num), 0, bunch_num)
+            else:
+                turn_list = list(range(0, turns, opts.particles_period))
+                if turns-1 not in turn_list:
+                    turn_list.append(turns-1)
+                    sim.reg_diag_turn_listed(synergia.bunch.Diagnostics_particles("mi_particles_b%03d.h5"%bunch_num), 
+                                             0, bunch_num, turn_list)
 
-print_bunch_stats(bunch, logger)
+        # enable track saving
+        # each processor will save tracks/proc tracks
+        if opts.tracks:
+            trkfile = 'tracks_b%03d.h5'%bunch_num
+            sim.reg_diag_per_turn(synergia.bunch.Diagnostics_bulk_track(trkfile, opts.tracks), 0, bunch_num)
 
-# laslett tune shift
-#
-# Delta_Q = N * r_0 * 2.0 * F*G/ (pi * beta**2 * gamma**3 * emittance95 *B)
-#
-# F=laslett coefficient=0.5 for circular beam
-# G=Form factor for transverse distribution = 2.0 for gaussian beam
-# B=Bunching factor = mean/peak longitudinal density ~0.3
-# emittance95 = 4*sigma**2/beta
-#
+    # max simulation turns
+    sim.set_max_turns(opts.turns)
 
-emit_x = 4.0*stdx**2/bx
-F=0.5
-G=2.0
-Bf=0.3
-laslett = opts.real_particles*F*G*synergia.foundation.pconstants.rp/(np.pi*beta**2*gamma**3*emit_x*Bf)
+    # logs
+    #simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_STEP)
+    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN)
+    screen = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.DEBUG)
 
-print >>logger, "Laslett tune shift: ", laslett
+    # propagate
+    propagator.propagate(sim, simlog, turns)
 
-bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
+if __name__ == "__main__":
+    main()
 
-# define the bunch diagnostics to save
-
-bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2("full2.h5"))
-if opts.particles:
-    print >>logger, "saving particles"
-    # save_particles option=n, 0: don't save, non-zero: save n particles
-    # particles_period=n option, save particles every n turns
-    if opts.save_particles:
-        bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("particles.h5", 0, opts.save_particles), opts.particles_period)
-if opts.tracks:
-    print >>logger, "saving ", opts.tracks, " particle tracks"
-    bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_bulk_track("tracks.h5", opts.tracks))
-
-
-# define the stepper, propagator and run the simulation.
-
-steppertype = opts.stepper
-if opts.spacecharge and steppertype != "splitoperator":
-    print >>logger, "changing stepper to splitoperator because spacecharge is ON"
-    steppertype = "splitoperator"
-
-if opts.spacecharge is None:
-    spacecharge = None
-    print >>logger, "space charge is OFF"
-elif ((opts.spacecharge == "off") or (opts.spacecharge == "0")):
-    spacecharge = None
-    print >>logger, "space charge is OFF"
-elif opts.spacecharge == "2d-bassetti-erskine":
-    print >>logger, "space charge 2d-bassetti-erskine is ON"
-    coll_operator = synergia.collective.Space_charge_2d_bassetti_erskine()
-    coll_operator.set_longitudinal(0)
-elif opts.spacecharge == "2d-openhockney":
-    print >>logger, "space charge 2d-openhockney is ON"
-    # openhockney space charge requires a communicator for collective effects
-    coll_comm = synergia.utils.Commxx(True)
-    print >>logger, "space charge grid: ", opts.gridx, opts.gridy, opts.gridz
-    grid = [opts.gridx, opts.gridy, opts.gridz]
-    coll_operator = synergia.collective.Space_charge_2d_open_hockney(coll_comm, grid)
-elif opts.spacecharge == "3d-openhockney":
-    print >>logger, "space charge 3d-openhockney is ON"
-    coll_comm = synergia.utils.Commxx(True)
-    print >>logger, "space charge grid: ", opts.gridx, opts.gridy, opts.gridz
-    grid = [opts.gridx, opts.gridy, opts.gridz]
-    coll_operator = synergia.collective.Space_charge_3d_open_hockney(coll_comm, grid)
-else:
-    raise RuntimeError, "unknown space charge operator"
-
-
-if steppertype == "independent":
-    print >>logger, "using independent stepper ", opts.steps, " steps/turn"
-elif steppertype == "elements":
-    print >>logger, "using steps by element ", opts.steps, " steps/element"
-elif steppertype == "splitoperator":
-    print >>logger, "using split operator stepper ", opts.steps, " steps/turn"
-else:
-    raise  RuntimeError, "unknown stepper type: %s"%steppertype
-
-print "rank ", comm.get_rank(), " propagating bunch with ", bunch.get_local_num(), " particles"
-
-
-if steppertype == "independent":
-    stepper = synergia.simulation.Independent_stepper(lattice, 1, opts.steps)
-elif steppertype == "elements":
-    stepper = synergia.simulation.Independent_stepper_elements(lattice, 1, opts.steps)
-elif steppertype == "splitoperator":
-    stepper = synergia.simulation.Split_operator_stepper(lattice, 1, coll_operator, opts.steps)
-
-propagator = synergia.simulation.Propagator(stepper)
-propagator.set_checkpoint_period(100)
-
-#propagator.propagate(bunch_simulator, 100, 100, 1)
-# propagator.propagate(bunch_simulator, turns, max_turns, verbosity)
-propagator.propagate(bunch_simulator, opts.turns, opts.turns, 1)
