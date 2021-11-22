@@ -51,6 +51,8 @@ if (BUILD_PYTHON_BINDINGS)
     pybind11_add_module(utils MODULE NO_EXTRAS utils_pywrap.cc)
     target_link_libraries(utils PRIVATE kokkoscore)
 
+    copy_file(__init__.py utils)
+
     install(FILES
             __init__.py
             DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
