@@ -2,6 +2,10 @@
 #include "synergia/lattice/lattice_element_processor.h"
 #include "synergia/lattice/madx_reader.h"
 
+// for writing out deposited charge
+#include "synergia/utils/hdf5_file.h"
+
+
 #include <sstream>
 #include <unordered_set>
 #include <stdexcept>
@@ -350,6 +354,51 @@ Lattice::import_madx_file(
         std::string const& line)
 {
     return MadX_reader().get_lattice(line, filename);
+}
+
+void
+Lattice::save_deposited_charge(
+        std::string const& fname,
+        int bunch_idx, int train_idx) const
+{
+    static bool first_write = true;
+    static std::unique_ptr<Hdf5_file> file(
+            new Hdf5_file(fname, Hdf5_file::truncate, Commxx()));
+
+    if (fname != file->get_filename())
+    {
+        file.reset(new Hdf5_file(fname, Hdf5_file::truncate, Commxx()));
+        first_write = true;
+    }
+
+    if (first_write)
+    {
+        int idx = 0;
+        double s = 0.0;
+        karray1d sn("s_n", elements.size());
+
+        for(auto const& elm : elements)
+        {
+            s += elm.get_length();
+            sn[idx] = s;
+            ++idx;
+        }
+
+        file->write_single("s_n", sn);
+        first_write = false;
+    }
+
+    int idx = 0;
+    karray1d values("values", elements.size());
+
+    for(auto const& elm : elements)
+        values[idx++] = elm.get_deposited_charge(bunch_idx, train_idx);
+
+    MPI_Allreduce(MPI_IN_PLACE, values.data(), elements.size(),
+            MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+    file->append_single("deposited_charge", values);
+    file->flush();
 }
 
 

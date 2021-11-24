@@ -330,13 +330,15 @@ public:
     { return markers[(int)t]; }
 
     /// deposited charge
-    double get_deposited_charge() const 
+    double get_deposited_charge(int bunch=0, int train=0) const 
     { return deposited_charge; }
 
-    void   set_deposited_charge(double charge) const 
+    void
+    set_deposited_charge(double charge, int bunch=0, int train=0) const 
     { deposited_charge = charge; }
 
-    void   deposit_charge(double charge) const 
+    void
+    deposit_charge(double charge, int bunch=0, int train=0) const 
     { deposited_charge += charge; }
 
     /// Get the Lattice_element's revision number

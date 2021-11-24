@@ -154,6 +154,13 @@ public:
     void
     print(Logger & logger) const;
 
+    /// Saves the deposited charge to a hdf5 file
+    void
+    save_deposited_charge(
+            std::string const& fname,
+            int bunch_idx = 0, 
+            int train_idx = 0 ) const;
+
 public:
 
     // serialization

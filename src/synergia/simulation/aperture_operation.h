@@ -21,7 +21,11 @@ private:
 
         int ndiscarded = bunch.apply_aperture(ap);
         double charge = ndiscarded * bunch.get_real_num() / bunch.get_total_num();
-        slice.get_lattice_element().deposit_charge(charge);
+        slice
+            .get_lattice_element()
+            .deposit_charge(charge, 
+                    bunch.get_bunch_index(), 
+                    bunch.get_train_index());
     }
 
 public:
