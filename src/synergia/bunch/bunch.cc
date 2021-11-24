@@ -15,7 +15,8 @@ Bunch::bunch_t(
         int total_spectator_num,
         int bunch_index,
         int bucket_index,
-        int array_index )
+        int array_index,
+        int train_index )
     : comm(std::make_shared<Commxx>(bunch_comm))
     , boundary(LB::open)
     , boundary_param(0.0)
@@ -28,6 +29,7 @@ Bunch::bunch_t(
     , bunch_index(bunch_index)
     , bucket_index(bucket_index)
     , array_index(array_index)
+    , train_index(train_index)
 {
 }
 
@@ -45,6 +47,7 @@ Bunch::bunch_t()
     , bunch_index(0)
     , bucket_index(0)
     , array_index(0)
+    , train_index(0)
 {
 }
 

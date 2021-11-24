@@ -179,7 +179,8 @@ Bunch_train::Bunch_train(
                 num_spectator_per_bunch,
                 b_idx,         // bunch index in the train
                 b_idx,         // bucket index set to the same of bunch index
-                a_idx          // array index in the bunches array
+                a_idx,         // array index in the bunches array
+                index          // train index
                 );
     }
 }

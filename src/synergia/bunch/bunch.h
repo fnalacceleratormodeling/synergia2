@@ -107,6 +107,7 @@ private:
     int bunch_index;   // index in the train
     int bucket_index;  // which bucket its occupying
     int array_index;   // array index in the train's bunch array
+    int train_index;   // the index of the containing tain
 
 public:
     //!
@@ -128,7 +129,8 @@ public:
               int total_spectator_num = 0,
               int bunch_index = 0,
               int bucket_index = 0,
-              int array_index = 0 );
+              int array_index = 0,
+              int train_index = 0 );
 
     // to construct a bunch with trigon particles
     template<typename U = PART>
@@ -147,6 +149,7 @@ public:
     // indicies
     int get_array_index()  const { return array_index; }
     int get_bunch_index()  const { return bunch_index; }
+    int get_train_index()  const { return train_index; }
     int get_bucket_index() const { return bucket_index; }
 
     ///
@@ -493,6 +496,7 @@ private:
         ar(CEREAL_NVP(bunch_index));
         ar(CEREAL_NVP(bucket_index));
         ar(CEREAL_NVP(array_index));
+        ar(CEREAL_NVP(train_index));
     }
 };
 
@@ -548,6 +552,7 @@ inline bunch_t<PART>::bunch_t(
   , bunch_index(0)
   , bucket_index(0)
   , array_index(0)
+  , train_index(0)
 {
 }
 
