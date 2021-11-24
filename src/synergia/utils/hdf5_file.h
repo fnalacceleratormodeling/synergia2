@@ -83,6 +83,9 @@ public:
     void close();
     void flush() const;
 
+    std::string const& get_filename() const
+    { return file_name; }
+
 #if 0
     std::vector<std::string> get_member_names();
     Atomic_type get_atomic_type(std::string const& name);
