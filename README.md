@@ -4,12 +4,12 @@ Synergia is a accelerator modeling and simulation package developped at Fermilab
 
 - [Build Synergia](#build-instructions)
 - [Basic Concepts](#basic-concepts)
-  - [Bunch](#bunch)
-  - [Lattice](#lattice)
-  - [Bunch_simulator and Propagator](#bunch_simulator-and-propagator)
+    - [Bunch](#bunch)
+    - [Lattice](#lattice)
+    - [Bunch_simulator and Propagator](#bunch_simulator-and-propagator)
 - [Examples](#examples-of-synergia-simulations)
-  - [FODO in Python](#a-fodo-example-in-python)
-  - [FODO in C++](#fodo-in-c++)
+    - [FODO in Python](#a-fodo-example-in-python)
+    - [FODO in C++](#fodo-in-c++)
 
 
 ## Build Instructions
