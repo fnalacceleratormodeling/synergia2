@@ -1,168 +1,154 @@
+# Synergia3
 
-# Build Instructions
+Synergia is a accelerator modeling and simulation package developped at Fermilab.
 
-## 0a. Path for non-system packages
+- [Build Synergia](#build-instructions)
+- [Basic Concepts](#basic-concepts)
+  - [Bunch](#bunch)
+  - [Lattice](#lattice)
+  - [Bunch_simulator and Propagator](#bunch_simulator-and-propagator)
+- [Examples](#examples-of-synergia-simulations)
+  - [FODO in Python](#a-fodo-example-in-python)
+  - [FODO in C++](#fodo-in-c++)
 
-    export LOCAL_ROOT=/path/to/local/packages
 
-## 0b. Clone repository
+## Build Instructions
 
-Git 2.13 and later,
+Please see [this page](wiki/build.md) for build instructions
 
-    git clone -b devel3 --recurse-submodules https://bitbucket.org/fnalacceleratormodeling/synergia2.git
+## Basic Concepts
 
-Git 1.6 and later,
+### Bunch
 
-    git clone -b devel3 --recursive https://bitbucket.org/fnalacceleratormodeling/synergia2.git
+`Bunch` is the object which holds the particle data in Synergia. To create a `Bunch` object you need a `Reference_particle` for the bunch, the number of `macro_particles`, and the number of `real_particles`.
 
-Or manually init and update submodules,
+### Lattice
 
-    git clone -b devel3 https://bitbucket.org/fnalacceleratormodeling/synergia2.git
-    cd synergia2
-    git submodule update --init --recursive
+`Lattice` describes the structure of a acclerator complex, along with a lattice design reference particle. A `Lattice` object can be created by reading in a Mad8/MadX file. Or alternatively, it can also be constructed by adding `Lattice_element` objects through the `Lattice::append()` method.
 
-## 0c. Update local repo
+### Bunch_simulator and Propagator
 
-In one command
+In order to simulate the dynamics of a bunch (or a series of bunches) of particles propagating through an accelerator lattice, you will need two additional objects, the `Bunch_simulator`, and the `Propagator`.
 
-    git pull --recurse-submodules
+`Bunch_simulator` holds the bunch that is going to be propagated, along with all the diagnostics and propagate actions that happen during the propagation.
 
-or,
+`Propagator` contains the lattice structure for the simulation, and optional operators (such as the space charge solver, or apertures) that are inserted in between the lattice elements.
 
-    git pull
-    git submodule update
+Finally the propagation happens when the `Propagator::propagate()` method is called, with the `Bunch_simulator` object as one of the arguments - it propagate the bunch along the lattice that is stored in the propagator object.
 
-## 1. General Linux:
+## Examples of Synergia Simulations
 
-    CC=gcc CXX=g++ \
-    cmake -DCMAKE_INSTALL_PREFIX=$LOCAL_ROOT \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DFFTW3_LIBRARY_DIRS=$LOCAL_ROOT/lib \
-      -DHDF5_ROOT=$LOCAL_ROOT \
-      -DKokkos_ENABLE_OPENMP=on \
-      /path/to/synergia/
+Here are some examples to give an idea of how to compose a simulation with Synergia3.
 
-### Avaiable Build Options
+### A FODO example in Python
 
-Kokkos options:
+```python
+#!/usr/bin/env python3
 
-    cmake -DKokkos_ENABLE_OPENMP=on/off
-    cmake -DKokkos_ENABLE_CUDA=on/off
-    ...
+import numpy as np
+import synergia
 
-Enable Python bindings:
+macroparticles = 1048576
+real_particles=2.94e12
+turns = 10
+gridx = 32
+gridy = 32
+gridz = 128
 
-    cmake -DBUILD_PYTHON_BINDINGS=on
+def get_lattice():
+
+    fodo_madx = """
+      beam, particle=proton,pc=3.0;
+
+      o: drift, l=8.0;
+      f: quadrupole, l=2.0, k1=0.071428571428571425;
+      d: quadrupole, l=2.0, k1=-0.071428571428571425;
+
+      fodo: sequence, l=20.0, refer=entry;
+      fodo_1: f, at=0.0;
+      fodo_2: o, at=2.0;
+      fodo_3: d, at=10.0;
+      fodo_4: o, at=12.0;
+      endsequence;
+    """
+
+    reader = synergia.lattice.MadX_reader()
+    reader.parse(fodo_madx)
+    lattice = reader.get_lattice('fodo')
+    return lattice
+
+def create_simulator(ref_part):
+
+    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
+            ref_part, macroparticles, real_particles)
+
+    bunch = sim.get_bunch()
+
+    bunch_means = np.zeros(6, dtype='d')
+    bunch_covariances = np.array(
+        [[3.0509743977035345e-05, 2.2014134466660509e-06, 0, 0, 0, 0],
+         [2.2014134466660509e-06, 1.9161816525115869e-07, 0, 0, 0, 0],
+         [0, 0, 7.5506914064526925e-06, -6.6846812465678249e-07, 0, 0],
+         [0, 0, -6.6846812465678249e-07, 1.9161816525115867e-07, 0, 0],
+         [0, 0, 0, 0, 0.00016427607645871527, 0],
+         [0, 0, 0, 0, 0, 1e-08]])
     
-Vectorization flags (on M1 Mac must set `-DGSV=DOUBLE`):
+    dist = synergia.foundation.PCG_random_distribution(1234567)
 
-    cmake -DGSV=DOUBLE|SSE|AVX|AVX512
+    synergia.bunch.populate_6d(dist, 
+        bunch, 
+        bunch_means,
+        bunch_covariances)
 
-Enable simple timer profiling:
+    return sim
 
-    cmake -DSIMPLE_TIMER=on
+def create_propagator(lattice):
+    sc_ops = synergia.collective.Space_charge_3d_open_hockney_options(gridx, gridy, gridz)
+    sc_ops.comm_group_size = 1
 
-### Options for OpenMP only Build
+    stepper = synergia.simulation.Split_operator_stepper_elements(sc_ops, 1)
+    propagator = synergia.simulation.Propagator(lattice, stepper)
 
-    cmake -DKokkos_ENABLE_OPENMP=on
+    return propagator
 
-### Options for GPU/CUDA build
+def run():
 
-`nvcc` needs to be in path
+    # logger
+    screen = synergia.utils.parallel_utils.Logger(0, 
+      synergia.utils.parallel_utils.LoggerV.INFO)
 
-    export PATH=/usr/local/cuda/bin:$PATH
+    simlog = synergia.utils.parallel_utils.Logger(0, 
+      synergia.utils.parallel_utils.LoggerV.INFO_TURN)
 
-Kokkos options (it is possible to have both openmp and cuda enabled)
+    # components
+    lattice = get_lattice()
+    sim = create_simulator(lattice.get_reference_particle())
+    propagator = create_propagator(lattice)
 
-    cmake -DKokkos_ENABLE_OPENMP=on
-    cmake -DKokkos_ENABLE_CUDA=on
+    # diagnostics
+    diag_full2 = synergia.bunch.Diagnostics_full2("diag_full.h5")
+    sim.reg_diag_per_turn(diag_full2)
 
-Use `nvcc_wrapper` as the default cxx compiler, and set the GPU architecture in the `CXX_FLAGS`. `nvcc_wrapper` can be found in Synergia source tree under `src/synergia/utils/kokkos/bin/nvcc_wrapper`
+    # propagate
+    propagator.propagate(sim, simlog, turns)
 
-    cmake -DCMAKE_CXX_COMPILER=/path/to/nvcc_wrapper
+    # save
+    synergia.simulation.checkpoint_save(propagator, sim);
 
-Paddings need to be turned off in the CUDA build due to a Kokkos bug https://github.com/kokkos/kokkos/issues/2995
+def main():
 
-    cmake -DALLOW_PADDING=off
+    try:
+        run()
+    except:
+        raise RuntimeError("Failure to launch fodo.run")
 
+main()
+```
 
-## 2. Ubuntu20.04
-
-    sudo apt install libopenmpi-dev libfftw3-mpi-dev libgsl-dev libhdf5-openmpi-dev libpython3-dev
-    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
-
-## 3. Cori - KNL (obsolete, needs update): 
-
-    module load cmake
-    module switch craype-haswell craype-mic-knl
-    module load cray-fftw
-    module load python
-    module load gsl
-    module load cray-hdf5
-    module unload craype-hugepage2M
-
-    export CRAYPE_LINK_TYPE=dynamic
-
-    CC=cc CXX=CC cmake -DEIGEN3_INCLUDE_DIR:PATH=~/local/include/eigen3 -DFFTW3_LIBRARY_DIRS:PATH=${FFTW_ROOT}/lib -DKokkos_ENABLE_OPENMP=on ../synergia2/
-
-
-## 4. Power9 (obsolete, needs update):
-
-    export SYN_SRC=/path/to/synergia
-    export LOCAL_ROOT=/data/qlu/local
-
-    export PATH=$LOCAL_ROOT/bin:/usr/local/gnu8/gcc-8.3.0/bin:/usr/local/openmpi-4.0.2-gcc-8.3.0/bin:/usr/local/cmake3/3.16.2/bin:/usr/local/cuda-11.1/bin:$PATH
-    export LD_LIBRARY_PATH=$LOCAL_ROOT/lib:$LOCAL_ROOT/lib64:/usr/local/gnu8/gcc-8.3.0/lib:/usr/local/gnu8/gcc-8.3.0/lib64:/usr/local/cuda-11.1/compat:$LD_LIBRARY_PATH
-
-    CXX=/usr/local/gnu8/gcc-8.3.0/bin/g++ \
-    cmake -DEIGEN3_INCLUDE_DIR=$LOCAL_ROOT/include/eigen3 \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DBUILD_PYTHON_BINDINGS=off \
-      -DKokkos_ENABLE_OPENMP=off \
-      -DKokkos_ENABLE_CUDA=on \
-      -DCMAKE_CXX_COMPILER=$SYN_SRC/src/synergia/utils/kokkos/bin/nvcc_wrapper \
-      -DCMAKE_CXX_FLAGS="-arch=sm_70" 
-      ../synergia2/
+In the above example, a bunch of 1 million particles is created and populated with the given mean and covariances. This bunch will propagate through a simple focusing-drift-defocusing-drfit, or `FODO` lattice for a given number of turns. At each turn, a full particle diagnostics will be performed and saved in the `diag_full.h5` file. After 10 turns, it writes a checkpoint save of the current state of the simulation so it can be resumed later.
 
 
-Power9 enable Python:
+### FODO in C++
 
-    cmake -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$LOCAL_ROOT/bin/python3
-
-
-Build python3 on Power9 (libffi needd to enable _ctypes):
-
-    wget python.tar.gz && tar xf
-    cd python
-    LDFLAGS='-L${LOCAL_ROOT}/lib64' CFLAGS='-I${LOCAL_ROOT}/include' ./configure --prefix=$LOCAL_ROOT  --enable-optimizations --enable-shared
-    make -j 32
-    make install
-
-    wget mpi4py.tar.gz && tar xf
-    cd mpi4py
-    python3 setup.py build
-    python3 setup.py install
-
-    wget Cython.tar.gz && tar xf
-    cd Cython
-    python3 setup.py install
-
-    git clone https://github.com/numpy/numpy.git numpy
-    cd numpy
-    python3 setup.py install
-
-
-
-## 5. MacOS (Intel/M1 Mac):
-
-    brew install gcc hdf5 fftw3 libomp
-    pip3 install numpy mpi4py pytest pyparsing
-
-MacOS with gcc:
-
-    CC=gcc-9 CXX=g++-9 cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
-
-MacOS with apple clang:
-
-    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
+This is the same `FODO` example but written in C++.
 
