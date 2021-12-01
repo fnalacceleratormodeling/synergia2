@@ -236,7 +236,7 @@ Propagator::do_before_start(Bunch_simulator & simulator, Logger & logger)
 
     if (simulator.current_turn() == 0) 
     {
-        simulator.diag_action_step_and_turn(0, 0);
+        simulator.diag_action_step_and_turn(PRE_TURN, FINAL_STEP);
         simulator.prop_action_first(lattice);
         simulator.set_lattice_reference_particle(lattice.get_reference_particle());
     }

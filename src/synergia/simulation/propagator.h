@@ -18,6 +18,7 @@ class Propagator
 {
 public:
 
+    static const int PRE_TURN   = -1;
     static const int FINAL_STEP = -1;
 
     struct Slice_iterator

@@ -19,6 +19,7 @@ class Bunch_simulator
 
 public:
 
+    static const int PRE_TURN   = -1;
     static const int FINAL_STEP = -1;
 
 private:
@@ -43,6 +44,10 @@ private:
 
         bool operator()(int turn, int step) const
         {
+            // always trigger at before_start
+            if (turn == PRE_TURN && step == FINAL_STEP)
+                return true;
+
             // only the turn number matters
             if (step_period == -1) 
                 return (turn % turn_period == 0) 
