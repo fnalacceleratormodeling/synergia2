@@ -340,7 +340,7 @@ PYBIND11_MODULE(simulation, m)
 
                     if (p) p->reg_self(); 
 
-                    self.reg_diag_per_turn<std::shared_ptr<Diagnostics>>(
+                    return self.reg_diag_per_turn<std::shared_ptr<Diagnostics>>(
                         diag, train_idx, bunch_idx, period);
                 },
                 "Register a per turn diagnostics.",

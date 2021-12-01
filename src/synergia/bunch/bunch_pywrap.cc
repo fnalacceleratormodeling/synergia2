@@ -166,10 +166,9 @@ PYBIND11_MODULE(bunch, m)
                     PyDiagnostics* p = 
                         dynamic_cast<PyDiagnostics*>(diag.get());
 
-                    if (p) { 
-                        p->reg_self(); 
-                        self.add_diagnostics(diag);
-                    }
+                    if (p) p->reg_self(); 
+
+                    return self.add_diagnostics(diag);
                 },
                 "Add a diagnostics to the bunch object.",
                 "diag"_a )
