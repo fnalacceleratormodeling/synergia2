@@ -13,14 +13,15 @@ opts.add("harmon", 32, "harmonic number for RF")
 opts.add("rf_volt", 0.05, "RF voltage [MV]")
 opts.add("lag", 0.0, "rf cavity phase in units of 2*pi")
 
-opts.add("matching", "6dmoments", "matching procedure 6dmoments or normal_form")
+opts.add("matching", "6dmoments", "matching procedure 6dmoments|uniform")
 
 opts.add("stdx", 1.0e-3, "x standard deviation")
 opts.add("stdy", 1.0e-3, "y standard deviation")
 opts.add("stdz", 0.25, "c*dt standard deviation")
+opts.add("stddpop", 1.0e-4, "dp/p standard deviation for uniform beams")
 
 opts.add("num_bunches", 1, "number of bunches in bunch train")
-opts.add("macro_particles", 100, "number of macro particles")
+opts.add("macroparticles", 100, "number of macro particles")
 opts.add("real_particles", 5.0e10, "number of real particles (bunch charge)")
 opts.add("periodic", True, "make bunch periodic boundary conditions")
 opts.add("turns", 10, "number of turns")

@@ -201,13 +201,13 @@ def main():
     num_bunches = opts.num_bunches
     bucket_length = lattice.get_length()/opts.harmon
     
-    macro_particles = opts.macro_particles
+    macroparticles = opts.macroparticles
     real_particles = opts.real_particles
-    print("macro_particles: ", macro_particles, file=logger)
+    print("macroparticles: ", macroparticles, file=logger)
     print("real_particles: ", real_particles, file=logger)
 
     sim = synergia.simulation.Bunch_simulator.create_bunch_train_simulator(
-        refpart, macro_particles, real_particles, num_bunches, bucket_length)
+        refpart, macroparticles, real_particles, num_bunches, bucket_length)
 
     if opts.periodic:
         sim.set_longitudinal_boundary(
@@ -305,10 +305,12 @@ def main():
     stdx = opts.stdx
     stdy = opts.stdy
     stdz = opts.stdz
+    stddpop = opts.stddpop
 
     print("stdx: ", stdx, file=logger)
     print("stdy: ", stdy, file=logger)
     print("stdz: ", stdz, file=logger)
+    print("stddpop: ", stddpop, file=logger)
 
     # generate a 6D matched bunch using either normal forms or a 6D moments procedure
 
@@ -325,9 +327,19 @@ def main():
             synergia.bunch.populate_6d(dist, bunch, means, covars)
             print_statistics(bunch, logger)
 
+    elif opts.matching == "uniform":
+        print("Transversely matched, longitudinally uniform beam", file=logger)
+        covars = synergia.bunch.get_correlation_matrix(map, stdx, stdy, stddpop, beta, (0,2,5))
+        means = np.zeros(6, dtype='d')
+        print(file=logger)
+        print(np.array2string(covars), file=logger, flush=True)
+        for b in range(num_bunches):
+            bunch = sim.get_bunch(0, b)
+            synergia.bunch.populate_transverse_gaussian(dist, bunch, means, covars, bucket_length/beta)
+            print_statistics(bunch, logger)
         
     else:
-        # no other matchint options for now
+        # no other matching options for now
         pass
 
     gridx = opts.gridx
