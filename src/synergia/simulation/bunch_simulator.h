@@ -195,8 +195,8 @@ public:
     Diagnostics_handler 
     reg_diag_period(
             Diag const& diag, 
-            int train, int bunch, 
-            int turn_period, int step_period)
+            int turn_period, int step_period,
+            int bunch, int train )
     { 
         int bunch_idx = get_bunch_array_idx(train, bunch);
         if (bunch_idx == -1) return Diagnostics_handler();
@@ -214,22 +214,22 @@ public:
 
     template<class Diag>
     Diagnostics_handler
-    reg_diag_per_turn(Diag const& diag, 
-            int train = 0, int bunch = 0, int period = 1)
-    { return reg_diag_period(diag, train, bunch, period, -1); }
+    reg_diag_per_turn(Diag const& diag,
+            int period = 1, int bunch = 0, int train = 0)
+    { return reg_diag_period(diag, period, -1, bunch, train); }
  
     template<class Diag>
     Diagnostics_handler
-    reg_diag_per_step(Diag const& diag, 
-            int train = 0, int bunch = 0, int period = 1)
-    { return reg_diag_period(diag, train, bunch, 1, period); }
+    reg_diag_per_step(Diag const& diag,
+            int period = 1, int bunch = 0, int train = 0)
+    { return reg_diag_period(diag, 1, period, bunch, train); }
 
     // register a diagnsotics at specified number of turns
     template<class Diag>
     Diagnostics_handler
     reg_diag_turn_listed(Diag const& diag,
-            int train = 0, int bunch = 0, 
-            std::vector<int> const& numbers = {})
+            std::vector<int> const& numbers = {},
+            int bunch = 0, int train = 0 )
     {
         int bunch_idx = get_bunch_array_idx(train, bunch);
         if (bunch_idx == -1) return Diagnostics_handler();
@@ -250,9 +250,9 @@ public:
     // * this is the former forced diagnostics
     template<class Diag>
     Diagnostics_handler
-    reg_diag_per_element(Diag const& diag, 
+    reg_diag_at_element(Diag const& diag, 
             Lattice_element const& ele, int turn_period = 1,
-            int train = 0, int bunch = 0)
+            int bunch = 0, int train = 0)
     {
         int bunch_idx = get_bunch_array_idx(train, bunch);
         if (bunch_idx == -1) return Diagnostics_handler();
@@ -270,24 +270,24 @@ public:
  
     // diag loss
     void reg_diag_loss_aperture(
-            std::string const& filename, int train = 0, int bunch = 0 )
+            std::string const& filename, int bunch = 0, int train = 0 )
     { get_bunch(train, bunch).set_diag_loss_aperture(filename); }
 
     void reg_diag_loss_zcut(
-            std::string const& filename, int train = 0, int bunch = 0 )
+            std::string const& filename, int bunch = 0, int train = 0 )
     { get_bunch(train, bunch).set_diag_loss_zcut(filename); }
 
 #if 0
     // diag per operator
-    void reg_diag_operator(
+    void reg_diag_at_operator(
             std::string const& name, Diagnostics & diag, 
-            trigger_opr_t, int train = 0, int bunch = 0 )
+            trigger_opr_t, int bunch = 0, int train = 0 )
     { }
 
     // diag per operation
-    void reg_diag_operation(
+    void reg_diag_at_operation(
             std::string const& name, Diagnostics & diag, 
-            trigger_opn_t, int train = 0, int bunch = 0 )
+            trigger_opn_t, int bunch = 0, int train = 0 )
     { }
 #endif
 

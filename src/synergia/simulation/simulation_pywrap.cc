@@ -331,9 +331,9 @@ PYBIND11_MODULE(simulation, m)
         .def( "reg_diag_per_turn", 
                 [](Bunch_simulator& self,
                     std::shared_ptr<Diagnostics> const& diag,
-                    int train_idx,
+                    int period,
                     int bunch_idx,
-                    int period) {
+                    int train_idx) {
 
                     PyDiagnostics* p = 
                         dynamic_cast<PyDiagnostics*>(diag.get());
@@ -341,52 +341,52 @@ PYBIND11_MODULE(simulation, m)
                     if (p) p->reg_self(); 
 
                     return self.reg_diag_per_turn<std::shared_ptr<Diagnostics>>(
-                        diag, train_idx, bunch_idx, period);
+                        diag, period, bunch_idx, train_idx);
                 },
                 "Register a per turn diagnostics.",
                 "diag"_a, 
-                "train_idx"_a = 0, 
-                "bunch_idx"_a = 0, 
-                "period"_a = 1 )
+                "period"_a = 1,
+                "bunch_idx"_a = 0,
+                "train_idx"_a = 0 )
 
         .def( "reg_diag_per_step", 
                 &Bunch_simulator::reg_diag_per_step<std::shared_ptr<Diagnostics>>,
                 "Register a per step diagnostics.",
                 "diag"_a, 
-                "train_idx"_a = 0, 
-                "bunch_idx"_a = 0, 
-                "period"_a = 1 )
+                "period"_a = 1,
+                "bunch_idx"_a = 0,
+                "train_idx"_a = 0 )
 
         .def( "reg_diag_turn_listed", 
                 &Bunch_simulator::reg_diag_turn_listed<std::shared_ptr<Diagnostics>>,
                 "Register a per step diagnostics.",
                 "diag"_a, 
-                "train_idx"_a = 0, 
-                "bunch_idx"_a = 0, 
-                "turns"_a = std::vector<int>() )
+                "turns"_a = std::vector<int>(),
+                "bunch_idx"_a = 0,
+                "train_idx"_a = 0 )
 
-        .def( "reg_diag_per_element", 
-                &Bunch_simulator::reg_diag_per_element<std::shared_ptr<Diagnostics>>,
+        .def( "reg_diag_at_element", 
+                &Bunch_simulator::reg_diag_at_element<std::shared_ptr<Diagnostics>>,
                 "Register a per element diagnostics.",
                 "diag"_a, 
                 "element"_a,
                 "turn_period"_a = 1,
-                "train_idx"_a = 0, 
-                "bunch_idx"_a = 0 )
+                "bunch_idx"_a = 0,
+                "train_idx"_a = 0 )
 
         .def( "reg_diag_loss_aperture",
                 &Bunch_simulator::reg_diag_loss_aperture,
                 "Register an aperture loss diagnostics to the bunch.",
                 "filename"_a,
-                "train_idx"_a = 0,
-                "bunch_idx"_a = 0 )
+                "bunch_idx"_a = 0,
+                "train_idx"_a = 0 )
 
          .def( "reg_diag_loss_zcut",
                 &Bunch_simulator::reg_diag_loss_zcut,
                 "Register a zcut loss diagnostics to the bunch.",
                 "filename"_a,
-                "train_idx"_a = 0,
-                "bunch_idx"_a = 0 )
+                "bunch_idx"_a = 0,
+                "train_idx"_a = 0 )
  
         .def( "current_turn",
                 &Bunch_simulator::current_turn,
