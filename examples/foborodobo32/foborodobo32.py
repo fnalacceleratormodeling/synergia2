@@ -402,27 +402,27 @@ def main():
 
         # diagnostics always on
         sim.reg_diag_per_turn(synergia.bunch.Diagnostics_full2("diag_b%03d.h5"%bunch_num),
-                              0, bunch_num)
+                              bunch_idx = bunch_num)
 
         if opts.step_basic:
             sim.reg_diag_per_step(synergia.bunch.Diagnostics_basic("mi_step_basic_b%03d.h5"%bunch_num),
-                    0, bunch_num)
+                    bunch_idx = bunch_num)
 
         if opts.particles:
             if opts.particles_period == 0:
-                sim.reg_diag_per_turn(synergia.bunch.Diagnostics_particles("particles_b%03d.h5"%bunch_num), 0, bunch_num)
+                sim.reg_diag_per_turn(synergia.bunch.Diagnostics_particles("particles_b%03d.h5"%bunch_num), bunch_idx = bunch_num)
             else:
                 turn_list = list(range(0, turns, opts.particles_period))
                 if turns-1 not in turn_list:
                     turn_list.append(turns-1)
                     sim.reg_diag_turn_listed(synergia.bunch.Diagnostics_particles("mi_particles_b%03d.h5"%bunch_num), 
-                                             0, bunch_num, turn_list)
+                                             bunch_idx = bunch_num, turns = turn_list)
 
         # enable track saving
         # each processor will save tracks/proc tracks
         if opts.tracks:
             trkfile = 'tracks_b%03d.h5'%bunch_num
-            sim.reg_diag_per_turn(synergia.bunch.Diagnostics_bulk_track(trkfile, opts.tracks), 0, bunch_num)
+            sim.reg_diag_per_turn(synergia.bunch.Diagnostics_bulk_track(trkfile, opts.tracks), bunch_idx = bunch_num)
 
     # max simulation turns
     sim.set_max_turns(opts.turns)
