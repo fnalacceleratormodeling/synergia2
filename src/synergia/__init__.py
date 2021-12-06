@@ -5,8 +5,8 @@ from mpi4py import MPI
 
 #from version import __version__, version_major, version_minor, version_patch, version_tweak
 #import convertors
-from . import foundation
 from . import utils
+from . import foundation
 
 # Kokkos init
 utils.init()

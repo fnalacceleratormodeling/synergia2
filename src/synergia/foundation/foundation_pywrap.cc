@@ -408,12 +408,50 @@ PYBIND11_MODULE(foundation, m)
 
     py::class_<Random_distribution, Distribution>(m, "Random_distribution")
         .def( py::init<unsigned long int, Commxx const&>(),
-                "seed"_a, "comm"_a )
+                "seed"_a, 
+                "comm"_a = Commxx() )
+
+        .def( "get",
+                &Random_distribution::get,
+                "Get the next random number between 0 and 1" )
+
+        .def( "get_uniform",
+                &Random_distribution::get_uniform,
+                "Get a random number from uniform distribution between min and max.",
+                "min"_a,
+                "max"_a )
+
+        .def( "get_unit_gaussian",
+                &Random_distribution::get_unit_gaussian,
+                "Get a random number from Gaussian distribution of zero mean and unit standard deviation." )
+
+        .def( "advance",
+                &Random_distribution::advance,
+                "Advance the random number generator by delta. Does nothing in Random_distribution." )
         ;
 
     py::class_<PCG_random_distribution, Distribution>(m, "PCG_random_distribution")
         .def( py::init<unsigned long int, Commxx const&>(),
-                "seed"_a, "comm"_a )
+                "seed"_a, 
+                "comm"_a = Commxx() )
+
+        .def( "get",
+                &PCG_random_distribution::get,
+                "Get the next random number between 0 and 1" )
+
+        .def( "get_uniform",
+                &PCG_random_distribution::get_uniform,
+                "Get a random number from uniform distribution between min and max.",
+                "min"_a,
+                "max"_a )
+
+        .def( "get_unit_gaussian",
+                &PCG_random_distribution::get_unit_gaussian,
+                "Get a random number from Gaussian distribution of zero mean and unit standard deviation." )
+
+        .def( "advance",
+                &PCG_random_distribution::advance,
+                "Advance the random number generator by delta." )
         ;
 
     // Trigon related classes and functions
