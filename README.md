@@ -1,5 +1,7 @@
 # Synergia3
 
+![](wiki/animation_synergia.gif)
+
 Synergia is a accelerator modeling and simulation package developped at Fermilab.
 
 - [Build Synergia](#build-instructions)
@@ -8,33 +10,16 @@ Synergia is a accelerator modeling and simulation package developped at Fermilab
     - [Lattice](#lattice)
     - [Bunch_simulator and Propagator](#bunch_simulator-and-propagator)
 - [Examples](#examples-of-synergia-simulations)
-    - [FODO in Python](#a-fodo-example-in-python)
-    - [FODO in C++](#fodo-in-c++)
+    - [Simple FODO Example in Python](#a-fodo-example-in-python)
+    - [Explanation]()
+        - [Lattice]()
+        - [Bunch and Bunch_simulator]()
+        - [Propagator]()
 
 
 ## Build Instructions
 
 Please see [this page](wiki/build.md) for build instructions
-
-## Basic Concepts
-
-### Bunch
-
-`Bunch` is the object which holds the particle data in Synergia. To create a `Bunch` object you need a `Reference_particle` for the bunch, the number of `macro_particles`, and the number of `real_particles`.
-
-### Lattice
-
-`Lattice` describes the structure of a acclerator complex, along with a lattice design reference particle. A `Lattice` object can be created by reading in a Mad8/MadX file. Or alternatively, it can also be constructed by adding `Lattice_element` objects through the `Lattice::append()` method.
-
-### Bunch_simulator and Propagator
-
-In order to simulate the dynamics of a bunch (or a series of bunches) of particles propagating through an accelerator lattice, you will need two additional objects, the `Bunch_simulator`, and the `Propagator`.
-
-`Bunch_simulator` holds the bunch that is going to be propagated, along with all the diagnostics and propagate actions that happen during the propagation.
-
-`Propagator` contains the lattice structure for the simulation, and optional operators (such as the space charge solver, or apertures) that are inserted in between the lattice elements.
-
-Finally the propagation happens when the `Propagator::propagate()` method is called, with the `Bunch_simulator` object as one of the arguments - it propagate the bunch along the lattice that is stored in the propagator object.
 
 ## Examples of Synergia Simulations
 
@@ -133,7 +118,7 @@ def run():
     propagator.propagate(sim, simlog, turns)
 
     # save
-    synergia.simulation.checkpoint_save(propagator, sim);
+    synergia.simulation.checkpoint_save(propagator, sim)
 
 def main():
 
@@ -145,10 +130,87 @@ def main():
 main()
 ```
 
-In the above example, a bunch of 1 million particles is created and populated with the given mean and covariances. This bunch will propagate through a simple focusing-drift-defocusing-drfit, or `FODO` lattice for a given number of turns. At each turn, a full particle diagnostics will be performed and saved in the `diag_full.h5` file. After 10 turns, it writes a checkpoint save of the current state of the simulation so it can be resumed later.
+## Explanation
+
+In the above example, a bunch of 1 million particles is created and populated with
+the given mean and covariances. This bunch will propagate through a simple
+focusing-drift-defocusing-drift, or `FODO` lattice for 10 turns. At each turn, a 
+full particle diagnostic will be performed and saved in the `diag_full.h5`
+file. After 10 turns, it writes a checkpoint save of the current state of the
+simulation so it can resume later.
+
+### Lattice
+
+`Lattice` describes the structure of the accelerator complex that we are simulating. 
+A `Lattice` object can be created by reading in a Mad8/MadX file or a string as shown 
+in the above example. E.g.,
+
+```python
+# construct a MadX reader object
+reader = synergia.lattice.MadX_reader()
+
+# read in the madx from a string
+reader.parse(madx_string)
+
+# or can read in from a madx file
+reader.parse_file(madx_file)
+
+# finally, extract the lattice from the named sequence or line
+lattice = reader.get_lattice(sequence_name)
+```
+
+Or alternatively, a lattice object can also be created programmatically by appending
+`Lattice_element` objects to the lattice manually,
+
+```python
+# first create a lattice object
+lattice = synergia.lattice.Lattice(name)
+
+# any lattice needs a design reference particle
+ref_part = synergia.foundation.Reference_particle(charge, mass, energy)
+lattice.set_reference_particle(ref_part)
+
+# now create lattice elements
+f = synergia.lattice.Lattice_element(type='quadrupole', name='f')
+f.set_double_attribute('k1', 0.01)
+
+o = synergia.lattice.Lattice_element(type='drift', name='o')
+o.set_double_attribute('l', 1.0)
+
+# append elements to the lattice
+lattice.append(f)
+lattice.append(o)
+```
+
+### Bunch and Bunch_simulator
+
+`Bunch` is the object which holds the particle data in Synergia. To create a `Bunch` 
+object you need a `Reference_particle` for the bunch, the number of 
+`macro_particles`, and the number of `real_particles`.
+
+### Propagator and Collective Operators
+
+In order to simulate the dynamics of a bunch (or a series of bunches) of particles 
+propagating through an accelerator lattice, you will need two additional objects, the 
+`Bunch_simulator`, and the `Propagator`.
+
+`Bunch_simulator` holds the bunch that is going to be propagated, along with all the 
+diagnostics and propagate actions that happen during the propagation.
+
+`Propagator` contains the lattice structure for the simulation, and optional 
+operators (such as the space charge solver, or apertures) that are inserted in 
+between the lattice elements.
+
+Finally the propagation happens when the `Propagator::propagate()` method is called, 
+with the `Bunch_simulator` object as one of the arguments - it propagate the bunch 
+along the lattice that is stored in the propagator object.
+
+### Diagnostics
+
+### Propagate
+
+### Run the simulation
 
 
-### FODO in C++
 
-This is the same `FODO` example but written in C++.
 
