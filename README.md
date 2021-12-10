@@ -4,7 +4,7 @@
 
 Synergia is a accelerator modeling and simulation package developped at Fermilab.
 
-- [Build Synergia](#build-instructions)
+- [Build Synergia](#markdown-header-build-instructions)
 - [Basic Concepts](#basic-concepts)
     - [Bunch](#bunch)
     - [Lattice](#lattice)
@@ -12,7 +12,7 @@ Synergia is a accelerator modeling and simulation package developped at Fermilab
 - [Writing a Synergia Simulation](#examples-of-synergia-simulations)
     - [A FODO Example in Python](#a-fodo-example-in-python)
     - [Explanation]()
-        - [Lattice]()
+        - [Lattice](#markdown-header-lattice)
         - [Bunch]()
         - [Populate Bunch Data]()
         - [Bunch_simulator]()
@@ -24,7 +24,7 @@ Synergia is a accelerator modeling and simulation package developped at Fermilab
 - [API References]()
 
 
-## Build Instructions
+## Build Instructions 
 
 Please see [this page](wiki/build.md) for build instructions
 
