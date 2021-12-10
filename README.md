@@ -1,27 +1,23 @@
-# Synergia3
+# Synergia
 
 ![](wiki/animation_synergia.gif)
 
-Synergia is a accelerator modeling and simulation package developped at Fermilab.
+`Synergia` is a accelerator modeling and simulation package developped at Fermilab.
 
 - [Build Synergia](#markdown-header-build-instructions)
-- [Basic Concepts](#basic-concepts)
-    - [Bunch](#bunch)
-    - [Lattice](#lattice)
-    - [Bunch_simulator and Propagator](#bunch_simulator-and-propagator)
-- [Writing a Synergia Simulation](#examples-of-synergia-simulations)
-    - [A FODO Example in Python](#a-fodo-example-in-python)
-    - [Explanation]()
+- [Writing a Synergia Simulation](#markdown-header-writing-a-synergia-simulation)
+    - [A FODO Example in Python](#markdown-header-a-fodo-example-in-python)
+    - [Explanation](#markdown-header-explanation)
         - [Lattice](#markdown-header-lattice)
-        - [Bunch]()
-        - [Populate Bunch Data]()
-        - [Bunch_simulator]()
-        - [Diagnostics]()
-        - [Propagator and Space Charge Operators]()
-        - [Propagate]()
-        - [Run the Script]()
-- [Advanced Topics]()
-- [API References]()
+        - [Bunch](#markdown-header-bunch)
+        - [Populate Bunch Data](#markdown-header-populate-bunch-data)
+        - [Bunch_simulator](#markdown-header-bunch_simulator)
+        - [Diagnostics](#markdown-header-diagnostics)
+        - [Propagator and Space Charge Operators](#markdown-header-prpagator-and-space-charge-operators)
+        - [Propagate](#markdown-header-propagate)
+        - [Run the Script](#markdown-header-run-the-script)
+- [Advanced Topics](#markdown-header-advanced-topics)
+- [API References](#markdown-header-api-and-class-references)
 
 
 ## Build Instructions 
@@ -261,7 +257,7 @@ dist = synergia.foundation.PCG_random_distribution(seed)
 synergia.bunch.populate_6d(dist, bunch, bunch_meas, bunch_covariances)
 ```
 
-A bunch can also be populated from reading a generated particle file,
+A bunch can also be initialized from reading a generated particle file,
 
 ```python
 bunch.read_file("turn_particles_0000.h5")
@@ -412,7 +408,7 @@ TBA
 
 TBA
 
-### Bunch Trains
+### Bunch Train and Multiple Bunch Simulation
 
 TBA
 
