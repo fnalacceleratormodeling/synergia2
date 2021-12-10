@@ -13,7 +13,7 @@
         - [Populate Bunch Data](#markdown-header-populate-bunch-data)
         - [Bunch_simulator](#markdown-header-bunch_simulator)
         - [Diagnostics](#markdown-header-diagnostics)
-        - [Propagator and Space Charge Operators](#markdown-header-prpagator-and-space-charge-operators)
+        - [Propagator and Space Charge Operators](#markdown-header-propagator-and-space-charge-operators)
         - [Propagate](#markdown-header-propagate)
         - [Run the Script](#markdown-header-run-the-script)
 - [Advanced Topics](#markdown-header-advanced-topics)
