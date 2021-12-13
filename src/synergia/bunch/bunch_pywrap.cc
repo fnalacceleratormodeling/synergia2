@@ -102,7 +102,17 @@ PYBIND11_MODULE(bunch, m)
 
         .def( "get_comm",
                 &Bunch::get_comm,
-                "Get the communicator" )
+                "Get the communicator." )
+
+        .def( "get_reference_particle",
+                (Reference_particle& (Bunch::*)())
+                &Bunch::get_reference_particle,
+                "Get the reference particle of the bunch." )
+
+        .def( "get_design_reference_particle",
+                (Reference_particle& (Bunch::*)())
+                &Bunch::get_design_reference_particle,
+                "Get the design reference particle of the bunch." )
 
         .def( "checkout_particles",
                 &Bunch::checkout_particles,

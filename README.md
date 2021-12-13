@@ -1,29 +1,32 @@
-# Synergia3
+# Synergia
 
 ![](wiki/animation_synergia.gif)
 
-Synergia is a accelerator modeling and simulation package developped at Fermilab.
+`Synergia` is a accelerator modeling and simulation package developped at Fermilab.
 
-- [Build Synergia](#build-instructions)
-- [Basic Concepts](#basic-concepts)
-    - [Bunch](#bunch)
-    - [Lattice](#lattice)
-    - [Bunch_simulator and Propagator](#bunch_simulator-and-propagator)
-- [Examples](#examples-of-synergia-simulations)
-    - [Simple FODO Example in Python](#a-fodo-example-in-python)
-    - [Explanation]()
-        - [Lattice]()
-        - [Bunch and Bunch_simulator]()
-        - [Propagator]()
+- [Build Synergia](#markdown-header-build-instructions)
+- [Writing a Synergia Simulation](#markdown-header-writing-a-synergia-simulation)
+    - [A FODO Example in Python](#markdown-header-a-fodo-example-in-python)
+    - [Explanation](#markdown-header-explanation)
+        - [Lattice](#markdown-header-lattice)
+        - [Bunch](#markdown-header-bunch)
+        - [Populate Bunch Data](#markdown-header-populate-bunch-data)
+        - [Bunch_simulator](#markdown-header-bunch_simulator)
+        - [Diagnostics](#markdown-header-diagnostics)
+        - [Propagator and Space Charge Operators](#markdown-header-propagator-and-space-charge-operators)
+        - [Propagate](#markdown-header-propagate)
+        - [Run the Script](#markdown-header-run-the-script)
+- [Advanced Topics](#markdown-header-advanced-topics)
+- [API References](#markdown-header-api-and-class-references)
 
 
-## Build Instructions
+## Build Instructions 
 
 Please see [this page](wiki/build.md) for build instructions
 
-## Examples of Synergia Simulations
+## Writing a Synergia Simulation
 
-Here are some examples to give an idea of how to compose a simulation with Synergia3.
+Here is a simple example to give an idea of how to compose a simulation with Synergia3.
 
 ### A FODO example in Python
 
@@ -159,57 +162,261 @@ reader.parse_file(madx_file)
 lattice = reader.get_lattice(sequence_name)
 ```
 
-Or alternatively, a lattice object can also be created programmatically by appending
+Alternatively, a lattice object can also be created programmatically by appending
 `Lattice_element` objects to the lattice manually,
 
 ```python
-# first create a lattice object
-lattice = synergia.lattice.Lattice(name)
-
-# any lattice needs a design reference particle
+# lattice object needs a reference particle
 ref_part = synergia.foundation.Reference_particle(charge, mass, energy)
-lattice.set_reference_particle(ref_part)
 
-# now create lattice elements
+# create a lattice object
+lattice = synergia.lattice.Lattice(name, ref_part)
+
+# create lattice elements
 f = synergia.lattice.Lattice_element(type='quadrupole', name='f')
 f.set_double_attribute('k1', 0.01)
 
 o = synergia.lattice.Lattice_element(type='drift', name='o')
 o.set_double_attribute('l', 1.0)
 
-# append elements to the lattice
+# and append elements to the lattice
 lattice.append(f)
 lattice.append(o)
 ```
 
-### Bunch and Bunch_simulator
+### Bunch
 
-`Bunch` is the object which holds the particle data in Synergia. To create a `Bunch` 
+`Bunch` is the container object for the particle data in Synergia. To create a `Bunch` 
 object you need a `Reference_particle` for the bunch, the number of 
-`macro_particles`, and the number of `real_particles`.
+`macro_particles`, and the number of `real_particles`,
 
-### Propagator and Collective Operators
+```python
+bunch = synergia.bunch.Bunch(reference_particle, total_num, real_num, comm = Commxx())
+```
 
-In order to simulate the dynamics of a bunch (or a series of bunches) of particles 
-propagating through an accelerator lattice, you will need two additional objects, the 
-`Bunch_simulator`, and the `Propagator`.
+where `total_num` is the number of macroparticles to be simulated in the bunch, 
+`real_num` is the number of real particles of the bunch. `comm` is an optional argument
+of an MPI communicator indicating the processes the bunch will span across. It is
+defaulted to the `MPI_COMM_WORLD`.
 
-`Bunch_simulator` holds the bunch that is going to be propagated, along with all the 
-diagnostics and propagate actions that happen during the propagation.
+Various methods are provided to access the particle data and properties of a bunch.
+Commonly used ones are,
 
-`Propagator` contains the lattice structure for the simulation, and optional 
-operators (such as the space charge solver, or apertures) that are inserted in 
-between the lattice elements.
+```python
+# get the number of particles reside on the current rank
+Bunch.get_local_num()
 
-Finally the propagation happens when the `Propagator::propagate()` method is called, 
-with the `Bunch_simulator` object as one of the arguments - it propagate the bunch 
-along the lattice that is stored in the propagator object.
+# get the total number of particles of this bunch
+Bunch.get_total_num()
+
+# retrieve the bunch reference particle
+Bunch.get_reference_particle()
+
+# retrieve the lattice design reference particle
+Bunch.get_design_reference_particle()
+
+# retrieve the particle data in a 2d numpy array [0:local_num, 0:6]
+# in the second dimension, 0 - x, 1 - xp, 2 - y, 3 - yp, 4 - cdt, 5 - dpop, 6 - id
+Bunch.get_host_particles_numpy()
+```
+
+When running a simulation on compute accelerators such as GPUs, it is crucial to know
+that the particle data resides on both the device memory (such as GPU VRAM) and host
+memory. All the propagation and computation are performed on the array of device 
+memory. But user can only access the particle data on host memory. Therefore, a sync
+operation is required if user seeks to read or modify the particle data during
+propagation.
+
+```python
+# sync the particle data from host to device
+Bunch.checkin_particles()
+
+# sync the particle data from device to host
+Bunch.checkout_particles()
+```
+
+### Populate Bunch Data
+
+A newly created bunch has its all particle coordinates initialized to `0.0`. User may
+choose to populate the particle coordinates by directly accessing the particle data
+as shown in previous section. 
+
+`Synergia` also provides a range of bunch populate methods to initialize the particle
+to certain distributions. For example, the following one populate a bunch with given 
+means and covariances,
+
+```python
+# mean and covariance matrix. The covariances matrix is 6x6
+bunch_means = np.zero(6, dtype='d')
+bunch_covariances = np.array([[...], [...], [...], [...], [...], [...]])
+
+# use the provided random number generator
+dist = synergia.foundation.PCG_random_distribution(seed)
+
+# populate a Gaussian bunch
+synergia.bunch.populate_6d(dist, bunch, bunch_meas, bunch_covariances)
+```
+
+A bunch can also be initialized from reading a generated particle file,
+
+```python
+bunch.read_file("turn_particles_0000.h5")
+```
+
+### Bunch_simulator
+
+In order to propagate the generated bunch through a lattice, we need to do a little
+extra work -- creating a `Bunch_simulator` object. A `Bunch_simulator` is the container
+for holding one or multiple bunches that will be sent to the lattice for propagation.
+It is also the object for registering diagnostics actions with the bunches.
+
+A `Bunch_simulator` can be created from an existing bunch. It is however more 
+convenient and optimal to create a `Bunch_simulator` with bunches in it. For the reason
+that when running simulations with multiple bunches on multiple MPI processes the
+built-in `construct()` method will do the decomposition and distribute bunches across
+all processes in an optimal way.
+
+```python
+# reference particle, number of macro particles, and number of real particles
+reference_particle = synergia.foundation.Reference_particle(charge, mass, energy)
+macroparticles = 1024
+realparticles = 1e13
+
+# create the Bunch_simulator
+simulator = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
+    reference_particle, macroparticles, realparticles)
+
+# the bunch object can be access from the simulator for further operations
+bunch = simulator.get_bunch()
+```
 
 ### Diagnostics
 
+During the simulation, it is often critical to monitor the shape and properties of the
+particle beam. In synergia it is achieved by registering various beam diagnostic
+objects to the `Bunch_simulator`. `Synergia` provides common diagnostics such as
+getting the statistics of a bunch, or writing out coordinates for selected particles, 
+etc.
+
+```python
+# register a bunch statistic diagnostic performing at the end of every turn
+diag_full2 = synergia.bunch.Diagnostics_full2("diag_full2.h5")
+simulator.reg_diag_per_turn(diag_full2)
+
+# write out the state of first 100 particles every other turn
+diag_particles = synergia.bunch.Diagnostics_particles("diag_particles.h5", 100)
+simulator.reg_diag_per_turn(diag_particles, period=2)
+```
+
+`Synergia` also allows user to register diagnostics on a per-step, or at a specific
+lattice element by calling the following methods,
+
+```python
+simulator.reg_diag_per_step(diag, period)
+simulator.reg_diag_at_element(diag, element)
+```
+
+### Propagator and Space Charge Operators
+
+`Synergia` can simulate the beam dynamics with full three-dimensional space charge 
+effect. It implements the split-operator technique for the space charge operators.
+The object that employs this split-operator is the `Propagator`.
+
+To create a `Propagator` we would need to prepare a machine lattice from the
+`Lattice` object (as shown above), and a `Stepper` object to split the lattice and
+insert the space charge operator at proper positions.
+
+```python
+# prepare the space charge operator
+sc_ops = synergia.collective.Space_charge_3d_open_hockney_options(gridx, gridy, gridz)
+sc_ops.comm_group_size = 1
+
+# we will use the split operator stepper for the propagator
+stepper = synergia.simulation.Split_operator_stepper(sc_ops, num_steps)
+
+# finally we may create the propagator with lattice and stepper
+propagator = synergia.simulation.Propagator(lattice, stepper)
+```
+
 ### Propagate
 
-### Run the simulation
+With both the `Propagator` and `Bunch_simulator` objects ready, we may instruct the 
+propagator to start the propagation,
+
+```python
+# a log object for writing out the system messages during simulation
+logger = synergia.utils.parallel_utils.Logger(
+    0, synergia.utils.parallel_utils.LoggerV.INFO_TURN)
+
+# propagate for number of turns
+propagator.propagate(simulator, logger, turns)
+```
+
+### Run the script
+
+Now we have our first `Synergia` simulation script. Run the simulation with,
+
+```
+python fodo.py
+```
+
+It should produce outputs like,
+
+```
+Propagator: starting turn 1, final turn 10
+
+Propagator: turn 1/inf., time = 0.278s, macroparticles = (1048576) / ()
+Propagator: turn 2/inf., time = 0.247s, macroparticles = (1048576) / ()
+Propagator: turn 3/inf., time = 0.300s, macroparticles = (1048576) / ()
+Propagator: turn 4/inf., time = 0.351s, macroparticles = (1048576) / ()
+Propagator: turn 5/inf., time = 0.308s, macroparticles = (1048576) / ()
+Propagator: turn 6/inf., time = 0.275s, macroparticles = (1048576) / ()
+Propagator: turn 7/inf., time = 0.272s, macroparticles = (1048576) / ()
+Propagator: turn 8/inf., time = 0.259s, macroparticles = (1048576) / ()
+Propagator: turn 9/inf., time = 0.249s, macroparticles = (1048576) / ()
+Propagator: turn 10/inf., time = 0.263s, macroparticles = (1048576) / ()
+Propagator: maximum number of turns reached
+Propagator: total time = 2.940s
+```
+
+
+## Advanced Topics
+
+Here some advanced topics for Synergia simulation.
+
+### Lattice_simulator
+
+TBA
+
+### Spectator Particles
+
+TBA
+
+### Propagate Actions
+
+TBA
+
+### Diagnostics and Custom Diagnostics
+
+TBA
+
+### Longitudinal Boundaries
+
+TBA
+
+### Bunch Injection
+
+TBA
+
+### Bunch Train and Multiple Bunch Simulation
+
+TBA
+
+## API and Class References
+
+TBA
+
+
 
 
 
