@@ -236,9 +236,21 @@ PYBIND11_MODULE(lattice, m)
 
     // Lattice
     py::class_<Lattice>(m, "Lattice")
-        .def( py::init<>(), "Construct an unnamed empty lattice" )
-        .def( py::init<std::string const&>(), "Construct an empty latttice", "name"_a )
-        .def( py::init<Lsexpr const&>(), "Construct from the Lsexpr representation", "lsexpr"_a )
+        .def( py::init<>(), 
+                "Construct an unnamed empty lattice" )
+
+        .def( py::init<std::string const&>(), 
+                "Construct an empty latttice.", 
+                "name"_a )
+
+        .def( py::init<std::string const&, Reference_particle const&>(), 
+                "Construct an empty latttice with given reference particle.", 
+                "name"_a,
+                "refpart"_a )
+
+        .def( py::init<Lsexpr const&>(), 
+                "Construct from the Lsexpr representation", 
+                "lsexpr"_a )
 
         .def( "get_name",
                 &Lattice::get_name,
@@ -258,7 +270,8 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice::set_reference_particle )
 
         .def( "get_elements",
-                (std::list<Lattice_element>& (Lattice::*)())&Lattice::get_elements,
+                (std::list<Lattice_element>& (Lattice::*)())
+                &Lattice::get_elements,
                 //py::overload_cast<>(&Lattice::get_elements),
                 py::return_value_policy::reference_internal,
                 "Get the list of all lattice elements" )

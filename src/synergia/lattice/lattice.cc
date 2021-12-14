@@ -26,6 +26,14 @@ Lattice::Lattice(std::string const & name)
 {
 }
 
+Lattice::Lattice(std::string const & name, Reference_particle const& ref) 
+    : name(name)
+    , reference_particle(ref)
+    , elements()
+    , updated { true, true, true }
+{
+}
+
 Lattice::Lattice(Lattice const & o) 
     : name(o.name)
     , reference_particle(o.reference_particle)

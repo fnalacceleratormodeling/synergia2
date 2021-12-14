@@ -63,6 +63,11 @@ public:
     /// @param name an arbitrary name
     explicit Lattice(std::string const & name);
 
+    /// Construct a Lattice object with a name and a reference particle
+    /// Defaults to interpreting elements as Mad8 elements
+    /// @param name an arbitrary name
+    Lattice(std::string const & name, Reference_particle const& ref);
+
     /// Construct a Lattice from the Lsexpr representation
     /// @param lsexpr representation
     explicit Lattice(Lsexpr const & lsexpr);
