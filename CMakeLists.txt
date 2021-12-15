@@ -23,7 +23,8 @@ set(SYNERGIA_SUBMINOR_VERSION 00)
 # Set up to assure fully-linked libraries.
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  # using Clang
+    # using Clang
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
     set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evaluated-expression -Wno-register")
     message(STATUS "Using clang++")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")

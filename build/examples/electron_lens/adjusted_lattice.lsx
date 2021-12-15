@@ -1,0 +1,1073 @@
+{name: model, type: Mad8, 
+ reference_particle: 
+     {four_momentum: 
+         {mass: 0.938272046, gamma: 1.8526311781434}, charge: 1}, 
+ elements: 
+     {{type: marker, name: boc, 
+     string_attributes: 
+         {extractor_type: chef_map, force_diagnostics: true}, 
+     ancestors: 
+         {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.143445257250035, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: marker, name: boc, 
+      string_attributes: 
+          {extractor_type: chef_map, force_diagnostics: true}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1a, 
+      double_attributes: 
+          {l: 0.0123999999999995}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens1, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: multipole, name: s, 
+      double_attributes: 
+          {k2l: 0}, 
+      string_attributes: 
+          {extractor_type: chef_propagate}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o1b, 
+      double_attributes: 
+          {l: 5.4876}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: f, 
+      double_attributes: 
+          {k1: -0.144685751847574, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2a, 
+      double_attributes: 
+          {l: 5.486}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: elens, name: lens2, 
+      double_attributes: 
+          {current: 0, eenergy: 0, gaussian: 1, l: 0, radius: 0}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o2b, 
+      double_attributes: 
+          {l: 0.0139999999999993}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: rfcavity, name: r, 
+      double_attributes: 
+          {freq: 43.8139761936574, harmon: 50, l: 0, lag: 0, volt: 0.261977646285}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: quadrupole, name: d, 
+      double_attributes: 
+          {k1: 0.142025007178252, l: 1}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}, 
+      {type: drift, name: o, 
+      double_attributes: 
+          {l: 5.5}, 
+      string_attributes: 
+          {extractor_type: chef_map}, 
+      ancestors: 
+          {model, lofolrodo}}}}
