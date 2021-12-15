@@ -58,3 +58,4 @@ spack-build.*
 spack-setup.sh
 spack
 
+build/**
