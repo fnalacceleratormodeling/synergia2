@@ -39,7 +39,7 @@ struct Space_charge_3d_open_hockney_options
             int gridx = 32, int gridy = 32, int gridz = 64)
         : shape{gridx, gridy, gridz}
         , doubled_shape{gridx*2, gridy*2, gridz*2}
-        , green_fn(green_fn_t::pointlike)
+        , green_fn(green_fn_t::linear)
         , periodic_z(false)
         , z_period(0.0)
         , grid_entire_period(false)
