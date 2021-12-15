@@ -80,6 +80,7 @@ private:
 
     Rectangular_grid_domain domain;
     Rectangular_grid_domain doubled_domain;
+    bool use_fixed_domain;
 
     std::array<std::vector<Distributed_fft3d>, 2> ffts;
 
@@ -93,6 +94,7 @@ private:
     karray1d_dev enx;
     karray1d_dev eny;
     karray1d_dev enz;
+
 
 private:
 
@@ -142,6 +144,10 @@ public:
 
     Space_charge_3d_open_hockney(
             Space_charge_3d_open_hockney_options const & ops);
+
+    void set_fixed_domain(
+            std::array<double, 3> offset, 
+            std::array<double, 3> size);
 
 #if 0
 private:

@@ -363,9 +363,11 @@ namespace
                 //        "Space_charge_3d_open_hockney::get_green_fn2 error1");
             }
 
-
             int miy = dgy - iy;
             int mix = dgx - ix;
+
+            if (mix == dgx) mix = 0;
+            if (miy == dgy) miy = 0;
 
             g2(iz*padded_dgx*dgy + iy*padded_dgx + ix) = G;
 
@@ -614,6 +616,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
     , bunch_sim_id()
     , domain(ops.shape, {1.0, 1.0, 1.0})
     , doubled_domain(ops.doubled_shape, {1.0, 1.0, 1.0})
+    , use_fixed_domain(false)
     , ffts()
 {
 }
@@ -654,11 +657,14 @@ Space_charge_3d_open_hockney::apply_bunch(
             double time_step, 
             Logger& logger)
 {
-    update_domain(bunch);
+    // update domain only when not using fixed
+    if (!use_fixed_domain) update_domain(bunch);
 
+    // charge density
     get_local_charge_density(bunch); // [C/m^3]
     get_global_charge_density(bunch);
 
+    // green function
     if (options.green_fn == green_fn_t::pointlike) 
     {
         get_green_fn2_pointlike();
@@ -668,12 +674,16 @@ Space_charge_3d_open_hockney::apply_bunch(
         get_green_fn2_linear();
     }
 
+    // potential
     get_local_phi2(fft);
     get_global_phi2(fft);
 
     auto fn_norm = get_normalization_force(fft);
 
+    // force
     get_force();
+
+    // kick
     apply_kick(bunch, fn_norm, time_step);
 }
 
@@ -773,6 +783,32 @@ Space_charge_3d_open_hockney::update_domain(Bunch const & bunch)
 }
 
 void
+Space_charge_3d_open_hockney::set_fixed_domain(
+        std::array<double, 3> offset, 
+        std::array<double, 3> size)
+{
+    if (options.grid_entire_period)
+    {
+        offset[2] = 0.0;
+        size[2] = options.z_period;
+    }
+
+    std::array<double, 3> doubled_size { 
+        size[0] * 2.0, 
+        size[1] * 2.0, 
+        size[2] * 2.0 };
+
+    domain = Rectangular_grid_domain(
+            options.shape, size, offset, false);
+
+    doubled_domain = Rectangular_grid_domain(
+            options.doubled_shape, doubled_size, offset, false);
+
+    use_fixed_domain = true;
+}
+
+
+void
 Space_charge_3d_open_hockney::get_local_charge_density(
         Bunch const& bunch)
 {
@@ -832,7 +868,7 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     if (options.periodic_z)
     {
         throw std::runtime_error(
-                "Space_charge_3d_open_hockney::get_green_fn2_linear: "
+                "Space_charge_3d_open_hockney::get_green_fn2_pointlike: "
                 "periodic_z not yet implemented");
     }
 
