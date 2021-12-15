@@ -1,3 +1,348 @@
+#include "synergia/utils/catch.hpp"
+
+#include "synergia/collective/space_charge_3d_open_hockney.h"
+#include "synergia/foundation/physical_constants.h"
+
+TEST_CASE("space charge", "[Space_charge_3d_open_hockney]")
+{
+    CHECK(1);
+}
+
+
+const int charge = pconstants::proton_charge;
+const double mass = pconstants::mp;
+const double real_num = 1.7e11;
+const int total_num = 10000;
+const double total_energy = 125.0;
+
+// 1 + (odd number) * 8 + 2 to expand the domein on both sides
+const int rod_num_particles = 1 + 250001*8; 
+
+const double rod_lowgamma = 61.0/60.0;
+const double rod_highgamma = 61.0/11.0;
+const double rod_real_num = 5.0e9;
+const double rod_length = 0.1;
+
+// radius of rod particles
+const double rod_radius = 1.0e-6; 
+
+// radius of the probe particle
+const double rod_probe = 1.0e-3;  
+
+struct Rod_bunch_fixture_lowgamma
+{
+    Rod_bunch_fixture_lowgamma() 
+        : bsim(Bunch_simulator::create_single_bunch_simulator(
+                Reference_particle(charge, Four_momentum(mass, mass*rod_lowgamma)),
+                rod_num_particles, rod_real_num))
+    {
+        auto& bunch = bsim.get_bunch();
+
+        //bunch.set_longitudinal_boundary(LongitudinalBoundary::periodic, rod_length);
+        auto local_particles = bunch.get_local_particles();
+
+        // a ring of 8 particles around each longitudinal location
+        int num_longitudinal = (rod_num_particles-1)/8;
+        double dz = rod_length/(num_longitudinal-1);
+        double r2o2 = std::sqrt(2.0)/2.0;
+        double z = -rod_length/2.0;
+
+        auto const& ref = bunch.get_reference_particle();
+        double rod_beta = ref.get_beta();
+
+        for (int i=1; i<rod_num_particles; i+=8, z+=dz) 
+        {
+            local_particles(i, Bunch::x) = rod_radius;
+            local_particles(i, Bunch::y) = 0.0;
+
+            local_particles(i+1, Bunch::x) = rod_radius*r2o2;
+            local_particles(i+1, Bunch::y) = rod_radius*r2o2;
+
+            local_particles(i+2, Bunch::x) = 0.0;
+            local_particles(i+2, Bunch::y) = rod_radius;
+
+            local_particles(i+3, Bunch::x) = -rod_radius*r2o2;
+            local_particles(i+3, Bunch::y) =  rod_radius*r2o2;
+
+            local_particles(i+4, Bunch::x) = -rod_radius;
+            local_particles(i+4, Bunch::y) = 0.0;
+
+            local_particles(i+5, Bunch::x) = -rod_radius*r2o2;
+            local_particles(i+5, Bunch::y) = -rod_radius*r2o2;
+
+            local_particles(i+6, Bunch::x) = 0.0;
+            local_particles(i+6, Bunch::y) = -rod_radius;
+
+            local_particles(i+7, Bunch::x) = rod_radius*r2o2;
+            local_particles(i+7, Bunch::y) = -rod_radius*r2o2;
+
+
+            for (int j=i; j<i+8; ++j) 
+            {
+                local_particles(j, Bunch::cdt) = z/rod_beta;
+                local_particles(j, Bunch::xp) = 0.0;
+                local_particles(j, Bunch::yp) = 0.0;
+                local_particles(j, Bunch::dpop) = 0.0;
+                local_particles(j, Bunch::id) = j;
+            }
+        }
+
+        // when the probe is too far, it falls outside the domain and does
+        // not get any sc kicks.
+        local_particles(0, Bunch::x) = 80*rod_radius;
+        local_particles(0, Bunch::y) = 0.0;
+        local_particles(0, Bunch::xp) = 0.0;
+        local_particles(0, Bunch::yp) = 0.0;
+        local_particles(0, Bunch::cdt) = 0.0;
+        local_particles(0, Bunch::dpop) = 0.0;
+        local_particles(0, Bunch::id) = 0.0;
+
+        // check in particles
+        bunch.checkin_particles();
+    }
+
+    Bunch_simulator bsim;
+};
+
+
+
+TEST_CASE("real_apply_full_lowgamma", "[Rod_bunch]")
+{
+    auto logger = Logger(0, LoggerV::DEBUG);
+    auto simlogger = Logger(0, LoggerV::INFO_STEP);
+
+    const int gridx = 256;
+    const int gridy = 256;
+    const int gridz = 64;
+
+    const double time_fraction = 1.0;
+    const double step_length = 0.1;
+
+    // bunch
+    Rod_bunch_fixture_lowgamma fixture;
+
+    auto&       bunch = fixture.bsim.get_bunch();
+    auto const& ref   = bunch.get_reference_particle();
+    auto        parts = bunch.get_local_particles();
+
+    const double beta = ref.get_beta();
+    const double gamma = ref.get_gamma();
+    const double betagamma = beta * gamma;
+
+    const double time_step = step_length/(beta*pconstants::c);
+    //const double bunchlen = bunch.get_longitudinal_boundary().second;
+    const double bunchlen = 0.1;
+
+    // check out particles before print
+    bunch.checkout_particles();
+
+    // print intital coordinates
+    logger << "real_apply_full_lowgamma first four particles (x y z):" << std::endl;
+    for (int k=0; k<4; ++k) 
+    {
+        logger << k << ": " 
+            << parts(k, 0) << ", " 
+            << parts(k, 2) << ", " 
+            << parts(k, 4) << std::endl;
+    }
+
+    logger << "last four particles (x y z):" << std::endl;
+    for (int k=bunch.get_local_num()-4; k<bunch.get_local_num(); ++k) 
+    {
+        logger << k << ": " 
+            << parts(k, 0) << ", " 
+            << parts(k, 2) << ", " 
+            << parts(k, 4) << std::endl;
+    }
+
+    logger << std::endl;
+
+    // space charge operator
+    auto sc_ops = Space_charge_3d_open_hockney_options(gridx, gridy, gridz);
+    sc_ops.comm_group_size = 1;
+    sc_ops.green_fn = green_fn_t::linear;
+
+    auto sc = Space_charge_3d_open_hockney(sc_ops);
+
+    // set domain
+    std::array<double, 3> offset = {0, 0, 0};
+    std::array<double, 3> size = { parts(0, 0) * 4, parts(0, 0)*4, bunchlen/beta };
+    sc.set_fixed_domain(offset, size);
+
+    // apply space charge operator
+    sc.apply(fixture.bsim, time_step, simlogger);
+
+    // check out particles
+    bunch.checkout_particles();
+
+    // print
+    logger << "after sc::apply : bunch.local_particles(0, 0): " << parts(0, 0) << std::endl;
+
+    // Rod of charge Q over length L
+    // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
+    // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
+    // Net EM force on electric+magnetic on probe of charge q from E-B cancellation
+    // $$ F = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{1}{r}
+    // travel over distance D at velocity v
+    // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{D}{m v^2} \frac{1}{r}
+    // convert to usual units
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
+
+    double L = bunchlen;
+    double N = bunch.get_real_num();
+
+    logger << "L: " << L << std::endl;
+    logger << "N: " << N << std::endl;
+    logger << "step_length: " << step_length << std::endl;
+    logger << "beta: " << beta << std::endl;
+    logger << "gamma: " << gamma << std::endl;
+    logger << "betagamma: " << betagamma << std::endl;
+    logger << "x: " << parts(0, Bunch::x) << std::endl;
+
+    double computed_dpop = ((2.0*N*pconstants::rp)/(L*betagamma*betagamma*gamma)) *
+            (step_length/parts(0, Bunch::x));
+
+    logger << "computed dpop: " << computed_dpop << std::endl;
+    logger << "particle dpop: " << parts(0, 1) << std::endl;
+
+    CHECK(parts(0, Bunch::xp) == Approx(computed_dpop).margin(.01));
+
+    int nkicks = 0;
+    for (int k=0; k<bunch.get_local_num(); ++k) 
+    {
+        if ((parts(k, 1)!=0.0) || (parts(k, 3)!=0.0)) 
+        {
+            ++nkicks;
+            
+            if (nkicks < 10) 
+            {
+                logger << "kick: " << nkicks 
+                    << ", particle " << k << ": " 
+                    << parts(k, 0) << ", " 
+                    << parts(k, 1) << ", " 
+                    << parts(k, 2) << ", " 
+                    << parts(k, 3) << ", " 
+                    << parts(k, 4) << ", " 
+                    << parts(k, 5) << std::endl;
+            }
+        }
+    }
+
+
+
+#if 0
+    Bunch original_bunch(bunch);
+
+    const double time_fraction = 1.0;
+    const double step_length = 0.1;
+    const double beta = bunch.get_reference_particle().get_beta();
+    const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
+    const double gamma = bunch.get_reference_particle().get_gamma();
+    const double time_step = step_length/(beta*pconstants::c);
+    const double bunchlen = bunch.get_z_period_length();
+
+    bool show_output(false);
+    Logger logger(0, show_output);
+
+    logger << "real_apply_full_lowgamma first four particles (x y z):" << std::endl;
+    for (int k=0; k<4; ++k) {
+        logger << k<< ": " << bunch.get_local_particles()[k][0] << ", " <<
+                bunch.get_local_particles()[k][2] << ", " <<
+                bunch.get_local_particles()[k][4] << std::endl;
+    }
+    logger << "last four particles (x y z):" << std::endl;
+    for (int k=bunch.get_local_num()-4; k<bunch.get_local_num(); ++k) {
+        logger << k<<": " << bunch.get_local_particles()[k][0] << ", " <<
+                bunch.get_local_particles()[k][2] << ", " <<
+                bunch.get_local_particles()[k][4] << std::endl;
+    }
+    logger << std::endl;
+
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, true, false, 0.0, false, 16.0);
+
+    space_charge.update_domain(bunch);
+    Rectangular_grid_domain_sptr orig_domain_sptr(space_charge.get_domain_sptr());
+    std::vector<int> sc_grid_shape(orig_domain_sptr->get_grid_shape());
+    std::vector<double> sc_size(orig_domain_sptr->get_physical_size());
+    std::vector<double> sc_offs(orig_domain_sptr->get_physical_offset());
+
+    std::vector<double> domain_sizezyx(3);
+    std::vector<double> domain_offsetzyx(3);
+    domain_offsetzyx[2] = 0.0;
+    domain_offsetzyx[1] = 0.0;
+    domain_offsetzyx[0] = 0.0;
+    domain_sizezyx[2] = bunch.get_local_particles()[0][Bunch::x] * 4;
+    domain_sizezyx[1] = domain_sizezyx[2];
+    domain_sizezyx[0] = bunchlen/beta;
+    std::vector<int> grid_shapezyx(3);
+    grid_shapezyx[0] = grid_shape[2];
+    grid_shapezyx[1] = grid_shape[1];
+    grid_shapezyx[2] = grid_shape[0];
+
+    Rectangular_grid_domain_sptr fixed_domain(
+            new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
+    space_charge.set_fixed_domain(fixed_domain);
+
+    Rectangular_grid_sptr local_charge_density(
+            space_charge.get_local_charge_density(bunch));
+    std::vector<int> local_rho_shape(local_charge_density->get_domain_sptr()->get_grid_shape());
+    std::vector<double> local_rho_phys_size(local_charge_density->get_domain_sptr()->get_physical_size());
+    std::vector<double> local_rho_phys_off(local_charge_density->get_domain_sptr()->get_physical_offset());
+    std::vector<double> local_rho_left(local_charge_density->get_domain_sptr()->get_left());
+
+    Step dummy_step(step_length);
+
+    const int verbosity = 99;
+
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
+    logger << "bunch final state: " << bunch.get_state() << std::endl;
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    logger << "after sc::apply : bunch.get_local_particles()[0][0]: " <<
+            bunch.get_local_particles()[0][0] << std::endl;
+    // Rod of charge Q over length L
+    // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
+    // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
+    // Net EM force on electric+magnetic on probe of charge q from E-B cancellation
+    // $$ F = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{1}{r}
+    // travel over distance D at velocity v
+    // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{D}{m v^2} \frac{1}{r}
+    // convert to usual units
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
+
+    double L = bunch.get_z_period_length();
+    double N = bunch.get_real_num();
+    logger << "L: " << L << std::endl;
+    logger << "N: " << N << std::endl;
+    logger << "step_length: " << step_length << std::endl;
+    logger << "betagamma: " << betagamma << std::endl;
+    logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
+    double computed_dpop = ((2.0*N*pconstants::rp)/(L*betagamma*betagamma*gamma)) *
+            (step_length/bunch.get_local_particles()[0][Bunch::x]);
+    logger << "computed dpop: " << computed_dpop << std::endl;
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
+
+    int nkicks = 0;
+    for (int k=0; k<bunch.get_local_num(); ++k) {
+        if ((bunch.get_local_particles()[k][1] != 0.0) ||
+                (bunch.get_local_particles()[k][3] != 0.0)) {
+            ++nkicks;
+            if (nkicks < 10) {
+                logger << "kick: " << nkicks << "particle " << k << ": " << bunch.get_local_particles()[k][0] << ", " <<
+                          bunch.get_local_particles()[k][1] << ", " <<
+                          bunch.get_local_particles()[k][2] << ", " <<
+                          bunch.get_local_particles()[k][3] << ", " <<
+                          bunch.get_local_particles()[k][4] << ", " <<
+                          bunch.get_local_particles()[k][5] << std::endl;
+            }
+        }
+    }
+#endif
+
+}
+
+
+
+#if 0
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include <algorithm>
@@ -729,3 +1074,4 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
 //    BOOST_CHECK_CLOSE(avg_y_kick2, 3.4e5, rough_tolerance);
 //    BOOST_CHECK_CLOSE(avg_p_kick2, 7.1e4, rough_tolerance);
 //}
+#endif
