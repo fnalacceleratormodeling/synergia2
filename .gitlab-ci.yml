@@ -1,0 +1,32 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+image:
+  name: registry.gitlab.com/fnalacceleratormodeling/synergia2-container:latest
+  entrypoint: [""]
+
+stages:
+  - build
+  - test  
+
+compile:
+  stage: build
+  before_script:
+    - source /etc/profile.d/z10_spack_environment.sh
+    - source /opt/view/setvars.sh
+  script:
+    - mkdir build && cd build
+    - cmake ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo  -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9)
+    - make -j4 all
+  artifacts:
+    paths:
+      - build/
+
+runtests:
+  stage: test
+  before_script:
+    - source /etc/profile.d/z10_spack_environment.sh
+    - source /opt/view/setvars.sh
+  script:
+    - cd build
+    - make test
