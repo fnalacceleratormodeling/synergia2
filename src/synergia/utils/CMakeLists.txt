@@ -101,10 +101,12 @@ target_link_libraries(lsexpr_static Kokkos::kokkos)
 target_link_options(lsexpr PRIVATE ${LINKER_OPTIONS})
 target_link_options(lsexpr_static PRIVATE ${LINKER_OPTIONS})
 
+if(LINUX)
 add_executable(test_loading_kokkos test_loading_kokkos.cc)
 target_link_libraries(test_loading_kokkos PRIVATE dl)
 target_include_directories(test_loading_kokkos PRIVATE ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src)
 add_test(test_loading_kokkos test_loading_kokkos)
+endif()
 
 install(TARGETS
     synergia_parallel_utils
