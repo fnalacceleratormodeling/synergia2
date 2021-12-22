@@ -17,7 +17,7 @@ compile:
   script:
     - mkdir build && cd build
     - cmake ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fuse-ld=gold" -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) -GNinja
-    - ninja -j3
+    - ninja -j2
   artifacts:
     paths:
       - build/
