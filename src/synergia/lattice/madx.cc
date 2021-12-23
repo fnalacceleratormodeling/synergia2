@@ -37,7 +37,7 @@ namespace
     value_map_t::const_iterator it = m.find(key);
     if( it!=m.end() )
     {
-      return boost::any_cast<string_t>(it->second.value);
+      return std::any_cast<string_t>(it->second.value);
     }
     else
     {
@@ -62,7 +62,7 @@ namespace
     {
       if( it->second.type == NUMBER )
       {
-        mx_expr e = boost::any_cast<mx_expr>(it->second.value);
+        mx_expr e = std::any_cast<mx_expr>(it->second.value);
         return boost::apply_visitor(mx_calculator(global, def), e);
       }
       else
@@ -93,7 +93,7 @@ namespace
     {
      if( it->second.type == ARRAY )
       {
-        mx_exprs es = boost::any_cast<mx_exprs>(it->second.value);
+        mx_exprs es = std::any_cast<mx_exprs>(it->second.value);
         std::vector<double> vd;
 
         for( mx_exprs::const_iterator it = es.begin()
@@ -277,7 +277,7 @@ void
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 
   MadX_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = value.empty() ? NONE : STRING;
 
   attributes_.insert(std::make_pair(key, v));
@@ -290,7 +290,7 @@ void
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 
   MadX_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = NUMBER;
 
   attributes_.insert(std::make_pair(key, v));
@@ -303,7 +303,7 @@ void
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 
   MadX_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = ARRAY;
 
   attributes_.insert(std::make_pair(key, v));
@@ -717,7 +717,7 @@ void
   std::transform( key.begin(), key.end(), key.begin(), ::tolower );
 
   MadX_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = value.empty() ? NONE : STRING;
 
   variables_[key] = v;
@@ -730,7 +730,7 @@ void
   std::transform( key.begin(), key.end(), key.begin(), ::tolower );
 
   MadX_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = NUMBER;
 
   variables_[key] = v;
@@ -743,7 +743,7 @@ void
   std::transform( key.begin(), key.end(), key.begin(), ::tolower );
 
   MadX_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = ARRAY;
 
   variables_[key] = v;

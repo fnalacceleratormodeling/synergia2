@@ -2,6 +2,7 @@
 #include "mx_tree.h"
 #include "mx_parse.h"
 
+#include <any>
 #include <iostream>
 #include <stdexcept>
 #include <cassert>
@@ -14,8 +15,6 @@
 using namespace synergia;
 using namespace std;
 
-using boost::any;
-using boost::any_cast;
 using boost::get;
 
 
@@ -98,7 +97,7 @@ bool mx_logic::evaluate(MadX const & mx) const
 }
 
 // attributes
-void mx_attr::set_attr(std::string const & name, boost::any const & val)
+void mx_attr::set_attr(std::string const & name, std::any const & val)
 {
   name_ = name;
   value_ = val;
@@ -119,7 +118,7 @@ void mx_attr::set_attr(std::string const & name, boost::any const & val)
     throw std::runtime_error("Unknown attribute value type for " + name);
 }
 
-void mx_attr::set_lazy_attr(std::string const & name, boost::any const & val)
+void mx_attr::set_lazy_attr(std::string const & name, std::any const & val)
 {
   name_ = name;
   value_ = val;
@@ -139,6 +138,11 @@ void mx_attr::set_lazy_attr(std::string const & name, boost::any const & val)
   else
     throw std::runtime_error("Unknown lazy attribute value type for " + name);
 }
+
+// mx_line_member
+
+
+
 
 
 void mx_line::interpret(MadX & mx)
@@ -187,6 +191,15 @@ void mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
     return;
   }
 }
+
+mx_line_member::mx_line_member() 
+  : member(), tag(MX_LINE_MEMBER_NAME) { }
+
+mx_line_member::mx_line_member(string_t const & name)
+  : member(name), tag(MX_LINE_MEMBER_NAME) { }
+
+mx_line_member::mx_line_member(mx_line_seq const & seq)
+  : member(seq), tag(MX_LINE_MEMBER_SEQ) { }
 
 void mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
 {
@@ -409,7 +422,7 @@ void mx_command::execute(MadX & mx)
     {
       if( it->name() == "file" )
       {
-        string fname = boost::any_cast<string>(it->value());
+        string fname = std::any_cast<string>(it->value());
         mx_tree subroutine;
         parse_int_madx_file(fname, subroutine);
         subroutine.interpret(mx);
@@ -432,7 +445,7 @@ void mx_command::execute(MadX & mx)
       {
         if( it->value().type() == typeid(string) )
         {
-          refer = boost::any_cast<string>(it->value());
+          refer = std::any_cast<string>(it->value());
         }
         else if( it->value().type() == typeid(mx_expr) )
         {
@@ -469,7 +482,7 @@ void mx_command::execute(MadX & mx)
       {
         if( it->value().type() == typeid(string) )
         {
-          refpos = boost::any_cast<string>(it->value());
+          refpos = std::any_cast<string>(it->value());
         }
         else if( it->value().type() == typeid(mx_expr) )
         {
@@ -499,7 +512,7 @@ void mx_command::execute(MadX & mx)
       {
         try
         {
-          mx_expr e = boost::any_cast<mx_expr>( it->value() );
+          mx_expr e = std::any_cast<mx_expr>( it->value() );
           length = boost::apply_visitor(mx_calculator(mx), e);
         }
         catch(...)
@@ -567,28 +580,28 @@ void mx_command::execute(MadX & mx)
       } 
       else if ( it->name() == "mass") 
       {
-        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        mx_expr e = std::any_cast<mx_expr>( it->value() );
         mass = boost::apply_visitor(mx_calculator(mx), e);
       } 
       else if ( it->name() == "charge") 
       {
-        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        mx_expr e = std::any_cast<mx_expr>( it->value() );
         charge = boost::apply_visitor(mx_calculator(mx), e);
         have_charge = true;
       } 
       else if ( it->name() == "energy") 
       {
-        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        mx_expr e = std::any_cast<mx_expr>( it->value() );
         energy = boost::apply_visitor(mx_calculator(mx), e);
       } 
       else if ( it->name() == "pc") 
       {
-        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        mx_expr e = std::any_cast<mx_expr>( it->value() );
         pc = boost::apply_visitor(mx_calculator(mx), e);
       } 
       else if ( it->name() == "gamma") 
       {
-        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        mx_expr e = std::any_cast<mx_expr>( it->value() );
         gamma = boost::apply_visitor(mx_calculator(mx), e);
       }
     }
@@ -780,9 +793,33 @@ void mx_while::print() const
 }
 
 // statement
+
+synergia::mx_statement::mx_statement()
+    : value(), type(MX_NULL)
+  { }
+
+synergia::mx_statement::mx_statement(mx_command const & st)
+    : value(st), type(MX_COMMAND)
+  { }
+
+synergia::mx_statement::mx_statement(mx_if const & st)
+    : value(st), type(MX_IF)
+  { }
+
+synergia::mx_statement::mx_statement(mx_while const & st)
+    : value(st), type(MX_WHILE)
+  { }
+
+synergia::mx_statement::mx_statement(mx_line const & st)
+    : value(st), type(MX_LINE)
+  { }
+
+mx_statement_type synergia::mx_statement::get_type() const
+  { return type; }
+
 void mx_statement::assign(mx_command const & st)
 {
-  value = any(st);
+  value = std::any(st);
   type = MX_COMMAND;
 }
 
@@ -809,16 +846,16 @@ void mx_statement::interpret(MadX & mx)
   switch( type )
   {
   case MX_COMMAND:
-    boost::any_cast<mx_command>(value).interpret(mx);
+    std::any_cast<mx_command>(value).interpret(mx);
     break;
   case MX_LINE:
-    boost::any_cast<mx_line>(value).interpret(mx);
+    std::any_cast<mx_line>(value).interpret(mx);
     break;
   case MX_IF:
-    boost::any_cast<mx_if>(value).interpret(mx);
+    std::any_cast<mx_if>(value).interpret(mx);
     break;
   case MX_WHILE:
-    boost::any_cast<mx_while>(value).interpret(mx);
+    std::any_cast<mx_while>(value).interpret(mx);
     break;
   case MX_NULL:
     break;
@@ -830,11 +867,11 @@ void mx_statement::interpret(MadX & mx)
 void mx_statement::print() const
 {
   if( type==MX_COMMAND )
-    return boost::any_cast<mx_command>(value).print();
+    return std::any_cast<mx_command>(value).print();
   else if( type==MX_IF )
-    return boost::any_cast<mx_if>(value).print();
+    return std::any_cast<mx_if>(value).print();
   else if( type==MX_WHILE )
-    return boost::any_cast<mx_while>(value).print();
+    return std::any_cast<mx_while>(value).print();
   else
     throw runtime_error("mx_statement::print()  Unknown statement type");
 }
@@ -867,6 +904,9 @@ void mx_tree::print() const
 {
   for_each(statements.begin(), statements.end(), detail::print<mx_statement>);
 }
+
+
+
 
 
 

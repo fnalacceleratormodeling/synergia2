@@ -1,14 +1,14 @@
 
 #include "mx_parse.h"
 
+#include <any>
 #include <cmath>
 #include <limits>
 #include <iterator>
 #include <fstream>
 #include <sstream>
 
-#include <boost/any.hpp>
-
+#include <boost/optional/optional.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -57,9 +57,6 @@ using qi::locals;
 
 using boost::spirit::qi::real_parser;
 using boost::spirit::qi::real_policies;
-
-using boost::any;
-using boost::any_cast;
 
 using namespace qi::labels;
 using namespace std;
@@ -337,13 +334,13 @@ namespace synergia
     { while_.assign(logic, block); }
 
     void ins_seq_member(mx_line_seq & seq, boost::optional<char> m, boost::optional<int> o, mx_line_member const & member)
-    { int op=m?-1:1; if(o) op*=o.get(); seq.insert_member(op, member); }
+    { int op=m?-1:1; if(o) op*=o.value(); seq.insert_member(op, member); }
 
-    void set_attr(mx_attr & attr, string const & name, boost::optional<char> c, any const & v)
+    void set_attr(mx_attr & attr, string const & name, boost::optional<char> c, std::any const & v)
     { if(c) attr.set_lazy_attr(name, v); else attr.set_attr(name, v); }
 
     void set_flag_attr(mx_attr & attr, boost::optional<char> c, string const & name)
-    { if(c) attr.set_attr(name, boost::any(mx_expr(0.0))); else attr.set_attr(name, boost::any(mx_expr(1.0))); }
+    { if(c) attr.set_attr(name, std::any(mx_expr(0.0))); else attr.set_attr(name, std::any(mx_expr(1.0))); }
 
     void set_cmd_label(mx_command & cmd, string const & label)
     { cmd.set_label(label); }
@@ -538,7 +535,7 @@ struct synergia::madx_tree_parser
 
   expression<Iterator              , Skip> expr;
   qi::rule<Iterator, mx_exprs()    , Skip> array;
-  qi::rule<Iterator, any()         , Skip> value;
+  qi::rule<Iterator, std::any()    , Skip> value;
 
 
   qi::rule<Iterator, mx_statements_t(), Skip> statements;

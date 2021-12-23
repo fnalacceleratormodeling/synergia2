@@ -1,9 +1,10 @@
 #ifndef ERROR_HANDLER_MA_PARSE_H
 #define ERROR_HANDLER_MA_PARSE_H
 
+#include <any>
+
 #include "madx.h"
 #include "mx_tree.h"
-#include <boost/any.hpp>
 
 namespace synergia
 {

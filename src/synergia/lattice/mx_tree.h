@@ -1,10 +1,10 @@
 #ifndef MX_PARSING_TREE_H
 #define MX_PARSING_TREE_H
 
+#include <any>
 #include <string>
 #include <vector>
 
-#include <boost/any.hpp>
 #include <boost/variant.hpp>
 
 #include "madx.h"
@@ -80,6 +80,74 @@ struct synergia::mx_keyword
   mx_keyword_type tag;
 };
 
+
+
+// statement could be a command, if- or while-
+class synergia::mx_statement
+{
+public:
+  mx_statement();
+  mx_statement(mx_command const & st);
+  mx_statement(mx_if const & st);
+  mx_statement(mx_while const & st);
+  mx_statement(mx_line const & st);
+
+  void assign(mx_command const & st);
+  void assign(mx_if const & st);
+  void assign(mx_while const & st);
+  void assign(mx_line const & st);
+
+  void interpret(MadX & mx);
+  void print() const;
+
+  mx_statement_type get_type() const;
+
+private:
+  std::any value;
+  mx_statement_type type;
+};
+
+typedef std::vector<synergia::mx_statement> mx_statements_t;
+
+// vector of statements
+class synergia::mx_tree
+{
+public:
+  mx_tree() 
+    : statements() 
+  { }
+  mx_tree(mx_statements_t const & sts)
+    : statements(sts)
+  { }
+
+  void push(mx_statement const & st);
+  void interpret(MadX & mx);
+  void print() const;
+
+private:
+  mx_statements_t statements;
+};
+
+
+class synergia::mx_line_member
+{
+public:
+  mx_line_member();
+  mx_line_member(string_t const & name);
+  mx_line_member(mx_line_seq const & seq);
+
+  void interpret(MadX const & mx, MadX_line & line, int op=1);
+
+private:
+  std::any member;  // either a name ref or a line object
+#if __APPLE_CC__ == 6000
+public:
+#endif //  __APPLE_CC__ == 6000
+  mx_line_member_type tag;
+};
+
+typedef std::vector<std::pair<synergia::mx_line_member, int> > mx_line_members;
+
 class synergia::mx_logic
 {
 public:
@@ -99,63 +167,6 @@ private:
   bool use_preset;
 };
 
-// statement could be a command, if- or while-
-class synergia::mx_statement
-{
-public:
-  mx_statement()
-    : value(), type(MX_NULL)
-  { }
-  mx_statement(mx_command const & st)
-    : value(st), type(MX_COMMAND)
-  { }
-  mx_statement(mx_if const & st)
-    : value(st), type(MX_IF)
-  { }
-  mx_statement(mx_while const & st)
-    : value(st), type(MX_WHILE)
-  { }
-  mx_statement(mx_line const & st)
-    : value(st), type(MX_LINE)
-  { }
-
-  void assign(mx_command const & st);
-  void assign(mx_if const & st);
-  void assign(mx_while const & st);
-  void assign(mx_line const & st);
-
-  void interpret(MadX & mx);
-  void print() const;
-
-  mx_statement_type get_type() const
-  { return type; }
-
-private:
-  boost::any value;
-  mx_statement_type type;
-};
-
-typedef std::vector<synergia::mx_statement> mx_statements_t;
-
-// vector or statements
-class synergia::mx_tree
-{
-public:
-  mx_tree() 
-    : statements() 
-  { }
-  mx_tree(mx_statements_t const & sts)
-    : statements(sts)
-  { }
-
-  void push(mx_statement const & st);
-  void interpret(MadX & mx);
-  void print() const;
-
-private:
-  mx_statements_t statements;
-};
-
 // attributes for commands
 class synergia::mx_attr
 {
@@ -164,23 +175,24 @@ public:
     : type_(MX_ATTR_NULL), name_(), value_() { }
 
   // modifier
-  void set_attr(std::string const & name, boost::any const & val);
-  void set_lazy_attr(std::string const & name, boost::any const & val);
+  void set_attr(std::string const & name, std::any const & val);
+  void set_lazy_attr(std::string const & name, std::any const & val);
 
   // accessor
   mx_attr_type type() const { return type_; }
   std::string  name() const { return name_; }
-  boost::any   value() const { return value_; }
+  std::any   value() const { return value_; }
 
 private:
   mx_attr_type type_;
   std::string  name_;
-  boost::any   value_;
+  std::any   value_;
 };
 
 // basic commands
 typedef std::map<std::string, synergia::mx_attr> attr_map_t;
 typedef std::vector<synergia::mx_attr>           attrs_t;
+
 
 class synergia::mx_command
 {
@@ -210,55 +222,6 @@ private:
   bool         keyed_;
   std::string  keyword_;
   attrs_t      attrs_;
-};
-
-class synergia::mx_line_member
-{
-public:
-  mx_line_member() 
-    : member(), tag(MX_LINE_MEMBER_NAME) { }
-  mx_line_member(string_t const & name)
-    : member(name), tag(MX_LINE_MEMBER_NAME) { }
-  mx_line_member(mx_line_seq const & seq)
-    : member(seq), tag(MX_LINE_MEMBER_SEQ) { }
-
-  void interpret(MadX const & mx, MadX_line & line, int op=1);
-
-private:
-  boost::any member;  // either a name ref or a line object
-#if __APPLE_CC__ == 6000
-public:
-#endif //  __APPLE_CC__ == 6000
-  mx_line_member_type tag;
-};
-
-typedef std::vector<std::pair<synergia::mx_line_member, int> > mx_line_members;
-
-class synergia::mx_line_seq
-{
-public:
-  mx_line_seq() : members() { }
-
-  void insert_member(int op, mx_line_member const & member);
-  void interpret(MadX const & mx, MadX_line & line, int op=1);
-
-private:
-  mx_line_members members;
-};
-  
-
-class synergia::mx_line
-{
-public:
-  mx_line() { }
-  mx_line(string_t const & name, mx_line_seq const & seq)
-    : name(name), seq(seq) { }
-
-  void interpret(MadX & mx);
-
-private:
-  std::string name;
-  mx_line_seq seq;
 };
 
 // element block for building an if-elseif-else control statement
@@ -323,5 +286,36 @@ public:
 private:
   mx_if_block while_;
 };
+
+
+
+class synergia::mx_line_seq
+{
+public:
+  mx_line_seq() : members() { }
+
+  void insert_member(int op, mx_line_member const & member);
+  void interpret(MadX const & mx, MadX_line & line, int op=1);
+
+private:
+  mx_line_members members;
+};
+  
+
+class synergia::mx_line
+{
+public:
+  mx_line() { }
+  mx_line(string_t const & name, mx_line_seq const & seq)
+    : name(name), seq(seq) { }
+
+  void interpret(MadX & mx);
+
+private:
+  std::string name;
+  mx_line_seq seq;
+};
+
+
 
 #endif

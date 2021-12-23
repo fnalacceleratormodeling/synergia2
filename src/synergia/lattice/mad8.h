@@ -1,11 +1,10 @@
 #ifndef SYNERGIA_LATTICE_MAD8_H
 #define SYNERGIA_LATTICE_MAD8_H
 
+#include <any>
 #include <string>
 #include <vector>
 #include <map>
-
-#include <boost/any.hpp>
 
 
 
@@ -25,7 +24,7 @@ namespace synergia
 
 struct synergia::Mad8_value
 {
-  boost::any      value;
+  std::any      value;
   Mad8_value_type type;
 };
 

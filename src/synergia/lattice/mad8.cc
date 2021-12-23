@@ -1,6 +1,7 @@
-#include "mad8.h"
+#include <any>
 #include <stdexcept>
 
+#include "mad8.h"
 
 using namespace synergia;
 
@@ -27,7 +28,7 @@ string_t
 
   value_map_t::const_iterator it = attributes_.find(key);
   if( it!=attributes_.end() ) {
-    return boost::any_cast<string_t>(it->second.value);
+    return std::any_cast<string_t>(it->second.value);
   }
   else {
     throw std::runtime_error( "cannot find attribute with name " + key);
@@ -42,7 +43,7 @@ double
 
   value_map_t::const_iterator it = attributes_.find(key);
   if( it!=attributes_.end() ) {
-    return boost::any_cast<double>(it->second.value);
+    return std::any_cast<double>(it->second.value);
   }
   else {
     throw std::runtime_error( "cannot find attribute with name " + key);
@@ -63,7 +64,7 @@ void
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 
   Mad8_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = NUMBER; 
 
   attributes_.insert(std::make_pair(key, v));
@@ -76,7 +77,7 @@ void
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 
   Mad8_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = value.empty() ? NONE : STRING; 
 
   attributes_.insert(std::make_pair(key, v));
@@ -156,7 +157,7 @@ string_t
   value_map_t::const_iterator it = variables_.find(key);
 
   if( it!=variables_.end() ) 
-    return boost::any_cast<string_t>(it->second.value);
+    return std::any_cast<string_t>(it->second.value);
   else 
     throw std::runtime_error( "cannot find variable with name " + key);
 }
@@ -170,7 +171,7 @@ double
   value_map_t::const_iterator it = variables_.find(key);
 
   if( it!=variables_.end() ) 
-    return boost::any_cast<double>(it->second.value);
+    return std::any_cast<double>(it->second.value);
   else 
     throw std::runtime_error( "cannot find variable with name " + key);
 }
@@ -234,7 +235,7 @@ void
   std::transform( key.begin(), key.end(), key.begin(), ::tolower );
 
   Mad8_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = NUMBER; 
 
   variables_.insert( std::make_pair(key, v) );
@@ -247,7 +248,7 @@ void
   std::transform( key.begin(), key.end(), key.begin(), ::tolower );
 
   Mad8_value v;
-  v.value = boost::any(value);
+  v.value = std::any(value);
   v.type  = value.empty() ? NONE : STRING; 
 
   variables_.insert(std::make_pair(key, v));

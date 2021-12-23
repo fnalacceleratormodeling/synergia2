@@ -1,11 +1,10 @@
 #ifndef SYNERGIA_LATTICE_MAD8_H
 #define SYNERGIA_LATTICE_MAD8_H
 
+#include <any>
 #include <string>
 #include <vector>
 #include <map>
-
-#include <boost/any.hpp>
 
 #include "mx_expr.h"
 
@@ -50,7 +49,7 @@ namespace synergia
 
 struct synergia::MadX_value
 {
-  boost::any      value;
+  std::any      value;
   MadX_value_type type;
 };
 
