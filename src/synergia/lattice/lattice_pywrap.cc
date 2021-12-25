@@ -9,6 +9,7 @@
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/madx_reader.h"
+#include "synergia/lattice/dynamic_lattice.h"
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -354,6 +355,41 @@ PYBIND11_MODULE(lattice, m)
                 "Parse a lattice file",
                 "filename"_a )
         ;
+
+    // dynamic lattice
+    using dynamic_lattice_set_variable_1 = 
+        void (Dynamic_lattice::*)(std::string const&, double);
+
+    using dynamic_lattice_set_variable_2 = 
+        void (Dynamic_lattice::*)(std::string const&, std::string const&);
+
+    py::class_<Dynamic_lattice>(m, "Dynamic_lattice")
+        .def( py::init<>(), 
+                "Construct a Dynamic_lattice" )
+
+        .def( "read_madx_file",
+                &Dynamic_lattice::read_madx_file,
+                "filename"_a )
+
+        .def( "read_madx_string",
+                &Dynamic_lattice::read_madx_string,
+                "str"_a )
+
+        .def( "construct_lattice",
+                &Dynamic_lattice::construct_lattice,
+                "line_name"_a )
+
+        .def( "set_variable",
+                (dynamic_lattice_set_variable_1)&Dynamic_lattice::set_variable,
+                "name"_a,
+                "val"_a )
+
+        .def( "set_variable",
+                (dynamic_lattice_set_variable_2)&Dynamic_lattice::set_variable,
+                "name"_a,
+                "val"_a )
+        ;
+ 
 }
 
 

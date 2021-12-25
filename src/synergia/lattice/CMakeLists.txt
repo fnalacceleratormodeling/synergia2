@@ -9,6 +9,7 @@ add_library(synergia_lattice
     lattice_element_processor.cc 
     lattice.cc
     lattice_element_slice.cc
+    dynamic_lattice.cc
     madx.cc 
     mx_expr.cc  
     mx_parse.cc  

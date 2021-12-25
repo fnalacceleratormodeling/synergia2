@@ -50,8 +50,11 @@ namespace synergia
       }
       else if( attr.type() == MX_ATTR_NUMBER )
       {
+#if 0
         mx_expr e = simplify( any_cast<mx_expr>(attr.value()), mx );
         t.insert_attribute( attr.name(), e );
+#endif
+        t.insert_attribute( attr.name(), any_cast<mx_expr>(attr.value()) );
       }
       else if( attr.type() == MX_ATTR_LAZY_NUMBER )
       {
@@ -59,6 +62,7 @@ namespace synergia
       }
       else if( attr.type() == MX_ATTR_ARRAY )
       {
+#if 0
         mx_exprs es = any_cast<mx_exprs>(attr.value());
         for( mx_exprs::iterator it = es.begin()
            ; it != es.end(); ++it )
@@ -67,6 +71,9 @@ namespace synergia
           *it = e;
         }
         t.insert_attribute( attr.name(), es );
+#endif
+        mx_exprs es = any_cast<mx_exprs>(attr.value());
+        t.insert_attribute( attr.name(), es );
       }
       else if( attr.type() == MX_ATTR_LAZY_ARRAY )
       {
@@ -74,7 +81,6 @@ namespace synergia
         t.insert_attribute( attr.name(), es );
       }
     }
-
   }
 }
 
@@ -659,6 +665,8 @@ void mx_command::execute(MadX & mx)
 
 void mx_command::print() const
 {
+  cout << "type(" << (int)type_ << ") ";
+
   if( labeled_ )
     cout << label_ << " : ";
 
