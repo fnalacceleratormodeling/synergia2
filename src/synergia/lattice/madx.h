@@ -75,13 +75,17 @@ public:
            attribute_names() const;
   MadX_value_type
            attribute_type(string_t const & name) const;
+
   string_t attribute_as_string(string_t const & name) const;
   string_t attribute_as_string(string_t const & name, string_t const & def) const;
   double   attribute_as_number(string_t const & name) const;
   double   attribute_as_number(string_t const & name, double def) const;
   bool     attribute_as_boolean(string_t const & name) const;
+  mx_expr  attribute_as_expr(string_t const& name) const;
+
   std::vector<double> attribute_as_number_seq(string_t const & name) const;
   std::vector<double> attribute_as_number_seq(string_t const & name, double def) const;
+
   MadX_command_type type() const;
   bool is_element() const;
   bool is_reference() const;
@@ -140,12 +144,18 @@ class synergia::MadX_sequence
 private:
   struct seq_element
   {
-    seq_element(std::string const & label_, double at_, std::string const & from_)
-      : label(label_), from_str(from_), at(at_), from(0.0) { }
+    seq_element(std::string const & label_, 
+            mx_expr const& at_, 
+            std::string const & from_)
+      : label(label_)
+      , from_str(from_)
+      , at(at_)
+      , from(0.0) 
+    { }
 
     std::string label;
     std::string from_str;
-    double      at;
+    mx_expr     at;
     double      from;
   };
 
@@ -172,7 +182,7 @@ public:
   void set_length(double length);
   void set_refer(MadX_sequence_refer ref);
   void set_refpos(string_t const & refpos);
-  void add_element(string_t const & label, double at, string_t const & from);
+  void add_element(string_t const & label, mx_expr const& at, string_t const & from);
   void finalize();
   void reset();
 
@@ -248,7 +258,7 @@ public:
 
   void start_sequence( string_t const & label, double length
                      , string_t const & refer, string_t const & refpos );
-  void append_sequence_element( string_t const & label, double at
+  void append_sequence_element( string_t const & label, mx_expr const& at
                               , string_t const & from );
   void end_sequence();
 

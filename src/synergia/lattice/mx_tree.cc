@@ -356,7 +356,7 @@ void mx_command::interpret(MadX & mx)
     // building a sequence?
     if ( mx.building_sequence() )
     {
-      double at = new_cmd.attribute_as_number("at");
+      mx_expr at = new_cmd.attribute_as_expr("at");
       string from = new_cmd.attribute_as_string("from", "");
 
       // label_, at, from
@@ -401,7 +401,7 @@ void mx_command::interpret(MadX & mx)
       if (ref_type != ENTRY_COMMAND && ref_type != ENTRY_SEQUENCE)
         throw runtime_error("unknown class type " + keyword_ + ".");
 
-      double at = new_cmd.attribute_as_number("at");
+      mx_expr at = new_cmd.attribute_as_expr("at");
       string from = new_cmd.attribute_as_string("from", "");
 
       // label_ or keyword_

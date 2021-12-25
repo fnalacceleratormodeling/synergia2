@@ -26,6 +26,25 @@ namespace
   double madx_nan = MadX::nan;
   string madx_nst = MadX::nst;
 
+  mx_expr
+    retrieve_expr_from_map( value_map_t const & m
+                            , string_t const & k )
+  {
+    string_t key(k);
+    std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+
+    value_map_t::const_iterator it = m.find(key);
+
+    if( it == m.end() )
+      throw std::runtime_error( "retrieve number: cannot find attribute with name " + key);
+
+   if( it->second.type!=NUMBER && it->second.type!=DEFFERED_NUMBER )
+      throw std::runtime_error( "the requested key '" + k + "' cannot be retrieved as an expr" );
+
+    return boost::any_cast<mx_expr>(it->second.value);
+  }
+
+
   string_t
     retrieve_string_from_map( value_map_t const & m
                             , string_t const & k 
@@ -214,6 +233,12 @@ bool
   return std::abs(retrieve_number_from_map(attributes_, name, *mx, madx_nan)) > 1e-10;
 }
 
+mx_expr
+  MadX_command::attribute_as_expr( string_t const& name ) const
+{
+  return retrieve_expr_from_map(attributes_, name);
+}
+
 std::vector<double>
   MadX_command::attribute_as_number_seq( string_t const & name ) const
 {
@@ -396,7 +421,7 @@ MadX_command
 double
   MadX_sequence::element_at(size_t idx) const
 {
-  return seq_[idx].at;
+  return boost::apply_visitor(mx_calculator(parent), seq_[idx].at);
 }
 
 double
@@ -458,7 +483,7 @@ void
 }
 
 void
-  MadX_sequence::add_element(string_t const & label, double at, string_t const & from)
+  MadX_sequence::add_element(string_t const & label, mx_expr const& at, string_t const & from)
 {
   seq_.push_back( seq_element(label, at, from) );
 }
@@ -479,7 +504,8 @@ void
 
         if (cit->label == it->from_str)
         {
-          it->from = cit->at;
+          double at = boost::apply_visitor(mx_calculator(parent), cit->at);
+          it->from = at;
           found = true;
           break;
         }
@@ -504,7 +530,31 @@ void
 void
   MadX_sequence::print() const
 {
+  cout << "\n";
+  cout << "  l = " << length() << ", elements = "
+       << element_count() << ", refer = ";
 
+  switch(refer())
+  {
+  case SEQ_REF_ENTRY:  cout << "entry"; break;
+  case SEQ_REF_CENTRE: cout << "centre"; break;
+  case SEQ_REF_EXIT:   cout << "exit"; break;
+  default: break;
+  }
+
+  cout << ", refpos = " << refpos();
+  cout << ",\n";
+
+  for(auto const& ele : seq_)
+  {
+      cout << "  " << ele.label 
+           << ", at = " << boost::apply_visitor(mx_calculator(parent), ele.at)
+           << ", from = " << ele.from
+           << ", from_ref = " << ele.from_str
+           << "\n";
+  }
+
+  cout << "\n";
 }
 
 
@@ -806,7 +856,7 @@ void
 }
 
 void
-  MadX::append_sequence_element(string_t const & label, double at, string_t const & from)
+  MadX::append_sequence_element(string_t const & label, mx_expr const& at, string_t const & from)
 {
   if( building_seq_ )
     cur_seq_.add_element(label, at, from);
@@ -838,6 +888,12 @@ void
   {
     cout << it->first << " : line = ";
     it->second.print();
+  }
+
+  for( auto const& seq : seqs_ )
+  {
+    cout << seq.first << " : sequence = ";
+    seq.second.print();
   }
 }
 
