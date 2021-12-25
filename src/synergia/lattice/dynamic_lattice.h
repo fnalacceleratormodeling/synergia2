@@ -21,6 +21,8 @@ public:
     void set_variable(std::string const& name, double val);
     void set_variable(std::string const& name, std::string const& val);
 
+    void print() const;
+
 private:
 
     synergia::MadX mx;

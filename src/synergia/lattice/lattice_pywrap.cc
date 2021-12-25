@@ -388,6 +388,8 @@ PYBIND11_MODULE(lattice, m)
                 (dynamic_lattice_set_variable_2)&Dynamic_lattice::set_variable,
                 "name"_a,
                 "val"_a )
+
+        .def( "print", &Dynamic_lattice::print )
         ;
  
 }

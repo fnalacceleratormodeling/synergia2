@@ -13,7 +13,6 @@ void
 Dynamic_lattice::read_madx_string(std::string const& str)
 {
     synergia::parse_madx(str, mx);
-    mx.print();
 }
 
 Lattice 
@@ -39,3 +38,10 @@ Dynamic_lattice::set_variable(std::string const& name, std::string const& val)
 
     mx.insert_variable(name, expr);
 }
+
+void
+Dynamic_lattice::print() const
+{
+    mx.print();
+}
+
