@@ -19,7 +19,7 @@ namespace
                     MadX const & mx,
                     std::string const & line_name )
   {
-    MadX_line line(mx.line(line_name));
+    MadX_line const& line = mx.line(line_name);
 
     for (int i = 0; i < line.element_count(); ++i) 
     {
@@ -66,7 +66,7 @@ namespace
                           MadX const & mx, 
                           std::string const & line_name )
   {
-    MadX_sequence sequence(mx.sequence(line_name));
+    MadX_sequence const& sequence = mx.sequence(line_name);
 
     double r = 0.5;
     double total_length = sequence.length();
@@ -278,19 +278,35 @@ MadX_reader::get_string_variable(std::string const& name) const
 Lattice
 MadX_reader::get_lattice(std::string const& line_name)
 {
+    return MadX_reader::get_lattice(line_name, madx);
+}
+
+Lattice
+MadX_reader::get_lattice(std::string const& line_name,
+        std::string const& filename)
+{
+    parse_file(filename);
+    return get_lattice(line_name);
+}
+
+Lattice
+MadX_reader::get_lattice(
+        std::string const& line_name,
+        synergia::MadX const& mx)
+{
     Lattice lattice(line_name);
 
-    std::vector<std::string> lines(madx.line_labels());
+    std::vector<std::string> lines(mx.line_labels());
     if (std::find(lines.begin(), lines.end(), line_name) != lines.end())
     {
-        insert_line( lattice, madx, line_name );
+        insert_line( lattice, mx, line_name );
     } 
     else 
     {
-        std::vector<std::string> seq(madx.sequence_labels());
+        std::vector<std::string> seq(mx.sequence_labels());
         if (std::find(seq.begin(), seq.end(), line_name) != seq.end())
         {
-            insert_sequence( lattice, madx, line_name );
+            insert_sequence( lattice, mx, line_name );
         } 
         else 
         {
@@ -300,15 +316,7 @@ MadX_reader::get_lattice(std::string const& line_name)
         }
     }
 
-    extract_reference_particle(lattice, madx);
+    extract_reference_particle(lattice, mx);
     return lattice;
-}
-
-Lattice
-MadX_reader::get_lattice(std::string const& line_name,
-        std::string const& filename)
-{
-    parse_file(filename);
-    return get_lattice(line_name);
 }
 
