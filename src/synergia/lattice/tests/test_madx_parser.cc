@@ -97,6 +97,68 @@ TEST_CASE("line_expansion2")
     CHECK( line.element_name(6) == "d3" );
 }
 
+TEST_CASE("sequence")
+{
+    using namespace synergia;
+
+    std::string str = R"(
+
+        start = 0.35;
+
+        a: quadrupole, l=0.0;
+        b: quadrupole, l=0.2;
+        c: quadrupole, l=0.4;
+        d: quadrupole, l=0.8;
+
+        seq: sequence, l=3.0;
+        a, at=0;
+        b, at=0;
+        c, at=start+0.1;
+        d, at=0.6, from=c;
+        endsequence;
+    )";
+
+    MadX   mx;
+
+    REQUIRE_NOTHROW( parse_madx( str, mx ) );
+
+    MadX_sequence seq = mx.sequence("seq");
+    seq.print();
+
+    CHECK(seq.label() == "seq");
+    CHECK(seq.length() == 3.0);
+    CHECK(seq.element_count() == 4);
+    CHECK(seq.refer() == SEQ_REF_CENTRE);
+    CHECK(seq.refpos() == "");
+
+    CHECK(seq.element(0).label() == "a");
+    CHECK(seq.element(1).label() == "b");
+    CHECK(seq.element(2).label() == "c");
+    CHECK(seq.element(3).label() == "d");
+
+    CHECK(seq.element(0).name() == "quadrupole");
+    CHECK(seq.element(1).name() == "quadrupole");
+    CHECK(seq.element(2).name() == "quadrupole");
+    CHECK(seq.element(3).name() == "quadrupole");
+
+    CHECK(seq.element(0).attribute_as_number("l") == 0.0);
+    CHECK(seq.element(1).attribute_as_number("l") == 0.2);
+    CHECK(seq.element(2).attribute_as_number("l") == 0.4);
+    CHECK(seq.element(3).attribute_as_number("l") == 0.8);
+
+    CHECK(seq.element_at(0) == 0.0);
+    CHECK(seq.element_at(1) == 0.0);
+    CHECK(seq.element_at(2) == Approx(0.45).margin(tolerance));
+    CHECK(seq.element_at(3) == Approx(0.6 ).margin(tolerance));
+
+    CHECK(seq.element_from(0) == 0.0);
+    CHECK(seq.element_from(1) == 0.0);
+    CHECK(seq.element_from(2) == 0.0);
+    CHECK(seq.element_from(3) == Approx(0.45).margin(tolerance));
+}
+
+
+
 TEST_CASE("foil element")
 {
     using namespace synergia;
