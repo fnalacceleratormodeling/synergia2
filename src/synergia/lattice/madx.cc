@@ -41,7 +41,7 @@ namespace
    if( it->second.type!=NUMBER && it->second.type!=DEFFERED_NUMBER )
       throw std::runtime_error( "the requested key '" + k + "' cannot be retrieved as an expr" );
 
-    return boost::any_cast<mx_expr>(it->second.value);
+    return std::any_cast<mx_expr>(it->second.value);
   }
 
 
