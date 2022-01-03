@@ -17,13 +17,17 @@
 
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 
+#include "fodo_cxx_options.h"
+
 // quick definitions
+/*
 constexpr int gridx = 32;
 constexpr int gridy = 32;
 constexpr int gridz = 128;
 constexpr int turns = 10;
 constexpr int macroparticles = 1048576;
 constexpr double real_particles = 2.94e12;
+*/
 
 Lattice get_lattice()
 {
@@ -62,10 +66,23 @@ void print_bunch_statistics(Bunch const& bunch, Logger &logger)
     }
 }
 
-int run()
+int run(Fodo_cxx_options opts)
 {
+    int gridx = opts.gridx;
+    int gridy = opts.gridy;
+    int gridz = opts.gridz;
+    double real_particles = opts.real_particles;
+    int macroparticles = opts.macroparticles;
+    int turns = opts.turns;
+
     Logger screen(0, LoggerV::INFO);
     //Logger screen(0, LoggerV::DEBUG);
+
+    screen << "gridx: " << gridx << std::endl;
+    screen << "gridy: " << gridy << std::endl;
+    screen << "gridz: " << gridz << std::endl;
+    screen << "macroparticles: " << macroparticles << std::endl;
+    screen << "real_particles: " << real_particles << std::endl;
 
     Lattice lattice = get_lattice();
     screen << "Read lattice, length: " << lattice.get_length() << ", " << lattice.get_elements().size() << " elements" << std::endl;
@@ -123,10 +140,10 @@ int run()
     print_bunch_statistics(bunch, screen);
 
     // diagnostics
-    Diagnostics_bulk_track diag_bulk_track("tracks.h5", 100, 0);
+    Diagnostics_bulk_track diag_bulk_track("tracks.h5", (100<macroparticles)?100:macroparticles, 0);
     sim.reg_diag_per_turn(diag_bulk_track);
 
-    Diagnostics_particles diag_particles("particles.h5", 1000);
+    Diagnostics_particles diag_particles("particles.h5", (1000<macroparticles)?1000:macroparticles);
     sim.reg_diag_per_turn(diag_particles);
 
     Diagnostics_full2 diag_full2("diag.h5");
@@ -152,8 +169,10 @@ int main(int argc, char ** argv)
     MPI_Init(&argc, &argv);
     Kokkos::initialize(argc, argv);
 
+    Fodo_cxx_options opts(argc, argv);
+
     //layout_test();
-    run();
+    run(opts);
 
 #ifdef SIMPLE_TIMER
     Logger logger(0);
