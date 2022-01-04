@@ -135,28 +135,28 @@ def run_mi():
 
         for elem in lattice.get_elements():
             if elem.get_string_attribute("force_diagnostics", "") == "true":
-                sim.reg_diag_per_element(
+                sim.reg_diag_at_element(
                         synergia.bunch.Diagnostics_particles("lam_particles_b%03d.h5"%bunch_num), 
-                        elem, opts.lam_period, 0, bunch_num)
+                        element=elem, turn_period=opts.lam_period, bunch_idx=bunch_num)
 
         if opts.turn_full2:
             sim.reg_diag_per_turn(synergia.bunch.Diagnostics_full2("mi_full2_b%03d.h5"%bunch_num),
-                    0, bunch_num)
+                    period=1, bunch_idx=bunch_num)
 
         if opts.step_basic:
             sim.reg_diag_per_step(synergia.bunch.Diagnostics_basic("mi_step_basic_b%03d.h5"%bunch_num),
-                    0, bunch_num)
+                    period=1, bunch_idx=bunch_num)
 
         if opts.step_full2:
             sim.reg_diag_per_step(synergia.bunch.Diagnostics_full2("mi_step_full2_b%03d.h5"%bunch_num),
-                    0, bunch_num)
+                    period=1, bunch_idx=bunch_num)
 
         if opts.turn_particles:
             turn_list = list(range(0, turns, opts.particles_period))
             if turns-1 not in turn_list:
                 turn_list.append(turns-1)
                 sim.reg_diag_turn_listed(synergia.bunch.Diagnostics_particles("mi_particles_b%03d.h5"%bunch_num), 
-                        0, bunch_num, turn_list)
+                        turns=turn_list, bunch_idx=bunch_num)
 
         # enable track saving
         # each processor will save tracks/proc tracks
