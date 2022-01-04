@@ -49,7 +49,7 @@ private:
                 return true;
 
             // only the turn number matters
-            if (step_period == -1) 
+            if (step_period < 0) 
                 return (turn % turn_period == 0) 
                     && (step == FINAL_STEP);
 
@@ -198,6 +198,10 @@ public:
             int turn_period, int step_period,
             int bunch, int train )
     { 
+        if (turn_period <= 0 || step_period == 0)
+            throw std::runtime_error("reg_diag_per_turn/step(): "
+                    "the turn or step period cannot be <=0");
+
         int bunch_idx = get_bunch_array_idx(train, bunch);
         if (bunch_idx == -1) return Diagnostics_handler();
 
@@ -254,6 +258,10 @@ public:
             Lattice_element const& ele, int turn_period = 1,
             int bunch = 0, int train = 0)
     {
+        if (turn_period <= 0)
+            throw std::runtime_error("reg_diag_at_element(): "
+                    "the turn period cannot be <=0");
+
         int bunch_idx = get_bunch_array_idx(train, bunch);
         if (bunch_idx == -1) return Diagnostics_handler();
 
