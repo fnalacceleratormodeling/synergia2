@@ -22,3 +22,10 @@ add_mpi_test(test_madx_parser 1)
 copy_file(foo.dbx test_madx_parser)
 
 
+add_executable(test_dynamic_lattice test_dynamic_lattice.cc)
+target_link_libraries(test_dynamic_lattice
+    synergia_lattice
+    synergia_test_main)
+add_mpi_test(test_dynamic_lattice 1)
+
+
