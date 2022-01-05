@@ -35,25 +35,25 @@ TEST_CASE("real_apply_full_lowgamma", "[Rod_bunch]")
   bunch.checkout_particles();
 
   // print intital coordinates
-  logger << "real_apply_full_lowgamma first four particles (x y z):" << std::endl;
+  logger << "real_apply_full_lowgamma first four particles (x y z):" << '\n';
   for (int k=0; k<4; ++k)
   {
     logger << k << ": "
       << parts(k, 0) << ", "
       << parts(k, 2) << ", "
-      << parts(k, 4) << std::endl;
+      << parts(k, 4) << '\n';
   }
 
-  logger << "last four particles (x y z):" << std::endl;
+  logger << "last four particles (x y z):" << '\n';
   for (int k=bunch.get_local_num()-4; k<bunch.get_local_num(); ++k)
   {
     logger << k << ": "
       << parts(k, 0) << ", "
       << parts(k, 2) << ", "
-      << parts(k, 4) << std::endl;
+      << parts(k, 4) << '\n';
   }
 
-  logger << std::endl;
+  logger << '\n';
 
   // space charge operator
   auto sc_ops = Space_charge_3d_open_hockney_options(gridx, gridy, gridz);
@@ -74,7 +74,7 @@ TEST_CASE("real_apply_full_lowgamma", "[Rod_bunch]")
   bunch.checkout_particles();
 
   // print
-  logger << "after sc::apply : bunch.local_particles(0, 0): " << parts(0, 0) << std::endl;
+  logger << "after sc::apply : bunch.local_particles(0, 0): " << parts(0, 0) << '\n';
 
   // Rod of charge Q over length L
   // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
@@ -89,19 +89,19 @@ TEST_CASE("real_apply_full_lowgamma", "[Rod_bunch]")
   double L = bunchlen;
   double N = bunch.get_real_num();
 
-  logger << "L: " << L << std::endl;
-  logger << "N: " << N << std::endl;
-  logger << "step_length: " << step_length << std::endl;
-  logger << "beta: " << beta << std::endl;
-  logger << "gamma: " << gamma << std::endl;
-  logger << "betagamma: " << betagamma << std::endl;
-  logger << "x: " << parts(0, Bunch::x) << std::endl;
+  logger << "L: " << L << '\n';
+  logger << "N: " << N << '\n';
+  logger << "step_length: " << step_length << '\n';
+  logger << "beta: " << beta << '\n';
+  logger << "gamma: " << gamma << '\n';
+  logger << "betagamma: " << betagamma << '\n';
+  logger << "x: " << parts(0, Bunch::x) << '\n';
 
   double computed_dpop = ((2.0*N*pconstants::rp)/(L*betagamma*betagamma*gamma)) *
     (step_length/parts(0, Bunch::x));
 
-  logger << "computed dpop: " << computed_dpop << std::endl;
-  logger << "particle dpop: " << parts(0, 1) << std::endl;
+  logger << "computed dpop: " << computed_dpop << '\n';
+  logger << "particle dpop: " << parts(0, 1) << '\n';
 
   CHECK(parts(0, Bunch::xp) == Approx(computed_dpop).margin(.01));
 
@@ -121,7 +121,7 @@ TEST_CASE("real_apply_full_lowgamma", "[Rod_bunch]")
           << parts(k, 2) << ", "
           << parts(k, 3) << ", "
           << parts(k, 4) << ", "
-          << parts(k, 5) << std::endl;
+          << parts(k, 5) << '\n';
       }
     }
   }
@@ -158,25 +158,25 @@ TEST_CASE("real_apply_full_highgamma", "[Rod_bunch]")
   bunch.checkout_particles();
 
   // print intital coordinates
-  logger << "real_apply_full_highamma first four particles (x y z):" << std::endl;
+  logger << "real_apply_full_highamma first four particles (x y z):" << '\n';
   for (int k=0; k<4; ++k)
   {
     logger << k << ": "
       << parts(k, 0) << ", "
       << parts(k, 2) << ", "
-      << parts(k, 4) << std::endl;
+      << parts(k, 4) << '\n';
   }
 
-  logger << "last four particles (x y z):" << std::endl;
+  logger << "last four particles (x y z):" << '\n';
   for (int k=bunch.get_local_num()-4; k<bunch.get_local_num(); ++k)
   {
     logger << k << ": "
       << parts(k, 0) << ", "
       << parts(k, 2) << ", "
-      << parts(k, 4) << std::endl;
+      << parts(k, 4) << '\n';
   }
 
-  logger << std::endl;
+  logger << '\n';
 
   // space charge operator
   auto sc_ops = Space_charge_3d_open_hockney_options(gridx, gridy, gridz);
@@ -197,7 +197,7 @@ TEST_CASE("real_apply_full_highgamma", "[Rod_bunch]")
   bunch.checkout_particles();
 
   // print
-  logger << "after sc::apply : bunch.local_particles(0, 0): " << parts(0, 0) << std::endl;
+  logger << "after sc::apply : bunch.local_particles(0, 0): " << parts(0, 0) << '\n';
 
   // Rod of charge Q over length L
   // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
@@ -212,19 +212,19 @@ TEST_CASE("real_apply_full_highgamma", "[Rod_bunch]")
   double L = bunchlen;
   double N = bunch.get_real_num();
 
-  logger << "L: " << L << std::endl;
-  logger << "N: " << N << std::endl;
-  logger << "step_length: " << step_length << std::endl;
-  logger << "beta: " << beta << std::endl;
-  logger << "gamma: " << gamma << std::endl;
-  logger << "betagamma: " << betagamma << std::endl;
-  logger << "x: " << parts(0, Bunch::x) << std::endl;
+  logger << "L: " << L << '\n';
+  logger << "N: " << N << '\n';
+  logger << "step_length: " << step_length << '\n';
+  logger << "beta: " << beta << '\n';
+  logger << "gamma: " << gamma << '\n';
+  logger << "betagamma: " << betagamma << '\n';
+  logger << "x: " << parts(0, Bunch::x) << '\n';
 
   double computed_dpop = ((2.0*N*pconstants::rp)/(L*betagamma*betagamma*gamma)) *
     (step_length/parts(0, Bunch::x));
 
-  logger << "computed dpop: " << computed_dpop << std::endl;
-  logger << "particle dpop: " << parts(0, 1) << std::endl;
+  logger << "computed dpop: " << computed_dpop << '\n';
+  logger << "particle dpop: " << parts(0, 1) << '\n';
 
   CHECK(parts(0, Bunch::xp) == Approx(computed_dpop).margin(.01));
 
@@ -244,7 +244,7 @@ TEST_CASE("real_apply_full_highgamma", "[Rod_bunch]")
           << parts(k, 2) << ", "
           << parts(k, 3) << ", "
           << parts(k, 4) << ", "
-          << parts(k, 5) << std::endl;
+          << parts(k, 5) << '\n';
       }
     }
   }
