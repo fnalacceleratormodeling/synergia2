@@ -222,11 +222,6 @@ namespace
     }
 }
 
-MadX_reader::MadX_reader()
-    : madx()
-{
-}
-
 void
 MadX_reader::parse(std::string const& string)
 {

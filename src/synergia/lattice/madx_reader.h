@@ -11,8 +11,6 @@ private:
 
 public:
 
-    MadX_reader();
-
     void parse(std::string const& string);
     void parse_file(std::string const& filename);
 
