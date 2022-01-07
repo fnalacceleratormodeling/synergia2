@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(SYNERGIA2 LANGUAGES CXX C)
 
-cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
+if(${CMAKE_VERSION} VERSION_GREATER "3.22.0") 
+  cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
