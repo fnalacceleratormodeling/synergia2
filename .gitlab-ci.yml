@@ -6,32 +6,18 @@ image:
   entrypoint: [""]
 
 stages:
-  - build_base
-  - build_bindings  
+  - build
   - test  
 
-compile_base:
-  stage: build_base
+compile:
+  stage: build
   before_script:
     - source /etc/profile.d/z10_spack_environment.sh
     - source /opt/view/setvars.sh
   script:
     - mkdir build && cd build
     - cmake ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fuse-ld=gold" -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=off -GNinja
-    - ninja -j1
-  artifacts:
-    paths:
-      - build/
-
-compile_bindings:
-  stage: build_bindings
-  before_script:
-    - source /etc/profile.d/z10_spack_environment.sh
-    - source /opt/view/setvars.sh
-  script:
-    - cd build
-    - cmake ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fuse-ld=gold" -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) -GNinja
-    - ninja -j1
+    - ninja -j2
   artifacts:
     paths:
       - build/
