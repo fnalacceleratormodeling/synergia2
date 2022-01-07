@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 
+#include "synergia/lattice/lattice_tree.h"
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/foundation/reference_particle.h"
 
@@ -42,10 +43,9 @@ private:
 
     update_flags_t updated;
 
-    //Element_adaptor_map_sptr element_adaptor_map_sptr;
-
-    //Diagnostics_losses diagnostics_loss_list;
-    //bool have_loss_diagnostics;
+    // Lattice tree object for evaluating variables
+    // in the lattice element attributes
+    std::optional<Lattice_tree> tree;
 
 public:
 
@@ -68,6 +68,9 @@ public:
     /// @param name an arbitrary name
     Lattice(std::string const & name, Reference_particle const& ref);
 
+    /// Construct a dynamic lattice object
+    Lattice(std::string const & name, Lattice_tree const& tree);
+
     /// Construct a Lattice from the Lsexpr representation
     /// @param lsexpr representation
     explicit Lattice(Lsexpr const & lsexpr);
@@ -81,6 +84,10 @@ public:
     /// Get the Lattice name
     std::string const & get_name() const
     { return name; }
+
+    /// Whether this is a dynamic lattice
+    bool is_dynamic_lattice() const
+    { return (bool)tree; }
 
     /// Set the Lattice reference particle
     /// @param reference_particle a Reference_particle
@@ -165,6 +172,11 @@ public:
             std::string const& fname,
             int bunch_idx = 0, 
             int train_idx = 0 ) const;
+
+
+    /// Get the Lattice_tree object
+    Lattice_tree&
+    get_lattice_tree();
 
 public:
 

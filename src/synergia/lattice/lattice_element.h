@@ -7,6 +7,7 @@
 #include <vector>
 #include <array>
 
+#include "synergia/lattice/mx_expr.h"
 #include "synergia/utils/cereal.h"
 #include "synergia/utils/lsexpr.h"
 
@@ -127,6 +128,10 @@ private:
     std::map<std::string, std::string> string_attributes;
     std::map<std::string, std::vector<double>> vector_attributes;
 
+    // lazy attributes
+    std::map<std::string, synergia::mx_expr> lazy_double_attributes;
+    std::map<std::string, std::vector<synergia::mx_expr>> lazy_vector_attributes;
+
     std::string length_attribute_name;
     std::string bend_angle_attribute_name;
 
@@ -206,11 +211,18 @@ public:
     /// Set the value of the named double attribute
     /// @param name attribute name
     /// @param value attribute value
-    /// @param increment_revision can be set to false for attributes that do not affect dynamics
+    /// @param increment_revision can be set to false for 
+    /// attributes that do not affect dynamics
     void
     set_double_attribute(
             std::string const & name, 
             double value,
+            bool increment_revision = true);
+
+    void
+    set_double_attribute(
+            std::string const& name,
+            synergia::mx_expr const& value,
             bool increment_revision = true);
 
     void
@@ -238,7 +250,8 @@ public:
     /// Set the value of the named string attribute
     /// @param name attribute name
     /// @param value attribute value
-    /// @param increment_revision can be set to false for attributes that do not affect dynamics
+    /// @param increment_revision can be set to false for 
+    /// attributes that do not affect dynamics
     void
     set_string_attribute(
             std::string const & name, 

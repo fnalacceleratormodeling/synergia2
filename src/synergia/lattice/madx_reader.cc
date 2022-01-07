@@ -17,7 +17,8 @@ namespace
 
   void insert_line( Lattice & lattice,
                     MadX const & mx,
-                    std::string const & line_name )
+                    std::string const & line_name,
+                    bool dynamic = false )
   {
     MadX_line const& line = mx.line(line_name);
 
@@ -45,6 +46,9 @@ namespace
             break;
 
           case NUMBER: 
+            if(dynamic)
+            element.set_double_attribute(name, cmd.attribute_as_expr(name)); 
+            else
             element.set_double_attribute(name, cmd.attribute_as_number(name, 0.0)); 
             break;
 
@@ -64,7 +68,8 @@ namespace
 
   double insert_sequence( Lattice & lattice, 
                           MadX const & mx, 
-                          std::string const & line_name )
+                          std::string const & line_name,
+                          bool dynamic = false )
   {
     MadX_sequence const& sequence = mx.sequence(line_name);
 
@@ -89,7 +94,7 @@ namespace
 
       if( sequence.element_type(i)==ENTRY_SEQUENCE )
       {
-        double l = insert_sequence( lattice, mx, label );
+        double l = insert_sequence( lattice, mx, label, dynamic );
         current_pos = at + from + l;  // sub-sequence always refer to the entry point
 
         continue;
@@ -98,7 +103,10 @@ namespace
       MadX_command cmd = sequence.element(i);
       std::string type(cmd.name());
       std::string name(cmd.label());
+
       Lattice_element element(type, name);
+      element.set_lattice(lattice);
+
       std::vector<string_t > attribute_names( cmd.attribute_names() );
 
       for (std::vector<string_t >::iterator it = attribute_names.begin();
@@ -112,7 +120,11 @@ namespace
           element.set_string_attribute(*it, cmd.attribute_as_string(*it, ""));
           break;
         case NUMBER:
+          if (dynamic)
+          element.set_double_attribute(*it, cmd.attribute_as_expr(*it));
+          else
           element.set_double_attribute(*it, cmd.attribute_as_number(*it, 0.0));
+
           break;
         case ARRAY:
           element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it, 0.0));
@@ -270,6 +282,7 @@ MadX_reader::get_string_variable(std::string const& name) const
     return madx.variable_as_string(name);
 }
 
+// construct the regular lattice
 Lattice
 MadX_reader::get_lattice(std::string const& line_name)
 {
@@ -302,6 +315,52 @@ MadX_reader::get_lattice(
         if (std::find(seq.begin(), seq.end(), line_name) != seq.end())
         {
             insert_sequence( lattice, mx, line_name );
+        } 
+        else 
+        {
+            throw std::runtime_error(
+                    "MadX_reader::get_lattice: "
+                    "cannot find line or sequence with label " + line_name );
+        }
+    }
+
+    extract_reference_particle(lattice, mx);
+    return lattice;
+}
+
+// construct a dynamic lattice
+Lattice
+MadX_reader::get_dynamic_lattice(std::string const& line_name)
+{
+    return MadX_reader::get_dynamic_lattice(line_name, madx);
+}
+
+Lattice
+MadX_reader::get_dynamic_lattice(std::string const& line_name,
+        std::string const& filename)
+{
+    parse_file(filename);
+    return get_dynamic_lattice(line_name);
+}
+
+Lattice
+MadX_reader::get_dynamic_lattice(
+        std::string const& line_name,
+        synergia::MadX const& mx)
+{
+    Lattice lattice(line_name, Lattice_tree(mx));
+
+    std::vector<std::string> lines(mx.line_labels());
+    if (std::find(lines.begin(), lines.end(), line_name) != lines.end())
+    {
+        insert_line( lattice, mx, line_name, true );
+    } 
+    else 
+    {
+        std::vector<std::string> seq(mx.sequence_labels());
+        if (std::find(seq.begin(), seq.end(), line_name) != seq.end())
+        {
+            insert_sequence( lattice, mx, line_name, true );
         } 
         else 
         {

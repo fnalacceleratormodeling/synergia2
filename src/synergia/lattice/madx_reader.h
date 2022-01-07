@@ -24,7 +24,14 @@ public:
     Lattice get_lattice(std::string const& line_name);
     Lattice get_lattice(std::string const& line_name, std::string const& filename);
 
+    Lattice get_dynamic_lattice(std::string const& line_name);
+    Lattice get_dynamic_lattice(std::string const& line_name, std::string const& filename);
+
     static Lattice get_lattice(
+            std::string const& line_name, 
+            synergia::MadX const& mx);
+
+    static Lattice get_dynamic_lattice(
             std::string const& line_name, 
             synergia::MadX const& mx);
 

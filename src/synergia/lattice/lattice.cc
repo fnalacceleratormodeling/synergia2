@@ -15,6 +15,7 @@ Lattice::Lattice()
     , reference_particle()
     , elements()
     , updated { true, true, true }
+    , tree()
 {
 }
 
@@ -23,6 +24,7 @@ Lattice::Lattice(std::string const & name)
     , reference_particle()
     , elements()
     , updated { true, true, true }
+    , tree()
 {
 }
 
@@ -31,6 +33,16 @@ Lattice::Lattice(std::string const & name, Reference_particle const& ref)
     , reference_particle(ref)
     , elements()
     , updated { true, true, true }
+    , tree()
+{
+}
+
+Lattice::Lattice(std::string const & name, Lattice_tree const& tree) 
+    : name(name)
+    , reference_particle()
+    , elements()
+    , updated { true, true, true }
+    , tree(tree)
 {
 }
 
@@ -39,6 +51,7 @@ Lattice::Lattice(Lattice const & o)
     , reference_particle(o.reference_particle)
     , elements(o.elements)
     , updated(o.updated)
+    , tree(o.tree)
 {
     for (auto & e : elements) e.set_lattice(*this);
 }
@@ -48,6 +61,7 @@ Lattice::Lattice(Lattice && o) noexcept
     , reference_particle(std::move(o.reference_particle))
     , elements(std::move(o.elements))
     , updated(std::move(o.updated))
+    , tree(std::move(o.tree))
 {
     for (auto & e : elements) e.set_lattice(*this);
 }
@@ -60,6 +74,9 @@ Lattice::operator=(Lattice const& o)
     elements = o.elements;
     updated = o.updated;
 
+    tree.reset();
+    if (o.tree) tree.emplace(o.tree.value());
+
     for (auto & e : elements) e.set_lattice(*this);
 
     return *this;
@@ -71,6 +88,7 @@ Lattice::Lattice(Lsexpr const & lsexpr)
     , reference_particle()
     , elements()
     , updated { true, true, true }
+    , tree()
 {
     for (auto const& lse : lsexpr)
     {
@@ -407,6 +425,17 @@ Lattice::save_deposited_charge(
 
     file->append_single("deposited_charge", values);
     file->flush();
+}
+
+
+Lattice_tree&
+Lattice::get_lattice_tree()
+{
+    if (!tree) 
+        throw std::runtime_error("Lattice::get_lattice_tree(): "
+                "error not a dynamic lattice!");
+
+    return *tree;
 }
 
 

@@ -271,6 +271,22 @@ Lattice_element::set_double_attribute(
 }
 
 void
+Lattice_element::set_double_attribute(
+        std::string const & name, 
+        synergia::mx_expr const& value,
+        bool increment_revision)
+{
+    // insert into lazy attributes map
+    lazy_double_attributes[name] = value;
+
+    // eraase the entry from the double attributes otherwise
+    // the double attribute will take precedence
+    double_attributes.erase(name);
+
+    if (increment_revision) ++revision;
+}
+
+void
 Lattice_element::set_default_double_attribute(
         std::string const & name, 
         double value,
@@ -286,14 +302,28 @@ Lattice_element::set_default_double_attribute(
 bool
 Lattice_element::has_double_attribute(std::string const & name) const
 {
-    bool retval = (double_attributes.count(name) > 0);
+    bool retval = (double_attributes.count(name) > 0 
+            || lazy_double_attributes.count(name) > 0);
     return retval;
 }
 
 double
 Lattice_element::get_double_attribute(std::string const& name) const
 {
+    // first find in double attributes
     auto r = double_attributes.find(name);
+    if (r!=double_attributes.end()) return r->second;
+
+    // then try the lazy double attributes
+    auto lr = lazy_double_attributes.find(name);
+    if (lr != lazy_double_attributes.end())
+    {
+        return boost::apply_visitor(
+                synergia::mx_calculator(
+                    lattice_ptr->get_lattice_tree().mx), 
+                lr->second);
+    }
+
     if (r == double_attributes.end()) 
     { 
         throw std::runtime_error( 
@@ -311,14 +341,18 @@ double
 Lattice_element::get_double_attribute(std::string const& name, double val) const
 {
     auto r = double_attributes.find(name);
-    if (r == double_attributes.end()) 
+    if (r != double_attributes.end()) return r->second;
+
+    auto lr = lazy_double_attributes.find(name);
+    if (lr != lazy_double_attributes.end())
     {
-        return val;
-    } 
-    else 
-    {
-        return r->second;
+        return boost::apply_visitor(
+                synergia::mx_calculator(
+                    lattice_ptr->get_lattice_tree().mx, val), 
+                lr->second);
     }
+
+    return val;
 }
 
 void
@@ -570,6 +604,21 @@ Lattice_element::as_string() const
         }
         sstream << it->first << "=" << it->second;
     }
+
+    if (lattice_ptr && lattice_ptr->is_dynamic_lattice())
+    {
+        for (auto it =
+                lazy_double_attributes.begin(); it != lazy_double_attributes.end(); ++it) {
+            if (first_attr) {
+                first_attr = false;
+            } else {
+                sstream << ", ";
+            }
+            sstream << it->first << "=" 
+                << get_double_attribute(it->first);
+        }
+    }
+
     for (std::map<std::string, std::string >::const_iterator it =
             string_attributes.begin(); it != string_attributes.end(); ++it) {
         if (first_attr) {

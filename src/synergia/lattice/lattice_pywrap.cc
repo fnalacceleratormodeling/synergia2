@@ -115,6 +115,7 @@ PYBIND11_MODULE(lattice, m)
                 "name"_a, "default"_a )
 
         .def( "set_double_attribute", 
+                (void (Lattice_element::*)(std::string const&, double, bool))
                 &Lattice_element::set_double_attribute, 
                 "Set the value of the named double attribute", 
                 "name"_a, "value"_a, "increment_revision"_a = true )

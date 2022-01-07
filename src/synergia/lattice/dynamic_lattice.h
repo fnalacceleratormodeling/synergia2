@@ -2,8 +2,9 @@
 #define SYNERGIA_LATTICE_DYNAMIC_LATTICE_H
 
 #include "synergia/lattice/madx.h"
-#include "synergia/lattice/lattice.h"
+//#include "synergia/lattice/lattice.h"
 
+class Lattice;
 
 class Dynamic_lattice
 {
