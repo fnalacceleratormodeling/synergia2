@@ -587,6 +587,7 @@ Propagator::do_turn_end(
 void
 Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
 {
+    Kokkos::Profiling::pushRegion("Propagate_execute");
     const int total_turns = sim.max_turns();
 
     // parameter check
@@ -751,6 +752,8 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
         std::cerr << e.what() << std::endl;
         MPI_Abort(MPI_COMM_WORLD, 888);
     }
+
+    Kokkos::Profiling::popRegion();
 }
 
 #if 0
