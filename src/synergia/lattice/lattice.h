@@ -3,6 +3,7 @@
 
 #include <string>
 #include <list>
+#include <optional>
 
 #include "synergia/lattice/lattice_tree.h"
 #include "synergia/lattice/lattice_element.h"
