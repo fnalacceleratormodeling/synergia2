@@ -42,6 +42,15 @@ struct Impedance_options
     void serialize(Archive & ar)
     { 
         ar(cereal::base_class<CO_base_options>(this));
+
+        ar(wake_file);
+        ar(wake_type);
+        ar(z_grid);
+        ar(full_machine);
+        ar(nstored_turns);
+        ar(num_buckets);
+        ar(orbit_length);
+        ar(bunch_spacing);
     }
 };
 
