@@ -615,7 +615,7 @@ namespace FF_algorithm
     KOKKOS_INLINE_FUNCTION
     T F_ys_5(T const& rho, T const& y)
     { return T(-0.25) * y * (rho*rho-T(1.0)) + 
-        T(1.0/6.0) * (T(1.5)*(rho*rho+T(1.0))-y*y) * log(rho); }
+        T(1.0/6.0) * y * (T(1.5)*(rho*rho+T(1.0))-y*y) * log(rho); }
 
 
 
