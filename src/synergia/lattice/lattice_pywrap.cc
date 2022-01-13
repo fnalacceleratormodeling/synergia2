@@ -96,6 +96,13 @@ PYBIND11_MODULE(lattice, m)
         .def( "get_length",
                 &Lattice_element::get_length )
 
+        .def( "get_ancestors",
+                &Lattice_element::get_ancestors )
+
+        .def( "add_ancestor",
+                &Lattice_element::add_ancestor,
+                "ancestor"_a )
+
         // double attribute
         .def( "has_double_attribute", 
                 &Lattice_element::has_double_attribute,
