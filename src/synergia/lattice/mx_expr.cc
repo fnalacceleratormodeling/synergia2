@@ -103,13 +103,13 @@ mx_expr_ref_checker::operator()(bop_t const & b) const
 double
   synergia::mx_eval(mx_expr const & expr)
 {
-  return boost::apply_visitor(mx_calculator(0.0), expr);
+  return boost::apply_visitor(mx_calculator(), expr);
 }
 
 double
   synergia::mx_eval(mx_expr const & expr, MadX const & mx)
 {
-  return boost::apply_visitor(mx_calculator(mx, 0.0), expr);
+  return boost::apply_visitor(mx_calculator(mx), expr);
 }
 
 std::string
