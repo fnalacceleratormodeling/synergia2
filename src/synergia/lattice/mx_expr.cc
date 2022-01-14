@@ -8,6 +8,8 @@
 using namespace synergia;
 using namespace boost;
 
+
+// mx_calculator
 double mx_calculator::nan = std::numeric_limits<double>::quiet_NaN();
 
 double 
@@ -59,6 +61,45 @@ double
                , boost::apply_visitor(*this, b.rhs) );
 }
 
+// mx_ref_checker
+bool
+mx_expr_ref_checker::operator()(double val) const
+{ 
+    return false;
+}
+
+bool
+mx_expr_ref_checker::operator()(std::string const & ref) const
+{
+    return true;
+}
+
+bool
+mx_expr_ref_checker::operator()(string_pair_t const & ref) const
+{
+    return true;
+}
+
+bool
+mx_expr_ref_checker::operator()(nop_t const & n) const
+{
+    return boost::apply_visitor(*this, n.expr);
+}
+
+bool
+mx_expr_ref_checker::operator()(uop_t const & u) const
+{
+    return boost::apply_visitor(*this, u.param);
+}
+
+bool
+mx_expr_ref_checker::operator()(bop_t const & b) const
+{
+    return boost::apply_visitor(*this, b.lhs) 
+             || boost::apply_visitor(*this, b.rhs);
+}
+
+// util functions
 double
   synergia::mx_eval(mx_expr const & expr)
 {
@@ -66,7 +107,7 @@ double
 }
 
 double
-  mx_eval(mx_expr const & expr, MadX const & mx)
+  synergia::mx_eval(mx_expr const & expr, MadX const & mx)
 {
   return boost::apply_visitor(mx_calculator(mx, 0.0), expr);
 }
@@ -83,6 +124,11 @@ std::string
 }
 
 
+bool 
+  synergia::mx_expr_is_number(mx_expr const& expr)
+{
+  return not boost::apply_visitor(mx_expr_ref_checker(), expr);
+}
 
 
 

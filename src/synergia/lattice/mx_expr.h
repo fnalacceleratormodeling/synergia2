@@ -21,6 +21,9 @@ namespace synergia
   class MadX;
   class mx_calculator;
 
+  // whether the expr contains a ref string
+  class mx_expr_ref_checker;
+
   typedef boost::variant< double
                         , std::string
                         , string_pair_t
@@ -34,6 +37,9 @@ namespace synergia
   // evaluate the expression
   double mx_eval(mx_expr const & expr);
   double mx_eval(mx_expr const & expr, MadX const & mx);
+
+  // whether can be evaluated to a number
+  bool mx_expr_is_number(mx_expr const& expr);
 
   // retrieve the ref as a string
   std::string mx_expr_refstr(mx_expr const & expr);
@@ -97,6 +103,18 @@ public:
 private:
   MadX const * mx;
   double def;
+};
+
+class synergia::mx_expr_ref_checker
+  : public boost::static_visitor<bool>
+{
+public:
+  bool operator()(double val) const;
+  bool operator()(std::string const & ref) const;
+  bool operator()(string_pair_t const & ref) const;
+  bool operator()(nop_t const & n) const;
+  bool operator()(uop_t const & u) const;
+  bool operator()(bop_t const & b) const;
 };
 
 #endif
