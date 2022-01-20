@@ -8,9 +8,49 @@
 
 namespace synergia
 {
+  enum class op_tag
+  {
+    // uop operators
+    pos,     // +
+    neg,     // -
+
+    // bop operators
+    add,     // +
+    sub,     // -
+    mul,     // *
+    div,     // /
+    pow_op,  // ^
+
+    // uop functions
+    abs,     // abs()
+    acos,    // acos()
+    asin,
+    atan,
+    ceil,
+    cos,
+    cosh,
+    exp,
+    floor,
+    log,
+    log10,
+    sin,
+    sinh,
+    sqrt,
+    tan,
+    tanh,
+
+    // bop functions
+    pow,     // pow(lhs, rhs)
+    atan2,   // atan2(lhs, rhs)
+  };
+
   typedef double(*nfunc_t)();
   typedef double(*ufunc_t)(double);
   typedef double(*bfunc_t)(double, double);
+
+  struct nfunc { nfunc_t op; op_tag tag; };
+  struct ufunc { ufunc_t op; op_tag tag; };
+  struct bfunc { bfunc_t op; op_tag tag; };
 
   typedef std::pair<std::string, std::string> string_pair_t;
 
@@ -23,6 +63,9 @@ namespace synergia
 
   // whether the expr contains a ref string
   class mx_expr_ref_checker;
+
+  // convert the expression to a string
+  class mx_expr_writer;
 
   typedef boost::variant< double
                         , std::string
@@ -43,31 +86,35 @@ namespace synergia
 
   // retrieve the ref as a string
   std::string mx_expr_refstr(mx_expr const & expr);
+
+  // retrieve the expression as an string
+  std::string mx_expr_str(mx_expr const& expr);
 }
 
 struct synergia::nop_t
 {
-  nop_t(mx_expr const & e)
-    : expr(e) { }
+  nop_t(mx_expr const & e, bool primary = false)
+    : expr(e), primary(primary) { }
 
   mx_expr expr;
+  bool primary;
 };
 
 struct synergia::uop_t
 {
-  uop_t(ufunc_t f, mx_expr const & param)
+  uop_t(ufunc f, mx_expr const & param)
     : param(param), func(f) { }
 
   mx_expr param;
-  ufunc_t func;
+  ufunc   func;
 };
 
 struct synergia::bop_t
 {
-  bop_t(bfunc_t f, mx_expr const & lhs, mx_expr const & rhs)
+  bop_t(bfunc f, mx_expr const & lhs, mx_expr const & rhs)
     : func(f), lhs(lhs), rhs(rhs) { }
 
-  bfunc_t func;
+  bfunc   func;
   mx_expr lhs;
   mx_expr rhs;
 };
@@ -115,6 +162,18 @@ public:
   bool operator()(nop_t const & n) const;
   bool operator()(uop_t const & u) const;
   bool operator()(bop_t const & b) const;
+};
+
+class synergia::mx_expr_writer
+  : public boost::static_visitor<std::string>
+{
+public:
+  std::string operator()(double val) const;
+  std::string operator()(std::string const & ref) const;
+  std::string operator()(string_pair_t const & ref) const;
+  std::string operator()(nop_t const & n) const;
+  std::string operator()(uop_t const & u) const;
+  std::string operator()(bop_t const & b) const;
 };
 
 #endif

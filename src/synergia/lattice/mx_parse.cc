@@ -136,55 +136,55 @@ struct synergia::expression
                 ("mumass" , pconstants::mmu                          )
                 ("clight" , pconstants::c                            )
                 ("qelect" , pconstants::e                            )
-                ("true" , 1.0                                        )
-                ("false", 0.0                                        )
+                ("true"   , 1.0                                      )
+                ("false"  , 0.0                                      )
       ;
     }
   } constant;
 
   // symbol table for unary operator like "- 1.0"
   struct uop_
-    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, ufunc_t >
+    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, ufunc >
   {
     uop_()
     {
-      this->add ("+", (ufunc_t) detail::pos )
-                ("-", (ufunc_t) detail::neg )
+      this->add ("+", {(ufunc_t) detail::pos, op_tag::pos} )
+                ("-", {(ufunc_t) detail::neg, op_tag::neg} )
       ;
     }
   } uop;
 
   // symbol table for binary operator like "1.0+2.2"
   struct bop1_
-    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, bfunc_t >
+    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, bfunc >
   {
     bop1_()
     {
-      this->add ("+", (bfunc_t) detail::add )
-                ("-", (bfunc_t) detail::sub )
+      this->add ("+", {(bfunc_t) detail::add, op_tag::add} )
+                ("-", {(bfunc_t) detail::sub, op_tag::sub} )
       ;
     }
   } bop1;
 
   // symbol table for binary operator like "1.0*2.2"
   struct bop2_
-    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, bfunc_t >
+    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, bfunc >
   {
     bop2_()
     {
-      this->add ("*", (bfunc_t) detail::mul )
-                ("/", (bfunc_t) detail::div )
+      this->add ("*", {(bfunc_t) detail::mul, op_tag::mul} )
+                ("/", {(bfunc_t) detail::div, op_tag::div} )
       ;
     }
   } bop2;
 
   // symbol table for binary operator like "1.0^2.2"
   struct bop3_
-    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, bfunc_t >
+    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, bfunc >
   {
     bop3_()
     {
-      this->add ("^", (bfunc_t) std::pow  )
+      this->add ("^", {(bfunc_t) std::pow, op_tag::pow_op}  )
       ;
     }
   } bop3;
@@ -193,40 +193,40 @@ struct synergia::expression
 
   // symbol table for unary functions like "abs"
   struct ufunc_
-    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, ufunc_t >
+    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, ufunc >
   {
     ufunc_()
     {
       this->add
-          ("abs"   , (ufunc_t) std::abs  )
-          ("acos"  , (ufunc_t) std::acos )
-          ("asin"  , (ufunc_t) std::asin )
-          ("atan"  , (ufunc_t) std::atan )
-          ("ceil"  , (ufunc_t) std::ceil )
-          ("cos"   , (ufunc_t) std::cos  )
-          ("cosh"  , (ufunc_t) std::cosh )
-          ("exp"   , (ufunc_t) std::exp  )
-          ("floor" , (ufunc_t) std::floor)
-          ("log"   , (ufunc_t) std::log  )
-          ("log10" , (ufunc_t) std::log10)
-          ("sin"   , (ufunc_t) std::sin  )
-          ("sinh"  , (ufunc_t) std::sinh )
-          ("sqrt"  , (ufunc_t) std::sqrt )
-          ("tan"   , (ufunc_t) std::tan  )
-          ("tanh"  , (ufunc_t) std::tanh )
+          ("abs"   , {(ufunc_t) std::abs  , op_tag::abs  })
+          ("acos"  , {(ufunc_t) std::acos , op_tag::acos })
+          ("asin"  , {(ufunc_t) std::asin , op_tag::asin })
+          ("atan"  , {(ufunc_t) std::atan , op_tag::atan })
+          ("ceil"  , {(ufunc_t) std::ceil , op_tag::ceil })
+          ("cos"   , {(ufunc_t) std::cos  , op_tag::cos  })
+          ("cosh"  , {(ufunc_t) std::cosh , op_tag::cosh })
+          ("exp"   , {(ufunc_t) std::exp  , op_tag::exp  })
+          ("floor" , {(ufunc_t) std::floor, op_tag::floor})
+          ("log"   , {(ufunc_t) std::log  , op_tag::log  })
+          ("log10" , {(ufunc_t) std::log10, op_tag::log10})
+          ("sin"   , {(ufunc_t) std::sin  , op_tag::sin  })
+          ("sinh"  , {(ufunc_t) std::sinh , op_tag::sinh })
+          ("sqrt"  , {(ufunc_t) std::sqrt , op_tag::sqrt })
+          ("tan"   , {(ufunc_t) std::tan  , op_tag::tan  })
+          ("tanh"  , {(ufunc_t) std::tanh , op_tag::tanh })
       ;
     }
   } ufunc;
 
   // symbol table for binary functions like "pow"
   struct bfunc_
-    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, bfunc_t >
+    : qi::symbols< typename std::iterator_traits<Iterator>::value_type, bfunc >
   {
     bfunc_()
     {
       this->add
-          ("pow"  , (bfunc_t) std::pow  )
-          ("atan2", (bfunc_t) std::atan2)
+          ("pow"  , {(bfunc_t) std::pow  , op_tag::pow  })
+          ("atan2", {(bfunc_t) std::atan2, op_tag::atan2})
       ;
     }
   } bfunc;
@@ -259,7 +259,7 @@ struct synergia::expression
 
     primary =
         real                     [_val = _1]
-        | ( '(' >> expr >> ')' ) [_val = phx::construct<nop_t>(_1)]
+        | ( '(' >> expr >> ')' ) [_val = phx::construct<nop_t>(_1, true)]
         | ( uop >> primary     ) [_val = phx::construct<uop_t>(_1, _2)]
         | ( no_case[constant] >> !char_(".a-zA-Z_0-9")         ) [_val = _1]
         | ( no_case[ufunc] >> '(' >> expr >> ')'               ) [_val = phx::construct<uop_t>(_1, _2)]
