@@ -592,7 +592,7 @@ namespace FF_algorithm
     T F_rs_5(T const& rho, T const& y)
     { return T(0.125) / rho *
         ( T(-0.625)*rho*rho*rho*rho + T(0.5)*rho*rho + T(0.125) 
-          + (rho*rho-T(1.0))*y*y + y*y*y*y
+          + (rho*rho-T(1.0))*y*y + y*y*y*y/T(3.0)
           + (T(1.0)+T(0.5)*rho*rho-T(2.0)*y*y)*rho*rho*log(rho) ); }
 
 
