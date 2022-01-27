@@ -1,4 +1,5 @@
 #include "mx_expr.h"
+#include "mx_parse.h"
 #include "madx.h"
 
 #include <stdexcept>
@@ -266,6 +267,12 @@ std::string
   synergia::mx_expr_str(mx_expr const& expr)
 {
   return boost::apply_visitor(mx_expr_writer(), expr);
+}
+
+bool
+  synergia::parse_expr(std::string const& s, mx_expr& expr)
+{
+    return synergia::parse_expression(s, expr);
 }
 
 

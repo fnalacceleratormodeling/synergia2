@@ -153,6 +153,40 @@ namespace
 }
 
 
+//===========================================================================
+// free functions
+//
+std::string
+synergia::to_string(MadX_value const& val)
+{
+    std::string str;
+
+    switch(val.type)
+    {
+    case STRING:
+        str += std::any_cast<std::string>(val.value);
+        break;
+
+    case NUMBER:
+    case DEFFERED_NUMBER:
+        str += mx_expr_str(std::any_cast<mx_expr>(val.value));
+        break;
+
+    case ARRAY:
+    case DEFFERED_ARRAY:
+        str += "{";
+        for(auto const& expr : std::any_cast<mx_exprs>(val.value))
+            str += mx_expr_str(expr) + ",";
+        if(str.back() == ',') str.pop_back();
+        str += "}";
+
+    default:
+        break;
+    }
+
+    return str;
+}
+
 
 //===========================================================================
 // MadX_command
@@ -346,6 +380,20 @@ void
   MadX_command::merge(MadX_command const & other)
 {
   attributes_.insert(other.attributes_.begin(), other.attributes_.end());
+}
+
+std::string
+MadX_command::to_string() const
+{
+    std::string cmd;
+    cmd += name() + ",";
+
+    for(auto const& var : attributes_)
+        cmd += var.first + "=" + ::to_string(var.second) + ",";
+
+    if (cmd.back() == ',') cmd.pop_back();
+
+    return cmd;
 }
 
 
@@ -895,6 +943,57 @@ void
     cout << seq.first << " : sequence = ";
     seq.second.print();
   }
+}
+
+std::string
+MadX::export_variables() const
+{
+    std::string vars;
+    
+    for(auto const& var : variables_)
+        vars += var.first + "=" + to_string(var.second) + ";\n";
+
+    return vars;
+}
+
+std::string 
+MadX::export_unnamed_cmds() const
+{
+    std::string cmds;
+
+    for(auto const& cmd : cmd_seq_)
+    {
+        if (cmd.type() == ELEMENT || cmd.type() == ELEMENT_REF)
+            cmds += cmd.to_string() + ";\n";
+    }
+
+    return cmds;
+}
+
+std::string 
+MadX::export_labled_cmds() const
+{
+    std::string cmds;
+
+    for(auto const& cmd : cmd_map_)
+    {
+        if (cmd.second.type() == ELEMENT || cmd.second.type() == ELEMENT_REF)
+            cmds += cmd.first + ":" + cmd.second.to_string() + ";\n";
+    }
+
+    return cmds;
+}
+
+std::string 
+MadX::to_madx() const
+{
+    std::string madx;
+
+    madx += export_variables();
+    madx += export_unnamed_cmds();
+    madx += export_labled_cmds();
+
+    return madx;
 }
 
 

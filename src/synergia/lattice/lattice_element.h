@@ -404,9 +404,14 @@ private:
         ar(CEREAL_NVP(stype));
         ar(CEREAL_NVP(type));
         ar(CEREAL_NVP(ancestors));
+
         ar(CEREAL_NVP(double_attributes));
         ar(CEREAL_NVP(string_attributes));
         ar(CEREAL_NVP(vector_attributes));
+
+        ar(CEREAL_NVP(lazy_double_attributes));
+        ar(CEREAL_NVP(lazy_vector_attributes));
+
         ar(CEREAL_NVP(length_attribute_name));
         ar(CEREAL_NVP(bend_angle_attribute_name));
         ar(CEREAL_NVP(revision));

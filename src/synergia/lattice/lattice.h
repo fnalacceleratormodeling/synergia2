@@ -16,6 +16,7 @@
 #include "synergia/utils/logger.h"
 
 #include <cereal/types/list.hpp>
+#include <cereal/types/optional.hpp>
 
 /// The Lattice class contains an abstract representation of an ordered
 /// set of objects of type Lattice_element.
@@ -222,6 +223,7 @@ private:
         ar(CEREAL_NVP(reference_particle));
         ar(CEREAL_NVP(elements));
         ar(CEREAL_NVP(updated));
+        ar(CEREAL_NVP(tree));
     }
 
     template<class Archive>
@@ -231,6 +233,7 @@ private:
         ar(CEREAL_NVP(reference_particle));
         ar(CEREAL_NVP(elements));
         ar(CEREAL_NVP(updated));
+        ar(CEREAL_NVP(tree));
 
         for(auto & e : elements) 
             e.set_lattice(*this);

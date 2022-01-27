@@ -18,14 +18,15 @@ namespace synergia
 
   enum MadX_value_type
   { NONE
-  , BOOLEAN
-  , INT
-  , DOUBLE
+  //, BOOLEAN
+  //, INT
+  //, DOUBLE
   , NUMBER
   , STRING
   , DEFFERED_NUMBER
   , ARRAY
-  , DEFFERED_ARRAY };
+  , DEFFERED_ARRAY 
+  };
 
   enum MadX_command_type
   { NULL_COMMAND
@@ -45,6 +46,10 @@ namespace synergia
   , ENTRY_COMMAND
   , ENTRY_LINE
   , ENTRY_SEQUENCE };
+
+
+  std::string 
+  to_string(MadX_value const& val);
 }
 
 struct synergia::MadX_value
@@ -70,11 +75,10 @@ public:
   // accessor
   string_t name() const;
   string_t label() const;
-  size_t   attribute_count() const;
-  std::vector<string_t>
-           attribute_names() const;
-  MadX_value_type
-           attribute_type(string_t const & name) const;
+
+  size_t                attribute_count() const;
+  std::vector<string_t> attribute_names() const;
+  MadX_value_type       attribute_type(string_t const & name) const;
 
   string_t attribute_as_string(string_t const & name) const;
   string_t attribute_as_string(string_t const & name, string_t const & def) const;
@@ -100,6 +104,8 @@ public:
   void insert_attribute(string_t const & name, mx_exprs const & val);
   void merge_with_overwrite(MadX_command const & other);
   void merge(MadX_command const & other);
+
+  std::string to_string() const;
 
 private:
   const MadX *      mx;
@@ -270,7 +276,14 @@ public:
   void insert_attribute(string_t const & name, mx_exprs const & value)
     { insert_variable(name, value); }
 
+  // export
+  std::string to_madx() const;
+
 private:
+
+  std::string export_variables() const;
+  std::string export_unnamed_cmds() const;
+  std::string export_labled_cmds() const;
 
 public:
   static double   nan;  // not a number

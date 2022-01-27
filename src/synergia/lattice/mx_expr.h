@@ -6,6 +6,8 @@
 #include <vector>
 #include <boost/variant.hpp>
 
+#include <cereal/cereal.hpp>
+
 namespace synergia
 {
   enum class op_tag
@@ -89,6 +91,29 @@ namespace synergia
 
   // retrieve the expression as an string
   std::string mx_expr_str(mx_expr const& expr);
+
+  // parse expression
+  bool parse_expr(std::string const& s, mx_expr& expr);
+}
+
+// serialization for mx_expr type
+namespace cereal
+{
+    template<class AR>
+    void save(AR& ar, synergia::mx_expr const& expr)
+    {
+        std::string str = mx_expr_str(expr);
+        ar(str);
+    }
+
+    template<class AR>
+    void load(AR& ar, synergia::mx_expr& expr)
+    {
+        std::string str;
+        ar(str);
+
+        parse_expr(str, expr);
+    }
 }
 
 struct synergia::nop_t
