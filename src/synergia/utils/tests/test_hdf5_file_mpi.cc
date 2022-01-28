@@ -8,7 +8,7 @@ TEST_CASE("hdf5_file_scalar_read", "[Hdf5_file]")
 {
     {
         Hdf5_file file("hdf5_file_scalar_read.h5", 
-                Hdf5_file::truncate, Commxx());
+                Hdf5_file::Flag::truncate, Commxx());
 
         int i = 3;
         CHECK_NOTHROW(file.write("int", i, false));
@@ -16,7 +16,7 @@ TEST_CASE("hdf5_file_scalar_read", "[Hdf5_file]")
 
     {
         Hdf5_file file("hdf5_file_scalar_read.h5", 
-                Hdf5_file::read_only, Commxx());
+                Hdf5_file::Flag::read_only, Commxx());
 
         auto i = file.read<int>("int");
 
@@ -24,12 +24,11 @@ TEST_CASE("hdf5_file_scalar_read", "[Hdf5_file]")
     }
 }
 
-
 TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
 {
     {
         Hdf5_file file("hdf5_file_kv_read.h5", 
-                Hdf5_file::truncate, Commxx());
+                Hdf5_file::Flag::truncate, Commxx());
 
         karray2d_row arr1("arr1", 4, 3);
         arr1(0, 0) = 10.0;
@@ -46,7 +45,7 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
 
     {
         Hdf5_file file("hdf5_file_kv_read.h5", 
-                Hdf5_file::read_only, Commxx());
+                Hdf5_file::Flag::read_only, Commxx());
 
         auto arr1 = file.read<karray2d_row>("arr1");
 
@@ -66,7 +65,7 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
         if (mpi_size <= 4)
         {
             Hdf5_file file("hdf5_file_kv_read.h5", 
-                    Hdf5_file::read_only, Commxx());
+                    Hdf5_file::Flag::read_only, Commxx());
 
             std::vector<int> rows;
 
@@ -98,7 +97,7 @@ TEST_CASE("hdf5_file_kv_read", "[Hdf5_file]")
 TEST_CASE("hdf5_file_append", "[Hdf5_file_seq_writer]")
 {
     {
-        Hdf5_file file("hdf5_file_seq.h5", Hdf5_file::truncate, Commxx());
+        Hdf5_file file("hdf5_file_seq.h5", Hdf5_file::Flag::truncate, Commxx());
 
         auto mpi_rank = Commxx::world_rank();
         auto mpi_size = Commxx::world_size();
@@ -142,7 +141,7 @@ TEST_CASE("hdf5_file_append", "[Hdf5_file_seq_writer]")
 TEST_CASE("hdf5_file", "[Hdf5_file]")
 {
     {
-        Hdf5_file file("hdf5_file_test.h5", Hdf5_file::truncate, Commxx());
+        Hdf5_file file("hdf5_file_test.h5", Hdf5_file::Flag::truncate, Commxx());
 
         file.write_collective("int", 5);
         file.write_single("int2", 6);
@@ -163,7 +162,7 @@ TEST_CASE("hdf5_file", "[Hdf5_file]")
     }
 
     {
-        Hdf5_file file("hdf5_file_test.h5", Hdf5_file::read_only, Commxx());
+        Hdf5_file file("hdf5_file_test.h5", Hdf5_file::Flag::read_only, Commxx());
 
         int mpi_rank = Commxx::world_rank();
         int mpi_size = Commxx::world_size();

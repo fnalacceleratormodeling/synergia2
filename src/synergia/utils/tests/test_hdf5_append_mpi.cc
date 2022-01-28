@@ -19,7 +19,7 @@ TEST_CASE("hdf5_append_scalar", "[Hdf5_file_append]")
     std::string fname = ss.str();
 
     {
-        Hdf5_file file(fname, Hdf5_file::truncate, Commxx());
+        Hdf5_file file(fname, Hdf5_file::Flag::truncate, Commxx());
 
         // v1: [3, 4]
         file.append("v1", 3, false);
@@ -39,7 +39,7 @@ TEST_CASE("hdf5_append_scalar", "[Hdf5_file_append]")
     }
 
     {
-        Hdf5_file file(fname, Hdf5_file::read_only, Commxx());
+        Hdf5_file file(fname, Hdf5_file::Flag::read_only, Commxx());
 
         // v1
         auto v1 = file.read<karray1i_row>("v1");
@@ -86,7 +86,7 @@ TEST_CASE("hdf5_append_kv", "[Hdf5_file_append]")
     std::string fname = ss.str();
 
     {
-        Hdf5_file file(fname, Hdf5_file::truncate, Commxx());
+        Hdf5_file file(fname, Hdf5_file::Flag::truncate, Commxx());
 
         // v1_mem : [1, 2]
         //          [3, 4]
@@ -149,7 +149,7 @@ TEST_CASE("hdf5_append_kv", "[Hdf5_file_append]")
     }
 
     {
-        Hdf5_file file(fname, Hdf5_file::read_only, Commxx());
+        Hdf5_file file(fname, Hdf5_file::Flag::read_only, Commxx());
 
         // v1
         auto v1 = file.read<karray2d_row>("v1");
@@ -217,7 +217,7 @@ TEST_CASE("hdf5_append_resume", "[Hdf5_file_append]")
 
     {
         // create a new file
-        Hdf5_file file(fname, Hdf5_file::truncate, Commxx());
+        Hdf5_file file(fname, Hdf5_file::Flag::truncate, Commxx());
 
         // v1: [3, 4]
         file.append("v1", 3, false);
@@ -226,7 +226,7 @@ TEST_CASE("hdf5_append_resume", "[Hdf5_file_append]")
 
     {
         // close and re-open to append more
-        Hdf5_file file(fname, Hdf5_file::read_write, Commxx());
+        Hdf5_file file(fname, Hdf5_file::Flag::read_write, Commxx());
 
         // v1: [3, 4, 5, 6]
         file.append("v1", 5, false);
@@ -239,7 +239,7 @@ TEST_CASE("hdf5_append_resume", "[Hdf5_file_append]")
     }
 
     {
-        Hdf5_file file(fname, Hdf5_file::read_only, Commxx());
+        Hdf5_file file(fname, Hdf5_file::Flag::read_only, Commxx());
 
         // v1
         auto v1 = file.read<karray1i_row>("v1");

@@ -4,10 +4,11 @@
 #include <any>
 
 #include "madx.h"
-#include "mx_tree.h"
 
 namespace synergia
 {
+  class mx_tree;
+
   // parse into a MadX object
   bool parse_madx( string_t const & s, MadX & mx, string_t const & f="MadX string");
   bool parse_madx_file( string_t const & fname, MadX & mx );

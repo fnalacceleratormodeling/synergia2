@@ -28,7 +28,7 @@ std::vector<int> get_offsets(std::vector<int> const& rows)
 
 void prepare_file(std::string const& fname)
 {
-    Hdf5_file file(fname, Hdf5_file::truncate, Commxx());
+    Hdf5_file file(fname, Hdf5_file::Flag::truncate, Commxx());
 
     // v1: 3
     file.write("v1", 3, false);
@@ -65,7 +65,7 @@ TEST_CASE("hdf5_read_get_dims", "[Hdf5_file_read]")
 
     prepare_file(ss.str());
 
-    Hdf5_file file(ss.str(), Hdf5_file::read_only, Commxx());
+    Hdf5_file file(ss.str(), Hdf5_file::Flag::read_only, Commxx());
 
     // names
     auto names = file.get_dataset_names();
@@ -131,7 +131,7 @@ TEST_CASE("hdf5_read_single", "[Hdf5_file_read]")
 
     prepare_file(ss.str());
 
-    Hdf5_file file(ss.str(), Hdf5_file::read_only, Commxx());
+    Hdf5_file file(ss.str(), Hdf5_file::Flag::read_only, Commxx());
 
     // v1 as int
     auto v1 = file.read<int>("v1");
@@ -187,7 +187,7 @@ TEST_CASE("hdf5_read_collective", "[Hdf5_file_read]")
 
     prepare_file(ss.str());
 
-    Hdf5_file file(ss.str(), Hdf5_file::read_only, Commxx());
+    Hdf5_file file(ss.str(), Hdf5_file::Flag::read_only, Commxx());
 
     // v1 as int
     CHECK_THROWS(file.read<int>("v1", 1));

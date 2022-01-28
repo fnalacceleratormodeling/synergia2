@@ -81,7 +81,7 @@ TEST_CASE("BunchParticles", "[BunchParticles]")
     SECTION("write/read file")
     {
         {
-            Hdf5_file file("bp_test.h5", Hdf5_file::truncate, Commxx::World);
+            Hdf5_file file("bp_test.h5", Hdf5_file::Flag::truncate, Commxx::World);
             bp.write_file(file, -1, 0, Commxx::World);
         }
 
@@ -94,7 +94,7 @@ TEST_CASE("BunchParticles", "[BunchParticles]")
             REQUIRE(bp2.capacity() >= 0);
             REQUIRE(bp2.num_valid() == 0);
 
-            Hdf5_file file("bp_test.h5", Hdf5_file::read_only, Commxx::World);
+            Hdf5_file file("bp_test.h5", Hdf5_file::Flag::read_only, Commxx::World);
             bp2.read_file(file, Commxx::World);
 
             REQUIRE(bp2.size() == np);
@@ -113,7 +113,7 @@ TEST_CASE("BunchParticles", "[BunchParticles]")
             REQUIRE(bp2.capacity() >= np+6);
             REQUIRE(bp2.num_valid() == 0);
 
-            Hdf5_file file("bp_test.h5", Hdf5_file::read_only, Commxx::World);
+            Hdf5_file file("bp_test.h5", Hdf5_file::Flag::read_only, Commxx::World);
             bp2.read_file(file, Commxx::World);
 
             REQUIRE(bp2.size() == np);
@@ -132,7 +132,7 @@ TEST_CASE("BunchParticles", "[BunchParticles]")
             REQUIRE(bp2.capacity() >= np+6);
             REQUIRE(bp2.num_valid() == np+6);
 
-            Hdf5_file file("bp_test.h5", Hdf5_file::read_only, Commxx::World);
+            Hdf5_file file("bp_test.h5", Hdf5_file::Flag::read_only, Commxx::World);
             bp2.read_file(file, Commxx::World);
 
             REQUIRE(bp2.size() == np);

@@ -389,11 +389,11 @@ Lattice::save_deposited_charge(
 {
     static bool first_write = true;
     static std::unique_ptr<Hdf5_file> file(
-            new Hdf5_file(fname, Hdf5_file::truncate, Commxx()));
+            new Hdf5_file(fname, Hdf5_file::Flag::truncate, Commxx()));
 
     if (fname != file->get_filename())
     {
-        file.reset(new Hdf5_file(fname, Hdf5_file::truncate, Commxx()));
+        file.reset(new Hdf5_file(fname, Hdf5_file::Flag::truncate, Commxx()));
         first_write = true;
     }
 

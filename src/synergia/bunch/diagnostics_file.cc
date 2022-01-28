@@ -33,7 +33,7 @@ Diagnostics_file::Diagnostics_file(
     }
 
     file = std::make_unique<Hdf5_file>(
-            get_filename(true), Hdf5_file::truncate, comm);
+            get_filename(true), Hdf5_file::Flag::truncate, comm);
 }
 
 Diagnostics_file::Diagnostics_file()
@@ -105,7 +105,7 @@ void Diagnostics_file::open_file()
 {
     if (!file)
         file = std::make_unique<Hdf5_file>(
-                get_filename(true), Hdf5_file::truncate);
+                get_filename(true), Hdf5_file::Flag::truncate);
 }
 
 void Diagnostics_file::flush_file()

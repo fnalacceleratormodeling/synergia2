@@ -6,7 +6,8 @@
 #include <vector>
 #include <boost/variant.hpp>
 
-#include <cereal/cereal.hpp>
+#include "synergia/utils/cereal.h"
+//#include <cereal/cereal.hpp>
 
 namespace synergia
 {

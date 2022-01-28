@@ -411,13 +411,13 @@ public:
     // read/write particles
     void read_file_legacy(std::string const& filename)
     { 
-        Hdf5_file file(filename, Hdf5_file::read_only, comm);
+        Hdf5_file file(filename, Hdf5_file::Flag::read_only, comm);
         get_bunch_particles(PG::regular).read_file_legacy(file, *comm); 
     }
 
     void read_file(std::string const& filename)
     { 
-        Hdf5_file file(filename, Hdf5_file::read_only, comm);
+        Hdf5_file file(filename, Hdf5_file::Flag::read_only, comm);
         get_bunch_particles(PG::regular).read_file(file, *comm); 
     }
 
@@ -426,7 +426,7 @@ public:
             int num_part = -1, int offset = 0,
             int num_part_spec = 0, int offset_spec = 0 ) const
     {
-        Hdf5_file file(filename, Hdf5_file::truncate, comm);
+        Hdf5_file file(filename, Hdf5_file::Flag::truncate, comm);
         write_file(file, num_part, offset, num_part_spec, offset_spec);
     }
 

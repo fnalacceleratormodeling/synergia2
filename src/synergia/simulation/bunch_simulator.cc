@@ -530,7 +530,7 @@ namespace
 void
 Bunch_simulator::save_checkpoint_particles(std::string const& fname) const
 {
-    Hdf5_file file(fname, Hdf5_file::truncate, *comm);
+    Hdf5_file file(fname, Hdf5_file::Flag::truncate, *comm);
     auto bunches = get_bunch_ptrs(trains);
 
     for (int i=0; i<bunches.size(); ++i)
@@ -540,7 +540,7 @@ Bunch_simulator::save_checkpoint_particles(std::string const& fname) const
 void
 Bunch_simulator::load_checkpoint_particles(std::string const& fname)
 {
-    Hdf5_file file(fname, Hdf5_file::read_only, *comm);
+    Hdf5_file file(fname, Hdf5_file::Flag::read_only, *comm);
     auto bunches = get_bunch_ptrs(trains);
 
     for (int i=0; i<bunches.size(); ++i)

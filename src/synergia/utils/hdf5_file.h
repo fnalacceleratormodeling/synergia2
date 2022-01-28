@@ -17,8 +17,8 @@ class Hdf5_file
 {
 public:
 
-    enum Flag { truncate, read_write, read_only };
-    enum Atomic_type { double_type, int_type };
+    enum class Flag { truncate, read_write, read_only };
+    //enum Atomic_type { double_type, int_type };
 
     // set the type based on cmake config
 #ifdef USE_PARALLEL_HDF5
@@ -41,9 +41,9 @@ private:
 
     static unsigned int flag_to_h5_flags(Flag flag)
     {
-        if (flag == Hdf5_file::truncate)   return H5F_ACC_TRUNC;
-        if (flag == Hdf5_file::read_write) return H5F_ACC_RDWR;
-        if (flag == Hdf5_file::read_only)  return H5F_ACC_RDONLY;
+        if (flag == Hdf5_file::Flag::truncate)   return H5F_ACC_TRUNC;
+        if (flag == Hdf5_file::Flag::read_write) return H5F_ACC_RDWR;
+        if (flag == Hdf5_file::Flag::read_only)  return H5F_ACC_RDONLY;
 
         return 0;
     }
@@ -189,7 +189,7 @@ private:
 
     Hdf5_file() 
     : comm(), file_name(), h5file(), root_rank(0), is_open(false)
-    , current_flag(Hdf5_file::read_only), has_file(false)
+    , current_flag(Hdf5_file::Flag::read_only), has_file(false)
     { }
 
     template<class Archive>

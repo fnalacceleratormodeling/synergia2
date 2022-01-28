@@ -72,11 +72,11 @@ void Hdf5_file::open(Flag flag)
             H5Pset_fapl_mpio(plist_id, *comm, info);
 #endif
 
-            if (flag == Hdf5_file::truncate)
+            if (flag == Hdf5_file::Flag::truncate)
             {
                 // create
                 h5file = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, plist_id);
-                current_flag = Hdf5_file::read_write;
+                current_flag = Hdf5_file::Flag::read_write;
             }
             else
             {
