@@ -1,5 +1,7 @@
 # Synergia
 
+[![CI](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/build-and-test.yml)
+
 ![](wiki/animation_synergia.gif)
 
 `Synergia` is a accelerator modeling and simulation package developped at Fermilab.
