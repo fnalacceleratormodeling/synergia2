@@ -265,6 +265,14 @@ index_to_canonical()
     return map;
 }
 
+KOKKOS_INLINE_FUNCTION
+double term_to_json_val(double const& term)
+{ return term; }
+
+KOKKOS_INLINE_FUNCTION
+std::string term_to_json_val(std::complex<double> const& term)
+{ return "(" + std::to_string(term.real()) + ',' + std::to_string(term.imag()) + ")"; }
+
 template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon
 {
@@ -826,7 +834,7 @@ public:
 
             syn::json term = {
                 {"exp", syn::json::array()},
-                {"term", terms[i]}
+                {"term", term_to_json_val(terms[i])}
             };
 
             for(int i=0; i<exp.size(); ++i) 
@@ -1119,7 +1127,7 @@ public:
         v["power"] = 0;
         v["terms"][0] = {
             {"exp", syn::json::array()},
-            {"term", terms[0]}
+            {"term", term_to_json_val(terms[0])}
         };
 
         for(int i=0; i<Dim; ++i)
