@@ -101,19 +101,20 @@ namespace synergia
 namespace cereal
 {
     template<class AR>
-    void save(AR& ar, synergia::mx_expr const& expr)
+    void serialize(AR& ar, synergia::mx_expr& expr)
     {
-        std::string str = mx_expr_str(expr);
-        ar(str);
-    }
+        if (AR::is_saving::value)
+        {
+            std::string str = mx_expr_str(expr);
+            ar(str);
+        }
+        else
+        {
+            std::string str;
+            ar(str);
 
-    template<class AR>
-    void load(AR& ar, synergia::mx_expr& expr)
-    {
-        std::string str;
-        ar(str);
-
-        parse_expr(str, expr);
+            parse_expr(str, expr);
+        }
     }
 }
 
