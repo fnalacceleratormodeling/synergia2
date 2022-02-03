@@ -31,7 +31,7 @@ private:
     template<class Archive>
     void serialize(Archive & ar)
     {
-        ar(cereal::base_class<Stepper>(this));
+        ar(cereal::virtual_base_class<Stepper>(this));
         ar(steps_per_element);
     }
 };
