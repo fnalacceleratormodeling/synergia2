@@ -176,14 +176,14 @@ void add_py_trigon_class(pybind11::module& m, const char* name = "Trigon")
         .def( "count",
                 [](trigon_t& self, size_t pwr) {
                     switch(pwr) {
-                    case 0: return Trigon<double, 0, self.dim>::count;
-                    case 1: return Trigon<double, 1, self.dim>::count;
-                    case 2: return Trigon<double, 2, self.dim>::count;
-                    case 3: return Trigon<double, 3, self.dim>::count;
-                    case 4: return Trigon<double, 4, self.dim>::count;
-                    case 5: return Trigon<double, 5, self.dim>::count;
-                    case 6: return Trigon<double, 6, self.dim>::count;
-                    case 7: return Trigon<double, 7, self.dim>::count;
+                    case 0: return Trigon<T, 0, D>::count;
+                    case 1: return Trigon<T, 1, D>::count;
+                    case 2: return Trigon<T, 2, D>::count;
+                    case 3: return Trigon<T, 3, D>::count;
+                    case 4: return Trigon<T, 4, D>::count;
+                    case 5: return Trigon<T, 5, D>::count;
+                    case 6: return Trigon<T, 6, D>::count;
+                    case 7: return Trigon<T, 7, D>::count;
                     default: throw std::runtime_error("invalid power");
                     }
                 },
