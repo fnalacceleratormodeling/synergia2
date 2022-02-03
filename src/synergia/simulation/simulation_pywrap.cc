@@ -236,6 +236,34 @@ PYBIND11_MODULE(simulation, m)
                 },
                 "lattice"_a,
                 "order"_a = 2)
+
+        .def( "get_one_turn_map_o1",
+                &Lattice_simulator::get_one_turn_map<1>,
+                "lattice"_a, "dpp"_a = 0.0 )
+
+        .def( "get_one_turn_map_o2",
+                &Lattice_simulator::get_one_turn_map<2>,
+                "lattice"_a, "dpp"_a = 0.0 )
+
+        .def( "get_one_turn_map_o3",
+                &Lattice_simulator::get_one_turn_map<3>,
+                "lattice"_a, "dpp"_a = 0.0 )
+
+        .def( "get_one_turn_map_o4",
+                &Lattice_simulator::get_one_turn_map<4>,
+                "lattice"_a, "dpp"_a = 0.0 )
+
+        .def( "get_one_turn_map_o5",
+                &Lattice_simulator::get_one_turn_map<5>,
+                "lattice"_a, "dpp"_a = 0.0 )
+
+        .def( "get_one_turn_map_o6",
+                &Lattice_simulator::get_one_turn_map<6>,
+                "lattice"_a, "dpp"_a = 0.0 )
+
+        .def( "get_one_turn_map_o7",
+                &Lattice_simulator::get_one_turn_map<7>,
+                "lattice"_a, "dpp"_a = 0.0 )
         ;
 
     // Collective operator options (base class)
