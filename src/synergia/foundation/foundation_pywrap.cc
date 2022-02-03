@@ -1,4 +1,5 @@
 
+#include "synergia/utils/pybind11_json.hpp"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -13,6 +14,7 @@
 
 #include "trigon.h"
 #include "normal_form.h"
+
 
 
 namespace py = pybind11;
@@ -46,9 +48,38 @@ void add_py_trigon_index_to_canonical(pybind11::module& m)
         return std::array<size_t, array_length(P)>{0};
 #else
         static auto inds = indices<P, D>();
-        std::array<size_t, array_length(P)> ret{0};
-        for(int i=0; i<ret.size(); ++i) ret[i] = inds[idx][i];
-        return ret;
+
+        if constexpr(P>0)
+        {
+            std::array<size_t, array_length(P)> ret{0};
+            for(int i=0; i<ret.size(); ++i) ret[i] = inds[idx][i];
+            return ret;
+        }
+        else
+        {
+            return std::array<size_t, 0>();
+        }
+#endif
+    });
+}
+
+template<unsigned int P, unsigned int D>
+void add_py_trigon_index_to_exp(pybind11::module& m)
+{
+    std::stringstream ss;
+    ss << "Trigon_index_to_exp_o" << P;
+
+    m.def(ss.str().c_str(), [](size_t idx) {
+#ifdef __CUDA_ARCH__
+        return std::array<size_t, array_length(P)>{0};
+#else
+        static auto inds = indices<P, D>();
+        std::array<size_t, D> exp{0};
+
+        if constexpr(P>0)
+            for(auto idx : inds[idx]) ++exp[idx];
+
+        return exp;
 #endif
     });
 }
@@ -139,6 +170,24 @@ void add_py_trigon_class(pybind11::module& m, const char* name = "Trigon")
         .def( "print_coeffs",
                 [](trigon_t& self) { std::cout << self; } )
 
+        .def( "to_json", 
+                &trigon_t::to_json ) 
+
+        .def( "count",
+                [](trigon_t& self, size_t pwr) {
+                    switch(pwr) {
+                    case 0: return Trigon<double, 0, self.dim>::count;
+                    case 1: return Trigon<double, 1, self.dim>::count;
+                    case 2: return Trigon<double, 2, self.dim>::count;
+                    case 3: return Trigon<double, 3, self.dim>::count;
+                    case 4: return Trigon<double, 4, self.dim>::count;
+                    case 5: return Trigon<double, 5, self.dim>::count;
+                    case 6: return Trigon<double, 6, self.dim>::count;
+                    case 7: return Trigon<double, 7, self.dim>::count;
+                    default: throw std::runtime_error("invalid power");
+                    }
+                },
+                "power"_a )
 
         ;
 }
@@ -155,6 +204,8 @@ void add_py_tmapping_class(pybind11::module& m, const char* name = "TMapping")
         .def( py::init<>(), "Construct" )
         .def( "component",
                 [](tmapping_t& self, size_t i) { return self.comp[i]; } )
+        .def( "to_json", 
+                &tmapping_t::to_json )
         ;
 }
 
@@ -457,6 +508,7 @@ PYBIND11_MODULE(foundation, m)
     // Trigon related classes and functions
     add_py_trigon_canonical_to_index(m);
 
+    add_py_trigon_index_to_canonical<0, 6>(m);
     add_py_trigon_index_to_canonical<1, 6>(m);
     add_py_trigon_index_to_canonical<2, 6>(m);
     add_py_trigon_index_to_canonical<3, 6>(m);
@@ -464,6 +516,15 @@ PYBIND11_MODULE(foundation, m)
     add_py_trigon_index_to_canonical<5, 6>(m);
     add_py_trigon_index_to_canonical<6, 6>(m);
     add_py_trigon_index_to_canonical<7, 6>(m);
+
+    add_py_trigon_index_to_exp<0, 6>(m);
+    add_py_trigon_index_to_exp<1, 6>(m);
+    add_py_trigon_index_to_exp<2, 6>(m);
+    add_py_trigon_index_to_exp<3, 6>(m);
+    add_py_trigon_index_to_exp<4, 6>(m);
+    add_py_trigon_index_to_exp<5, 6>(m);
+    add_py_trigon_index_to_exp<6, 6>(m);
+    add_py_trigon_index_to_exp<7, 6>(m);
 
     // Trigon<T, Power, Dim>
     add_py_trigon_class<double, 1, 6>(m);
