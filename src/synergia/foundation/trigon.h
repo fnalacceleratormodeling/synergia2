@@ -365,9 +365,9 @@ public:
     KOKKOS_INLINE_FUNCTION
     void each_term(F f)
     {
+        lower.each_term(f);
         auto inds = indices<Power, Dim>();
         for(int i=0; i<terms.size(); ++i) f(i, inds[i], terms[i]);
-        lower.each_term(f);
     }
 
     KOKKOS_INLINE_FUNCTION
