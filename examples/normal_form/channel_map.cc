@@ -6,7 +6,6 @@
 
 #include <iostream>
 
-
 void run()
 {
     Logger screen(0, LoggerV::DEBUG);
@@ -23,8 +22,8 @@ void run()
     lattice.print(screen);
 
     // one turn map
-    auto map = Lattice_simulator::get_one_turn_map(lattice);
-    std::cout << map.to_json() << "\n";
+    auto mapping = Lattice_simulator::get_one_turn_map<3>(lattice);
+    std::cout << mapping.to_json() << "\n";
 
 #if 0
     // reference
@@ -35,6 +34,26 @@ void run()
     auto gamma = ref.get_gamma();
     auto beta = ref.get_beta();
 #endif
+
+    for(int comp=0; comp<6; ++comp)
+    {
+        auto trigon = mapping[comp];
+        std::cout << "\n\nComponent " << comp << "\n";
+
+        trigon.each_term([&trigon](int i, auto const& inds, auto term) {
+            std::cout << "power = " << inds.size();
+
+            std::array<int, trigon.dim> exp{0};
+            for(auto const& x : inds) ++exp[x];
+
+            std::cout << ", exp = [";
+            for(int x=0; x<exp.size()-1; ++x) 
+                std::cout << exp[x] << ", ";
+            std::cout << exp.back() << "]";
+
+            std::cout << ", term = " << term << "\n";
+        });
+    }
 }
 
 

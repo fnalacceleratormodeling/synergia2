@@ -30,12 +30,10 @@ def run():
 
         for pwr in range(trigon.power()+1):
            for idx in range(trigon.count(pwr)): 
-               idx_to_canonical = "syn.foundation.Trigon_index_to_exp_o{}(idx)".format(pwr)
+               idx_to_exp = "syn.foundation.Trigon_index_to_exp_o{}(idx)".format(pwr)
 
                print('power = {}, exp = {}, term = {}'.format( 
-                    pwr, 
-                    eval(idx_to_canonical),
-                    trigon.get_term(pwr, idx)))
+                    pwr, eval(idx_to_exp), trigon.get_term(pwr, idx)))
 
 
 
