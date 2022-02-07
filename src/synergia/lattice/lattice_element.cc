@@ -261,6 +261,49 @@ Lattice_element::get_ancestors() const
 }
 
 void
+Lattice_element::duplicate_attribute(
+        std::string const& name,
+        std::string const& new_name)
+{
+    auto duplicator = [](auto& attrs, 
+            std::string const& name, std::string const& new_name) {
+        if (attrs.find(new_name) != attrs.end())
+            throw std::runtime_error(
+                    "Lattice_element::duplicate_attribute(): "
+                    "the target attribute " + new_name + " already exists");
+
+        if (attrs.find(name) != attrs.end())
+            attrs[new_name] = attrs[name];
+    };
+
+    duplicator(double_attributes, name, new_name);
+    duplicator(lazy_double_attributes, name, new_name);
+    duplicator(vector_attributes, name, new_name);
+    duplicator(lazy_vector_attributes, name, new_name);
+    duplicator(string_attributes, name, new_name);
+}
+
+void
+Lattice_element::delete_attribute(
+        std::string const& name)
+{
+    double_attributes.erase(name);
+    lazy_double_attributes.erase(name);
+    vector_attributes.erase(name);
+    lazy_vector_attributes.erase(name);
+    string_attributes.erase(name);
+}
+
+void
+Lattice_element::rename_attribute(
+        std::string const& name,
+        std::string const& new_name)
+{
+    duplicate_attribute(name, new_name);
+    delete_attribute(name);
+}
+
+void
 Lattice_element::set_double_attribute(
         std::string const & name, 
         double value,

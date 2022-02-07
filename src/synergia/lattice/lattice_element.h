@@ -208,6 +208,37 @@ public:
     std::list<std::string > const&
     get_ancestors() const;
 
+    /// Duplicate the named attribute with the new_name.
+    /// It looks for the named attribute in all categories: double,
+    /// lazy_double, vector, lasy_vector, and strings
+    /// Do nothing if the named attribute is not found.
+    /// Throws an exception if the new name is already an attribute
+    /// @param name name of the attribute to be duplicated
+    /// @param new_name attribute name after the duplication
+    void
+    duplicate_attribute(
+            std::string const& name,
+            std::string const& new_name);
+
+    /// Delete the named attribute.
+    /// It looks for the named attribute in all categories: double,
+    /// lazy_double, vector, lazy_vector, and strings
+    /// Do nothing if the named attribute is not found.
+    /// @param name name of the attribute to be duplicated
+    void
+    delete_attribute(
+            std::string const& name);
+
+    /// Rename the named attribute to new_name
+    /// It is equivalent of calling the duplicate_attribute(name, new_name) 
+    /// then delete_attribute(name).
+    /// @param name name of the attribute to be renamed
+    /// @param new_name attribute name after the renaming
+    void
+    rename_attribute(
+            std::string const& name,
+            std::string const& new_name);
+
     /// Set the value of the named double attribute
     /// @param name attribute name
     /// @param value attribute value
@@ -215,7 +246,7 @@ public:
     /// attributes that do not affect dynamics
     void
     set_double_attribute(
-            std::string const & name, 
+            std::string const& name, 
             double value,
             bool increment_revision = true);
 
@@ -227,25 +258,29 @@ public:
 
     void
     set_default_double_attribute(
-            std::string const & name, 
+            std::string const& name, 
             double value,
             bool increment_revision = true);
 
     /// Check for the existence of the named double attribute
     /// @param name attribute name
     bool
-    has_double_attribute(std::string const & name) const;
+    has_double_attribute(
+            std::string const& name) const;
 
     /// Get the value of the named double attribute
     /// @param name attribute name
     double
-    get_double_attribute(std::string const & name) const;
+    get_double_attribute(
+            std::string const& name) const;
 
     /// Get the value of the named double attribute
     /// @param name attribute name
     /// @param val default value if the specified attribute doesnt exist
     double
-    get_double_attribute(std::string const & name, double val) const;
+    get_double_attribute(
+            std::string const& name, 
+            double val) const;
 
     /// Set the value of the named string attribute
     /// @param name attribute name
@@ -254,31 +289,35 @@ public:
     /// attributes that do not affect dynamics
     void
     set_string_attribute(
-            std::string const & name, 
-            std::string const & value,
+            std::string const& name, 
+            std::string const& value,
             bool increment_revision = true);
 
     void
     set_default_string_attribute(
-            std::string const & name, 
-            std::string const & value,
+            std::string const& name, 
+            std::string const& value,
             bool incremnt_revision = true);
 
     /// Check for the existence of the named string attribute
     /// @param name attribute name
     bool
-    has_string_attribute(std::string const & name) const;
+    has_string_attribute(
+            std::string const& name) const;
 
     /// Get the value of the named string attribute
     /// @param name attribute name
     std::string const&
-    get_string_attribute(std::string const & name) const;
+    get_string_attribute(
+            std::string const& name) const;
 
     /// Get the value of the named string attribute
     /// @param name attribute name
     /// @param val default value if the specified attribute doesnt exist
     std::string const&
-    get_string_attribute(std::string const & name, std::string const & val) const;
+    get_string_attribute(
+            std::string const& name, 
+            std::string const& val) const;
 
     /// Set the value of the named vector attribute
     /// @param name attribute name
@@ -286,37 +325,43 @@ public:
     /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
     set_vector_attribute(
-            std::string const & name,
-            std::vector<double> const & value, 
+            std::string const& name,
+            std::vector<double> const& value, 
             bool increment_revision = true);
 
     /// Check for the existence of the named vector attribute
     /// @param name attribute name
     bool
-    has_vector_attribute(std::string const & name) const;
+    has_vector_attribute(
+            std::string const& name) const;
 
     /// Get the value of the named vector attribute
     /// @param name attribute name
-    std::vector<double> const &
-    get_vector_attribute(std::string const & name) const;
+    std::vector<double> const&
+    get_vector_attribute(
+            std::string const& name) const;
 
     /// Get the value of the named vector attribute
     /// @param name attribute name
     /// @param val default value if the specified attribute doesnt exist
-    std::vector<double> const &
-    get_vector_attribute(std::string const & name, std::vector<double> const & val) const;
+    std::vector<double> const&
+    get_vector_attribute(
+            std::string const& name, 
+            std::vector<double> const& val) const;
 
     /// Set the attribute name to be used to determine the length
     /// of the Lattice_element
     /// @param attribute_name attribute name
     void
-    set_length_attribute_name(std::string const & attribute_name);
+    set_length_attribute_name(
+            std::string const& attribute_name);
 
     /// Set the attribute name to be used to determine the bend_angle
     /// of the Lattice_element
     /// @param attribute_name attribute name
     void
-    set_bend_angle_attribute_name(std::string const & attribute_name);
+    set_bend_angle_attribute_name(
+            std::string const& attribute_name);
 
     /// Get the Lattice_element's length
     double

@@ -19,4 +19,10 @@ Lattice_tree::set_variable(std::string const& name, std::string const& val)
     mx.insert_variable(name, expr);
 }
 
+void
+Lattice_tree::print() const
+{
+
+}
+
 

@@ -83,38 +83,56 @@ void Lattice_element_processor::multipole(Lattice_element & e)
 
 void Lattice_element_processor::hkicker(Lattice_element& e)
 {
-    double hk = 0.0;
+    // Logic is: if it has "kick" attribute, rename it 
+    // to "hkick". Otherwise, set a default "hkick" of 0.0. Lastly,
+    // "vkick" should alwasy be set to 0.0
+    //
+    // Same logic for the vkicker
 
-    if (e.has_double_attribute("kick"))
-        hk = e.get_double_attribute("kick");
-    else if (e.has_double_attribute("hkick"))
-        hk = e.get_double_attribute("hkick");
+    // having both kick and hkick causes confusion
+    if (e.has_double_attribute("kick") &&
+            e.has_double_attribute("hkick"))
+    {
+        throw std::runtime_error(
+                "Lattice_element_processor: element hkicker "
+                "should not have both kick and hkick attributes");
+    }
 
-    // defaults
+    // rename the kick to hkick
+    if (e.has_double_attribute("kick")) 
+        e.rename_attribute("kick", "hkick");
+
+    // set defaults
     e.set_default_double_attribute("l", 0.0);
     e.set_default_double_attribute("tilt", 0.0);
+    e.set_default_double_attribute("hkick", 0.0);
 
-    // forced
-    e.set_double_attribute("hkick", hk);
+    // vkick should always be 0.0
     e.set_double_attribute("vkick", 0.0);
 }
 
 void Lattice_element_processor::vkicker(Lattice_element& e)
 {
-    double vk = 0.0;
+    // having both kick and vkick causes confusion
+    if (e.has_double_attribute("kick") &&
+            e.has_double_attribute("vkick"))
+    {
+        throw std::runtime_error(
+                "Lattice_element_processor: element vkicker "
+                "should not have both kick and vkick attributes");
+    }
 
-    if (e.has_double_attribute("kick"))
-        vk = e.get_double_attribute("kick");
-    else if (e.has_double_attribute("vkick"))
-        vk = e.get_double_attribute("vkick");
+    // rename the kick to hkick
+    if (e.has_double_attribute("kick")) 
+        e.rename_attribute("kick", "vkick");
 
-    // defaults
+    // set defaults
     e.set_default_double_attribute("l", 0.0);
     e.set_default_double_attribute("tilt", 0.0);
+    e.set_default_double_attribute("vkick", 0.0);
 
-    // forced
+    // hkick should always be 0.0
     e.set_double_attribute("hkick", 0.0);
-    e.set_double_attribute("vkick", vk);
 }
 
 void Lattice_element_processor::kicker(Lattice_element& e)
