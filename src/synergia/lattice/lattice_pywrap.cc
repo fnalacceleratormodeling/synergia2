@@ -243,6 +243,24 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice_element_slice::as_string )
         ;
 
+    // Lattice_tree
+    py::class_<Lattice_tree>(m, "Lattice_tree")
+        .def( "set_variable",
+                (void (Lattice_tree::*)(std::string const&, double))
+                    &Lattice_tree::set_variable,
+                "name"_a,
+                "val"_a )
+
+        .def( "set_variable", 
+                (void (Lattice_tree::*)(std::string const&, std::string const&))
+                    &Lattice_tree::set_variable,
+                "name"_a,
+                "val"_a )
+
+        .def( "print",
+                &Lattice_tree::print )
+        ;
+
     // Lattice
     py::class_<Lattice>(m, "Lattice")
         .def( py::init<>(), 
@@ -256,6 +274,11 @@ PYBIND11_MODULE(lattice, m)
                 "Construct an empty latttice with given reference particle.", 
                 "name"_a,
                 "refpart"_a )
+
+        .def( py::init<std::string const&, Lattice_tree const&>(),
+                "Construct a dynamic lattice with given tree.",
+                "name"_a,
+                "tree"_a )
 
         .def( py::init<Lsexpr const&>(), 
                 "Construct from the Lsexpr representation", 
@@ -284,6 +307,11 @@ PYBIND11_MODULE(lattice, m)
                 //py::overload_cast<>(&Lattice::get_elements),
                 py::return_value_policy::reference_internal,
                 "Get the list of all lattice elements" )
+
+        .def( "get_lattice_tree",
+                &Lattice::get_lattice_tree,
+                py::return_value_policy::reference_internal,
+                "Get the Lattice_tree object for variable manipulation" )
 
         .def( "reset_all_markers",
                 &Lattice::reset_all_markers,
@@ -345,19 +373,34 @@ PYBIND11_MODULE(lattice, m)
     // MadX_reader
     py::class_<MadX_reader>(m, "MadX_reader")
         .def( py::init<>(), "Construct a MadX_reader" )
+
         .def( "get_lattice",
                 (madx_reader_get_lattice_1)&MadX_reader::get_lattice,
                 "Get the named lattice from an already parsed lattice",
                 "line_name"_a )
+
         .def( "get_lattice",
                 (madx_reader_get_lattice_2)&MadX_reader::get_lattice,
                 "Parse and get the named lattice",
                 "line_name"_a,
                 "filename"_a )
+
+        .def( "get_dynamic_lattice",
+                (madx_reader_get_lattice_1)&MadX_reader::get_dynamic_lattice,
+                "Get the named lattice from an already parsed lattice",
+                "line_name"_a )
+
+        .def( "get_dynamic_lattice",
+                (madx_reader_get_lattice_2)&MadX_reader::get_dynamic_lattice,
+                "Parse and get the named lattice",
+                "line_name"_a,
+                "filename"_a )
+
         .def( "parse",
                 &MadX_reader::parse,
                 "Parse a lattice string",
                 "lattice"_a )
+
         .def( "parse_file",
                 &MadX_reader::parse_file,
                 "Parse a lattice file",
