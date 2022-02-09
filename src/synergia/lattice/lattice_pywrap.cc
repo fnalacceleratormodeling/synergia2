@@ -309,6 +309,7 @@ PYBIND11_MODULE(lattice, m)
                 "Get the list of all lattice elements" )
 
         .def( "get_lattice_tree",
+                (Lattice_tree& (Lattice::*)())
                 &Lattice::get_lattice_tree,
                 py::return_value_policy::reference_internal,
                 "Get the Lattice_tree object for variable manipulation" )
