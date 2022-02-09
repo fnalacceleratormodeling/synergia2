@@ -609,6 +609,35 @@ void
 //===========================================================================
 // MadX
 
+MadX::MadX(MadX const& o) 
+    : variables_(o.variables_)
+    , cmd_seq_(o.cmd_seq_)
+    , cmd_map_(o.cmd_map_)
+    , lines_(o.lines_)
+    , seqs_(o.seqs_)
+    , cur_seq_(*this)
+    , building_seq_(false)
+{
+    for(auto& cmd : cmd_seq_) cmd.set_parent(*this);
+    for(auto& cmd : cmd_map_) cmd.second.set_parent(*this);
+}
+
+MadX&
+MadX::operator=(MadX const& o)
+{
+    variables_ = o.variables_;
+    cmd_seq_ = o.cmd_seq_;
+    cmd_map_ = o.cmd_map_;
+    lines_ = o.lines_;
+    seqs_ = o.seqs_;
+
+    for(auto& cmd : cmd_seq_) cmd.set_parent(*this);
+    for(auto& cmd : cmd_map_) cmd.second.set_parent(*this);
+
+    return *this;
+}
+
+
 string_t
   MadX::variable_as_string( string_t const & name ) const
 {
@@ -698,7 +727,6 @@ MadX_command
   std::transform( key.begin(), key.end(), key.begin(), ::tolower );
 
   commands_m_t::const_iterator it = cmd_map_.find(key);
-
   if( it!=cmd_map_.end() )
   {
     return resolve_command(it->second, *this, resolve);
@@ -921,28 +949,33 @@ void
 }
 
 void
-  MadX::print() const
+MadX::print() const
 {
-  value_map_t::const_iterator it = variables_.begin();
-  for(; it!=variables_.end(); ++it )
-  {
-    std::string key = it->first;
-    double val = variable_as_number(key);
-    std::cout << key << " = " << val << "\n";
-  }
+    for(auto const& var : variables_)
+    { 
+        std::string key = var.first; 
+        std::cout << key << " = " 
+            << mx_expr_str(retrieve_expr_from_map(variables_, key)) 
+            << "\n";
+    }
 
-  for( lines_m_t::const_iterator it=lines_.begin()
-     ; it!=lines_.end(); ++it )
-  {
-    cout << it->first << " : line = ";
-    it->second.print();
-  }
+    for(auto const& cmd : cmd_map_)
+    {
+        std::cout << cmd.first << ": "
+            << cmd.second.to_string() << "\n";
+    }
 
-  for( auto const& seq : seqs_ )
-  {
-    cout << seq.first << " : sequence = ";
-    seq.second.print();
-  }
+    for(auto const& line : lines_)
+    {
+        std::cout << line.first << " : line = ";
+        line.second.print();
+    }
+
+    for(auto const& seq : seqs_ )
+    {
+        cout << seq.first << " : sequence = ";
+        seq.second.print();
+    }
 }
 
 std::string

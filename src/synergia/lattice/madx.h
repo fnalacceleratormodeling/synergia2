@@ -219,6 +219,10 @@ public:
     , building_seq_(false)
   { }
 
+  MadX(MadX const& mx);
+  MadX& operator=(MadX const& mx);
+
+
   // accessor
   string_t variable_as_string (string_t const & name) const;
   string_t variable_as_string (string_t const & name, string_t const & def) const;
