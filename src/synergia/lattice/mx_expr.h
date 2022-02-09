@@ -81,8 +81,8 @@ namespace synergia
   typedef std::vector<mx_expr> mx_exprs;
 
   // evaluate the expression
-  double mx_eval(mx_expr const & expr);
-  double mx_eval(mx_expr const & expr, MadX const & mx);
+  //double mx_eval(mx_expr const & expr, double def = mx_calculator::nan);
+  //double mx_eval(mx_expr const & expr, MadX const & mx, double def = mx_calculator::nan);
 
   // whether can be evaluated to a number
   bool mx_expr_is_number(mx_expr const& expr);
@@ -202,5 +202,14 @@ public:
   std::string operator()(uop_t const & u) const;
   std::string operator()(bop_t const & b) const;
 };
+
+namespace synergia
+{
+  // evaluate the expression
+  double mx_eval(mx_expr const & expr, double def = mx_calculator::nan);
+  double mx_eval(mx_expr const & expr, MadX const & mx, double def = mx_calculator::nan);
+}
+
+
 
 #endif

@@ -25,24 +25,28 @@ double
 double 
   mx_calculator::operator()(std::string const & ref) const
 {
-  if( mx==NULL ) {
+  if( mx==NULL ) 
+  {
     if( std::isnan(def) )  
       throw std::runtime_error("Unable to locate reference " + ref);
-    else 
-      return def;
+
+    return def;
   }
+
   return mx->variable_as_number(ref, def);
 }
 
 double 
   mx_calculator::operator()(string_pair_t const & ref) const
 {
-  if( mx==NULL ) {
+  if( mx==NULL ) 
+  {
     if( std::isnan(def) ) 
       throw std::runtime_error("Unable to locate reference " + ref.first + "->" + ref.second);
-    else 
-      return def;
+
+    return def;
   }
+
   return mx->command(ref.first).attribute_as_number(ref.second, def);
 }
 
@@ -234,15 +238,15 @@ mx_expr_writer::operator()(bop_t const & b) const
 
 // util functions
 double
-  synergia::mx_eval(mx_expr const & expr)
+  synergia::mx_eval(mx_expr const & expr, double def)
 {
-  return boost::apply_visitor(mx_calculator(), expr);
+  return boost::apply_visitor(mx_calculator(def), expr);
 }
 
 double
-  synergia::mx_eval(mx_expr const & expr, MadX const & mx)
+  synergia::mx_eval(mx_expr const & expr, MadX const & mx, double def)
 {
-  return boost::apply_visitor(mx_calculator(mx), expr);
+  return boost::apply_visitor(mx_calculator(mx, def), expr);
 }
 
 std::string
