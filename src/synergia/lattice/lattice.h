@@ -180,6 +180,9 @@ public:
     Lattice_tree&
     get_lattice_tree();
 
+    Lattice_tree const&
+    get_lattice_tree() const;
+
 public:
 
     // serialization

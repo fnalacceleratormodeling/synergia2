@@ -427,6 +427,15 @@ Lattice::save_deposited_charge(
     file->flush();
 }
 
+Lattice_tree const&
+Lattice::get_lattice_tree() const
+{
+    if (!tree) 
+        throw std::runtime_error("Lattice::get_lattice_tree(): "
+                "error not a dynamic lattice!");
+
+    return *tree;
+}
 
 Lattice_tree&
 Lattice::get_lattice_tree()
