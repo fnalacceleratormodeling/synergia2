@@ -359,12 +359,16 @@ Lattice_element::get_double_attribute(std::string const& name) const
 
     // then try the lazy double attributes
     auto lr = lazy_double_attributes.find(name);
-    if (lr != lazy_double_attributes.end())
+    if (lattice_ptr && lattice_ptr->is_dynamic_lattice() 
+            && lr != lazy_double_attributes.end())
     {
-        return boost::apply_visitor(
-                synergia::mx_calculator(
-                    lattice_ptr->get_lattice_tree().mx), 
-                lr->second);
+        // default to 0.0 when evaluating the lazy value
+        // this will set undefined variables to 0.0 instead
+        // of throwing an excpetion for "undefined reference".
+        return synergia::mx_eval(
+                lr->second, 
+                lattice_ptr->get_lattice_tree().mx,
+                0.0 );
     }
 
     if (r == double_attributes.end()) 
@@ -387,12 +391,13 @@ Lattice_element::get_double_attribute(std::string const& name, double val) const
     if (r != double_attributes.end()) return r->second;
 
     auto lr = lazy_double_attributes.find(name);
-    if (lr != lazy_double_attributes.end())
+    if (lattice_ptr && lattice_ptr->is_dynamic_lattice() 
+            && lr != lazy_double_attributes.end())
     {
-        return boost::apply_visitor(
-                synergia::mx_calculator(
-                    lattice_ptr->get_lattice_tree().mx, val), 
-                lr->second);
+        return synergia::mx_eval(
+                lr->second, 
+                lattice_ptr->get_lattice_tree().mx,
+                val);
     }
 
     return val;
@@ -658,7 +663,8 @@ Lattice_element::as_string() const
                 sstream << ", ";
             }
             sstream << it->first << "=" 
-                << get_double_attribute(it->first);
+                //<< get_double_attribute(it->first);
+                << mx_expr_str(it->second);
         }
     }
 
