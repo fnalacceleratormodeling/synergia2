@@ -162,6 +162,12 @@ reader.parse_file(madx_file)
 
 # finally, extract the lattice from the named sequence or line
 lattice = reader.get_lattice(sequence_name)
+
+# (experimental) you may also extract a dynamic lattice from the reader
+# a dynamic lattice keeps all the variables and expressions in the lattice
+# element attributes, making it easy to adjust the lattice by tuning the
+# variables
+lattice = reader.get_dynamic_lattice(sequence_name)
 ```
 
 Alternatively, a lattice object can also be created programmatically by appending
@@ -205,10 +211,20 @@ Various methods are provided to access the particle data and properties of a bun
 Commonly used ones are,
 
 ```python
-# get the number of particles reside on the current rank
+# get the number of all particles on the current rank
+# the particle array stores all allocated particles. Some of the particles
+# might hit the wall or get lost during the propagation. These particles
+# become invalid particles but they are still kept in the particle array.
+# The size() method returns the number of valid + lost particles in the
+# current rank of the bunch.
+Bunch.size()
+
+# get the number of valid particles reside on the current rank
 Bunch.get_local_num()
 
-# get the total number of particles of this bunch
+# get the total number of valid particles of this bunch
+# since a bunch might span across multiple ranks so the total_num
+# is always >= to the local_num of a bunch
 Bunch.get_total_num()
 
 # retrieve the bunch reference particle
@@ -217,9 +233,9 @@ Bunch.get_reference_particle()
 # retrieve the lattice design reference particle
 Bunch.get_design_reference_particle()
 
-# retrieve the particle data in a 2d numpy array [0:local_num, 0:6]
+# retrieve the particle data in a 2d numpy array [0:size, 0:6]
 # in the second dimension, 0 - x, 1 - xp, 2 - y, 3 - yp, 4 - cdt, 5 - dpop, 6 - id
-Bunch.get_host_particles_numpy()
+Bunch.get_particles_numpy()
 ```
 
 When running a simulation on compute accelerators such as GPUs, it is crucial to know
@@ -252,14 +268,15 @@ means and covariances,
 bunch_means = np.zero(6, dtype='d')
 bunch_covariances = np.array([[...], [...], [...], [...], [...], [...]])
 
-# use the provided random number generator
+# use the provided random number generator with an integer value of seed
 dist = synergia.foundation.PCG_random_distribution(seed)
 
 # populate a Gaussian bunch
 synergia.bunch.populate_6d(dist, bunch, bunch_meas, bunch_covariances)
 ```
 
-A bunch can also be initialized from reading a generated particle file,
+A bunch can also be initialized from reading a generated particle file. The size of
+the bunch will be adjusted to fit all particles from the particle file.
 
 ```python
 bunch.read_file("turn_particles_0000.h5")
@@ -290,6 +307,18 @@ simulator = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
 
 # the bunch object can be access from the simulator for further operations
 bunch = simulator.get_bunch()
+
+# or to create a Bunch_simulator with a bunch train
+simulator = synergia.simulation.Bunch_simulator.create_bunch_train_simulator(
+    reference_particle, macroparticles, realparticles,
+    num_bunches, spacing)
+
+# access the bunch object from the simulator
+bunch = simulator.get_bunch(train=0, bunch=1)
+
+# not all bunches are present on the local MPI rank, so you should check
+# if the bunch is available before accessing it
+simulator.has_local_bunch(train=0, bunch=1)
 ```
 
 ### Diagnostics
