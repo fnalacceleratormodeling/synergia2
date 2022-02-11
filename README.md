@@ -417,7 +417,94 @@ Here some advanced topics for Synergia simulation.
 
 ### Lattice_simulator
 
-TBA
+`Lattice_simulator` provides a set of utility functions to analyze and tune a lattice.
+Different from `Synergia2` in which the same named `Lattice_simulator` being a class, 
+the `Lattice_simulator` in `Synergia3` is merely a submodule or a namespace which
+contains a set of free functions. It means that you don't have to create an instance
+of a `Lattice_simulator` object from the lattice, but rather call each function with 
+the `Lattice` object as an argument.
+
+Here are some commonly used `Lattice_simulator` functions.
+
+* Closed orbit
+
+```python
+# dpp is the delta momentum in calculating the closed orbit, default 0.0
+Lattice_simulator.calculate_closed_orbit(lattice, dpp = 0.0)
+
+# set/get the tolerance in calculating the closed orbit
+# defaulted to 1e-13
+Lattice_simulator.set_closed_orbit_tolerance(tolerance)
+Lattice_simulator.get_closed_orbit_tolerance()
+```
+
+* Tune lattice and set the RF cavities
+
+```python
+# tune the RF cavities of a linear lattice
+Lattice_simulator.tune_linear_lattice(lattice)
+
+# tune the RF cavities of a circular lattice.
+# The difference with above method is that a closed orbit is calculated
+# first before tuning a circular lattice
+Lattice_simulator.tune_circular_lattice(lattice)
+```
+
+* Tunes and chromaticities
+
+```python
+# calculate the x-y tunes and cdt of a lattice
+Lattice_simulator.calculate_tune_and_cdt(lattice, dpp = 0.0)
+
+# adjust the tunes of a lattice to the target h_tune and v_tune
+# It requires certain elements in the lattice to be set as the 
+# {h|v}_tune_corrector elements, by calling 
+#     Lattice_element.set_marker(marker)
+# 
+Lattice_simulator.adjust_tunes(lattice, 
+        horizontal_tune, vertical_tune, 
+        tolerance = 1e-5)
+
+# get the chromaticities of a lattice
+# The returned object is a combined struct for slip_factor, slip_factor_prime,
+# momentum_compaction, horizontal_chromaticity, vertical_chromaticity,
+# horizontal_chromaticity_prime, and vertical_chromaticity_prime
+Lattice_simulator.get_chromaticities(lattice, dpp = 1e-5)
+
+# adjust the chromaticity of the lattice to the target {h|v}_chromaticity
+# Similar to the adjust_tunes(), it requires certain elements to be marked
+# as {h|v}_chrom_corrector for it work properly
+Lattice_simulator.adjust_chromaticities(lattice, 
+        horizontal_chromaticity, vertical_chromaticity, 
+        tolerance = 1e-4, max_steps = 6)
+
+# during the calculation of tunes and chromaticities the closed orbit
+# of the lattice will be calculated multiple times. The tolerance of
+# the closed orbit calculation is also set by the following function.
+# If the above methods complains about the tolerance is too tight, you
+# may loose it up and try again.
+Lattice_simulator.set_closed_orbit_tolerance(tolerance)
+```
+
+* One turn map
+
+```python
+# linear one turn map of arbitrary order (up to 7)
+# returns an array of [6][6]
+Lattice_simulator.get_linear_one_turn_map(lattice, order)
+
+# Full one turn map from order 1 (_o1) to 7 (_o7)
+# returns a full trigon mapping for all 6 components
+Lattice_simulator.get_one_turn_map_o1(lattice, dpp = 0.0)
+Lattice_simulator.get_one_turn_map_o2(lattice, dpp = 0.0)
+...
+Lattice_simulator.get_one_turn_map_o7(lattice, dpp = 0.0)
+```
+
+* Lattice functions
+
+* Normal form calculation
+
 
 ### Spectator Particles
 
