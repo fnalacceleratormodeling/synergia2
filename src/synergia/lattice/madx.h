@@ -209,19 +209,15 @@ typedef std::map<string_t, synergia::MadX_sequence> sequences_m_t;
 class synergia::MadX
 {
 public:
-  MadX()
-    : variables_()
-    , cmd_seq_()
-    , cmd_map_()
-    , lines_()
-    , seqs_()
-    , cur_seq_(*this)
-    , building_seq_(false)
-  { }
 
+  // ctor
+  MadX();
+
+  // copy
   MadX(MadX const& mx);
-  MadX& operator=(MadX const& mx);
 
+  // assignment is not allowed
+  MadX& operator=(MadX const& mx) = delete;
 
   // accessor
   string_t variable_as_string (string_t const & name) const;

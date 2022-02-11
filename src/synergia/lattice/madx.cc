@@ -609,34 +609,37 @@ void
 //===========================================================================
 // MadX
 
+MadX::MadX()
+  : variables_()
+  , cmd_seq_()
+  , cmd_map_()
+  , lines_()
+  , seqs_()
+  , cur_seq_(*this)
+  , building_seq_(false)
+{ }
+
+// lines and sequences are not copied for the moment
+// for the reason that the copied MadX objects are only used in the
+// Lattice_tree for referencing, and one cannot reference an element
+// defined in a line or a sequence.
+//
+// It is, however, more appropriate to have a proper data structure
+// that only contains the references (variables and commands) for
+// the Lattice_tree, and leaves the MadX object as an intermediate
+// data strucuture for madx parsing, and remains non-copyable
 MadX::MadX(MadX const& o) 
     : variables_(o.variables_)
     , cmd_seq_(o.cmd_seq_)
     , cmd_map_(o.cmd_map_)
-    , lines_(o.lines_)
-    , seqs_(o.seqs_)
+    , lines_()
+    , seqs_()
     , cur_seq_(*this)
     , building_seq_(false)
 {
     for(auto& cmd : cmd_seq_) cmd.set_parent(*this);
     for(auto& cmd : cmd_map_) cmd.second.set_parent(*this);
 }
-
-MadX&
-MadX::operator=(MadX const& o)
-{
-    variables_ = o.variables_;
-    cmd_seq_ = o.cmd_seq_;
-    cmd_map_ = o.cmd_map_;
-    lines_ = o.lines_;
-    seqs_ = o.seqs_;
-
-    for(auto& cmd : cmd_seq_) cmd.set_parent(*this);
-    for(auto& cmd : cmd_map_) cmd.second.set_parent(*this);
-
-    return *this;
-}
-
 
 string_t
   MadX::variable_as_string( string_t const & name ) const
