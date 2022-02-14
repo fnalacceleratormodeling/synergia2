@@ -508,7 +508,95 @@ Lattice_simulator.get_one_turn_map_o7(lattice, dpp = 0.0)
 
 ### Spectator Particles
 
-TBA
+Spectator particles are those that do not contribute to the collective effects of the
+bunch, yet still affected by the external fields. A properly positioned spectator
+particle can serve as an observer without affecting the propagation of the actual
+bunch.
+
+It is possible to create a `Bunch` object in `Synergia3` with certain number of spectator
+particles.
+
+```python
+# total_spectator_num is the number of spectator particles to include in the bunch
+bunch = synergia.bunch.Bunch(reference_particle, total_num, real_num,
+        comm = Commxx(), total_spectator_num = 0)
+
+# or create a bunch with Bunch_simulator
+sim = synergia.simulation.Bunch_simulator(reference_particle, num_particles,
+        num_real_particles, commxx = Commxx(), num_spectators = 0)
+bunch = sim.get_bunch()
+```
+
+The number of the spectator particles and the actual spectator particle array can be
+accessed with,
+
+```python
+# ParticleGroup is an enum type defined in synergia.bunch.ParticleGroup
+#     enum ParticleGroup { regular, spectator }
+bunch.size(ParticleGroup.spectator)
+
+# local number (valid spectator particles in local rank)
+bunch.get_local_num(ParticleGroup.spectator)
+
+# get the spectator particles array in numpy so they maybe inspected
+bunch.get_particles_numpy(ParticlesGroup.spectator)
+```
+
+For syncing particle data between the host and device memory, the `checkin_particles()`
+and the `checkout_particles()` methods need to be called for regular particles and
+spectator particles respectively,
+
+```python
+# the default parameter only copies the regular particles
+bunch.checkin_particles()
+bunch.checkout_particles()
+
+# sync the spectator particles
+bunch.checkin_particles(ParticleGroup.spectator)
+bunch.checkout_particles(ParticleGroup.spectator)
+```
+
+Create diagnostics for spectator particles.
+
+Diagnostics support for spectator particles are on a per-diagnostics basis. So far we
+have the `Diagnostics_particles` and `Diagnostics_bulk_track` that support spectator
+particles. More diagnostics support for the spectator particles will be added as needed.
+
+`Diagnostics_particles`
+
+To write out the spectator particle data, you may construct the diagnostics with following
+arguments,
+
+```python
+# create the diagnostics object
+#   num_part:      the number of regular particles 
+#                  -1 for all particles, 0 to exclude, default to -1
+#   offset:        offset of the first regular particle id, default to 0
+#
+#   num_spec_part: number of spectator particles
+#                  -1 for all particles, 0 to exclude, default to 0
+#   spec_offset:   offset of the first spectator particle id, default to 0
+diag = Diagnostics_particles(filename, num_part, offset, num_spec_part, spec_offset)
+
+# then register the diag to the Bunch_simulator
+simulator.reg_diag_per_turn(diag)
+```
+
+`Diagnostics_bulk_track`
+
+Write out the track data for a series of (regular or spectator) particles
+
+```python
+# create the diagnostics object
+#   num_tracks:    number of tracked tracks
+#   offset:        offset of the first particle to be tracked
+#   particlegroup: enum type to indicate whether this is to track the regular particles
+#                  or the spectator particles. Defaults to ParticleGroup.regular
+diag = Diagnostics_bulk_track(filename, num_tracks, offset, particlegroup)
+
+# then register the diag to the Bunch_simulator
+simulator.reg_diag_per_turn(diag)
+```
 
 ### Propagate Actions
 
