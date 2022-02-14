@@ -556,13 +556,13 @@ bunch.checkin_particles(ParticleGroup.spectator)
 bunch.checkout_particles(ParticleGroup.spectator)
 ```
 
-Create diagnostics for spectator particles.
+#### Create diagnostics for spectator particles.
 
 Diagnostics support for spectator particles are on a per-diagnostics basis. So far we
 have the `Diagnostics_particles` and `Diagnostics_bulk_track` that support spectator
 particles. More diagnostics support for the spectator particles will be added as needed.
 
-`Diagnostics_particles`
+* `Diagnostics_particles`
 
 To write out the spectator particle data, you may construct the diagnostics with following
 arguments,
@@ -582,7 +582,7 @@ diag = Diagnostics_particles(filename, num_part, offset, num_spec_part, spec_off
 simulator.reg_diag_per_turn(diag)
 ```
 
-`Diagnostics_bulk_track`
+* `Diagnostics_bulk_track`
 
 Write out the track data for a series of (regular or spectator) particles
 
