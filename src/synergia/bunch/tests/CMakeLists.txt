@@ -1,5 +1,5 @@
 add_executable(test_bunch_traits test_bunch_traits.cc)
-target_link_libraries(test_bunch_traits kokkos)
+target_link_libraries(test_bunch_traits ${kokkos_libs})
 add_mpi_test(test_bunch_traits 1)
 
 add_executable(test_bunch test_bunch.cc)

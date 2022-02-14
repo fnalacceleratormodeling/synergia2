@@ -32,7 +32,7 @@ target_link_libraries(synergia_bunch
     synergia_hdf5_utils 
     synergia_foundation 
     synergia_serialization 
-    kokkos
+    ${kokkos_libs}
     )
 
 target_link_options(synergia_bunch

@@ -11,7 +11,7 @@ target_link_libraries(synergia_foundation
     lsexpr
     gsl
     gslcblas
-    Kokkos::kokkos
+    ${kokkos_libs}
     )
 
 target_link_options(synergia_foundation
