@@ -647,7 +647,7 @@ deposit_charge_rectangular_3d_kokkos_scatter_view_xyz(
     Kokkos::fence();
 }
 
-#ifdef Kokkos_ENABLE_OPENMP
+#ifdef KOKKOS_ENABLE_OPENMP
 void
 deposit_charge_rectangular_2d_omp_reduce( 
         karray1d_dev & rho_dev,
@@ -1130,7 +1130,7 @@ deposit_charge_rectangular_3d_omp_reduce_xyz(
 
     } //  end of #pragma parallel
 }
-#endif  // Kokkos_ENABLE_OPENMP
+#endif  // KOKKOS_ENABLE_OPENMP
 
 
 

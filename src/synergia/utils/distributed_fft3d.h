@@ -45,7 +45,7 @@ public:
     { return 1.0 / (shape[0] * shape[1] * shape[2]); }
 };
 
-#ifdef Kokkos_ENABLE_CUDA
+#ifdef KOKKOS_ENABLE_CUDA
   #include "synergia/utils/distributed_fft3d_cuda.h"
 #else
   #include "synergia/utils/distributed_fft3d_fftw.h"

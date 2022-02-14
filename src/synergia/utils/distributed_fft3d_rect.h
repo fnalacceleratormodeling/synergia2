@@ -60,7 +60,7 @@ public:
             karray1d_dev& out) = 0;
 };
 
-#ifdef Kokkos_ENABLE_CUDA
+#ifdef KOKKOS_ENABLE_CUDA
   #include "synergia/utils/distributed_fft3d_rect_cuda.h"
 #else
   #include "synergia/utils/distributed_fft3d_rect_fftw.h"

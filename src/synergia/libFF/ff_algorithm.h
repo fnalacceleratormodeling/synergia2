@@ -35,7 +35,7 @@ namespace FF_algorithm
     KOKKOS_INLINE_FUNCTION
     constexpr double quiet_nan()
     {
-#ifdef Kokkos_ENABLE_CUDA
+#ifdef KOKKOS_ENABLE_CUDA
         return nan("");
 #else
         return std::numeric_limits<double>::quiet_NaN();

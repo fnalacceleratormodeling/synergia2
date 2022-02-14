@@ -15,7 +15,7 @@
 #endif
 
 // no simd when build for CUDA
-#ifdef Kokkos_ENABLE_CUDA
+#ifdef KOKKOS_ENABLE_CUDA
   #undef GSV_SSE
   #undef GSV_AVX
   #undef GSV_V4D
