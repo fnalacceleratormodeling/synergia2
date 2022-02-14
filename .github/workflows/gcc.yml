@@ -1,4 +1,4 @@
-name: CI
+name: CI:gcc
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
       run: |
         . /etc/profile.d/z10_spack_environment.sh 
         . /opt/view/setvars.sh
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=off -DUSE_EXTERNAL_KOKKOS=on
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_FLAGS="-fuse-ld=gold" -DBUILD_PYTHON_BINDINGS=off -DUSE_EXTERNAL_KOKKOS=on -GNinja
 
     - name: Build
       # Build your program with the given configuration
