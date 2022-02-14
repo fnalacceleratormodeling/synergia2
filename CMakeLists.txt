@@ -70,6 +70,7 @@ set(extra_includes)
 option(SIMPLE_TIMER "use the simple timer 2 profiling" Off)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" On)
 option(ALLOW_PADDING "add paddings to the particle array for memory alignment" On)
+option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" Off)
 option(Kokkos_ENABLE_OPENMP "enable openmp backend" On)
 option(Kokkos_ENABLE_CUDA "enable CUDA backend" Off)
 
@@ -255,8 +256,16 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # include paths
 smart_include_directories("${extra_includes}")
 
-# kokkos
-add_subdirectory(src/synergia/utils/kokkos)
+# Follow official kokkos guidelines
+# https://github.com/kokkos/kokkos/wiki/Compiling#42-using-general-cmake-build-system
+if (USE_EXTERNAL_KOKKOS)
+  find_package(Kokkos REQUIRED)
+  set(kokkos_libs "Kokkos::kokkos")
+else ()
+  add_subdirectory(src/synergia/utils/kokkos)
+  include_directories(${Kokkos_INCLUDE_DIRS_RET})
+  set(kokkos_libs kokkos)
+endif()
 
 if(${Kokkos_ENABLE_CUDA})
     add_definitions(-DKokkos_ENABLE_CUDA)
