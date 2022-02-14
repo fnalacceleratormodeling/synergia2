@@ -32,7 +32,7 @@ jobs:
       run: |
         . /etc/profile.d/z10_spack_environment.sh 
         . /opt/view/setvars.sh
-        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 2
 
     - name: ctest
     # Execute tests defined by the CMake configuration.
