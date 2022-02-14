@@ -93,7 +93,25 @@ if(${MPI_VERSION} MATCHES "OpenRTE.*")
     set(MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS} "--oversubscribe")
 endif()
 
-# OpenMP
+# Follow official kokkos guidelines
+# https://github.com/kokkos/kokkos/wiki/Compiling#42-using-general-cmake-build-system
+if (USE_EXTERNAL_KOKKOS)
+  find_package(Kokkos REQUIRED)
+  set(kokkos_libs "Kokkos::kokkos")
+else ()
+  add_subdirectory(src/synergia/utils/kokkos)
+  include_directories(${Kokkos_INCLUDE_DIRS_RET})
+  set(kokkos_libs kokkos)
+  if(${Kokkos_ENABLE_CUDA})
+    add_definitions(-DKokkos_ENABLE_CUDA)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -expt-relaxed-constexpr")
+  endif()
+  if(${Kokkos_ENABLE_OPENMP})
+    add_definitions(-DKokkos_ENABLE_OPENMP)
+  endif()
+endif()
+
+
 if(${Kokkos_ENABLE_OPENMP})
     FIND_PACKAGE(OpenMP)
     if (OPENMP_FOUND)
@@ -101,6 +119,7 @@ if(${Kokkos_ENABLE_OPENMP})
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     endif ()
 endif()
+
 
 # hdf5
 set(HDF5_PREFER_PARALLEL true)
@@ -128,15 +147,12 @@ if(NOT ${Kokkos_ENABLE_CUDA})
         message(FATAL_ERROR "Missing FFTW3-mpi")
     endif()
 
-    if (OPENMP_FOUND AND NOT FFTW3_OMP_FOUND)
+    if(NOT FFTW3_OMP_FOUND)
         message(FATAL_ERROR "FFTW3 openmp not found")
+    else()
+        set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
     endif()
 
-    if(OPENMP_FOUND)
-        set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
-    else(OPENMP_FOUND)
-        set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})
-    endif(OPENMP_FOUND)
 endif()
 
 # warnings
@@ -255,26 +271,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # include paths
 smart_include_directories("${extra_includes}")
-
-# Follow official kokkos guidelines
-# https://github.com/kokkos/kokkos/wiki/Compiling#42-using-general-cmake-build-system
-if (USE_EXTERNAL_KOKKOS)
-  find_package(Kokkos REQUIRED)
-  set(kokkos_libs "Kokkos::kokkos")
-else ()
-  add_subdirectory(src/synergia/utils/kokkos)
-  include_directories(${Kokkos_INCLUDE_DIRS_RET})
-  set(kokkos_libs kokkos)
-endif()
-
-if(${Kokkos_ENABLE_CUDA})
-    add_definitions(-DKokkos_ENABLE_CUDA)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -expt-relaxed-constexpr")
-endif()
-
-if(${Kokkos_ENABLE_OPENMP})
-    add_definitions(-DKokkos_ENABLE_OPENMP)
-endif()
 
 add_subdirectory(src)
 add_subdirectory(examples)
