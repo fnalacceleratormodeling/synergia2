@@ -13,7 +13,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     container:
-      image:  ghcr.io/fnalacceleratormodeling/synergia2-ubuntu-container:main
+      image: ghcr.io/fnalacceleratormodeling/synergia2-containers/ubuntu-gcc:main
   
     steps:
     - name: Checkout repository
