@@ -1,7 +1,7 @@
 # Synergia
 
-[![CI:gcc](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/gcc.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/gcc.yml)
-[![CI:clang](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/clang.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/clang.yml)
+[![CI:ubuntu-gcc](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/gcc.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/gcc.yml)
+[![CI:ubuntu-clang](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/clang.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/clang.yml)
 
 ![](wiki/animation_synergia.gif)
 
