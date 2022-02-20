@@ -263,11 +263,12 @@ Lattice_element::get_ancestors() const
 void
 Lattice_element::duplicate_attribute(
         std::string const& name,
-        std::string const& new_name)
+        std::string const& new_name,
+        bool overwrite)
 {
-    auto duplicator = [](auto& attrs, 
-            std::string const& name, std::string const& new_name) {
-        if (attrs.find(new_name) != attrs.end())
+    auto duplicator = [](auto& attrs, std::string const& name, 
+            std::string const& new_name, bool overwrite) {
+        if (attrs.find(new_name) != attrs.end() && !overwrite)
             throw std::runtime_error(
                     "Lattice_element::duplicate_attribute(): "
                     "the target attribute " + new_name + " already exists");
@@ -276,11 +277,11 @@ Lattice_element::duplicate_attribute(
             attrs[new_name] = attrs[name];
     };
 
-    duplicator(double_attributes, name, new_name);
-    duplicator(lazy_double_attributes, name, new_name);
-    duplicator(vector_attributes, name, new_name);
-    duplicator(lazy_vector_attributes, name, new_name);
-    duplicator(string_attributes, name, new_name);
+    duplicator(double_attributes, name, new_name, overwrite);
+    duplicator(lazy_double_attributes, name, new_name, overwrite);
+    duplicator(vector_attributes, name, new_name, overwrite);
+    duplicator(lazy_vector_attributes, name, new_name, overwrite);
+    duplicator(string_attributes, name, new_name, overwrite);
 }
 
 void

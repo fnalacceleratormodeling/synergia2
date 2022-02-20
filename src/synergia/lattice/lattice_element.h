@@ -213,12 +213,14 @@ public:
     /// lazy_double, vector, lasy_vector, and strings
     /// Do nothing if the named attribute is not found.
     /// Throws an exception if the new name is already an attribute
+    /// and the overwrite flag is false
     /// @param name name of the attribute to be duplicated
     /// @param new_name attribute name after the duplication
     void
     duplicate_attribute(
             std::string const& name,
-            std::string const& new_name);
+            std::string const& new_name,
+            bool overwrite = false);
 
     /// Delete the named attribute.
     /// It looks for the named attribute in all categories: double,
