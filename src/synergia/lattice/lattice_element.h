@@ -239,6 +239,11 @@ public:
             std::string const& name,
             std::string const& new_name);
 
+    /// Copy all attributes from another element
+    void
+    copy_attributes_from(
+            Lattice_element const& elem);
+
     /// Set the value of the named double attribute
     /// @param name attribute name
     /// @param value attribute value

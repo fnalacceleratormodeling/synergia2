@@ -304,6 +304,17 @@ Lattice_element::rename_attribute(
 }
 
 void
+Lattice_element::copy_attributes_from(
+        Lattice_element const& o)
+{
+    double_attributes = o.double_attributes;
+    lazy_double_attributes = o.lazy_double_attributes;
+    vector_attributes = o.vector_attributes;
+    lazy_vector_attributes = o.lazy_vector_attributes;
+    string_attributes = o.string_attributes;
+}
+
+void
 Lattice_element::set_double_attribute(
         std::string const & name, 
         double value,
