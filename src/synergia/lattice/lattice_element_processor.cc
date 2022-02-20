@@ -83,9 +83,10 @@ void Lattice_element_processor::multipole(Lattice_element & e)
 
 void Lattice_element_processor::hkicker(Lattice_element& e)
 {
-    // Logic is: if it has "kick" attribute, rename it 
-    // to "hkick". Otherwise, set a default "hkick" of 0.0. Lastly,
-    // "vkick" should alwasy be set to 0.0
+    // Logic is: if it has "kick" attribute, copy it 
+    // to "hkick" (overwrite if "hkick" already exisits). 
+    // Otherwise, set a default "hkick" of 0.0. 
+    // Lastly, "vkick" should alwasy be set to 0.0
     //
     // Same logic for the vkicker
 
@@ -93,14 +94,18 @@ void Lattice_element_processor::hkicker(Lattice_element& e)
     if (e.has_double_attribute("kick") &&
             e.has_double_attribute("hkick"))
     {
-        throw std::runtime_error(
-                "Lattice_element_processor: element hkicker "
-                "should not have both kick and hkick attributes");
+        double kick = e.get_double_attribute("kick");
+        double hkick = e.get_double_attribute("hkick");
+
+        if (fabs(kick-hkick) > 1e-6)
+            throw std::runtime_error(
+                    "Lattice_element_processor: element hkicker "
+                    "should not have both kick and hkick attributes");
     }
 
-    // rename the kick to hkick
-    if (e.has_double_attribute("kick")) 
-        e.rename_attribute("kick", "hkick");
+    // copy the kick to hkick with overwrite
+    if (e.has_double_attribute("kick"))
+        e.duplicate_attribute("kick", "hkick", true);
 
     // set defaults
     e.set_default_double_attribute("l", 0.0);
@@ -117,14 +122,18 @@ void Lattice_element_processor::vkicker(Lattice_element& e)
     if (e.has_double_attribute("kick") &&
             e.has_double_attribute("vkick"))
     {
-        throw std::runtime_error(
-                "Lattice_element_processor: element vkicker "
-                "should not have both kick and vkick attributes");
+        double kick = e.get_double_attribute("kick");
+        double vkick = e.get_double_attribute("vkick");
+
+        if (fabs(kick-vkick) > 1e-6)
+            throw std::runtime_error(
+                    "Lattice_element_processor: element vkicker "
+                    "should not have both kick and vkick attributes");
     }
 
     // rename the kick to hkick
-    if (e.has_double_attribute("kick")) 
-        e.rename_attribute("kick", "vkick");
+    if (e.has_double_attribute("kick"))
+        e.duplicate_attribute("kick", "vkick", true);
 
     // set defaults
     e.set_default_double_attribute("l", 0.0);
