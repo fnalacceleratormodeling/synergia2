@@ -103,6 +103,10 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice_element::add_ancestor,
                 "ancestor"_a )
 
+        .def( "copy_attributes_from",
+                &Lattice_element::copy_attributes_from,
+                "element"_a )
+
         // double attribute
         .def( "has_double_attribute", 
                 &Lattice_element::has_double_attribute,
