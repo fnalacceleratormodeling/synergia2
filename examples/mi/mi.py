@@ -168,8 +168,8 @@ def run_mi():
                 turn0 = trkturn
                 turn1 = turn0+turns_per_file
                 trkfile = "tracks_b%03d-%d-%d.h5"%(bunch_num,turn0,turn1)
-                sim.add_per_turn(synergia.bunch.Diagnostics_bulk_track(trkfile, opts.turn_tracks), 
-                        0, bunch_num, list(range(turn0,turn1)))
+                sim.reg_diag_turn_listed(synergia.bunch.Diagnostics_bulk_track(trkfile, opts.turn_tracks), 
+                        train_idx=0, bunch_idx=bunch_num, turns=list(range(turn0,turn1)))
 
     # max simulation turns
     sim.set_max_turns(opts.max_turns)
