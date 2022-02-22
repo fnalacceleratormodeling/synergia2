@@ -21,7 +21,7 @@ TEST_CASE("real_apply_full_lowgamma", "[Rod_bunch]")
 
   auto&       bunch = fixture.bsim.get_bunch();
   auto const& ref   = bunch.get_reference_particle();
-  auto        parts = bunch.get_local_particles();
+  auto        parts = bunch.get_host_particles();
 
   const double beta = ref.get_beta();
   const double gamma = ref.get_gamma();
@@ -144,7 +144,7 @@ TEST_CASE("real_apply_full_highgamma", "[Rod_bunch]")
 
   auto&       bunch = fixture.bsim.get_bunch();
   auto const& ref   = bunch.get_reference_particle();
-  auto        parts = bunch.get_local_particles();
+  auto        parts = bunch.get_host_particles();
 
   const double beta = ref.get_beta();
   const double gamma = ref.get_gamma();

@@ -31,7 +31,7 @@ struct Rod_bunch_fixture_lowgamma
     auto& bunch = bsim.get_bunch();
 
     //bunch.set_longitudinal_boundary(LongitudinalBoundary::periodic, rod_length);
-    auto local_particles = bunch.get_local_particles();
+    auto local_particles = bunch.get_host_particles();
 
     // a ring of 8 particles around each longitudinal location
     int num_longitudinal = (rod_num_particles-1)/8;
@@ -108,7 +108,7 @@ struct Rod_bunch_fixture_highgamma
     auto& bunch = bsim.get_bunch();
 
     //bunch.set_longitudinal_boundary(LongitudinalBoundary::periodic, rod_length);
-    auto local_particles = bunch.get_local_particles();
+    auto local_particles = bunch.get_host_particles();
 
     // a ring of 8 particles around each longitudinal location
     int num_longitudinal = (rod_num_particles-1)/8;
