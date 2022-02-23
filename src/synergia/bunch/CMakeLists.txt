@@ -51,6 +51,7 @@ if (BUILD_PYTHON_BINDINGS)
     #    PRIVATE "-fvisibility=hidden")
 
     target_include_directories(synergia_pydiag 
+        PRIVATE ${PYTHON_INCLUDE_DIRS}
         PRIVATE ${PYBIND11_INCLUDE_DIR}
         PRIVATE ${pybind11_INCLUDE_DIR} )
 
