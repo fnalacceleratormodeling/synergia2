@@ -4,10 +4,7 @@
 void
 Lattice_tree::set_variable(std::string const& name, double val)
 {
-    synergia::mx_expr expr;
-    synergia::parse_expression(std::to_string(val), expr);
-
-    mx.insert_variable(name, expr);
+    mx.insert_variable(name, synergia::mx_expr(val));
 }
 
 void
