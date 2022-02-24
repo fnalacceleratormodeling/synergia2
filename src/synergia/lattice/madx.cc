@@ -641,6 +641,26 @@ MadX::MadX(MadX const& o)
     for(auto& cmd : cmd_map_) cmd.second.set_parent(*this);
 }
 
+MadX&
+MadX::operator=(MadX const& o) 
+{
+    variables_ = o.variables_;
+    cmd_seq_ = o.cmd_seq_;
+    cmd_map_ = o.cmd_map_;
+
+    lines_.clear();
+    seqs_.clear();
+
+    cur_seq_.reset();
+    building_seq_ = false;
+
+    for(auto& cmd : cmd_seq_) cmd.set_parent(*this);
+    for(auto& cmd : cmd_map_) cmd.second.set_parent(*this);
+
+    return *this;
+}
+
+
 string_t
   MadX::variable_as_string( string_t const & name ) const
 {

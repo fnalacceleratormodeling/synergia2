@@ -321,6 +321,11 @@ PYBIND11_MODULE(lattice, m)
                 py::return_value_policy::reference_internal,
                 "Get the Lattice_tree object for variable manipulation" )
 
+        .def( "set_lattice_tree",
+                &Lattice::set_lattice_tree,
+                "Set the Lattice_tree object for variable manipulation",
+                "lattice_tree"_a )
+
         .def( "reset_all_markers",
                 &Lattice::reset_all_markers,
                 "Clear the h/v tunes and chromaticity corrector markers for all elements" )

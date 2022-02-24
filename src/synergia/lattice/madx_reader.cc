@@ -348,7 +348,8 @@ MadX_reader::get_dynamic_lattice(
         std::string const& line_name,
         synergia::MadX const& mx)
 {
-    Lattice lattice(line_name, Lattice_tree(mx));
+    Lattice lattice(line_name);
+    lattice.set_lattice_tree(Lattice_tree(mx));
 
     std::vector<std::string> lines(mx.line_labels());
     if (std::find(lines.begin(), lines.end(), line_name) != lines.end())

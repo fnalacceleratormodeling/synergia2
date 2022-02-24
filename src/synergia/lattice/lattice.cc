@@ -73,9 +73,7 @@ Lattice::operator=(Lattice const& o)
     reference_particle = o.reference_particle;
     elements = o.elements;
     updated = o.updated;
-
-    tree.reset();
-    if (o.tree) tree.emplace(o.tree.value());
+    tree = o.tree;
 
     for (auto & e : elements) e.set_lattice(*this);
 
@@ -98,26 +96,6 @@ Lattice::Lattice(Lsexpr const & lsexpr)
             {
                 name = lse.get_string();
             } 
-#if 0
-            else if (it->get_label() == "type") 
-            {
-                std::string lctype(it->get_string());
-                std::transform(lctype.begin(), lctype.end(), lctype.begin(), ::tolower);
-                if (lctype == "mad8") 
-                {
-                    element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new Mad8_adaptor_map);
-                } 
-                else if (lctype == "madx") 
-                {
-                    element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new MadX_adaptor_map);
-                } 
-                else 
-                {
-                    throw std::runtime_error("Lattice: adaptor map type " +
-                                             it->get_string() + " not handled");
-                }
-            } 
-#endif
             else if (lse.get_label() == "reference_particle") 
             {
                 reference_particle = Reference_particle(lse);
@@ -131,37 +109,6 @@ Lattice::Lattice(Lsexpr const & lsexpr)
             }
         }
     }
-
-#if 0
-    for (Lsexpr::const_iterator_t it = lsexpr.begin(); it != lsexpr.end();
-         ++it) {
-        if (it->is_labeled()) {
-            if (it->get_label() == "name") {
-                name = it->get_string();
-            } else if (it->get_label() == "type") {
-                std::string lctype(it->get_string());
-                std::transform(lctype.begin(), lctype.end(), lctype.begin(),
-                               ::tolower);
-                if (lctype == "mad8") {
-                    element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new Mad8_adaptor_map);
-                } else if (lctype == "madx") {
-                    element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new MadX_adaptor_map);
-                } else {
-                    throw std::runtime_error("Lattice: adaptor map type " +
-                                             it->get_string() + " not handled");
-                }
-            } else if (it->get_label() == "reference_particle") {
-                reference_particle = new Reference_particle(*it);
-                reference_particle_allocated = true;
-            } else if (it->get_label() == "elements") {
-                for (Lsexpr::const_iterator_t eit = it->begin();
-                     eit != it->end(); ++eit) {
-                    append(Lattice_element(*eit));
-                }
-            }
-        }
-    }
-#endif
 }
 
 #if 0
@@ -430,21 +377,19 @@ Lattice::save_deposited_charge(
 Lattice_tree const&
 Lattice::get_lattice_tree() const
 {
-    if (!tree) 
-        throw std::runtime_error("Lattice::get_lattice_tree(): "
-                "error not a dynamic lattice!");
-
-    return *tree;
+    return tree;
 }
 
 Lattice_tree&
 Lattice::get_lattice_tree()
 {
-    if (!tree) 
-        throw std::runtime_error("Lattice::get_lattice_tree(): "
-                "error not a dynamic lattice!");
+    return tree;
+}
 
-    return *tree;
+void
+Lattice::set_lattice_tree(Lattice_tree const& lattice_tree)
+{
+    tree = lattice_tree;
 }
 
 

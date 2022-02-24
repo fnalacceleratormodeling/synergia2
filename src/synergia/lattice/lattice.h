@@ -3,20 +3,14 @@
 
 #include <string>
 #include <list>
-#include <optional>
 
 #include "synergia/lattice/lattice_tree.h"
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/foundation/reference_particle.h"
 
-//#include "synergia/lattice/diagnostics_apertures_loss.h"
-//#include "synergia/lattice/element_adaptor.h"
-//#include "synergia/lattice/element_adaptor_map.h"
-
 #include "synergia/utils/logger.h"
 
 #include <cereal/types/list.hpp>
-#include <cereal/types/optional.hpp>
 
 /// The Lattice class contains an abstract representation of an ordered
 /// set of objects of type Lattice_element.
@@ -47,7 +41,7 @@ private:
 
     // Lattice tree object for evaluating variables
     // in the lattice element attributes
-    std::optional<Lattice_tree> tree;
+    Lattice_tree tree;
 
 public:
 
@@ -87,9 +81,9 @@ public:
     std::string const & get_name() const
     { return name; }
 
-    /// Whether this is a dynamic lattice
+    /// Always a dynamic lattice
     bool is_dynamic_lattice() const
-    { return (bool)tree; }
+    { return true; }
 
     /// Set the Lattice reference particle
     /// @param reference_particle a Reference_particle
@@ -182,6 +176,9 @@ public:
 
     Lattice_tree const&
     get_lattice_tree() const;
+
+    void
+    set_lattice_tree(Lattice_tree const& tree);
 
 public:
 

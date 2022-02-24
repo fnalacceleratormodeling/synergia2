@@ -213,11 +213,12 @@ public:
   // ctor
   MadX();
 
-  // copy
+  // both copy and assignment ignores the lines and sequences
+  // for the reason that the copy/assignment only happens when
+  // mx is used for dynamic lattice, and no references can be
+  // made into the inside of lines or sequences.
   MadX(MadX const& mx);
-
-  // assignment is not allowed
-  MadX& operator=(MadX const& mx) = delete;
+  MadX& operator=(MadX const& mx);
 
   // accessor
   string_t variable_as_string (string_t const & name) const;
