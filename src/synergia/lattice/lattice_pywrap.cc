@@ -114,14 +114,14 @@ PYBIND11_MODULE(lattice, m)
                 "name"_a )
 
         .def( "get_double_attribute", 
-                (double (Lattice_element::*)(std::string const&) const)&Lattice_element::get_double_attribute,
-                //py::overload_cast<std::string const&>(&Lattice_element::get_double_attribute, py::const_),
+                (double (Lattice_element::*)(std::string const&) const)
+                &Lattice_element::get_double_attribute,
                 "Get the value of the named double attribute",
                 "name"_a )
 
         .def( "get_double_attribute", 
-                (double (Lattice_element::*)(std::string const&, double) const)&Lattice_element::get_double_attribute,
-                //py::overload_cast<std::string const&, double>(&Lattice_element::get_double_attribute, py::const_),
+                (double (Lattice_element::*)(std::string const&, double) const)
+                &Lattice_element::get_double_attribute,
                 "Get the value of the named double attribute, or return the default",
                 "name"_a, "default"_a )
 
@@ -138,14 +138,14 @@ PYBIND11_MODULE(lattice, m)
                 "name"_a )
 
         .def( "get_string_attribute", 
-                (std::string const& (Lattice_element::*)(std::string const&) const)&Lattice_element::get_string_attribute,
-                //py::overload_cast<std::string const&>(&Lattice_element::get_string_attribute, py::const_),
+                (std::string const& (Lattice_element::*)(std::string const&) const)
+                &Lattice_element::get_string_attribute,
                 "Get the value of the named double attribute",
                 "name"_a )
 
         .def( "get_string_attribute", 
-                (std::string const& (Lattice_element::*)(std::string const&, std::string const&) const)&Lattice_element::get_string_attribute,
-                //py::overload_cast<std::string const&, std::string const&>(&Lattice_element::get_string_attribute, py::const_),
+                (std::string const& (Lattice_element::*)(std::string const&, std::string const&) const)
+                &Lattice_element::get_string_attribute,
                 "Get the value of the named string attribute, or return the default",
                 "name"_a, "default"_a )
 
@@ -161,14 +161,14 @@ PYBIND11_MODULE(lattice, m)
                 "name"_a )
 
         .def( "get_vector_attribute", 
-                (std::vector<double> const& (Lattice_element::*)(std::string const&) const)&Lattice_element::get_vector_attribute,
-                //py::overload_cast<std::string const&>(&Lattice_element::get_vector_attribute, py::const_),
+                (std::vector<double> (Lattice_element::*)(std::string const&) const)
+                &Lattice_element::get_vector_attribute,
                 "Get the value of the named vector attribute",
                 "name"_a )
 
         .def( "get_vector_attribute", 
-                (std::vector<double> const& (Lattice_element::*)(std::string const&, std::vector<double> const&) const)&Lattice_element::get_vector_attribute,
-                //py::overload_cast<std::string const&, std::vector<double> const&>(&Lattice_element::get_vector_attribute, py::const_),
+                (std::vector<double> (Lattice_element::*)(std::string const&, std::vector<double> const&) const)
+                &Lattice_element::get_vector_attribute,
                 "Get the value of the named vector attribute, or return the default",
                 "name"_a, "default"_a )
 

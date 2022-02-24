@@ -16,12 +16,7 @@ def no_simplify(element):
     return retval
 
 def _copy_attributes_ancestors(element, new_element):
-    for attr in element.get_string_attributes():
-        new_element.set_string_attribute(attr, 
-            element.get_string_attribute(attr))
-    for attr in element.get_double_attributes():
-        new_element.set_double_attribute(attr, 
-            element.get_double_attribute(attr))
+    new_element.copy_attributes_from(element)
     for ancestor in element.get_ancestors():
         new_element.add_ancestor(ancestor)
 

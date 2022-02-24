@@ -124,9 +124,9 @@ private:
 
     std::list<std::string > ancestors;
 
-    std::map<std::string, double> double_attributes;
+    //std::map<std::string, double> double_attributes;
     std::map<std::string, std::string> string_attributes;
-    std::map<std::string, std::vector<double>> vector_attributes;
+    //std::map<std::string, std::vector<double>> vector_attributes;
 
     // lazy attributes
     std::map<std::string, synergia::mx_expr> lazy_double_attributes;
@@ -344,14 +344,14 @@ public:
 
     /// Get the value of the named vector attribute
     /// @param name attribute name
-    std::vector<double> const&
+    std::vector<double>
     get_vector_attribute(
             std::string const& name) const;
 
     /// Get the value of the named vector attribute
     /// @param name attribute name
     /// @param val default value if the specified attribute doesnt exist
-    std::vector<double> const&
+    std::vector<double>
     get_vector_attribute(
             std::string const& name, 
             std::vector<double> const& val) const;
@@ -435,9 +435,8 @@ public:
     void
     print() const;
 
-    std::map<std::string, double> const&
-    get_double_attributes() const
-    { return double_attributes; }
+    std::map<std::string, double>
+    get_double_attributes() const;
 
     std::map<std::string, std::string> const&
     get_string_attributes() const
@@ -457,10 +456,7 @@ private:
         ar(CEREAL_NVP(type));
         ar(CEREAL_NVP(ancestors));
 
-        ar(CEREAL_NVP(double_attributes));
         ar(CEREAL_NVP(string_attributes));
-        ar(CEREAL_NVP(vector_attributes));
-
         ar(CEREAL_NVP(lazy_double_attributes));
         ar(CEREAL_NVP(lazy_vector_attributes));
 

@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <sstream>
 
+// synergia::mx_expr
+using namespace synergia;
 
 namespace
 {
@@ -44,15 +46,16 @@ namespace
 }
 
 
+
 Lattice_element::Lattice_element() 
     : name("")
     , format(element_format::madx)
     , stype("generic")
     , type(find_type(stype))
     , ancestors()
-    , double_attributes()
     , string_attributes()
-    , vector_attributes()
+    , lazy_double_attributes()
+    , lazy_vector_attributes()
     , length_attribute_name("l")
     , bend_angle_attribute_name("angle")
     , revision(0)
@@ -70,9 +73,9 @@ Lattice_element::Lattice_element(
     , stype(type)
     , type(find_type(stype))
     , ancestors()
-    , double_attributes()
     , string_attributes()
-    , vector_attributes()
+    , lazy_double_attributes()
+    , lazy_vector_attributes()
     , length_attribute_name("l")
     , bend_angle_attribute_name("angle")
     , revision(0)
@@ -87,15 +90,17 @@ Lattice_element::Lattice_element(Lsexpr const & lsexpr)
     , stype("generic")
     , type(find_type(stype))
     , ancestors()
-    , double_attributes()
     , string_attributes()
-    , vector_attributes()
+    , lazy_double_attributes()
+    , lazy_vector_attributes()
     , length_attribute_name("l")
     , bend_angle_attribute_name("angle")
     , revision(0)
     , lattice_ptr(nullptr)
     , markers{}
 {
+    using namespace synergia;
+
     for (auto const& lse : lsexpr)
     {
         if (lse.is_labeled()) 
@@ -118,7 +123,7 @@ Lattice_element::Lattice_element(Lsexpr const & lsexpr)
             else if (lse.get_label() == "double_attributes") 
             {
                 for (auto const& attr : lse)
-                    double_attributes[attr.get_label()] = attr.get_double();
+                    lazy_double_attributes[attr.get_label()] = mx_expr(attr.get_double());
             } 
             else if (lse.get_label() == "string_attributes") 
             {
@@ -128,7 +133,14 @@ Lattice_element::Lattice_element(Lsexpr const & lsexpr)
             else if (lse.get_label() == "vector_attributes") 
             {
                 for (auto const& attr : lse)
-                    vector_attributes[attr.get_label()] = attr.get_double_vector();
+                {
+                    std::vector<double> vd = attr.get_double_vector();
+
+                    std::vector<mx_expr> ve;
+                    for(double d : vd) ve.push_back(mx_expr(d));
+
+                    lazy_vector_attributes[attr.get_label()] = ve;
+                }
             }
         } 
         else 
@@ -136,7 +148,7 @@ Lattice_element::Lattice_element(Lsexpr const & lsexpr)
             if (!lse.is_atomic())
             {
                 for (auto const& attr : lse)
-                    double_attributes[attr.get_label()] = attr.get_double();
+                    lazy_double_attributes[attr.get_label()] = mx_expr(attr.get_double());
             }
         }
     }
@@ -277,9 +289,7 @@ Lattice_element::duplicate_attribute(
             attrs[new_name] = attrs[name];
     };
 
-    duplicator(double_attributes, name, new_name, overwrite);
     duplicator(lazy_double_attributes, name, new_name, overwrite);
-    duplicator(vector_attributes, name, new_name, overwrite);
     duplicator(lazy_vector_attributes, name, new_name, overwrite);
     duplicator(string_attributes, name, new_name, overwrite);
 }
@@ -288,9 +298,7 @@ void
 Lattice_element::delete_attribute(
         std::string const& name)
 {
-    double_attributes.erase(name);
     lazy_double_attributes.erase(name);
-    vector_attributes.erase(name);
     lazy_vector_attributes.erase(name);
     string_attributes.erase(name);
 }
@@ -308,117 +316,139 @@ void
 Lattice_element::copy_attributes_from(
         Lattice_element const& o)
 {
-    double_attributes = o.double_attributes;
     lazy_double_attributes = o.lazy_double_attributes;
-    vector_attributes = o.vector_attributes;
     lazy_vector_attributes = o.lazy_vector_attributes;
     string_attributes = o.string_attributes;
 }
 
 void
 Lattice_element::set_double_attribute(
-        std::string const & name, 
+        std::string const& name, 
         double value,
         bool increment_revision)
 {
-    double_attributes[name] = value;
+    lazy_double_attributes[name] = mx_expr(value);
     if (increment_revision) ++revision;
 }
 
 void
 Lattice_element::set_double_attribute(
-        std::string const & name, 
-        synergia::mx_expr const& value,
+        std::string const& name, 
+        mx_expr const& value,
         bool increment_revision)
 {
-    // insert into lazy attributes map
     lazy_double_attributes[name] = value;
-
-    // eraase the entry from the double attributes otherwise
-    // the double attribute will take precedence
-    double_attributes.erase(name);
-
     if (increment_revision) ++revision;
 }
 
 void
 Lattice_element::set_default_double_attribute(
-        std::string const & name, 
+        std::string const& name, 
         double value,
         bool increment_revision )
 {
     if (!has_double_attribute(name))
     {
-        double_attributes[name] = value;
+        lazy_double_attributes[name] = mx_expr(value);
         if (increment_revision) ++revision;
     }
 }
 
 bool
-Lattice_element::has_double_attribute(std::string const & name) const
+Lattice_element::has_double_attribute(
+        std::string const& name) const
 {
-    bool retval = (double_attributes.count(name) > 0 
-            || lazy_double_attributes.count(name) > 0);
-    return retval;
+    return lazy_double_attributes.count(name) > 0;
 }
 
 double
-Lattice_element::get_double_attribute(std::string const& name) const
+Lattice_element::get_double_attribute(
+        std::string const& name) const
 {
-    // first find in double attributes
-    auto r = double_attributes.find(name);
-    if (r!=double_attributes.end()) return r->second;
-
-    // then try the lazy double attributes
     auto lr = lazy_double_attributes.find(name);
-    if (lattice_ptr && lattice_ptr->is_dynamic_lattice() 
-            && lr != lazy_double_attributes.end())
-    {
-        // default to 0.0 when evaluating the lazy value
-        // this will set undefined variables to 0.0 instead
-        // of throwing an excpetion for "undefined reference".
-        return synergia::mx_eval(
-                lr->second, 
-                lattice_ptr->get_lattice_tree().mx,
-                0.0 );
-    }
 
-    if (r == double_attributes.end()) 
-    { 
+    // no such attribute
+    if (lr == lazy_double_attributes.end())
+    {
         throw std::runtime_error( 
                 "Lattice_element::get_double_attribute: element "
                 + this->name + " of type " + stype
                 + " has no double attribute '" + name + "'");
-    } 
-    else 
+    }
+
+    // found the attribute, now evaluate either with or without
+    // dynamic lattice
+    //
+    // default the references to 0.0 when evaluating the lazy value. 
+    //
+    // this will set undefined variables to 0.0 instead of throwing 
+    // an excpetion for "undefined reference".
+    //
+    if (lattice_ptr && lattice_ptr->is_dynamic_lattice())
     {
-        return r->second;
+        auto const& mx = lattice_ptr->get_lattice_tree().mx;
+        return mx_eval(lr->second, mx, 0.0);
+    }
+    else
+    {
+        return mx_eval(lr->second, 0.0);
     }
 }
 
 double
-Lattice_element::get_double_attribute(std::string const& name, double val) const
+Lattice_element::get_double_attribute(
+        std::string const& name, double val) const
 {
-    auto r = double_attributes.find(name);
-    if (r != double_attributes.end()) return r->second;
-
     auto lr = lazy_double_attributes.find(name);
-    if (lattice_ptr && lattice_ptr->is_dynamic_lattice() 
-            && lr != lazy_double_attributes.end())
+
+    // no such attribute, returns the def value
+    if (lr == lazy_double_attributes.end())
+        return val;
+
+    // default the references to 0.0 when evaluating the lazy value. 
+    if (lattice_ptr && lattice_ptr->is_dynamic_lattice())
     {
-        return synergia::mx_eval(
-                lr->second, 
-                lattice_ptr->get_lattice_tree().mx,
-                val);
+        auto const& mx = lattice_ptr->get_lattice_tree().mx;
+        return mx_eval(lr->second, mx, 0.0);
+    }
+    else
+    {
+        return mx_eval(lr->second, 0.0);
+    }
+}
+
+std::map<std::string, double>
+Lattice_element::get_double_attributes() const
+{
+    std::cout << "WARNING: it is not recommended to keep using "
+        "Lattice_element::get_double_attributes() method. For the "
+        "purposes of copying double attributes from one element "
+        "to another, please use Lattice_element::copy_attributes_from() "
+        "instead. For exploring individual double attributes, please "
+        "call the Lattice_element::get_double_attribute(name).";
+
+    std::map<std::string, double> attrs;
+
+    for(auto const& attr : lazy_double_attributes)
+    {
+        if (lattice_ptr && lattice_ptr->is_dynamic_lattice())
+        {
+            auto const& mx = lattice_ptr->get_lattice_tree().mx;
+            attrs[attr.first] = mx_eval(attr.second, mx, 0.0);
+        }
+        else
+        {
+            attrs[attr.first] = mx_eval(attr.second, 0.0);
+        }
     }
 
-    return val;
+    return attrs;
 }
 
 void
 Lattice_element::set_string_attribute(
-        std::string const & name,
-        std::string const & value, 
+        std::string const& name,
+        std::string const& value, 
         bool increment_revision)
 {
     string_attributes[name] = value;
@@ -427,8 +457,8 @@ Lattice_element::set_string_attribute(
 
 void
 Lattice_element::set_default_string_attribute(
-        std::string const & name,
-        std::string const & value, 
+        std::string const& name,
+        std::string const& value, 
         bool increment_revision)
 {
     if (!has_string_attribute(name))
@@ -439,14 +469,16 @@ Lattice_element::set_default_string_attribute(
 }
 
 bool
-Lattice_element::has_string_attribute(std::string const & name) const
+Lattice_element::has_string_attribute(
+        std::string const& name) const
 {
     bool retval = (string_attributes.count(name) > 0);
     return retval;
 }
 
 std::string const&
-Lattice_element::get_string_attribute(std::string const & name) const
+Lattice_element::get_string_attribute(
+        std::string const& name) const
 {
     auto r = string_attributes.find(name);
     if (r == string_attributes.end()) 
@@ -463,7 +495,9 @@ Lattice_element::get_string_attribute(std::string const & name) const
 }
 
 std::string const&
-Lattice_element::get_string_attribute(std::string const & name, std::string const & val) const
+Lattice_element::get_string_attribute(
+        std::string const& name, 
+        std::string const& val) const
 {
     auto r = string_attributes.find(name);
     if (r == string_attributes.end()) return val;
@@ -476,42 +510,83 @@ Lattice_element::set_vector_attribute(
         std::vector<double> const & value, 
         bool increment_revision)
 {
-    vector_attributes[name] = value;
+    std::vector<mx_expr> ve;
+    for(double d : value) ve.emplace_back(d);
+
+    lazy_vector_attributes[name] = ve;
     if (increment_revision) ++revision;
 }
 
 bool
-Lattice_element::has_vector_attribute(std::string const & name) const
+Lattice_element::has_vector_attribute(
+        std::string const& name) const
 {
-    bool retval = (vector_attributes.count(name) > 0);
+    bool retval = (lazy_vector_attributes.count(name) > 0);
     return retval;
 }
 
-std::vector<double> const &
-Lattice_element::get_vector_attribute(std::string const & name) const
+std::vector<double>
+Lattice_element::get_vector_attribute(
+        std::string const& name) const
 {
-    auto r = vector_attributes.find(name);
-    if (r == vector_attributes.end()) 
+    auto r = lazy_vector_attributes.find(name);
+
+    // no such attribute
+    if (r == lazy_vector_attributes.end()) 
     { 
         throw std::runtime_error( 
                 "Lattice_element::get_vector_attribute: element "
                 + this->name + " of type " + stype
                 + " has no vector attribute '" + name + "'");
     } 
-    else 
+
+    // the returned array
+    std::vector<double> vd;
+
+    // default the references to 0.0 when evaluating the lazy value. 
+    if (lattice_ptr && lattice_ptr->is_dynamic_lattice())
     {
-        return r->second;
+        auto const& mx = lattice_ptr->get_lattice_tree().mx;
+        for(auto const& expr : r->second) 
+            vd.push_back(mx_eval(expr, mx, 0.0));
     }
+    else
+    {
+        for(auto const& expr : r->second) 
+            vd.push_back(mx_eval(expr, 0.0));
+    }
+
+    return vd;
 }
 
-std::vector<double> const&
+std::vector<double>
 Lattice_element::get_vector_attribute(
-        std::string const & name, 
-        std::vector<double> const & val) const
+        std::string const& name, 
+        std::vector<double> const& val) const
 {
-    auto r = vector_attributes.find(name);
-    if (r == vector_attributes.end()) return val;
-    else return r->second;
+    auto r = lazy_vector_attributes.find(name);
+
+    // no such attribute, returns the default val
+    if (r == lazy_vector_attributes.end()) 
+        return val;
+
+    // the double array to be returned
+    std::vector<double> vd;
+
+    // default the references to 0.0 when evaluating the lazy values. 
+    if (lattice_ptr && lattice_ptr->is_dynamic_lattice())
+    {
+        auto const& mx = lattice_ptr->get_lattice_tree().mx;
+        for(auto const& expr : r->second) 
+            vd.push_back(mx_eval(expr, mx, 0.0));
+    }
+    else
+    {
+        for(auto const& expr : r->second) 
+            vd.push_back(mx_eval(expr, 0.0));
+    }
+
+    return vd;
 }
 
 void
@@ -648,63 +723,44 @@ Lattice_element::as_string() const
 {
     std::stringstream sstream;
     sstream.precision(15);
-    for (std::list<std::string >::const_iterator it = ancestors.begin();
-            it != ancestors.end(); ++it) {
-        sstream << (*it) << ":";
-    }
+
+    for (auto const& ancestor : ancestors)
+        sstream << ancestor << ":";
+
     sstream << " " << stype << " ";
     sstream << name << ": ";
     bool first_attr = true;
-    for (std::map<std::string, double >::const_iterator it =
-            double_attributes.begin(); it != double_attributes.end(); ++it) {
-        if (first_attr) {
-            first_attr = false;
-        } else {
-            sstream << ", ";
-        }
-        sstream << it->first << "=" << it->second;
-    }
 
-    if (lattice_ptr && lattice_ptr->is_dynamic_lattice())
+    for (auto const& attr : lazy_double_attributes)
     {
-        for (auto it =
-                lazy_double_attributes.begin(); it != lazy_double_attributes.end(); ++it) {
-            if (first_attr) {
-                first_attr = false;
-            } else {
-                sstream << ", ";
-            }
-            sstream << it->first << "=" 
-                //<< get_double_attribute(it->first);
-                << mx_expr_str(it->second);
-        }
+        if (first_attr) first_attr = false;
+        else sstream << ", ";
+
+        sstream << attr.first << "=" << mx_expr_str(attr.second);
     }
 
-    for (std::map<std::string, std::string >::const_iterator it =
-            string_attributes.begin(); it != string_attributes.end(); ++it) {
-        if (first_attr) {
-            first_attr = false;
-        } else {
-            sstream << ", ";
-        }
-        sstream << it->first << "=" << it->second;
+    for (auto const& attr : string_attributes)
+    {
+        if (first_attr) first_attr = false;
+        else sstream << ", ";
+
+        sstream << attr.first << "=" << attr.second;
     }
-    for (std::map<std::string, std::vector<double > >::const_iterator it =
-             vector_attributes.begin(); it != vector_attributes.end(); ++it) {
-        if (first_attr) {
-            first_attr = false;
-        } else {
-            sstream << ", ";
-        }
-        sstream << it->first << "=" << "{";
-        for (size_t i=0; i != (it->second).size(); ++i) {
-            if (i) {
-                sstream << ", ";
-            }
-            sstream << (it->second)[i];
+
+    for (auto const& attr : lazy_vector_attributes)
+    {
+        if (first_attr) first_attr = false;
+        else sstream << ", ";
+
+        sstream << attr.first << "={";
+        for(size_t i=0; i<attr.second.size(); ++i)
+        {
+            if (i) sstream << ", ";
+            sstream << mx_expr_str((attr.second)[i]);
         }
         sstream << "}";
     }
+
     return sstream.str();
 }
 
@@ -721,20 +777,20 @@ Lattice_element::as_madx() const
     std::stringstream ss;
     ss << name << ": " << stype;
 
-    for(auto const& attr : double_attributes)
-        ss << ", " << attr.first << "=" << attr.second;
+    for(auto const& attr : lazy_double_attributes)
+        ss << ", " << attr.first << "=" << mx_expr_str(attr.second);
 
     for(auto const& attr : string_attributes)
         ss << ", " << attr.first << "=" << attr.second;
 
-    for(auto const& attr : vector_attributes)
+    for(auto const& attr : lazy_vector_attributes)
     {
         ss << ", " << attr.first << "={";
 
         for(int i = 0; i<attr.second.size(); ++i)
         {
-            ss << attr.second[i];
-            if (i < attr.second.size()-1) ss << ",";
+            if (i) ss << ", ";
+            ss << mx_expr_str(attr.second[i]);
         }
 
         ss << "}";
