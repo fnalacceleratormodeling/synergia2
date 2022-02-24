@@ -57,7 +57,7 @@ def convert_magnets(lattice):
             if _is_magnet(element.get_type_name()) and \
                 (not no_simplify(element)):
                 has_nonzero_strength = False
-                for attr in element.get_double_attributes():
+                for attr in element.get_double_attribute_names():
                     if (len(attr) == 1) and (attr == 'k'):
                         if element.get_double_attribute(attr) != 0.0:
                             has_nonzero_strength = True

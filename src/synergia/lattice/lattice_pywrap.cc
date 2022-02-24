@@ -131,6 +131,9 @@ PYBIND11_MODULE(lattice, m)
                 "Set the value of the named double attribute", 
                 "name"_a, "value"_a, "increment_revision"_a = true )
 
+        .def( "get_double_attribute_names",
+                &Lattice_element::get_double_attribute_names )
+
         // string attribute
         .def( "has_string_attribute", 
                 &Lattice_element::has_string_attribute,

@@ -417,15 +417,30 @@ Lattice_element::get_double_attribute(
     }
 }
 
+std::vector<std::string>
+Lattice_element::get_double_attribute_names() const
+{
+    std::vector<std::string> names;
+
+    for(auto const& attr : lazy_double_attributes)
+        names.push_back(attr.first);
+
+    return names;
+}
+
 std::map<std::string, double>
 Lattice_element::get_double_attributes() const
 {
-    std::cout << "WARNING: it is not recommended to keep using "
+    std::cout << 
+        "WARNING: it is not recommended to keep using "
         "Lattice_element::get_double_attributes() method. For the "
         "purposes of copying double attributes from one element "
         "to another, please use Lattice_element::copy_attributes_from() "
         "instead. For exploring individual double attributes, please "
-        "call the Lattice_element::get_double_attribute(name).";
+        "call the Lattice_element::get_double_attribute(name). For "
+        "iterating through the double attribute keys, please use "
+        "Lattice_element::get_double_attribute_names()." 
+        ;
 
     std::map<std::string, double> attrs;
 

@@ -435,9 +435,15 @@ public:
     void
     print() const;
 
+    // get the names of all double attributes
+    std::vector<std::string>
+    get_double_attribute_names() const;
+
+    /// deprecated
     std::map<std::string, double>
     get_double_attributes() const;
 
+    /// deprecated
     std::map<std::string, std::string> const&
     get_string_attributes() const
     { return string_attributes; }
