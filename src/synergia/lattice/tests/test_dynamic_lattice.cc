@@ -24,11 +24,14 @@ TEST_CASE("dynamic lattice")
 
         x = 1.0;
         y = {1, 2, 3, 4};
+        z = "abc";
+
+        o: drift, l=0.2;
 
         a: quadrupole, l=0.0, k1=x+1.0;
-        b: quadrupole, l=0.2;
+        b: quadrupole, l=o->l;
         c: quadrupole, l=0.4;
-        d: quadrupole, l=0.8;
+        d: quadrupole, l=o->l*4, k1=o->l*5;
 
         seq: sequence, l=3.0;
         a, at=0;
@@ -44,14 +47,36 @@ TEST_CASE("dynamic lattice")
     Logger screen(0, LoggerV::DEBUG);
 
     auto lattice = reader.get_dynamic_lattice("seq");
+    std::cout << lattice.as_string();
 
+    auto const& elms = lattice.get_elements();
+
+    // original a->k1
     CHECK(lattice.get_elements().front().get_double_attribute("k1")
             == Approx(2.0).margin(1e-12));
 
+    // set x
     lattice.get_lattice_tree().set_variable("x", 3.0);
 
+    // a->k1 after setting a new x
     CHECK(lattice.get_elements().front().get_double_attribute("k1")
             == Approx(4.0).margin(1e-12));
+
+    // find element d
+    auto it = elms.end();
+    --it; --it;
+
+    // original values
+    CHECK(it->get_double_attribute("l") == Approx(0.8).margin(1e-12));
+    CHECK(it->get_double_attribute("k1") == Approx(1.0).margin(1e-12));
+
+    // set o->l to 0.3
+    lattice.get_lattice_tree().set_element_attribute("o", "l", 0.3);
+    lattice.get_lattice_tree().print();
+
+    // updated values
+    CHECK(it->get_double_attribute("l") == Approx(1.2).margin(1e-12));
+    CHECK(it->get_double_attribute("k1") == Approx(1.5).margin(1e-12));
 }
 
 TEST_CASE("serialization")
@@ -63,6 +88,7 @@ TEST_CASE("serialization")
 
             x = 1.0;
             y = {1, 2, 3, 4};
+            z = "abc";
 
             a: quadrupole, l=0.0, k1=x+1.0;
             b: quadrupole, l=0.2;

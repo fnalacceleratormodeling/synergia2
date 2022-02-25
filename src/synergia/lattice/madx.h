@@ -85,7 +85,9 @@ public:
   double   attribute_as_number(string_t const & name) const;
   double   attribute_as_number(string_t const & name, double def) const;
   bool     attribute_as_boolean(string_t const & name) const;
+
   mx_expr  attribute_as_expr(string_t const& name) const;
+  std::vector<mx_expr> attribute_as_expr_seq(string_t const & name) const;
 
   std::vector<double> attribute_as_number_seq(string_t const & name) const;
   std::vector<double> attribute_as_number_seq(string_t const & name, double def) const;
@@ -236,6 +238,7 @@ public:
   size_t label_count() const;    // labeled commands
   std::vector<string_t > command_labels() const;
   MadX_command command(string_t const & l, bool resolve = true) const;
+  MadX_command& command_ref(string_t const& l);
 
   size_t line_count() const;     // labeled lines
   std::vector<string_t > line_labels() const;

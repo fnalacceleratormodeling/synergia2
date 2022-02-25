@@ -44,6 +44,24 @@ namespace
     return std::any_cast<mx_expr>(it->second.value);
   }
 
+  std::vector<mx_expr>
+    retrieve_expr_seq_from_map( value_map_t const & m
+                            , string_t const & k )
+  {
+    string_t key(k);
+    std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+
+    value_map_t::const_iterator it = m.find(key);
+
+    if( it == m.end() )
+      throw std::runtime_error( "retrieve number: cannot find attribute with name " + key);
+
+   if( it->second.type!=ARRAY && it->second.type!=DEFFERED_ARRAY)
+      throw std::runtime_error( "the requested key '" + k + "' cannot be retrieved as an expr_seq" );
+
+    return std::any_cast<std::vector<mx_expr>>(it->second.value);
+  }
+
 
   string_t
     retrieve_string_from_map( value_map_t const & m
@@ -164,7 +182,7 @@ synergia::to_string(MadX_value const& val)
     switch(val.type)
     {
     case STRING:
-        str += std::any_cast<std::string>(val.value);
+        str += "\"" + std::any_cast<std::string>(val.value) + "\"";
         break;
 
     case NUMBER:
@@ -273,6 +291,12 @@ mx_expr
   return retrieve_expr_from_map(attributes_, name);
 }
 
+std::vector<mx_expr>
+  MadX_command::attribute_as_expr_seq( string_t const& name ) const
+{
+  return retrieve_expr_seq_from_map(attributes_, name);
+}
+
 std::vector<double>
   MadX_command::attribute_as_number_seq( string_t const & name ) const
 {
@@ -339,7 +363,7 @@ void
   v.value = std::any(value);
   v.type  = value.empty() ? NONE : STRING;
 
-  attributes_.insert(std::make_pair(key, v));
+  attributes_.insert_or_assign(key, v);
 }
 
 void
@@ -352,7 +376,7 @@ void
   v.value = std::any(value);
   v.type  = NUMBER;
 
-  attributes_.insert(std::make_pair(key, v));
+  attributes_.insert_or_assign(key, v);
 }
 
 void
@@ -365,7 +389,7 @@ void
   v.value = std::any(value);
   v.type  = ARRAY;
 
-  attributes_.insert(std::make_pair(key, v));
+  attributes_.insert_or_assign(key, v);
 }
 
 void
@@ -760,6 +784,24 @@ MadX_command
   }
 }
 
+MadX_command&
+MadX::command_ref(string_t const& label)
+{
+  string_t key(label);
+  std::transform( key.begin(), key.end(), key.begin(), ::tolower );
+
+  commands_m_t::iterator it = cmd_map_.find(key);
+  if( it!=cmd_map_.end() )
+  {
+    return it->second;
+  }
+  else
+  {
+    throw std::runtime_error( "cannot find command with label " + key );
+  }
+}
+
+
 size_t
   MadX::line_count() const
 {
@@ -976,10 +1018,8 @@ MadX::print() const
 {
     for(auto const& var : variables_)
     { 
-        std::string key = var.first; 
-        std::cout << key << " = " 
-            << mx_expr_str(retrieve_expr_from_map(variables_, key)) 
-            << "\n";
+        std::cout << var.first << " = " 
+            << to_string(var.second) << "\n";
     }
 
     for(auto const& cmd : cmd_map_)

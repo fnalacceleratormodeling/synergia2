@@ -18,8 +18,20 @@ public:
         : mx(madx)
     { }
 
+    // set the value of a variable
     void set_variable(std::string const& name, double val);
     void set_variable(std::string const& name, std::string const& val);
+
+    // set the attribute value of an element
+    void set_element_attribute(
+            std::string const& label,
+            std::string const& attr,
+            double val);
+
+    void set_element_attribute(
+            std::string const& label,
+            std::string const& attr,
+            std::string const& val);
 
     void print() const;
 
