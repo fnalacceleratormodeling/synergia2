@@ -47,8 +47,6 @@ TEST_CASE("dynamic lattice")
     Logger screen(0, LoggerV::DEBUG);
 
     auto lattice = reader.get_dynamic_lattice("seq");
-    std::cout << lattice.as_string();
-
     auto const& elms = lattice.get_elements();
 
     // original a->k1

@@ -251,17 +251,37 @@ PYBIND11_MODULE(lattice, m)
         ;
 
     // Lattice_tree
+    using lattice_tree_set_element_attribute_1 = 
+        void (Lattice_tree::*)(std::string const&, std::string const&, double);
+
+    using lattice_tree_set_element_attribute_2 = 
+        void (Lattice_tree::*)(std::string const&, std::string const&, std::string const&);
+
     py::class_<Lattice_tree>(m, "Lattice_tree")
         .def( "set_variable",
                 (void (Lattice_tree::*)(std::string const&, double))
-                    &Lattice_tree::set_variable,
+                &Lattice_tree::set_variable,
                 "name"_a,
                 "val"_a )
 
         .def( "set_variable", 
                 (void (Lattice_tree::*)(std::string const&, std::string const&))
-                    &Lattice_tree::set_variable,
+                &Lattice_tree::set_variable,
                 "name"_a,
+                "val"_a )
+
+        .def( "set_element_attribute",
+                (lattice_tree_set_element_attribute_1)
+                &Lattice_tree::set_element_attribute,
+                "label"_a,
+                "attr"_a,
+                "val"_a )
+
+        .def( "set_element_attribute",
+                (lattice_tree_set_element_attribute_2)
+                &Lattice_tree::set_element_attribute,
+                "label"_a,
+                "attr"_a,
                 "val"_a )
 
         .def( "print",
@@ -418,42 +438,6 @@ PYBIND11_MODULE(lattice, m)
                 &MadX_reader::parse_file,
                 "Parse a lattice file",
                 "filename"_a )
-        ;
-
-    // dynamic lattice
-    using dynamic_lattice_set_variable_1 = 
-        void (Dynamic_lattice::*)(std::string const&, double);
-
-    using dynamic_lattice_set_variable_2 = 
-        void (Dynamic_lattice::*)(std::string const&, std::string const&);
-
-    py::class_<Dynamic_lattice>(m, "Dynamic_lattice")
-        .def( py::init<>(), 
-                "Construct a Dynamic_lattice" )
-
-        .def( "read_madx_file",
-                &Dynamic_lattice::read_madx_file,
-                "filename"_a )
-
-        .def( "read_madx_string",
-                &Dynamic_lattice::read_madx_string,
-                "str"_a )
-
-        .def( "construct_lattice",
-                &Dynamic_lattice::construct_lattice,
-                "line_name"_a )
-
-        .def( "set_variable",
-                (dynamic_lattice_set_variable_1)&Dynamic_lattice::set_variable,
-                "name"_a,
-                "val"_a )
-
-        .def( "set_variable",
-                (dynamic_lattice_set_variable_2)&Dynamic_lattice::set_variable,
-                "name"_a,
-                "val"_a )
-
-        .def( "print", &Dynamic_lattice::print )
         ;
  
 }
