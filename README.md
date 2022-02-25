@@ -7,20 +7,20 @@
 
 `Synergia` is a accelerator modeling and simulation package developped at Fermilab.
 
-- [Build Synergia](#markdown-header-build-instructions)
-- [Writing a Synergia Simulation](#markdown-header-writing-a-synergia-simulation)
-    - [A FODO Example in Python](#markdown-header-a-fodo-example-in-python)
-    - [Explanation](#markdown-header-explanation)
-        - [Lattice](#markdown-header-lattice)
-        - [Bunch](#markdown-header-bunch)
-        - [Populate Bunch Data](#markdown-header-populate-bunch-data)
-        - [Bunch_simulator](#markdown-header-bunch_simulator)
-        - [Diagnostics](#markdown-header-diagnostics)
-        - [Propagator and Space Charge Operators](#markdown-header-propagator-and-space-charge-operators)
-        - [Propagate](#markdown-header-propagate)
-        - [Run the Script](#markdown-header-run-the-script)
-- [Advanced Topics](#markdown-header-advanced-topics)
-- [API References](#markdown-header-api-and-class-references)
+- [Build Synergia](#build-instructions)
+- [Writing a Synergia Simulation](#writing-a-synergia-simulation)
+    - [A FODO Example in Python](#a-fodo-example-in-python)
+    - [Explanation](#explanation)
+        - [Lattice](#lattice)
+        - [Bunch](#bunch)
+        - [Populate Bunch Data](#populate-bunch-data)
+        - [Bunch_simulator](#bunch_simulator)
+        - [Diagnostics](#diagnostics)
+        - [Propagator and Space Charge Operators](#propagator-and-space-charge-operators)
+        - [Propagate](#propagate)
+        - [Run the Script](#run-the-script)
+- [Advanced Topics](#advanced-topics)
+- [API References](#api-and-class-references)
 
 
 ## Build Instructions 
@@ -599,6 +599,10 @@ diag = Diagnostics_bulk_track(filename, num_tracks, offset, particlegroup)
 simulator.reg_diag_per_turn(diag)
 ```
 
+### Bunch Particle Array Layout
+
+TBA
+
 ### Propagate Actions
 
 TBA
@@ -609,13 +613,66 @@ TBA
 
 ### Longitudinal Boundaries
 
-TBA
+A bunch can be set to one of the four different types of longitudinal boundary conditions,
+
+```python
+class LongitudinalBoundary(Enum):
+    open = 0
+    periodic = 1
+    aperture = 2
+    bucket_barrier = 3
+```
+
+The default longitudinal boundary condition of a bunch is set to 
+`LongitudinalBoundary.open`. User can `set`/`get` the boundary condition using,
+
+```python
+Bunch.set_longitudinal_boundary(boundary, param = 0.0)
+Bunch.get_longitudinal_boundary()
+```
+The `param` argument to the `set` method sets the parameter associated to the
+corresponding boundary condition. Meanings of the `param` are,
+
+```
+LongitudinalBoundary.open => param ignored
+LongitudinalBoundary.periodic => param = z-periodic length
+LongitudinalBoundary.aperture => param = z-cut aperture length
+LongitudinalBoundary.bucket_barrier => param = bucket length
+```
+
+The `get` method returns a tuple of `[LongitudinalBoundary, float]` representing the
+current longitudinal boundary condition and the parameter associated with it.
+
+If a longitudinal boundary other than the `open` is set to a bunch, the corresponding
+boundary action will be performed at the end of each operator on every particle (both
+regular and spectator) of the bunch.
+
+* `LongitudinalBoundary.periodic` applies the z-periodic condition if a particle goes
+beyond the given periodic length.
+
+* `LongitudinalBoundary.aperture` discards the particle which goes beyond the given
+z-cut length.
+
+* `LongitudinalBoundary.bucket_barrier` bounces back the particle with a flipped 
+longitudinal momentum if it goes beyond the z-bucket length.
+
+A diagnostics for the z-cut aperture loss particles can be registered to a bunch to
+record the location and state of the loss particles due to the `Longitudinal.aperture`
+boundary.
+
+```python
+Bunch.set_diag_loss_zcut(filename)
+```
 
 ### Bunch Injection
 
 TBA
 
 ### Bunch Train and Multiple Bunch Simulation
+
+TBA
+
+### Trigon and Mappings
 
 TBA
 
