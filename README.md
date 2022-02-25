@@ -5,7 +5,7 @@
 
 ![](wiki/animation_synergia.gif)
 
-`Synergia` is a accelerator modeling and simulation package developped at Fermilab.
+`Synergia` is a accelerator modeling and simulation package developed at Fermilab.
 
 - [Build Synergia](#build-instructions)
 - [Writing a Synergia Simulation](#writing-a-synergia-simulation)
@@ -601,7 +601,7 @@ simulator.reg_diag_per_turn(diag)
 
 ### Bunch Particle Array Layout
 
-TBA
+![](wiki/bunch_particles_white.png)
 
 ### Propagate Actions
 
@@ -673,6 +673,10 @@ TBA
 TBA
 
 ### Trigon and Mappings
+
+TBA
+
+### Dynamic Lattice
 
 TBA
 
