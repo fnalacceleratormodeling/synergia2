@@ -40,7 +40,7 @@ import numpy as np
 import synergia
 
 macroparticles = 1048576
-real_particles=2.94e12
+real_particles = 2.94e12
 turns = 10
 gridx = 32
 gridy = 32
@@ -188,9 +188,18 @@ f.set_double_attribute('k1', 0.01)
 o = synergia.lattice.Lattice_element(type='drift', name='o')
 o.set_double_attribute('l', 1.0)
 
+# (experimental) dynamic element attributes
+d = synergia.lattice.Lattice_element(type='quadrupole', name='d')
+d.set_double_attribute('k1', 'strength * 0.12')
+
 # and append elements to the lattice
 lattice.append(f)
 lattice.append(o)
+lattice.append(d)
+lattice.append(o)
+
+# (experimental) dynamic lattice
+lattice.get_lattice_tree().set_variable('strength', -0.01)
 ```
 
 ### Bunch
@@ -256,11 +265,22 @@ Bunch.checkout_particles()
 
 ### Populate Bunch Data
 
-A newly created bunch has its all particle coordinates initialized to `0.0`. User may
-choose to populate the particle coordinates by directly accessing the particle data
-as shown in previous section. 
+A newly created bunch has its all particle coordinates initialized to `0.0`. 
 
-`Synergia` also provides a range of bunch populate methods to initialize the particle
+* User may choose to populate the particle coordinates by directly accessing 
+the particle data as shown in previous section. 
+
+```python
+particles = bunch.get_particles_numpy()
+
+particles[:, 0] = 0.01
+particles[:, 1:6] = 0.0
+
+# sync to device
+bunch.checkin_particles()
+```
+
+* `Synergia` also provides a range of bunch populate methods to initialize the particle
 to certain distributions. For example, the following one populate a bunch with given 
 means and covariances,
 
@@ -276,7 +296,7 @@ dist = synergia.foundation.PCG_random_distribution(seed)
 synergia.bunch.populate_6d(dist, bunch, bunch_meas, bunch_covariances)
 ```
 
-A bunch can also be initialized from reading a generated particle file. The size of
+* A bunch can also be initialized from reading a generated particle file. The size of
 the bunch will be adjusted to fit all particles from the particle file.
 
 ```python
@@ -389,7 +409,7 @@ propagator.propagate(simulator, logger, turns)
 Now we have our first `Synergia` simulation script. Run the simulation with,
 
 ```
-python fodo.py
+python3 fodo.py
 ```
 
 It should produce outputs like,
