@@ -155,9 +155,13 @@ Build python3 on Power9 (libffi needd to enable _ctypes):
 
 ## 5. MacOS (Intel/M1 Mac):
 
+    # Note that the Homebrew installation of hdf5 does not (at the time of this writing)
+    # support MPI parallelism.
     brew install gcc hdf5 fftw3 libomp numpy mpi4py pybind11
     # We recommend a python virtual environment for managing module
-    # versions. We use Homebrew for what we can, and pip for what me must.
+    # versions. We use Homebrew for what we can, and pip for what we must.
+    # Create this virtual environment in the directory in which you will
+    # build synergia2.
     python3 -m venv --system-site-packages synergia-env
     source synergia-env/bin/activate
     python3 -m pip install --upgrade pip
