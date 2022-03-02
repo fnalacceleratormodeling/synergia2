@@ -2,6 +2,7 @@
 if (BUILD_PYTHON_BINDINGS)
 
     add_py_test(test_lattice.py)
+    add_py_test(test_dynamic_lattice.py)
 
 endif()
 
