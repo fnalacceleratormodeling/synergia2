@@ -131,6 +131,12 @@ PYBIND11_MODULE(lattice, m)
                 "Set the value of the named double attribute", 
                 "name"_a, "value"_a, "increment_revision"_a = true )
 
+        .def( "set_double_attribute", 
+                (void (Lattice_element::*)(std::string const&, std::string const&, bool))
+                &Lattice_element::set_double_attribute, 
+                "Set the value (as an expression)  of the named double attribute", 
+                "name"_a, "value"_a, "increment_revision"_a = true )
+
         .def( "get_double_attribute_names",
                 &Lattice_element::get_double_attribute_names )
 
@@ -345,6 +351,20 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice::set_lattice_tree,
                 "Set the Lattice_tree object for variable manipulation",
                 "lattice_tree"_a )
+
+        .def( "set_variable",
+                (void (Lattice::*)(std::string const&, double))
+                &Lattice::set_variable,
+                "Set a double variable in the variable table"
+                "name"_a,
+                "val"_a )
+
+        .def( "set_variable",
+                (void (Lattice::*)(std::string const&, std::string const&))
+                &Lattice::set_variable,
+                "Set a double variable expression in the variable table"
+                "name"_a,
+                "val"_a )
 
         .def( "reset_all_markers",
                 &Lattice::reset_all_markers,
