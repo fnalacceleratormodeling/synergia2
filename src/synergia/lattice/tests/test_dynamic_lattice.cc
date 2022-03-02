@@ -47,7 +47,7 @@ TEST_CASE("dynamic lattice")
     Logger screen(0, LoggerV::DEBUG);
 
     auto lattice = reader.get_dynamic_lattice("seq");
-    auto const& elms = lattice.get_elements();
+    auto& elms = lattice.get_elements();
 
     // original a->k1
     CHECK(lattice.get_elements().front().get_double_attribute("k1")
@@ -75,6 +75,19 @@ TEST_CASE("dynamic lattice")
     // updated values
     CHECK(it->get_double_attribute("l") == Approx(1.2).margin(1e-12));
     CHECK(it->get_double_attribute("k1") == Approx(1.5).margin(1e-12));
+
+    // element c
+    --it;
+
+    // catch parsing error
+    REQUIRE_THROWS(it->set_double_attribute("k1", "o->l*3+"));
+
+    // set k1
+    REQUIRE_NOTHROW(it->set_double_attribute("k1", "o->l*3"));
+
+    // check value 0.3*3 = 0.9
+    CHECK(it->get_double_attribute("k1") == Approx(0.9).margin(1e-12));
+
 }
 
 TEST_CASE("serialization")

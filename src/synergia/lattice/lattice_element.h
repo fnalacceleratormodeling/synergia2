@@ -264,6 +264,18 @@ public:
             bool increment_revision = true);
 
     void
+    set_double_attribute(
+            std::string const& name,
+            const char* value,
+            bool increment_revision = true);
+
+    void
+    set_double_attribute(
+            std::string const& name,
+            std::string const& value,
+            bool increment_revision = true);
+
+    void
     set_default_double_attribute(
             std::string const& name, 
             double value,

@@ -342,6 +342,36 @@ Lattice_element::set_double_attribute(
 }
 
 void
+Lattice_element::set_double_attribute(
+        std::string const& name, 
+        std::string const& value,
+        bool increment_revision)
+{
+    mx_expr expr;
+
+    if (!parse_expr(value, expr))
+    {
+        throw std::runtime_error(
+                "Lattice_element::set_double_attribute() "
+                "cannot parse the value " + value + " into "
+                "a valid expression");
+    }
+
+    lazy_double_attributes[name] = expr;
+    if (increment_revision) ++revision;
+}
+
+void
+Lattice_element::set_double_attribute(
+        std::string const& name,
+        const char* value,
+        bool increment_revision)
+{
+    set_double_attribute(name, std::string(value), 
+            increment_revision);
+}
+
+void
 Lattice_element::set_default_double_attribute(
         std::string const& name, 
         double value,
