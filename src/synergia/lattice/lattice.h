@@ -177,8 +177,16 @@ public:
     Lattice_tree const&
     get_lattice_tree() const;
 
+    /// Set the Lattice_tree object
     void
     set_lattice_tree(Lattice_tree const& tree);
+
+    /// Set a variable in the Lattice_tree object
+    void
+    set_variable(std::string const& name, double val);
+
+    void
+    set_variable(std::string const& name, std::string const& val);
 
 public:
 

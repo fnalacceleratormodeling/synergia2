@@ -392,4 +392,16 @@ Lattice::set_lattice_tree(Lattice_tree const& lattice_tree)
     tree = lattice_tree;
 }
 
+void
+Lattice::set_variable(std::string const& name, double val)
+{
+    tree.set_variable(name, val);
+}
+
+void
+Lattice::set_variable(std::string const& name, std::string const& val)
+{
+    tree.set_variable(name, val);
+}
+
 
