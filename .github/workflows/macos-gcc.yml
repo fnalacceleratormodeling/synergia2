@@ -21,7 +21,7 @@ jobs:
      
     - name: Dependencies
       run: |
-        brew install gcc hdf5 fftw libomp numpy mpi4py pybind11
+        brew install gcc gsl hdf5 fftw libomp numpy mpi4py pybind11
         python3 -m venv --system-site-packages synergia-env
         source synergia-env/bin/activate
         python3 -m pip install --upgrade pip
