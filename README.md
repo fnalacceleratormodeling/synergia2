@@ -201,7 +201,7 @@ lattice.append(d)
 lattice.append(o)
 
 # (experimental) dynamic lattice
-lattice.get_lattice_tree().set_variable('strength', -0.01)
+lattice.set_variable('strength', -0.01)
 ```
 
 ### Bunch
@@ -247,6 +247,12 @@ Bunch.get_design_reference_particle()
 
 # retrieve the particle data in a 2d numpy array [0:size, 0:6]
 # in the second dimension, 0 - x, 1 - xp, 2 - y, 3 - yp, 4 - cdt, 5 - dpop, 6 - id
+#
+# the returned array is a reference to the original particle array. it remains
+# valid throughout the checkin_particles() or checkout_particles() calls.  If
+# the bunch particle array is reallocated, which happens when the particle number 
+# expands over the capacity of the bunch, the returned numpy array will become
+# invalid.
 Bunch.get_particles_numpy()
 ```
 
