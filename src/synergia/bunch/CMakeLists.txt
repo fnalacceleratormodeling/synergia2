@@ -55,8 +55,8 @@ if (BUILD_PYTHON_BINDINGS)
         PRIVATE ${PYBIND11_INCLUDE_DIR}
         PRIVATE ${pybind11_INCLUDE_DIR} )
 
-    target_link_libraries(synergia_pydiag 
-        PRIVATE synergia_bunch )
+    target_link_libraries(synergia_pydiag
+        PRIVATE synergia_bunch Python::Module)
 
     pybind11_add_module(bunch MODULE NO_EXTRAS bunch_pywrap.cc)
     target_link_libraries(bunch PRIVATE synergia_bunch synergia_pydiag)

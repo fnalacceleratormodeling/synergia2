@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.19)
 project(SYNERGIA2 LANGUAGES CXX C)
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.22.0") 
@@ -171,7 +171,7 @@ if (BUILD_PYTHON_BINDINGS)
     message (STATUS "Building python bindings")
     add_subdirectory(src/synergia/utils/pybind11)
 
-    #find_package(ConsistentPython)
+    find_package(Python COMPONENTS Interpreter Development)
     #list(APPEND extra_includes ${PYTHON_INCLUDE_DIR})
     #set(IPYTHON_EXECUTABLE "ipython" CACHE PATH "path to optional ipython executable")
 
