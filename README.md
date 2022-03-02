@@ -1,7 +1,9 @@
 # Synergia
 
-[![CI:ubuntu-gcc](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/gcc.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/gcc.yml)
-[![CI:ubuntu-clang](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/clang.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/clang.yml)
+[![CI:ubuntu-clang](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/ubuntu-clang.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/ubuntu-clang.yml)
+[![CI:ubuntu-gcc](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/ubuntu-gcc.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/ubuntu-gcc.yml)
+[![CI:macOS-clang](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/macos-clang.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/macos-clang.yml)
+[![CI:ubuntu-gcc](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/ubuntu-gcc.yml/badge.svg)](https://github.com/fnalacceleratormodeling/synergia2/actions/workflows/ubuntu-gcc.yml)
 
 ![](wiki/animation_synergia.gif)
 

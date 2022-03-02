@@ -1,4 +1,4 @@
-name: CI:clang
+name: CI:ubuntu-clang
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: CI:gcc
+name: CI:macOS-clang
 
 on:
   push:
@@ -11,35 +11,35 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/fnalacceleratormodeling/synergia2-containers/ubuntu-gcc:main
+    runs-on: macos-latest
   
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
         submodules: 'true'
+     
+    - name: Dependencies
+      run: |
+        brew install gcc hdf5 fftw libomp numpy mpi4py pybind11
+        python3 -m venv --system-site-packages synergia-env
+        source synergia-env/bin/activate
+        python3 -m pip install --upgrade pip
+        python3 -m pip install  pytest pyparsing matplotlib h5py
+
 
     - name: CMake
       run: |
-        . /etc/profile.d/z10_spack_environment.sh 
-        . /opt/view/setvars.sh
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) \
-          -DUSE_EXTERNAL_KOKKOS=on -GNinja
+         -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on
 
     - name: Build
       # Build your program with the given configuration
       run: |
-        . /etc/profile.d/z10_spack_environment.sh 
-        . /opt/view/setvars.sh
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 2
 
     - name: ctest
     # Execute tests defined by the CMake configuration.
       run:  |
-        . /etc/profile.d/z10_spack_environment.sh 
-        . /opt/view/setvars.sh
         cd ${{github.workspace}}/build
         ctest -C ${{env.BUILD_TYPE}} --output-on-failure
