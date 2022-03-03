@@ -30,7 +30,7 @@ jobs:
 
     - name: CMake
       run: |
-        CC=gcc-9 CXX=g++-9 cmake -B ${{github.workspace}}/build \
+        CC=gcc-11 CXX=g++-11 cmake -B ${{github.workspace}}/build \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on
 
     - name: Build
