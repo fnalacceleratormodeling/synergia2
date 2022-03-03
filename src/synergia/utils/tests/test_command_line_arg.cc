@@ -1,49 +1,49 @@
-#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
+#include "synergia/utils/catch.hpp"
 #include "synergia/utils/command_line_arg.h"
 
-BOOST_AUTO_TEST_CASE(construct)
+TEST_CASE("test command line argument parse", "[Command_line_arg]")
 {
+
     Command_line_arg arg("foo");
-}
 
-BOOST_AUTO_TEST_CASE(get_lhs)
-{
-    Command_line_arg arg("foo=bar");
-    BOOST_CHECK(arg.get_lhs() == "foo");
-}
+    SECTION("get_lhs")
+    {
+        Command_line_arg arg("foo=bar");
+        REQUIRE(arg.get_lhs() == "foo");
+    }
 
-BOOST_AUTO_TEST_CASE(get_rhs)
-{
-    Command_line_arg arg("foo=bar");
-    BOOST_CHECK(arg.get_rhs() == "bar");
-}
+    SECTION("get_rhs")
+    {
+        Command_line_arg arg("foo=bar");
+        REQUIRE(arg.get_rhs() == "bar");
+    }
 
-BOOST_AUTO_TEST_CASE(extract_value_int)
-{
-    Command_line_arg arg("foo=7");
-    BOOST_CHECK_EQUAL(arg.extract_value<int >(), 7);
-}
+    SECTION("extract_value_int")
+    {
+        Command_line_arg arg("foo=7");
+        REQUIRE(arg.extract_value<int>() == 7);
+    }
 
-BOOST_AUTO_TEST_CASE(extract_value_double)
-{
-    Command_line_arg arg("foo=2.718");
-    const double tolerance = 1.0e-13;
-    BOOST_CHECK_CLOSE(arg.extract_value<double >(), 2.718, tolerance);
-}
+    SECTION("extract_value_double")
+    {
+        Command_line_arg arg("foo=2.718");
 
-BOOST_AUTO_TEST_CASE(extract_value_bool)
-{
-    Command_line_arg arg("foo=1");
-    BOOST_CHECK_EQUAL(arg.extract_value<bool >(), true);
+        REQUIRE(arg.extract_value<double>() == Approx(2.718).epsilon(1e-13));
+    }
 
-    Command_line_arg arg2("foo=0");
-    BOOST_CHECK_EQUAL(arg2.extract_value<bool >(), false);
-}
+    SECTION("extract_value_bool")
+    {
+        Command_line_arg arg("foo=1");
+        REQUIRE(arg.extract_value<bool>() == true);
 
-BOOST_AUTO_TEST_CASE(extract_value_string)
-{
-    Command_line_arg arg("foo=bar");
-    std::string bar("bar");
-    BOOST_CHECK_EQUAL(arg.extract_value<std::string >(), bar);
+        Command_line_arg arg2("foo=0");
+        REQUIRE(arg2.extract_value<bool>() == false);
+    }
+
+    SECTION("extract_value_string")
+    {
+        Command_line_arg arg("foo=bar");
+        std::string bar("bar");
+        REQUIRE(arg.extract_value<std::string>() == bar);
+    }
 }

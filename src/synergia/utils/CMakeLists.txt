@@ -101,13 +101,6 @@ target_link_libraries(lsexpr_static ${kokkos_libs})
 target_link_options(lsexpr PRIVATE ${LINKER_OPTIONS})
 target_link_options(lsexpr_static PRIVATE ${LINKER_OPTIONS})
 
-if(LINUX)
-add_executable(test_loading_kokkos test_loading_kokkos.cc)
-target_link_libraries(test_loading_kokkos PRIVATE dl)
-target_include_directories(test_loading_kokkos PRIVATE ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src)
-add_test(test_loading_kokkos test_loading_kokkos)
-endif()
-
 install(TARGETS
     synergia_parallel_utils
     synergia_hdf5_utils
@@ -135,19 +128,9 @@ install(FILES
     hdf5_serial_writer.h
     hdf5_writer.h
     complex_error_function.h
-    multi_array_assert.h
-    multi_array_check_equal.h
-    multi_array_offsets.h
-    multi_array_print.h
-    multi_array_serialization.h
-    multi_array_to_string.h
     multi_array_typedefs.h
-    numpy_multi_array_converter.h
-    numpy_multi_ref_converter.h
     parallel_utils.h
     simple_timer.h
-    serialization.h
-    serialization_files.h
     cereal.h
     cereal_files.h
     digits.h

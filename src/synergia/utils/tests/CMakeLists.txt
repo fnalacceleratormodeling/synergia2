@@ -1,4 +1,8 @@
 
+add_executable(test_command_line_arg test_command_line_arg.cc)
+target_link_libraries(test_command_line_arg synergia_command_line synergia_test_main)
+add_test(test_command_line_arg test_command_line_arg)
+
 add_executable(test_hdf5_file_mpi test_hdf5_file_mpi.cc)
 target_link_libraries(test_hdf5_file_mpi synergia_hdf5_utils synergia_test_main)
 
@@ -65,3 +69,11 @@ add_mpi_test(test_distributed_fft3d 1)
 add_mpi_test(test_distributed_fft3d 2)
 add_mpi_test(test_distributed_fft3d 3)
 add_mpi_test(test_distributed_fft3d 4)
+
+if(LINUX)
+  add_executable(test_loading_kokkos test_loading_kokkos.cc)
+  target_link_libraries(test_loading_kokkos PRIVATE dl)
+  target_include_directories(test_loading_kokkos PRIVATE ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src)
+  add_test(test_loading_kokkos test_loading_kokkos)
+endif()
+
