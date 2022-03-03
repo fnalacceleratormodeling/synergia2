@@ -135,12 +135,6 @@ install(FILES
     hdf5_serial_writer.h
     hdf5_writer.h
     complex_error_function.h
-    multi_array_assert.h
-    multi_array_check_equal.h
-    multi_array_offsets.h
-    multi_array_print.h
-    multi_array_serialization.h
-    multi_array_to_string.h
     multi_array_typedefs.h
     numpy_multi_array_converter.h
     numpy_multi_ref_converter.h
