@@ -18,6 +18,9 @@
 #include "synergia/utils/simple_timer.h"
 #include "synergia/utils/json.h"
 
+#include <cereal/cereal.hpp>
+#include <cereal/types/complex.hpp>
+
 template<class T, size_t SIZE>
 struct arr_t
 {
@@ -68,6 +71,12 @@ struct arr_t
         arr_t<U, SIZE> ret;
         for(int i=0; i<SIZE; ++i) ret.data_[i] = static_cast<U>(data_[i]); 
         return ret;
+    }
+
+    template<class AR>
+    void serialize(AR& ar)
+    {
+        ar(data_);
     }
 };
 
@@ -858,6 +867,12 @@ public:
         return os;
     }
 
+    template<class AR>
+    void serialize(AR& ar)
+    {
+        ar(lower);
+        ar(terms);
+    }
 };
 
 template<typename T, unsigned int P, unsigned int D>
@@ -1138,6 +1153,11 @@ public:
 
 #endif
 
+    template<class AR>
+    void serialize(AR& ar)
+    {
+        ar(terms);
+    }
 };
 
 
@@ -1950,6 +1970,12 @@ struct TMapping
         return val; 
     }
 #endif
+
+    template<class AR>
+    void serialize(AR& ar)
+    {
+        ar(comp);
+    }
 
 };
 
