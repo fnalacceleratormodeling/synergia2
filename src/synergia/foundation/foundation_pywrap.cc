@@ -1,5 +1,6 @@
 
 #include "synergia/utils/pybind11_json.hpp"
+#include "synergia/utils/cereal_files.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -14,6 +15,7 @@
 
 #include "trigon.h"
 #include "normal_form.h"
+
 
 
 
@@ -136,35 +138,46 @@ void add_py_trigon_class(pybind11::module& m, const char* name = "Trigon")
 
         .def( py::init<>(), "Construct" )
         .def( py::init<T>(), "Construct with a val", "val"_a )
+
         .def( "value", 
-                (T const& (trigon_t::*)() const)&trigon_t::value)
+                (T const& (trigon_t::*)() const)
+                &trigon_t::value )
+
         .def( "set", 
-                (void (trigon_t::*)(T))&trigon_t::set, 
+                (void (trigon_t::*)(T))
+                &trigon_t::set, 
                 "val"_a )
         .def( "set", 
-                (void (trigon_t::*)(T, size_t))&trigon_t::set, 
+                (void (trigon_t::*)(T, size_t))
+                &trigon_t::set, 
                 "val"_a, "index"_a )
 
         .def( "get_term",
-                (T (trigon_t::*)(size_t))&trigon_t::get_term,
+                (T (trigon_t::*)(size_t))
+                &trigon_t::get_term,
                 "idx"_a )
 
         .def( "get_term",
-                [](trigon_t& self, std::array<size_t, array_length(P)> const& ind) { return self.get_term(canonical_to_index<P, D>(ind)); },
+                [](trigon_t& self, std::array<size_t, array_length(P)> const& ind) { 
+                    return self.get_term(canonical_to_index<P, D>(ind)); 
+                },
                 "indices"_a )
             
 
         .def( "get_term",
-                (T (trigon_t::*)(unsigned int, size_t))&trigon_t::get_term,
+                (T (trigon_t::*)(unsigned int, size_t))
+                &trigon_t::get_term,
                 "power"_a, "idx"_a )
 
 
         .def( "set_term",
-                (void (trigon_t::*)(size_t, T const&))&trigon_t::set_term,
+                (void (trigon_t::*)(size_t, T const&))
+                &trigon_t::set_term,
                 "idx"_a, "val"_a )
 
         .def( "set_term",
-                (void (trigon_t::*)(unsigned int, size_t, T const&))&trigon_t::set_term,
+                (void (trigon_t::*)(unsigned int, size_t, T const&))
+                &trigon_t::set_term,
                 "power"_a, "idx"_a, "val"_a )
 
         .def( "print_coeffs",
@@ -189,6 +202,20 @@ void add_py_trigon_class(pybind11::module& m, const char* name = "Trigon")
                 },
                 "power"_a )
 
+
+        .def( "save_json",
+                [](trigon_t const& self, std::string const& filename) {
+                    json_save(self, filename);
+                },
+                "filename"_a )
+
+        .def_static( "load_json",
+                [](std::string const& filename) {
+                    trigon_t t;
+                    json_load(t, filename);
+                    return t;
+                },
+                "filename"_a )
         ;
 }
 
@@ -204,8 +231,23 @@ void add_py_tmapping_class(pybind11::module& m, const char* name = "TMapping")
         .def( py::init<>(), "Construct" )
         .def( "component",
                 [](tmapping_t& self, size_t i) { return self.comp[i]; } )
+
         .def( "to_json", 
                 &tmapping_t::to_json )
+
+        .def( "save_json",
+                [](tmapping_t const& self, std::string const& filename) {
+                    json_save(self, filename);
+                },
+                "filename"_a )
+
+        .def_static( "load_json",
+                [](std::string const& filename) {
+                    tmapping_t m;
+                    json_load(m, filename);
+                    return m;
+                },
+                "filename"_a )
         ;
 }
 
@@ -218,6 +260,10 @@ void add_py_normal_form(pybind11::module& m)
     ss << "NormalForm_o" << order;
 
     py::class_<nf_t>(m, ss.str().c_str())
+        .def( py::init<typename nf_t::mapping_t const&, double, double, double>(),
+                "Construct a normal form from the one turn map",
+                "map"_a, "e0"_a, "pc0"_a, "mass"_a )
+
         .def( "stationary_actions",
                 &nf_t::stationaryActions,
                 "stdx"_a, "stdy"_a, "stdz"_a )
