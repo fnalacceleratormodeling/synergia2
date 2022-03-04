@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.16)
 project(SYNERGIA2 LANGUAGES CXX C)
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.22.0") 
