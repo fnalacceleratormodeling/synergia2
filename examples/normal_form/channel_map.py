@@ -19,6 +19,20 @@ def run():
     # calculate one turn map at given order (3 here)
     mapping = syn.simulation.Lattice_simulator.get_one_turn_map_o3(lattice)
 
+    # save
+    mapping.save_json("mapping.json")
+
+    # load
+    m2 = syn.foundation.TMapping_o3.load_json("mapping.json")
+
+    # create the normal form object from one turn mapping directly
+    ref = lattice.get_reference_particle()
+    e0 = ref.get_total_energy()
+    pc0 = ref.get_momentum()
+    mass = ref.get_mass()
+
+    nf = syn.foundation.NormalForm_o3(m2, e0, pc0, mass)
+
     # convert the mapping to a json object
     mapping_json = mapping.to_json()
     print(mapping_json)

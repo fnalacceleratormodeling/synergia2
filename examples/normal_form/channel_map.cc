@@ -3,6 +3,7 @@
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/independent_stepper_elements.h"
 #include "synergia/simulation/propagator.h"
+#include "synergia/utils/cereal_files.h"
 
 #include <iostream>
 
@@ -23,17 +24,34 @@ void run()
 
     // one turn map
     auto mapping = Lattice_simulator::get_one_turn_map<3>(lattice);
-    std::cout << mapping.to_json() << "\n";
+    //std::cout << mapping.to_json() << "\n";
 
-#if 0
-    // reference
+    // save
+    json_save(mapping, "mapping.json");
+
+    // load
+    TMapping<Trigon<double, 3, 6>> m2;
+    json_load(m2, "mapping.json");
+
+    // ref
     auto const & ref = lattice.get_reference_particle();
-
     auto energy = ref.get_total_energy();
     auto momentum = ref.get_momentum();
-    auto gamma = ref.get_gamma();
-    auto beta = ref.get_beta();
-#endif
+    auto mass = ref.get_mass();
+
+    // construct the normal from from loaded mapping
+    auto nf = NormalForm<3>(m2, energy, momentum, mass);
+
+    // save the nf object
+    json_save(nf, "nf.json");
+
+    // load
+    NormalForm<3> nf2;
+    json_load(nf2, "nf.json");
+
+    // print something so it doesnt get optimized away by the compiler
+    std::cout << "nf.f[0] = " << nf.get_f()[1].to_json() << "\n";
+    std::cout << "nf2.f[0] = " << nf2.get_f()[1].to_json() << "\n";
 
     for(int comp=0; comp<6; ++comp)
     {
