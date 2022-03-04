@@ -5,6 +5,9 @@
 #include "synergia/foundation/trigon.h"
 #include "synergia/foundation/physical_constants.h"
 
+#include <cereal/cereal.hpp>
+#include <cereal/types/complex.hpp>
+
 template<unsigned int order>
 class NormalForm
 {
@@ -50,6 +53,9 @@ public:
     NormalForm(mapping_t const& one_turn_map,
             double e0, double pc0, double mass);
 
+    // default constructor for serialization only
+    NormalForm() 
+    { }
 
     std::array<double, 3>
     stationaryActions(double stdx, double stdy, double stdz) const;
@@ -83,6 +89,47 @@ private:
 
     std::array<mapping_c_t, order-1> f_;
     std::array<mapping_c_t, order-1> g_;
+
+private:
+
+    // serialization
+    friend class cereal::access;
+
+    template<class AR>
+    void serialize(AR& ar)
+    {
+        ar(CanonToSyn);
+        ar(SynToCanon);
+        ar(f_);
+        ar(g_);
+
+        if (AR::is_saving::value)
+        {
+            auto size = 6*6*sizeof(std::complex<double>);
+
+            std::array<std::complex<double>, 6*6> ae;
+            std::array<std::complex<double>, 6*6> ainve;
+
+            std::memcpy(ae.data(), E_.data(), size);
+            std::memcpy(ainve.data(), invE_.data(), size);
+
+            ar(ae);
+            ar(ainve);
+        }
+        else
+        {
+            auto size = 6*6*sizeof(std::complex<double>);
+
+            std::array<std::complex<double>, 6*6> ae;
+            std::array<std::complex<double>, 6*6> ainve;
+
+            ar(ae);
+            ar(ainve);
+
+            std::memcpy(E_.data(), ae.data(),  size);
+            std::memcpy(invE_.data(), ainve.data(), size);
+        }
+    }
 };
 
 
