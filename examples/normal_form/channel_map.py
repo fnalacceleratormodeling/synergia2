@@ -33,6 +33,12 @@ def run():
 
     nf = syn.foundation.NormalForm_o3(m2, e0, pc0, mass)
 
+    # save nf
+    nf.save_json("nf.json")
+
+    # load
+    nf2 = syn.foundation.NormalForm_o3.load_json("nf.json")
+
     # convert the mapping to a json object
     mapping_json = mapping.to_json()
     print(mapping_json)

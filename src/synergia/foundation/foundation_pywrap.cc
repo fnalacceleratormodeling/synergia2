@@ -283,6 +283,21 @@ void add_py_normal_form(pybind11::module& m)
         .def( "get_g",
                 (typename nf_t::operators_t& (nf_t::*)())&nf_t::get_g,
                 py::return_value_policy::reference_internal )
+
+        .def( "save_json",
+                [](nf_t const& self, std::string const& filename) {
+                    json_save(self, filename);
+                },
+                "filename"_a )
+
+        .def_static( "load_json",
+                [](std::string const& filename) {
+                    nf_t nf;
+                    json_load(nf, filename);
+                    return nf;
+                },
+                "filename"_a )
+
         ;
 }
 
