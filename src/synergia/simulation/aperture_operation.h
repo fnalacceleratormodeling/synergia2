@@ -179,10 +179,12 @@ struct Rectangular_aperture
     bool discard(ConstParticles const& parts, 
             ConstParticleMasks const&, int p) const
     {
+        using Kokkos::Experimental::fabs;
+
         double xrel = parts(p, 0) - xoff;
         double yrel = parts(p, 2) - yoff;
 
-        return Kokkos::Experimental::fabs(xrel) > 0.5*width;
+        return (fabs(xrel) > 0.5*width) || (fabs(yrel) > 0.5*height);
     }
 };
 
