@@ -112,7 +112,6 @@ install(TARGETS
 
 install(FILES
     boost_test_mpi_fixture.h
-    comm_converter.h
     command_line_arg.h
     commxx.h
     commxx_divider.h
@@ -122,7 +121,6 @@ install(FILES
     fast_int_floor.h
     floating_point.h
     gsvector.h
-    hdf5_chunked_array2d_writer.h
     hdf5_misc.h
     hdf5_file.h
     hdf5_serial_writer.h
