@@ -212,6 +212,10 @@ extract_aperture_operation(
     {
         return std::make_unique<Aperture_operation<Elliptical_aperture>>(slice);
     }
+    else if (aperture_type == Rectangular_aperture::type)
+    {
+        return std::make_unique<Aperture_operation<Rectangular_aperture>>(slice);
+    }
     else
     {
         //return std::make_unique<Aperture_operation<Dummy_aperture>>(slice);

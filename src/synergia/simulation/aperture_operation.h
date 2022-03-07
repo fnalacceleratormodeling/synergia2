@@ -156,6 +156,36 @@ struct Elliptical_aperture
     }
 };
 
+/// A rectangular aperture with horizontal and vertical dimensions in meters
+/// determined by the Lattice_element_attributes
+/// "rectangular_aperture_width" and
+/// "rectangular_aperture_height", respectively.
+/// Both dimensions must be specified. Failing to do so will cause an
+/// exception.
+struct Rectangular_aperture
+{
+    constexpr static const char *type = "rectangular";
+    double width, height, xoff, yoff;
+
+    Rectangular_aperture(Lattice_element const& ele)
+        : width(ele.get_double_attribute("rectangular_aperture_width"))
+        , height(ele.get_double_attribute("rectangular_aperture_height"))
+        , xoff(ele.get_double_attribute("hoffset", 0.0))
+        , yoff(ele.get_double_attribute("voffset", 0.0))
+    {
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    bool discard(ConstParticles const& parts, 
+            ConstParticleMasks const&, int p) const
+    {
+        double xrel = parts(p, 0) - xoff;
+        double yrel = parts(p, 2) - yoff;
+
+        return Kokkos::Experimental::fabs(xrel) > 0.5*width;
+    }
+};
+
 
 #if 0
 /// An elliptical aperture with horizontal and vertical radii in meters
@@ -195,41 +225,6 @@ public:
 BOOST_CLASS_EXPORT_KEY(Elliptical_aperture_operation)
 ;
 
-/// A rectangular aperture with horizontal and vertical dimensions in meters
-/// determined by the Lattice_element_attributes
-/// "rectangular_aperture_width" and
-/// "rectangular_aperture_height", respectively.
-/// Both dimensions must be specified. Failing to do so will cause an
-/// exception.
-class Rectangular_aperture_operation : public Aperture_operation
-{
-private:
-    double width, height;
-public:
-    static const char aperture_type[];
-    static const char attribute_name[];
-    Rectangular_aperture_operation(Lattice_element_slice_sptr slice_sptr);
-    // Default constructor for serialization use only
-    Rectangular_aperture_operation();
-    virtual const char *
-    get_aperture_type() const;
-    virtual bool
-    operator==(Aperture_operation const& aperture_operation) const;
-    bool
-            operator==(
-                    Rectangular_aperture_operation const& rectangular_aperture_operation) const;
-    bool
-    operator()(MArray2d_ref & particles, int part);
-    virtual void
-    apply(Bunch & bunch, int verbosity, Logger & logger);
-    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
-    virtual
-    ~Rectangular_aperture_operation();
-};
-BOOST_CLASS_EXPORT_KEY(Rectangular_aperture_operation)
-;
 
 /// A rectangular aperture with quarter-circular ears on top of a
 /// rectangular strip. The rectangular
