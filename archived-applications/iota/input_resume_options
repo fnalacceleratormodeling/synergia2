@@ -1,6 +1,0 @@
-num_turns=6
-maxturns=3000
-checkpointperiod=1
-concurrentio=8
-verbosity=1
-

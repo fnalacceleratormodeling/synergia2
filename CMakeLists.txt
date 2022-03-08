@@ -275,7 +275,7 @@ smart_include_directories("${extra_includes}")
 
 add_subdirectory(src)
 add_subdirectory(examples)
-add_subdirectory(archived-applications)
+#add_subdirectory(archived-applications)
 #add_subdirectory(docs)
 add_subdirectory(synergia-script-templates)
 
