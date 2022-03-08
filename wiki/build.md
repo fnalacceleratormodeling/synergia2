@@ -100,7 +100,7 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
     # Note that the Homebrew installation of hdf5 does not (at the time of this writing)
     # support MPI parallelism.
     # We install the gcc product to obtain gfortran; see below regarding the use of g++.
-    brew install gcc hdf5 fftw3 libomp numpy mpi4py pybind11 cython
+    brew install gcc hdf5 fftw3 libomp numpy mpi4py pybind11
     # We recommend a python virtual environment for managing module
     # versions. We use Homebrew for what we can, and pip for what we must.
     # Create this virtual environment in the directory in which you will
@@ -108,7 +108,7 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
     python3 -m venv --system-site-packages synergia-env
     source synergia-env/bin/activate
     python3 -m pip install --upgrade pip
-    python3 -m pip install  pytest pyparsing matplotlib
+    python3 -m pip install  pytest pyparsing matplotlib cython
     # We do not install h5py because the pip-installed version may not use a version of HDF5
     # that matches what we have from Homebrew. Instead, we build our own from source.
     mkdir tmp
