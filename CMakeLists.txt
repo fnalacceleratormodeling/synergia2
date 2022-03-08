@@ -82,6 +82,7 @@ set(GSV "AVX" CACHE STRING "set gsvector vectorization type (DOUBLE|SSE|AVX|AVX5
 
 # find MPI -- do not build the C++ bindings
 set(MPI_CXX_SKIP_MPICXX TRUE CACHE BOOL "disable the MPI2-C++ bindings")
+set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
 find_package(MPI REQUIRED COMPONENTS C CXX) # CXX means we need to call C-APIs in C++ code
 list(APPEND extra_includes ${MPI_C_INCLUDE_DIRS})
 set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS ${MPI_CXX_COMPILE_DEFINITIONS})
