@@ -1,5 +1,16 @@
 __version__ = "${SYNERGIA2_VERSION_MAJOR}.${SYNERGIA2_VERSION_MINOR}.${SYNERGIA2_VERSION_PATCH}.${SYNERGIA2_VERSION_TWEAK}"
-version_major = ${SYNERGIA2_VERSION_MAJOR}
-version_minor = 1${SYNERGIA2_VERSION_MINOR} - 100
-version_patch = 1${SYNERGIA2_VERSION_PATCH} - 100
-version_tweak = 1${SYNERGIA2_VERSION_TWEAK} - 100
+version_major = int("${SYNERGIA2_VERSION_MAJOR}")
+version_minor = int("${SYNERGIA2_VERSION_MINOR}")
+version_patch = int("${SYNERGIA2_VERSION_PATCH}")
+version_tweak = int("${SYNERGIA2_VERSION_TWEAK}")
+
+python_version_major = int("${Python_VERSION_MAJOR}")
+python_version_minor = int("${Python_VERSION_MINOR}")
+python_version_micro = int("${Python_VERSION_PATCH}")
+python_interp_version = (
+    f"{python_version_major}.{python_version_minor}.{python_version_micro}"
+)
+
+mpi_library_version = "${MPI_CXX_LIBRARY_VERSION_STRING}"
+
+hdf5_library_version = "${HDF5_VERSION}"
