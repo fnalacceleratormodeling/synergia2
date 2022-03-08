@@ -108,7 +108,17 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
     python3 -m venv --system-site-packages synergia-env
     source synergia-env/bin/activate
     python3 -m pip install --upgrade pip
-    python3 -m pip install  pytest pyparsing matplotlib h5py
+    python3 -m pip install  pytest pyparsing matplotlib
+    # We do not install h5py because the pip-installed version may not use a version of HDF5
+    # that matches what we have from Homebrew. Instead, we build our own from source.
+    mkdir tmp
+    cd tmp
+    wget https://github.com/h5py/h5py/archive/refs/tags/3.6.0.tar.gz # check for the most recent version
+    tar xf 3.6.0.tar.gz
+    cd h5py-3.6.0
+    HDF5_DIR=/usr/local python setup.py install
+    cd ../..
+    rm -r tmp/    
 
 ** macOS with apple clang**
 
