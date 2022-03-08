@@ -686,20 +686,18 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
             // checkpoint save
             //syn::checkpoint_save(*this, sim);
 
-#if 0
             if ((turns_since_checkpoint == checkpoint_period) 
-                    || ((turn_count == (sim.num_turns - 1)) && final_checkpoint)) 
+                    || ((turn == (sim.max_turns() - 1)) && final_checkpoint)) 
             {
-                t = simple_timer_current();
-                checkpoint(sim, logger, t);
-                t = simple_timer_show(t, "propagate-checkpoint_period");
+                //t = simple_timer_current();
+                syn::checkpoint_save(*this, sim);
+                //t = simple_timer_show(t, "propagate-checkpoint_period");
                 turns_since_checkpoint = 0;
             }
-#endif
 
 #if 0
-            if (((turn_count - orig_first_turn + 1) == sim.max_turns) 
-                    && (turn_count != (sim.num_turns - 1))) 
+            if (((turn - orig_first_turn + 1) == sim.max_turns) 
+                    && (turn != (sim.num_turns - 1))) 
             {
                 logger(LoggerV::INFO_TURN) 
                     << "Propagator: maximum number of turns reached\n";

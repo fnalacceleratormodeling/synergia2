@@ -53,12 +53,33 @@ PYBIND11_MODULE(simulation, m)
     // Propagator
     py::class_<Propagator>(m, "Propagator")
         .def(py::init<Lattice const&, Stepper const&>())
-        .def("propagate", &Propagator::propagate)
-        .def("print_steps", &Propagator::print_steps)
+
+        .def("propagate", 
+                &Propagator::propagate)
+
+        .def("print_steps", 
+                &Propagator::print_steps)
+
         .def("get_lattice_element_slices", 
                 &Propagator::get_lattice_element_slices)
+
         .def("get_lattice_elements", 
                 &Propagator::get_lattice_elements)
+
+        .def("set_checkpoint_period",
+                &Propagator::set_checkpoint_period,
+                "period"_a )
+
+        .def("get_checkpoint_period",
+                &Propagator::get_checkpoint_period )
+
+        .def("set_final_checkpoint",
+                &Propagator::set_final_checkpoint,
+                "val"_a )
+
+        .def("get_final_checkpoint",
+                &Propagator::get_final_checkpoint )
+
         ;
 
     // chormaticities_t

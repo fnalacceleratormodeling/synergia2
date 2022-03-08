@@ -191,6 +191,9 @@ private:
     
     std::unique_ptr<Stepper> stepper_ptr;
 
+    int checkpoint_period;
+    bool final_checkpoint;
+
 private:
 
 	void do_before_start(
@@ -226,6 +229,8 @@ public:
         , steps()
         , slices(*this)
         , stepper_ptr(stepper.clone())
+        , checkpoint_period(-1)
+        , final_checkpoint(false)
     {
         this->lattice.update();
         steps = stepper_ptr->apply(this->lattice);
@@ -234,14 +239,32 @@ public:
     // max_turns: number of turns in this propagate. -1 run to the end
     void propagate(Bunch_simulator & simulator, Logger & logger, int max_turns = -1);
 
+    // checkpoint period
+    // set -1 to never perform auto checkpoint save
+    void set_checkpoint_period(int period)
+    { checkpoint_period = period; }
+
+    int get_checkpoint_period() const
+    { return checkpoint_period; }
+
+    // whether to perform checkpoint save at the end of simulation
+    void set_final_checkpoint(bool val)
+    { final_checkpoint = val; }
+
+    bool get_final_checkpoint() const
+    { return final_checkpoint; }
+
+    // slices
     Lattice_element_slices&
     get_lattice_element_slices()
     { return slices; }
 
+    // elements
     std::list<Lattice_element> const&
     get_lattice_elements()
     { return lattice.get_elements(); }
 
+    // lattice
     Lattice&       get_lattice()       { return lattice; }
     Lattice const& get_lattice() const { return lattice; }
 
@@ -287,6 +310,8 @@ private:
     {
         ar(CEREAL_NVP(lattice));
         ar(CEREAL_NVP(stepper_ptr));
+        ar(CEREAL_NVP(checkpoint_period));
+        ar(CEREAL_NVP(final_checkpoint));
     }
 
     template<class AR>
@@ -294,6 +319,8 @@ private:
     {
         ar(CEREAL_NVP(lattice));
         ar(CEREAL_NVP(stepper_ptr));
+        ar(CEREAL_NVP(checkpoint_period));
+        ar(CEREAL_NVP(final_checkpoint));
 
         lattice.update();
         steps = stepper_ptr->apply(lattice);
@@ -302,12 +329,6 @@ private:
 #if 0
     Stepper_sptr
     get_stepper_sptr();
-
-    void
-    set_checkpoint_period(int period);
-
-    int
-    get_checkpoint_period() const;
 
     void
     set_checkpoint_dir(std::string const& directory_name);
@@ -320,12 +341,6 @@ private:
 
     bool
     get_checkpoint_with_xml() const;
-
-    void
-    set_final_checkpoint(bool final_checkpoint);
-
-    bool
-    get_final_checkpoint() const;
 
     void
     set_concurrent_io(int max);
