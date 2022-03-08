@@ -216,6 +216,10 @@ extract_aperture_operation(
     {
         return std::make_unique<Aperture_operation<Rectangular_aperture>>(slice);
     }
+    else if (aperture_type == Polygon_aperture::type)
+    {
+        return std::make_unique<Aperture_operation<Polygon_aperture>>(slice);
+    }
     else
     {
         //return std::make_unique<Aperture_operation<Dummy_aperture>>(slice);

@@ -188,6 +188,99 @@ struct Rectangular_aperture
     }
 };
 
+/// A polygon aperture with vertices
+/// determined by the Lattice_element_attributes
+/// "pax1", "pay1", "pax2", "pay2", and so on.
+/// And it also requires "the_number_of_vertices", which determines the number
+/// of vertices and must be greter than and equal to 3.
+/// Must have at least 3 vertcies. Failing to do so will cause an
+/// exception.
+struct Polygon_aperture
+{
+    constexpr static const int max_vertices = 100;
+    constexpr static const char *type = "polygon";
+
+    Kokkos::complex<double> vertices[max_vertices];
+
+    int num_vertices;
+    double min_radius2, xoff, yoff;
+
+    Polygon_aperture(Lattice_element const& ele)
+        : num_vertices(ele.get_double_attribute("the_number_of_vertices"))
+        , min_radius2(ele.get_double_attribute("min_radius2", 0.0))
+        , xoff(ele.get_double_attribute("hoffset", 0.0))
+        , yoff(ele.get_double_attribute("voffset", 0.0))
+    {
+        if (num_vertices < 3)
+        {
+            throw std::runtime_error(
+                    "Polygon_aperture: requires at least 3 vertices.");
+        }
+
+        if (num_vertices > max_vertices)
+        {
+            throw std::runtime_error(
+                    "Polygon_aperture: the_number_of_vertices exceeds the "
+                    "max allowed number. Please increase the max value at "
+                    "Polygon_aperture::max_vertices" );
+        }
+
+        for(int i=0; i<num_vertices; ++i)
+        {
+            std::stringstream sx;
+            std::stringstream sy;
+
+            sx << "pax" << (i+1);
+            sy << "pay" << (i+1);
+
+            vertices[i] = Kokkos::complex<double>(
+                ele.get_double_attribute(sx.str()),
+                ele.get_double_attribute(sy.str())
+            );
+        }
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    bool discard(ConstParticles const& parts, 
+            ConstParticleMasks const&, int p) const
+    {
+        using Kokkos::Experimental::atan2;
+
+        double xrel = parts(p, 0) - xoff;
+        double yrel = parts(p, 2) - yoff;
+        double r2 = xrel*xrel + yrel*yrel;
+
+        bool keep = true;
+
+        if (r2 >= min_radius2)
+        {
+            Kokkos::complex<double> u(xrel, yrel);
+            int idx = 0;
+            int size = num_vertices;
+            double theta_sum = 0.0;
+
+            while(idx<size)
+            {
+                int idx2 = idx + 1;
+                if (idx2 == size) idx2 = 0;
+
+                Kokkos::complex<double> v(vertices[idx]);
+                Kokkos::complex<double> w(vertices[idx2]);
+
+                auto r = (w-u) * conj(v-u);
+                double theta = atan2(r.imag(), r.real());
+                theta_sum += theta;
+                ++idx;
+            }
+
+            const double tiny = 1e-12;
+            if (theta_sum / (2.0*mconstants::pi) < tiny) keep = false;
+        }
+
+        return !keep;
+    }
+};
+
 
 #if 0
 /// An elliptical aperture with horizontal and vertical radii in meters
@@ -268,44 +361,6 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Rectangular_with_ears_aperture_operation)
 ;
-
-/// A polygon aperture with vertices
-/// determined by the Lattice_element_attributes
-/// "pax1", "pay1", "pax2", "pay2", and so on.
-/// And it also requires "the_number_of_vertices", which determines the number
-/// of vertices and must be greter than and equal to 3.
-/// Must have at least 3 vertcies. Failing to do so will cause an
-/// exception.
-class Polygon_aperture_operation : public Aperture_operation
-{
-private:
-    int num_vertices;
-    std::vector<std::complex<double > > vertices;
-    double min_radius2;
-public:
-    static const char aperture_type[];
-    static const char attribute_name[];
-    Polygon_aperture_operation(Lattice_element_slice_sptr slice_sptr);
-    // Default constructor for serialization use only
-    Polygon_aperture_operation();
-    virtual const char *
-    get_aperture_type() const;
-    virtual bool
-    operator==(Aperture_operation const& aperture_operation) const;
-    bool
-            operator==(
-                    Polygon_aperture_operation const& polygon_aperture_operation) const;
-    bool
-    operator()(MArray2d_ref & particles, int part);
-    virtual void
-    apply(Bunch & bunch, int verbosity, Logger & logger);
-    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
-    virtual
-    ~Polygon_aperture_operation();
-};
-BOOST_CLASS_EXPORT_KEY(Polygon_aperture_operation)
 
 /// An wire_elliptical aperture with horizontal and vertical radii in meters
 /// determined by the Lattice_element_attributes
