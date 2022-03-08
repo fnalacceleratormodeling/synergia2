@@ -30,10 +30,9 @@ def test_mpi_version():
 
     # For some reason, the module function MPI.Get_library_version returns
     # a string will a trailing null character, which we remove.
-    assert version.mpi_library_version == MPI.Get_library_version().rstrip("\0")
+    assert version.mpi_library_version.split() == MPI.Get_library_version().split()
 
 def test_hdf5_version():
     from synergia import version
     from h5py import version as v
     assert version.hdf5_library_version == v.hdf5_version
-    

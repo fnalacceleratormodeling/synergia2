@@ -16,6 +16,9 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/synergia.cc.in"
     "${CMAKE_CURRENT_BINARY_DIR}/synergia.cc" IMMEDIATE)
 
+set(SYNERGIA_MPI_LIBRARY_VERSION "")
+string(REGEX REPLACE "[\n\t]+" " " SYNERGIA_MPI_LIBRARY_VERSION "${MPI_C_LIBRARY_VERSION_STRING}")
+
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.py.in"
     "${CMAKE_CURRENT_BINARY_DIR}/version.py" IMMEDIATE)
 

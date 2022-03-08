@@ -11,6 +11,6 @@ python_interp_version = (
     f"{python_version_major}.{python_version_minor}.{python_version_micro}"
 )
 
-mpi_library_version = "${MPI_CXX_LIBRARY_VERSION_STRING}"
+mpi_library_version = "${SYNERGIA_MPI_LIBRARY_VERSION}"
 
 hdf5_library_version = "${HDF5_VERSION}"
