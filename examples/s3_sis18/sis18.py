@@ -86,7 +86,7 @@ def run2():
     mapping = synergia.simulation.Lattice_simulator.get_linear_one_turn_map(lattice)
 
     # map to twiss
-    mapx = mapping[0:2, 0:2]
+    mapx = [[ 0.45713512, 10.35245763], [-0.16869725, -1.63284564]]
     rx = synergia.simulation.Lattice_simulator.map_to_twiss(mapx)
 
     mapy = mapping[2:4, 2:4]
