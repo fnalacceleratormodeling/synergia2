@@ -73,6 +73,7 @@ option(ALLOW_PADDING "add paddings to the particle array for memory alignment" O
 option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" Off)
 option(Kokkos_ENABLE_OPENMP "enable openmp backend" On)
 option(Kokkos_ENABLE_CUDA "enable CUDA backend" Off)
+option(BUILD_EXAMPLES "build examples" On)
 
 # only build the shared lib
 option(BUILD_SHARED_LIBS "Build shared libraries" TRUE)
@@ -274,8 +275,9 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 smart_include_directories("${extra_includes}")
 
 add_subdirectory(src)
-add_subdirectory(examples)
-#add_subdirectory(archived-applications)
-#add_subdirectory(docs)
+
+if (BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 add_subdirectory(synergia-script-templates)
 
