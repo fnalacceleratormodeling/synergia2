@@ -285,6 +285,26 @@ PYBIND11_MODULE(simulation, m)
         .def( "get_one_turn_map_o7",
                 &Lattice_simulator::get_one_turn_map<7>,
                 "lattice"_a, "dpp"_a = 0.0 )
+
+        .def( "map_to_twiss",
+                [](py::array_t<double> map) {
+
+                    if (map.ndim()!=2 || map.shape(0)!=2 || map.shape(1)!=2)
+                        throw std::runtime_error(
+                                "Lattice_simulator::map_to_twiss(map): "
+                                "map must be a numpy array of (2, 2)");
+                    
+                    using ka2d_unmanaged = Kokkos::View<double**, 
+                        Kokkos::LayoutRight, 
+                        Kokkos::HostSpace, 
+                        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+
+                    ka2d_unmanaged ka_map(
+                            map.mutable_data(), map.shape(0), map.shape(1));
+
+                    return Lattice_simulator::map_to_twiss(ka_map);
+                },
+                "map"_a )
         ;
 
     // Collective operator options (base class)

@@ -81,9 +81,36 @@ def run2():
             synergia.utils.parallel_utils.LoggerV.DEBUG)
 
     lattice = get_lattice()
+
+    # linear one turn map
+    mapping = synergia.simulation.Lattice_simulator.get_linear_one_turn_map(lattice)
+
+    # map to twiss
+    mapx = mapping[0:2, 0:2]
+    rx = synergia.simulation.Lattice_simulator.map_to_twiss(mapx)
+
+    mapy = mapping[2:4, 2:4]
+    ry = synergia.simulation.Lattice_simulator.map_to_twiss(mapy)
+
+    mapz = mapping[4:6, 4:6]
+    rz = synergia.simulation.Lattice_simulator.map_to_twiss(mapz)
+
+    beta = lattice.get_reference_particle().get_beta()
+
+    print("Lattice parameters")
+    print("alpha_x: {}, alpha_y: {}".format(rx[0], ry[0]))
+    print("beta_x: {}, beta_y: {}".format(rx[1], ry[1]))
+    print("q_x: {}, q_y: {}, q_s: {}".format(rx[2], ry[2], rz[2]))
+    print("beta_cdt: {}, beta_longitudinal: {}".format(rz[1], rz[1]*beta))
+
+
+    # simulator
     sim = create_simulator(lattice.get_reference_particle())
+
+    # propagator
     propagator = create_propagator(lattice)
 
+    # bunch statistics
     sim.get_bunch().print_statistics(screen);
 
     class context:
@@ -94,6 +121,7 @@ def run2():
         #another_steps += 1
         context.steps += 1
 
+    # propagate actions
     sim.reg_prop_action_step_end(action)
 
     # diagnostics
