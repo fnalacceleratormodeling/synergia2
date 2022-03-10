@@ -1,4 +1,3 @@
-
 # Build Instructions
 
 ## 0a. Path for non-system packages
@@ -53,7 +52,7 @@ Kokkos options:
 Enable/disable Python bindings:
 
     cmake -DBUILD_PYTHON_BINDINGS=on|off  # default is on
-    
+
 Vectorization flags (on M1 Mac must set `-DGSV=DOUBLE`):
 
     cmake -DGSV=DOUBLE|SSE|AVX|AVX512
@@ -87,9 +86,50 @@ Paddings need to be turned off in the CUDA build due to a Kokkos bug https://git
     cmake -DALLOW_PADDING=on|off
 
 
-## 2. Ubuntu 20.04
+## 2. Ubuntu 20.04 LTS
 
-    sudo apt install libopenmpi-dev libfftw3-mpi-dev libgsl-dev libhdf5-openmpi-dev libpython3-dev
+Out general philosophy is to use the package manager to install as many
+requirements as possible.
+
+    sudo apt install \
+        cmake \
+        cython3 \
+        g++ \
+        hdf5-tools \
+        libfftw3 \
+        libfftw3-dev \
+        libfftw3-mpi-dev \
+        libgsl-dev \
+        libhdf5-dev \
+        libhdf5-openmpi-dev \
+        libopenmpi-dev \
+        libpython3-dev \
+        pkg-config \
+        python3-dev \
+        python3-matplotlib \
+        python3-pyparsing \
+        python3-pytest \
+        python3-tables \
+        python3.8-venv
+
+
+    # We recommend a python virtual environment for managing module versions.
+    python3 -m venv --system-site-packages synergia-env
+    source synergia-env/bin/activate
+
+    # We do not install h5py using pip because the pip-installed version may not
+    # not use a version of HDF5 that matches what we have from the package manager.
+    i# Instead, we build our own from source.
+    mkdir tmp
+    cd tmp
+    wget https://github.com/h5py/h5py/archive/refs/tags/3.6.0.tar.gz # check for the most recent version
+    tar xf 3.6.0.tar.gz
+    cd h5py-3.6.0
+    HDF5_DIR=/usr/local python setup.py install
+    cd ../..
+    rm -r tmp/
+
+    # We build using the system compilers which are recent enough for our needs
     cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on /path/to/synergia/
 
 ## 3. macOS (Intel and M1 Mac)
@@ -101,16 +141,16 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
     # support MPI parallelism.
     # We install the gcc product to obtain gfortran; see below regarding the use of g++.
     brew install gcc hdf5 fftw3 libomp numpy mpi4py pybind11
-    # We recommend a python virtual environment for managing module
-    # versions. We use Homebrew for what we can, and pip for what we must.
-    # Create this virtual environment in the directory in which you will
-    # build synergia2.
+
+    # We recommend a python virtual environment for managing module versions.
     python3 -m venv --system-site-packages synergia-env
     source synergia-env/bin/activate
     python3 -m pip install --upgrade pip
-    python3 -m pip install  pytest pyparsing matplotlib cython
-    # We do not install h5py because the pip-installed version may not use a version of HDF5
-    # that matches what we have from Homebrew. Instead, we build our own from source.
+    python3 -m pip install pytest pyparsing matplotlib cython
+
+    # We do not install h5py using pip because the pip-installed version may not
+    # not use a version of HDF5 that matches what we have from the package manager.
+    i# Instead, we build our own from source.
     mkdir tmp
     cd tmp
     wget https://github.com/h5py/h5py/archive/refs/tags/3.6.0.tar.gz # check for the most recent version
@@ -118,24 +158,22 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
     cd h5py-3.6.0
     HDF5_DIR=/usr/local python setup.py install
     cd ../..
-    rm -r tmp/    
+    rm -r tmp/
 
 ** macOS with apple clang**
 
     # We do not recommend using /usr/local/ as your installation target. While this is the default, this will mix your Synergia installation
     # with the tools installed using Homebrew -- but Homebrew will not know how to update Synergia.
-    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on -DCMAKE_INSTALL_PREFIX=/path/to/install/target /path/to/synergia/
-
+    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DCMAKE_INSTALL_PREFIX=/path/to/install/target /path/to/synergia/
 
 ** macOS with gcc**
 
 We do not recommend the use of the the GNU compiler suite to build Synergia on macOS.
 This can lead to incompatibilities between C++ libraries that are part of the OS or part of Homebrew on one hand, and C++ libraries built with `g++` on the other.
 
-    # The current version of the Homebrew GCC formula at the time of this writing installs 
+    # The current version of the Homebrew GCC formula at the time of this writing installs
     # g++-11.
     CC=gcc-11 CXX=g++-11 cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
-
 
 # Obsolete instructions
 
@@ -143,7 +181,7 @@ The following platforms have been supported in the past, but their support has l
 These instructions may no longer work.
 If you are trying to install on one of these platforms and encounter a problem, please contact us by creating an issue on GitHub, to start a discussion on whether reviving support is feasible.
 
-## 4. Cori - KNL (obsolete, needs update): 
+## 4. Cori - KNL (obsolete, needs update):
 
     module load cmake
     module switch craype-haswell craype-mic-knl
@@ -173,7 +211,7 @@ If you are trying to install on one of these platforms and encounter a problem, 
       -DKokkos_ENABLE_OPENMP=off \
       -DKokkos_ENABLE_CUDA=on \
       -DCMAKE_CXX_COMPILER=$SYN_SRC/src/synergia/utils/kokkos/bin/nvcc_wrapper \
-      -DCMAKE_CXX_FLAGS="-arch=sm_70" 
+      -DCMAKE_CXX_FLAGS="-arch=sm_70"
       ../synergia2/
 
 
