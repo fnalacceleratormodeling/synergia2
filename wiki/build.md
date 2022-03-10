@@ -96,7 +96,6 @@ requirements as possible.
         cython3 \
         g++ \
         hdf5-tools \
-        libfftw3 \
         libfftw3-dev \
         libfftw3-mpi-dev \
         libgsl-dev \
@@ -107,6 +106,8 @@ requirements as possible.
         pkg-config \
         python3-dev \
         python3-matplotlib \
+        python3-mpi4py \
+        python3-pkgconfig \
         python3-pyparsing \
         python3-pytest \
         python3-tables \
