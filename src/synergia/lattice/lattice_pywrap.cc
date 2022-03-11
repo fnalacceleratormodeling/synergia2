@@ -207,6 +207,18 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice_element::has_marker,
                 "marker"_a )
 
+        .def( "get_deposited_charge",
+                &Lattice_element::get_deposited_charge,
+                "bunch"_a = 0, "train"_a = 0 )
+
+        .def( "set_deposited_charge",
+                &Lattice_element::set_deposited_charge,
+                "charge"_a, "bunch"_a = 0, "train"_a = 0 )
+
+        .def( "deposit_charge",
+                &Lattice_element::deposit_charge,
+                "charge"_a, "bunch"_a = 0, "train"_a = 0 )
+
         .def( "add_ancestor",
                 &Lattice_element::add_ancestor,
                 "ancestor"_a )
