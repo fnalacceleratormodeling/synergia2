@@ -47,16 +47,11 @@ if (BUILD_PYTHON_BINDINGS)
 
     # the -fvisibility flag suppress the warning, but it also
     # prevents the pydiag from exposing to Python as well
-    #target_compile_options(synergia_pydiag
-    #    PRIVATE "-fvisibility=hidden")
-
-    target_include_directories(synergia_pydiag 
-        PRIVATE ${PYTHON_INCLUDE_DIRS}
-        PRIVATE ${PYBIND11_INCLUDE_DIR}
-        PRIVATE ${pybind11_INCLUDE_DIR} )
+    #set_target_properties(synergia_pydiag 
+    #    PROPERTIES CXX_VISIBILITY_PRESET "hidden")
 
     target_link_libraries(synergia_pydiag
-        PRIVATE synergia_bunch Python::Module)
+        PRIVATE synergia_bunch pybind11::module)
 
     pybind11_add_module(bunch MODULE NO_EXTRAS bunch_pywrap.cc)
     target_link_libraries(bunch PRIVATE synergia_bunch synergia_pydiag)
