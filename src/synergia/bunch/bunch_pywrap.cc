@@ -183,6 +183,16 @@ PYBIND11_MODULE(bunch, m)
                 "Add a diagnostics to the bunch object.",
                 "diag"_a )
 
+        .def( "set_diag_loss_aperture",
+                &Bunch::set_diag_loss_aperture,
+                "Set the loss diagnostics for apertures.",
+                "filename"_a )
+
+        .def( "set_diag_loss_zcut",
+                &Bunch::set_diag_loss_zcut,
+                "Set the loss diagnostics for z-cut.",
+                "filename"_a )
+
         .def( "diag_type",
                 &Bunch::diag_type,
                 "Get the type of the named diagnostics.",
