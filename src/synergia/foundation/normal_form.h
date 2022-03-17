@@ -7,6 +7,7 @@
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/complex.hpp>
+#include <cereal/types/vector.hpp>
 
 template<unsigned int order>
 class NormalForm
@@ -45,7 +46,7 @@ public:
     using trigon_c_t = Trigon<std::complex<double>, order, 6>;
     using mapping_c_t = TMapping<trigon_c_t>;
 
-    using operators_t = std::array<mapping_c_t, order-1>;
+    using operators_t = std::vector<mapping_c_t>;
 
     // e0: reference energy
     // pc0: reference momentum
