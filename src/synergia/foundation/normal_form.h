@@ -66,12 +66,11 @@ public:
     std::array<double, 6>
     cnvDataFromNormalForm(std::array<std::complex<double>, 3> const& nform) const;
 
-    std::array<mapping_c_t, order-1>& get_f() { return f_; }
-    std::array<mapping_c_t, order-1> const& get_f() const { return f_; }
+    std::vector<mapping_c_t>& get_f() { return f_; }
+    std::vector<mapping_c_t> const& get_f() const { return f_; }
 
-    std::array<mapping_c_t, order-1>& get_g() { return g_; }
-    std::array<mapping_c_t, order-1> const& get_g() const { return g_; }
-
+    std::vector<mapping_c_t>& get_g() { return g_; }
+    std::vector<mapping_c_t> const& get_g() const { return g_; }
 
 private:
 
@@ -87,8 +86,8 @@ private:
     Matrix6C E_;
     Matrix6C invE_;
 
-    std::array<mapping_c_t, order-1> f_;
-    std::array<mapping_c_t, order-1> g_;
+    std::vector<mapping_c_t> f_;
+    std::vector<mapping_c_t> g_;
 
 private:
 
@@ -137,6 +136,7 @@ template<unsigned int order>
 NormalForm<order>::NormalForm(mapping_t const& one_turn_map, 
         double e0, double pc0, double mass)
     : E_(Matrix6C::Zero()), invE_(Matrix6C::Zero())
+    , f_(order-1), g_(order-1)
 {
 #ifdef __CUDA_ARCH__
 
