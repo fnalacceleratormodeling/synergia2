@@ -21,6 +21,15 @@
 #include <cereal/cereal.hpp>
 #include <cereal/types/complex.hpp>
 
+// Public types defined in this header
+template <typename T, size_t SIZE> struct arr_t;
+template <typename T, unsigned int Power, unsigned int Dim> class Trigon;
+template <typename TRIGON> class TMapping;
+template <unsigned int Length> struct Array_hash;
+template<typename T, unsigned int P, unsigned int D> struct is_trigon<Trigon<T, P, D>>;
+
+// template arr_t is a work-alike for std::array, but decorated
+// with KOKKOS_INLINE_FUNCTION so that Kokkos understands how to use it.
 template<class T, size_t SIZE>
 struct arr_t
 {
@@ -110,11 +119,6 @@ void arr_t<T, SIZE>::serialize(AR& ar)
     ar(data);
 }
 
-template <typename T, unsigned int Power, unsigned int Dim>
-class Trigon;
-
-template <typename TRIGON>
-class TMapping;
 
 namespace trigon_impl
 {
@@ -154,9 +158,6 @@ factorial(int n)
 {
     return n <= 1 ? 1 : (n * factorial(n - 1));
 }
-
-template <typename T, unsigned int Power, unsigned int Dim>
-class Trigon;
 
 KOKKOS_INLINE_FUNCTION
 constexpr unsigned int
