@@ -6,7 +6,7 @@
 #include <cmath>
 
 // set DBGPRINT to 1 to print values for tolerance failures
-#define DBGPRINT 0
+#define DBGPRINT 1
 
 #if DBGPRINT
 #include <iostream>
