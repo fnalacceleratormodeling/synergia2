@@ -14,7 +14,7 @@ void run()
 
     // read lattice
     MadX_reader reader;
-    auto lattice = reader.get_lattice("fodo", "channel.madx");
+    auto lattice = reader.get_lattice("model", "foborodobo128.madx");
 
     // tune the lattice
     lattice.set_all_string_attribute("extractor_type", "libff");
@@ -23,14 +23,15 @@ void run()
     lattice.print(screen);
 
     // one turn map
-    auto mapping = Lattice_simulator::get_one_turn_map<3>(lattice);
+    const int order = 7;
+    auto mapping = Lattice_simulator::get_one_turn_map<order>(lattice);
     //std::cout << mapping.to_json() << "\n";
 
     // save
     json_save(mapping, "mapping.json");
 
     // load
-    TMapping<Trigon<double, 3, 6>> m2;
+    TMapping<Trigon<double, order, 6>> m2;
     json_load(m2, "mapping.json");
 
     // ref
@@ -40,13 +41,13 @@ void run()
     auto mass = ref.get_mass();
 
     // construct the normal from from loaded mapping
-    auto nf = NormalForm<3>(m2, energy, momentum, mass);
+    auto nf = NormalForm<order>(mapping, energy, momentum, mass);
 
     // save the nf object
     json_save(nf, "nf.json");
 
     // load
-    NormalForm<3> nf2;
+    NormalForm<order> nf2;
     json_load(nf2, "nf.json");
 
     // print something so it doesnt get optimized away by the compiler
