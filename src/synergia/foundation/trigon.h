@@ -24,61 +24,91 @@
 template<class T, size_t SIZE>
 struct arr_t
 {
-    T data_[SIZE] = {};
+    T data[SIZE] = {};
 
-    KOKKOS_INLINE_FUNCTION
-    constexpr size_t size() const
-    { return SIZE; }
-
-    KOKKOS_INLINE_FUNCTION
-    void fill(T t)
-    { for(size_t i=0; i<SIZE; ++i) data_[i] = t; }
-
-    KOKKOS_INLINE_FUNCTION
-    T& at(size_t idx) { return data_[idx]; }
-
-    KOKKOS_INLINE_FUNCTION
-    T const& at(size_t idx) const { return data_[idx]; }
-
-    KOKKOS_INLINE_FUNCTION
-    T& operator[](size_t idx) { return data_[idx]; }
-
-    KOKKOS_INLINE_FUNCTION
-    T const& operator[](size_t idx) const { return data_[idx]; }
-
-    KOKKOS_INLINE_FUNCTION
-    T*       begin()       { return data_; }
-
-    KOKKOS_INLINE_FUNCTION
-    T const* begin() const { return data_; }
-
-    KOKKOS_INLINE_FUNCTION
-    T*       end()         { return data_ + SIZE; }
-
-    KOKKOS_INLINE_FUNCTION
-    T const* end() const   { return data_ + SIZE; }
+    constexpr size_t size() const;
+    void fill(T t);
+    T& at(size_t idx);
+    T const& at(size_t idx) const;
+    T& operator[](size_t idx);
+    T const& operator[](size_t idx) const;
+    T* begin();
+    T const* begin() const;
+    T* end();
+    T const* end() const;
 
     // conversion
-    template<class U>
-    KOKKOS_INLINE_FUNCTION
-    void from(arr_t<U, SIZE> const& o)
-    { for(int i=0; i<SIZE; ++i) data_[i] = static_cast<T>(o.data_[i]); }
+    template<class U> void from(arr_t<U, SIZE> const& o);
+    template<class U> arr_t<U, SIZE> to() const;
+    
+    template<class AR> void serialize(AR& ar);
+  };
 
-    template<class U>
-    KOKKOS_INLINE_FUNCTION
-    arr_t<U, SIZE> to() const
-    { 
-        arr_t<U, SIZE> ret;
-        for(int i=0; i<SIZE; ++i) ret.data_[i] = static_cast<U>(data_[i]); 
-        return ret;
-    }
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+constexpr size_t arr_t<T, SIZE>::size() const
+{ return SIZE; }
 
-    template<class AR>
-    void serialize(AR& ar)
-    {
-        ar(data_);
-    }
-};
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+void arr_t<T, SIZE>::fill(T t)
+{ for(size_t i=0; i<SIZE; ++i) data[i] = t; }
+
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+T& arr_t<T, SIZE>::at(size_t idx) { return data[idx]; }
+
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+T const& arr_t<T, SIZE>::at(size_t idx) const { return data[idx]; }
+
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+T& arr_t<T, SIZE>::operator[](size_t idx) { return data[idx]; }
+
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+T const& arr_t<T, SIZE>::operator[](size_t idx) const { return data[idx]; }
+
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+T* arr_t<T, SIZE>::begin()       { return data; }
+
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+T const* arr_t<T, SIZE>::begin() const { return data; }
+
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+T* arr_t<T, SIZE>::end()         { return data + SIZE; }
+
+template <class T, size_t SIZE>
+KOKKOS_INLINE_FUNCTION
+T const* arr_t<T, SIZE>::end() const   { return data + SIZE; }
+
+// conversion
+template <class T, size_t SIZE>
+template<class U>
+KOKKOS_INLINE_FUNCTION
+void arr_t<T, SIZE>::from(arr_t<U, SIZE> const& o)
+{ for(int i=0; i<SIZE; ++i) data[i] = static_cast<T>(o.data[i]); }
+
+template <class T, size_t SIZE>
+template<class U>
+KOKKOS_INLINE_FUNCTION
+arr_t<U, SIZE> arr_t<T, SIZE>::to() const
+{ 
+    arr_t<U, SIZE> ret;
+    for(int i=0; i<SIZE; ++i) ret.data[i] = static_cast<U>(data[i]); 
+    return ret;
+}
+
+template <class T, size_t SIZE>
+template<class AR>
+void arr_t<T, SIZE>::serialize(AR& ar)
+{
+    ar(data);
+}
 
 template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon;
