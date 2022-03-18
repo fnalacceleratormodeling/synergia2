@@ -23,7 +23,7 @@ void run()
     lattice.print(screen);
 
     // one turn map
-    const int order = 7;
+    const int order = 7; // higher orders use more memory and may not compile on many systems
     auto mapping = Lattice_simulator::get_one_turn_map<order>(lattice);
     //std::cout << mapping.to_json() << "\n";
 

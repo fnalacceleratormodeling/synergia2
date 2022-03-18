@@ -356,7 +356,8 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
         << "half_bucket_length: " << half_bucket_length << " [m]\n";
 
     // normal form for the lattice
-    auto nf = LS::calculate_normal_form<2>(lattice);
+    const int nforder = 3; // higher orders use  more memory and may not compile on many systems
+    auto nf = LS::calculate_normal_form<nforder>(lattice);
 
     // actions
     auto actions = nf.stationaryActions(stdx, stdy, std_cdt);

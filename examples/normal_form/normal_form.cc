@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+const int order = 3; // higher orders use more memory and may not compile on many systems
 
 void run()
 {
@@ -23,7 +24,7 @@ void run()
     lattice.print(screen);
 
     // calculate normal form
-    auto nf = Lattice_simulator::calculate_normal_form<7>(lattice);
+    auto nf = Lattice_simulator::calculate_normal_form<order>(lattice);
 
 #if 0
     auto nfd = nf.cnvDataToNormalForm({0.1, 0.15, 0.2, 0.25, 0.05, 0.01});
