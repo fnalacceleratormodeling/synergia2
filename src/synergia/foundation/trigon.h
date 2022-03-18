@@ -152,7 +152,9 @@ KOKKOS_INLINE_FUNCTION
 constexpr int
 factorial(int n)
 {
-    return n <= 1 ? 1 : (n * factorial(n - 1));
+  int res = 1;
+  for (int i = 1; i <=n; ++i) res *= i;
+  return res;
 }
 
 KOKKOS_INLINE_FUNCTION
