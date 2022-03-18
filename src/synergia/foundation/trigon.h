@@ -67,6 +67,122 @@ struct arr_t
     template <class AR> void serialize(AR& ar);
 };
 
+
+// A Trigon represents a polynomial approximation of a function
+// up to a power Power; the function is a function of type T
+// with an argument that is of dimensionality Dim.
+
+template <typename T, unsigned int Power, unsigned int Dim>
+class Trigon
+{
+public:
+
+    using data_type = T;
+    static constexpr unsigned int dim = Dim;
+
+    static constexpr unsigned int count =
+        factorial(Dim+Power-1) / (factorial(Dim-1) * factorial(Power));
+
+    using Terms_t = arr_t<T, count>;
+
+    Trigon<T, Power - 1, Dim> lower;
+    Terms_t terms;
+
+    Trigon();
+    Trigon(T val);
+    Trigon(T val, size_t index);
+    
+    // implicit conversion
+    template <class U> explicit Trigon(Trigon<U, Power, Dim> const& o);
+    
+    static constexpr unsigned int power();
+    
+    const T& value() const;
+    T& value();
+    void set(T val);
+    void set(T val, size_t index);
+    template <unsigned int Subpower> std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim>&> get_subpower();
+    template <unsigned int Subpower> std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim>&> get_subpower();    
+    template <unsigned int Subpower> std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim> const&> get_subpower() const;
+    template <unsigned int Subpower> std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim> const&> get_subpower() const;
+    template <typename F> void each_term(F f);
+    void set_term(size_t idx, T const& val);
+    T get_term(size_t idx);
+    void set_term(unsigned int power, size_t idx, T const& val);
+    T get_term(unsigned int power, size_t idx);
+
+    // keep terms with power in [lower, upper]
+    void filter(unsigned int p_lower, unsigned int p_upper);
+    
+    bool operator== (T rhs) const;
+    bool operator!= (T rhs) const;
+    bool operator< (double rhs) const;
+    bool operator> (double rhs) const;
+    bool operator<= (double rhs) const;
+    bool operator>= (double rhs) const;
+
+    Trigon<T, Power, Dim>& operator+=(Trigon<T, Power, Dim> const& t);
+    Trigon<T, Power, Dim>& operator+=(T val);
+    Trigon<T, Power, Dim> operator+(Trigon<T, Power, Dim> const& t) const;
+    Trigon<T, Power, Dim> operator+(T val) const;
+    Trigon<T, Power, Dim> operator-() const;
+    Trigon<T, Power, Dim>& operator-=(Trigon<T, Power, Dim> const& t);
+    Trigon<T, Power, Dim>& operator-=(T val);
+    Trigon<T, Power, Dim> operator-(Trigon<T, Power, Dim> const& t) const;
+    Trigon<T, Power, Dim> operator-(T val) const;
+
+    template <unsigned int P1, unsigned int P2> 
+    arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>, Trigon<double, P1, Dim>::count>
+    calculate_f();
+    
+    template <unsigned int P2> unsigned int f(unsigned int i, unsigned j);
+
+    template <unsigned int New_power, typename Mult_trigon_t, typename Array_t>
+    void collect_products(Mult_trigon_t const& t, Array_t& new_terms);
+    
+    Trigon<T, Power, Dim> operator*=(Trigon<T, Power, Dim> const& t);
+    Trigon<T, Power, Dim> operator*=(T val);
+    Trigon<T, Power, Dim> operator*(Trigon<T, Power, Dim> const& t) const;
+    Trigon<T, Power, Dim> operator*(T val) const;
+    Trigon<T, Power, Dim> operator/=(Trigon<T, Power, Dim> const& t);
+    Trigon<T, Power, Dim> operator/=(T val);
+    Trigon<T, Power, Dim> operator/(Trigon<T, Power, Dim> const& t) const;
+    Trigon<T, Power, Dim> operator/(T val) const;
+
+    // partial derivative
+    // [0, 0] => dTrigon/(dx dx)
+    // [0, 1] => dTrigon/(dx dy)
+    // [2, 2, 2] => dTrigon/(dz dz dz)
+    template <size_t DP> std::enable_if_t<((Power>DP) && (DP>1)), Trigon<T, Power-DP, Dim>>
+    derivative(arr_t<unsigned int, DP> const& idx);
+    
+    template <size_t DP> std::enable_if_t<((Power>DP) && (DP==1)), Trigon<T, Power-DP, Dim>>
+    derivative(arr_t<unsigned int, DP> const& idx);    
+    
+    // evaluation
+    T operator()(arr_t<T, Dim> const& x) const;
+
+    // composition
+    template<unsigned int P>
+    Trigon<T, P, Dim>
+    compose(TMapping<Trigon<T, P, Dim>> const& x) const;
+    
+
+#ifdef __CUDA_ARCH__
+    syn::dummy_json to_json() const;
+#else
+    syn::json to_json() const;
+    void to_json_impl(syn::json& val) const;
+#endif
+
+    template <typename U, unsigned int P, unsigned int D>
+    friend std::ostream&
+    operator<<(std::ostream& os, Trigon<U, P, D> const& t);
+
+    template <class AR> void serialize(AR& ar);
+};
+
+
 // 
 // Implementation details of arr_t
 
@@ -292,566 +408,689 @@ KOKKOS_INLINE_FUNCTION
 std::string term_to_json_val(std::complex<double> const& term)
 { return "(" + std::to_string(term.real()) + ',' + std::to_string(term.imag()) + ")"; }
 
+
+// Implementation of Trigon
+
 template <typename T, unsigned int Power, unsigned int Dim>
-class Trigon
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>::Trigon()
+{ 
+  terms.fill(0); 
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>::Trigon(T val) : lower(val) 
+{ 
+  terms.fill(0); 
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>::Trigon(T val, size_t index) : lower(val)
 {
-public:
+  terms.fill(0);
+  get_subpower<1>().terms[index] = 1; // jfa fixme
+}
 
-    using data_type = T;
-    static constexpr unsigned int dim = Dim;
 
-    static constexpr unsigned int count =
-        factorial(Dim+Power-1) / (factorial(Dim-1) * factorial(Power));
+template <typename T, unsigned int Power, unsigned int Dim>
+template <class U>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>::Trigon(Trigon<U, Power, Dim> const& o) :
+  lower(o.lower)
+{
+  terms.from(o.terms);
+}
 
-    typedef arr_t<T, count> Terms_t;
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+constexpr unsigned int
+Trigon<T, Power, Dim>::power()
+{
+  return Power;
+}
 
-    Trigon<T, Power - 1, Dim> lower;
-    Terms_t terms;
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+T const&
+Trigon<T, Power, Dim>::value() const
+{
+  return get_subpower<0>().terms[0];
+}
 
-    KOKKOS_INLINE_FUNCTION
-    Trigon() : lower() 
-    { 
-        terms.fill(0); 
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+T&
+Trigon<T, Power, Dim>::value()
+{
+  return get_subpower<0>().terms[0];
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+void
+Trigon<T, Power, Dim>::set(T val)
+{
+  terms.fill(0);
+  lower.set(val);
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+void
+Trigon<T, Power, Dim>::set(T val, size_t index)
+{
+  set(val);
+  get_subpower<1>().terms[index] = 1;
+}
+
+// template <typename T, unsigned int Power, unsigned int Dim>
+// template <unsigned int Subpower>
+// KOKKOS_INLINE_FUNCTION
+// Trigon<T, Subpower, Dim>&>
+// Trigon<T, Power, Dim>::get_subpower()
+// {
+//   static_assert(Subpower <= Power, "Subpower can not be greater than Power");
+//   if constexpr (Subpower < Power)
+//     return lower.template get_subpower<Subpower>();
+//   if constexpr (Subpower == Power)
+//     return *this;
+// }
+
+template <typename T, unsigned int Power, unsigned int Dim>
+template <unsigned int Subpower>
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim>&>
+Trigon<T, Power, Dim>::get_subpower()
+{
+  return lower.template get_subpower<Subpower>();
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+template <unsigned int Subpower>
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim> const&>
+Trigon<T, Power, Dim>::get_subpower() const
+{
+  return lower.template get_subpower<Subpower>();
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+template <unsigned int Subpower>
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim>&>
+Trigon<T, Power, Dim>::get_subpower()
+{
+  return *this;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+template <unsigned int Subpower>
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim> const&>
+Trigon<T, Power, Dim>::get_subpower() const
+{
+  return *this;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+template <typename F>
+KOKKOS_INLINE_FUNCTION
+void
+Trigon<T, Power, Dim>::each_term(F f)
+{
+  lower.each_term(f);
+  auto inds = indices<Power, Dim>();
+  for(int i=0; i<terms.size(); ++i) f(i, inds[i], terms[i]);
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+void
+Trigon<T, Power, Dim>::set_term(size_t idx, T const& val)
+{
+  terms[idx] = val;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+T
+Trigon<T, Power, Dim>::get_term(size_t idx)
+{
+  return terms[idx];
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+void
+Trigon<T, Power, Dim>::set_term(unsigned int power, size_t idx, T const& val)
+{
+  if (power == Power) set_term(idx, val);
+  else if (power == 0) get_subpower<0>().set_term(idx, val);
+  else if (power < Power) lower.set_term(power, idx, val);
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+T
+Trigon<T, Power, Dim>::get_term(unsigned int power, size_t idx)
+{
+  if (power == Power) return get_term(idx);
+  else if (power == 0) return get_subpower<0>().get_term(idx);
+  else if (power < Power) return lower.get_term(power, idx);
+  return T{};
+}
+
+// keep terms with power in [lower, upper]
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+void
+Trigon<T, Power, Dim>::filter(unsigned int p_lower, unsigned int p_upper)
+{
+  if (Power>p_upper || Power<p_lower) terms.fill(0);
+  lower.filter(p_lower, p_upper);
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+bool
+Trigon<T, Power, Dim>::operator== (T rhs) const
+{ 
+  double const eps = 1e5 * std::numeric_limits<double>::epsilon();
+  if (abs(value() - rhs) > eps) return false;
+
+  for(auto const& v : terms)
+    if (abs(v-rhs) > eps) return false;
+
+  return (lower == rhs);
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+bool
+Trigon<T, Power, Dim>::operator!= (T rhs) const
+{
+  return !((*this) == rhs);
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+bool
+Trigon<T, Power, Dim>::operator< (double rhs) const
+{
+  return value() < rhs;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+bool
+Trigon<T, Power, Dim>::operator> (double rhs) const
+{
+  return value() > rhs;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+bool
+Trigon<T, Power, Dim>::operator<= (double rhs) const
+{
+  return value() <= rhs;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+bool
+Trigon<T, Power, Dim>::operator>= (double rhs) const
+{
+  return value() >= rhs;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>&
+Trigon<T, Power, Dim>::operator+=(Trigon<T, Power, Dim> const& t)
+{
+  lower += t.lower;
+  for (size_t i = 0; i < terms.size(); ++i) {
+    terms[i] += t.terms[i];
+  }
+  return *this;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>&
+Trigon<T, Power, Dim>::operator+=(T val)
+{
+  lower += val;
+  return *this;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator+(Trigon<T, Power, Dim> const& t) const
+{
+  Trigon<T, Power, Dim> retval(*this);
+  retval += t;
+  return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator+(T val) const
+{
+  Trigon<T, Power, Dim> retval(*this);
+  retval += val;
+  return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator-() const
+ {
+  Trigon<T, Power, Dim> retval(*this);
+  retval.lower = -lower;
+  for (size_t i = 0; i < terms.size(); ++i) {
+    retval.terms[i] = -terms[i];
+  }
+  return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>&
+Trigon<T, Power, Dim>::operator-=(Trigon<T, Power, Dim> const& t)
+{
+  lower -= t.lower;
+  for (size_t i = 0; i < terms.size(); ++i) {
+    terms[i] -= t.terms[i];
+  }
+  return *this;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>&
+Trigon<T, Power, Dim>::operator-=(T val)
+{
+  lower -= val;
+  return *this;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator-(Trigon<T, Power, Dim> const& t) const
+{
+  Trigon<T, Power, Dim> retval(*this);
+  retval -= t;
+  return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator-(T val) const
+{
+  Trigon<T, Power, Dim> retval(*this);
+  retval -= val;
+  return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+template <unsigned int P1, unsigned int P2>
+KOKKOS_INLINE_FUNCTION
+arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>, Trigon<double, P1, Dim>::count>
+Trigon<T, Power, Dim>::calculate_f()
+{
+  //scoped_simple_timer("trigon_cal_f");
+  arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>, Trigon<double, P1, Dim>::count>
+    retval;
+
+  for (unsigned int i = 0; i < Trigon<double, P1, Dim>::count; ++i) {
+    for (unsigned int j = 0; j < Trigon<double, P2, Dim>::count; ++j) {
+      Index_t<P1> index1 = indices<P1, Dim>()[i];
+      Index_t<P2> index2 = indices<P2, Dim>()[j];
+      Index_t<P1 + P2> index3;
+
+      size_t m = 0;
+      for (; m < P1; ++m) {
+       index3[m] = index1[m];
+      }
+      for (size_t n = 0; n < P2; ++m, ++n) {
+       index3[m] = index2[n];
+      }
+      std::sort(index3.begin(), index3.end());
+      //trigon_impl::sort(index3);
+      retval.at(i).at(j) = index_to_canonical<P1 + P2, Dim>().at(index3);
     }
+  }
+  return retval;
+}
 
-    KOKKOS_INLINE_FUNCTION
-    Trigon(T val) : lower(val) 
-    { 
-        terms.fill(0); 
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon(T val, size_t index) : lower(val)
-    {
-        terms.fill(0);
-        get_subpower<1>().terms[index] = 1; // jfa fixme
-    }
-
-    // implicit conversion
-    template<class U>
-    KOKKOS_INLINE_FUNCTION
-    explicit Trigon(Trigon<U, Power, Dim> const& o)
-    : terms(), lower(o.lower) { terms.from(o.terms); }
-
-    KOKKOS_INLINE_FUNCTION
-    static constexpr unsigned int power() { return Power; }
-
-    KOKKOS_INLINE_FUNCTION
-    const T& value() const { return get_subpower<0>().terms[0]; }
-
-    KOKKOS_INLINE_FUNCTION
-    T& value() { return get_subpower<0>().terms[0]; }
-
-    KOKKOS_INLINE_FUNCTION
-    void set(T val)
-    {
-        terms.fill(0);
-        lower.set(val);
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    void set(T val, size_t index)
-    {
-        set(val);
-        get_subpower<1>().terms[index] = 1;
-    }
-
-    template <unsigned int Subpower>
-    KOKKOS_INLINE_FUNCTION
-    typename std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim>&>
-    get_subpower()
-    { return lower.template get_subpower<Subpower>(); }
-
-    template <unsigned int Subpower>
-    KOKKOS_INLINE_FUNCTION
-    typename std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim> const&>
-    get_subpower() const
-    { return lower.template get_subpower<Subpower>(); }
-
-    template <unsigned int Subpower>
-    KOKKOS_INLINE_FUNCTION
-    typename std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim>&>
-    get_subpower()
-    { return *this; }
-
-    template <unsigned int Subpower>
-    KOKKOS_INLINE_FUNCTION
-    typename std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim> const&>
-    get_subpower() const
-    { return *this; }
-
-    template <typename F>
-    KOKKOS_INLINE_FUNCTION
-    void each_term(F f)
-    {
-        lower.each_term(f);
-        auto inds = indices<Power, Dim>();
-        for(int i=0; i<terms.size(); ++i) f(i, inds[i], terms[i]);
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    void set_term(size_t idx, T const& val)
-    { terms[idx] = val; }
-
-    KOKKOS_INLINE_FUNCTION
-    T get_term(size_t idx)
-    { return terms[idx]; }
-
-    KOKKOS_INLINE_FUNCTION
-    void set_term(unsigned int power, size_t idx, T const& val)
-    {
-        if (power == Power) set_term(idx, val);
-        else if (power == 0) get_subpower<0>().set_term(idx, val);
-        else if (power < Power) lower.set_term(power, idx, val);
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    T get_term(unsigned int power, size_t idx)
-    {
-        if (power == Power) return get_term(idx);
-        else if (power == 0) return get_subpower<0>().get_term(idx);
-        else if (power < Power) return lower.get_term(power, idx);
-        return T{};
-    }
-
-    // keep terms with power in [lower, upper]
-    KOKKOS_INLINE_FUNCTION
-    void filter(unsigned int p_lower, unsigned int p_upper)
-    {
-        if (Power>p_upper || Power<p_lower) terms.fill(0);
-        lower.filter(p_lower, p_upper);
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    bool operator== (T rhs) const
-    { 
-        double const eps = 1e5 * std::numeric_limits<double>::epsilon();
-        if (abs(value() - rhs) > eps) return false;
-
-        for(auto const& v : terms)
-            if (abs(v-rhs) > eps) return false;
-
-        return (lower == rhs);
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    bool operator!= (T rhs) const
-    { return !((*this) == rhs); }
-
-    KOKKOS_INLINE_FUNCTION
-    bool operator< (double rhs) const
-    { return value() < rhs; }
-
-    KOKKOS_INLINE_FUNCTION
-    bool operator> (double rhs) const
-    { return value() > rhs; }
-
-    KOKKOS_INLINE_FUNCTION
-    bool operator<= (double rhs) const
-    { return value() <= rhs; }
-
-    KOKKOS_INLINE_FUNCTION
-    bool operator>= (double rhs) const
-    { return value() >= rhs; }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim>& operator+=(Trigon<T, Power, Dim> const& t)
-    {
-        lower += t.lower;
-        for (size_t i = 0; i < terms.size(); ++i) {
-            terms[i] += t.terms[i];
-        }
-        return *this;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim>& operator+=(T val)
-    {
-        lower += val;
-        return *this;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator+(Trigon<T, Power, Dim> const& t) const
-    {
-        Trigon<T, Power, Dim> retval(*this);
-        retval += t;
-        return retval;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator+(T val) const
-    {
-        Trigon<T, Power, Dim> retval(*this);
-        retval += val;
-        return retval;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator-() const
-    {
-        Trigon<T, Power, Dim> retval(*this);
-        retval.lower = -lower;
-        for (size_t i = 0; i < terms.size(); ++i) {
-            retval.terms[i] = -terms[i];
-        }
-        return retval;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim>& operator-=(Trigon<T, Power, Dim> const& t)
-    {
-        lower -= t.lower;
-        for (size_t i = 0; i < terms.size(); ++i) {
-            terms[i] -= t.terms[i];
-        }
-        return *this;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim>& operator-=(T val)
-    {
-        lower -= val;
-        return *this;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator-(Trigon<T, Power, Dim> const& t) const
-    {
-        Trigon<T, Power, Dim> retval(*this);
-        retval -= t;
-        return retval;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator-(T val) const
-    {
-        Trigon<T, Power, Dim> retval(*this);
-        retval -= val;
-        return retval;
-    }
-
-    template <unsigned int P1, unsigned int P2>
-    KOKKOS_INLINE_FUNCTION
-    arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
-               Trigon<double, P1, Dim>::count>
-    calculate_f()
-    {
-        //scoped_simple_timer("trigon_cal_f");
-        arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
-                   Trigon<double, P1, Dim>::count>
-            retval;
-
-        for (unsigned int i = 0; i < Trigon<double, P1, Dim>::count; ++i) {
-            for (unsigned int j = 0; j < Trigon<double, P2, Dim>::count; ++j) {
-                Index_t<P1> index1 = indices<P1, Dim>()[i];
-                Index_t<P2> index2 = indices<P2, Dim>()[j];
-                Index_t<P1 + P2> index3;
-
-                size_t m = 0;
-                for (; m < P1; ++m) {
-                    index3[m] = index1[m];
-                }
-                for (size_t n = 0; n < P2; ++m, ++n) {
-                    index3[m] = index2[n];
-                }
-                std::sort(index3.begin(), index3.end());
-                //trigon_impl::sort(index3);
-                retval.at(i).at(j) = index_to_canonical<P1 + P2, Dim>().at(index3);
-            }
-        }
-        return retval;
-    }
-
-
-
-    template <unsigned int P2>
-    KOKKOS_INLINE_FUNCTION
-    unsigned int f(unsigned int i, unsigned j)
-    {
+template <typename T, unsigned int Power, unsigned int Dim>
+template <unsigned int P2>
+KOKKOS_INLINE_FUNCTION
+unsigned int
+Trigon<T, Power, Dim>::f(unsigned int i, unsigned j)
+{
 #ifdef __CUDA_ARCH__
-        return 0;
+  return 0;
 #else
-        static arr_t<
-            arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
-            Trigon<double, Power, Dim>::count>
-            mapping = calculate_f<Power, P2>();
-        return mapping[i][j];
+  static arr_t<
+    arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
+    Trigon<double, Power, Dim>::count>
+    mapping = calculate_f<Power, P2>();
+  return mapping[i][j];
 #endif
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+template <unsigned int New_power, typename Mult_trigon_t, typename Array_t>
+KOKKOS_INLINE_FUNCTION
+void
+Trigon<T, Power, Dim>::collect_products(Mult_trigon_t const& t, Array_t& new_terms)
+{
+  //simple_timer_start("trigon_collect_products");
+  // this x right = new
+  constexpr unsigned int right_power = New_power - Power;
+  if (right_power <= t.power()) {
+    auto& right_terms(t.template get_subpower<right_power>().terms);
+      for (size_t i = 0; i < terms.size(); ++i) {
+        for (size_t j = 0; j < right_terms.size(); ++j) {
+           //size_t k = f<Power, right_power>(i, j);
+           size_t k = f<right_power>(i, j);
+           new_terms[k] += terms[i] * right_terms[j];
+      }
     }
+  }
+  //simple_timer_stop("trigon_collect_products");
+  lower.template collect_products<New_power>(t, new_terms);
+}
 
-
-    template <unsigned int New_power, typename Mult_trigon_t, typename Array_t>
-    KOKKOS_INLINE_FUNCTION
-    void collect_products(Mult_trigon_t const& t, Array_t& new_terms)
-    {
-        //simple_timer_start("trigon_collect_products");
-        // this x right = new
-        constexpr unsigned int right_power = New_power - Power;
-        if (right_power <= t.power()) {
-            auto& right_terms(t.template get_subpower<right_power>().terms);
-            for (size_t i = 0; i < terms.size(); ++i) {
-                for (size_t j = 0; j < right_terms.size(); ++j) {
-                    //size_t k = f<Power, right_power>(i, j);
-                    size_t k = f<right_power>(i, j);
-                    new_terms[k] += terms[i] * right_terms[j];
-                }
-            }
-        }
-        //simple_timer_stop("trigon_collect_products");
-        lower.template collect_products<New_power>(t, new_terms);
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator*=(Trigon<T, Power, Dim> const& t)
+{
+  if (Power > 1) {
+    //simple_timer_start("trigon_*=(T)");
+    Terms_t new_terms;
+    new_terms.fill(0);
+    collect_products<Power>(t, new_terms);
+    //simple_timer_stop("trigon_*=(T)");
+    lower *= t.lower;
+    terms = new_terms;
+  } else {
+    //scoped_simple_timer("trigon_*=(T)");
+    const T this_value = value();
+    const T right_value = t.value();
+    for (size_t i = 0; i < Dim; ++i) {
+      terms[i] *= right_value;
+      terms[i] += t.terms[i] * this_value;
     }
+    value() *= right_value;
+  }
+  return *this;
+}
 
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator*=(Trigon<T, Power, Dim> const& t)
-    {
-        if (Power > 1) {
-            //simple_timer_start("trigon_*=(T)");
-            Terms_t new_terms;
-            new_terms.fill(0);
-            collect_products<Power>(t, new_terms);
-            //simple_timer_stop("trigon_*=(T)");
-            lower *= t.lower;
-            terms = new_terms;
-        } else {
-            //scoped_simple_timer("trigon_*=(T)");
-            const T this_value = value();
-            const T right_value = t.value();
-            for (size_t i = 0; i < Dim; ++i) {
-                terms[i] *= right_value;
-                terms[i] += t.terms[i] * this_value;
-            }
-            value() *= right_value;
-        }
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator*=(T val)
+{
+  //simple_timer_start("trigon_*=(d)");
+  for (auto&& c : terms) {
+     c *= val;
+  }
+  //simple_timer_stop("trigon_*=(d)");
+  lower *= val;
+  return *this;
+}
 
-        return *this;
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator*(Trigon<T, Power, Dim> const& t) const
+{
+  Trigon<T, Power, Dim> retval(*this);
+  retval *= t;
+  return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator*(T val) const
+{
+  Trigon<T, Power, Dim> retval(*this);
+  retval *= val;
+  return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator/=(Trigon<T, Power, Dim> const& t)
+{
+  // this / t = new
+  if (Power > 1) {
+    lower /= t.lower;
+    Terms_t new_terms;
+    new_terms.fill(0);
+    lower.template collect_products<Power>(t, new_terms);
+    T t0 = t.value();
+    for (size_t i = 0; i < new_terms.size(); ++i) {
+      terms[i] = (terms[i] - new_terms[i]) / t0;
     }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator*=(T val)
-    {
-        //simple_timer_start("trigon_*=(d)");
-        for (auto&& c : terms) {
-            c *= val;
-        }
-        //simple_timer_stop("trigon_*=(d)");
-        lower *= val;
-        return *this;
+  } else {
+    const T this_value = value();
+    const T right_value = t.value();
+    const T inv_right_value2 = 1.0 / (right_value * right_value);
+    for (size_t i = 0; i < Dim; ++i) {
+      terms[i] *= right_value;
+      terms[i] -= t.terms[i] * this_value;
+      terms[i] *= inv_right_value2;
     }
+    value() /= right_value;
+  }
+  return *this;
+}
 
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator*(Trigon<T, Power, Dim> const& t) const
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator/=(T val)
+{
+  for (auto&& c : terms) {
+    c /= val;
+  }
+  lower /= val;
+  return *this;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator/(Trigon<T, Power, Dim> const& t) const
+ {
+  Trigon<T, Power, Dim> retval(*this);
+  retval /= t;
+  return retval;
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, Power, Dim>
+Trigon<T, Power, Dim>::operator/(T val) const
+{
+  Trigon<T, Power, Dim> retval(*this);
+  retval /= val;
+  return retval;
+}
+
+// partial derivative
+// [0, 0] => dTrigon/(dx dx)
+// [0, 1] => dTrigon/(dx dy)
+// [2, 2, 2] => dTrigon/(dz dz dz)
+template <typename T, unsigned int Power, unsigned int Dim>
+template<size_t DP>
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<((Power>DP) && (DP>1)), Trigon<T, Power-DP, Dim>>
+Trigon<T, Power, Dim>::derivative(arr_t<unsigned int, DP> const& idx)
+{
+  arr_t<unsigned int, DP-1> i2;
+  for(int i=0; i<DP-1; ++i) i2[i] = idx[i];
+  return partial_deriv(*this, idx[DP-1]).derivative(i2);
+}
+
+template <typename T, unsigned int Power, unsigned int Dim>
+template<size_t DP>
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<((Power>DP) && (DP==1)), Trigon<T, Power-DP, Dim>>
+Trigon<T, Power, Dim>::derivative(arr_t<unsigned int, DP> const& idx)
+{
+  return partial_deriv(*this, idx[0]);
+}
+
+// evaluation
+template <typename T, unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+T
+Trigon<T, Power, Dim>::operator()(arr_t<T, Dim> const& x) const
+{
+  T val{};
+
+  // current power
+  auto inds = indices<Power, Dim>();
+  for(int i=0; i<terms.size(); ++i)
+  {
+    if (abs(terms[i]))
     {
-        Trigon<T, Power, Dim> retval(*this);
-        retval *= t;
-        return retval;
+      T t = terms[i];
+      for(auto idx : inds[i]) t *= x[idx];
+      val += t;
     }
+  }
 
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator*(T val) const
+  // lower power
+  val += lower(x);
+  return val;
+}
+
+// composition
+template <typename T, unsigned int Power, unsigned int Dim>
+template <unsigned int P>
+KOKKOS_INLINE_FUNCTION
+Trigon<T, P, Dim>
+Trigon<T, Power, Dim>::compose(TMapping<Trigon<T, P, Dim>> const& x) const
+{
+  Trigon<T, P, Dim> val;
+
+  // current power
+  auto inds = indices<Power, Dim>();
+  for(int i=0; i<terms.size(); ++i)
+  {
+    if (abs(terms[i]))
     {
-        Trigon<T, Power, Dim> retval(*this);
-        retval *= val;
-        return retval;
+      Trigon<T, P, Dim> t(terms[i]);
+      for(auto idx : inds[i]) t *= x[idx];
+      val += t;
     }
+  }
 
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator/=(Trigon<T, Power, Dim> const& t)
-    {
-        // this / t = new
-        if (Power > 1) {
-            lower /= t.lower;
-            Terms_t new_terms;
-            new_terms.fill(0);
-            lower.template collect_products<Power>(t, new_terms);
-            T t0 = t.value();
-            for (size_t i = 0; i < new_terms.size(); ++i) {
-                terms[i] = (terms[i] - new_terms[i]) / t0;
-            }
-        } else {
-            const T this_value = value();
-            const T right_value = t.value();
-            const T inv_right_value2 = 1.0 / (right_value * right_value);
-            for (size_t i = 0; i < Dim; ++i) {
-                terms[i] *= right_value;
-                terms[i] -= t.terms[i] * this_value;
-                terms[i] *= inv_right_value2;
-            }
-            value() /= right_value;
-        }
-        return *this;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator/=(T val)
-    {
-        for (auto&& c : terms) {
-            c /= val;
-        }
-        lower /= val;
-        return *this;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator/(Trigon<T, Power, Dim> const& t) const
-    {
-        Trigon<T, Power, Dim> retval(*this);
-        retval /= t;
-        return retval;
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, Power, Dim> operator/(T val) const
-    {
-        Trigon<T, Power, Dim> retval(*this);
-        retval /= val;
-        return retval;
-    }
-
-    // partial derivative
-    // [0, 0] => dTrigon/(dx dx)
-    // [0, 1] => dTrigon/(dx dy)
-    // [2, 2, 2] => dTrigon/(dz dz dz)
-    template<size_t DP>
-    KOKKOS_INLINE_FUNCTION
-    typename std::enable_if_t<(Power>DP && DP>1), Trigon<T, Power-DP, Dim>>
-    derivative(arr_t<unsigned int, DP> const& idx)
-    {
-        arr_t<unsigned int, DP-1> i2;
-        for(int i=0; i<DP-1; ++i) i2[i] = idx[i];
-        return partial_deriv(*this, idx[DP-1]).derivative(i2);
-    }
-
-    template<size_t DP>
-    KOKKOS_INLINE_FUNCTION
-    typename std::enable_if_t<(Power>DP && DP==1), Trigon<T, Power-DP, Dim>>
-    derivative(arr_t<unsigned int, DP> const& idx)
-    {
-        return partial_deriv(*this, idx[0]);
-    }
-
-
-    // evaluation
-    KOKKOS_INLINE_FUNCTION
-    T operator()(arr_t<T, Dim> const& x) const
-    {
-        T val{};
-
-        // current power
-        auto inds = indices<Power, Dim>();
-        for(int i=0; i<terms.size(); ++i)
-        {
-            if (abs(terms[i]))
-            {
-                T t = terms[i];
-                for(auto idx : inds[i]) t *= x[idx];
-                val += t;
-            }
-        }
-
-        // lower power
-        val += lower(x);
-
-        return val;
-    }
-
-    // composition
-    template<unsigned int P>
-    KOKKOS_INLINE_FUNCTION
-    Trigon<T, P, Dim> compose(TMapping<Trigon<T, P, Dim>> const& x) const
-    {
-        Trigon<T, P, Dim> val;
-
-        // current power
-        auto inds = indices<Power, Dim>();
-        for(int i=0; i<terms.size(); ++i)
-        {
-            if (abs(terms[i]))
-            {
-                Trigon<T, P, Dim> t(terms[i]);
-                for(auto idx : inds[i]) t *= x[idx];
-                val += t;
-            }
-        }
-
-        // lower power
-        val += lower.compose(x);
-
-        return val;
-    };
+  // lower power
+  val += lower.compose(x);
+  return val;
+};
 
 #ifdef __CUDA_ARCH__
-
-    syn::dummy_json to_json() const
-    { return syn::dummy_json{}; }
+template <typename T, unsigned int Power, unsigned int Dim>
+inline
+syn::dummy_json
+Trigon<T, Power, Dim>::to_json() const
+{
+  return syn::dummy_json{};
+}
 
 #else
+template <typename T, unsigned int Power, unsigned int Dim>
+inline
+syn::json
+Trigon<T, Power, Dim>::to_json() const
+{ 
+  syn::json val = {
+    { "dim", Dim },
+    { "power", Power },
+    { "terms", syn::json::array() }
+  }; 
 
-    syn::json to_json() const
-    { 
-        syn::json val = {
-            { "dim", Dim },
-            { "power", Power },
-            { "terms", syn::json::array() }
-        }; 
+  syn::json terms{};
+  to_json_impl(terms); 
+  val["terms"] = std::move(terms);
+  return val; 
+}
 
-        syn::json terms{};
-        to_json_impl(terms); 
+template <typename T, unsigned int Power, unsigned int Dim>
+inline
+void
+Trigon<T, Power, Dim>::to_json_impl(syn::json& val) const
+ {
+  // lower power
+  lower.to_json_impl(val);
 
-        val["terms"] = std::move(terms);
+  // current power
+  syn::json v{};
+  v["power"] = Power;
+  v["terms"] = syn::json::array();
 
-        return val; 
-    }
+  auto inds = indices<Power, Dim>();
+  for(int i=0; i<terms.size(); ++i)
+  {
+    arr_t<int, Dim> exp;
+    for(auto idx : inds[i]) ++exp[idx];
 
-    void to_json_impl(syn::json& val) const
-    {
-        // lower power
-        lower.to_json_impl(val);
-
-        // current power
-        syn::json v{};
-        v["power"] = Power;
-        v["terms"] = syn::json::array();
-
-        auto inds = indices<Power, Dim>();
-        for(int i=0; i<terms.size(); ++i)
-        {
-            arr_t<int, Dim> exp;
-            for(auto idx : inds[i]) ++exp[idx];
-
-            syn::json term = {
-                {"exp", syn::json::array()},
+    syn::json term = {
+      {"exp", syn::json::array()},
                 {"term", term_to_json_val(terms[i])}
             };
 
             for(int i=0; i<exp.size(); ++i) 
                 term["exp"][i] = exp[i];
 
-            v["terms"].emplace_back(std::move(term));
-        }
+    v["terms"].emplace_back(std::move(term));
+  }
 
-        val.emplace_back(std::move(v));
-    }
+  val.emplace_back(std::move(v));
+}
 
 #endif
 
-    friend std::ostream& operator<<(std::ostream& os, 
-            Trigon<T, Power, Dim> const& t)
-    {
-        os << t.lower << "P(" << Power << "): (";
-        //for(int i=0; i<t.count-1; ++i) os << std::setprecision(16) << t.terms[i] << ", ";
-        for(int i=0; i<t.count-1; ++i) os << t.terms[i] << ", ";
-        os << t.terms[t.count-1] << ")\n";
-        return os;
-    }
+template <typename U, unsigned int P, unsigned int D>
+inline
+std::ostream&
+operator<<(std::ostream& os, Trigon<U, P, D> const& t)
+{
+  os << t.lower << "P(" << P << "): (";
+  //for(int i=0; i<t.count-1; ++i) os << std::setprecision(16) << t.terms[i] << ", ";
+  for(int i=0; i<t.count-1; ++i) os << t.terms[i] << ", ";
+  os << t.terms[t.count-1] << ")\n";
+  return os;
+}
 
-    template<class AR>
-    void serialize(AR& ar)
-    {
-        ar(lower);
-        ar(terms);
-    }
-};
+template <typename T, unsigned int Power, unsigned int Dim>
+template<class AR>
+inline
+void
+Trigon<T, Power, Dim>::serialize(AR& ar)
+{
+  ar(lower);
+  ar(terms);
+}
 
 template<typename T, unsigned int P, unsigned int D>
 struct is_trigon<Trigon<T, P, D>> : std::true_type { };
