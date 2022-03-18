@@ -28,10 +28,11 @@ template <typename TRIGON> class TMapping;
 template <unsigned int Length> struct Array_hash;
 template<typename T, unsigned int P, unsigned int D> struct is_trigon<Trigon<T, P, D>>;
 
-// Public function templates defined in this header
+// Public function templates and functions defined in this header
 template <class T, size_t N> bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs);
 constexpr int factorial(int n);
 constexpr unsigned int array_length(unsigned int i);
+template <size_t Length> arr_t<size_t, Length> indices();
 
 
 // template arr_t is a work-alike for std::array, but decorated
