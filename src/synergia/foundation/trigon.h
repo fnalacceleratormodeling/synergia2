@@ -47,11 +47,14 @@ struct arr_t
     T const* end() const;
 
     // conversion
-    template<class U> void from(arr_t<U, SIZE> const& o);
-    template<class U> arr_t<U, SIZE> to() const;
+    template <class U> void from(arr_t<U, SIZE> const& o);
+    template <class U> arr_t<U, SIZE> to() const;
     
-    template<class AR> void serialize(AR& ar);
-  };
+    template <class AR> void serialize(AR& ar);
+};
+
+// 
+// Implementation details of arr_t
 
 template <class T, size_t SIZE>
 KOKKOS_INLINE_FUNCTION
@@ -117,30 +120,6 @@ template<class AR>
 void arr_t<T, SIZE>::serialize(AR& ar)
 {
     ar(data);
-}
-
-
-namespace trigon_impl
-{
-    template<class T, size_t SIZE>
-    KOKKOS_INLINE_FUNCTION
-    void sort(arr_t<T, SIZE> & arr)
-    {
-        for(size_t i=0; i<SIZE-1; ++i)
-        {
-            for(size_t j=i+1; j<SIZE; ++j)
-            {
-                if (arr[i] > arr[j])
-                {
-                    T temp = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = temp;
-                }
-            }
-        }
-    }
-
-    //__constant__ double map[100];
 }
 
 template<class T, size_t N>
