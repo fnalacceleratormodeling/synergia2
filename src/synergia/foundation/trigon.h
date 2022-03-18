@@ -128,6 +128,9 @@ void arr_t<T, SIZE>::serialize(AR& ar)
     ar(data);
 }
 
+//
+// Free function templates associated with arr_t
+
 template<class T, size_t N>
 KOKKOS_INLINE_FUNCTION
 bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs)
@@ -183,24 +186,7 @@ indices()
     return retval;
 }
 
-#if 0
-template <unsigned int Power, unsigned int Dim>
-KOKKOS_INLINE_FUNCTION
-std::enable_if_t<((Power == 1) || (Power == 0)), Indices_t<Power, Dim>>
-indices()
-{
-    Indices_t<Power, Dim> retval;
-    if (Power == 0) {
-        retval[0][0] = 0;
-    } else {
-        for (size_t i = 0; i < Dim; ++i) {
-            retval[i][0] = i;
-        }
-    }
 
-    return retval;
-}
-#endif
 
 template <unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
@@ -249,12 +235,7 @@ template <unsigned int Power, unsigned int Dim>
 using Map_t = std::unordered_map<arr_t<size_t, Power>, size_t, 
         Array_hash<Power>>;
 
-#if 0
-template <unsigned int Power, unsigned int Dim>
-using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t, 
-        Kokkos::DefaultExecutionSpace,
-        Array_hash<Power>>;
-#endif
+
 
 template <unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
@@ -550,22 +531,8 @@ public:
 
         for (unsigned int i = 0; i < Trigon<double, P1, Dim>::count; ++i) {
             for (unsigned int j = 0; j < Trigon<double, P2, Dim>::count; ++j) {
-
-#if 0
-                auto indices1(indices<P1, Dim>());
-                Index_t<P1> index1(indices1[i]);
-                auto indices2(indices<P2, Dim>());
-                Index_t<P2> index2(indices2[j]);
-#endif
-#if 0
-                Index_t<P1> index1 = canonical_to_index<P1, Dim>()[i];
-                Index_t<P2> index2 = canonical_to_index<P2, Dim>()[j];
-#endif
-#if 1
                 Index_t<P1> index1 = indices<P1, Dim>()[i];
                 Index_t<P2> index2 = indices<P2, Dim>()[j];
-#endif
-
                 Index_t<P1 + P2> index3;
 
                 size_t m = 0;
@@ -583,25 +550,7 @@ public:
         return retval;
     }
 
-#if 0
-    template <unsigned int P1, unsigned int P2>
-    KOKKOS_INLINE_FUNCTION
-    unsigned int f(unsigned int i, unsigned j)
-    {
-#if 1
-        static arr_t<
-            arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
-            Trigon<double, P1, Dim>::count>
-            mapping = calculate_f<P1, P2>();
-        return mapping[i][j];
-#endif
 
-#if 0
-        auto mapping = calculate_f<P1, P2>();
-        return mapping[i][j];
-#endif
-    }
-#endif
 
     template <unsigned int P2>
     KOKKOS_INLINE_FUNCTION
@@ -1378,7 +1327,6 @@ operator/(T val, Trigon<T, 0, Dim> const& t)
     return retval;
 }
 
-#if 1
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
 typename std::enable_if<(Power == 1), void>::type
@@ -1435,7 +1383,6 @@ partial_deriv(Trigon<T, Power, Dim> const& t, size_t index)
     calculate_partial<T, Power, Dim>(t, index, retval);
     return retval;
 }
-#endif
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
@@ -1995,7 +1942,6 @@ struct TMapping
 
 };
 
-#if 1
 template<class TRIGON>
 std::ostream& operator<<(
         std::ostream& os, TMapping<TRIGON> const& m)
@@ -2026,8 +1972,55 @@ TMapping<TRIGON> operator*(
 
     return z;
 }
+
+//
+// All the following are #defined away.
+// TODO: Consider removing all of this.
+
+#if 0
+template <unsigned int Power, unsigned int Dim>
+KOKKOS_INLINE_FUNCTION
+std::enable_if_t<((Power == 1) || (Power == 0)), Indices_t<Power, Dim>>
+indices()
+{
+    Indices_t<Power, Dim> retval;
+    if (Power == 0) {
+        retval[0][0] = 0;
+    } else {
+        for (size_t i = 0; i < Dim; ++i) {
+            retval[i][0] = i;
+        }
+    }
+
+    return retval;
+}
 #endif
 
+#if 0
+template <unsigned int Power, unsigned int Dim>
+using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t, 
+        Kokkos::DefaultExecutionSpace,
+        Array_hash<Power>>;
+#endif
 
+#if 0
+    template <unsigned int P1, unsigned int P2>
+    KOKKOS_INLINE_FUNCTION
+    unsigned int f(unsigned int i, unsigned j)
+    {
+#if 1
+        static arr_t<
+            arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
+            Trigon<double, P1, Dim>::count>
+            mapping = calculate_f<P1, P2>();
+        return mapping[i][j];
+#endif
+
+#if 0
+        auto mapping = calculate_f<P1, P2>();
+        return mapping[i][j];
+#endif
+    }
+#endif
 
 #endif // TRIGON_H
