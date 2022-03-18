@@ -32,8 +32,11 @@ template<typename T, unsigned int P, unsigned int D> struct is_trigon<Trigon<T, 
 template <class T, size_t N> bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs);
 constexpr int factorial(int n);
 constexpr unsigned int array_length(unsigned int i);
-template <size_t Length> arr_t<size_t, Length> indices();
 
+// These forward declarations are non-obvious, because the forward declarations
+// can not make use of the template aliases that are used in the definitions.
+template <size_t Length> arr_t<size_t, Length> indices();
+template <size_t Length> arr_t<size_t, Length> const& canonical_to_index();
 
 // template arr_t is a work-alike for std::array, but decorated
 // with KOKKOS_INLINE_FUNCTION so that Kokkos understands how to use it.
@@ -167,6 +170,10 @@ using Index_t = arr_t<size_t, array_length(Power)>;
 template <unsigned int Power, unsigned int Dim>
 using Indices_t = arr_t<Index_t<Power>, Trigon<double, Power, Dim>::count>;
 
+
+// Implementations of template <size_t Length> arr_t<size_t, Length> indices().
+// We're using std::enable_if<> to choose between implementations.
+
 template <unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
 std::enable_if_t<Power==0, Indices_t<Power, Dim>>
@@ -186,8 +193,6 @@ indices()
     for (size_t i=0; i<Dim; ++i) retval[i][0] = i;
     return retval;
 }
-
-
 
 template <unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
@@ -210,9 +215,10 @@ indices()
             }
         }
     }
-
     return retval;
 }
+
+// Implementation of Array_hash
 
 template <unsigned int Length>
 struct Array_hash
