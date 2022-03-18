@@ -37,7 +37,7 @@ template <size_t Power> std::unordered_map<arr_t<size_t, Power>, size_t, Array_h
 template <size_t Power> std::unordered_map<arr_t<size_t, Power>, size_t, Array_hash<Power>> const& index_to_canonical();
 
 // Public functions defined in this header.
-constexpr int factorial(int n);
+constexpr unsigned int factorial(unsigned int n);
 constexpr unsigned int array_length(unsigned int i);
 double term_to_json_val(double const& term);
 std::string term_to_json_val(std::complex<double> const& term);
@@ -149,8 +149,8 @@ bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs)
 }
 
 KOKKOS_INLINE_FUNCTION
-constexpr int
-factorial(int n)
+constexpr unsigned int
+factorial(unsigned int n)
 {
   int res = 1;
   for (int i = 1; i <=n; ++i) res *= i;
