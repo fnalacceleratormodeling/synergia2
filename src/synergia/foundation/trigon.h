@@ -9,7 +9,6 @@
 #include <unordered_map>
 
 #include <Kokkos_Core.hpp>
-//#include <Kokkos_UnorderedMap.hpp>
 
 #include <Eigen/Eigen>
 
@@ -28,15 +27,20 @@ template <typename TRIGON> class TMapping;
 template <unsigned int Length> struct Array_hash;
 template<typename T, unsigned int P, unsigned int D> struct is_trigon<Trigon<T, P, D>>;
 
-// Public function templates and functions defined in this header
-template <class T, size_t N> bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs);
-constexpr int factorial(int n);
-constexpr unsigned int array_length(unsigned int i);
-
+// Public function templates and functions defined in this header.
 // These forward declarations are non-obvious, because the forward declarations
 // can not make use of the template aliases that are used in the definitions.
+template <class T, size_t N> bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs);
 template <size_t Length> arr_t<size_t, Length> indices();
 template <size_t Length> arr_t<size_t, Length> const& canonical_to_index();
+template <size_t Power> std::unordered_map<arr_t<size_t, Power>, size_t, Array_hash<Power>> const fill_index_to_canonical();
+template <size_t Power> std::unordered_map<arr_t<size_t, Power>, size_t, Array_hash<Power>> const& index_to_canonical();
+
+// Public functions defined in this header.
+constexpr int factorial(int n);
+constexpr unsigned int array_length(unsigned int i);
+double term_to_json_val(double const& term);
+std::string term_to_json_val(std::complex<double> const& term);
 
 // template arr_t is a work-alike for std::array, but decorated
 // with KOKKOS_INLINE_FUNCTION so that Kokkos understands how to use it.
