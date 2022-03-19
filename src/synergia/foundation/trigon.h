@@ -101,10 +101,9 @@ public:
     T& value();
     void set(T val);
     void set(T val, size_t index);
-    template <unsigned int Subpower> std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim>&> get_subpower();
-    template <unsigned int Subpower> std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim>&> get_subpower();    
-    template <unsigned int Subpower> std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim> const&> get_subpower() const;
-    template <unsigned int Subpower> std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim> const&> get_subpower() const;
+    template <unsigned int Subpower> Trigon<T, Subpower, Dim>& get_subpower();
+    template <unsigned int Subpower> Trigon<T, Subpower, Dim> const& get_subpower() const;
+
     template <typename F> void each_term(F f);
     void set_term(size_t idx, T const& val);
     T get_term(size_t idx);
@@ -485,53 +484,30 @@ Trigon<T, Power, Dim>::set(T val, size_t index)
   get_subpower<1>().terms[index] = 1;
 }
 
-// template <typename T, unsigned int Power, unsigned int Dim>
-// template <unsigned int Subpower>
-// KOKKOS_INLINE_FUNCTION
-// Trigon<T, Subpower, Dim>&>
-// Trigon<T, Power, Dim>::get_subpower()
-// {
-//   static_assert(Subpower <= Power, "Subpower can not be greater than Power");
-//   if constexpr (Subpower < Power)
-//     return lower.template get_subpower<Subpower>();
-//   if constexpr (Subpower == Power)
-//     return *this;
-// }
-
 template <typename T, unsigned int Power, unsigned int Dim>
 template <unsigned int Subpower>
 KOKKOS_INLINE_FUNCTION
-std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim>&>
+Trigon<T, Subpower, Dim>&
 Trigon<T, Power, Dim>::get_subpower()
 {
-  return lower.template get_subpower<Subpower>();
+  static_assert(Subpower <= Power, "Subpower can not be greater than Power");
+  if constexpr (Subpower < Power)
+    return lower.template get_subpower<Subpower>();
+  if constexpr (Subpower == Power)
+    return *this;
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
 template <unsigned int Subpower>
 KOKKOS_INLINE_FUNCTION
-std::enable_if_t<(Subpower < Power), Trigon<T, Subpower, Dim> const&>
+Trigon<T, Subpower, Dim> const&
 Trigon<T, Power, Dim>::get_subpower() const
 {
-  return lower.template get_subpower<Subpower>();
-}
-
-template <typename T, unsigned int Power, unsigned int Dim>
-template <unsigned int Subpower>
-KOKKOS_INLINE_FUNCTION
-std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim>&>
-Trigon<T, Power, Dim>::get_subpower()
-{
-  return *this;
-}
-
-template <typename T, unsigned int Power, unsigned int Dim>
-template <unsigned int Subpower>
-KOKKOS_INLINE_FUNCTION
-std::enable_if_t<(Subpower == Power), Trigon<T, Subpower, Dim> const&>
-Trigon<T, Power, Dim>::get_subpower() const
-{
-  return *this;
+  static_assert(Subpower <= Power, "Subpower can not be greater than Power");
+  if constexpr (Subpower < Power)
+    return lower.template get_subpower<Subpower>();
+  if constexpr (Subpower == Power)
+    return *this;
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
