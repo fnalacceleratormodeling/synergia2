@@ -267,6 +267,18 @@ KOKKOS_INLINE_FUNCTION
 constexpr unsigned int
 factorial(unsigned int n)
 {
+  int constexpr size = sizeof(unsigned int);
+  static_assert(size == 4 || size== 8,
+      "factorial needs to be adjusted for this size of unsigned integer");
+
+  // The maximum value of n we hold in an unsigned int depends on the size
+  // of the integer.
+  if constexpr(size == 4) {
+    if (n > 12) return 0;
+  } else if constexpr(size == 8) {
+    if (n > 20) return 0;
+  };
+
   int res = 1;
   for (int i = 1; i <=n; ++i) res *= i;
   return res;
