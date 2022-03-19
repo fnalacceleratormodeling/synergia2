@@ -4,7 +4,8 @@
 
 #include <complex>
 
-template <unsigned int P> using Trig = Trigon<std::complex<double>, P, 1>;
+template <unsigned int P> using Trig = Trigon<std::complex<double>, P, 6>;
+static const std::complex<double> complex_zero = {0.0, 0.0};
 
 TEST_CASE("factorials")
 {
@@ -26,14 +27,47 @@ TEST_CASE("factorials")
   static_assert(factorial(13) == 0);
 }
 
+TEST_CASE("arr_t")
+{
+  // Default-constructed arr_t objects should be zero-initialized.
+  arr_t<double, 6> x1;
+  for (double v : x1) {
+    CHECK(v == 0.0);
+  }
+
+  arr_t<std::complex<double>, 6> x2;
+  for (std::complex<double> v: x2) {
+    CHECK(v.real() == 0.0);
+    CHECK(v.imag() == 0.0);
+  }
+}
+
 TEST_CASE("Power 0")
 {
   using trig_t = Trig<0>;
   static_assert(std::is_same_v<trig_t::data_type, std::complex<double>>);
+  static_assert(trig_t::dim == 6);
+  static_assert(trig_t::count == 1);
+  trig_t x;
+  CHECK(x.value() == complex_zero);
 }
 
 TEST_CASE("Power 1")
 {
   using trig_t = Trig<1>;
   static_assert(std::is_same_v<trig_t::data_type, std::complex<double>>);
+  static_assert(trig_t::dim == 6);
+  static_assert(trig_t::count == 6);
+  trig_t x;
+  CHECK(x.value() == complex_zero);
+}
+
+TEST_CASE("Power 2")
+{
+  using trig_t = Trig<2>;
+  static_assert(std::is_same_v<trig_t::data_type, std::complex<double>>);
+  static_assert(trig_t::dim == 6);
+  static_assert(trig_t::count == 21);
+  trig_t x;
+  CHECK(x.value() == complex_zero);
 }
