@@ -426,21 +426,18 @@ template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>::Trigon()
 { 
-  terms.fill(0); 
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>::Trigon(T val) : lower(val) 
 { 
-  terms.fill(0); 
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION
 Trigon<T, Power, Dim>::Trigon(T val, size_t index) : lower(val)
 {
-  terms.fill(0);
   get_subpower<1>().terms[index] = 1; // jfa fixme
 }
 
@@ -808,7 +805,6 @@ Trigon<T, Power, Dim>::operator*=(Trigon<T, Power, Dim> const& t)
   if (Power > 1) {
     //simple_timer_start("trigon_*=(T)");
     Terms_t new_terms;
-    new_terms.fill(0);
     collect_products<Power>(t, new_terms);
     //simple_timer_stop("trigon_*=(T)");
     lower *= t.lower;
@@ -869,7 +865,6 @@ Trigon<T, Power, Dim>::operator/=(Trigon<T, Power, Dim> const& t)
   if (Power > 1) {
     lower /= t.lower;
     Terms_t new_terms;
-    new_terms.fill(0);
     lower.template collect_products<Power>(t, new_terms);
     T t0 = t.value();
     for (size_t i = 0; i < new_terms.size(); ++i) {
@@ -1091,6 +1086,7 @@ class Trigon<T, 0, Dim>
 {
 public:
   using data_type = T;
+  static constexpr unsigned int dim = Dim;
     static constexpr unsigned int count = 1;
     typedef arr_t<T, count> Terms_t;
     Terms_t terms;
