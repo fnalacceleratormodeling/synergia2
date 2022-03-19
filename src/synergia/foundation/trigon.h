@@ -1071,11 +1071,14 @@ Trigon<T, Power, Dim>::serialize(AR& ar)
 template<typename T, unsigned int P, unsigned int D>
 struct is_trigon<Trigon<T, P, D>> : std::true_type { };
 
-// power 0
+// Full class template specialization for Power == 0.
+// This is the base case for the recursive implementation.
+
 template <typename T, unsigned int Dim>
 class Trigon<T, 0, Dim>
 {
 public:
+  using data_type = T;
     static constexpr unsigned int count = 1;
     typedef arr_t<T, count> Terms_t;
     Terms_t terms;
