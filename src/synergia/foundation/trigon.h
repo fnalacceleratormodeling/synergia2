@@ -1119,12 +1119,18 @@ public:
     template <unsigned int Subpower>
     KOKKOS_INLINE_FUNCTION
     Trigon<T, Subpower, Dim>& get_subpower()
-    { return *this; }
+    {
+      static_assert(Subpower == 0);
+      return *this;
+    }
 
     template <unsigned int Subpower>
     KOKKOS_INLINE_FUNCTION
     const Trigon<T, Subpower, Dim>& get_subpower() const
-    { return *this; }
+    {
+      static_assert(Subpower == 0);
+      return *this;
+    }
 
     KOKKOS_INLINE_FUNCTION
     bool operator== (T rhs) const
