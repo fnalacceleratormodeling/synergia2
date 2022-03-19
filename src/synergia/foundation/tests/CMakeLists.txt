@@ -7,6 +7,12 @@ if (BUILD_PYTHON_BINDINGS)
 
 endif()
 
+
+add_executable(test_trigon test_trigon.cc)
+target_link_libraries(test_trigon Kokkos::kokkos synergia_test_main)
+add_mpi_test(test_trigon 1)
+
+
 add_executable(test_four_momentum test_four_momentum.cc)
 target_link_libraries(test_four_momentum synergia_foundation synergia_test_main)
 add_mpi_test(test_four_momentum 1)
