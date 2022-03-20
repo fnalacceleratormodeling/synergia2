@@ -50,6 +50,10 @@ TEST_CASE("Power 0")
   static_assert(trig_t::count == 1);
   trig_t x;
   CHECK(x.value() == complex_zero);
+  trig_t y(std::complex<double>(2.5, 3.5));
+  CHECK(y.value() == std::complex<double>(2.5, 3.5));
+  y.set(complex_zero);
+  CHECK(y.value() == complex_zero);
 }
 
 TEST_CASE("Power 1")
