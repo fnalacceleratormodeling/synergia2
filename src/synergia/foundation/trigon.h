@@ -44,25 +44,35 @@ std::string term_to_json_val(std::complex<double> const& term);
 
 // template arr_t is a work-alike for std::array, but decorated
 // with KOKKOS_INLINE_FUNCTION so that Kokkos understands how to use it.
+// Member functions and function templates which have an implementation
+// decorated with KOKKOS_INLINE_FUNCTION have their declaration decorated
+// with HOST_DEVICE.
+
+#ifdef __CUDA__
+#define HOST_DEVICE __host__ __device__
+#else
+#define HOST_DEVICE
+#endif
+
 template<class T, size_t SIZE>
 struct arr_t
 {
     T data[SIZE] = {};
 
-    constexpr size_t size() const;
-    void fill(T t);
-    T& at(size_t idx);
-    T const& at(size_t idx) const;
-    T& operator[](size_t idx);
-    T const& operator[](size_t idx) const;
-    T* begin();
-    T const* begin() const;
-    T* end();
-    T const* end() const;
+    HOST_DEVICE constexpr size_t size() const;
+    HOST_DEVICE void fill(T t);
+    HOST_DEVICE T& at(size_t idx);
+    HOST_DEVICE T const& at(size_t idx) const;
+    HOST_DEVICE T& operator[](size_t idx);
+    HOST_DEVICE T const& operator[](size_t idx) const;
+    HOST_DEVICE T* begin();
+    HOST_DEVICE T const* begin() const;
+    HOST_DEVICE T* end();
+    HOST_DEVICE T const* end() const;
 
     // conversion
-    template <class U> void from(arr_t<U, SIZE> const& o);
-    template <class U> arr_t<U, SIZE> to() const;
+    template <class U> HOST_DEVICE void from(arr_t<U, SIZE> const& o);
+    template <class U> HOST_DEVICE arr_t<U, SIZE> to() const;
     
     template <class AR> void serialize(AR& ar);
 };
@@ -88,82 +98,78 @@ public:
     Trigon<T, Power - 1, Dim> lower;
     Terms_t terms;
 
-    Trigon();
-    Trigon(T val);
-    Trigon(T val, size_t index);
+    HOST_DEVICE Trigon();
+    HOST_DEVICE Trigon(T val);
+    HOST_DEVICE Trigon(T val, size_t index);
     
     // implicit conversion
-    template <class U> explicit Trigon(Trigon<U, Power, Dim> const& o);
+    template <class U> HOST_DEVICE explicit Trigon(Trigon<U, Power, Dim> const& o);
     
-    static constexpr unsigned int power();
+    HOST_DEVICE static constexpr unsigned int power();
     
-    const T& value() const;
-    T& value();
-    void set(T val);
-    void set(T val, size_t index);
-    template <unsigned int Subpower> Trigon<T, Subpower, Dim>& get_subpower();
-    template <unsigned int Subpower> Trigon<T, Subpower, Dim> const& get_subpower() const;
+    HOST_DEVICE const T& value() const;
+    HOST_DEVICE T& value();
+    HOST_DEVICE void set(T val);
+    HOST_DEVICE void set(T val, size_t index);
+    template <unsigned int Subpower> HOST_DEVICE Trigon<T, Subpower, Dim>& get_subpower();
+    template <unsigned int Subpower> HOST_DEVICE Trigon<T, Subpower, Dim> const& get_subpower() const;
 
-    template <typename F> void each_term(F f);
-    void set_term(size_t idx, T const& val);
-    T get_term(size_t idx);
-    void set_term(unsigned int power, size_t idx, T const& val);
-    T get_term(unsigned int power, size_t idx);
+    template <typename F> HOST_DEVICE void each_term(F f);
+    HOST_DEVICE void set_term(size_t idx, T const& val);
+    HOST_DEVICE T get_term(size_t idx);
+    HOST_DEVICE void set_term(unsigned int power, size_t idx, T const& val);
+    HOST_DEVICE T get_term(unsigned int power, size_t idx);
 
     // keep terms with power in [lower, upper]
-    void filter(unsigned int p_lower, unsigned int p_upper);
+    HOST_DEVICE void filter(unsigned int p_lower, unsigned int p_upper);
     
-    bool operator== (T rhs) const;
-    bool operator!= (T rhs) const;
-    bool operator< (double rhs) const;
-    bool operator> (double rhs) const;
-    bool operator<= (double rhs) const;
-    bool operator>= (double rhs) const;
+    HOST_DEVICE bool operator== (T rhs) const;
+    HOST_DEVICE bool operator!= (T rhs) const;
+    HOST_DEVICE bool operator< (double rhs) const;
+    HOST_DEVICE bool operator> (double rhs) const;
+    HOST_DEVICE bool operator<= (double rhs) const;
+    HOST_DEVICE bool operator>= (double rhs) const;
 
-    Trigon<T, Power, Dim>& operator+=(Trigon<T, Power, Dim> const& t);
-    Trigon<T, Power, Dim>& operator+=(T val);
-    Trigon<T, Power, Dim> operator+(Trigon<T, Power, Dim> const& t) const;
-    Trigon<T, Power, Dim> operator+(T val) const;
-    Trigon<T, Power, Dim> operator-() const;
-    Trigon<T, Power, Dim>& operator-=(Trigon<T, Power, Dim> const& t);
-    Trigon<T, Power, Dim>& operator-=(T val);
-    Trigon<T, Power, Dim> operator-(Trigon<T, Power, Dim> const& t) const;
-    Trigon<T, Power, Dim> operator-(T val) const;
+    HOST_DEVICE Trigon<T, Power, Dim>& operator+=(Trigon<T, Power, Dim> const& t);
+    HOST_DEVICE Trigon<T, Power, Dim>& operator+=(T val);
+    HOST_DEVICE Trigon<T, Power, Dim> operator+(Trigon<T, Power, Dim> const& t) const;
+    HOST_DEVICE Trigon<T, Power, Dim> operator+(T val) const;
+    HOST_DEVICE Trigon<T, Power, Dim> operator-() const;
+    HOST_DEVICE Trigon<T, Power, Dim>& operator-=(Trigon<T, Power, Dim> const& t);
+    HOST_DEVICE Trigon<T, Power, Dim>& operator-=(T val);
+    HOST_DEVICE Trigon<T, Power, Dim> operator-(Trigon<T, Power, Dim> const& t) const;
+    HOST_DEVICE Trigon<T, Power, Dim> operator-(T val) const;
 
     template <unsigned int P1, unsigned int P2> 
-    arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>, Trigon<double, P1, Dim>::count>
+    HOST_DEVICE arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>, Trigon<double, P1, Dim>::count>
     calculate_f();
     
-    template <unsigned int P2> unsigned int f(unsigned int i, unsigned j);
+    template <unsigned int P2> HOST_DEVICE unsigned int f(unsigned int i, unsigned j);
 
     template <unsigned int New_power, typename Mult_trigon_t, typename Array_t>
-    void collect_products(Mult_trigon_t const& t, Array_t& new_terms);
+    HOST_DEVICE void collect_products(Mult_trigon_t const& t, Array_t& new_terms);
     
-    Trigon<T, Power, Dim> operator*=(Trigon<T, Power, Dim> const& t);
-    Trigon<T, Power, Dim> operator*=(T val);
-    Trigon<T, Power, Dim> operator*(Trigon<T, Power, Dim> const& t) const;
-    Trigon<T, Power, Dim> operator*(T val) const;
-    Trigon<T, Power, Dim> operator/=(Trigon<T, Power, Dim> const& t);
-    Trigon<T, Power, Dim> operator/=(T val);
-    Trigon<T, Power, Dim> operator/(Trigon<T, Power, Dim> const& t) const;
-    Trigon<T, Power, Dim> operator/(T val) const;
+    HOST_DEVICE Trigon<T, Power, Dim> operator*=(Trigon<T, Power, Dim> const& t);
+    HOST_DEVICE Trigon<T, Power, Dim> operator*=(T val);
+    HOST_DEVICE Trigon<T, Power, Dim> operator*(Trigon<T, Power, Dim> const& t) const;
+    HOST_DEVICE Trigon<T, Power, Dim> operator*(T val) const;
+    HOST_DEVICE Trigon<T, Power, Dim> operator/=(Trigon<T, Power, Dim> const& t);
+    HOST_DEVICE Trigon<T, Power, Dim> operator/=(T val);
+    HOST_DEVICE Trigon<T, Power, Dim> operator/(Trigon<T, Power, Dim> const& t) const;
+    HOST_DEVICE Trigon<T, Power, Dim> operator/(T val) const;
 
     // partial derivative
     // [0, 0] => dTrigon/(dx dx)
     // [0, 1] => dTrigon/(dx dy)
     // [2, 2, 2] => dTrigon/(dz dz dz)
-    template <size_t DP> std::enable_if_t<((Power>DP) && (DP>1)), Trigon<T, Power-DP, Dim>>
-    derivative(arr_t<unsigned int, DP> const& idx);
-    
-    template <size_t DP> std::enable_if_t<((Power>DP) && (DP==1)), Trigon<T, Power-DP, Dim>>
-    derivative(arr_t<unsigned int, DP> const& idx);    
+    template <size_t DP> HOST_DEVICE Trigon<T, Power-DP, Dim> derivative(arr_t<unsigned int, DP> const& idx);
     
     // evaluation
-    T operator()(arr_t<T, Dim> const& x) const;
+    HOST_DEVICE T operator()(arr_t<T, Dim> const& x) const;
 
     // composition
     template<unsigned int P>
-    Trigon<T, P, Dim>
+    HOST_DEVICE Trigon<T, P, Dim>
     compose(TMapping<Trigon<T, P, Dim>> const& x) const;
     
 
@@ -920,24 +926,27 @@ Trigon<T, Power, Dim>::operator/(T val) const
 // [0, 0] => dTrigon/(dx dx)
 // [0, 1] => dTrigon/(dx dy)
 // [2, 2, 2] => dTrigon/(dz dz dz)
-template <typename T, unsigned int Power, unsigned int Dim>
-template<size_t DP>
-KOKKOS_INLINE_FUNCTION
-std::enable_if_t<((Power>DP) && (DP>1)), Trigon<T, Power-DP, Dim>>
-Trigon<T, Power, Dim>::derivative(arr_t<unsigned int, DP> const& idx)
-{
-  arr_t<unsigned int, DP-1> i2;
-  for(int i=0; i<DP-1; ++i) i2[i] = idx[i];
-  return partial_deriv(*this, idx[DP-1]).derivative(i2);
-}
+//
 
 template <typename T, unsigned int Power, unsigned int Dim>
-template<size_t DP>
+template <size_t DP>
 KOKKOS_INLINE_FUNCTION
-std::enable_if_t<((Power>DP) && (DP==1)), Trigon<T, Power-DP, Dim>>
+Trigon<T, Power - DP, Dim>
 Trigon<T, Power, Dim>::derivative(arr_t<unsigned int, DP> const& idx)
 {
-  return partial_deriv(*this, idx[0]);
+  static_assert(Power > DP, "Power must be greater than DP");
+  static_assert(DP > 0, "DP must be 1 or more");
+
+  if constexpr (DP == 1)
+  {
+    return partial_deriv(*this, idx[0]);
+  }
+  else
+  {
+    arr_t<unsigned int, DP-1> i2;
+    for(int i=0; i<DP-1; ++i) i2[i] = idx[i];
+    return partial_deriv(*this, idx[DP-1]).derivative(i2);
+  }
 }
 
 // evaluation
@@ -1308,6 +1317,9 @@ public:
         retval /= val;
         return retval;
     }
+
+    // NB: Trigon<T, 0, Dim> can not have a member function template
+    // 'derivative', because we're already at Power == 0.
 
     KOKKOS_INLINE_FUNCTION
     T operator()(arr_t<T, Dim> const& x) const
