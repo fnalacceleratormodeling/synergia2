@@ -169,8 +169,7 @@ public:
   HOST_DEVICE Trigon operator-() const;
   HOST_DEVICE Trigon& operator-=(Trigon const& t);
   HOST_DEVICE Trigon& operator-=(T val);
-  HOST_DEVICE Trigon operator-(
-    Trigon const& t) const;
+  HOST_DEVICE Trigon operator-(Trigon const& t) const;
 
   HOST_DEVICE Trigon operator-(T val) const;
 
@@ -187,14 +186,12 @@ public:
 
   HOST_DEVICE Trigon operator*=(Trigon const& t);
   HOST_DEVICE Trigon operator*=(T val);
-  HOST_DEVICE Trigon operator*(
-    Trigon const& t) const;
+  HOST_DEVICE Trigon operator*(Trigon const& t) const;
 
   HOST_DEVICE Trigon operator*(T val) const;
   HOST_DEVICE Trigon operator/=(Trigon const& t);
   HOST_DEVICE Trigon operator/=(T val);
-  HOST_DEVICE Trigon operator/(
-    Trigon const& t) const;
+  HOST_DEVICE Trigon operator/(Trigon const& t) const;
 
   HOST_DEVICE Trigon operator/(T val) const;
 
@@ -381,48 +378,36 @@ using Index_t = arr_t<size_t, array_length(Power)>;
 template <unsigned int Power, unsigned int Dim>
 using Indices_t = arr_t<Index_t<Power>, Trigon<double, Power, Dim>::count>;
 
-// Implementations of template <size_t Length> arr_t<size_t, Length> indices().
-// We're using std::enable_if<> to choose between implementations.
-
 template <unsigned int Power, unsigned int Dim>
-KOKKOS_INLINE_FUNCTION std::enable_if_t<Power == 0, Indices_t<Power, Dim>>
+KOKKOS_INLINE_FUNCTION Indices_t<Power, Dim>
 indices()
 {
   Indices_t<Power, Dim> retval;
-  retval[0][0] = 0;
-  return retval;
-}
 
-template <unsigned int Power, unsigned int Dim>
-KOKKOS_INLINE_FUNCTION std::enable_if_t<Power == 1, Indices_t<Power, Dim>>
-indices()
-{
-  Indices_t<Power, Dim> retval;
-  for (size_t i = 0; i < Dim; ++i) retval[i][0] = i;
-  return retval;
-}
-
-template <unsigned int Power, unsigned int Dim>
-KOKKOS_INLINE_FUNCTION std::enable_if_t<(Power > 1), Indices_t<Power, Dim>>
-indices()
-{
-  Indices_t<Power - 1, Dim> subindices = indices<Power - 1, Dim>();
-  Indices_t<Power, Dim> retval;
-  size_t count = 0;
-  for (size_t i = 0; i < Dim; ++i) {
-    for (size_t j = 0; j < subindices.size(); ++j) {
-      if (subindices[j][0] >= i) {
-        arr_t<size_t, Power> entry;
-        entry[0] = i;
-        for (size_t k = 0; k < (Power - 1); ++k) {
-          entry[k + 1] = subindices[j][k];
+  if constexpr (Power == 0) {
+    retval[0][0] = 0;
+    return retval;
+  } else if constexpr (Power == 1) {
+    for (size_t i = 0; i < Dim; ++i) retval[i][0] = i;
+    return retval;
+  } else {
+    Indices_t<Power - 1, Dim> subindices = indices<Power - 1, Dim>();
+    size_t count = 0;
+    for (size_t i = 0; i < Dim; ++i) {
+      for (size_t j = 0; j < subindices.size(); ++j) {
+        if (subindices[j][0] >= i) {
+          arr_t<size_t, Power> entry;
+          entry[0] = i;
+          for (size_t k = 0; k < (Power - 1); ++k) {
+            entry[k + 1] = subindices[j][k];
+          }
+          retval[count] = entry;
+          ++count;
         }
-        retval[count] = entry;
-        ++count;
       }
     }
+    return retval;
   }
-  return retval;
 }
 
 // Implementation of Array_hash
@@ -690,7 +675,7 @@ Trigon<T, Power, Dim>::operator>=(double rhs) const
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>&
-Trigon<T, Power, Dim>::operator+=(Trigon<T, Power, Dim> const& t)
+Trigon<T, Power, Dim>::operator+=(Trigon const& t)
 {
   lower += t.lower;
   for (size_t i = 0; i < terms.size(); ++i) { terms[i] += t.terms[i]; }
@@ -707,9 +692,9 @@ Trigon<T, Power, Dim>::operator+=(T val)
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
-Trigon<T, Power, Dim>::operator+(Trigon<T, Power, Dim> const& t) const
+Trigon<T, Power, Dim>::operator+(Trigon const& t) const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval += t;
   return retval;
 }
@@ -718,7 +703,7 @@ template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
 Trigon<T, Power, Dim>::operator+(T val) const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval += val;
   return retval;
 }
@@ -727,7 +712,7 @@ template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
 Trigon<T, Power, Dim>::operator-() const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval.lower = -lower;
   for (size_t i = 0; i < terms.size(); ++i) { retval.terms[i] = -terms[i]; }
   return retval;
@@ -735,7 +720,7 @@ Trigon<T, Power, Dim>::operator-() const
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>&
-Trigon<T, Power, Dim>::operator-=(Trigon<T, Power, Dim> const& t)
+Trigon<T, Power, Dim>::operator-=(Trigon const& t)
 {
   lower -= t.lower;
   for (size_t i = 0; i < terms.size(); ++i) { terms[i] -= t.terms[i]; }
@@ -752,9 +737,9 @@ Trigon<T, Power, Dim>::operator-=(T val)
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
-Trigon<T, Power, Dim>::operator-(Trigon<T, Power, Dim> const& t) const
+Trigon<T, Power, Dim>::operator-(Trigon const& t) const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval -= t;
   return retval;
 }
@@ -763,7 +748,7 @@ template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
 Trigon<T, Power, Dim>::operator-(T val) const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval -= val;
   return retval;
 }
@@ -837,7 +822,7 @@ Trigon<T, Power, Dim>::collect_products(Mult_trigon_t const& t,
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
-Trigon<T, Power, Dim>::operator*=(Trigon<T, Power, Dim> const& t)
+Trigon<T, Power, Dim>::operator*=(Trigon const& t)
 {
   if (Power > 1) {
     // simple_timer_start("trigon_*=(T)");
@@ -872,9 +857,9 @@ Trigon<T, Power, Dim>::operator*=(T val)
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
-Trigon<T, Power, Dim>::operator*(Trigon<T, Power, Dim> const& t) const
+Trigon<T, Power, Dim>::operator*(Trigon const& t) const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval *= t;
   return retval;
 }
@@ -883,14 +868,14 @@ template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
 Trigon<T, Power, Dim>::operator*(T val) const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval *= val;
   return retval;
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
-Trigon<T, Power, Dim>::operator/=(Trigon<T, Power, Dim> const& t)
+Trigon<T, Power, Dim>::operator/=(Trigon const& t)
 {
   // this / t = new
   if (Power > 1) {
@@ -926,9 +911,9 @@ Trigon<T, Power, Dim>::operator/=(T val)
 
 template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
-Trigon<T, Power, Dim>::operator/(Trigon<T, Power, Dim> const& t) const
+Trigon<T, Power, Dim>::operator/(Trigon const& t) const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval /= t;
   return retval;
 }
@@ -937,7 +922,7 @@ template <typename T, unsigned int Power, unsigned int Dim>
 KOKKOS_INLINE_FUNCTION Trigon<T, Power, Dim>
 Trigon<T, Power, Dim>::operator/(T val) const
 {
-  Trigon<T, Power, Dim> retval(*this);
+  Trigon retval(*this);
   retval /= val;
   return retval;
 }
@@ -1624,49 +1609,44 @@ operator/(T val, Trigon<T, 0, Dim> const& t)
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
-KOKKOS_INLINE_FUNCTION typename std::enable_if<(Power == 1), void>::type
+KOKKOS_INLINE_FUNCTION void
 calculate_partial(Trigon<T, Power, Dim> const& source,
                   size_t index,
                   Trigon<T, Power - 1, Dim>& dest)
 {
-  dest.terms[0] = source.terms[index];
-}
+  static_assert(Power >= 1, "Power must be greater than 0");
+  if constexpr (Power == 1) {
+    dest.terms[0] = source.terms[index];
+  } else {
 
-template <typename T, unsigned int Power, unsigned int Dim>
-KOKKOS_INLINE_FUNCTION typename std::enable_if<(Power > 1), void>::type
-calculate_partial(Trigon<T, Power, Dim> const& source,
-                  size_t index,
-                  Trigon<T, Power - 1, Dim>& dest)
-{
-  auto source_indices = indices<Power, Dim>();
+    auto source_indices = indices<Power, Dim>();
+    for (size_t i = 0; i < source_indices.size(); ++i) {
+      auto& source_index = source_indices[i];
+      Index_t<Power - 1> dest_index;
+      size_t exponent = 0;
+      size_t k = 0;
 
-  for (size_t i = 0; i < source_indices.size(); ++i) {
-    auto& source_index = source_indices[i];
-    Index_t<Power - 1> dest_index;
-    size_t exponent = 0;
-    size_t k = 0;
+      for (size_t j = 0; j < source_index.size(); ++j) {
+        if (source_index[j] == index) {
+          exponent += 1;
+        } else {
+          dest_index[k] = source_index[j];
+          ++k;
+        }
+      }
 
-    for (size_t j = 0; j < source_index.size(); ++j) {
-      if (source_index[j] == index) {
-        exponent += 1;
-      } else {
-        dest_index[k] = source_index[j];
-        ++k;
+      if (exponent > 0) {
+        for (size_t j = 0; j < (exponent - 1); ++j, ++k) {
+          dest_index[k] = index;
+        }
+        std::sort(dest_index.begin(), dest_index.end());
+        // trigon_impl::sort(dest_index);
+        dest.terms[index_to_canonical<Power - 1, Dim>().at(dest_index)] =
+          T(exponent) * source.terms[i];
       }
     }
-
-    if (exponent > 0) {
-      for (size_t j = 0; j < (exponent - 1); ++j, ++k) {
-        dest_index[k] = index;
-      }
-      std::sort(dest_index.begin(), dest_index.end());
-      // trigon_impl::sort(dest_index);
-      dest.terms[index_to_canonical<Power - 1, Dim>().at(dest_index)] =
-        T(exponent) * source.terms[i];
-    }
+    calculate_partial<T, Power - 1, Dim>(source.lower, index, dest.lower);
   }
-
-  calculate_partial<T, Power - 1, Dim>(source.lower, index, dest.lower);
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
@@ -2206,25 +2186,6 @@ operator*(typename TMapping<TRIGON>::matrix_t const& m,
 //
 // All the following are #defined away.
 // TODO: Consider removing all of this.
-
-#if 0
-template <unsigned int Power, unsigned int Dim>
-KOKKOS_INLINE_FUNCTION
-std::enable_if_t<((Power == 1) || (Power == 0)), Indices_t<Power, Dim>>
-indices()
-{
-    Indices_t<Power, Dim> retval;
-    if (Power == 0) {
-        retval[0][0] = 0;
-    } else {
-        for (size_t i = 0; i < Dim; ++i) {
-            retval[i][0] = i;
-        }
-    }
-
-    return retval;
-}
-#endif
 
 #if 0
 template <unsigned int Power, unsigned int Dim>
