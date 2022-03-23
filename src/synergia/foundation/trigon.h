@@ -161,19 +161,18 @@ public:
   HOST_DEVICE bool operator<=(double rhs) const;
   HOST_DEVICE bool operator>=(double rhs) const;
 
-  HOST_DEVICE Trigon<T, Power, Dim>& operator+=(Trigon<T, Power, Dim> const& t);
-  HOST_DEVICE Trigon<T, Power, Dim>& operator+=(T val);
-  HOST_DEVICE Trigon<T, Power, Dim> operator+(
-    Trigon<T, Power, Dim> const& t) const;
+  HOST_DEVICE Trigon& operator+=(Trigon const& t);
+  HOST_DEVICE Trigon& operator+=(T val);
+  HOST_DEVICE Trigon operator+(Trigon const& t) const;
 
-  HOST_DEVICE Trigon<T, Power, Dim> operator+(T val) const;
-  HOST_DEVICE Trigon<T, Power, Dim> operator-() const;
-  HOST_DEVICE Trigon<T, Power, Dim>& operator-=(Trigon<T, Power, Dim> const& t);
-  HOST_DEVICE Trigon<T, Power, Dim>& operator-=(T val);
-  HOST_DEVICE Trigon<T, Power, Dim> operator-(
-    Trigon<T, Power, Dim> const& t) const;
+  HOST_DEVICE Trigon operator+(T val) const;
+  HOST_DEVICE Trigon operator-() const;
+  HOST_DEVICE Trigon& operator-=(Trigon const& t);
+  HOST_DEVICE Trigon& operator-=(T val);
+  HOST_DEVICE Trigon operator-(
+    Trigon const& t) const;
 
-  HOST_DEVICE Trigon<T, Power, Dim> operator-(T val) const;
+  HOST_DEVICE Trigon operator-(T val) const;
 
   template <unsigned int P1, unsigned int P2>
   HOST_DEVICE arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
@@ -186,18 +185,18 @@ public:
   template <unsigned int New_power, typename Mult_trigon_t, typename Array_t>
   HOST_DEVICE void collect_products(Mult_trigon_t const& t, Array_t& new_terms);
 
-  HOST_DEVICE Trigon<T, Power, Dim> operator*=(Trigon<T, Power, Dim> const& t);
-  HOST_DEVICE Trigon<T, Power, Dim> operator*=(T val);
-  HOST_DEVICE Trigon<T, Power, Dim> operator*(
-    Trigon<T, Power, Dim> const& t) const;
+  HOST_DEVICE Trigon operator*=(Trigon const& t);
+  HOST_DEVICE Trigon operator*=(T val);
+  HOST_DEVICE Trigon operator*(
+    Trigon const& t) const;
 
-  HOST_DEVICE Trigon<T, Power, Dim> operator*(T val) const;
-  HOST_DEVICE Trigon<T, Power, Dim> operator/=(Trigon<T, Power, Dim> const& t);
-  HOST_DEVICE Trigon<T, Power, Dim> operator/=(T val);
-  HOST_DEVICE Trigon<T, Power, Dim> operator/(
-    Trigon<T, Power, Dim> const& t) const;
+  HOST_DEVICE Trigon operator*(T val) const;
+  HOST_DEVICE Trigon operator/=(Trigon const& t);
+  HOST_DEVICE Trigon operator/=(T val);
+  HOST_DEVICE Trigon operator/(
+    Trigon const& t) const;
 
-  HOST_DEVICE Trigon<T, Power, Dim> operator/(T val) const;
+  HOST_DEVICE Trigon operator/(T val) const;
 
   // partial derivative
   // [0, 0] => dTrigon/(dx dx)
