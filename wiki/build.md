@@ -166,6 +166,13 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
     # We do not recommend using /usr/local/ as your installation target. While this is the default, this will mix your Synergia installation
     # with the tools installed using Homebrew -- but Homebrew will not know how to update Synergia.
     cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DCMAKE_INSTALL_PREFIX=/path/to/install/target /path/to/synergia/
+    
+
+Note that updates of Homebrew-installed packages can invalidate an existing build.
+Often rerunning the build (with `make` or `ninja`) will be sufficient.
+Sometimes, however, this results in re-building or even re-configuration failures.
+The solution in this case is a complete clean re-installation.
+Delete all files (including hidden files) in the build directory, and re-run `cmake`.
 
 ** macOS with gcc**
 
