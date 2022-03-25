@@ -1,5 +1,7 @@
-boost
-cereal
-eigen
-kokkos
-pybind11
+boost/
+cereal/
+eigen/
+kokkos/
+pybind11/
+json.h
+json.hpp
