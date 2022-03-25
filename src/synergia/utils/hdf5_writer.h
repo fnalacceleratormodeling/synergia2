@@ -59,16 +59,19 @@ public:
         write_impl(file, name, di, all_dim0, comm, root_rank);
     }
 
-    template<class T>
+    template <class T>
     static
-    std::enable_if_t<std::is_arithmetic<T>::value, void>
+    void
     write( Hdf5_handler const& file, 
            std::string const& name,
-           T const* data, size_t len, 
+           T const* data,
+           size_t len,
            bool collective, 
            Commxx const& comm,
            int root_rank )
     {
+      static_assert(std::is_arithmetic_v<T>,
+          "Hdf5_write<T>::write works only for arithmetic types");
         syn::data_info_t di { 
             data, 
             std::vector<hsize_t>({len}),
