@@ -904,10 +904,15 @@ namespace foil_impl
 namespace FF_foil
 {
     template<class BunchT>
-    inline void apply(
-            Lattice_element_slice const& slice, BunchT & bunch,
-            typename std::enable_if<std::is_floating_point<typename BunchT::part_t>::value>::type* = 0)
+    inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
     {
+        // Do notthing for trigons
+        if constexpr(is_trigon<typename BunchT::part_t>::value)
+        {
+          return;
+        }
+        else
+        {
         using namespace foil_impl;
 
         scoped_simple_timer timer("libFF_foil");
@@ -1027,15 +1032,7 @@ namespace FF_foil
         // fencing
         Kokkos::fence();
     }
-
-    // do nothing for trigons
-    template<class BunchT>
-    inline void apply(
-            Lattice_element_slice const& slice, BunchT & bunch,
-            typename std::enable_if<is_trigon<typename BunchT::part_t>::value>::type* = 0)
-    {
     }
-
 }
 
 #endif // FF_FOIL_H
