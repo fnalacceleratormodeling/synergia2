@@ -325,9 +325,11 @@ public:
 
     // only available for trigons
     template<class U = PART>
-    std::enable_if_t<is_trigon<U>::value, karray2d_row>
+    karray2d_row
     get_jacobian(int idx) const
     {
+        static_assert(is_trigon<U>::value, "X::get_jacoabian<T> is only defined when U is a trigon");
+
         karray2d_row res("jacobian", 6, 6);
         for(int i=0; i<6; ++i)
             for(int j=0; j<6; ++j)
