@@ -151,7 +151,7 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
 
     # We do not install h5py using pip because the pip-installed version may not
     # not use a version of HDF5 that matches what we have from the package manager.
-    i# Instead, we build our own from source.
+    # Instead, we build our own from source.
     mkdir tmp
     cd tmp
     wget https://github.com/h5py/h5py/archive/refs/tags/3.6.0.tar.gz # check for the most recent version
@@ -161,7 +161,7 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
     cd ../..
     rm -r tmp/
 
-** macOS with apple clang**
+### macOS with apple clang
 
     # We do not recommend using /usr/local/ as your installation target. While this is the default, this will mix your Synergia installation
     # with the tools installed using Homebrew -- but Homebrew will not know how to update Synergia.
@@ -174,7 +174,7 @@ Sometimes, however, this results in re-building or even re-configuration failure
 The solution in this case is a complete clean re-installation.
 Delete all files (including hidden files) in the build directory, and re-run `cmake`.
 
-** macOS with gcc**
+### macOS with gcc
 
 We do not recommend the use of the the GNU compiler suite to build Synergia on macOS.
 This can lead to incompatibilities between C++ libraries that are part of the OS or part of Homebrew on one hand, and C++ libraries built with `g++` on the other.
