@@ -59,3 +59,8 @@ spack-setup.sh
 spack
 
 build/**
+
+
+# clangd LSP files
+compile_commands.json
+**.cache/clangd
