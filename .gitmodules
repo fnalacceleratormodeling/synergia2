@@ -1,6 +1,7 @@
 [submodule "src/synergia/utils/kokkos"]
 	path = src/synergia/utils/kokkos
 	url = https://github.com/fnalacceleratormodeling/kokkos.git
+	branch = rc-3.6.0
 [submodule "src/synergia/utils/pybind11"]
 	path = src/synergia/utils/pybind11
 	url = https://github.com/pybind/pybind11.git
