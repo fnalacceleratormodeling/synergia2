@@ -32,7 +32,7 @@ jobs:
         . /opt/view/setvars.sh
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) \
-          -DUSE_EXTERNAL_KOKKOS=on -DBUILD_EXAMPLES=off -GNinja
+          -DUSE_EXTERNAL_KOKKOS=off -DBUILD_EXAMPLES=off -GNinja
 
     - name: Build
       # Build your program with the given configuration
