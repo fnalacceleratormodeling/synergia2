@@ -49,6 +49,8 @@ Kokkos options:
     cmake -DKokkos_ENABLE_CUDA=on/off
     ...
 
+Note that we require an OpenMP-capable C++ compiler. On MacOS, AppleClang is not OpenMP-enabled by default and one has to install libomp via brew. Note that we carry [a bug fix](https://github.com/fnalacceleratormodeling/kokkos/commit/449ef24c6b9eb4d5fa543c19d5f2576f575c962e) for this case in the vendored copy of Kokkos. You can choose not to use it by passing `-DUSE_EXTERNAL_KOKKOS=on` and provide an external installation of Kokkos.
+
 Enable/disable Python bindings:
 
     cmake -DBUILD_PYTHON_BINDINGS=on|off  # default is on
