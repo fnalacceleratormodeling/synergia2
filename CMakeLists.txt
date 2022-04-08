@@ -5,6 +5,17 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.22.0")
   cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
 endif()
 
+# generate compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# and place it in the source directory
+# https://stackoverflow.com/a/60910583
+add_custom_target(
+    copy-compile-commands ALL
+    ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_BINARY_DIR}/compile_commands.json
+        ${CMAKE_CURRENT_LIST_DIR}
+    )
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
