@@ -24,7 +24,7 @@ namespace {
              int gz,
              int off = 0)
   {
-    karray1d hgrid = Kokkos::create_mirror_view(grid);
+    karray1d_hst hgrid = Kokkos::create_mirror_view(grid);
     Kokkos::deep_copy(hgrid, grid);
 
     double sum = 0;
