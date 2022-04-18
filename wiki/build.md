@@ -49,7 +49,7 @@ Kokkos options:
     cmake -DKokkos_ENABLE_CUDA=on/off
     ...
 
-Note that we require an OpenMP-capable C++ compiler. On MacOS, AppleClang is not OpenMP-enabled by default and one has to install libomp via brew. Note that we carry [a bug fix](https://github.com/fnalacceleratormodeling/kokkos/commit/b2057c3bd455d3d9af8993187f5add348fff1549) for this case in the vendored copy of Kokkos. You can choose not to use it by passing `-DUSE_EXTERNAL_KOKKOS=on` and provide an external installation of Kokkos.
+Synergia2 requires an OpenMP-capable C++ compiler (when compiling for host-only platforms). On MacOS, AppleClang is not OpenMP-enabled by default and one has to install libomp via brew. Note that we carry [a bug fix](https://github.com/fnalacceleratormodeling/kokkos/commit/b2057c3bd455d3d9af8993187f5add348fff1549) for this case in the vendored copy of Kokkos. You can choose not to use it by passing `-DUSE_EXTERNAL_KOKKOS=on` and provide an external installation of Kokkos.
 
 Enable/disable Python bindings:
 
@@ -78,10 +78,7 @@ Kokkos options (it is possible to have both OpenMP and CUDA enabled)
     cmake -DKokkos_ENABLE_OPENMP=on|off
     cmake -DKokkos_ENABLE_CUDA=on|off
 
-Use `nvcc_wrapper` as the default C++ compiler, and set the GPU architecture in the `CXX_FLAGS`.
-`nvcc_wrapper` can be found in Synergia source tree under `src/synergia/utils/kokkos/bin/nvcc_wrapper`
-
-    cmake -DCMAKE_CXX_COMPILER=/path/to/nvcc_wrapper
+Please ensure that both OpenMP and CUDA are not enabled together.
 
 Paddings need to be turned off in the CUDA build due to a Kokkos bug https://github.com/kokkos/kokkos/issues/2995
 
