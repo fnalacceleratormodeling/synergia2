@@ -9,8 +9,8 @@ set(synergia_parallel_utils_src
 add_library(synergia_parallel_utils        SHARED ${synergia_parallel_utils_src})
 add_library(synergia_parallel_utils_static STATIC ${synergia_parallel_utils_src})
 
-target_link_libraries(synergia_parallel_utils MPI::MPI_C ${kokkos_libs})
-target_link_libraries(synergia_parallel_utils_static MPI::MPI_C ${kokkos_libs})
+target_link_libraries(synergia_parallel_utils MPI::MPI_C ${kokkos_libs} cereal::cereal)
+target_link_libraries(synergia_parallel_utils_static MPI::MPI_C ${kokkos_libs} cereal::cereal)
 
 target_link_options(synergia_parallel_utils PRIVATE ${LINKER_OPTIONS})
 target_link_options(synergia_parallel_utils_static PRIVATE ${LINKER_OPTIONS})
