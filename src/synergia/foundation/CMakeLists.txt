@@ -19,7 +19,6 @@ target_link_options(synergia_foundation
     )
 
 if (BUILD_PYTHON_BINDINGS)
-
     if(${Kokkos_ENABLE_CUDA})
         #set_source_files_properties(foundation_pywrap.cc 
         #    PROPERTIES COMPILE_FLAGS --host-only)

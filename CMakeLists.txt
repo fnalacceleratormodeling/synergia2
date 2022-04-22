@@ -84,6 +84,8 @@ option(ALLOW_PADDING "add paddings to the particle array for memory alignment" O
 option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" Off)
 option(Kokkos_ENABLE_OPENMP "enable openmp backend" On)
 option(Kokkos_ENABLE_CUDA "enable CUDA backend" Off)
+option(USE_EXTERNAL_CEREAL "Use external build of cereal" Off)
+option(USE_EXTERNAL_PYBIND11 "Use external build of pybind11, only applicable when building python bindings" Off)
 option(BUILD_EXAMPLES "build examples" On)
 
 # only build the shared lib
@@ -151,7 +153,6 @@ find_package(GSL REQUIRED)
 list(APPEND extra_includes ${GSL_INCLUDE_DIR})
 
 # fftw3
-#if(${Kokkos_ENABLE_OPENMP})
 if(NOT ${Kokkos_ENABLE_CUDA})
     find_package(FFTW3 REQUIRED)
     list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
@@ -168,6 +169,23 @@ if(NOT ${Kokkos_ENABLE_CUDA})
 
 endif()
 
+# cereal
+if(USE_EXTERNAL_CEREAL)
+    find_package(cereal)
+    message(STATUS "Using external cereal")
+else()
+    message(STATUS "Fetching cereal")
+    Include(FetchContent)
+    set(BUILD_SANDBOX Off)
+    set(SKIP_PERFORMANCE_COMPARISON On)
+    FetchContent_Declare(
+	cereal
+	GIT_REPOSITORY https://github.com/USCiLab/cereal.git
+	GIT_TAG        v1.3.2
+	)
+    FetchContent_MakeAvailable(cereal)
+endif()
+
 # warnings
 string(APPEND ${CMAKE_CXX_FLAGS} "-Wall -Werror")
 
@@ -181,21 +199,25 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 # python
 if (BUILD_PYTHON_BINDINGS)
-    message (STATUS "Building python bindings")
-    add_subdirectory(src/synergia/utils/pybind11)
-
-    find_package(Python COMPONENTS Interpreter Development)
-    #list(APPEND extra_includes ${PYTHON_INCLUDE_DIR})
-    #set(IPYTHON_EXECUTABLE "ipython" CACHE PATH "path to optional ipython executable")
-
-    # mpi4py
-    #find_package(MPI4PY REQUIRED)
-    #list(APPEND extra_includes ${MPI4PY_INCLUDE_DIR})
-
+  message (STATUS "Building python bindings")
+  find_package(Python COMPONENTS Interpreter Development)
+  # pybind11
+  if(USE_EXTERNAL_PYBIND11)
+    find_package(pybind11 CONFIG)
+    message(STATUS "Using external pybind11")
+  else()
+    message(STATUS "Fetching pybind11")
+    Include(FetchContent)
+    FetchContent_Declare(
+      pybind11
+      GIT_REPOSITORY https://github.com/pybind/pybind11
+      GIT_TAG        v2.9.2
+       )
+     FetchContent_MakeAvailable(pybind11)
+  endif()
 else(BUILD_PYTHON_BINDINGS)
-    message (STATUS "Do not build python bindings")
+  message (STATUS "Do not build python bindings")
 endif()
-
 
 # simple timer
 if(SIMPLE_TIMER)
@@ -246,15 +268,12 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
 
 
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
-include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/cereal/include)
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils)  # for boost headers
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
-
 
 if(NOT TARGET test-exes)
   add_custom_target(test-exes)
 endif()
-
 
 function(add_test_executable name)
 #  add_executable(${name} EXCLUDE_FROM_ALL ${ARGN})

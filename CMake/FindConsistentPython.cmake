@@ -1,3 +1,5 @@
+# devel3 has moved to cmake's builtin find_package(python)!
+
 # FindConsistentPython
 #
 # This module defines:

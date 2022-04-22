@@ -9,7 +9,7 @@ endif()
 
 
 add_executable(test_trigon test_trigon.cc)
-target_link_libraries(test_trigon Kokkos::kokkos synergia_test_main)
+target_link_libraries(test_trigon synergia_foundation ${kokkos_libs} synergia_test_main)
 add_mpi_test(test_trigon 1)
 
 
