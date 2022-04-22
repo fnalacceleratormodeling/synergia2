@@ -2189,7 +2189,7 @@ operator*(typename TMapping<TRIGON>::matrix_t const& m,
 
 #if 0
 template <unsigned int Power, unsigned int Dim>
-using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t, 
+using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t,
         Kokkos::DefaultExecutionSpace,
         Array_hash<Power>>;
 #endif

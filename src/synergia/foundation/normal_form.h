@@ -30,7 +30,7 @@ class NormalForm
 
     using Matrix3C = Eigen::Matrix<std::complex<double>,
           3, 3, Eigen::RowMajor>;
- 
+
     using MatrixD = Eigen::Matrix<double,
           Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
@@ -55,7 +55,7 @@ public:
             double e0, double pc0, double mass);
 
     // default constructor for serialization only
-    NormalForm() 
+    NormalForm()
     { }
 
     std::array<double, 3>
@@ -134,26 +134,21 @@ private:
 
 
 template<unsigned int order>
-NormalForm<order>::NormalForm(mapping_t const& one_turn_map, 
+NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
         double e0, double pc0, double mass)
     : E_(Matrix6C::Zero()), invE_(Matrix6C::Zero())
     , f_(order-1), g_(order-1)
 {
-#ifdef __CUDA_ARCH__
 
-    // empty implementation for cuda as this is only 
-    // supposed to run on the host
+	 KOKKOS_IF_ON_DEVICE((
+      // empty implementation for cuda as this is only
+      // supposed to run on the host
+      ))
+  KOKKOS_IF_ON_HOST((
 
-#else
 
     constexpr const int dim = trigon_t::dim;
 
-#if 0
-    {
-        std::ofstream of("map.json");
-        of << one_turn_map.to_json();
-    }
-#endif
 
     // chef index
     int c_ix  = 0;
@@ -171,56 +166,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     int s_idt = 4;
     int s_idp = 5;
 
-#if 0
-    std::array<int, 6> map;
-    map[c_ix] = s_ix;
-    map[c_iy] = s_iy;
-    map[c_it] = s_idt;
-    map[c_ipx] = s_ipx;
-    map[c_ipy] = s_ipy;
-    map[c_ide] = s_idp;
-
-
-    auto kjac = one_turn_map.jacobian();
-
-    Matrix6D jac(kjac.data());
-
-    Matrix6D jac2;
-
-    for(int i=0; i<6; ++i)
-    {
-        for(int j=0; j<6; ++j)
-        {
-            jac2(i, j) = jac(map[i], map[j]);
-        }
-    }
-
-#if 1
-    Eigen::EigenSolver<Matrix6D> eigensolver(jac2);
-
-    if (eigensolver.info() != Eigen::Success)
-        throw std::runtime_error("failed solving eigenvectors");
-
-    auto E = eigensolver.eigenvectors();
-#endif
-
-    std::cout << "jacobian1 = \n" << jac << "\n";
-    std::cout << "jacobian2 = \n" << jac2 << "\n";
-
-#if 1
-    std::cout << "eigenvectors = \n" << E << "\n";
-    std::cout << "eigenvalues = \n" << eigensolver.eigenvalues() << "\n";
-#endif
-
-    std::cout << "eigenvalues1 = \n" << jac.eigenvalues() << "\n";
-    std::cout << "eigenvalues2 = \n" << jac2.eigenvalues() << "\n";
-#endif
-
-#if 0
-    std::cout << "e0 = " << e0 << "\n";
-    std::cout << "pc0 = " << pc0 << "\n";
-    std::cout << "mass = " << mass << "\n";
-#endif
 
     // coordinates for synergia particle
     trigon_t    x(0.0, s_ix);
@@ -269,20 +214,12 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     mapping_t M = one_turn_map;
     for(int i=0; i<mapping_t::dim; ++i) M[i].value() = 0.0;
 
-#if 0
-    std::cout << "M = " << M;
-    //std::cout << "CanonToSyn = " << CanonToSyn;
-#endif
 
     // The combined transformation that we will use for the normal form
     // analysis is the one turn map of a canonical particle.  To get this,
     // apply the maps that turns a canonical particle to a synergia particle,
     // one turn map of a synergia particle, syn particle to canonical particle.
     mapping_t canonMap = SynToCanon(M(CanonToSyn));
-
-#if 0
-    std::cout << "canonMap = \n" << canonMap << "\n";
-#endif
 
     // now the normal form
     const std::complex<double> complex_0(0.0, 0.0);
@@ -293,9 +230,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     auto kjac = canonMap.jacobian();
     Matrix6D A(kjac.data());
 
-#if 0
-    std::cout << "jacobian = \n" << A << "\n";
-#endif
 
     Eigen::EigenSolver<Matrix6D> eigensolver;
 
@@ -311,49 +245,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     auto ev = eigensolver.eigenvalues();
     auto B = eigensolver.eigenvectors();
 
-#if 0
-    std::cout << "A = \n" << A << "\n";
-    std::cout << "Eigenvalues = \n" << ev << "\n";
-    std::cout << "Eigenvectors = \n" << B << "\n";
-#endif
-
-#if 0
-    Matrix6D id = Matrix6D::Zero();
-    for(int i=0; i<6; ++i) id(i,i) = 1.0;
-
-    for(int i=0; i<6; ++i)
-      std::cout << "(A-lambda*I)*v = \n" << (A - ev(0)*id) * B.col(0) << "\n\n";
-#endif
-
-#if 0
-    Matrix3D TA = Matrix3D::Zero();
-#if 1
-    TA(0,1) = 1;
-    TA(1,2) = 1;
-    TA(2,0) = 1;
-#endif
-
-#if 0
-    TA << 5.0, 3.0, 0.0,
-          3.0, 5.0, 0.0,
-          0.0, 0.0, 4.0;
-#endif
-
-    Eigen::EigenSolver<Matrix3D> es(TA);
-    auto tev = es.eigenvalues();
-    auto tb = es.eigenvectors();
-
-    std::cout << "TA = \n" << TA << "\n";
-    std::cout << "eigenvalues = \n" << tev << "\n";
-    std::cout << "eigenvectors = \n" << tb << "\n";
-
-    for(int c=0; c<3; ++c)
-    {
-        std::complex<double> csum(0,0);
-        for(int i=0; i<3; ++i) csum += tb(i,c)*std::conj(tb(i,c));
-        std::cout << "sum = " << csum << "\n";
-    }
-#endif
 
     // normalizing the linear normal form coordinates
     Matrix6D J = Matrix6D::Zero();
@@ -366,33 +257,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     // reordering B
     Matrix6C Br = ev_ordering(ev, B);
 
-#if 0
-    for(int i=0; i<6; ++i) Br(i,0) = B(i,0);
-    for(int i=0; i<6; ++i) Br(i,1) = B(i,4);
-    for(int i=0; i<6; ++i) Br(i,2) = B(i,2);
-    for(int i=0; i<6; ++i) Br(i,3) = B(i,1);
-    for(int i=0; i<6; ++i) Br(i,4) = B(i,5);
-    for(int i=0; i<6; ++i) Br(i,5) = B(i,3);
-#endif
-
-    //std::cout << "Br = \n" << Br << "\n";
-
-#if 0
-    // norm
-    std::complex<double> nf[6];
-    nf[0] = std::complex<double>(-1293752451.87, -787291795.259);
-    nf[1] = std::complex<double>(-64196623278.6, 24518649782.2);
-    nf[2] = std::complex<double>(-723688.951316, 170639.322752);
-    nf[3] = std::conj(nf[0]);
-    nf[4] = std::conj(nf[1]);
-    nf[5] = std::conj(nf[2]);
-
-    for(int c=0; c<6; ++c)
-        for(int i=0; i<6; ++i) 
-            Br(i,c) *= nf[c];
-#endif
-
-    //std::cout << "B after reordering and norm = \n" << Br << "\n\n";
 
     Matrix6C Nx = (Br.transpose() * J * Br * J) * mi;
 
@@ -431,9 +295,9 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     // its previous interpretation.
     if( imag(B(3,0)) > 0.0 ) {
         for( int i=0; i < 6; ++i) {
-             m0 = B(i,0);          
-             B(i,0) = B(i,3);      
-             B(i,3) = m0;          
+             m0 = B(i,0);
+             B(i,0) = B(i,3);
+             B(i,3) = m0;
         }
     }
 
@@ -463,24 +327,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
 
     //std::cout << "B after phase correct = \n" << B << "\n\n";
 
-#if 0
-    using c = std::complex<double>;
-    B << 
-        c(114209.354071,7.27595761418e-12), c(0,0), c(1.76447810335,-357.117325749), c(114209.354071,-7.27595761418e-12), c(0,0), c(1.76447810335,357.117325749), 
-
-        c(0,0), c(117322.83252,0), c(0,0), c(0,0), c(117322.83252,0), c(0,0),  
-
-        c(0.000316365569078,-0.000372429994752), c(0,0), c(0.119106484258,-3.46944695195e-18), c(0.000316365569078,0.000372429994752), c(0,0), c(0.119106484258,3.46944695195e-18),
-
-        c(-5.68522460523e-06,-4.37792515282e-06), c(0,0), c(-1.34435122251e-10,2.940539278e-08), c(-5.68522460523e-06,4.37792515282e-06), c(0,0), c(-1.34435122251e-10,-2.940539278e-08),
-
-        c(0,0), c(-1.82289069495e-06,-4.26174504364e-06), c(0,0), c(0,0), c(-1.82289069495e-06,4.26174504364e-06), c(0,0),
-
-        c(-2.88383130626e-05,4.62007074946e-05), c(0,0), c(0.00596608560441,-4.19792429432), c(-2.88383130626e-05,-4.62007074946e-05), c(0,0), c(0.00596608560441,4.19792429432);
-
-#endif
-
-
     E_ = B;
 
     //std::cout << "E = \n" << E_ << "\n\n";
@@ -494,10 +340,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     Matrix6C D    = Binv * A * B;
     Matrix6C Dinv = D.inverse();
 
-#if 0
-    std::cout << "D = Binv * A * B = \n" << D << "\n\n";
-    std::cout << "Dinv = \n" << Dinv << "\n\n";
-#endif
 
     constexpr auto dcols = Matrix6C::ColsAtCompileTime;
     std::array<std::complex<double>, dcols> lambda;
@@ -510,30 +352,30 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     }
 
     // the following blocks are marked with "CAUTION" in CHEF
-    for( int i = 0; i < 6; i++ ) 
+    for( int i = 0; i < 6; i++ )
     {
-        if( fabs( abs(lambda[i]) - 1.0 ) > MLT1 ) 
+        if( fabs( abs(lambda[i]) - 1.0 ) > MLT1 )
         {
             std::ostringstream uic;
             uic  << "NormalForm(): "
-                 << "Only elliptic fixed points allowed: |lambda( " 
-                 << i <<  " )| = " 
+                 << "Only elliptic fixed points allowed: |lambda( "
+                 << i <<  " )| = "
                  << std::abs(lambda[i])
                  << " = 1.0 + ( "
                  << ( abs(lambda[i]) - 1.0 )
                  << " )";
             throw std::runtime_error(uic.str());
         }
-      
-        if( fabs(lambda[i].imag()) < MLT1 ) 
-        { 
+
+        if( fabs(lambda[i].imag()) < MLT1 )
+        {
             std::ostringstream uic;
             uic << "NormalForm(): Eigenvalue " << i << " = " << lambda[i]
                 << ": too close to integer or half-integer tune.";
             throw std::runtime_error(uic.str());
         }
 
-        if( fabs(lambda[i].real()) < MLT1 ) 
+        if( fabs(lambda[i].real()) < MLT1 )
         {
             std::ostringstream uic;
             uic << "NormalForm(): Eigenvalue " << i << " = " << lambda[i]
@@ -541,16 +383,16 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
             throw std::runtime_error(uic.str());
         }
     }
-     
+
     // A little checking and cleaning.
-    for( int i = 0; i < 6; i++ ) 
+    for( int i = 0; i < 6; i++ )
     {
-        if( fabs( abs(D(i,i)) - 1.0 ) > MLT1 ) 
+        if( fabs( abs(D(i,i)) - 1.0 ) > MLT1 )
         {
             std::ostringstream uic;
             uic  << "NormalForm(): "
-                 << "For now, only elliptic maps allowed: | D( " 
-                 << i << ", " << i << " ) | = " 
+                 << "For now, only elliptic maps allowed: | D( "
+                 << i << ", " << i << " ) | = "
                  << std::abs(D(i,i))
                  << " = 1.0 + ( "
                  << ( abs(D(i,i)) - 1.0 )
@@ -558,11 +400,11 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
             throw std::runtime_error(uic.str());
         }
 
-        for( int j=0; j < 6; ++j) 
-        { 
+        for( int j=0; j < 6; ++j)
+        {
             if( j == i ) continue;
 
-            if( abs( D(i,j) ) > MLT1) 
+            if( abs( D(i,j) ) > MLT1)
             {
                 std::ostringstream uic;
                 uic  << "NormalForm(): "
@@ -576,15 +418,15 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
             D(i,j) = complex_0;
         }
     }
-    
-    for( int i = 0; i < 6; i++ ) 
+
+    for( int i = 0; i < 6; i++ )
     {
-        if( fabs( abs(Dinv(i,i)) - 1.0 ) > MLT1 ) 
+        if( fabs( abs(Dinv(i,i)) - 1.0 ) > MLT1 )
         {
-            std::ostringstream uic; 
+            std::ostringstream uic;
             uic  << "NormalForm(): "
-                 << "For now, only elliptic maps allowed: | Dinv( " 
-                 << i << ", " << i << " ) | = " 
+                 << "For now, only elliptic maps allowed: | Dinv( "
+                 << i << ", " << i << " ) | = "
                  << std::abs(Dinv(i,i))
                  << " = 1.0 + ( "
                  << ( abs(Dinv(i,i)) - 1.0 )
@@ -592,8 +434,8 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
             throw std::runtime_error(uic.str());
         }
 
-        for( int j=0; j < 6; ++j) 
-        { 
+        for( int j=0; j < 6; ++j)
+        {
             if( j == i ) continue;
 
             if( abs( Dinv(i,j) ) > MLT1)
@@ -611,10 +453,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
         }
     }
 
-#if 0
-    std::cout << "D = \n" << D << "\n";
-    std::cout << "Dinv = \n" << Dinv << "\n";
-#endif
 
 
     // the original near-identity transformation
@@ -632,32 +470,6 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
     }
 
 
-
-#if 0
-    auto & clt1 = CL1[1];
-    //for(int i=19; i<clt1.terms.size(); ++i) clt1.terms[i] = 0.0;
-    //for(int i=0; i<16; ++i) clt1.terms[i] = 0.0;
-    for(int i=0; i<clt1.terms.size(); ++i) 
-    {
-        if (i!=16) clt1.terms[i] = 0.0;
-    }
-#endif
-
-#if 0
-    //std::cout << "Map = \n" << canonMap << "\n";
-    //std::cout << "CL1(id) = \n" << CL1(id) << "\n";
-    std::cout << "B(Dinv*id) = \n" << B*(Dinv*id) << "\n";
-    std::cout << "CL1 = \n" << CL1 << "\n";
-    std::cout << "CL1(B(Dinv*id)) = \n" << CL1(B*(Dinv*id)) << "\n";
-    std::cout << "calN = \n" << calN << "\n";
-
-    //std::cout << "calN = \n" << CL1(B*(Dinv*id)) << "\n";
-    //std::cout << "calN = \n" << B*(Dinv*id) << "\n";
-
-    arr_t<unsigned int, 2> didx{0, 2};
-    auto dc = calN[0].derivative(didx);
-    std::cout << "d_calN[0]/dx = \n" << dc << "\n";
-#endif
 
     std::array<mapping_c_t, order> N;
     std::array<mapping_c_t, order> T;
@@ -759,7 +571,7 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
             // idx is the index in the terms[] array
             // ind is the indices of the corresponding term
             // val is the coefficient of the term
-            doc[d].each_term([this, k, d, &lambda, &N, &T](size_t idx, 
+            doc[d].each_term([this, k, d, &lambda, &N, &T](size_t idx,
                         auto const& ind, auto const& val) {
 
                 // do nothing if the term is (0,0)
@@ -770,12 +582,12 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
 
                 const int power = ind.size();
 
-                for(int i=0; i<power; ++i) 
+                for(int i=0; i<power; ++i)
                     factor *= complex_1 / lambda[ind[i]];
 
                 factor *= lambda[d];
                 auto denom = factor - complex_1;
-                
+
                 // either absorption or resonance subtraction ...
                 if (abs(denom) < 1e-7)
                 {
@@ -808,7 +620,7 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
         mapT = T[k].exp_map(complex_1, id);
         //std::cout << "mapT = \n" << mapT << "\n";
 
-        for(int i=0; i<6; ++i) 
+        for(int i=0; i<6; ++i)
         {
             //std::cout << "T[k]^id(" << i << ") = \n" << (T[k] ^ id[i]) << "\n";
         }
@@ -852,10 +664,9 @@ NormalForm<order>::NormalForm(mapping_t const& one_turn_map,
 
         //std::cout << "f[" << i << "] = \n" << f_[i] << "\n";
     }
+    ))
 
 
-
-#endif  // __CUDA_ARCH
 
 
 }
@@ -935,10 +746,10 @@ NormalForm<order>::cnvDataFromNormalForm(std::array<std::complex<double>, 3> con
     int  nagthreshold = NAG;
     int  warningsdecade = 0;
     bool throttled = false;
- 
+
     Vector6C u;
 
-    for(int i=0; i<3; ++i) 
+    for(int i=0; i<3; ++i)
     {
         u(i) = nform[i];
         u(i+3) = std::conj(nform[i]);
@@ -957,31 +768,31 @@ NormalForm<order>::cnvDataFromNormalForm(std::array<std::complex<double>, 3> con
     arr_t<double, 6> hsymp;
     const double small_thresh = 5.0e-11;
 
-    for (int i=0; i<6; ++i) 
+    for (int i=0; i<6; ++i)
     {
         // imaginary part of u(i) should be small.
-        if (std::abs(real(u(i))) > small_thresh) 
+        if (std::abs(real(u(i))) > small_thresh)
         {
             // if the real part is non-zero, the imaginary part should
             // be a small fraction of it.
-            if (std::abs(imag(u(i))/real(u(i))) > small_thresh) 
+            if (std::abs(imag(u(i))/real(u(i))) > small_thresh)
             {
                 ++nwarnings;
-                if (!throttled) 
+                if (!throttled)
                 {
                     std::cout << "error, imaginary part of human form coordinate "
                         << "relatively large\n" << u << std::endl;
 
-                } 
-                else if (nwarnings % nagthreshold == 0) 
-                { 
+                }
+                else if (nwarnings % nagthreshold == 0)
+                {
                     // throttled, but maybe we'll nag
-                    std::cout << "error, imaginary part of human form coordinate, " 
+                    std::cout << "error, imaginary part of human form coordinate, "
                         << nwarnings << " times." << std::endl;
 
                     ++warningsdecade;
 
-                    if (warningsdecade == 9) 
+                    if (warningsdecade == 9)
                     {
                         nagthreshold *= 10;
                         warningsdecade = 0;
@@ -991,41 +802,41 @@ NormalForm<order>::cnvDataFromNormalForm(std::array<std::complex<double>, 3> con
                 if (nwarnings >= THROTTLE)
                   throttled = true;
             }
-        } 
-        else 
+        }
+        else
         {
             // the absolute value of the real part is small, the imaginary part
             // should be similarly small
-            if (std::abs(imag(u(i))) > small_thresh) 
+            if (std::abs(imag(u(i))) > small_thresh)
             {
                 ++nwarnings;
 
-                if (!throttled) 
+                if (!throttled)
                 {
                     std::cout << "error, real and imaginary parts of human form coordinate "
                         << "both real and similarly small\n" << u << std::endl;
 
-                } 
-                else if (nwarnings % nagthreshold == 0) 
-                { 
-                    // throttled, but maybe we'll nag 
-                    std::cout << "error, imaginary part of human form coordinate, " 
+                }
+                else if (nwarnings % nagthreshold == 0)
+                {
+                    // throttled, but maybe we'll nag
+                    std::cout << "error, imaginary part of human form coordinate, "
                         << nwarnings << " times." << std::endl;
 
                     ++warningsdecade;
 
-                    if (warningsdecade == 9) 
+                    if (warningsdecade == 9)
                     {
                         nagthreshold *= 10;
                         warningsdecade = 0;
                     }
                 }
 
-                if (nwarnings >= THROTTLE) 
+                if (nwarnings >= THROTTLE)
                     throttled = true;
             }
         }
-          
+
         hsymp[i] = u[i].real();
     }
 
@@ -1040,7 +851,7 @@ NormalForm<order>::cnvDataFromNormalForm(std::array<std::complex<double>, 3> con
 }
 
 template<unsigned int order>
-typename NormalForm<order>::Matrix6C 
+typename NormalForm<order>::Matrix6C
 NormalForm<order>::ev_ordering(
         typename NormalForm<order>::Vector6C const& ev,
         typename NormalForm<order>::Matrix6C const& B ) const
@@ -1063,7 +874,7 @@ NormalForm<order>::ev_ordering(
         // find first unused
         for(int j=0; j<6; ++j)
         {
-            if(unused[j]) 
+            if(unused[j])
             {
                 Lidx[i] = j;
                 unused[j] = 0;
@@ -1073,7 +884,7 @@ NormalForm<order>::ev_ordering(
 
         // eigenvalue of the selected index
         auto lambda1 = ev(Lidx[i]);
-        
+
         // find the pairing eigenvalue
         for(int j=0; j<6; ++j)
         {
@@ -1124,7 +935,7 @@ NormalForm<order>::ev_ordering(
 
     // then find the largest y component and move to column 1 and 4
     max = 0.0;
-    
+
     for(int i=1; i<3; ++i)
     {
         double y = abs(B(1, Lidx[i]));
