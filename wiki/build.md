@@ -63,20 +63,13 @@ Enable/disable simple timer profiling:
 
     cmake -DSIMPLE_TIMER=on|off # default is off
 
-### Options for OpenMP only Build
+### Option to enable OpenMP backend for kokkos (host-only build)
 
-    cmake -DKokkos_ENABLE_OPENMP=on|off # default is off
+    cmake -DENABLE_OPENMP=on|off # default is off
 
-### Options for GPU/CUDA build
+### Options to enable CUDA backend for kokkos
 
-`nvcc` needs to be in path
-
-    export PATH=/usr/local/cuda/bin:$PATH
-
-Kokkos options (it is possible to have both OpenMP and CUDA enabled)
-
-    cmake -DKokkos_ENABLE_OPENMP=on|off
-    cmake -DKokkos_ENABLE_CUDA=on|off
+    cmake -DENABLE_CUDA=on|off
 
 Please ensure that both OpenMP and CUDA are not enabled together.
 
