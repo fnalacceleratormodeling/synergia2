@@ -87,6 +87,9 @@ Paddings need to be turned off in the CUDA build due to a Kokkos bug https://git
 
     cmake -DALLOW_PADDING=on|off
 
+### Other dependencies
+
+We allow external installations of cereal and pybind11 (for building the python bindings) if preferred by the user. These can be passed by the flags `-DUSE_EXTERNAL_CEREAL/PYBIND11=on` and ensuring that CMake can find them. The defaul behavior is to fetch the latest versions of these packages during configuration.
 
 ## 2. Ubuntu 20.04 LTS
 
