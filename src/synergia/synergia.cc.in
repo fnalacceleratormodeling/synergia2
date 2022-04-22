@@ -3,7 +3,7 @@
 int
 synergia_version_major()
 {
-    const int version_major = ${SYNERGIA2_VERSION_MAJOR};
+    const int version_major = ${SYNERGIA2_VERSION_MAJOR} + 1 - 1 ;
     return version_major;
 }
 
