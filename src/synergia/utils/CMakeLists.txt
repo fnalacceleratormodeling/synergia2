@@ -36,12 +36,6 @@ target_link_options(synergia_hdf5_utils
     )
 
 if (BUILD_PYTHON_BINDINGS)
-    #add_python_extension(parallel_utils parallel_utils_wrap.cc)
-    #target_link_libraries(parallel_utils synergia_parallel_utils synergia_hdf5_utils ${Boost_LIBRARIES})
-
-    #add_python_extension(pylsexpr lsexpr_wrap.cc)
-    #target_link_libraries(pylsexpr lsexpr ${Boost_LIBRARIES})
-
     pybind11_add_module(parallel_utils MODULE NO_EXTRAS parallel_utils_pywrap.cc)
     target_link_libraries(parallel_utils PRIVATE synergia_parallel_utils)
 

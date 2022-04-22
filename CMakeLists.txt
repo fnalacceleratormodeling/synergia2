@@ -82,7 +82,7 @@ option(SIMPLE_TIMER "use the simple timer 2 profiling" Off)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" On)
 option(ALLOW_PADDING "add paddings to the particle array for memory alignment" On)
 option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" Off)
-option(Kokkos_ENABLE_OPENMP "enable openmp backend" On)
+option(Kokkos_ENABLE_OPENMP "enable openmp backend" Off)
 option(Kokkos_ENABLE_CUDA "enable CUDA backend" Off)
 option(USE_EXTERNAL_CEREAL "Use external build of cereal" Off)
 option(USE_EXTERNAL_PYBIND11 "Use external build of pybind11, only applicable when building python bindings" Off)
@@ -121,6 +121,10 @@ else ()
   add_subdirectory(src/synergia/utils/kokkos)
   include_directories(${Kokkos_INCLUDE_DIRS_RET})
   set(kokkos_libs kokkos)
+  # if no backend has been selected, default to OpenMP
+  if(!${Kokkos_ENABLE_CUDA} AND !${Kokkos_ENABLE_OPENMP})
+    set(Kokkos_ENABLE_OPENMP on)
+  endif()
   if(${Kokkos_ENABLE_CUDA})
     add_definitions(-DKokkos_ENABLE_CUDA)
     set(CMAKE_CXX_COMPILER "${CMAKE_SOURCE_DIR}/src/synergia/utils/kokkos/bin/nvcc_wrapper")
@@ -131,7 +135,8 @@ else ()
   endif()
 endif()
 
-
+# We still use OpenMP directly, so just add those flags for host-only
+# build at this stage
 if(${Kokkos_ENABLE_OPENMP})
     FIND_PACKAGE(OpenMP)
     if (OPENMP_FOUND)
@@ -140,8 +145,7 @@ if(${Kokkos_ENABLE_OPENMP})
     endif ()
 endif()
 
-
-# hdf5
+# HDF5
 set(HDF5_PREFER_PARALLEL true)
 find_package(HDF5)
 list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
@@ -157,7 +161,7 @@ endif()
 find_package(GSL REQUIRED)
 list(APPEND extra_includes ${GSL_INCLUDE_DIR})
 
-# fftw3
+# FFTW3
 if(NOT ${Kokkos_ENABLE_CUDA})
     find_package(FFTW3 REQUIRED)
     list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
