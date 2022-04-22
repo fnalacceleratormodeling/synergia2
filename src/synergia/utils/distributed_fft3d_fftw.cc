@@ -1,6 +1,6 @@
 #include <cstring>
 #include <stdexcept>
-#include <omp.h>
+#include <thread>
 #include "distributed_fft3d.h"
 
 Distributed_fft3d::Distributed_fft3d()
@@ -12,12 +12,12 @@ Distributed_fft3d::Distributed_fft3d()
 {
     fftw_init_threads();
     fftw_mpi_init();
-    fftw_plan_with_nthreads(omp_get_max_threads());
+    fftw_plan_with_nthreads(std::thread::hardware_concurrency());
 }
 
-void 
+void
 Distributed_fft3d::construct(
-        std::array<int, 3> const& new_shape, 
+        std::array<int, 3> const& new_shape,
         Commxx const& new_comm)
 {
     if (data || workspace)
@@ -33,12 +33,12 @@ Distributed_fft3d::construct(
     data = nullptr;
     workspace = nullptr;
 
-    if (new_comm.is_null()) 
+    if (new_comm.is_null())
         return;
 
-    if (new_comm.size() > new_shape[2]) 
+    if (new_comm.size() > new_shape[2])
     {
-        throw std::runtime_error( 
+        throw std::runtime_error(
                 "Distributed_fft3d: (number of processors) must be "
                 "<= shape[2]");
     }
@@ -67,13 +67,13 @@ Distributed_fft3d::construct(
     data = (double*) fftw_malloc(sizeof(double) * local_size_real);
     workspace = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * local_size_cplx);
 
-    plan = fftw_mpi_plan_dft_r2c_3d( 
-            shape[2], shape[1], shape[0], 
+    plan = fftw_mpi_plan_dft_r2c_3d(
+            shape[2], shape[1], shape[0],
             data, workspace,
             comm, FFTW_ESTIMATE );
 
     inv_plan = fftw_mpi_plan_dft_c2r_3d(
-            shape[2], shape[1], shape[0], 
+            shape[2], shape[1], shape[0],
             workspace, data,
             comm, FFTW_ESTIMATE );
 
@@ -84,7 +84,7 @@ Distributed_fft3d::construct(
 
 void
 Distributed_fft3d::transform(
-        karray1d_dev & in, 
+        karray1d_dev & in,
         karray1d_dev & out)
 {
     if (!data || !workspace)
@@ -95,18 +95,18 @@ Distributed_fft3d::transform(
     int plane_real = padded_nx_real() * shape[1]; // padded_nx * ny
     int plane_cplx = padded_nx_cplx() * shape[1]; // padded_nx * ny
 
-    memcpy( (void*)data, (void*)&in(lower*plane_real), 
+    memcpy( (void*)data, (void*)&in(lower*plane_real),
             nz * plane_real * sizeof(double) );
 
     fftw_execute(plan);
 
-    memcpy( (void*)&out(lower*plane_cplx*2), (void*)(workspace), 
+    memcpy( (void*)&out(lower*plane_cplx*2), (void*)(workspace),
             nz * plane_cplx * sizeof(double) * 2 );
 }
 
 void
 Distributed_fft3d::inv_transform(
-        karray1d_dev & in, 
+        karray1d_dev & in,
         karray1d_dev & out)
 {
     if (!data || !workspace)
@@ -122,7 +122,7 @@ Distributed_fft3d::inv_transform(
 
     fftw_execute(inv_plan);
 
-    memcpy( (void*)&out(lower*plane_real), (void*)data, 
+    memcpy( (void*)&out(lower*plane_real), (void*)data,
             nz * plane_real * sizeof(double) );
 }
 

@@ -1,6 +1,6 @@
 #include <cstring>
 #include <stdexcept>
-#include <omp.h>
+#include <thread>
 #include "distributed_fft3d_rect.h"
 
 Distributed_fft3d_rect::Distributed_fft3d_rect()
@@ -14,12 +14,12 @@ Distributed_fft3d_rect::Distributed_fft3d_rect()
 {
     fftw_init_threads();
     fftw_mpi_init();
-    fftw_plan_with_nthreads(omp_get_max_threads());
+    fftw_plan_with_nthreads(std::thread::hardware_concurrency());
 }
 
-void 
+void
 Distributed_fft3d_rect::construct(
-        std::array<int, 3> const & new_shape, 
+        std::array<int, 3> const & new_shape,
         Commxx const& new_comm)
 {
     if (data || workspace)
@@ -43,9 +43,9 @@ Distributed_fft3d_rect::construct(
     if (new_comm.is_null())
         return;
 
-    if (new_comm.size() > new_shape[0]) 
+    if (new_comm.size() > new_shape[0])
     {
-        throw std::runtime_error( 
+        throw std::runtime_error(
                 "Distributed_fft3d_rect: (number of processors) must be "
                 "<= shape[0]");
     }
@@ -68,20 +68,20 @@ Distributed_fft3d_rect::construct(
     data = (double*)fftw_malloc(sizeof(double) * fftw_local_size);
 
     fftw_r2r_kind kind_direct[] = {FFTW_RODFT10, FFTW_RODFT10};
-    plan_xy = fftw_mpi_plan_many_r2r( 
+    plan_xy = fftw_mpi_plan_many_r2r(
             2, ndim_xy, shape[2],
             FFTW_MPI_DEFAULT_BLOCK,
             FFTW_MPI_DEFAULT_BLOCK,
-            data, data, comm, kind_direct, 
+            data, data, comm, kind_direct,
             //FFTW_EXHAUSTIVE);
             FFTW_ESTIMATE);
 
     fftw_r2r_kind kind_inv[] = {FFTW_RODFT01, FFTW_RODFT01};
-    inv_plan_xy = fftw_mpi_plan_many_r2r( 
+    inv_plan_xy = fftw_mpi_plan_many_r2r(
             2, ndim_xy, shape[2],
             FFTW_MPI_DEFAULT_BLOCK,
             FFTW_MPI_DEFAULT_BLOCK,
-            data, data, comm, kind_inv, 
+            data, data, comm, kind_inv,
             //FFTW_EXHAUSTIVE);
             FFTW_ESTIMATE);
 
@@ -95,12 +95,12 @@ Distributed_fft3d_rect::construct(
     plan_z = fftw_plan_many_dft_r2c(
             1, ndim_z, nx*shape[1],   // rank, ndim, howmany
             data, NULL, 1, shape[2],  // in, inembed, stride, dist
-            workspace, NULL, 1, padded_cplx_s2, 
+            workspace, NULL, 1, padded_cplx_s2,
             FFTW_ESTIMATE);
 
     inv_plan_z = fftw_plan_many_dft_c2r(
             1, ndim_z, nx*shape[1],   // rank, ndim, howmany
-            workspace, NULL, 1, padded_cplx_s2, 
+            workspace, NULL, 1, padded_cplx_s2,
             data, NULL, 1, shape[2],  // in, inembed, stride, dist
             FFTW_ESTIMATE);
 }
@@ -108,7 +108,7 @@ Distributed_fft3d_rect::construct(
 
 void
 Distributed_fft3d_rect::transform(
-        karray1d_dev & in, 
+        karray1d_dev & in,
         karray1d_dev & out)
 {
     if (!data || !workspace)
@@ -118,19 +118,19 @@ Distributed_fft3d_rect::transform(
     int plane_yz_real = shape[1] * shape[2];
     int plane_yz_cplx = shape[1] * (shape[2]/2+1);
 
-    memcpy((void*)data, (void*)&in(lower*plane_yz_real), 
+    memcpy((void*)data, (void*)&in(lower*plane_yz_real),
             nx * plane_yz_real * sizeof(double));
 
     fftw_execute(plan_xy);
     fftw_execute(plan_z);
 
-    memcpy((void*)&out(lower*plane_yz_cplx*2), (void*)workspace, 
+    memcpy((void*)&out(lower*plane_yz_cplx*2), (void*)workspace,
             nx * plane_yz_cplx * sizeof(double) * 2 );
 }
 
 void
 Distributed_fft3d_rect::inv_transform(
-        karray1d_dev & in, 
+        karray1d_dev & in,
         karray1d_dev & out)
 {
     if (!data || !workspace)
