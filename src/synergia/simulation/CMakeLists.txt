@@ -17,7 +17,6 @@ add_library(synergia_simulation
     lattice_simulator.cc 
     lattice_simulator_host.cc 
     operation_extractor.cc 
-    aperture_operation.cc 
     bunch_simulator.cc
     checkpoint.cc
     checkpoint_json.cc
