@@ -4,6 +4,7 @@ target_link_libraries(s3_sis18
     synergia_lattice
     synergia_collective
     synergia_bunch 
+    synergia_serialization
     )
 
 add_executable(trigon trigon.cc)
