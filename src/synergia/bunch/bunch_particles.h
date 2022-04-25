@@ -30,21 +30,8 @@ typedef Kokkos::View<const uint8_t*,
                      Kokkos::DefaultExecutionSpace::memory_space>
   ConstParticleMasks;
 
-#if 0
-typedef Kokkos::View<double*[7],
-        Kokkos::Device<Kokkos::OpenMP, Kokkos::HostSpace>> Particles;
-
-typedef Kokkos::View<const double*[7],
-        Kokkos::Device<Kokkos::OpenMP, Kokkos::HostSpace>> ConstParticles;
-#endif
-
 typedef Particles::HostMirror HostParticles;
 typedef ConstParticles::HostMirror ConstHostParticles;
-
-#if 0
-typedef Kokkos::View<uint8_t*> ParticleMasks;
-typedef Kokkos::View<const uint8_t*> ConstParticleMasks;
-#endif
 
 typedef ParticleMasks::HostMirror HostParticleMasks;
 typedef ConstParticleMasks::HostMirror ConstHostParticleMasks;
@@ -301,11 +288,6 @@ public:
   // convert between fixed z lab and fixed t lab
   void convert_to_fixed_t_lab(double p_ref, double beta);
   void convert_to_fixed_z_lab(double p_ref, double beta);
-
-#if 0
-    void set_total_num(int num);
-    void expand_local_num(int num, int added_lost);
-#endif
 
   // update the valid num from the masks and return the old valid num
   int update_valid_num();
