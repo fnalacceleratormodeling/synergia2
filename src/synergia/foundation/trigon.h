@@ -211,7 +211,7 @@ public:
   HOST_DEVICE Trigon<T, P, Dim> compose(
     TMapping<Trigon<T, P, Dim>> const& x) const;
 
-#ifdef __CUDA_ARCH__
+#ifdef KOKKOS_ENABLE_CUDA
   syn::dummy_json to_json() const;
 #else
   syn::json to_json() const;
@@ -787,14 +787,12 @@ template <unsigned int P2>
 KOKKOS_INLINE_FUNCTION unsigned int
 Trigon<T, Power, Dim>::f(unsigned int i, unsigned j)
 {
-#ifdef __CUDA_ARCH__
-  return 0;
-#else
-  static arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
-               Trigon<double, Power, Dim>::count>
-    mapping = calculate_f<Power, P2>();
-  return mapping[i][j];
-#endif
+  KOKKOS_IF_ON_DEVICE((return 0;))
+  KOKKOS_IF_ON_HOST(
+    (static arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
+                  Trigon<double, Power, Dim>::count> mapping =
+       calculate_f<Power, P2>();
+     return mapping[i][j];))
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
@@ -995,7 +993,7 @@ Trigon<T, Power, Dim>::compose(TMapping<Trigon<T, P, Dim>> const& x) const
   return val;
 };
 
-#ifdef __CUDA_ARCH__
+#ifdef KOKKOS_ENABLE_CUDA
 template <typename T, unsigned int Power, unsigned int Dim>
 inline syn::dummy_json
 Trigon<T, Power, Dim>::to_json() const
@@ -1374,7 +1372,7 @@ public:
     return os;
   }
 
-#ifdef __CUDA_ARCH__
+#ifdef KOKKOS_ENABLE_CUDA
 
   syn::dummy_json
   to_json() const
@@ -2131,7 +2129,7 @@ struct TMapping {
     return ret;
   }
 
-#ifdef __CUDA_ARCH__
+#ifdef KOKKOS_ENABLE_CUDA
   syn::dummy_json
   to_json() const
   {
