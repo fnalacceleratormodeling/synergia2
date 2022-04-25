@@ -162,7 +162,6 @@ endif()
 
 # GSL
 find_package(GSL REQUIRED)
-list(APPEND extra_includes ${GSL_INCLUDE_DIR})
 
 # FFTW3
 if(NOT ${Kokkos_ENABLE_CUDA})

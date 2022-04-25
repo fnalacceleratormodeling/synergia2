@@ -5,7 +5,7 @@
 
 #include <algorithm>
 #include <complex>
-#include <iostream> // jfa remove me!!!!
+#include <iostream>
 #include <unordered_map>
 
 #include <Kokkos_Core.hpp>
@@ -72,7 +72,7 @@ std::string term_to_json_val(std::complex<double> const& term);
 // decorated with KOKKOS_INLINE_FUNCTION have their declaration decorated
 // with HOST_DEVICE.
 
-#ifdef __CUDA__
+#ifdef KOKKOS_ENABLE_CUDA
 #define HOST_DEVICE __host__ __device__
 #else
 #define HOST_DEVICE
