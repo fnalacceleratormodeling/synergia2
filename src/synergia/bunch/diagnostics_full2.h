@@ -2,6 +2,7 @@
 #define DIAGNOSTICS_FULL2_H_
 
 #include "synergia/bunch/diagnostics.h"
+#include "synergia/foundation/reference_particle.h"
 
 /// Diagnostics_full2 provides the full set of statistical
 /// quantities to be calculated for a Bunch up to the second moments.
@@ -24,8 +25,8 @@ private:
 public:
   Diagnostics_full2(std::string const& filename = "diag_full2.h5")
     : Diagnostics("diagnostics_full2", filename, true)
-    , ref(Reference_particle())
-    , num_Reticles(0)
+    , ref()
+    , num_particles(0)
     , real_num_particles(0.0)
     , mean("mean", 6)
     , std("std", 6)
