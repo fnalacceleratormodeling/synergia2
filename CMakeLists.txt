@@ -87,6 +87,9 @@ option(USE_EXTERNAL_CEREAL "Use external build of cereal" OFF)
 option(USE_EXTERNAL_PYBIND11 "Use external build of pybind11, only applicable when building python bindings" OFF)
 option(BUILD_EXAMPLES "build examples" ON)
 
+# srun --mpi=SRUN_MPI_PMIX
+set(SRUN_MPI_PMIX "pmix_v3" CACHE STRING "PMI2/PMIx version to use with srun")
+
 # only build the shared lib
 option(BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 
@@ -104,7 +107,12 @@ execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
 # mpi oversubscribe
 message(MPI_VERSION is: ${MPI_VERSION})
 if(${MPI_VERSION} MATCHES "OpenRTE.*")
-    set(MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS} "--oversubscribe")
+  set(MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS} "--oversubscribe")
+endif()
+
+# launch tests with additional --mpi=${SRUN_MPI_PMIX} flag!
+if(${MPIEXEC_EXECUTABLE} MATCHES "srun")
+  set(MPIEXEC_EXECUTABLE ${MPIEXEC_EXECUTABLE} "--mpi=${SRUN_MPI_PMIX}")
 endif()
 
 # Follow official kokkos guidelines
