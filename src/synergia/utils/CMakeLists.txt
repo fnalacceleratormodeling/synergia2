@@ -36,12 +36,6 @@ target_link_options(synergia_hdf5_utils
     )
 
 if (BUILD_PYTHON_BINDINGS)
-    #add_python_extension(parallel_utils parallel_utils_wrap.cc)
-    #target_link_libraries(parallel_utils synergia_parallel_utils synergia_hdf5_utils ${Boost_LIBRARIES})
-
-    #add_python_extension(pylsexpr lsexpr_wrap.cc)
-    #target_link_libraries(pylsexpr lsexpr ${Boost_LIBRARIES})
-
     pybind11_add_module(parallel_utils MODULE NO_EXTRAS parallel_utils_pywrap.cc)
     target_link_libraries(parallel_utils PRIVATE synergia_parallel_utils)
 
@@ -62,13 +56,14 @@ if (BUILD_PYTHON_BINDINGS)
 endif ()
 
 if(${Kokkos_ENABLE_CUDA})
-    set(FFT_SRC 
+    find_package(CUDAToolkit REQUIRED)
+    set(FFT_SRC
         distributed_fft2d_cuda.cc
         distributed_fft3d_cuda.cc
         distributed_fft3d_rect_cuda.cc)
-    set(FFT_LIB cufft)
+    set(FFT_LIB CUDA::cufft)
 else()
-    set(FFT_SRC 
+    set(FFT_SRC
         distributed_fft2d_fftw.cc
         distributed_fft3d_fftw.cc
         distributed_fft3d_rect_fftw.cc)

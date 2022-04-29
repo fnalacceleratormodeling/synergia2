@@ -5,7 +5,7 @@
 
 #include <algorithm>
 #include <complex>
-#include <iostream> // jfa remove me!!!!
+#include <iostream>
 #include <unordered_map>
 
 #include <Kokkos_Core.hpp>
@@ -36,47 +36,47 @@ struct Array_hash;
 template <typename T, unsigned int P, unsigned int D>
 struct is_trigon<Trigon<T, P, D>>;
 
+#ifdef KOKKOS_ENABLE_CUDA
+#define HOST_DEVICE __host__ __device__
+#else
+#define HOST_DEVICE
+#endif
+
 // Public function templates and functions defined in this header.
 // These forward declarations are non-obvious, because the forward declarations
 // can not make use of the template aliases that are used in the definitions.
 template <class T, size_t N>
-bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs);
+HOST_DEVICE bool operator==(arr_t<T, N> const& lhs, arr_t<T, N> const& rhs);
 
 template <size_t Length>
-arr_t<size_t, Length> indices();
+HOST_DEVICE arr_t<size_t, Length> indices();
 
 template <size_t Length>
-arr_t<size_t, Length> const& canonical_to_index();
+HOST_DEVICE arr_t<size_t, Length> const& canonical_to_index();
 
 template <size_t Power>
-std::unordered_map<arr_t<size_t, Power>, size_t, Array_hash<Power>> const
-
-fill_index_to_canonical();
+HOST_DEVICE
+  std::unordered_map<arr_t<size_t, Power>, size_t, Array_hash<Power>> const
+  fill_index_to_canonical();
 
 template <size_t Power>
-std::unordered_map<arr_t<size_t, Power>, size_t, Array_hash<Power>> const&
-index_to_canonical();
+HOST_DEVICE
+  std::unordered_map<arr_t<size_t, Power>, size_t, Array_hash<Power>> const&
+  index_to_canonical();
 
-// Public functions defined in this header.
-constexpr unsigned int factorial(unsigned int n);
+HOST_DEVICE constexpr unsigned int factorial(unsigned int n);
 
-constexpr unsigned int array_length(unsigned int i);
+HOST_DEVICE constexpr unsigned int array_length(unsigned int i);
 
-double term_to_json_val(double const& term);
+HOST_DEVICE double term_to_json_val(double const& term);
 
-std::string term_to_json_val(std::complex<double> const& term);
+HOST_DEVICE std::string term_to_json_val(std::complex<double> const& term);
 
 // template arr_t is a work-alike for std::array, but decorated
 // with KOKKOS_INLINE_FUNCTION so that Kokkos understands how to use it.
 // Member functions and function templates which have an implementation
 // decorated with KOKKOS_INLINE_FUNCTION have their declaration decorated
 // with HOST_DEVICE.
-
-#ifdef __CUDA__
-#define HOST_DEVICE __host__ __device__
-#else
-#define HOST_DEVICE
-#endif
 
 template <class T, size_t SIZE>
 struct arr_t {
@@ -211,7 +211,7 @@ public:
   HOST_DEVICE Trigon<T, P, Dim> compose(
     TMapping<Trigon<T, P, Dim>> const& x) const;
 
-#ifdef __CUDA_ARCH__
+#ifdef KOKKOS_ENABLE_CUDA
   syn::dummy_json to_json() const;
 #else
   syn::json to_json() const;
@@ -787,14 +787,12 @@ template <unsigned int P2>
 KOKKOS_INLINE_FUNCTION unsigned int
 Trigon<T, Power, Dim>::f(unsigned int i, unsigned j)
 {
-#ifdef __CUDA_ARCH__
-  return 0;
-#else
-  static arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
-               Trigon<double, Power, Dim>::count>
-    mapping = calculate_f<Power, P2>();
-  return mapping[i][j];
-#endif
+  KOKKOS_IF_ON_DEVICE((return 0;))
+  KOKKOS_IF_ON_HOST(
+    (static arr_t<arr_t<unsigned int, Trigon<double, P2, Dim>::count>,
+                  Trigon<double, Power, Dim>::count> mapping =
+       calculate_f<Power, P2>();
+     return mapping[i][j];))
 }
 
 template <typename T, unsigned int Power, unsigned int Dim>
@@ -995,7 +993,7 @@ Trigon<T, Power, Dim>::compose(TMapping<Trigon<T, P, Dim>> const& x) const
   return val;
 };
 
-#ifdef __CUDA_ARCH__
+#ifdef KOKKOS_ENABLE_CUDA
 template <typename T, unsigned int Power, unsigned int Dim>
 inline syn::dummy_json
 Trigon<T, Power, Dim>::to_json() const
@@ -1374,7 +1372,7 @@ public:
     return os;
   }
 
-#ifdef __CUDA_ARCH__
+#ifdef KOKKOS_ENABLE_CUDA
 
   syn::dummy_json
   to_json() const
@@ -2131,7 +2129,7 @@ struct TMapping {
     return ret;
   }
 
-#ifdef __CUDA_ARCH__
+#ifdef KOKKOS_ENABLE_CUDA
   syn::dummy_json
   to_json() const
   {
@@ -2189,7 +2187,7 @@ operator*(typename TMapping<TRIGON>::matrix_t const& m,
 
 #if 0
 template <unsigned int Power, unsigned int Dim>
-using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t, 
+using Map_t = Kokkos::UnorderedMap<arr_t<size_t, Power>, size_t,
         Kokkos::DefaultExecutionSpace,
         Array_hash<Power>>;
 #endif

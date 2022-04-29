@@ -36,9 +36,8 @@ set(SYNERGIA_MINOR_VERSION 1)
 set(SYNERGIA_SUBMINOR_VERSION 00)
 
 # Set up to assure fully-linked libraries.
-
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  # using Clang
+    # using Clang
     set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-#pragma-messages -Wno-potentially-evaluated-expression -Wno-register")
     message(STATUS "Using clang++")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
@@ -78,15 +77,18 @@ include(AddPythonTest)
 set(extra_includes)
 
 # options
-option(SIMPLE_TIMER "use the simple timer 2 profiling" Off)
-option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" On)
-option(ALLOW_PADDING "add paddings to the particle array for memory alignment" On)
-option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" Off)
-option(Kokkos_ENABLE_OPENMP "enable openmp backend" On)
-option(Kokkos_ENABLE_CUDA "enable CUDA backend" Off)
-option(USE_EXTERNAL_CEREAL "Use external build of cereal" Off)
-option(USE_EXTERNAL_PYBIND11 "Use external build of pybind11, only applicable when building python bindings" Off)
-option(BUILD_EXAMPLES "build examples" On)
+option(SIMPLE_TIMER "use the simple timer 2 profiling" OFF)
+option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" ON)
+option(ALLOW_PADDING "add paddings to the particle array for memory alignment" OFF)
+option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" OFF)
+option(ENABLE_OPENMP "enable kokkos openmp backend" OFF)
+option(ENABLE_CUDA "enable kokkos CUDA backend" OFF)
+option(USE_EXTERNAL_CEREAL "Use external build of cereal" OFF)
+option(USE_EXTERNAL_PYBIND11 "Use external build of pybind11, only applicable when building python bindings" OFF)
+option(BUILD_EXAMPLES "build examples" ON)
+
+# srun --mpi=SRUN_MPI_PMIX
+set(SRUN_MPI_PMIX "pmix_v3" CACHE STRING "PMI2/PMIx version to use with srun")
 
 # only build the shared lib
 option(BUILD_SHARED_LIBS "Build shared libraries" TRUE)
@@ -105,28 +107,47 @@ execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
 # mpi oversubscribe
 message(MPI_VERSION is: ${MPI_VERSION})
 if(${MPI_VERSION} MATCHES "OpenRTE.*")
-    set(MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS} "--oversubscribe")
+  set(MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS} "--oversubscribe")
+endif()
+
+# launch tests with additional --mpi=${SRUN_MPI_PMIX} flag!
+if(${MPIEXEC_EXECUTABLE} MATCHES "srun")
+  set(MPIEXEC_EXECUTABLE ${MPIEXEC_EXECUTABLE} "--mpi=${SRUN_MPI_PMIX}")
 endif()
 
 # Follow official kokkos guidelines
 # https://github.com/kokkos/kokkos/wiki/Compiling#42-using-general-cmake-build-system
 if (USE_EXTERNAL_KOKKOS)
+  cmake_minimum_required(VERSION 3.20)
   find_package(Kokkos REQUIRED)
   set(kokkos_libs "Kokkos::kokkos")
+  if(${Kokkos_ENABLE_CUDA})
+    project(SYNERGIA2 LANGUAGES CXX C CUDA)
+  endif()
 else ()
+  message(STATUS "Using vendored copy of kokkos")
+  # if no backend has been selected, default to OpenMP
+  if((NOT ${ENABLE_CUDA}) AND (NOT ${ENABLE_OPENMP}))
+    message(STATUS "Command line option for kokkos backend not specified; Defaulting to OpenMP")
+    set(ENABLE_OPENMP ON)
+  endif()
+  if(${ENABLE_OPENMP})
+    set(Kokkos_ENABLE_OPENMP ON CACHE BOOL ON FORCE)
+    message(STATUS "Using vendored copy of kokkos with OpenMP")
+  endif()
+  if(${ENABLE_CUDA})
+    set(Kokkos_ENABLE_CUDA ON CACHE BOOL ON FORCE)
+    set(CMAKE_CXX_COMPILER "${CMAKE_SOURCE_DIR}/src/synergia/utils/kokkos/bin/nvcc_wrapper")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -expt-relaxed-constexpr")
+    message(STATUS "Using vendored copy of kokkos with CUDA")
+  endif()
   add_subdirectory(src/synergia/utils/kokkos)
   include_directories(${Kokkos_INCLUDE_DIRS_RET})
   set(kokkos_libs kokkos)
-  if(${Kokkos_ENABLE_CUDA})
-    add_definitions(-DKokkos_ENABLE_CUDA)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -expt-relaxed-constexpr")
-  endif()
-  if(${Kokkos_ENABLE_OPENMP})
-    add_definitions(-DKokkos_ENABLE_OPENMP)
-  endif()
 endif()
 
-
+# We still use OpenMP directly, so just add those flags for host-only
+# build at this stage
 if(${Kokkos_ENABLE_OPENMP})
     FIND_PACKAGE(OpenMP)
     if (OPENMP_FOUND)
@@ -135,8 +156,7 @@ if(${Kokkos_ENABLE_OPENMP})
     endif ()
 endif()
 
-
-# hdf5
+# HDF5
 set(HDF5_PREFER_PARALLEL true)
 find_package(HDF5)
 list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
@@ -150,9 +170,8 @@ endif()
 
 # GSL
 find_package(GSL REQUIRED)
-list(APPEND extra_includes ${GSL_INCLUDE_DIR})
 
-# fftw3
+# FFTW3
 if(NOT ${Kokkos_ENABLE_CUDA})
     find_package(FFTW3 REQUIRED)
     list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})

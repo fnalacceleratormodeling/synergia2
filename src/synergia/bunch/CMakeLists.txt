@@ -1,4 +1,5 @@
-if(${Kokkos_ENABLE_CUDA})
+if((NOT ${USE_EXTERNAL_KOKKOS}) AND ${Kokkos_ENABLE_CUDA})
+    # We are using nvcc-wrapper, need to set these flags for now.	
     set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS --host-only)
     set_source_files_properties(diagnostics_full2_host.cc PROPERTIES COMPILE_FLAGS --host-only)
 endif()
@@ -10,20 +11,14 @@ add_library(synergia_bunch
     core_diagnostics.cc 
     diagnostics_worker.cc 
     diagnostics_file.cc 
-    #diagnostics_basic.cc
     diagnostics_full2.cc 
     diagnostics_full2_host.cc 
     diagnostics_particles.cc 
-    #diagnostics_track.cc
     diagnostics_loss.cc
-    #diagnostics_reference_particle.cc 
     diagnostics_bulk_track.cc 
-    #diagnostics_bulk_spectator_track.cc 
-    #diagnostics_phase_space_density.cc
     populate.cc 
     populate_global.cc 
     populate_host.cc 
-    #analysis.cc 
     period.cc 
     )
 
@@ -40,9 +35,6 @@ target_link_options(synergia_bunch
     )
 
 if (BUILD_PYTHON_BINDINGS)
-    #add_python_extension(bunch bunch_wrap.cc)
-    #target_link_libraries(bunch synergia_bunch synergia_distributed_fft ${Boost_LIBRARIES})
-
     add_library(synergia_pydiag diagnostics_py.cc)
 
     # the -fvisibility flag suppress the warning, but it also
@@ -79,12 +71,9 @@ install(FILES
     diagnostics_full2.h
     diagnostics_track.h
     diagnostics_bulk_track.h
-    diagnostics_bulk_spectator_track.h
-    diagnostics_phase_space_density.h
     diagnostics_particles.h
     fixed_t_z_converter.h
     populate.h
-    analysis.h
     period.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/bunch)
 if (BUILD_PYTHON_BINDINGS)

@@ -20,15 +20,15 @@ public:
     virtual ~Distributed_fft3d();
 
     void construct(
-            std::array<int, 3> const& shape, 
+            std::array<int, 3> const& shape,
             Commxx const& comm);
 
     void transform(
-            karray1d_dev& in, 
+            karray1d_dev& in,
             karray1d_dev& out);
 
     void inv_transform(
-            karray1d_dev& in, 
+            karray1d_dev& in,
             karray1d_dev& out);
 };
 
