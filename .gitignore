@@ -59,6 +59,7 @@ spack-setup.sh
 spack
 
 build/**
+install/**
 
 
 # clangd LSP files

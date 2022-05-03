@@ -1,4 +1,0 @@
-echo "@@numsubjobs@@ synergia jobs running in background"
-wait
-echo "all synergia jobs have finished"
-

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-rm -f synergia.out synergia.err
-rm -f *.h5
-
