@@ -1,0 +1,176 @@
+#!/bin/sh
+
+usage() {
+    if [ -n "$SYNERGIA_LOCAL_EXECUTABLE" ]; then
+        executable="$SYNERGIA_LOCAL_EXECUTABLE"
+    else
+        executable="$0"
+    fi
+    echo "usage: $executable [synergia_arguments] <synergia_script> [script_arguments]"
+    echo "synergia_arguments:"
+    echo "         -i              : enter interactive Python mode"
+    echo "         --ipython       : enter IPython interactive mode (if available)"
+    echo "         -c <string>     : execute <string> in the Python interpreter"
+    echo "         --path          : display internal PATH"
+    echo "         --ldlibrarypath : display internal LD_LIBRARY_PATH"
+    echo "         --pythonpath    : display internal PYTHONPATH"
+    echo "         --help          : this message"
+    echo "try"
+    echo "    $executable <synergia_script> --help"
+    echo "for help on <synergia_script>"
+}
+
+try_trivial_flags () {
+    if [ -z "$1" ]; then
+        usage "$@"
+        exit 1
+    fi
+    if [ "$1" = "--help" ]; then
+        usage "$@"
+        exit 0
+    fi
+}
+
+get_prefix () {
+    if [ -z "$SYNERGIA_LOCAL_PREFIX" ]; then
+        tmp_bin_dir="`dirname \"$0\"`"
+        prefix="`dirname \"$tmp_bin_dir\"`"
+    else
+        prefix="$SYNERGIA_LOCAL_PREFIX"
+    fi
+}
+
+pathadd () {
+    PATH="$1:$PATH"
+    export PATH
+}
+
+ldpathadd () {
+    if [ "`uname`" = "Darwin" ]; then
+        if [ -z "$DYLD_LIBRARY_PATH" ]; then
+            DYLD_LIBRARY_PATH="$1"
+        else
+            DYLD_LIBRARY_PATH="$1:$DYLD_LIBRARY_PATH"
+        fi
+        export DYLD_LIBRARY_PATH
+    else
+        if [ -z "$LD_LIBRARY_PATH" ]; then
+            LD_LIBRARY_PATH="$1"
+        else
+            LD_LIBRARY_PATH="$1:$LD_LIBRARY_PATH"
+        fi
+        export LD_LIBRARY_PATH
+    fi
+}
+
+pythonpathadd () {
+    if [ -z "$PYTHONPATH" ]; then
+        PYTHONPATH="$1"
+    else
+        PYTHONPATH="$1:$PYTHONPATH"
+    fi
+    export PYTHONPATH
+}
+
+set_paths () {
+    # CHEF_PYTHON_DIR
+    if [ -n "" ]; then
+        pythonpathadd ""
+    fi
+
+    if [ -z "$SYNERGIA_LOCAL_SYNERGIA2_DIR" ]; then
+        synergia2_dir="$prefix/lib/python3.9/site-packages"
+    else
+        synergia2_dir="$SYNERGIA_LOCAL_SYNERGIA2_DIR"
+    fi
+    SYNERGIA2DIR="$synergia2_dir"
+    export SYNERGIA2DIR
+
+    pathadd "$prefix/bin"
+    ldpathadd "$prefix/lib"
+    pythonpathadd "$synergia2_dir"
+
+    # SYNERGIA_EXTRA_LIBRARY_PATHS
+    if [ -n "" ]; then
+        ldpathadd ""
+    fi
+
+    # SYNERGIA_EXTRA_PYTHON_PATHS
+    if [ -n "" ]; then
+        pythonpathadd ""
+    fi
+
+    if [ -n "$SYNERGIA_LOCAL_LIBRARY_PATHS" ]; then
+        ldpathadd "$SYNERGIA_LOCAL_LIBRARY_PATHS"
+    fi
+}
+
+try_path_flags () {
+    if [ x"$1" = x"--path" ]; then
+        echo "$PATH"
+        exit 0
+    fi
+
+    if [ x"$1" = x"--ldlibrarypath" ]; then
+        if [ "`uname`" = "Darwin" ]; then
+            echo "$DYLD_LIBRARY_PATH"
+        else
+            echo "$LD_LIBRARY_PATH"
+        fi
+        exit 0
+    fi
+
+    if [ x"$1" = x"--pythonpath" ]; then
+        echo "$PYTHONPATH"
+        exit 0
+    fi
+}
+
+#get_python_executable () {
+#}
+
+get_just_options_options_file () {
+    just_options=false
+    options_file="`basename \"$1\" .py 2> /dev/null`_options.py"
+    if [ -f "$options_file" ]; then
+        for arg in "$@"
+        do
+            if [ x"$arg" = x"--help" ]; then
+                just_options=true
+            fi
+            if [ x"$arg" = x"createjob=1" ]; then
+                just_options=true
+            fi
+            if [ x"$arg" = x"createjob=true" ]; then
+                just_options=true
+            fi
+            if [ x"$arg" = x"createjob=t" ]; then
+                just_options=true
+            fi
+        done
+    fi
+}
+
+run () {
+    if [ "$just_options" = "true" ]; then
+            exec "$PYTHON_EXECUTABLE" "$options_file" --strip-options-file "$@"
+    else
+            exec "$PYTHON_EXECUTABLE" "$@"
+    fi
+}
+
+main () {
+    try_trivial_flags "$@"
+    get_prefix "$@"
+    set_paths "$@"
+    try_path_flags "$@"
+    PYTHON_EXECUTABLE=""
+    if [ x"$1" = x"--ipython" ]; then
+        PYTHON_EXECUTABLE=""
+        shift
+    fi
+    get_just_options_options_file "$@"
+    run "$@"
+}
+
+main "$@"

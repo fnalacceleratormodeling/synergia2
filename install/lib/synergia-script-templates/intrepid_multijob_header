@@ -1,0 +1,8 @@
+#synergia_workflow_submitter:qsub -A @@account@@ -q @@queue@@ -t @@walltime@@ -n @@numnode@@ --mode script -O synergia -M egstern@fnal.gov
+
+# root of compute node linux tools
+BGLINUX=/bgsys/drivers/ppcfloor/gnu-linux
+
+# -mode vn: 4 tasks/node
+# -mode dual: 2 tasks/node
+# -mode smp: 1 task/node

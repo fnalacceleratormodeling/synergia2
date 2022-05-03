@@ -1,0 +1,5 @@
+(cd @@subjobdir@@ && \
+    time mpirun -np @@subnumproc@@ @@synergia_executable@@ @@script@@ \
+	    @@args@@ \
+	    1> synergia.out 2> synergia.err ; \
+	    echo "synergia subjob @@subjobindex@@ finished with exit status $?") &

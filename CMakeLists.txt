@@ -175,7 +175,6 @@ find_package(GSL REQUIRED)
 # FFTW3
 if(NOT ENABLE_CUDA)
     find_package(FFTW3 REQUIRED)
-    message(STATUS "Found FFTW!")
     list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
 
     if(NOT FFTW3_MPI_FOUND)

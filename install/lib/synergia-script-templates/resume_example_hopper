@@ -1,0 +1,39 @@
+#PBS -o resume.out
+#PBS -e resume.err
+#PBS -l mppwidth=@@numproc@@
+__walltime{{#PBS -l walltime=@@walltime@@}}{{}}__
+__queue{{#PBS -q @@queue@@}}{{}}__
+__account{{#PBS -A @@account@@}}{{}}__
+## adjust an uncomment below to receive email job notifications
+##PBS -m abe
+##PBS -M your_emailn@youlab.gov
+
+# this example script is tailored for the hopper machine at NERSC
+# numproc is the number of mpi tasks to initiate.  The number of nodes
+# is automatically determined by it and by the procspernode setting.
+# Currently, hopper uses dual 12-core nodes.
+
+
+# -q debug is suitable for jobs less than 00:30:00 running on up to
+# 512 cores.
+# -q regular is used for jobs requiring more time or more nodes than
+# the debug queue allows.
+
+cd $PBS_O_WORKDIR
+
+export CRAY_ROOTFS=DSL
+
+
+. @@setupsh@@
+export SYNERGIA2DIR=@@synergia2dir@@
+
+LD_LIBRARY_PATH=$(synergia --ldlibrarypath)
+PYTHONPATH=$(synergia --pythonpath)
+export LD_LIBRARY_PATH PYTHONPATH
+
+export HDF5_DISABLE_VERSION_CHECK=2
+
+echo "Job start at `date`"
+aprun -n @@numproc@@ -N @@procspernode@@ python @@synergia2dir@@/synergia_toolssynergia_resume.py
+
+echo "Job end at `date`"

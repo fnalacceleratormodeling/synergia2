@@ -1,0 +1,8 @@
+(cd @@subjobdir@@ && \
+suffix=0; \
+test -f checkpoint/checkpoint_description.txt && \
+    suffix="`grep last_turn checkpoint/checkpoint_description.txt | sed 's/last_turn=//'`" && \
+time mpirun -np @@subnumproc@@ @@synergia_executable@@ @@script@@ \
+	@@args@@ 1> synergia.out.$suffix 2> synergia.err.$suffix; \
+echo "synergia subjob @@subjobindex@@ resume finished with exit status $?") &
+

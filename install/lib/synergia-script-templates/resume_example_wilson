@@ -1,0 +1,49 @@
+#!/bin/bash
+#SBATCH -N @@numnode@@
+__queue{{#SBATCH -p @@queue@@}}{{}}__
+#SBATCH --mail-user=egstern@fnal.gov
+#SBATCH --mail-type=ALL
+__walltime{{#SBATCH -t @@walltime@@}}{{}}__
+__account{{#SBATCH -A @@account@@}}{{}}__
+###SBATCH -J foo you can set a job name by uncommenting this line and giving an argument to -J
+
+# 2018-05-09 Wilson cluster batch system changed to SLURM
+# This script is an appropriate template for running SLURM jobs on the
+# wilson cluster.
+#OpenMP settings:
+export OMP_NUM_THREADS=1
+export OMP_PLACES=threads
+export OMP_PROC_BIND=spread
+export SYNERGIA2DIR=@@synergia2dir@@
+
+MPI_HOME=/usr/local/openmpi-3.0.1
+
+export PATH=${MPI_HOME}/bin:$PATH
+export LD_LIBRARY_PATH=${MPI_HOME}/lib:$LD_LIBRARY_PATH
+
+# just in case you're reading a foreign HDF5 file.
+export HDF5_DISABLE_VERSION_CHECK=2
+
+. @@setupsh@@
+
+echo "Job nodes: " $SLURM_JOB_NODELIST
+
+if [ "$SLURM_JOB_PARTITION" == "intel12" ]
+then
+    cores_per_box=12
+elif [ "$SLURM_JOB_PARTITION" == "amd32" ]
+then
+    cores_per_box=32
+fi
+
+# logical cores/MPI task calculation
+cores_per_mpi=$(( @@numnode@@ * $cores_per_box/@@numproc@@ ))
+
+echo "Job start at `date`"
+# suppress openmpi fork() warning messages
+export OMPI_MCA_mpi_warn_on_fork=0
+srun --ntasks=@@numproc@@ --ntasks-per-node=@@procspernode@@ --mpi=pmi2 --cpu_bind=cores @@synergia_resume_executable@@
+
+echo "Job end at `date`"
+
+
