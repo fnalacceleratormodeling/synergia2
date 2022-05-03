@@ -120,6 +120,7 @@ endif()
 if (USE_EXTERNAL_KOKKOS)
   cmake_minimum_required(VERSION 3.20)
   find_package(Kokkos REQUIRED)
+  message(STATUS "Using external installation of kokkos")
   set(kokkos_libs "Kokkos::kokkos")
   if(${Kokkos_ENABLE_CUDA})
     project(SYNERGIA2 LANGUAGES CXX C CUDA)
@@ -172,7 +173,7 @@ endif()
 find_package(GSL REQUIRED)
 
 # FFTW3
-if(NOT ${Kokkos_ENABLE_CUDA})
+if(NOT ENABLE_CUDA)
     find_package(FFTW3 REQUIRED)
     list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
 

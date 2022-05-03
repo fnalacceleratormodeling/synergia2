@@ -1,4 +1,4 @@
-if((NOT ${USE_EXTERNAL_KOKKOS}) AND ${Kokkos_ENABLE_CUDA})
+if((NOT ${USE_EXTERNAL_KOKKOS}) AND (DEFINED ${Kokkos_ENABLE_CUDA}))
     # We are using nvcc-wrapper, need to set these flags for now.	
     set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS --host-only)
     set_source_files_properties(diagnostics_full2_host.cc PROPERTIES COMPILE_FLAGS --host-only)
