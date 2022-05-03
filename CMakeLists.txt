@@ -196,8 +196,11 @@ if(USE_EXTERNAL_CEREAL)
 else()
     message(STATUS "Fetching cereal")
     Include(FetchContent)
-    set(BUILD_SANDBOX Off)
-    set(SKIP_PERFORMANCE_COMPARISON On)
+    set(BUILD_SANDBOX OFF)
+    set(SKIP_PERFORMANCE_COMPARISON ON)
+    set(SKIP_PORTABILITY_TEST ON)
+    set(JUST_INSTALL_CEREAL ON)
+    set(CEREAL_INSTALL ON)
     FetchContent_Declare(
 	cereal
 	GIT_REPOSITORY https://github.com/USCiLab/cereal.git
