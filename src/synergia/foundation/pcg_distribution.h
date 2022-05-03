@@ -5,42 +5,40 @@
 #include "synergia/utils/pcg/pcg_random.hpp"
 #include <random>
 
-class PCG_random_distribution : public Distribution
-{
+class PCG_random_distribution : public Distribution {
 private:
-
-    pcg64 rng;
-    std::normal_distribution<double> normal_dist;
+  pcg64 rng;
+  std::normal_distribution<double> normal_dist;
 
 public:
+  PCG_random_distribution(uint64_t seed, Commxx const& comm = Commxx::World)
+    : rng(seed, comm.rank()), normal_dist(0.0, 1.0)
+  {}
 
-    PCG_random_distribution(uint64_t seed, 
-            Commxx const& comm = Commxx::World)
-        : rng(seed, comm.rank())
-        , normal_dist(0.0, 1.0)
-    { }
+  virtual ~PCG_random_distribution() = default;
 
-    virtual ~PCG_random_distribution() = default;
+  double
+  get() override
+  {
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    return dist(rng);
+  }
 
-    double get() override
-    { 
-        std::uniform_real_distribution<double> dist(0.0, 1.0);
-        return dist(rng); 
-    }
+  /// Fill a one-dimensional array uniformly between min and max.
+  double
+  get_uniform(double min, double max) override
+  {
+    std::uniform_real_distribution<double> dist(min, max);
+    return dist(rng);
+  }
 
-    /// Fill a one-dimensional array uniformly between min and max.
-    double get_uniform(double min, double max) override
-    { 
-        std::uniform_real_distribution<double> dist(min, max);
-        return dist(rng);
-    }
-
-    /// Fill a one-dimensional array with Gaussian distribution of
-    /// zero mean and unit standard deviation.
-    double get_unit_gaussian() override
-    {
-        return normal_dist(rng);
-    }
+  /// Fill a one-dimensional array with Gaussian distribution of
+  /// zero mean and unit standard deviation.
+  double
+  get_unit_gaussian() override
+  {
+    return normal_dist(rng);
+  }
 
 #if 0
     /// Fill two one-dimensional arrays such that (x,y) are distributed
@@ -70,11 +68,11 @@ public:
     }
 #endif
 
-    void advance(uint64_t delta) override
-    { rng.advance(delta); }
+  void
+  advance(uint64_t delta) override
+  {
+    rng.advance(delta);
+  }
 };
 
 #endif
-
-
-
