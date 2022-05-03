@@ -1,4 +1,4 @@
-if((NOT ${USE_EXTERNAL_KOKKOS}) AND ${Kokkos_ENABLE_CUDA})
+if((NOT ${USE_EXTERNAL_KOKKOS}) AND (DEFINED ${Kokkos_ENABLE_CUDA}))
     # We are using nvcc-wrapper, need to set these flags for now.	
     set_source_files_properties(checkpoint_json.cc PROPERTIES COMPILE_FLAGS --host-only)
     set_source_files_properties(lattice_simulator_host.cc PROPERTIES COMPILE_FLAGS --host-only)
@@ -47,7 +47,6 @@ install(TARGETS synergia_simulation
 
 install(FILES
     bunch_simulator.h
-    diagnostics_actions.h
     independent_operation.h
     aperture_operation.h
     lattice_simulator.h
