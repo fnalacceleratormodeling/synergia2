@@ -1,7 +1,9 @@
 #include <iostream>
 
-#include "operator.h"
+#include "synergia/foundation/reference_particle.h"
+
 #include "synergia/simulation/aperture_operation.h"
+#include "synergia/simulation/independent_operator.h"
 #include "synergia/simulation/operation_extractor.h"
 
 Independent_operator::Independent_operator(std::string const& name, double time)

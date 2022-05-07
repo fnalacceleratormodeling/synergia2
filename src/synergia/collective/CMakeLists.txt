@@ -1,24 +1,19 @@
 add_library(synergia_collective 
-    #rectangular_grid_domain.cc 
-    #rectangular_grid.cc
-    #distributed_rectangular_grid.cc 
-    #fftw_rectangular_helper.cc 
     deposit.cc 
     space_charge_3d_open_hockney.cc
     space_charge_2d_open_hockney.cc 
-    #space_charge_2d_bassetti_erskine.cc
     space_charge_2d_kv.cc
     space_charge_rectangular.cc 
     impedance.cc 
     wake_field.cc 
-    #diagnostics_space_charge.cc
     )
 
 target_link_libraries(synergia_collective 
     synergia_bunch
     synergia_distributed_fft
     synergia_parallel_utils
-    #synergia_simulation 
+    synergia_bunchsim
+    synergia_serialization
     )
 
 target_link_options(synergia_collective
@@ -26,13 +21,8 @@ target_link_options(synergia_collective
     )
 
 if (BUILD_PYTHON_BINDINGS)
-    #add_python_extension(collective collective_wrap.cc)
-    #target_link_libraries(collective synergia_collective synergia_bunch
-    #    synergia_simulation synergia_distributed_fft ${Boost_LIBRARIES})
-
     pybind11_add_module(collective MODULE NO_EXTRAS collective_pywrap.cc)
     target_link_libraries(collective PRIVATE synergia_collective)
-
     copy_file(__init__.py collective)
 endif ()
 
@@ -62,6 +52,7 @@ if (BUILD_PYTHON_BINDINGS)
     install(TARGETS
         collective
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia/collective)
+
 endif ()
 
 add_subdirectory(tests)

@@ -1,7 +1,9 @@
 #ifndef SPLIT_OPERATOR_STEPPER_H_
 #define SPLIT_OPERATOR_STEPPER_H_
 
-#include "synergia/collective/dummy_collective_operator.h"
+#include "synergia/utils/cereal.h"
+
+#include "synergia/simulation/collective_operator_options.h"
 #include "synergia/simulation/stepper.h"
 
 /// The Split_operator_stepper class generates evenly-spaced split-operator
@@ -15,22 +17,23 @@ private:
   std::vector<Step> apply_impl(Lattice const& lattice) const override;
 
 public:
-  Split_operator_stepper(CO_options const& coo = Dummy_CO_options(),
+  Split_operator_stepper(CO_options const& coo = CO_options(Dummy_CO_options()),
                          int num_steps = 1)
     : num_steps(num_steps)
-    , co_ops{std::shared_ptr<const CO_options>(coo.clone())}
-  {}
+  {
+    co_ops.emplace_back(std::make_shared<const CO_options>(coo));
+  }
 
   template <class... ARGS>
   Split_operator_stepper(int num_steps, ARGS const&... args)
     : num_steps(num_steps)
-    , co_ops({(std::shared_ptr<const CO_options>(args.clone()))...})
+    , co_ops({(std::make_shared<const CO_options>(args))...})
   {}
 
   void
   append_collective_op(CO_options const& coo)
   {
-    co_ops.push_back(std::shared_ptr<const CO_options>(coo.clone()));
+    co_ops.push_back(std::make_shared<const CO_options>(coo));
   }
 
   std::unique_ptr<Stepper>

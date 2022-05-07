@@ -127,8 +127,12 @@ Split_operator_stepper::apply_impl(Lattice const& lattice) const
   std::vector<Step> steps;
   std::vector<std::shared_ptr<Operator>> col_op_ptrs;
 
-  for (auto const& co_op : co_ops)
-    col_op_ptrs.emplace_back(co_op->create_operator());
+  for (auto co_op : co_ops) {
+    CO_options _co_op = *co_op.get();
+    std::shared_ptr<Operator> _op =
+      std::visit(create_collective_operator{}, _co_op);
+    col_op_ptrs.push_back(_op);
+  }
 
   double step_length = lattice.get_length() / num_steps;
   double half_step_length = 0.5 * step_length;

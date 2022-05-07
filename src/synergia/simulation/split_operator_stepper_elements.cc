@@ -9,7 +9,8 @@ Split_operator_stepper_elements::apply_impl(Lattice const& lattice) const
   }
 
   std::vector<Step> steps;
-  auto col_op_ptr = std::shared_ptr<Operator>(co_ops->create_operator());
+
+  auto col_op_ptr = std::visit(create_collective_operator{}, *co_ops);
 
   for (auto const& ele : lattice.get_elements()) {
     double length = ele.get_length();

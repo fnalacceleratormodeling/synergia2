@@ -4,20 +4,32 @@ if((NOT ${USE_EXTERNAL_KOKKOS}) AND (DEFINED ${Kokkos_ENABLE_CUDA}))
     set_source_files_properties(lattice_simulator_host.cc PROPERTIES COMPILE_FLAGS --host-only)
 endif()
 
+add_library(synergia_bunchsim 
+	bunch_simulator.cc 
+	independent_operation.cc 
+	independent_operator.cc
+	operation_extractor.cc
+	)
+
+target_link_libraries(synergia_bunchsim  
+    synergia_foundation 
+    synergia_bunch
+    synergia_lattice
+    )
+
+target_link_options(synergia_bunchsim
+    PRIVATE ${LINKER_OPTIONS}
+    )
 
 add_library(synergia_simulation 
-    operator.cc 
     step.cc 
     stepper.cc
     independent_stepper_elements.cc
     split_operator_stepper.cc 
     split_operator_stepper_elements.cc
     propagator.cc
-    independent_operation.cc
     lattice_simulator.cc 
     lattice_simulator_host.cc 
-    operation_extractor.cc 
-    bunch_simulator.cc
     checkpoint.cc
     checkpoint_json.cc
     )
@@ -26,6 +38,7 @@ target_link_libraries(synergia_simulation
     synergia_foundation 
     synergia_bunch
     synergia_lattice 
+    synergia_bunchsim
     synergia_collective
     )
 

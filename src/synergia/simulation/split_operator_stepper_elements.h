@@ -1,7 +1,7 @@
 #ifndef SPLIT_OPERATOR_STEPPER_ELEMENTS_H_
 #define SPLIT_OPERATOR_STEPPER_ELEMENTS_H_
 
-#include "synergia/collective/dummy_collective_operator.h"
+#include "synergia/simulation/collective_operator_options.h"
 #include "synergia/simulation/stepper.h"
 
 /// The Split_operator_stepper_elements class generates a constant number of
@@ -16,9 +16,12 @@ private:
   std::vector<Step> apply_impl(Lattice const& lattice) const override;
 
 public:
-  Split_operator_stepper_elements(CO_options const& coo = Dummy_CO_options(),
-                                  int steps_per_element = 1)
-    : steps_per_element(steps_per_element), co_ops(coo.clone())
+  Split_operator_stepper_elements(
+    CO_options const& coo = CO_options{std::in_place_type<Dummy_CO_options>,
+                                       Dummy_CO_options()},
+    int steps_per_element = 1)
+    : steps_per_element(steps_per_element)
+    , co_ops(std::make_shared<const CO_options>(coo))
   {}
 
   std::unique_ptr<Stepper>
