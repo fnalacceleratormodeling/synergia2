@@ -26,11 +26,11 @@ jobs:
 
     - name: Dependencies
       run: |
-        brew install gsl hdf5 fftw libomp numpy pybind11 ninja
+        brew install gsl hdf5 fftw libomp ninja
         python3 -m venv ${{github.workspace}}/synergia-env
         source ${{github.workspace}}/synergia-env/bin/activate
         python3 -m pip install --upgrade pip setuptools wheel
-        python3 -m pip install  pytest pyparsing matplotlib cython mpi4py
+        python3 -m pip install cython matplotlib mpi4py numpy pyparsing pytest
         # We do not install h5py because the pip-installed version may not use
         # a version of HDF5 that matches what we have from Homebrew. Instead,
         # we build our own from source.
