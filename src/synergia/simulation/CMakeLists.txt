@@ -51,7 +51,7 @@ if (BUILD_PYTHON_BINDINGS)
     pybind11_add_module(simulation MODULE NO_EXTRAS simulation_pywrap.cc)
     set_target_properties(simulation
         PROPERTIES CXX_VISIBILITY_PRESET "default")
-    target_link_libraries(simulation PUBLIC synergia_simulation synergia_bunch synergia_pydiag)
+    target_link_libraries(simulation PRIVATE synergia_simulation synergia_bunch synergia_pydiag)
 
     copy_file(__init__.py simulation)
 

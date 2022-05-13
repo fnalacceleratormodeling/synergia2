@@ -1,11 +1,5 @@
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
-#include "impedance.h"
-#include "space_charge_2d_open_hockney.h"
-#include "space_charge_3d_open_hockney.h"
-#include "space_charge_rectangular.h"
 
 #include "synergia/simulation/collective_operator_options.h"
 #include "synergia/simulation/implemented_collective_options.h"
