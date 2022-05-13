@@ -9,8 +9,6 @@
 
 #include "synergia/utils/cereal.h"
 
-#include <cereal/types/memory.hpp>
-
 class Bunch_simulator;
 
 class Propagator {
@@ -342,70 +340,6 @@ private:
     lattice.update();
     steps = stepper_ptr->apply(lattice);
   }
-
-#if 0
-    Stepper_sptr
-    get_stepper_sptr();
-
-    void
-    set_checkpoint_dir(std::string const& directory_name);
-
-    std::string const&
-    get_checkpoint_dir() const;
-
-    void
-    set_checkpoint_with_xml(bool with_xml);
-
-    bool
-    get_checkpoint_with_xml() const;
-
-    void
-    set_concurrent_io(int max);
-
-    int
-    get_concurrent_io() const;
-
-    void
-    set_num_threads(int nt);
-
-    int
-    get_num_threads() const;
-
-    void
-    propagate(State & state);
-
-    /// jfa note: the lifetime of the pointers in state must
-    ///           be managed manually
-    State
-    get_resume_state(std::string const& checkpoint_dir);
-
-    void
-    resume( std::string const& checkpoint_dir,
-            bool new_num_turns, int num_turns,
-            bool new_max_turns, int max_turns,
-            bool new_verbosity, int verbosity );
-
-    void
-    propagate(
-            Bunch_simulator & bunch_simulator,
-            int num_turns,
-            int max_turns = 0,
-            int verbosity = 1 );
-
-    void
-    propagate(
-            Bunch_simulator & bunch_simulator,
-            Propagate_actions & general_actions,
-            int num_turns,
-            int max_turns = 0,
-            int verbosity = 1 );
-#endif
-
-#if 0
-    template<class Archive>
-    void
-    serialize(Archive & ar, const unsigned int version);
-#endif
 };
 
 #endif /* PROPAGATOR_H_ */

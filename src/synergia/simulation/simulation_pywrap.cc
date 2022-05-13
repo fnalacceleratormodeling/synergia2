@@ -22,6 +22,8 @@
 #include "synergia/bunch/diagnostics_worker.h"
 #include "synergia/bunch/populate.h"
 
+#include "synergia/bunch/diagnostics_py.h"
+
 namespace py = pybind11;
 using namespace py::literals;
 
@@ -217,20 +219,20 @@ PYBIND11_MODULE(simulation, m)
         return arr;
 
 #if 0
-                    double *buf = new double[6*6];
-                    for(int i=0; i<36; ++i) buf[i] = map.data()[i];
+			    double *buf = new double[6*6];
+			    for(int i=0; i<36; ++i) buf[i] = map.data()[i];
 
-                    py::capsule free_when_done(buf, [](void* f) {
-                        double *b = reinterpret_cast<double*>(f);
-                        delete[] b;
-                    });
+			    py::capsule free_when_done(buf, [](void* f) {
+				double *b = reinterpret_cast<double*>(f);
+				delete[] b;
+			    });
 
-                    return py::array_t<double>(
-                        { 6, 6 },
-                        { sizeof(double) * 6, sizeof(double) * 1 },
-                        buf,
-                        free_when_done
-                    );
+			    return py::array_t<double>(
+				{ 6, 6 },
+				{ sizeof(double) * 6, sizeof(double) * 1 },
+				buf,
+				free_when_done
+			    );
 #endif
       },
       "lattice"_a,
@@ -347,10 +349,10 @@ PYBIND11_MODULE(simulation, m)
                 "num_spectators"_a = 0)
 
 #if 0
-        .def( "set_turns",
-                &Bunch_simulator::set_turns,
-                "Set the simulation start turn and total number of turns.",
-                "first_turn"_a, "num_turns"_a )
+		.def( "set_turns",
+			&Bunch_simulator::set_turns,
+			"Set the simulation start turn and total number of turns.",
+			"first_turn"_a, "num_turns"_a )
 #endif
 
     .def("get_bunch",
