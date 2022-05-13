@@ -30,19 +30,14 @@ install(TARGETS synergia_collective DESTINATION lib)
 install(FILES
     deposit.h
     distributed_rectangular_grid.h
-    interpolate_rectangular_zyx.h
-    interpolate_rectangular_xyz.h
     rectangular_grid_domain.h
     rectangular_grid.h
-    fftw_rectangular_helper.h
     space_charge_3d_open_hockney.h
     space_charge_2d_open_hockney.h
-    space_charge_2d_bassetti_erskine.h
     space_charge_2d_kv.h
     space_charge_rectangular.h
     impedance.h
     wake_field.h
-    diagnostics_space_charge.h
     DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/collective)
 
 if (BUILD_PYTHON_BINDINGS)
