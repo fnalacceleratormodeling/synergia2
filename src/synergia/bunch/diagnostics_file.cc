@@ -1,8 +1,9 @@
-
 #include "synergia/bunch/diagnostics_file.h"
 #include "synergia/utils/hdf5_file.h"
 
-#pragma message "TODO: replace boost::filesystem here"
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 std::string 
 Diagnostics_file::temp_dir = "";
@@ -92,13 +93,7 @@ void Diagnostics_file::move_file_overwrite_if_exists(
         std::string const& src,
         std::string const& dst )
 {
-#if 0
-    if (boost::filesystem::exists(dest)) {
-        boost::filesystem::remove(dest);
-    }
-    boost::filesystem::copy_file(source, dest);
-    boost::filesystem::remove(source);
-#endif
+  fs::rename(src, dst);
 }
 
 void Diagnostics_file::open_file()

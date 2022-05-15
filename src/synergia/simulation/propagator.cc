@@ -1,4 +1,3 @@
-
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/checkpoint.h"
 #include "synergia/simulation/bunch_simulator.h"
