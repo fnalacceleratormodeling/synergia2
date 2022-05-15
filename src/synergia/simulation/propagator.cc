@@ -5,11 +5,8 @@
 //#include "synergia/utils/simple_timer.h"
 #include "synergia/utils/digits.h"
 
-#if 0
-// avoid bad interaction between Boost Filesystem and clang
-#define BOOST_NO_CXX11_SCOPED_ENUMS
-#include <boost/filesystem.hpp>
-#endif
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #if 0
 const std::string Propagator::default_checkpoint_dir = "checkpoint";
@@ -713,8 +710,7 @@ Propagator::propagate(Bunch_simulator & sim, Logger & logger, int max_turns)
 #endif
 
 #if 0
-            if (boost::filesystem::exists(stop_file_name)
-                    || boost::filesystem::exists(alt_stop_file_name)) 
+            if (fs::exists(stop_file_name) || fs::exists(alt_stop_file_name)) 
             {
                 logger << "Propagator: stop file detected\n";
 
@@ -770,7 +766,6 @@ Propagator::checkpoint(Bunch_simulator & sim, Logger & logger, double & t)
         logger.flush();
     }
     double t0 = MPI_Wtime();
-    using namespace boost::filesystem;
     remove_serialization_directory();
     Commxx commxx_world;
     const int verbosity_threshold = 2;
@@ -832,7 +827,6 @@ Propagator::checkpoint(Bunch_simulator & sim, Logger & logger, double & t)
 Propagator::State
 Propagator::get_resume_state(std::string const& checkpoint_directory)
 {
-    using namespace boost::filesystem;
     State state;
     remove_serialization_directory();
     symlink_serialization_directory(checkpoint_directory);
