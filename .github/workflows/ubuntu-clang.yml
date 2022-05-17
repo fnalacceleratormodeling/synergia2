@@ -29,7 +29,7 @@ jobs:
     - name: CMake
       run: |
         . /etc/profile.d/z10_spack_environment.sh 
-        CC=/usr/bin/clang-13 CXX=/usr/bin/clang++-13 LDFLAGS="-fuse-ld=lld" cmake -B ${{github.workspace}}/build \
+        CC=/usr/bin/clang-14 CXX=/usr/bin/clang++-14 LDFLAGS="-fuse-ld=lld" cmake -B ${{github.workspace}}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) \
           -DUSE_EXTERNAL_KOKKOS=off -DBUILD_EXAMPLES=off -GNinja
