@@ -1,69 +1,15 @@
 #ifndef SPACE_CHARGE_3D_OPEN_HOCKNEY_H_
 #define SPACE_CHARGE_3D_OPEN_HOCKNEY_H_
 
-#include "synergia/simulation/collective_operator_options.h"
-#include "synergia/simulation/operator.h"
+#include "synergia/simulation/collective_operator.h"
+#include "synergia/simulation/implemented_collective_options.h"
 
 #include "synergia/collective/rectangular_grid.h"
 #include "synergia/collective/rectangular_grid_domain.h"
 
 #include "synergia/utils/distributed_fft3d.h"
 
-enum class green_fn_t {
-  pointlike,
-  linear,
-};
-
 class Space_charge_3d_open_hockney;
-
-struct Space_charge_3d_open_hockney_options
-  : public CO_base_options<Space_charge_3d_open_hockney_options,
-                           Space_charge_3d_open_hockney> {
-  std::array<int, 3> shape;
-  std::array<int, 3> doubled_shape;
-
-  green_fn_t green_fn;
-  bool periodic_z;
-  double z_period;
-  bool grid_entire_period;
-  double n_sigma;
-  double kick_scale;
-  bool domain_fixed;
-
-  int comm_group_size;
-
-  Space_charge_3d_open_hockney_options(int gridx = 32,
-                                       int gridy = 32,
-                                       int gridz = 64)
-    : shape{gridx, gridy, gridz}
-    , doubled_shape{gridx * 2, gridy * 2, gridz * 2}
-    , green_fn(green_fn_t::linear)
-    , periodic_z(false)
-    , z_period(0.0)
-    , grid_entire_period(false)
-    , n_sigma(8.0)
-    , kick_scale(1.0)
-    , domain_fixed(false)
-    , comm_group_size(4)
-  {}
-
-  template <class Archive>
-  void
-  serialize(Archive& ar)
-  {
-    ar(cereal::base_class<CO_base_options>(this));
-    ar(shape);
-    ar(doubled_shape);
-    ar(green_fn);
-    ar(periodic_z);
-    ar(z_period);
-    ar(grid_entire_period);
-    ar(n_sigma);
-    ar(comm_group_size);
-  }
-};
-
-CEREAL_REGISTER_TYPE(Space_charge_3d_open_hockney_options)
 
 /// Note: internal grid is stored in [z][y][x] order, but
 /// grid shape expects [x][y][z] order.

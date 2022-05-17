@@ -4,9 +4,10 @@ add_executable(
 
 target_link_libraries(
     test_space_charge_3d_open_hockney_mpi 
-    synergia_simulation 
     synergia_collective
-    synergia_test_main)
+    synergia_serialization
+    synergia_test_main
+    )
 
 add_mpi_test(test_space_charge_3d_open_hockney_mpi 1)
 

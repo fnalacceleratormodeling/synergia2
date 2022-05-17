@@ -2,7 +2,9 @@
 #define DIAGNOSTICS_PY_H
 
 #include "synergia/bunch/diagnostics.h"
+
 #include "synergia/utils/base64.h"
+
 #include <pybind11/pybind11.h>
 
 class PyDiagnostics : public Diagnostics {
@@ -80,8 +82,8 @@ private:
   }
 };
 
-CEREAL_REGISTER_TYPE(PyDiagnostics)
+CEREAL_REGISTER_TYPE(PyDiagnostics);
 CEREAL_SPECIALIZE_FOR_ALL_ARCHIVES(PyDiagnostics,
-                                   cereal::specialization::member_load_save)
+                                   cereal::specialization::member_load_save);
 
 #endif

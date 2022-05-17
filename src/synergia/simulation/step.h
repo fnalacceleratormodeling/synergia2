@@ -3,6 +3,7 @@
 
 #include "synergia/simulation/bunch_simulator.h"
 #include "synergia/simulation/collective_operator_options.h"
+#include "synergia/simulation/independent_operator.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/utils/logger.h"
 
@@ -31,7 +32,7 @@ public:
   void
   append_collective(std::unique_ptr<CO_options> const& co_ops)
   {
-    operators.emplace_back(co_ops->create_operator());
+    operators.emplace_back(std::visit(create_collective_operator{}, *co_ops));
   }
 
   void

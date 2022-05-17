@@ -21,7 +21,7 @@
 
 #include "synergia/collective/space_charge_2d_open_hockney.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
-//#include "synergia/collective/dummy_collective_operator.h"
+//#include "synergia/simulation/dummy_collective_operator.h"
 
 #include "synergia/utils/simple_timer.h"
 
