@@ -782,11 +782,11 @@ Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
   auto dg = doubled_domain.get_grid_shape();
   dg[0] = Distributed_fft3d::get_padded_shape_real(dg[0]);
 
-#ifdef KOKKOS_ENABLE_CUDA
+  //#ifdef KOKKOS_ENABLE_CUDA
   deposit_charge_rectangular_3d_kokkos_scatter_view(rho2, domain, dg, bunch);
-#else
-  deposit_charge_rectangular_3d_omp_reduce(rho2, domain, dg, bunch);
-#endif
+  //#else
+  //  deposit_charge_rectangular_3d_omp_reduce(rho2, domain, dg, bunch);
+  //#endif
 }
 
 void
