@@ -77,7 +77,8 @@ include(AddPythonTest)
 set(extra_includes)
 
 # options
-option(SIMPLE_TIMER "use the simple timer 2 profiling" OFF)
+option(SIMPLE_TIMER "use the simple timer 2 profiling" ON)
+option(SIMPLE_TIMER_BARRIER "use MPI barriers with simple timer" OFF)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" ON)
 option(ALLOW_PADDING "add paddings to the particle array for memory alignment" OFF)
 option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" OFF)

@@ -10,9 +10,7 @@ Propagator::do_before_start(Bunch_simulator& simulator, Logger& logger)
 {
 
   if (simulator.current_turn() == 0) {
-    Kokkos::Profiling::pushRegion("diagnostic-actions");
     simulator.diag_action_step_and_turn(PRE_TURN, FINAL_STEP);
-    Kokkos::Profiling::popRegion();
 
     simulator.prop_action_first(lattice);
     simulator.set_lattice_reference_particle(lattice.get_reference_particle());
@@ -62,15 +60,10 @@ Propagator::do_step(Bunch_simulator& simulator,
   // t = simple_timer_show(t, "propagate-bunch_operations_step");
 
   // general diagnostics
-  Kokkos::Profiling::pushRegion("diagnostic-actions");
   simulator.diag_action_step_and_turn(turn_count, step_count);
-  Kokkos::Profiling::popRegion();
-
-  // t = simple_timer_show(t, "propagate-diagnostics_actions_step");
 
   // propagate action
   simulator.prop_action_step_end(lattice, turn_count, step_count);
-  // t = simple_timer_show(t, "propagate-general_actions-step");
 
   double t_step1 = MPI_Wtime();
 
@@ -131,9 +124,7 @@ Propagator::do_turn_end(Bunch_simulator& simulator,
   // t = simple_timer_current();
 
   // diagnostic actions
-  Kokkos::Profiling::pushRegion("diagnostic-actions");
   simulator.diag_action_step_and_turn(turn_count, Propagator::FINAL_STEP);
-  Kokkos::Profiling::popRegion();
 
   // propagate actions
   simulator.prop_action_turn_end(lattice, turn_count);
@@ -149,7 +140,6 @@ Propagator::do_turn_end(Bunch_simulator& simulator,
 void
 Propagator::propagate(Bunch_simulator& sim, Logger& logger, int max_turns)
 {
-  Kokkos::Profiling::pushRegion("propagate-execute");
   const int total_turns = sim.max_turns();
 
   // parameter check
@@ -281,6 +271,4 @@ Propagator::propagate(Bunch_simulator& sim, Logger& logger, int max_turns)
     std::cerr << e.what() << std::endl;
     MPI_Abort(MPI_COMM_WORLD, 888);
   }
-
-  Kokkos::Profiling::popRegion();
 }
