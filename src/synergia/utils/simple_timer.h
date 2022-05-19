@@ -2,6 +2,9 @@
 #define SIMPLE_TIMER_H
 
 #include "synergia/utils/logger.h"
+
+#include <Kokkos_Core.hpp>
+
 #include <iomanip>
 #include <map>
 
