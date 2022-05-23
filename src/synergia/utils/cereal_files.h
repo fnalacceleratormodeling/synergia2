@@ -5,9 +5,6 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
-//#include <typeinfo>
-//#include <cerrno>
-//#include <cstring>
 #include <unistd.h>
 #include <iomanip>
 
@@ -15,8 +12,9 @@
 #include <cereal/archives/xml.hpp>
 #include <cereal/archives/json.hpp>
 
-// copy_file_overwrite_if_exists provides portability across
-// Boost Filesystem versions 2 and 3
+// copy_file_overwrite_if_exists provided portability across old versions of
+// Boost. This is trivial in C++ because the desired behavior is mandated for
+// std::filesystem::rename.
 void
 copy_file_overwrite_if_exists(
         std::string const & source,

@@ -1,16 +1,10 @@
-
 #include "cereal_files.h"
 #include "commxx.h"
 #include "digits.h"
 
-#pragma message "TODO: replace boost::filesystem here"
+#include <filesystem>
 
-#if 0
-// avoid bad interaction between Boost Filesystem and clang
-#define BOOST_NO_CXX11_SCOPED_ENUMS
-#include <boost/filesystem.hpp>
-using namespace boost::filesystem;
-#endif
+namespace fs = std::filesystem;
 
 const std::string serialization_directory("serialization");
 
@@ -19,10 +13,11 @@ class Parallel_helper
 private:
     bool parallel;
 public:
-    Parallel_helper(bool parallel) :
+    explicit  Parallel_helper(bool parallel) :
         parallel(parallel)
     {
     }
+
     void
     barrier()
     {
@@ -30,6 +25,7 @@ public:
             MPI_Barrier(Commxx());
         }
     }
+
     bool
     operate_locally()
     {
@@ -45,12 +41,9 @@ void
 copy_file_overwrite_if_exists(std::string const & source,
         std::string const & dest)
 {
-#if 0
-    if (exists(dest)) {
-        remove(dest);
-    }
-    copy_file(source, dest);
-#endif
+  fs::path const src { source };
+  fs::path const dst { dest };
+  fs::rename(src, dst);
 }
 
 std::string
@@ -62,94 +55,74 @@ get_serialization_directory()
 void
 remove_directory(std::string const & name, bool parallel)
 {
-#if 0
     Parallel_helper parallel_helper(parallel);
     parallel_helper.barrier();
     if (parallel_helper.operate_locally()) {
-        if (exists(name)) {
-            remove_all(name);
-        }
+      fs::remove_all(name);
     }
     parallel_helper.barrier();
-#endif
 }
 
 void
 remove_serialization_directory(bool parallel)
 {
-#if 0
     Parallel_helper parallel_helper(parallel);
     parallel_helper.barrier();
     if (parallel_helper.operate_locally()) {
-        if (is_symlink(get_serialization_directory())) {
-            remove(get_serialization_directory());
-        } else {
-            if (exists(get_serialization_directory())) {
-                remove_all(get_serialization_directory());
-            }
-        }
+      fs::path const path_to_delete { get_serialization_directory() };
+      fs::remove_all(path_to_delete);
     }
     parallel_helper.barrier();
-#endif
 }
 
 void
 ensure_serialization_directory_exists(bool parallel)
 {
-#if 0
     Parallel_helper parallel_helper(parallel);
     parallel_helper.barrier();
     if (parallel_helper.operate_locally()) {
-        if (!is_directory(get_serialization_directory())) {
-            create_directories(get_serialization_directory());
-        }
+      fs::path const path_to_create { get_serialization_directory() };
+      fs::create_directories(path_to_create);
     }
     parallel_helper.barrier();
-#endif
 }
 
 void
 rename_serialization_directory(std::string const& new_name, bool parallel)
 {
-#if 0
     Parallel_helper parallel_helper(parallel);
     parallel_helper.barrier();
     if (parallel_helper.operate_locally()) {
-        if (exists(new_name)) {
-            remove_all(new_name);
-        }
-        rename(get_serialization_directory(), new_name);
+      fs::path const serialization_path { get_serialization_directory() };
+      fs::path const new_path { new_name };
+      fs::rename(serialization_path, new_path);
     }
     parallel_helper.barrier();
-#endif
 }
 
 void
 symlink_serialization_directory(std::string const& existing_dir, bool parallel)
 {
-#if 0
     Parallel_helper parallel_helper(parallel);
     parallel_helper.barrier();
     if (parallel_helper.operate_locally()) {
-        create_symlink(existing_dir, get_serialization_directory());
+      fs::path const serialization_path { get_serialization_directory() };
+      fs::path const existing_path { existing_dir };
+      fs::create_directory_symlink(existing_path, serialization_path);
     }
     parallel_helper.barrier();
-#endif
 }
 
 void
 unlink_serialization_directory(bool parallel)
 {
-#if 0
     Parallel_helper parallel_helper(parallel);
     parallel_helper.barrier();
     if (parallel_helper.operate_locally()) {
-        if (exists(get_serialization_directory())) {
-            remove(get_serialization_directory());
-        }
+      fs::path const serialization_path { get_serialization_directory() };
+      fs::remove(serialization_path);
     }
     parallel_helper.barrier();
-#endif
 }
 
 std::string
