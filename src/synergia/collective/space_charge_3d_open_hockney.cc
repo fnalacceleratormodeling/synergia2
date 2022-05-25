@@ -1,6 +1,7 @@
 
 #include "space_charge_3d_open_hockney.h"
 #include "deposit.h"
+
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/math_constants.h"
 #include "synergia/foundation/physical_constants.h"
@@ -704,6 +705,13 @@ Space_charge_3d_open_hockney::construct_workspaces(Bunch_simulator const& sim)
   h_rho2 = Kokkos::create_mirror_view(rho2);
   h_phi2 = Kokkos::create_mirror_view(phi2);
 
+  // scatter view of rho2
+  scatter_rhodev = Kokkos::Experimental::create_scatter_view(
+    Kokkos::Experimental::ScatterSum(),
+    Kokkos::Experimental::ScatterDuplicated(),
+    Kokkos::Experimental::ScatterNonAtomic(),
+    rho2);
+
   // En is in the original domain
   enx = karray1d_dev("enx", s[0] * s[1] * s[2] / 8);
   eny = karray1d_dev("eny", s[0] * s[1] * s[2] / 8);
@@ -782,11 +790,8 @@ Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
   auto dg = doubled_domain.get_grid_shape();
   dg[0] = Distributed_fft3d::get_padded_shape_real(dg[0]);
 
-  //#ifdef KOKKOS_ENABLE_CUDA
-  deposit_charge_rectangular_3d_kokkos_scatter_view(rho2, domain, dg, bunch);
-  //#else
-  //  deposit_charge_rectangular_3d_omp_reduce(rho2, domain, dg, bunch);
-  //#endif
+  deposit_charge_rectangular_3d_kokkos_scatter_view(
+    rho2, scatter_rhodev, domain, dg, bunch);
 }
 
 void

@@ -6,8 +6,6 @@
 #include <Kokkos_ScatterView.hpp>
 
 namespace deposit_impl {
-  using scatter_t =
-    Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft>;
 
   KOKKOS_INLINE_FUNCTION
   int
@@ -605,6 +603,7 @@ deposit_charge_rectangular_2d_kokkos_scatter_view(
 void
 deposit_charge_rectangular_3d_kokkos_scatter_view(
   karray1d_dev& rho_dev,
+  scatter_t& scatter_rho,
   Rectangular_grid_domain& domain,
   std::array<int, 3> const& dims,
   Bunch const& bunch)
@@ -634,13 +633,13 @@ deposit_charge_rectangular_3d_kokkos_scatter_view(
   Kokkos::parallel_for(rho_dev.extent(0), rz);
   Kokkos::fence();
 
+  scatter_rho.reset();
   // deposit
-  scatter_t scatter(rho_dev);
   sv_zyx_rho_reducer_non_periodic rr(
-    parts, masks, scatter, g, dims, h, l, weight0);
+    parts, masks, scatter_rho, g, dims, h, l, weight0);
 
   Kokkos::parallel_for(nparts, rr);
-  Kokkos::Experimental::contribute(rho_dev, scatter);
+  Kokkos::Experimental::contribute(rho_dev, scatter_rho);
 
   Kokkos::fence();
 }

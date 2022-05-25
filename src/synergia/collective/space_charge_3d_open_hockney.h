@@ -3,11 +3,11 @@
 
 #include "synergia/simulation/collective_operator.h"
 #include "synergia/simulation/implemented_collective_options.h"
+#include "synergia/utils/distributed_fft3d.h"
 
+#include "synergia/collective/deposit.h"
 #include "synergia/collective/rectangular_grid.h"
 #include "synergia/collective/rectangular_grid_domain.h"
-
-#include "synergia/utils/distributed_fft3d.h"
 
 class Space_charge_3d_open_hockney;
 
@@ -35,6 +35,8 @@ private:
   karray1d_dev enx;
   karray1d_dev eny;
   karray1d_dev enz;
+
+  scatter_t scatter_rhodev;
 
 private:
   void apply_impl(Bunch_simulator& simulator, double time_step, Logger& logger);

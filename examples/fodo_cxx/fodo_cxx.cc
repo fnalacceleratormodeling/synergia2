@@ -133,6 +133,7 @@ run(Fodo_cxx_options opts)
   print_bunch_statistics(bunch, screen);
 
   // diagnostics
+  /*
   Diagnostics_bulk_track diag_bulk_track(
     "tracks.h5", (100 < macroparticles) ? 100 : macroparticles, 0);
   sim.reg_diag_per_turn(diag_bulk_track);
@@ -145,6 +146,7 @@ run(Fodo_cxx_options opts)
   sim.reg_diag_per_turn(diag_full2);
 
   screen << "Statistics before propagation" << std::endl;
+  */
 
   bunch.checkout_particles();
   print_bunch_statistics(bunch, screen);
