@@ -57,8 +57,10 @@ if (BUILD_PYTHON_BINDINGS)
 
 endif ()
 
-install(TARGETS synergia_simulation 
-    DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS
+	synergia_simulation
+	synergia_bunchsim
+	DESTINATION ${LIB_INSTALL_DIR})
 
 install(FILES
     bunch_simulator.h
