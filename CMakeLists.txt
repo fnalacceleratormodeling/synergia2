@@ -69,7 +69,6 @@ set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${COMPILER_SPECIFIC_
 # misc
 include(CopyFile)
 include(MPITest)
-include(AddPythonExtension)
 include(SmartIncludeDirectories)
 include(AddPythonTest)
 
