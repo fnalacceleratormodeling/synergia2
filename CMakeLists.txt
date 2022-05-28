@@ -158,7 +158,7 @@ endif()
 
 # HDF5
 set(HDF5_PREFER_PARALLEL true)
-find_package(HDF5)
+find_package(HDF5 REQUIRED)
 list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
 
 if(HDF5_IS_PARALLEL)
@@ -190,7 +190,7 @@ endif()
 
 # cereal
 if(USE_EXTERNAL_CEREAL)
-    find_package(cereal)
+    find_package(cereal REQUIRED)
     message(STATUS "Using external cereal")
 else()
     message(STATUS "Fetching cereal")
@@ -222,10 +222,10 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 # python
 if (BUILD_PYTHON_BINDINGS)
   message (STATUS "Building python bindings")
-  find_package(Python COMPONENTS Interpreter Development)
+  find_package(Python REQUIRED COMPONENTS Interpreter Development)
   # pybind11
   if(USE_EXTERNAL_PYBIND11)
-    find_package(pybind11 CONFIG)
+    find_package(pybind11 REQUIRED CONFIG)
     message(STATUS "Using external pybind11")
   else()
     message(STATUS "Fetching pybind11")
