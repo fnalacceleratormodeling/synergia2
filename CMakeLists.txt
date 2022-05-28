@@ -114,6 +114,20 @@ if(${MPIEXEC_EXECUTABLE} MATCHES "srun")
   set(MPIEXEC_EXECUTABLE ${MPIEXEC_EXECUTABLE} "--mpi=${SRUN_MPI_PMIX}")
 endif()
 
+# Make sure we have mpi4py available.
+execute_process(
+        COMMAND python -c "import mpi4py"
+        RESULT_VARIABLE EXIT_CODE
+        OUTPUT_QUIET
+)
+
+if (NOT ${EXIT_CODE} EQUAL 0)
+    message(
+            FATAL_ERROR
+            "The \"mpi4py\" module is not availale."
+    )
+endif()
+
 # Follow official kokkos guidelines
 # https://github.com/kokkos/kokkos/wiki/Compiling#42-using-general-cmake-build-system
 if (USE_EXTERNAL_KOKKOS)
