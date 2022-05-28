@@ -29,7 +29,7 @@ def test_mpi_version():
     from mpi4py import MPI
 
     # For some reason, the module function MPI.Get_library_version returns
-    # a string will a trailing null character, which we remove.
+    # a string with a trailing null character, which we remove.
     assert version.mpi_library_version.split() == MPI.Get_library_version().rstrip('\x00').split()
 
 def test_hdf5_version():
