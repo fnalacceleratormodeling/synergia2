@@ -28,23 +28,44 @@ jobs:
 
     - name: CMake
       run: |
+        lscpu
         . /etc/profile.d/z10_spack_environment.sh 
-        . /opt/view/setvars.sh
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) \
-          -DUSE_EXTERNAL_KOKKOS=off -DBUILD_EXAMPLES=off -GNinja
+          -DUSE_EXTERNAL_KOKKOS=off -GNinja
 
-    - name: Build
-      # Build your program with the given configuration
+    - name: build
+      # build synergia2
       run: |
         . /etc/profile.d/z10_spack_environment.sh 
-        . /opt/view/setvars.sh
-        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 2
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 2 
+
+    - name: install
+      # install synergia2
+      run: |
+        . /etc/profile.d/z10_spack_environment.sh 
+        cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: ctest
     # Execute tests defined by the CMake configuration.
       run:  |
         . /etc/profile.d/z10_spack_environment.sh 
-        . /opt/view/setvars.sh
         cd ${{github.workspace}}/build
         ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+
+    # Debug: checkpoint at which to open tmate session
+    #- name: Setup tmate session
+    #  uses: mxschmitt/action-tmate@v3
+    #  with:
+    #    sudo: false
+        
+    - name: run-fodopy
+    # Run the fodopy example from README.
+      run:  |
+        . /etc/profile.d/z10_spack_environment.sh 
+        export SYNINSTALL=${{github.workspace}}/install
+        export LD_LIBRARY_PATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib64:\${LD_LIBRARY_PATH}
+        export PYTHONPATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib/python3.9/site-packages:\${PYTHONPATH}
+        cd ${{github.workspace}}/build/examples/fodo
+        mpirun -np 1 python3.9 fodo_readme.py
