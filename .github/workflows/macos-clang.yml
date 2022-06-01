@@ -55,6 +55,12 @@ jobs:
         source ${{github.workspace}}/synergia-env/bin/activate
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+    # Debug: checkpoint at which to open tmate session
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      with:
+        sudo: false
+
     - name: ctest
     # Execute tests defined by the CMake configuration.
       run:  |
