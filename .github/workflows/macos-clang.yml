@@ -1,6 +1,12 @@
 name: CI:macOS-clang
 
 on:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
   push:
     branches: [ devel3 ]
   pull_request:
@@ -58,6 +64,7 @@ jobs:
     # Debug: checkpoint at which to open tmate session
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
+      if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
       with:
         sudo: false
 
