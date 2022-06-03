@@ -114,20 +114,6 @@ if(${MPIEXEC_EXECUTABLE} MATCHES "srun")
   set(MPIEXEC_EXECUTABLE ${MPIEXEC_EXECUTABLE} "--mpi=${SRUN_MPI_PMIX}")
 endif()
 
-# Make sure we have mpi4py available.
-execute_process(
-        COMMAND ${Python_EXECUTABLE} -c "import mpi4py"
-        RESULT_VARIABLE EXIT_CODE
-        OUTPUT_QUIET
-)
-
-if (NOT ${EXIT_CODE} EQUAL 0)
-    message(
-            FATAL_ERROR
-            "The \"mpi4py\" module is not availale."
-    )
-endif()
-
 # Follow official kokkos guidelines
 # https://github.com/kokkos/kokkos/wiki/Compiling#42-using-general-cmake-build-system
 if (USE_EXTERNAL_KOKKOS)
@@ -237,6 +223,21 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 if (BUILD_PYTHON_BINDINGS)
   message (STATUS "Building python bindings")
   find_package(Python REQUIRED COMPONENTS Interpreter Development)
+
+  # Make sure we have mpi4py available.
+  execute_process(
+          COMMAND ${Python_EXECUTABLE} -c "import mpi4py"
+          RESULT_VARIABLE EXIT_CODE
+          OUTPUT_QUIET
+  )
+
+  if (NOT ${EXIT_CODE} EQUAL 0)
+      message(
+              FATAL_ERROR
+  	    "Python_EXECUTABLE is ${Python_EXECUTABLE}\nThe \"mpi4py\" module is not availale."
+      )
+  endif()
+
   # pybind11
   if(USE_EXTERNAL_PYBIND11)
     find_package(pybind11 REQUIRED CONFIG)
