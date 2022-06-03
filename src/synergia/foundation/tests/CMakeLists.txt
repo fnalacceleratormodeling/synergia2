@@ -2,7 +2,7 @@
 if (BUILD_PYTHON_BINDINGS)
 
     add_py_test(test_verify_mpi4py.py)
-    add_test(test_mpi4py_works
+    add_test(NAME test_mpi4py_works
              COMMAND ${CMAKE_COMMAND} -E env
                  OMP_NUM_THREADS=1
                  OMP_PROC_BIN=spread
