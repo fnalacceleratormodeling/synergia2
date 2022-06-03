@@ -116,7 +116,7 @@ endif()
 
 # Make sure we have mpi4py available.
 execute_process(
-        COMMAND python -c "import mpi4py"
+        COMMAND ${Python_EXECUTABLE} -c "import mpi4py"
         RESULT_VARIABLE EXIT_CODE
         OUTPUT_QUIET
 )
