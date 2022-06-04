@@ -183,15 +183,12 @@ namespace syn
         size_t size;
     };
 
-    template<class T>
-    std::enable_if_t<std::is_arithmetic<T>::value, data_info_t>
-    extract_data_info(T const& t)
-    { return {&t, {}, hdf5_atomic_data_type<T>(), sizeof(T), 1}; }
-
-    template<class T>
-    std::enable_if_t<Kokkos::is_view<T>::value, data_info_t>
-    extract_data_info(T const& t)
-    { 
+    template <class T>
+    data_info_t
+    extract_data_info(T const& t) {
+      if constexpr (std::is_arithmetic_v<T>) {
+        return {&t, {}, hdf5_atomic_data_type<T>(), sizeof(T), 1};
+      } else if constexpr (Kokkos::is_view<T>::value) { 
         size_t size = 1;
         std::vector<hsize_t> dims(T::Rank);
 
@@ -204,20 +201,16 @@ namespace syn
         return { t.data(), dims, 
             hdf5_atomic_data_type<typename T::value_type>(),
             sizeof(typename T::value_type), size }; 
+      };
     }
 
-    template<class T>
-    std::enable_if_t<std::is_arithmetic<T>::value, void>
-    resize_data_obj(T& t, data_info_t& di)
-    {
+    template <class T>
+    void 
+    resize_data_obj(T& t, data_info_t& di) {
+      if constexpr (std::is_arithmetic_v<T>) {
         if (di.dims.size()) throw std::runtime_error(
                 "resize_data_obj: non-zero rank resizing scalar");
-    }
-
-    template<class T>
-    std::enable_if_t<Kokkos::is_view<T>::value, void>
-    resize_data_obj(T& t, data_info_t& di)
-    { 
+      } else if constexpr (Kokkos::is_view<T>::value) {
         if (di.dims.size() != T::Rank) throw std::runtime_error(
                 "resize_data_obj: inconsistent data rank");
 
@@ -230,11 +223,8 @@ namespace syn
         }
 
         di.ptr = t.data();
+      };
     }
-
-
-
-
 
     // collects dims of the data object thats about to be written/read
     // from all mpi ranks, does the sanity check, and produces an array
