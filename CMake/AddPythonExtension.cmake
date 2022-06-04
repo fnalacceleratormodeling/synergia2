@@ -1,8 +1,0 @@
-macro(add_python_extension MODNAME)
-    set(FILES ${ARGV})
-    list(REMOVE_AT FILES 0)
-    add_library(${MODNAME} MODULE ${FILES})
-    set_target_properties(${MODNAME} PROPERTIES PREFIX "")
-    target_link_libraries(${MODNAME} ${Boost_PYTHON_LIBRARY})
-    target_link_libraries(${MODNAME} ${PYTHON_LIBRARY})
-endmacro(add_python_extension)

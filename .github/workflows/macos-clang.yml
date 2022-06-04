@@ -1,6 +1,16 @@
 name: CI:macOS-clang
 
 on:
+  workflow_dispatch:
+    inputs:
+      debug_cmake_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
+      debug_tests_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
   push:
     branches: [ devel3 ]
   pull_request:
@@ -43,6 +53,13 @@ jobs:
         cd ../..
         rm -r tmp/
 
+    # Debug: checkpoint at which to open tmate session
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_cmake_enabled }}
+      with:
+        sudo: false
+
     - name: CMake
       run: |
         source ${{github.workspace}}/synergia-env/bin/activate
@@ -54,6 +71,13 @@ jobs:
       run: |
         source ${{github.workspace}}/synergia-env/bin/activate
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    # Debug: checkpoint at which to open tmate session
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_tests_enabled }}
+      with:
+        sudo: false
 
     - name: ctest
     # Execute tests defined by the CMake configuration.
