@@ -131,17 +131,6 @@ struct Hdf5_handler
     hid_t hid;
 };
 
-#if 0
-template<typename T>
-struct hdf5_traits
-{ using value_type = T::value_type; }
-
-template<>
-struct hdf5_traits<int> { using value_type = int; }
-
-template<typename T, int N>
-struct hdf5_traits<Boost::multi_array<T, N>> { using value_type = T; }
-#endif
 
 // The generic (T) version of h5_atomic_data_type is undefined.
 // Only versions with specializations will compile.
@@ -150,12 +139,7 @@ inline hid_t hdf5_atomic_data_type()
 { return hdf5_atomic_data_type<typename T::value_type>(); }
 //{ return hdf5_traits<T>::value_type; }
 
-#if 0
-template<typename T,
-    typename std::enable_if<Kokkos::is_view<T>::value>::type = 0>
-inline hid_t hdf5_atomic_data_type()
-{ return hdf5_atomic_data_type<typename T::value_type>(); }
-#endif
+
 
 template<>
 inline hid_t hdf5_atomic_data_type<uint8_t>()
