@@ -129,12 +129,11 @@ public:
           int array_index = 0,
           int train_index = 0);
 
-  // to construct a bunch with trigon particles
-  template <typename U = PART>
+  // to construct a bunch with trigon particles.
+  // Will fail to compile if PART is not a trigon.
   bunch_t(Reference_particle const& reference_particle,
           int total_num = 1,
-          Commxx comm = Commxx(),
-          typename std::enable_if<is_trigon<U>::value>::type* = 0);
+          Commxx comm = Commxx());
 
   // default ctor for serialization only
   bunch_t();
@@ -626,9 +625,10 @@ public:
 
   // only for trigon bunches
   template <class U = PART>
-  std::enable_if_t<is_trigon<U>::value, karray2d_row>
+  karray2d_row
   get_jacobian(int idx, PG pg = PG::regular) const
   {
+    static_assert(is_trigon<U>::value);
     return get_bunch_particles(pg).get_jacobian(idx);
   }
 
@@ -691,12 +691,10 @@ bunch_t<double>::apply_zcut(AP const& ap, ParticleGroup pg)
 }
 
 template <typename PART>
-template <typename U>
 inline bunch_t<PART>::bunch_t(
   Reference_particle const& reference_particle,
   int total_num,
-  Commxx bunch_comm,
-  typename std::enable_if<is_trigon<U>::value>::type*)
+  Commxx bunch_comm)
   : comm(std::make_shared<Commxx>(bunch_comm))
   , boundary(LB::open)
   , boundary_param(0.0)
@@ -710,6 +708,8 @@ inline bunch_t<PART>::bunch_t(
   , bucket_index(0)
   , array_index(0)
   , train_index(0)
-{}
+{
+  static_assert(is_trigon<PART>::value, "PART must be a trigon");
+}
 
 #endif /* BUNCH_H_ */
