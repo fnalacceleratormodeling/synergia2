@@ -2,10 +2,10 @@
 * Author:        Agner Fog
 * Date created:  2014-07-09
 * Last modified: 2019-08-01
-* Version:       1.40.00
+* Version:       2.00.00
 * Project:       vector class library
 * Description:
-* Header file containing inline vector functions of hyperbolic and inverse 
+* Header file containing inline vector functions of hyperbolic and inverse
 * hyperbolic functions:
 * sinh        hyperbolic sine
 * cosh        hyperbolic cosine
@@ -22,16 +22,16 @@
 * > Cephes math library by Stephen L. Moshier 1992,
 *   http://www.netlib.org/cephes/
 *
-* For detailed instructions, see vcl_manual.pdf
+* For detailed instructions, see vectormath_common.h and vcl_manual.pdf
 *
 * (c) Copyright 2014-2019 Agner Fog.
 * Apache License version 2.0 or later.
 ******************************************************************************/
 
 #ifndef VECTORMATH_HYP_H
-#define VECTORMATH_HYP_H  1 
+#define VECTORMATH_HYP_H  1
 
-#include "vectormath_exp.h"  
+#include "vectormath_exp.h"
 
 #ifdef VCL_NAMESPACE
 namespace VCL_NAMESPACE {
@@ -45,28 +45,26 @@ namespace VCL_NAMESPACE {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE sinh_d(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE sinh_d(VTYPE const x0) {
 // The limit of abs(x) is 709.7, as defined by max_x in vectormath_exp.h for 0.5*exp(x).
 
     // Coefficients
     const double p0 = -3.51754964808151394800E5;
     const double p1 = -1.15614435765005216044E4;
     const double p2 = -1.63725857525983828727E2;
-    const double p3 = -7.89474443963537015605E-1; 
+    const double p3 = -7.89474443963537015605E-1;
 
     const double q0 = -2.11052978884890840399E6;
     const double q1 =  3.61578279834431989373E4;
     const double q2 = -2.77711081420602794433E2;
-    const double q3 =  1.0; 
+    const double q3 =  1.0;
 
     // data vectors
     VTYPE  x, x2, y1, y2;
-    BVTYPE x_small;                              // boolean vector
 
     x = abs(x0);
-    x_small = x <= 1.0;                          // use Pade approximation if abs(x) <= 1
+    auto x_small = x <= 1.0;                     // use Pade approximation if abs(x) <= 1
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -76,29 +74,30 @@ static inline VTYPE sinh_d(VTYPE const & x0) {
     }
     if (!horizontal_and(x_small)) {
         // At least one element needs big method
-        y2 =  exp_d<VTYPE, BVTYPE, 0, 1>(x);     //   0.5 * exp(x)
+        y2 =  exp_d<VTYPE, 0, 1>(x);             //   0.5 * exp(x)
         y2 -= 0.25 / y2;                         // - 0.5 * exp(-x)
     }
     y1 = select(x_small, y1, y2);                // choose method
     y1 = sign_combine(y1, x0);                   // get original sign
+    // you can avoid the sign_combine by replacing x by x0 above, but at a loss of precision
 
     return y1;
 }
 
 // instances of sinh_d template
-static inline Vec2d sinh(Vec2d const & x) {
-    return sinh_d<Vec2d, Vec2db>(x);
+static inline Vec2d sinh(Vec2d const x) {
+    return sinh_d(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec4d sinh(Vec4d const & x) {
-    return sinh_d<Vec4d, Vec4db>(x);
+static inline Vec4d sinh(Vec4d const x) {
+    return sinh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec8d sinh(Vec8d const & x) {
-    return sinh_d<Vec8d, Vec8db>(x);
+static inline Vec8d sinh(Vec8d const x) {
+    return sinh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -107,9 +106,8 @@ static inline Vec8d sinh(Vec8d const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE sinh_f(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE sinh_f(VTYPE const x0) {
 // The limit of abs(x) is 89.0, as defined by max_x in vectormath_exp.h for 0.5*exp(x).
 
     // Coefficients
@@ -119,10 +117,9 @@ static inline VTYPE sinh_f(VTYPE const & x0) {
 
     // data vectors
     VTYPE x, x2, y1, y2;
-    BVTYPE x_small;                              // boolean vector
 
     x = abs(x0);
-    x_small = x <= 1.0f;                         // use polynomial approximation if abs(x) <= 1
+    auto x_small = x <= 1.0f;                    // use polynomial approximation if abs(x) <= 1
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -132,29 +129,30 @@ static inline VTYPE sinh_f(VTYPE const & x0) {
     }
     if (!horizontal_and(x_small)) {
         // At least one element needs big method
-        y2 =  exp_f<VTYPE, BVTYPE, 0, 1>(x);     //   0.5 * exp(x)
+        y2 =  exp_f<VTYPE, 0, 1>(x);             //   0.5 * exp(x)
         y2 -= 0.25f / y2;                        // - 0.5 * exp(-x)
     }
     y1 = select(x_small, y1, y2);                // choose method
     y1 = sign_combine(y1, x0);                   // get original sign
+    // you can avoid the sign_combine by replacing x by x0 above, but at a loss of precision
 
     return y1;
 }
 
 // instances of sinh_f template
-static inline Vec4f sinh(Vec4f const & x) {
-    return sinh_f<Vec4f, Vec4fb>(x);
+static inline Vec4f sinh(Vec4f const x) {
+    return sinh_f(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec8f sinh(Vec8f const & x) {
-    return sinh_f<Vec8f, Vec8fb>(x);
+static inline Vec8f sinh(Vec8f const x) {
+    return sinh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec16f sinh(Vec16f const & x) {
-    return sinh_f<Vec16f, Vec16fb>(x);
+static inline Vec16f sinh(Vec16f const x) {
+    return sinh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -163,34 +161,32 @@ static inline Vec16f sinh(Vec16f const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE cosh_d(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE cosh_d(VTYPE const x0) {
 // The limit of abs(x) is 709.7, as defined by max_x in vectormath_exp.h for 0.5*exp(x).
 
     // data vectors
     VTYPE x, y;
-
     x  = abs(x0);
-    y  = exp_d<VTYPE, BVTYPE, 0, 1>(x);          //   0.5 * exp(x)
+    y  = exp_d<VTYPE, 0, 1>(x);                  //   0.5 * exp(x)
     y += 0.25 / y;                               // + 0.5 * exp(-x)
     return y;
 }
 
 // instances of sinh_d template
-static inline Vec2d cosh(Vec2d const & x) {
-    return cosh_d<Vec2d, Vec2db>(x);
+static inline Vec2d cosh(Vec2d const x) {
+    return cosh_d(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec4d cosh(Vec4d const & x) {
-    return cosh_d<Vec4d, Vec4db>(x);
+static inline Vec4d cosh(Vec4d const x) {
+    return cosh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec8d cosh(Vec8d const & x) {
-    return cosh_d<Vec8d, Vec8db>(x);
+static inline Vec8d cosh(Vec8d const x) {
+    return cosh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -199,34 +195,32 @@ static inline Vec8d cosh(Vec8d const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE cosh_f(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE cosh_f(VTYPE const x0) {
 // The limit of abs(x) is 89.0, as defined by max_x in vectormath_exp.h for 0.5*exp(x).
 
     // data vectors
     VTYPE x, y;
-
     x  = abs(x0);
-    y  = exp_f<VTYPE, BVTYPE, 0, 1>(x);          //   0.5 * exp(x)
+    y  = exp_f<VTYPE, 0, 1>(x);                  //   0.5 * exp(x)
     y += 0.25f / y;                              // + 0.5 * exp(-x)
     return y;
 }
 
 // instances of sinh_d template
-static inline Vec4f cosh(Vec4f const & x) {
-    return cosh_f<Vec4f, Vec4fb>(x);
+static inline Vec4f cosh(Vec4f const x) {
+    return cosh_f(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec8f cosh(Vec8f const & x) {
-    return cosh_f<Vec8f, Vec8fb>(x);
+static inline Vec8f cosh(Vec8f const x) {
+    return cosh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec16f cosh(Vec16f const & x) {
-    return cosh_f<Vec16f, Vec16fb>(x);
+static inline Vec16f cosh(Vec16f const x) {
+    return cosh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -235,26 +229,24 @@ static inline Vec16f cosh(Vec16f const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE tanh_d(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE tanh_d(VTYPE const x0) {
 
     // Coefficients
     const double p0 = -1.61468768441708447952E3;
     const double p1 = -9.92877231001918586564E1;
     const double p2 = -9.64399179425052238628E-1;
-    
+
     const double q0 =  4.84406305325125486048E3;
     const double q1 =  2.23548839060100448583E3;
     const double q2 =  1.12811678491632931402E2;
-    const double q3 =  1.0; 
+    const double q3 =  1.0;
 
     // data vectors
     VTYPE  x, x2, y1, y2;
-    BVTYPE x_small, x_big;                       // boolean vectors
 
     x = abs(x0);
-    x_small = x <= 0.625;                        // use Pade approximation if abs(x) <= 5/8
+    auto x_small = x <= 0.625;                   // use Pade approximation if abs(x) <= 5/8
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -267,28 +259,27 @@ static inline VTYPE tanh_d(VTYPE const & x0) {
         y2 = exp(x+x);                           // exp(2*x)
         y2 = 1.0 - 2.0 / (y2 + 1.0);             // tanh(x)
     }
-    x_big = x > 350.;
+    auto x_big = x > 350.;
     y1 = select(x_small, y1, y2);                // choose method
     y1 = select(x_big,  1.0, y1);                // avoid overflow
     y1 = sign_combine(y1, x0);                   // get original sign
-
     return y1;
 }
 
 // instances of tanh_d template
-static inline Vec2d tanh(Vec2d const & x) {
-    return tanh_d<Vec2d, Vec2db>(x);
+static inline Vec2d tanh(Vec2d const x) {
+    return tanh_d(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec4d tanh(Vec4d const & x) {
-    return tanh_d<Vec4d, Vec4db>(x);
+static inline Vec4d tanh(Vec4d const x) {
+    return tanh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec8d tanh(Vec8d const & x) {
-    return tanh_d<Vec8d, Vec8db>(x);
+static inline Vec8d tanh(Vec8d const x) {
+    return tanh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -297,9 +288,8 @@ static inline Vec8d tanh(Vec8d const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE tanh_f(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE tanh_f(VTYPE const x0) {
 // The limit of abs(x) is 89.0, as defined by max_x in vectormath_exp.h for 0.5*exp(x).
 
     // Coefficients
@@ -311,10 +301,9 @@ static inline VTYPE tanh_f(VTYPE const & x0) {
 
     // data vectors
     VTYPE x, x2, y1, y2;
-    BVTYPE x_small, x_big;                       // boolean vectors
 
     x = abs(x0);
-    x_small = x <= 0.625f;                       // use polynomial approximation if abs(x) <= 5/8
+    auto x_small = x <= 0.625f;                  // use polynomial approximation if abs(x) <= 5/8
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -327,28 +316,27 @@ static inline VTYPE tanh_f(VTYPE const & x0) {
         y2 = exp(x+x);                           // exp(2*x)
         y2 = 1.0f - 2.0f / (y2 + 1.0f);          // tanh(x)
     }
-    x_big = x > 44.4f;
+    auto x_big = x > 44.4f;
     y1 = select(x_small, y1, y2);                // choose method
     y1 = select(x_big,  1.0f, y1);               // avoid overflow
     y1 = sign_combine(y1, x0);                   // get original sign
-
     return y1;
 }
 
 // instances of tanh_f template
-static inline Vec4f tanh(Vec4f const & x) {
-    return tanh_f<Vec4f, Vec4fb>(x);
+static inline Vec4f tanh(Vec4f const x) {
+    return tanh_f(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec8f tanh(Vec8f const & x) {
-    return tanh_f<Vec8f, Vec8fb>(x);
+static inline Vec8f tanh(Vec8f const x) {
+    return tanh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec16f tanh(Vec16f const & x) {
-    return tanh_f<Vec16f, Vec16fb>(x);
+static inline Vec16f tanh(Vec16f const x) {
+    return tanh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -362,15 +350,14 @@ static inline Vec16f tanh(Vec16f const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE asinh_d(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE asinh_d(VTYPE const x0) {
 
     // Coefficients
     const double p0 = -5.56682227230859640450E0;
     const double p1 = -9.09030533308377316566E0;
     const double p2 = -4.37390226194356683570E0;
-    const double p3 = -5.91750212056387121207E-1; 
+    const double p3 = -5.91750212056387121207E-1;
     const double p4 = -4.33231683752342103572E-3;
 
     const double q0 =  3.34009336338516356383E1;
@@ -381,13 +368,13 @@ static inline VTYPE asinh_d(VTYPE const & x0) {
 
     // data vectors
     VTYPE  x, x2, y1, y2;
-    BVTYPE x_small, x_huge;                      // boolean vectors
 
     x2 = x0 * x0;
     x  = abs(x0);
-    x_small = x <= 0.533;                        // use Pade approximation if abs(x) <= 0.5
-                                                 // both methods give the highest error close to 0.5. this limit is adjusted for minimum error
-    x_huge  = x > 1.E20;                         // simple approximation, avoid overflow
+    auto x_small = x <= 0.533;                   // use Pade approximation if abs(x) <= 0.5
+    // Both methods give the highest error close to 0.5.
+    // This limit is adjusted for minimum error
+    auto x_huge  = x > 1.E20;                    // simple approximation, avoid overflow
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -404,24 +391,23 @@ static inline VTYPE asinh_d(VTYPE const & x0) {
     }
     y1 = select(x_small, y1, y2);                // choose method
     y1 = sign_combine(y1, x0);                   // get original sign
-
     return y1;
 }
 
 // instances of asinh_d template
-static inline Vec2d asinh(Vec2d const & x) {
-    return asinh_d<Vec2d, Vec2db>(x);
+static inline Vec2d asinh(Vec2d const x) {
+    return asinh_d(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec4d asinh(Vec4d const & x) {
-    return asinh_d<Vec4d, Vec4db>(x);
+static inline Vec4d asinh(Vec4d const x) {
+    return asinh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec8d asinh(Vec8d const & x) {
-    return asinh_d<Vec8d, Vec8db>(x);
+static inline Vec8d asinh(Vec8d const x) {
+    return asinh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -430,9 +416,8 @@ static inline Vec8d asinh(Vec8d const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE asinh_f(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE asinh_f(VTYPE const x0) {
 
     // Coefficients
     const float r0 = -1.6666288134E-1f;
@@ -442,12 +427,11 @@ static inline VTYPE asinh_f(VTYPE const & x0) {
 
     // data vectors
     VTYPE  x, x2, y1, y2;
-    BVTYPE x_small, x_huge;                      // boolean vectors
 
     x2 = x0 * x0;
     x  = abs(x0);
-    x_small = x <= 0.51f;                        // use polynomial approximation if abs(x) <= 0.5
-    x_huge  = x > 1.E10f;                        // simple approximation, avoid overflow
+    auto x_small = x <= 0.51f;                   // use polynomial approximation if abs(x) <= 0.5
+    auto x_huge  = x > 1.E10f;                   // simple approximation, avoid overflow
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -464,24 +448,23 @@ static inline VTYPE asinh_f(VTYPE const & x0) {
     }
     y1 = select(x_small, y1, y2);                // choose method
     y1 = sign_combine(y1, x0);                   // get original sign
-
     return y1;
 }
 
 // instances of asinh_f template
-static inline Vec4f asinh(Vec4f const & x) {
-    return asinh_f<Vec4f, Vec4fb>(x);
+static inline Vec4f asinh(Vec4f const x) {
+    return asinh_f(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec8f asinh(Vec8f const & x) {
-    return asinh_f<Vec8f, Vec8fb>(x);
+static inline Vec8f asinh(Vec8f const x) {
+    return asinh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec16f asinh(Vec16f const & x) {
-    return asinh_f<Vec16f, Vec16fb>(x);
+static inline Vec16f asinh(Vec16f const x) {
+    return asinh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -490,15 +473,14 @@ static inline Vec16f asinh(Vec16f const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE acosh_d(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE acosh_d(VTYPE const x0) {
 
     // Coefficients
     const double p0 = 1.10855947270161294369E5;
     const double p1 = 1.08102874834699867335E5;
     const double p2 = 3.43989375926195455866E4;
-    const double p3 = 3.94726656571334401102E3; 
+    const double p3 = 3.94726656571334401102E3;
     const double p4 = 1.18801130533544501356E2;
 
     const double q0 = 7.83869920495893927727E4;
@@ -510,12 +492,11 @@ static inline VTYPE acosh_d(VTYPE const & x0) {
 
     // data vectors
     VTYPE  x1, y1, y2;
-    BVTYPE x_small, x_huge, undef;               // boolean vectors
 
     x1      = x0 - 1.0;
-    undef   = x0 < 1.0;                          // result is NAN
-    x_small = x1 < 0.49;                         // use Pade approximation if abs(x-1) < 0.5
-    x_huge  = x1 > 1.E20;                        // simple approximation, avoid overflow
+    auto undef   = x0 < 1.0;                     // result is NAN
+    auto x_small = x1 < 0.49;                    // use Pade approximation if abs(x-1) < 0.5
+    auto x_huge  = x1 > 1.E20;                   // simple approximation, avoid overflow
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -536,19 +517,19 @@ static inline VTYPE acosh_d(VTYPE const & x0) {
 }
 
 // instances of acosh_d template
-static inline Vec2d acosh(Vec2d const & x) {
-    return acosh_d<Vec2d, Vec2db>(x);
+static inline Vec2d acosh(Vec2d const x) {
+    return acosh_d(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec4d acosh(Vec4d const & x) {
-    return acosh_d<Vec4d, Vec4db>(x);
+static inline Vec4d acosh(Vec4d const x) {
+    return acosh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec8d acosh(Vec8d const & x) {
-    return acosh_d<Vec8d, Vec8db>(x);
+static inline Vec8d acosh(Vec8d const x) {
+    return acosh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -557,9 +538,8 @@ static inline Vec8d acosh(Vec8d const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE acosh_f(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE acosh_f(VTYPE const x0) {
 
     // Coefficients
     const float r0 =  1.4142135263E0f;
@@ -570,12 +550,11 @@ static inline VTYPE acosh_f(VTYPE const & x0) {
 
     // data vectors
     VTYPE  x1, y1, y2;
-    BVTYPE x_small, x_huge, undef;               // boolean vectors
 
     x1      = x0 - 1.0f;
-    undef   = x0 < 1.0f;                         // result is NAN
-    x_small = x1 < 0.49f;                        // use Pade approximation if abs(x-1) < 0.5
-    x_huge  = x1 > 1.E10f;                       // simple approximation, avoid overflow
+    auto undef   = x0 < 1.0f;                    // result is NAN
+    auto x_small = x1 < 0.49f;                   // use Pade approximation if abs(x-1) < 0.5
+    auto x_huge  = x1 > 1.E10f;                  // simple approximation, avoid overflow
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -596,19 +575,19 @@ static inline VTYPE acosh_f(VTYPE const & x0) {
 }
 
 // instances of acosh_f template
-static inline Vec4f acosh(Vec4f const & x) {
-    return acosh_f<Vec4f, Vec4fb>(x);
+static inline Vec4f acosh(Vec4f const x) {
+    return acosh_f(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec8f acosh(Vec8f const & x) {
-    return acosh_f<Vec8f, Vec8fb>(x);
+static inline Vec8f acosh(Vec8f const x) {
+    return acosh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec16f acosh(Vec16f const & x) {
-    return acosh_f<Vec16f, Vec16fb>(x);
+static inline Vec16f acosh(Vec16f const x) {
+    return acosh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -617,9 +596,8 @@ static inline Vec16f acosh(Vec16f const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE atanh_d(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE atanh_d(VTYPE const x0) {
 
     // Coefficients
     const double p0 = -3.09092539379866942570E1;
@@ -637,10 +615,9 @@ static inline VTYPE atanh_d(VTYPE const & x0) {
 
     // data vectors
     VTYPE  x, x2, y1, y2, y3;
-    BVTYPE x_small;                              // boolean vector
 
     x  = abs(x0);
-    x_small = x < 0.5;                           // use Pade approximation if abs(x) < 0.5
+    auto x_small = x < 0.5;                      // use Pade approximation if abs(x) < 0.5
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -657,24 +634,23 @@ static inline VTYPE atanh_d(VTYPE const & x0) {
     }
     y1 = select(x_small, y1, y2);                // choose method
     y1 = sign_combine(y1, x0);                   // get original sign
-
     return y1;
 }
 
 // instances of atanh_d template
-static inline Vec2d atanh(Vec2d const & x) {
-    return atanh_d<Vec2d, Vec2db>(x);
+static inline Vec2d atanh(Vec2d const x) {
+    return atanh_d(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec4d atanh(Vec4d const & x) {
-    return atanh_d<Vec4d, Vec4db>(x);
+static inline Vec4d atanh(Vec4d const x) {
+    return atanh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec8d atanh(Vec8d const & x) {
-    return atanh_d<Vec8d, Vec8db>(x);
+static inline Vec8d atanh(Vec8d const x) {
+    return atanh_d(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
@@ -683,9 +659,8 @@ static inline Vec8d atanh(Vec8d const & x) {
 // This function does not produce denormals
 // Template parameters:
 // VTYPE:  double vector type
-// BVTYPE: boolean vector type 
-template<class VTYPE, class BVTYPE> 
-static inline VTYPE atanh_f(VTYPE const & x0) {    
+template<typename VTYPE>
+static inline VTYPE atanh_f(VTYPE const x0) {
 
     // Coefficients
     const float r0 = 3.33337300303E-1f;
@@ -696,10 +671,9 @@ static inline VTYPE atanh_f(VTYPE const & x0) {
 
     // data vectors
     VTYPE  x, x2, y1, y2, y3;
-    BVTYPE x_small;                              // boolean vector
 
     x  = abs(x0);
-    x_small = x < 0.5f;                          // use polynomial approximation if abs(x) < 0.5
+    auto x_small = x < 0.5f;                     // use polynomial approximation if abs(x) < 0.5
 
     if (horizontal_or(x_small)) {
         // At least one element needs small method
@@ -716,24 +690,23 @@ static inline VTYPE atanh_f(VTYPE const & x0) {
     }
     y1 = select(x_small, y1, y2);                // choose method
     y1 = sign_combine(y1, x0);                   // get original sign
-
     return y1;
 }
 
 // instances of atanh_f template
-static inline Vec4f atanh(Vec4f const & x) {
-    return atanh_f<Vec4f, Vec4fb>(x);
+static inline Vec4f atanh(Vec4f const x) {
+    return atanh_f(x);
 }
 
 #if MAX_VECTOR_SIZE >= 256
-static inline Vec8f atanh(Vec8f const & x) {
-    return atanh_f<Vec8f, Vec8fb>(x);
+static inline Vec8f atanh(Vec8f const x) {
+    return atanh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 256
 
 #if MAX_VECTOR_SIZE >= 512
-static inline Vec16f atanh(Vec16f const & x) {
-    return atanh_f<Vec16f, Vec16fb>(x);
+static inline Vec16f atanh(Vec16f const x) {
+    return atanh_f(x);
 }
 #endif // MAX_VECTOR_SIZE >= 512
 
