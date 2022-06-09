@@ -13,8 +13,12 @@ on:
         default: false
   push:
     branches: [ devel3 ]
+    paths-ignore:
+      - 'wiki/**'
   pull_request:
     branches: [ devel3 ]
+    paths-ignore:
+      - 'wiki/**'
 
 env:
   BUILD_TYPE: RelWithDebInfo
