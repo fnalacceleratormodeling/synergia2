@@ -29,6 +29,10 @@
 
 Please see [this page](wiki/build.md) for build instructions
 
+## Useful Github stuff
+
+Please see [this page](wiki/useful-github-stuff.md) for use Github features used in the project
+
 ## Writing a Synergia Simulation
 
 Here is a simple example to give an idea of how to compose a simulation with Synergia3.
