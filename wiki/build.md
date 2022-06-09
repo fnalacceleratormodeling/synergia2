@@ -38,14 +38,14 @@ or,
       -DCMAKE_BUILD_TYPE=Release \
       -DFFTW3_LIBRARY_DIRS=$LOCAL_ROOT/lib \
       -DHDF5_ROOT=$LOCAL_ROOT \
-      -DKokkos_ENABLE_OPENMP=on \
+      -DKokkos_ENABLE_THREADS=on \
       /path/to/synergia/
 
 ### Available Build Options
 
 Kokkos options:
 
-    cmake -DKokkos_ENABLE_OPENMP=on/off
+    cmake -DKokkos_ENABLE_THREADS=on/off
     cmake -DKokkos_ENABLE_CUDA=on/off
     ...
 
@@ -65,7 +65,7 @@ Enable/disable simple timer profiling:
 
 ### Option to enable OpenMP backend for kokkos (host-only build)
 
-    cmake -DENABLE_OPENMP=on|off # default is off
+    cmake -DENABLE_THREADS=on|off # default is off
 
 ### Options to enable CUDA backend for kokkos
 
@@ -128,7 +128,7 @@ requirements as possible.
     rm -r tmp/
 
     # We build using the system compilers which are recent enough for our needs
-    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on /path/to/synergia/
+    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_THREADS=on /path/to/synergia/
 
 ## 3. macOS (Intel and M1 Mac)
 
@@ -161,7 +161,7 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
 
     # We do not recommend using /usr/local/ as your installation target. While this is the default, this will mix your Synergia installation
     # with the tools installed using Homebrew -- but Homebrew will not know how to update Synergia.
-    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DCMAKE_INSTALL_PREFIX=/path/to/install/target /path/to/synergia/
+    cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_THREADS=on -DCMAKE_INSTALL_PREFIX=/path/to/install/target /path/to/synergia/
     
 
 Note that updates of Homebrew-installed packages can invalidate an existing build.
@@ -177,7 +177,7 @@ This can lead to incompatibilities between C++ libraries that are part of the OS
 
     # The current version of the Homebrew GCC formula at the time of this writing installs
     # g++-11.
-    CC=gcc-11 CXX=g++-11 cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
+    CC=gcc-11 CXX=g++-11 cmake -DCMAKE_BUILD_TYPE=Release -DKokkos_ENABLE_THREADS=on -DBUILD_PYTHON_BINDINGS=on /path/to/synergia/
 
 # Obsolete instructions
 
@@ -197,7 +197,7 @@ If you are trying to install on one of these platforms and encounter a problem, 
 
     export CRAYPE_LINK_TYPE=dynamic
 
-    CC=cc CXX=CC cmake -DEIGEN3_INCLUDE_DIR:PATH=~/local/include/eigen3 -DFFTW3_LIBRARY_DIRS:PATH=${FFTW_ROOT}/lib -DKokkos_ENABLE_OPENMP=on ../synergia2/
+    CC=cc CXX=CC cmake -DEIGEN3_INCLUDE_DIR:PATH=~/local/include/eigen3 -DFFTW3_LIBRARY_DIRS:PATH=${FFTW_ROOT}/lib -DKokkos_ENABLE_THREADS=on ../synergia2/
 
 
 ## 5. Power9 (obsolete, needs update):
@@ -212,7 +212,7 @@ If you are trying to install on one of these platforms and encounter a problem, 
     cmake -DEIGEN3_INCLUDE_DIR=$LOCAL_ROOT/include/eigen3 \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_PYTHON_BINDINGS=off \
-      -DKokkos_ENABLE_OPENMP=off \
+      -DKokkos_ENABLE_THREADS=off \
       -DKokkos_ENABLE_CUDA=on \
       -DCMAKE_CXX_COMPILER=$SYN_SRC/src/synergia/utils/kokkos/bin/nvcc_wrapper \
       -DCMAKE_CXX_FLAGS="-arch=sm_70"

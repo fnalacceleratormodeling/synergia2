@@ -411,8 +411,8 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
   deposit_charge_rectangular_2d_kokkos_scatter_view(
     rho2, doubled_domain, particle_bin, bunch);
 #else
-  deposit_charge_rectangular_2d_omp_reduce(
-    rho2, doubled_domain, particle_bin, bunch);
+// deposit_charge_rectangular_2d_omp_reduce(
+//    rho2, doubled_domain, particle_bin, bunch);
 #endif
 }
 

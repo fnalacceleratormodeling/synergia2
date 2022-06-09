@@ -16,7 +16,7 @@ compile:
     - source /opt/view/setvars.sh
   script:
     - mkdir build && cd build
-    - cmake ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fuse-ld=gold" -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=off -DBUILD_EXAMPLES=off -GNinja
+    - cmake ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fuse-ld=gold" -DKokkos_ENABLE_THREADS=on -DBUILD_PYTHON_BINDINGS=off -DBUILD_EXAMPLES=off -GNinja
     - ninja -j1
   artifacts:
     paths:

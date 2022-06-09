@@ -1,6 +1,6 @@
 macro(add_mpi_test tname np)
 
-    if (${Kokkos_ENABLE_OPENMP})
+    if (${Kokkos_ENABLE_THREADS})
         add_test(NAME ${tname}_${np}
             COMMAND ${CMAKE_COMMAND} -E env 
                 OMP_NUM_THREADS=1
