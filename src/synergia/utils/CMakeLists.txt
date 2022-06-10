@@ -121,7 +121,7 @@ install(FILES
     hdf5_serial_writer.h
     hdf5_writer.h
     complex_error_function.h
-    multi_array_typedefs.h
+    kokkos_views.h
     parallel_utils.h
     simple_timer.h
     cereal.h

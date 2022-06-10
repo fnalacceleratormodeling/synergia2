@@ -4,7 +4,7 @@
 #include <array>
 
 #include "synergia/utils/commxx.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 
 class Distributed_fft2d_base
 {

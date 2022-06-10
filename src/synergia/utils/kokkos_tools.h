@@ -2,7 +2,7 @@
 #define KOKKOS_TOOLS_H
 
 #include "synergia/utils/kokkos_types.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/logger.h"
 
 namespace kt

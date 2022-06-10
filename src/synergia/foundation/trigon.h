@@ -14,7 +14,7 @@
 
 #include "synergia/utils/json.h"
 #include "synergia/utils/kokkos_types.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/simple_timer.h"
 
 #include <cereal/cereal.hpp>

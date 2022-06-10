@@ -1,7 +1,7 @@
 #include "synergia/utils/catch.hpp"
 
 #include "synergia/utils/hdf5_file.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 
 
 

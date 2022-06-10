@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/utils/hdf5_writer.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 
 // jfa: these are bad tests because they require the user
 // to manually inspect the output files.

@@ -1,7 +1,7 @@
 #ifndef REFERENCE_PARTICLE_H_
 #define REFERENCE_PARTICLE_H_
 
-//#include "synergia/utils/multi_array_typedefs.h"
+//#include "synergia/utils/kokkos_views.h"
 //#include "synergia/utils/multi_array_serialization.h"
 #include "synergia/foundation/four_momentum.h"
 #include <cereal/types/array.hpp>

@@ -3,7 +3,7 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/populate.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/multi_array_print.h"
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/bunch/diagnostics_basic.h"

@@ -1,5 +1,5 @@
 #include "hdf5_file.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/hdf5_misc.h"
 
 #include <thread>

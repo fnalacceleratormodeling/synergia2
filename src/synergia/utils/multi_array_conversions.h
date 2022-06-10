@@ -1,7 +1,7 @@
 #ifndef SYNERGIA_UTILS_MULTI_ARRAY_CONVERSIONS_H
 #define SYNERGIA_UTILS_MULTI_ARRAY_CONVERSIONS_H
 
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "Eigen/Eigen"
 
 typedef Eigen::Matrix<double, 
