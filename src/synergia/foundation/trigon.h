@@ -28,7 +28,7 @@ template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon;
 
 template <typename TRIGON>
-class TMapping;
+struct TMapping;
 
 template <unsigned int Length>
 struct Array_hash;
