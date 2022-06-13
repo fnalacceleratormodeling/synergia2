@@ -36,9 +36,9 @@ namespace core_diagnostics_impl {
     typedef double value_type[];
 
     const int value_count = F::size;
-    ConstParticles p;
-    ConstParticleMasks masks;
-    karray1d_dev dev_mean;
+    const ConstParticles p;
+    const ConstParticleMasks masks;
+    const karray1d_dev dev_mean;
 
     particle_reducer(ConstParticles const& p,
                      ConstParticleMasks const& masks,
@@ -192,7 +192,7 @@ Core_diagnostics::calculate_mean(Bunch const& bunch)
   const int npart = bunch.size();
 
   particle_reducer<mean_tag> pr(particles, masks);
-  Kokkos::parallel_reduce("cal_mean", npart, pr, mean.data());
+  Kokkos::parallel_reduce("cal_mean", npart, pr, mean);
   Kokkos::fence();
 
   MPI_Allreduce(
@@ -239,7 +239,7 @@ Core_diagnostics::calculate_abs_mean(Bunch const& bunch)
   const int npart = bunch.size();
 
   particle_reducer<abs_mean_tag> pr(particles, masks);
-  Kokkos::parallel_reduce("cal_abs_mean", npart, pr, abs_mean.data());
+  Kokkos::parallel_reduce("cal_abs_mean", npart, pr, abs_mean);
   Kokkos::fence();
 
   MPI_Allreduce(
@@ -263,7 +263,7 @@ Core_diagnostics::calculate_std(Bunch const& bunch, karray1d const& mean)
   const int npart = bunch.size();
 
   particle_reducer<std_tag> pr(particles, masks, mean);
-  Kokkos::parallel_reduce(npart, pr, std.data());
+  Kokkos::parallel_reduce(npart, pr, std);
   Kokkos::fence();
 
   MPI_Allreduce(
@@ -287,7 +287,7 @@ Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
   auto npart = bunch.size();
 
   particle_reducer<mom2_tag> pr(particles, masks, mean);
-  Kokkos::parallel_reduce(npart, pr, sum2.data());
+  Kokkos::parallel_reduce(npart, pr, sum2);
   Kokkos::fence();
 
   for (int i = 0; i < 5; ++i)
