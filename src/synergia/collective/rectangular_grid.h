@@ -1,7 +1,7 @@
 #ifndef RECTANGULAR_GRID_H_
 #define RECTANGULAR_GRID_H_
 
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 
 class Rectangular_grid_1d {
 

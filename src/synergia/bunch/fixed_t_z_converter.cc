@@ -1,4 +1,4 @@
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/foundation/reference_particle.h"
 #include "fixed_t_z_converter.h"
 #include "bunch.h"

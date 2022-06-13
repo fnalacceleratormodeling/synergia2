@@ -1,7 +1,7 @@
 #ifndef WAKE_FIELD_H_
 #define WAKE_FIELD_H_
 
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 
 #include <mpi.h>
 

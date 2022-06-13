@@ -4,7 +4,7 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/bunch/populate.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/multi_array_print.h"
 
 const int charge = pconstants::proton_charge;

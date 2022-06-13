@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/multi_array_serialization.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"

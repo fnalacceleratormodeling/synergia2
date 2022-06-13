@@ -2,7 +2,7 @@
 #include "synergia/utils/command_line_arg.h"
 #include "synergia/lattice/lattice.h"
 #include "synergia/simulation/propagator.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 
 
 struct Convert_options

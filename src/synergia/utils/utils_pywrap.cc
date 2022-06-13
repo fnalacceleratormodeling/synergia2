@@ -7,15 +7,13 @@ using namespace py::literals;
 
 PYBIND11_MODULE(utils, m)
 {
-    m.def( "init", [](){ 
-            //MPI_Init(NULL, NULL);
-            Kokkos::initialize(); 
-         });
+  m.def("init", []() {
+    // MPI_Init(NULL, NULL);
+    Kokkos::initialize();
+  });
 
-    m.def( "finalize", [](){ 
-            //MPI_Finalize(); 
-            Kokkos::finalize(); 
-         });
+  m.def("finalize", []() {
+    // MPI_Finalize();
+    Kokkos::finalize();
+  });
 }
-
-

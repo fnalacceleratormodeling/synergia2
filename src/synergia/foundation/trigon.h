@@ -14,7 +14,7 @@
 
 #include "synergia/utils/json.h"
 #include "synergia/utils/kokkos_types.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/simple_timer.h"
 
 #include <cereal/cereal.hpp>
@@ -28,7 +28,7 @@ template <typename T, unsigned int Power, unsigned int Dim>
 class Trigon;
 
 template <typename TRIGON>
-class TMapping;
+struct TMapping;
 
 template <unsigned int Length>
 struct Array_hash;

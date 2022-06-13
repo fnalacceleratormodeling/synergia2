@@ -4,7 +4,7 @@
 #include "synergia/foundation/trigon_traits.h"
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/logger.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 
 #include "synergia/utils/gsvector.h"
 #include "synergia/utils/hdf5_file.h"

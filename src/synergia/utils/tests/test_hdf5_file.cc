@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include "synergia/utils/hdf5_file.h"
-#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/multi_array_check_equal.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture);
