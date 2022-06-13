@@ -146,6 +146,17 @@ else ()
   set(kokkos_libs kokkos)
 endif()
 
+# Check version of kokkos!
+if((Kokkos_VERSION_MAJOR LESS 3) OR  (Kokkos_VERSION_MINOR LESS 6))
+  message(FATAL_ERROR "Need at least Kokkos 3.6.00!")
+endif()
+
+# Ensure that both CUDA & OpenMP are not enabled simultanously!
+if(${Kokkos_ENABLE_CUDA} AND ${Kokkos_ENABLE_OPENMP})
+  message(FATAL_ERROR "Synergia2 currently requires that only one of \
+  CUDA/OpenMP backends be enabled for kokkos, please reconfigure!")
+endif()
+
 # We still use OpenMP directly, so just add those flags for host-only
 # build at this stage
 if(${Kokkos_ENABLE_OPENMP})
