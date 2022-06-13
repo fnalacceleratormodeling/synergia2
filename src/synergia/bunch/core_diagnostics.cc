@@ -216,7 +216,7 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
   const int npart = bunch.size();
 
   particle_reducer<z_mean_tag> pr(particles, masks);
-  Kokkos::parallel_reduce(npart, pr, &mean);
+  Kokkos::parallel_reduce(npart, pr, mean);
   Kokkos::fence();
 
   MPI_Allreduce(MPI_IN_PLACE, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
