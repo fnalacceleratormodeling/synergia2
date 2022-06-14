@@ -152,7 +152,7 @@ if((Kokkos_VERSION_MAJOR LESS 3) OR  (Kokkos_VERSION_MINOR LESS 6))
 endif()
 
 # Ensure that both CUDA & OpenMP are not enabled simultanously!
-if(${Kokkos_ENABLE_CUDA} AND ${Kokkos_ENABLE_OPENMP})
+if((${Kokkos_ENABLE_CUDA} STREQUAL ON) AND (${Kokkos_ENABLE_OPENMP} STREQUAL ON))
   message(FATAL_ERROR "Synergia2 currently requires that only one of \
   CUDA/OpenMP backends be enabled for kokkos, please reconfigure!")
 endif()
