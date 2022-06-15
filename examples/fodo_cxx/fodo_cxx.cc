@@ -137,11 +137,12 @@ run(Fodo_cxx_options opts)
   Diagnostics_bulk_track diag_bulk_track(
     "tracks.h5", (100 < macroparticles) ? 100 : macroparticles, 0);
   sim.reg_diag_per_turn(diag_bulk_track);
+  */
 
-  Diagnostics_particles diag_particles(
-    "particles.h5", (1000 < macroparticles) ? 1000 : macroparticles);
+  Diagnostics_particles diag_particles("particles.h5", macroparticles);
   sim.reg_diag_per_turn(diag_particles);
 
+  /*
   Diagnostics_full2 diag_full2("diag.h5");
   sim.reg_diag_per_turn(diag_full2);
 
