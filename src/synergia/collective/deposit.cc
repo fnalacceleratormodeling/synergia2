@@ -8,14 +8,6 @@
 namespace deposit_impl {
 
   KOKKOS_INLINE_FUNCTION
-  int
-  fast_int_floor_kokkos(const double x)
-  {
-    int ix = static_cast<int>(x);
-    return x > 0.0 ? ix : ((x - ix == 0) ? ix : ix - 1);
-  }
-
-  KOKKOS_INLINE_FUNCTION
   void
   get_leftmost_indices_offset(double pos,
                               double left,
@@ -24,7 +16,7 @@ namespace deposit_impl {
                               double& off)
   {
     double scaled_location = (pos - left) * inv_cell_size - 0.5;
-    idx = fast_int_floor_kokkos(scaled_location);
+    idx = Kokkos::Experimental::floor(scaled_location);
     off = scaled_location - idx;
   }
 
