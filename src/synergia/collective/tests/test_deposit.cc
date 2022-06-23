@@ -70,8 +70,20 @@ TEST_CASE("OneParticle", "[OneParticle]")
   Kokkos::deep_copy(rho_dev_hst, rho_dev);
   Kokkos::fence();
 
+  std::array<int, 2> deposit_locs{1, 2};
+
+  for (auto x : deposit_locs) {
+    for (auto y : deposit_locs) {
+      for (auto z : deposit_locs) {
+        CHECK(rho_dev_hst(z * dims[0] * dims[1] + y * dims[0] + z) != 0);
+      }
+    }
+  }
+
   auto sums = 0.0;
-  for (int idx = 0; idx < 6 * 6 * 6; idx++) sums += rho_dev_hst(idx) / weight0;
+  for (int idx = 0; idx < dims[0] * dims[1] * dims[2]; idx++) {
+    sums += rho_dev_hst(idx) / weight0;
+  }
 
   // one particle is deposited
   CHECK(sums == Approx(1).margin(.01));
