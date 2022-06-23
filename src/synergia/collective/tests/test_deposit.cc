@@ -79,7 +79,6 @@ TEST_CASE("OneParticle", "[OneParticle]")
       auto fact_y = (y == 0) ? 0.95 : 0.0;
       for (auto z : deposit_locs) {
         auto fact_z = (z == 0) ? 0.95 : 0.0;
-        CHECK(rho_dev_hst(z * dims[0] * dims[1] + y * dims[0] + z) != 0);
         CHECK(rho_dev_hst(z * dims[0] * dims[1] + y * dims[0] + z) ==
               Approx(fact_x * fact_y * fact_z).margin(0.01));
       }
