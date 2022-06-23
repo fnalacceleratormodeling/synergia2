@@ -49,7 +49,7 @@ TEST_CASE("OneParticle", "[OneParticle]")
   auto bunch_parts = bunch.get_host_particles();
   bunch_parts.access(0, 0) = 1.55;
   bunch_parts.access(0, 2) = 1.55;
-  bunch_parts.access(0, 4) = 1.45;
+  bunch_parts.access(0, 4) = 1.55;
   bunch.checkin_particles();
 
   Rectangular_grid_domain domain({6, 6, 6}, {6, 6, 6}, {2, 2, 2}, false);
@@ -61,7 +61,7 @@ TEST_CASE("OneParticle", "[OneParticle]")
                    (h[0] * h[1] * h[2]);
 
   const std::array<int, 3> dims{6, 6, 6};
-  karray1d_dev rho_dev("rho_dev", 6 * 6 * 6);
+  karray1d_dev rho_dev("rho_dev", dims[0] * dims[1] * dims[2]);
 
   deposit_charge_rectangular_3d_kokkos_scatter_view(
     rho_dev, domain, dims, bunch);
@@ -70,12 +70,18 @@ TEST_CASE("OneParticle", "[OneParticle]")
   Kokkos::deep_copy(rho_dev_hst, rho_dev);
   Kokkos::fence();
 
+  // where we expect the particle to be deposited
   std::array<int, 2> deposit_locs{1, 2};
 
   for (auto x : deposit_locs) {
+    auto fact_x = (x == 0) ? 0.95 : 0.0;
     for (auto y : deposit_locs) {
+      auto fact_y = (y == 0) ? 0.95 : 0.0;
       for (auto z : deposit_locs) {
+        auto fact_z = (z == 0) ? 0.95 : 0.0;
         CHECK(rho_dev_hst(z * dims[0] * dims[1] + y * dims[0] + z) != 0);
+        CHECK(rho_dev_hst(z * dims[0] * dims[1] + y * dims[0] + z) ==
+              Approx(fact_x * fact_y * fact_z).margin(0.01));
       }
     }
   }
