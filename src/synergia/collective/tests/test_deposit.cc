@@ -45,11 +45,23 @@ TEST_CASE("OneParticle", "[OneParticle]")
   Bunch bunch(ref, 1, 1, Commxx());
   CHECK(bunch.get_local_num() == 1);
 
-  Rectangular_grid_domain domain(
-    {3, 3, 3}, {1e-6, 1e-6, 1e-6}, {0, 0, 0}, false);
+  bunch.checkout_particles();
+  auto bunch_parts = bunch.get_host_particles();
+  bunch_parts.access(0, 0) = 1.55;
+  bunch_parts.access(0, 2) = 1.55;
+  bunch_parts.access(0, 4) = 1.45;
+  bunch.checkin_particles();
 
-  const std::array<int, 3> dims{3, 3, 3};
-  karray1d_dev rho_dev("rho_dev", 3 * 3 * 3);
+  Rectangular_grid_domain domain({6, 6, 6}, {6, 6, 6}, {2, 2, 2}, false);
+
+  auto h = domain.get_cell_size();
+
+  double weight0 = (bunch.get_real_num() / bunch.get_total_num()) *
+                   bunch.get_particle_charge() * pconstants::e /
+                   (h[0] * h[1] * h[2]);
+
+  const std::array<int, 3> dims{6, 6, 6};
+  karray1d_dev rho_dev("rho_dev", 6 * 6 * 6);
 
   deposit_charge_rectangular_3d_kokkos_scatter_view(
     rho_dev, domain, dims, bunch);
@@ -58,13 +70,9 @@ TEST_CASE("OneParticle", "[OneParticle]")
   Kokkos::deep_copy(rho_dev_hst, rho_dev);
   Kokkos::fence();
 
-  std::array<int, 8> deposit_locs{12, 13, 15, 16, 22, 23, 25, 26};
+  auto sums = 0.0;
+  for (int idx = 0; idx < 6 * 6 * 6; idx++) sums += rho_dev_hst(idx) / weight0;
 
-  auto sum = 0.0i;
-  for (int idx = 0; idx < 27; idx++) { sum += rho_dev_hst(idx); }
-  CHECK(sum == Approx(1).margin(.01));
-
-  for (auto idx : deposit_locs) {
-    CHECK(rho_dev_hst(idx) == Approx(0.125).margin(.01));
-  }
+  // one particle is deposited
+  CHECK(sums == Approx(1).margin(.01));
 }
