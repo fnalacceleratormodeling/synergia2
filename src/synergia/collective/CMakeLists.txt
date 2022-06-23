@@ -29,7 +29,6 @@ endif ()
 install(TARGETS synergia_collective DESTINATION lib)
 install(FILES
     deposit.h
-    distributed_rectangular_grid.h
     rectangular_grid_domain.h
     rectangular_grid.h
     space_charge_3d_open_hockney.h
