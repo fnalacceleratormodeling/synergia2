@@ -120,9 +120,9 @@ requirements as possible.
     i# Instead, we build our own from source.
     mkdir tmp
     cd tmp
-    wget https://github.com/h5py/h5py/archive/refs/tags/3.6.0.tar.gz # check for the most recent version
-    tar xf 3.6.0.tar.gz
-    cd h5py-3.6.0
+    wget https://github.com/h5py/h5py/archive/refs/tags/3.7.0.tar.gz # check for the most recent version
+    tar xf 3.7.0.tar.gz
+    cd h5py-3.7.0
     HDF5_DIR=/usr/local python setup.py install
     cd ../..
     rm -r tmp/
@@ -136,8 +136,11 @@ Our general philosophy is to use Homebrew to install as many requirements as pos
 See [https://brew.sh](https://brew.sh) for instructions on the installation and use of Homebrew.
 
     # Note that the Homebrew installation of hdf5 does not (at the time of this writing)
-    # support MPI parallelism.
+    # support MPI parallelism. There is also an hdf5-mpi package, which does support MPI
+    # parallelism. These packages conflict, so you must choose which you will install.
     brew install gsl hdf5 fftw libomp ninja
+    # or
+    # brew install gsl hdf5-mpi fftw libomp ninja
 
     # We recommend a python virtual environment for managing module versions.
     python3 -m venv synergia-env
@@ -150,10 +153,13 @@ See [https://brew.sh](https://brew.sh) for instructions on the installation and 
     # Instead, we build our own from source.
     mkdir tmp
     cd tmp
-    wget https://github.com/h5py/h5py/archive/refs/tags/3.6.0.tar.gz # check for the most recent version
-    tar xf 3.6.0.tar.gz
-    cd h5py-3.6.0
+    wget https://github.com/h5py/h5py/archive/refs/tags/3.7.0.tar.gz # check for the most recent version
+    tar xf 3.7.0.tar.gz
+    cd h5py-3.7.0
+    # For the version that does *not* use MPI
     HDF5_DIR=/usr/local python setup.py install
+    # For the version that *does* use MPI
+    # CC="mpicc" HDF5_MPI="ON" HDF5_DIR=/usr/local python setup.py install
     cd ../..
     rm -r tmp/
 
