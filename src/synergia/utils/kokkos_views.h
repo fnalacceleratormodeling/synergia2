@@ -119,65 +119,6 @@ typedef Kokkos::View<const double***,
                      Kokkos::DefaultHostExecutionSpace::memory_space>
   const_karray3d_row;
 
-// row major, non-const int arrays
-typedef Kokkos::
-  View<int*, Kokkos::LayoutRight, Kokkos::DefaultExecutionSpace::memory_space>
-    karray1i_row_dev;
-typedef Kokkos::
-  View<int**, Kokkos::LayoutRight, Kokkos::DefaultExecutionSpace::memory_space>
-    karray2i_row_dev;
-typedef Kokkos::
-  View<int***, Kokkos::LayoutRight, Kokkos::DefaultExecutionSpace::memory_space>
-    karray3i_row_dev;
-
-typedef karray1i_row_dev::HostMirror karray1i_row_hst;
-typedef karray2i_row_dev::HostMirror karray2i_row_hst;
-typedef karray3i_row_dev::HostMirror karray3i_row_hst;
-
-typedef Kokkos::View<int*,
-                     Kokkos::LayoutLeft,
-                     Kokkos::DefaultHostExecutionSpace::memory_space>
-  karray1i_row;
-typedef Kokkos::View<int**,
-                     Kokkos::LayoutLeft,
-                     Kokkos::DefaultHostExecutionSpace::memory_space>
-  karray2i_row;
-typedef Kokkos::View<int***,
-                     Kokkos::LayoutLeft,
-                     Kokkos::DefaultHostExecutionSpace::memory_space>
-  karray3i_row;
-
-// row major, non-const complex arrays
-typedef Kokkos::View<Kokkos::complex<double>*,
-                     Kokkos::LayoutRight,
-                     Kokkos::DefaultExecutionSpace::memory_space>
-  karray1dc_row_dev;
-typedef Kokkos::View<Kokkos::complex<double>**,
-                     Kokkos::LayoutRight,
-                     Kokkos::DefaultExecutionSpace::memory_space>
-  karray2dc_row_dev;
-typedef Kokkos::View<Kokkos::complex<double>***,
-                     Kokkos::LayoutRight,
-                     Kokkos::DefaultExecutionSpace::memory_space>
-  karray3dc_row_dev;
-
-typedef karray1dc_row_dev::HostMirror karray1dc_row_hst;
-typedef karray2dc_row_dev::HostMirror karray2dc_row_hst;
-typedef karray3dc_row_dev::HostMirror karray3dc_row_hst;
-
-typedef Kokkos::View<Kokkos::complex<double>*,
-                     Kokkos::LayoutLeft,
-                     Kokkos::DefaultHostExecutionSpace::memory_space>
-  karray1dc_row;
-typedef Kokkos::View<Kokkos::complex<double>**,
-                     Kokkos::LayoutLeft,
-                     Kokkos::DefaultHostExecutionSpace::memory_space>
-  karray2dc_row;
-typedef Kokkos::View<Kokkos::complex<double>***,
-                     Kokkos::LayoutLeft,
-                     Kokkos::DefaultHostExecutionSpace::memory_space>
-  karray3dc_row;
-
 // atomic arrays
 typedef Kokkos::
   View<double*, Kokkos::LayoutLeft, Kokkos::MemoryTraits<Kokkos::Atomic>>
