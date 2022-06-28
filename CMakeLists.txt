@@ -1,4 +1,9 @@
-cmake_minimum_required(VERSION 3.16)
+if ("${CMAKE_CUDA_COMPILER}" MATCHES "clang")
+  cmake_minimum_required(VERSION = 3.18)
+else()
+  cmake_minimum_required(VERSION 3.16)
+endif()
+
 project(SYNERGIA2 LANGUAGES CXX C)
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.22.0") 
@@ -117,7 +122,6 @@ endif()
 # Follow official kokkos guidelines
 # https://github.com/kokkos/kokkos/wiki/Compiling#42-using-general-cmake-build-system
 if (USE_EXTERNAL_KOKKOS)
-  cmake_minimum_required(VERSION 3.20)
   find_package(Kokkos REQUIRED)
   message(STATUS "Using external installation of kokkos")
   set(kokkos_libs "Kokkos::kokkos")
