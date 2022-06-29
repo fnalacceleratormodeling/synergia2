@@ -1,4 +1,4 @@
-if((NOT ${USE_EXTERNAL_KOKKOS}) AND (DEFINED ${Kokkos_ENABLE_CUDA}))
+if((NOT ${USE_EXTERNAL_KOKKOS}) AND ("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA"))
     # We are using nvcc-wrapper, need to set these flags for now.	
     set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS --host-only)
     set_source_files_properties(diagnostics_full2_host.cc PROPERTIES COMPILE_FLAGS --host-only)
@@ -28,6 +28,7 @@ target_link_libraries(synergia_bunch
     synergia_foundation 
     synergia_serialization 
     ${kokkos_libs}
+    OpenMP::OpenMP_CXX
     )
 
 target_link_options(synergia_bunch

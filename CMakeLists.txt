@@ -40,6 +40,34 @@ set(SYNERGIA_MAJOR_VERSION 3)
 set(SYNERGIA_MINOR_VERSION 1)
 set(SYNERGIA_SUBMINOR_VERSION 00)
 
+# Make sure we know which Kokkos back end we're using.
+# If none is specified on the command line, the default is OpenMP.
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "")
+  set(ENABLE_KOKKOS_BACKEND OpenMP)
+  message(STATUS "Using default Kokkos back end")
+endif()
+
+# Make sure the ENABLE_KOKKOS_BACKEND is set to one of the allowed
+# values, and nothing else.
+if((NOT "${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA") AND
+   (NOT "${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP"))
+   message(FATAL_ERROR "ENABLE_KOKKOS_BACKEND must be one of CUDA or OpenMP")
+else()
+   message(STATUS "ENABLE_KOKKKOS_BACKEND is ${ENABLE_KOKKOS_BACKEND}")
+endif()
+
+# Set preprocessor flags we require
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
+  set(Kokkos_ENABLE_OPENMP On)
+  add_compile_definitions(KOKKOS_ENABLE_OPENMP=1)
+endif()
+
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
+  set(Kokkos_ENABLE_CUDA On)
+  add_compile_definitions(KOKKOS_ENABLE_CUDA=1)  
+endif()
+
+
 # Set up to assure fully-linked libraries.
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # using Clang
@@ -85,8 +113,6 @@ option(SIMPLE_TIMER "use the simple timer 2 profiling" OFF)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" ON)
 option(ALLOW_PADDING "add paddings to the particle array for memory alignment" OFF)
 option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" OFF)
-option(ENABLE_OPENMP "enable kokkos openmp backend" OFF)
-option(ENABLE_CUDA "enable kokkos CUDA backend" OFF)
 option(USE_EXTERNAL_CEREAL "Use external build of cereal" OFF)
 option(USE_EXTERNAL_PYBIND11 "Use external build of pybind11, only applicable when building python bindings" OFF)
 option(BUILD_EXAMPLES "build examples" ON)
@@ -125,22 +151,12 @@ if (USE_EXTERNAL_KOKKOS)
   find_package(Kokkos REQUIRED)
   message(STATUS "Using external installation of kokkos")
   set(kokkos_libs "Kokkos::kokkos")
-  if(${Kokkos_ENABLE_CUDA})
+  if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
     project(SYNERGIA2 LANGUAGES CXX C CUDA)
   endif()
 else ()
   message(STATUS "Using vendored copy of kokkos")
-  # if no backend has been selected, default to OpenMP
-  if((NOT ${ENABLE_CUDA}) AND (NOT ${ENABLE_OPENMP}))
-    message(STATUS "Command line option for kokkos backend not specified; Defaulting to OpenMP")
-    set(ENABLE_OPENMP ON)
-  endif()
-  if(${ENABLE_OPENMP})
-    set(Kokkos_ENABLE_OPENMP ON CACHE BOOL ON FORCE)
-    message(STATUS "Using vendored copy of kokkos with OpenMP")
-  endif()
-  if(${ENABLE_CUDA})
-    set(Kokkos_ENABLE_CUDA ON CACHE BOOL ON FORCE)
+  if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
     set(CMAKE_CXX_COMPILER "${CMAKE_SOURCE_DIR}/src/synergia/utils/kokkos/bin/nvcc_wrapper")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -expt-relaxed-constexpr")
     message(STATUS "Using vendored copy of kokkos with CUDA")
@@ -155,20 +171,12 @@ if((Kokkos_VERSION_MAJOR LESS 3) OR  (Kokkos_VERSION_MINOR LESS 6))
   message(FATAL_ERROR "Need at least Kokkos 3.6.00!")
 endif()
 
-# Ensure that both CUDA & OpenMP are not enabled simultanously!
-if((${Kokkos_ENABLE_CUDA} STREQUAL ON) AND (${Kokkos_ENABLE_OPENMP} STREQUAL ON))
-  message(FATAL_ERROR "Synergia2 currently requires that only one of \
-  CUDA/OpenMP backends be enabled for kokkos, please reconfigure!")
-endif()
-
 # We still use OpenMP directly, so just add those flags for host-only
 # build at this stage
-if(${Kokkos_ENABLE_OPENMP})
-    FIND_PACKAGE(OpenMP)
-    if (OPENMP_FOUND)
-        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    endif ()
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
+  find_package(OpenMP REQUIRED)
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
 # HDF5
@@ -206,7 +214,7 @@ endif()
 # cereal
 if(USE_EXTERNAL_CEREAL)
     find_package(cereal REQUIRED)
-    message(STATUS "Using external cereal")
+    message(STATUS "Using external cereal with cmake configuration from ${cereal_DIR}")
 else()
     message(STATUS "Fetching cereal")
     Include(FetchContent)
@@ -216,10 +224,10 @@ else()
     set(JUST_INSTALL_CEREAL ON)
     set(CEREAL_INSTALL ON)
     FetchContent_Declare(
-	cereal
-	GIT_REPOSITORY https://github.com/USCiLab/cereal.git
-	GIT_TAG        v1.3.2
-	)
+      cereal
+      GIT_REPOSITORY https://github.com/USCiLab/cereal.git
+      GIT_TAG        v1.3.2
+     )
     FetchContent_MakeAvailable(cereal)
 endif()
 
@@ -274,11 +282,7 @@ endif()
 # simple timer
 if(SIMPLE_TIMER)
     message(STATUS "Simple timer 2 profiling enabled")
-    add_definitions(-DSIMPLE_TIMER)
-    if (SIMPLE_TIMER_BARRIER)
-        message(STATUS "Simple timer 2 MPI_Barrier enabled")
-        add_definitions(-DSIMPLE_TIMER_BARRIER)
-    endif()
+    add_compile_definitions(SIMPLE_TIMER=1)
 endif()
 
 # allow padding
