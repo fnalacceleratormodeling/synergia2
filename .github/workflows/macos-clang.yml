@@ -68,7 +68,7 @@ jobs:
       run: |
         source ${{github.workspace}}/synergia-env/bin/activate
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-         -DKokkos_ENABLE_OPENMP=on -DBUILD_PYTHON_BINDINGS=on -DBUILD_EXAMPLES=off -GNinja
+         -DENABLE_KOKKOS_BACKEND=OpenMP -DBUILD_PYTHON_BINDINGS=on -DBUILD_EXAMPLES=off -GNinja
 
     - name: Build
       # Build your program with the given configuration
