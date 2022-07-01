@@ -6,7 +6,7 @@
 #include <synergia/foundation/trigon_traits.h>
 
 // no simd when build for CUDA
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
 #undef GSV_SSE
 #undef GSV_AVX
 #undef GSV_V4D

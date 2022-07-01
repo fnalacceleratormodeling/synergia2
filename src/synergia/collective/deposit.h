@@ -37,7 +37,7 @@ deposit_charge_rectangular_3d_kokkos_scatter_view_xyz(
         std::array<int, 3> const& dims,
         Bunch const& bunch );
 
-#ifdef KOKKOS_ENABLE_OPENMP
+#ifdef SYNERGIA_ENABLE_OPENMP
 void
 deposit_charge_rectangular_2d_omp_reduce(
         karray1d_dev & rho_dev,

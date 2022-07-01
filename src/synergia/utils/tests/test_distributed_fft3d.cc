@@ -82,7 +82,7 @@ TEST_CASE("transform_roundtrip")
     // subgroups of size 1
     auto comm_world = std::make_shared<Commxx>(Commxx::World);
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
     int subgroup_size = 1;
 #else
     int subgroup_size = Commxx::world_size();
@@ -144,7 +144,7 @@ TEST_CASE("transform_realtest")
     // subgroups of size 1
     auto comm_world = std::make_shared<Commxx>(Commxx::World);
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
     int subgroup_size = 1;
 #else
     int subgroup_size = Commxx::world_size();

@@ -83,7 +83,7 @@ public:
   virtual void inv_transform(karray1d_dev& in, karray1d_dev& out) = 0;
 };
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
 #include "synergia/utils/distributed_fft3d_rect_cuda.h"
 #else
 #include "synergia/utils/distributed_fft3d_rect_fftw.h"

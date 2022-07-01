@@ -41,7 +41,7 @@ populate_6d_stationary_clipped_longitudinal_gaussian(
   double cdt_max,
   NormalForm<order> const& nf)
 {
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
 
   // no implementation
 
@@ -89,7 +89,7 @@ populate_6d_stationary_clipped_longitudinal_gaussian(
 
   bunch.checkin_particles();
 
-#endif // KOKKOS_ENABLE_CUDA
+#endif // SYNERGIA_ENABLE_CUDA
 }
 
 #endif /* POPULATE_STATIONARY_H_ */

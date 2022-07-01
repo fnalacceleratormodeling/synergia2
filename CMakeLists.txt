@@ -53,20 +53,21 @@ if((NOT "${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA") AND
    (NOT "${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP"))
    message(FATAL_ERROR "ENABLE_KOKKOS_BACKEND must be one of CUDA or OpenMP")
 else()
-   message(STATUS "ENABLE_KOKKKOS_BACKEND is ${ENABLE_KOKKOS_BACKEND}")
+   message(STATUS "ENABLE_KOKKOS_BACKEND is ${ENABLE_KOKKOS_BACKEND}")
 endif()
+
+message(STATUS "ENABLE_KOKKOS_BACKEND is ${ENABLE_KOKKOS_BACKEND}")
 
 # Set preprocessor flags we require
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
-  set(Kokkos_ENABLE_OPENMP On)
-  add_compile_definitions(KOKKOS_ENABLE_OPENMP=1)
+  message(STATUS "Adding SYNERGIA_ENABLE_OPENMP to compiler definiions")
+  add_compile_definitions(SYNERGIA_ENABLE_OPENMP=1)
 endif()
 
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
-  set(Kokkos_ENABLE_CUDA On)
-  add_compile_definitions(KOKKOS_ENABLE_CUDA=1)  
+  message(STATUS "Adding SYNERGIA_ENABLE_CUDA to compiler definiions")
+  add_compile_definitions(SYNERGIA_ENABLE_CUDA=1)  
 endif()
-
 
 # Set up to assure fully-linked libraries.
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -131,7 +132,7 @@ set(MPI_CXX_SKIP_MPICXX TRUE CACHE BOOL "disable the MPI2-C++ bindings")
 set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
 find_package(MPI REQUIRED COMPONENTS C CXX) # CXX means we need to call C-APIs in C++ code
 list(APPEND extra_includes ${MPI_C_INCLUDE_DIRS})
-set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS ${MPI_CXX_COMPILE_DEFINITIONS})
+add_compile_definitions(${MPI_CXX_COMPILE_DEFINITIONS})
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
 
 # mpi oversubscribe
