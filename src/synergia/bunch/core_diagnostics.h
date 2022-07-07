@@ -19,6 +19,8 @@ struct Core_diagnostics {
   static karray1d calculate_min(Bunch const& bunch);
 
   static karray1d calculate_max(Bunch const& bunch);
+
+  static karray1d calculate_spatial_mean_stddev(Bunch const& bunch);
 };
 
 #endif /* CORE_DIAGNOSTICS_H_ */

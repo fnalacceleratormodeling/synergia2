@@ -360,3 +360,66 @@ Core_diagnostics::calculate_max(Bunch const& bunch)
 
   return max;
 }
+
+karray1d
+Core_diagnostics::calculate_spatial_mean_stddev(Bunch const& bunch)
+{
+
+  const auto particles = bunch.get_local_particles();
+  const auto masks = bunch.get_local_particle_masks();
+
+  const auto total_bunch_particles = bunch.get_total_num();
+  const auto local_bunch_capacity = bunch.size();
+
+  karray1d mean_and_stddev("mean_stddev", 6);
+
+  {
+    auto instances = Kokkos::Experimental::partition_space(
+      Kokkos::DefaultExecutionSpace(), 1, 1, 1);
+    for (int instance_id = 0; instance_id < 3; instance_id++) {
+      int idx1 = 0 + instance_id;
+      int idx2 = 3 + instance_id;
+      int idx3 = 2 * instance_id;
+      Kokkos::parallel_reduce(
+        "position_sum",
+        Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(
+          instances[instance_id], 0, local_bunch_capacity),
+        KOKKOS_LAMBDA(const int& i, double& sum_pos) {
+          if (masks(i)) { sum_pos += particles(i, idx3); }
+        },
+        mean_and_stddev[idx1]);
+      Kokkos::parallel_reduce(
+        "position_sumsquares",
+        Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(
+          instances[instance_id], 0, local_bunch_capacity),
+        KOKKOS_LAMBDA(const int& i, double& sum_squarepos) {
+          if (masks(i)) {
+            sum_squarepos += particles(i, idx3) * particles(i, idx3);
+          }
+        },
+        mean_and_stddev[idx2]);
+    }
+    for (int instance_id = 0; instance_id < 3; instance_id++) {
+      instances[instance_id].fence();
+    }
+  }
+
+  if (MPI_Allreduce(MPI_IN_PLACE,
+                    mean_and_stddev.data(),
+                    6,
+                    MPI_DOUBLE,
+                    MPI_SUM,
+                    bunch.get_comm()) != MPI_SUCCESS) {
+    std::runtime_error("MPI_Allreduce error");
+  }
+
+  /* mean_and_stddev has sum_and_sumsquares on each MPI rank */
+  for (int j = 0; j < 3; j++) {
+    mean_and_stddev[j] = mean_and_stddev[j] / total_bunch_particles;
+    mean_and_stddev[j + 3] =
+      std::sqrt((mean_and_stddev[j + 3]) / total_bunch_particles -
+                std::pow(mean_and_stddev[j], 2));
+  }
+
+  return mean_and_stddev;
+}
