@@ -37,6 +37,7 @@ jobs:
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) \
+          -DENABLE_KOKKOS_BACKEND=OpenMP \
           -DUSE_EXTERNAL_KOKKOS=off -GNinja
 
     - name: build

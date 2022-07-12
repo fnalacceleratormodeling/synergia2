@@ -19,7 +19,7 @@ target_link_options(synergia_foundation
 
 if (BUILD_PYTHON_BINDINGS)
     pybind11_add_module(foundation MODULE NO_EXTRAS foundation_pywrap.cc)
-    target_link_libraries(foundation PRIVATE synergia_foundation)
+    target_link_libraries(foundation PRIVATE synergia_foundation OpenMP::OpenMP_CXX)
 
     copy_file(__init__.py foundation)
 endif ()

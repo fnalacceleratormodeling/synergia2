@@ -1,5 +1,5 @@
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
 
 // no implementations for CUDA arch
 

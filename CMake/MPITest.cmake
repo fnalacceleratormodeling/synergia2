@@ -1,6 +1,6 @@
 macro(add_mpi_test tname np)
 
-    if (${Kokkos_ENABLE_OPENMP})
+    if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
         add_test(NAME ${tname}_${np}
             COMMAND ${CMAKE_COMMAND} -E env 
                 OMP_NUM_THREADS=1

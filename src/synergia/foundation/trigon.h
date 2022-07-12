@@ -36,7 +36,7 @@ struct Array_hash;
 template <typename T, unsigned int P, unsigned int D>
 struct is_trigon<Trigon<T, P, D>>;
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
 #define HOST_DEVICE __host__ __device__
 #else
 #define HOST_DEVICE
@@ -211,7 +211,7 @@ public:
   HOST_DEVICE Trigon<T, P, Dim> compose(
     TMapping<Trigon<T, P, Dim>> const& x) const;
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
   syn::dummy_json to_json() const;
 #else
   syn::json to_json() const;
@@ -993,7 +993,7 @@ Trigon<T, Power, Dim>::compose(TMapping<Trigon<T, P, Dim>> const& x) const
   return val;
 };
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
 template <typename T, unsigned int Power, unsigned int Dim>
 inline syn::dummy_json
 Trigon<T, Power, Dim>::to_json() const
@@ -1372,7 +1372,7 @@ public:
     return os;
   }
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
 
   syn::dummy_json
   to_json() const
@@ -2129,7 +2129,7 @@ struct TMapping {
     return ret;
   }
 
-#ifdef KOKKOS_ENABLE_CUDA
+#ifdef SYNERGIA_ENABLE_CUDA
   syn::dummy_json
   to_json() const
   {

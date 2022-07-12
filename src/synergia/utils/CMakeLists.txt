@@ -55,7 +55,7 @@ if (BUILD_PYTHON_BINDINGS)
             DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 endif ()
 
-if(${Kokkos_ENABLE_CUDA})
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
     find_package(CUDAToolkit REQUIRED)
     set(FFT_SRC
         distributed_fft2d_cuda.cc

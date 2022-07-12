@@ -5,6 +5,8 @@
 
 #include <Kokkos_ScatterView.hpp>
 
+#include <omp.h>
+
 namespace deposit_impl {
   using scatter_t =
     Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft>;
@@ -688,7 +690,7 @@ deposit_charge_rectangular_3d_kokkos_scatter_view_xyz(
   Kokkos::fence();
 }
 
-#ifdef KOKKOS_ENABLE_OPENMP
+#ifdef SYNERGIA_ENABLE_OPENMP
 void
 deposit_charge_rectangular_2d_omp_reduce(karray1d_dev& rho_dev,
                                          Rectangular_grid_domain& domain,
@@ -1200,4 +1202,4 @@ deposit_charge_rectangular_3d_omp_reduce_xyz(karray1d_dev& rho_dev,
 
   } //  end of #pragma parallel
 }
-#endif // KOKKOS_ENABLE_OPENMP
+#endif // SYNERGIA_ENABLE_OPENMP

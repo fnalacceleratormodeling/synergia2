@@ -475,7 +475,7 @@ Space_charge_rectangular::get_local_charge_density(Bunch const& bunch)
   // g[2] = Distributed_fft3d::get_padded_shape_real(g[2]);
   // g[2] = (g[2]/2+1)*2;
 
-#ifdef KOKKOS_ENABLE_OPENMP
+#ifdef SYNERGIA_ENABLE_OPENMP
   deposit_charge_rectangular_3d_omp_reduce_xyz(rho, domain, g, bunch);
 #else
   deposit_charge_rectangular_3d_kokkos_scatter_view_xyz(rho, domain, g, bunch);
