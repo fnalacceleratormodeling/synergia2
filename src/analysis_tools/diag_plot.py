@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import sys
 from matplotlib import pyplot
-from synergia.utils import Hdf5_file
+#from synergia.utils import Hdf5_file
+import h5py
 
 def get_layout(num):
     if num == 1:
@@ -47,8 +48,8 @@ coords['zp'] = 5
 
 def generate_plotparams():
     plotparams = {}
-    for label in coords.keys():
-        for label2 in coords.keys():
+    for label in list(coords.keys()):
+        for label2 in list(coords.keys()):
             if coords[label2] > coords[label]:
                 corr = label + '_' + label2 + '_corr'
                 plotparams[corr] = Params(corr, 'corr',
@@ -83,20 +84,20 @@ def do_error(message):
     sys.exit(1)
 
 def do_help(plotparams):
-    print "usage: syndiagplot <filename> [option1] ... [optionn] <plot1> ... <plotn>"
-    print "available options are:"
-    print "    --userep: use repetition instead of s for independent variable"
-    print "    --oneplot : put all plots on the same axis (not on by default)"
-    print "    --nolegend : suppress legends (not on by default)"
-    print "    --output=<file> : save output to file (not on by default)"
-    print "    --show : show plots on screen (on by default unless --output flag is present"
-    print "available plots are:"
-    print "   ",
-    plots = plotparams.keys()
+    print("usage: syndiagplot <filename> [option1] ... [optionn] <plot1> ... <plotn>")
+    print("available options are:")
+    print("    --userep: use repetition instead of s for independent variable")
+    print("    --oneplot : put all plots on the same axis (not on by default)")
+    print("    --nolegend : suppress legends (not on by default)")
+    print("    --output=<file> : save output to file (not on by default)")
+    print("    --show : show plots on screen (on by default unless --output flag is present")
+    print("available plots are:")
+    print("   ", end=' ')
+    plots = list(plotparams.keys())
     plots.sort()
     for plot in plots:
-        print plot,
-    print
+        print(plot, end=' ')
+    print()
     sys.exit(0)
 
 def handle_args(args, plotparams):
@@ -124,51 +125,39 @@ def handle_args(args, plotparams):
             else:
                 do_error('Unknown argument "%s"' % arg)
         else:
-            if arg in plotparams.keys():
+            if arg in list(plotparams.keys()):
                 options.plots.append(arg)
             else:
                 do_error('Unknown plot "%s"' % arg)
     return options
 
 def hdf5_read_any(hdf5_file, member):
-    try:
-        the_type = hdf5_file.get_atomic_type(member)
-    except:
+    if member not in hdf5_file.keys():
         sys.stderr.write('syndiagplot: data member "%s" not found in Hdf5 file\n'
                         % member)
         sys.exit(1)
 
-    dims = hdf5_file.get_dims(member)
-    if the_type == Hdf5_file.double_type:
-        if len(dims) == 0:
-            return hdf5_file.read_double(member)
-        elif len(dims) == 1:
-            return hdf5_file.read_array1d(member)
-        elif len(dims) == 2:
-            return hdf5_file.read_array2d(member)
-        elif len(dims) == 3:
-            return hdf5_file.read_array3d(member)
-    elif the_type == Hdf5_file.int_type:
-        if len(dims) == 0:
-            return hdf5_file.read_int(member)
-        elif len(dims) == 1:
-            return hdf5_file.read_array1i(member)
+    #dims = hdf5_file.get_dims(member)
+    datavalue = hdf5_file.get(member)[()]
+    dims = datavalue.shape
+    return datavalue.value
 
 def do_plot(inputfile, options, plotparams, multiple_files):
-    f = Hdf5_file(inputfile, Hdf5_file.read_only)
+    f = h5py.File(inputfile, 'r')
     rows, cols = get_layout(len(options.plots))
     plot_index = 1
     y_label = ""
     for plot in options.plots:
         params = plotparams[plot]
-        x = hdf5_read_any(f, options.ind_var)
-        ymaster = hdf5_read_any(f, params.y_attr)
+        #x = hdf5_read_any(f, options.ind_var)
+        x = f.get(options.ind_var)[()]
+        ymaster = f.get(params.y_attr)[()]
         if (params.y_index1 == None) and (params.y_index2 == None):
             y = ymaster
         elif (params.y_index2 == None):
-            y = ymaster[params.y_index1, :]
+            y = ymaster[:, params.y_index1]
         else:
-            y = ymaster[params.y_index1, params.y_index2, :]
+            y = ymaster[:, params.y_index1, params.y_index2]
         if not options.oneplot:
             pyplot.subplot(rows, cols, plot_index)
         extra_label = None
