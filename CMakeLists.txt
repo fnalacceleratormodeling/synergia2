@@ -62,11 +62,15 @@ message(STATUS "ENABLE_KOKKOS_BACKEND is ${ENABLE_KOKKOS_BACKEND}")
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
   message(STATUS "Adding SYNERGIA_ENABLE_OPENMP to compiler definiions")
   add_compile_definitions(SYNERGIA_ENABLE_OPENMP=1)
+  set(Kokkos_ENABLE_CUDA Off CACHE BOOL "If true-ish use CUDA backend for Kokkos" FORCE)    
+  set(Kokkos_ENABLE_OPENMP On CACHE BOOL "If true-ish use OpenMP backend for Kokkos" FORCE)
 endif()
 
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
   message(STATUS "Adding SYNERGIA_ENABLE_CUDA to compiler definiions")
-  add_compile_definitions(SYNERGIA_ENABLE_CUDA=1)  
+  add_compile_definitions(SYNERGIA_ENABLE_CUDA=1)
+  set(Kokkos_ENABLE_CUDA On CACHE BOOL "If true-ish use CUDA backend for Kokkos" FORCE)
+  set(Kokkos_ENABLE_OPENMP Off CACHE BOOL "If true-ish use OpenMP backend for Kokkos" FORCE)    
 endif()
 
 # Set up to assure fully-linked libraries.
