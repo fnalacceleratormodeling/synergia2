@@ -718,27 +718,30 @@ Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
   // do nothing for fixed domain
   if (options.domain_fixed) return;
 
-  auto mean = Core_diagnostics::calculate_mean(bunch);
-  auto std = Core_diagnostics::calculate_std(bunch, mean);
+  auto spatial_mean_stddev =
+    Core_diagnostics::calculate_spatial_mean_stddev(bunch);
+  auto mean_x = spatial_mean_stddev(0);
+  auto mean_y = spatial_mean_stddev(1);
+  auto mean_z = spatial_mean_stddev(2);
+  auto stddev_x = spatial_mean_stddev(3);
+  auto stddev_y = spatial_mean_stddev(4);
+  auto stddev_z = spatial_mean_stddev(5);
 
   const double tiny = 1.0e-10;
 
-  const auto ix = Bunch::x;
-  const auto iy = Bunch::y;
-  const auto iz = Bunch::z;
-
-  if ((std[ix] < tiny) && (std[iy] < tiny) && (std[iz] < tiny)) {
+  if ((stddev_x < tiny) && (stddev_y < tiny) && (stddev_z < tiny)) {
     throw std::runtime_error(
       "Space_charge_3d_open_hockney_eigen::update_domain: "
       "all three spatial dimensions have neglible extent");
   }
 
-  std::array<double, 3> offset{mean[ix], mean[iy], mean[iz]};
+  std::array<double, 3> offset{mean_x, mean_y, mean_z};
 
   std::array<double, 3> size{
-    options.n_sigma * get_smallest_non_tiny(std[0], std[2], std[4], tiny),
-    options.n_sigma * get_smallest_non_tiny(std[2], std[0], std[4], tiny),
-    options.n_sigma * get_smallest_non_tiny(std[4], std[0], std[2], tiny)};
+    options.n_sigma * get_smallest_non_tiny(stddev_x, stddev_y, stddev_z, tiny),
+    options.n_sigma * get_smallest_non_tiny(stddev_y, stddev_x, stddev_z, tiny),
+    options.n_sigma *
+      get_smallest_non_tiny(stddev_z, stddev_x, stddev_y, tiny)};
 
   if (options.grid_entire_period) {
     offset[2] = 0.0;
