@@ -45,6 +45,7 @@ d1 : o, at=0.0;
 endsequence;
 """
 
+
     reader = synergia.lattice.MadX_reader()
     reader.parse(fodo_madx)
     lattice = reader.get_lattice('fodo')
@@ -126,7 +127,6 @@ def run():
     lattice = get_lattice()
     print('Read lattice, length: ', lattice.get_length(), ', ', len(lattice.get_elements()), ' elements', file=screen)
     
-
     # find the aperture screen
     ap = None
     for elem in lattice.get_elements():
