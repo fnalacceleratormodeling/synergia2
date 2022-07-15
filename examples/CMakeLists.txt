@@ -8,4 +8,5 @@ add_subdirectory(fodo_cxx)
 add_subdirectory(foborodobo32)
 add_subdirectory(mi)
 add_subdirectory(lattice_functions)
+add_subdirectory(aperture_demo)
 
