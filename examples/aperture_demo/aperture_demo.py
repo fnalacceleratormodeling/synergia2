@@ -199,7 +199,7 @@ def run():
 
     # logger
     simlog = synergia.utils.parallel_utils.Logger(0, 
-            synergia.utils.parallel_utils.LoggerV.INFO_TURN)
+            synergia.utils.parallel_utils.LoggerV.DINFO)
             #synergia.utils.parallel_utils.LoggerV.INFO)
             #synergia.utils.parallel_utils.LoggerV.INFO_STEP)
 
