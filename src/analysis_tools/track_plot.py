@@ -116,7 +116,10 @@ def get_particle_coords(h5, options):
             print("using default track index 0")
             indices = [0]
     mass = h5.get('mass')[()]
-    p_ref = h5.get("pz")[()].reshape((nturns, 1))
+    if len(h5.get("pz").shape) == 0:
+    	p_ref = numpy.full((nturns,1), h5.get("pz")[()])
+    else:
+        p_ref = h5.get("pz")[()].reshape((nturns, 1))
     for index in indices:
         #pz = p_ref * (1.0 + all_coords[:, index, 5])
         dpop = all_coords[:, index, 5].reshape((nturns,1))
@@ -136,7 +139,7 @@ def do_plots(options):
         plot_index = 1
         for coord in options.coords:
             #x = f.read_array1d("s")
-            x = h5.get("s")[()]
+            x = h5.get("track_s")[()]
             y = particle_coords[:,coords[coord]][()]
             if not options.oneplot:
                 pyplot.subplot(rows, cols, plot_index)
