@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import sys
-from synergia.utils import Hdf5_file
+#from synergia.utils import Hdf5_file
 import numpy
 from matplotlib import pyplot
+import h5py
 
 def plot2d(x, y, options, trk):
     if options.legend:
@@ -39,21 +40,21 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synpoincareplot <filename1> ... <filenamen> [option1] ... [optionn] <h coord> <v coord>"
-    print "available options are:"
-    print "    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)"
-    print "    --pointsize=<float>: size of plotted points (default=4.0)"
-    print "    --output=<file> : save output to file (not on by default)"
-    print "    --legend : give legend for each particle number in plot"
+    print("usage: synpoincareplot <filename1> ... <filenamen> [option1] ... [optionn] <h coord> <v coord>")
+    print("available options are:")
+    print("    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)")
+    print("    --pointsize=<float>: size of plotted points (default=4.0)")
+    print("    --output=<file> : save output to file (not on by default)")
+    print("    --legend : give legend for each particle number in plot")
 
-    print "    --show : show plots on screen (on by default unless --output flag is present"
-    print "available coords are:"
-    print "   ",
-    coord_keys = coords.keys()
+    print("    --show : show plots on screen (on by default unless --output flag is present")
+    print("available coords are:")
+    print("   ", end=' ')
+    coord_keys = list(coords.keys())
     coord_keys.sort()
     for coord in coord_keys:
-        print coord,
-    print
+        print(coord, end=' ')
+    print()
     sys.exit(0)
 
 def handle_args(args):
@@ -85,41 +86,52 @@ def handle_args(args):
             options.inputfiles.append(arg)
     options.coords = args[first_coord:]
     for coord in options.coords:
-        if not coord in coords.keys():
+        if not coord in list(coords.keys()):
             do_error('Unknown coord "%s"' % coord)
     if options.indices == []:
         options.indices = [0]
     return options
 
 def single_plot(options, particle_coords, trk):
-    x = particle_coords[coords[options.coords[0]], :]
-    y = particle_coords[coords[options.coords[1]], :]
+    x = particle_coords[:, coords[options.coords[0]]]
+    y = particle_coords[:, coords[options.coords[1]]]
     plot2d(x, y, options, trk)
 
 def do_plots(options):
     pyplot.figure().canvas.set_window_title('Synergia Poincare Plot')
     for filename in options.inputfiles:
-        f = Hdf5_file(filename, Hdf5_file.read_only)
-        if "coords" in f.get_member_names():
-            particle_coords = f.read_array2d("coords")
+        #f = Hdf5_file(filename, Hdf5_file.read_only)
+        f = h5py.File(filename, 'r')
+        if "coords" in f.keys():
+            particle_coords = f.get("coords")
             f.close()
             single_plot(options, particle_coords, 0)
-        elif "track_coords" in f.get_member_names():
-            track_coords = f.read_array3d("track_coords")
-            mass = f.read_double('mass')
-            p_ref = f.read_array1d('pz')
+        elif "track_coords" in f.keys():
+            track_coords = f.get("track_coords")[()]
+            #print('track_coords.shape: ', track_coords.shape)
+            nturns = track_coords.shape[0]
+            ntracks = track_coords.shape[1]
+            mass = f.get('mass')[()]
+            p_ref = f.get('pz')[()]
+            #print("p_ref.shape: ", p_ref.shape)
             f.close()
-            ntracks = track_coords.shape[0]
-            nturns = track_coords.shape[2]
             for trk in options.indices:
-                particle_coords = track_coords[trk,0:6,:]
-                #print "particle_coords.shape: ", particle_coords.shape
-                pz = p_ref * (1.0 + track_coords[trk, 5, :]).reshape(1,nturns)
-                #print "pz.shape: ", pz.shape
-                energy = numpy.sqrt(pz*pz + mass**2).reshape(1,nturns)
-                #print "energy.shape: ", energy.shape
-                particle_coords = numpy.vstack((particle_coords,pz,energy))
-                #print "particle_coords.shape: ", particle_coords.shape
+                particle_coords = track_coords[:,trk,0:6]
+                nentries = particle_coords.shape[0]
+                #print("particle_coords.shape: ", particle_coords.shape)
+                #print("track_coords[:, trk, 5].shape: ", track_coords[:, trk, 5].shape)
+                #print("p_ref.shape: ", p_ref.shape)
+                pz = (p_ref * (1.0 + track_coords[:, trk, 5])).reshape(nentries,1)
+                #print("pz.shape: ", pz.shape)
+                energy = numpy.sqrt(pz*pz + mass**2).reshape(nentries,1)
+                #print("energy.shape: ", energy.shape)
+                #print("particle_coords.shape: ", particle_coords.shape)
+                stackup = (particle_coords,pz,energy)
+                #print("what is being stacked")
+                #for a in stackup:
+                #    print(a.shape)
+                particle_coords = numpy.hstack(stackup)
+                #print("particle_coords.shape: ", particle_coords.shape)
                 single_plot(options, particle_coords, trk)
 
     pyplot.xlabel(options.coords[0])
