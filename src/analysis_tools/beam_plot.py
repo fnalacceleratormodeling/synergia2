@@ -161,6 +161,7 @@ def do_plots(options):
     h5 = h5py.File(options.inputfile, 'r')
     #f = Hdf5_file(options.inputfile, 'r')
     particles = h5.get('particles')
+    masks = h5.get('particles_masks')
     npart = particles.shape[0]
     mass = h5.get('mass')[()]
     p_ref = h5.get('pz')[()]
@@ -177,7 +178,7 @@ def do_plots(options):
     z = (particles[:,4]*beta).reshape(npart,1)
     particles = numpy.hstack((particles, pz, energy,time, z))
     
-    selected_particles = ((particles[:, coords[options.hcoord]] >= options.minh) *
+    selected_particles = ( (masks[:] != 0) * (particles[:, coords[options.hcoord]] >= options.minh) *
                        (particles[:, coords[options.hcoord]] < options.maxh) *
                        (particles[:, coords[options.vcoord]] >= options.minv) *
                        (particles[:, coords[options.vcoord]] < options.maxv))
