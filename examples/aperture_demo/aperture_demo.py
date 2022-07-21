@@ -45,7 +45,6 @@ d1 : o, at=0.0;
 endsequence;
 """
 
-
     reader = synergia.lattice.MadX_reader()
     reader.parse(fodo_madx)
     lattice = reader.get_lattice('fodo')
