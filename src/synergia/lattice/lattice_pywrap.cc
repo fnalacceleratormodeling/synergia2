@@ -96,6 +96,9 @@ PYBIND11_MODULE(lattice, m)
         .def( "get_length",
                 &Lattice_element::get_length )
 
+        .def( "get_bend_angle",
+                &Lattice_element::get_bend_angle )
+
         .def( "get_ancestors",
                 &Lattice_element::get_ancestors )
 
