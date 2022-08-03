@@ -7,6 +7,8 @@
 
 #include "synergia/utils/simple_timer.h"
 
+#include "synergia/utils/hdf5_file.h"
+
 using mconstants::pi;
 
 namespace {
@@ -211,23 +213,6 @@ namespace {
       else
         G = 1.0 / sqrt(dx * dx + dy * dy + dz * dz);
 
-#if 0
-            if (periodic_z)
-            {
-                for (int image = -num_images; image <= num_images; ++image)
-                {
-                    if (image != 0)
-                    {
-                        double dz_img = dz + image * z_period;
-                        const double tiny = 1.0e-9;
-
-                        if (ix==0 && iy==0 && (std::abs(dz_img) < tiny)) G+=G000;
-                        else G += 1.0/sqrt(dx*dx + dy*dy + dz_img*dz_img);
-                    }
-                }
-            }
-#endif
-
       int mix, miy, miz;
 
       mix = dgx - ix;
@@ -387,6 +372,12 @@ namespace {
       const int real = (off + i) * 2;
       const int imag = (off + i) * 2 + 1;
 
+      auto m1_real = m1[real];
+      auto m1_imag = m1[imag];
+
+      auto m2_real = m2[real];
+      auto m2_imag = m2[imag];
+
       prod[real] = m1[real] * m2[real] - m1[imag] * m2[imag];
       prod[imag] = m1[real] * m2[imag] + m1[imag] * m2[real];
     }
@@ -455,21 +446,6 @@ namespace {
       idy = ihy;
       idz = ihz;
 
-#if 0
-            // or, calculate the full domain
-            if (ix==0) { ixl = 0; ixr = 1; idx = ihx*2; }
-            else if (ix==gx-1) { ixl = gx-2; ixr = gx-1; idx = ihx; }
-            else { ixl = ix-1; ixr = ix+1; idx = ihx; }
-
-            if (iy==0) { iyl = 0; iyr = 1; idy = ihy*2; }
-            else if (iy==gy-1) { iyl = gy-2; iyr = gy-1; idy = ihy; }
-            else { iyl = iy-1; iyr = iy+1; idy = ihy; }
-
-            if (iz==0) { izl = 0; izr = 1; idz = ihz*2; }
-            else if (iz==gz-1) { izl = gz-2; izr = gz-1; idz = ihz; }
-            else { izl = iz-1; izr = iz+1; idz = ihz; }
-#endif
-
       int idx_r = iz * dgx * dgy + iy * dgx + ixr;
       int idx_l = iz * dgx * dgy + iy * dgx + ixl;
       enx(i) = -(phi2(idx_r) - phi2(idx_l)) * idx;
@@ -480,6 +456,8 @@ namespace {
 
       idx_r = izr * dgx * dgy + iy * dgx + ix;
       idx_l = izl * dgx * dgy + iy * dgx + ix;
+      auto val_right = phi2(idx_r) * 1.0;
+      auto val_left = phi2(idx_l) * 1.0;
       enz(i) = -(phi2(idx_r) - phi2(idx_l)) * idz;
     }
   };
@@ -663,10 +641,34 @@ Space_charge_3d_open_hockney::apply_bunch(Bunch& bunch,
   get_local_phi2(fft);
   get_global_phi2(fft);
 
+  {
+    Hdf5_file file("phi.h5", Hdf5_file::Flag::truncate, Commxx());
+    file.write("phi", h_phi2.data(), h_phi2.size(), true);
+  }
+
   auto fn_norm = get_normalization_force(fft);
 
   // force
   get_force();
+
+  {
+    std::string filename;
+
+    filename = "enx_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_x(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_x.write("enx", enx.data(), enx.size(), true);
+
+    filename = "eny_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_y(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_y.write("eny", eny.data(), eny.size(), true);
+
+    filename = "enz_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_z(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_z.write("enz", enz.data(), enz.size(), true);
+  }
 
   // kick
   apply_kick(bunch, fn_norm, time_step);
@@ -695,6 +697,10 @@ Space_charge_3d_open_hockney::construct_workspaces(Bunch_simulator const& sim)
   // local workspaces
   int nx_real = Distributed_fft3d::get_padded_shape_real(s[0]);
   int nx_cplx = Distributed_fft3d::get_padded_shape_cplx(s[0]);
+
+  std::cout << "shape of phi2/rho2/g2 is : "
+            << " x : " << nx_real << ", y : " << s[1] << ", z : " << s[2]
+            << "\n";
 
   // doubled domain
   rho2 = karray1d_dev("rho2", nx_real * s[1] * s[2]);
@@ -775,6 +781,11 @@ Space_charge_3d_open_hockney::set_fixed_domain(std::array<double, 3> offset,
     Rectangular_grid_domain(options.doubled_shape, doubled_size, offset, false);
 
   use_fixed_domain = true;
+
+  auto h = domain.get_cell_size();
+  std::cout << "hx is : " << h[0] << "\n";
+  std::cout << "hy is : " << h[1] << "\n";
+  std::cout << "hz is : " << h[2] << "\n";
 }
 
 void
@@ -796,7 +807,17 @@ void
 Space_charge_3d_open_hockney::get_global_charge_density(Bunch const& bunch)
 {
   // do nothing if the bunch occupis a single rank
-  if (bunch.get_comm().size() == 1) return;
+  if (bunch.get_comm().size() == 1) {
+    {
+      std::string filename;
+      filename = "rho_on_rank";
+      filename.append(".h5");
+      Hdf5_file file_g2(filename, Hdf5_file::Flag::truncate, Commxx());
+      file_g2.write("h_rho2", h_rho2.data(), h_rho2.size(), true);
+    }
+
+    return;
+  }
 
   scoped_simple_timer timer("sc3d_global_rho");
 
@@ -818,6 +839,14 @@ Space_charge_3d_open_hockney::get_global_charge_density(Bunch const& bunch)
   if (err != MPI_SUCCESS) {
     throw std::runtime_error("MPI error in Space_charge_3d_open_hockney"
                              "(MPI_Allreduce in get_global_charge_density)");
+  }
+
+  {
+    std::string filename;
+    filename = "rho_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_g2(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_g2.write("h_rho2", h_rho2.data(), h_rho2.size(), true);
   }
 
   simple_timer_start("sc3d_global_rho_copy");
@@ -885,6 +914,14 @@ Space_charge_3d_open_hockney::get_local_phi2(Distributed_fft3d& fft)
   // FFT
   fft.transform(rho2, rho2);
   Kokkos::fence();
+
+  {
+    std::string filename;
+    filename = "g2_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_g2(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_g2.write("g2", g2.data(), g2.size(), true);
+  }
 
   fft.transform(g2, g2);
   Kokkos::fence();
