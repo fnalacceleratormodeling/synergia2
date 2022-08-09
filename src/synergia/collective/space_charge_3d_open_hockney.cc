@@ -841,6 +841,10 @@ Space_charge_3d_open_hockney::get_global_charge_density(Bunch const& bunch)
                              "(MPI_Allreduce in get_global_charge_density)");
   }
 
+  simple_timer_start("sc3d_global_rho_copy");
+  Kokkos::deep_copy(rho2, h_rho2);
+  simple_timer_stop("sc3d_global_rho_copy");
+
   {
     std::string filename;
     filename = "rho_on_rank";
@@ -848,10 +852,6 @@ Space_charge_3d_open_hockney::get_global_charge_density(Bunch const& bunch)
     Hdf5_file file_g2(filename, Hdf5_file::Flag::truncate, Commxx());
     file_g2.write("h_rho2", h_rho2.data(), h_rho2.size(), true);
   }
-
-  simple_timer_start("sc3d_global_rho_copy");
-  Kokkos::deep_copy(rho2, h_rho2);
-  simple_timer_stop("sc3d_global_rho_copy");
 }
 
 void

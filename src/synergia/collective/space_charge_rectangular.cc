@@ -6,6 +6,8 @@
 
 #include "synergia/utils/simple_timer.h"
 
+#include "synergia/utils/hdf5_file.h"
+
 namespace {
   void
   print_grid(Logger& logger,
@@ -228,14 +230,20 @@ namespace {
 
       int idx_r = ixr * gy * gz + iy * gz + iz;
       int idx_l = ixl * gy * gz + iy * gz + iz;
+      auto val_left_x = phi(idx_l);
+      auto val_right_x = phi(idx_r);
       enx(i) = -(phi(idx_r) - phi(idx_l)) * idx;
 
       idx_r = ix * gy * gz + iyr * gz + iz;
       idx_l = ix * gy * gz + iyl * gz + iz;
+      auto val_left_y = phi(idx_l);
+      auto val_right_y = phi(idx_r);
       eny(i) = -(phi(idx_r) - phi(idx_l)) * idy;
 
       idx_r = ix * gy * gz + iy * gz + izr;
       idx_l = ix * gy * gz + iy * gz + izl;
+      auto val_left_z = phi(idx_l);
+      auto val_right_z = phi(idx_r);
       enz(i) = -(phi(idx_r) - phi(idx_l)) * idz;
     }
   };
@@ -413,9 +421,34 @@ Space_charge_rectangular::apply_bunch(Bunch& bunch,
   get_local_phi(fft, gamma);
   get_global_phi(fft);
 
+  {
+    Hdf5_file file("phi.h5", Hdf5_file::Flag::truncate, Commxx());
+    file.write("phi", h_phi.data(), h_phi.size(), true);
+  }
+
   auto fn_norm = get_normalization_force();
 
   extract_force();
+
+  {
+    std::string filename;
+
+    filename = "enx_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_x(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_x.write("enx", enx.data(), enx.size(), true);
+
+    filename = "eny_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_y(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_y.write("eny", eny.data(), eny.size(), true);
+
+    filename = "enz_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_z(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_z.write("enz", enz.data(), enz.size(), true);
+  }
+
   apply_kick(bunch, fn_norm, time_step);
 }
 
@@ -475,18 +508,28 @@ Space_charge_rectangular::get_local_charge_density(Bunch const& bunch)
   // g[2] = Distributed_fft3d::get_padded_shape_real(g[2]);
   // g[2] = (g[2]/2+1)*2;
 
-#ifdef KOKKOS_ENABLE_OPENMP
-  deposit_charge_rectangular_3d_omp_reduce_xyz(rho, domain, g, bunch);
-#else
+  //#ifdef KOKKOS_ENABLE_OPENMP
+  //  deposit_charge_rectangular_3d_omp_reduce_xyz(rho, domain, g, bunch);
+  //#else
   deposit_charge_rectangular_3d_kokkos_scatter_view_xyz(rho, domain, g, bunch);
-#endif
+  //#endif
 }
 
 void
 Space_charge_rectangular::get_global_charge_density(Bunch const& bunch)
 {
   // do nothing if the bunch occupis a single rank
-  if (bunch.get_comm().size() == 1) return;
+  if (bunch.get_comm().size() == 1) {
+    {
+      std::string filename;
+      filename = "rho_on_rank";
+      filename.append(".h5");
+      Hdf5_file file_g2(filename, Hdf5_file::Flag::truncate, Commxx());
+      file_g2.write("h_rho", h_rho.data(), h_rho.size(), true);
+    }
+
+    return;
+  }
 
   scoped_simple_timer timer("sc_rect_global_rho");
 
@@ -513,6 +556,14 @@ Space_charge_rectangular::get_global_charge_density(Bunch const& bunch)
   simple_timer_start("sc_rect_global_rho_copy");
   Kokkos::deep_copy(rho, h_rho);
   simple_timer_stop("sc_rect_global_rho_copy");
+
+  {
+    std::string filename;
+    filename = "rho_on_rank";
+    filename.append(".h5");
+    Hdf5_file file_g2(filename, Hdf5_file::Flag::truncate, Commxx());
+    file_g2.write("h_rho", h_rho.data(), h_rho.size(), true);
+  }
 }
 
 void

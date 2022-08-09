@@ -1,4 +1,4 @@
-#include "synergia/collective/space_charge_3d_open_hockney.h"
+#include "synergia/collective/space_charge_rectangular.h"
 #include "synergia/foundation/physical_constants.h"
 
 int
@@ -29,9 +29,9 @@ main(int argc, char* argv[])
     {
       bunch.checkout_particles();
       auto bunch_parts = bunch.get_host_particles();
-      bunch_parts.access(0, 0) = 2.03125;
-      bunch_parts.access(0, 2) = 2.03125;
-      bunch_parts.access(0, 4) = 2.03125;
+      bunch_parts.access(0, 0) = 0;
+      bunch_parts.access(0, 2) = 0;
+      bunch_parts.access(0, 4) = 0;
       // print intital coordinates
       logger << "before kick, particle at (x y z):" << '\n';
       for (int k = 0; k < 1; ++k) {
@@ -41,17 +41,13 @@ main(int argc, char* argv[])
       bunch.checkin_particles();
     }
 
-    auto sc_ops = Space_charge_3d_open_hockney_options(64, 64, 64);
+    auto sc_ops = Space_charge_rectangular_options(
+      std::array<int, 3>{17, 17, 17},
+      std::array<double, 3>{4, 4, 4 * 0.59999999999999998});
     sc_ops.comm_group_size = 1;
-    sc_ops.green_fn = green_fn_t::linear;
 
     // space charge operator
-    auto sc = Space_charge_3d_open_hockney(sc_ops);
-
-    // set domain
-    std::array<double, 3> offset = {2, 2, 2};
-    std::array<double, 3> size = {4, 4, 4};
-    sc.set_fixed_domain(offset, size);
+    auto sc = Space_charge_rectangular(sc_ops);
 
     // apply space charge operator
     sc.apply(bsim, 1e-6, simlogger);
