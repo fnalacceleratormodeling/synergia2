@@ -28,7 +28,6 @@ target_link_libraries(synergia_bunch
     synergia_foundation 
     synergia_serialization 
     ${kokkos_libs}
-    OpenMP::OpenMP_CXX
     )
 
 target_link_options(synergia_bunch
