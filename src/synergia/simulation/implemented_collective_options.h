@@ -16,6 +16,32 @@ enum class LongitudinalDistribution {
   uniform,
 };
 
+struct Space_charge_3d_fd_options {
+
+  std::array<int, 3> shape;
+  bool domain_fixed;
+  double n_sigma;
+  double kick_scale;
+  int comm_group_size;
+
+  Space_charge_3d_fd_options(int gridx = 32, int gridy = 32, int gridz = 64)
+    : shape{gridx, gridy, gridz}
+    , domain_fixed(false)
+    , n_sigma(8.0)
+    , kick_scale(1.0)
+    , comm_group_size(1)
+  {}
+
+  template <class Archive>
+  void
+  serialize(Archive& ar)
+  {
+    ar(shape);
+    ar(n_sigma);
+    ar(comm_group_size);
+  }
+};
+
 struct Space_charge_3d_open_hockney_options {
 
   std::array<int, 3> shape;

@@ -121,6 +121,17 @@ option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" OFF)
 option(USE_EXTERNAL_CEREAL "Use external build of cereal" OFF)
 option(USE_EXTERNAL_PYBIND11 "Use external build of pybind11, only applicable when building python bindings" OFF)
 option(BUILD_EXAMPLES "build examples" ON)
+option(BUILD_FD_SPACE_CHARGE_SOLVER "build the finite difference based space charge solver, requires PETSc & PkgConfig" ON)
+
+# PETSc
+if(${BUILD_FD_SPACE_CHARGE_SOLVER})
+  add_definitions(-DBUILD_FD_SPACE_CHARGE_SOLVER)
+  # set root of location to find PETSc's pkg-config
+  set(PETSC $ENV{PETSC_DIR}/$ENV{PETSC_ARCH})
+  set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig)
+  find_package(PkgConfig REQUIRED)
+  pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc)
+endif()
 
 # srun --mpi=SRUN_MPI_PMIX
 set(SRUN_MPI_PMIX "pmix_v3" CACHE STRING "PMI2/PMIx version to use with srun")
