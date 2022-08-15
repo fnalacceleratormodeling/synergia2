@@ -14,7 +14,9 @@ target_link_options(synergia_parallel_utils PRIVATE ${LINKER_OPTIONS})
 target_link_options(synergia_parallel_utils_static PRIVATE ${LINKER_OPTIONS})
 
 add_library(synergia_test_main STATIC catch_test_main.cc)
-target_link_libraries(synergia_test_main ${kokkos_libs} MPI::MPI_C)
+target_link_libraries(
+  synergia_test_main ${kokkos_libs} MPI::MPI_C
+  $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
 
 add_library(synergia_serialization cereal_files.cc)
 target_link_libraries(synergia_serialization synergia_parallel_utils)
