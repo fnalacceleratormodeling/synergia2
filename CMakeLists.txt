@@ -43,7 +43,7 @@ set(SYNERGIA_SUBMINOR_VERSION 00)
 # the command line, the default is OpenMP.
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "")
   set(ENABLE_KOKKOS_BACKEND OpenMP)
-  message(STATUS "Using default Kokkos back end")
+  message(STATUS "OpenMP backend for Kokkos is enabled.")
 endif()
 
 # Make sure the ENABLE_KOKKOS_BACKEND is set to one of the allowed values, and
@@ -54,8 +54,6 @@ if((NOT "${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
 else()
   message(STATUS "ENABLE_KOKKOS_BACKEND is ${ENABLE_KOKKOS_BACKEND}")
 endif()
-
-message(STATUS "ENABLE_KOKKOS_BACKEND is ${ENABLE_KOKKOS_BACKEND}")
 
 # Set preprocessor flags we require
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
@@ -104,7 +102,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # using Intel C++
   set(COMPILER_SPECIFIC_CXX_FLAGS "-Wno-error=unused-result")
   set(LINKER_OPTIONS "LINKER:-z,defs")
-  message(STATUS "Using Intel C++")
+  message(STATUS "Using classic Intel C++")
 else()
   message(
     WARNING
@@ -130,7 +128,7 @@ set(extra_includes)
 # options
 option(SIMPLE_TIMER "use the simple timer 2 profiling" OFF)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" ON)
-option(ALLOW_PADDING "add paddings to the particle array for memory alignment"
+option(ALLOW_PADDING "enable particle array padding for memory alignment"
        OFF)
 option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" OFF)
 option(USE_EXTERNAL_CEREAL "Use external build of cereal" OFF)
@@ -254,7 +252,6 @@ if(NOT ENABLE_CUDA)
     set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES}
                                 ${FFTW3_LIBRARIES})
   endif()
-
 endif()
 
 # cereal
@@ -317,7 +314,7 @@ if(BUILD_PYTHON_BINDINGS)
     FetchContent_Declare(
       pybind11
       GIT_REPOSITORY https://github.com/pybind/pybind11
-      GIT_TAG v2.9.2)
+      GIT_TAG v2.10.0)
     FetchContent_MakeAvailable(pybind11)
   endif()
 else(BUILD_PYTHON_BINDINGS)
@@ -379,7 +376,6 @@ if(NOT TARGET test-exes)
 endif()
 
 function(add_test_executable name)
-  # add_executable(${name} EXCLUDE_FROM_ALL ${ARGN})
   add_executable(${name} ${ARGN})
   add_dependencies(test-exes ${name})
 endfunction()
