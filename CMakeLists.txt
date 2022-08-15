@@ -120,7 +120,7 @@ set(first_boost_libraries ${Boost_LIBRARIES})
 set(first_boost_library_dirs ${Boost_LIBRARY_DIRS})
 
 if (USE_PYTHON_3)
-    set(pstem python3 python35 python36 python37 python38 python39)
+    set(pstem python3 python35 python36 python37 python38 python39 python310 python311 python312 python313 python314)
 else()
     set(pstem python python27)
 endif()
