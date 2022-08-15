@@ -24,7 +24,6 @@ copy_file(cfsbend_dipole_skew.seq test_madx_multipoles)
 copy_file(cfsbend_sext.seq test_madx_multipoles)
 copy_file(cfsbend_sext_skew.seq test_madx_multipoles)
 
-
 copy_file(madx_mpole_k1.out test_madx_multipoles)
 copy_file(madx_mpole_k1_tilt.out test_madx_multipoles)
 copy_file(madx_mpole_k1s.out test_madx_multipoles)
@@ -50,7 +49,6 @@ copy_file(madx_cfsbend_dipole_skew.out test_madx_multipoles)
 
 copy_file(madx_cfsbend_sext.out test_madx_multipoles)
 copy_file(madx_cfsbend_sext_skew.out test_madx_multipoles)
-
 
 copy_file(l_drift.seq test_madx_elements)
 copy_file(l_rfc.seq test_madx_elements)
@@ -83,4 +81,3 @@ copy_file(madx_kicker_long.out test_madx_elements)
 copy_file(madx_hkicker_long.out test_madx_elements)
 copy_file(madx_vkicker_long.out test_madx_elements)
 copy_file(madx_solenoid.out test_madx_elements)
-
