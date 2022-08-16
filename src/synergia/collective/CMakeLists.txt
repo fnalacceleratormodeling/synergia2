@@ -30,16 +30,17 @@ endif()
 
 install(TARGETS synergia_collective DESTINATION lib)
 install(
-  FILES deposit.h
-        rectangular_grid_domain.h
-        rectangular_grid.h
-        space_charge_3d_open_hockney.h
-        space_charge_2d_open_hockney.h
-        space_charge_2d_kv.h
-        $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:space_charge_3d_fd.h>
-        space_charge_rectangular.h
-        impedance.h
-        wake_field.h
+  FILES
+    deposit.h
+    rectangular_grid_domain.h
+    rectangular_grid.h
+    space_charge_3d_open_hockney.h
+    space_charge_2d_open_hockney.h
+    space_charge_2d_kv.h
+    $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:${CMAKE_CURRENT_SOURCE_DIR}/space_charge_3d_fd.h>
+    space_charge_rectangular.h
+    impedance.h
+    wake_field.h
   DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/collective)
 
 if(BUILD_PYTHON_BINDINGS)
