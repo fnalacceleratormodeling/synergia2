@@ -140,7 +140,7 @@ option(BUILD_EXAMPLES "build examples" ON)
 option(
   BUILD_FD_SPACE_CHARGE_SOLVER
   "build the finite difference based space charge solver, requires PETSc & PkgConfig"
-  ON)
+  OFF)
 
 # PETSc
 if(${BUILD_FD_SPACE_CHARGE_SOLVER})
