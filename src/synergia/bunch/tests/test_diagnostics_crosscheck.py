@@ -4,9 +4,11 @@ import numpy
 
 total_num = 9;
 particles = numpy.zeros([total_num, 6], 'd')
+s = -1
 for part in range(0, total_num):
     for i in range(0, 6):
-        particles[part, i] = 10.0 * part + (1.0 + part * part / 1000.0) * i
+        particles[part, i] = 10.0 * part + (1.0 + s*part * part / 1000.0) * i
+        s = -s
 
 f = open("test_diagnostics_get_mean.icc", "w")
 for i in range(0, 6):

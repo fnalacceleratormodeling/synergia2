@@ -20,10 +20,12 @@ const double partial_s = 123.4;
 void
 dummy_populate(Bunch &bunch)
 {
+    int s = -1;
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         for (int i = 0; i < 6; i += 1) {
             bunch.get_local_particles()[part][i] = 10.0 * part
-                    + (1.0 + part * part / 1000.0) * i;
+                    + (1.0 + s*part * part / 1000.0) * i;
+                    s = -s;
         }
         bunch.get_local_particles()[part][Bunch::id] = part;
     }
@@ -280,11 +282,6 @@ BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 #include "test_diagnostics_get_emitxyz.icc"
 }
 
-// this test fails.  All I do is instantiate a Diagnostics_full2 object and destroy
-// it.  The failure occurs in the destructor for the hdf5_writers.
-
-// n.b. no test for update because it is called internally for other tests.
-// this test works, but the nearly identical test serialize_full2 fails.  why?
 BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
 {
     {
@@ -301,14 +298,22 @@ BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
 BOOST_FIXTURE_TEST_CASE(serialize_full2, Fixture)
 {
     {
+    // std::cout << "enter serialize_full2" << std::endl;
     Diagnostics_full2 diagnostics("dummy_full2.h5");
+    // std::cout << "instantiate full2 diagnostics" << std::endl;
     diagnostics.set_bunch_sptr(bunch_sptr);
+    // std::cout << "set bunch_sptr" << std::endl;
     diagnostics.update();
+    // std::cout << "update" << std::endl;
     diagnostics.write();
+    // std::cout << "write" << std::endl;
     xml_save(diagnostics, "full2.xml");
+    // std::cout << "xml_save" << std::endl;
   }
-  Diagnostics_full2 loaded;
-  xml_load(loaded, "full2.xml");
+  Diagnostics_full2 loaded2;
+  // std::cout << "instantiate loaded" << std::endl;
+  xml_load(loaded2, "full2.xml");
+  // std::cout << "loaded2 it" << std::endl;
 }
 
 // test_note: We are not (yet) testing the content of the output file.
