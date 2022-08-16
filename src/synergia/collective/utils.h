@@ -14,7 +14,7 @@ get_leftmost_indices_offset(double pos,
 {
   std::fesetround(FE_DOWNWARD);
   double scaled_location = (pos - left) * inv_cell_size - 0.5;
-  idx = Kokkos::Experimental::nearbyint(scaled_location);
+  idx = Kokkos::nearbyint(scaled_location);
   off = scaled_location - idx;
 
 #if IDXPRINT == 1

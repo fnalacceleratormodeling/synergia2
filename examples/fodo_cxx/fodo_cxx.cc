@@ -89,7 +89,7 @@ run(Fodo_cxx_options opts)
   lattice.set_reference_particle(refpart);
 
   // space charge
-  Space_charge_3d_open_hockney_options sc_ops(gridx, gridy, gridz);
+  Space_charge_3d_fd_options sc_ops(gridx, gridy, gridz);
   sc_ops.comm_group_size = 1;
 
   // stepper

@@ -1,7 +1,7 @@
 [submodule "src/synergia/utils/kokkos"]
 	path = src/synergia/utils/kokkos
 	url = https://github.com/fnalacceleratormodeling/kokkos.git
-	branch = release-3.6.01
+	branch = release-candidate-3.7.00
 [submodule "src/synergia/utils/eigen"]
 	path = src/synergia/utils/eigen
 	url = https://gitlab.com/libeigen/eigen.git

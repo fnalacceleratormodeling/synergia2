@@ -409,9 +409,10 @@ Space_charge_3d_fd::allocate_sc3d_fd(const Bunch& bunch)
   gctx.nsize_y = options.shape[1];
   gctx.nsize_z = options.shape[2];
 
+  MPI_Comm bunch_comm = MPI_Comm(bunch.get_comm());
+
   /* store MPI communicator of bunch in gctx */
-  PetscCall(
-    PetscCommDuplicate(MPI_Comm(bunch.get_comm()), &gctx.bunch_comm, NULL););
+  PetscCall(PetscCommDuplicate(bunch_comm, &gctx.bunch_comm, NULL));
   PetscCallMPI(MPI_Comm_rank(gctx.bunch_comm, &gctx.global_rank));
   PetscCallMPI(MPI_Comm_size(gctx.bunch_comm, &gctx.global_size));
 

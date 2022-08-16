@@ -170,7 +170,7 @@ struct Rectangular_aperture {
   bool
   discard(ConstParticles const& parts, ConstParticleMasks const&, int p) const
   {
-    using Kokkos::Experimental::fabs;
+    using Kokkos::fabs;
 
     double xrel = parts(p, 0) - xoff;
     double yrel = parts(p, 2) - yoff;
@@ -229,7 +229,7 @@ struct Polygon_aperture {
   bool
   discard(ConstParticles const& parts, ConstParticleMasks const&, int p) const
   {
-    using Kokkos::Experimental::atan2;
+    using Kokkos::atan2;
 
     double xrel = parts(p, 0) - xoff;
     double yrel = parts(p, 2) - yoff;
