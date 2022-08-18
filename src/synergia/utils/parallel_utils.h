@@ -1,10 +1,30 @@
 #ifndef PARALLEL_UTILS_H_
 #define PARALLEL_UTILS_H_
 
-#include "commxx.h"
-#include "mpi.h"
+#include <Kokkos_Core.hpp>
 #include <iostream>
+#include <mpi.h>
 #include <vector>
+
+#include "commxx.h"
+
+#if defined BUILD_FD_SPACE_CHARGE_SOLVER
+#include <petsc.h>
+#include <string>
+#endif
+
+namespace synergia {
+
+  /// Initialize synergia. This function initializes MPI, Kokkos and
+  /// PETSc if it is included.
+  /// @param argc number of arguments
+  /// @param argv arguments given to the program
+  void initialize(int argc, char* argv[]);
+
+  /// Finalize synergia. This function finalizes MPI, Kokkos and
+  /// PETSc if it is included.
+  void finalize();
+}
 
 /// Perform a one-dimensional decomposition. In cases where the decomposition
 /// is uneven, i.e., processors is not an integral multiple of length, the

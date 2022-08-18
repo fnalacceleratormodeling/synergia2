@@ -80,9 +80,9 @@ Space_charge_3d_fd::apply_impl(Bunch_simulator& sim,
 {
 
   PetscErrorCode ierr;
-  logger << "    Space charge 3d open hockney\n";
 
-  scoped_simple_timer timer("sc3d_total");
+  logger << "    Space charge 3d finite difference\n";
+  scoped_simple_timer timer("sc3d_fd_total");
 
   // count number of bunches
   int num_bunches_in_bunch_sim = 0;
@@ -175,24 +175,28 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      global to subcomm scatters
      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-  /* Begin global (alias of local) to subcomm scatters! */
-  for (PetscInt i = 0; i < gctx.nsubcomms; i++) {
-    PetscCall(VecScatterBegin(gctx.scat_glocal_to_subcomms[i],
+  {
+    scoped_simple_timer timer("sc3d_fd_rho_local_to_subcomms");
+
+    /* Begin global (alias of local) to subcomm scatters! */
+    for (PetscInt i = 0; i < gctx.nsubcomms; i++) {
+      PetscCall(VecScatterBegin(gctx.scat_glocal_to_subcomms[i],
+                                gctx.rho_global_local,
+                                gctx.rho_global_subcomm[i],
+                                ADD_VALUES,
+                                SCATTER_FORWARD));
+    }
+
+    /* Hopefully there is some unrelated work that can occur here! */
+
+    /* End global (alias of local) to subcomm scatters! */
+    for (PetscInt i = 0; i < gctx.nsubcomms; i++) {
+      PetscCall(VecScatterEnd(gctx.scat_glocal_to_subcomms[i],
                               gctx.rho_global_local,
                               gctx.rho_global_subcomm[i],
                               ADD_VALUES,
                               SCATTER_FORWARD));
-  }
-
-  /* Hopefully there is some unrelated work that can occur here! */
-
-  /* End global (alias of local) to subcomm scatters! */
-  for (PetscInt i = 0; i < gctx.nsubcomms; i++) {
-    PetscCall(VecScatterEnd(gctx.scat_glocal_to_subcomms[i],
-                            gctx.rho_global_local,
-                            gctx.rho_global_subcomm[i],
-                            ADD_VALUES,
-                            SCATTER_FORWARD));
+    }
   }
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -213,8 +217,12 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
     PetscCall(PetscViewerDestroy(&hdf5_viewer));
   }
 
-  /* Solve for phi on each subcomm! */
-  PetscCall(solve(sctx, gctx));
+  {
+    scoped_simple_timer timer("sc3d_fd_linear_solver");
+
+    /* Solve for phi on each subcomm! */
+    PetscCall(solve(sctx, gctx));
+  }
 
   // DEBUGGING!
   if (gctx.dumps) {
@@ -230,21 +238,25 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
     PetscCall(PetscViewerDestroy(&hdf5_viewer));
   }
 
-  /* Begin subcomm (alias of local) to local scatters! */
-  PetscCall(VecScatterBegin(sctx.scat_subcomm_to_local,
+  {
+    scoped_simple_timer timer("sc3d_fd_phi_subcomms_to_local");
+
+    /* Begin subcomm (alias of local) to local scatters! */
+    PetscCall(VecScatterBegin(sctx.scat_subcomm_to_local,
+                              sctx.phi_subcomm,
+                              sctx.phi_subcomm_local,
+                              INSERT_VALUES,
+                              SCATTER_REVERSE));
+
+    /* Hopefully there is some unrelated work that can occur here! */
+
+    /* End subcomm (alias of local) to local scatters! */
+    PetscCall(VecScatterEnd(sctx.scat_subcomm_to_local,
                             sctx.phi_subcomm,
                             sctx.phi_subcomm_local,
                             INSERT_VALUES,
                             SCATTER_REVERSE));
-
-  /* Hopefully there is some unrelated work that can occur here! */
-
-  /* End subcomm (alias of local) to local scatters! */
-  PetscCall(VecScatterEnd(sctx.scat_subcomm_to_local,
-                          sctx.phi_subcomm,
-                          sctx.phi_subcomm_local,
-                          INSERT_VALUES,
-                          SCATTER_REVERSE));
+  }
 
   // DEBUGGING!
   if (gctx.dumps) {
@@ -297,6 +309,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
 void
 Space_charge_3d_fd::get_force()
 {
+  scoped_simple_timer timer("sc3d_fd_force");
 
   alg_force_extractor alg(lctx.seqphi_view,
                           lctx.enx,
@@ -312,6 +325,8 @@ Space_charge_3d_fd::get_force()
 void
 Space_charge_3d_fd::apply_kick(Bunch& bunch, double time_step)
 {
+  scoped_simple_timer timer("sc3d_fd_kick");
+
   auto ref = bunch.get_reference_particle();
 
   double q = bunch.get_particle_charge() * pconstants::e;
@@ -349,6 +364,8 @@ Space_charge_3d_fd::update_domain(Bunch const& bunch)
 {
 
   PetscFunctionBeginUser;
+
+  scoped_simple_timer timer("sc3d_fd_domain");
 
   auto spatial_mean_stddev =
     Core_diagnostics::calculate_spatial_mean_stddev(bunch);
@@ -402,6 +419,8 @@ PetscErrorCode
 Space_charge_3d_fd::allocate_sc3d_fd(const Bunch& bunch)
 {
   PetscFunctionBeginUser;
+
+  scoped_simple_timer timer("sc3d_fd_allocations");
 
   /* size of seqphi/seqrho vectors/views is size of domain! */
   gctx.nsize = options.shape[0] * options.shape[1] * options.shape[2];

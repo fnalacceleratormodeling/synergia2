@@ -1,6 +1,54 @@
-#include "parallel_utils.h"
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
 #include <stdexcept>
+
+#include "parallel_utils.h"
+
+namespace synergia {
+  void
+  initialize(int argc, char* argv[])
+  {
+
+#if defined BUILD_FD_SPACE_CHARGE_SOLVER
+    PetscErrorCode ierr;
+    ierr = PetscInitialize(
+      &argc, &argv, (char*)0, std::string("synergia2-v3 program!\n").c_str());
+#else
+    if (MPI_Init(&argc, &argv) != MPI_SUCCESS) {
+      std::runtime_error("Could not initialize MPI!");
+    }
+#endif
+
+    auto settings =
+      Kokkos::InitializationSettings(); /* use default constructor */
+
+    auto num_threads_chars = std::getenv("OMP_NUM_THREADS");
+    if (num_threads_chars != nullptr) {
+      settings.set_num_threads(std::stoi(num_threads_chars));
+    }
+
+    Kokkos::initialize(settings);
+
+    return;
+  }
+
+  void
+  finalize()
+  {
+    Kokkos::finalize();
+#if defined BUILD_FD_SPACE_CHARGE_SOLVER
+    PetscErrorCode ierr;
+    ierr = PetscFinalize();
+#else
+    if (MPI_Finalize() != MPI_SUCCESS) {
+      std::runtime_error("Could not finalize MPI!");
+    }
+#endif
+    return;
+  }
+}
+
 void
 decompose_1d_raw(int processors,
                  int length,

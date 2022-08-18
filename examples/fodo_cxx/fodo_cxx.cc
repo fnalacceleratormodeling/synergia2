@@ -16,7 +16,7 @@
 #include <iostream>
 #include <string>
 
-#include "synergia/collective/space_charge_3d_open_hockney.h"
+#include "synergia/collective/space_charge_3d_fd.h"
 
 #include "fodo_cxx_options.h"
 
@@ -164,8 +164,7 @@ run(Fodo_cxx_options opts)
 int
 main(int argc, char** argv)
 {
-  MPI_Init(&argc, &argv);
-  Kokkos::initialize(argc, argv);
+  synergia::initialize(argc, argv);
 
   Fodo_cxx_options opts(argc, argv);
 
@@ -177,7 +176,6 @@ main(int argc, char** argv)
   simple_timer_print(logger);
 #endif
 
-  Kokkos::finalize();
-  MPI_Finalize();
+  synergia::finalize();
   return 0;
 }
