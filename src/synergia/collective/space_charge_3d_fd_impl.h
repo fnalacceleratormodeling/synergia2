@@ -62,7 +62,7 @@ struct SubcommCtx {
 struct GlobalCtx {
 
   PetscInt nsubcomms = 1; /*! total number of subcomms */
-  PetscInt nsize;         /*! the size of the proble */
+  PetscInt nsize;         /*! the size of the problem */
 
   PetscInt nsize_x; /*! the size of the grid along x axis */
   PetscInt nsize_y; /*! the size of the grid along y axis */
