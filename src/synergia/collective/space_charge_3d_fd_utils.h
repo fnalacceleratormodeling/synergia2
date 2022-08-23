@@ -21,4 +21,6 @@ PetscErrorCode init_subcomm_local_scatters(LocalCtx& lctx,
 
 PetscErrorCode finalize(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx);
 
+PetscErrorCode MyMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void* mctx);
+
 #endif

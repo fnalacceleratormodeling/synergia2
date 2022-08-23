@@ -101,6 +101,7 @@ install(
         hdf5_writer.h
         complex_error_function.h
         kokkos_views.h
+        kokkos_utils.h
         parallel_utils.h
         simple_timer.h
         cereal.h

@@ -4,7 +4,7 @@
 #include "synergia/foundation/physical_constants.h"
 
 #include "synergia/bunch/period.h"
-#include "synergia/utils/kokkos_tools.h"
+#include "synergia/utils/kokkos_utils.h"
 
 #include "synergia/utils/simple_timer.h"
 
@@ -18,21 +18,10 @@ using scatter_t =
 
 namespace {
 
-  struct alg_zeroer {
-    karray1d_dev arr;
-
-    KOKKOS_INLINE_FUNCTION
-    void
-    operator()(const int i) const
-    {
-      arr(i) = 0.0;
-    }
-  };
-
   void
   zero_karray(karray1d_dev const& arr)
   {
-    alg_zeroer alg{arr};
+    ku::alg_zeroer alg{arr};
     Kokkos::parallel_for(arr.extent(0), alg);
   }
 
@@ -712,7 +701,7 @@ Impedance::calculate_moments_and_partitions(Bunch const& bunch)
 #endif
 
   // zero first
-  kt::zero_karray(zbinning);
+  zero_karray(zbinning);
 
   // z binning
   scatter_t scatter(zbinning);

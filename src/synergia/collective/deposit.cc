@@ -1,36 +1,15 @@
-#include "synergia/collective/deposit.h"
+#include <Kokkos_ScatterView.hpp>
+
+#include "deposit.h"
+#include "utils.h"
+
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/distributed_fft3d.h"
 
-#include <Kokkos_ScatterView.hpp>
-
-#include <omp.h>
-
 namespace deposit_impl {
   using scatter_t =
     Kokkos::Experimental::ScatterView<double*, Kokkos::LayoutLeft>;
-
-  KOKKOS_INLINE_FUNCTION
-  int
-  fast_int_floor_kokkos(const double x)
-  {
-    int ix = static_cast<int>(x);
-    return x > 0.0 ? ix : ((x - ix == 0) ? ix : ix - 1);
-  }
-
-  KOKKOS_INLINE_FUNCTION
-  void
-  get_leftmost_indices_offset(double pos,
-                              double left,
-                              double inv_cell_size,
-                              int& idx,
-                              double& off)
-  {
-    double scaled_location = (pos - left) * inv_cell_size - 0.5;
-    idx = fast_int_floor_kokkos(scaled_location);
-    off = scaled_location - idx;
-  }
 
   KOKKOS_INLINE_FUNCTION
   bool

@@ -39,6 +39,7 @@ struct SubcommCtx {
   DM da;   /* DMDA to manage grid and vecs */
   Mat A;   /* discretization matrix */
   KSP ksp; /* krylov solver */
+  PC pc;   /* preconditioner */
 
   VecScatter scat_subcomm_to_local; /*! VecScatter from subcomm vector to
                                       constituent local vectors */
@@ -70,18 +71,19 @@ struct GlobalCtx {
 
   MPI_Comm
     bunch_comm; /*! MPI communicator over which the bunch has been defined */
-  PetscBool ksplog = PETSC_FALSE; /*! enable KSPView to stdout */
-  PetscBool debug = PETSC_FALSE;  /*! enable verbose outputs */
-  PetscBool dumps = PETSC_FALSE;  /*! enable dumping states to HDF5 files */
-  PetscMPIInt global_rank;        /*! global MPI communicator rank */
-  PetscMPIInt global_size;        /*! global MPI communicator size */
+  PetscBool ksp_monitor_residual =
+    PETSC_FALSE; /*! enable KSPMonitorResidual to stdout */
+  PetscBool ksp_converged_reason =
+    PETSC_FALSE;                   /*! enable KSPConvergedReason to stdout */
+  PetscBool ksp_view = PETSC_TRUE; /*! enable KSPView to stdout */
+  PetscBool debug = PETSC_FALSE;   /*! enable verbose outputs */
+  PetscBool dumps = PETSC_FALSE;   /*! enable dumping states to HDF5 files */
+  PetscMPIInt global_rank;         /*! global MPI communicator rank */
+  PetscMPIInt global_size;         /*! global MPI communicator size */
 
   PetscReal Lx; /* length along x */
   PetscReal Ly; /* length along x */
   PetscReal Lz; /* length along x */
-  PetscScalar eps0 = 1;
-  //      4 * 3.14 * 8.85418781281e-12; /* permittivity of free space, SI units!
-  //      */
 
   Vec phi_global_local; /*! global alias of the local vector on each MPI rank */
   Vec rho_global_local; /*! global alias of the local vector on each MPI rank */

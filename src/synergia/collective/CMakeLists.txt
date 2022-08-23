@@ -38,6 +38,7 @@ install(
     space_charge_2d_open_hockney.h
     space_charge_2d_kv.h
     $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:${CMAKE_CURRENT_SOURCE_DIR}/space_charge_3d_fd.h>
+    space_charge_3d_kernels.h
     space_charge_rectangular.h
     impedance.h
     wake_field.h

@@ -22,4 +22,6 @@ get_leftmost_indices_offset(double pos,
             << ", inv_cell_size : " << inv_cell_size << ", idx : " << idx
             << ", off : " << off << std::endl;
 #endif
+
+  return;
 }

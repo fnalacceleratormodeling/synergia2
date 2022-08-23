@@ -1,9 +1,12 @@
 #include "synergia/collective/space_charge_rectangular.h"
+
 #include "deposit.h"
+#include "space_charge_3d_kernels.h"
+
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/math_constants.h"
 #include "synergia/foundation/physical_constants.h"
-
+#include "synergia/utils/kokkos_utils.h"
 #include "synergia/utils/simple_timer.h"
 
 namespace {
@@ -81,38 +84,6 @@ namespace {
     logger << "\n";
   }
 
-  KOKKOS_INLINE_FUNCTION
-  int
-  fast_int_floor_kokkos(const double x)
-  {
-    int ix = static_cast<int>(x);
-    return x > 0.0 ? ix : ((x - ix == 0) ? ix : ix - 1);
-  }
-
-  KOKKOS_INLINE_FUNCTION
-  void
-  get_leftmost_indices_offset(double pos,
-                              double left,
-                              double inv_cell_size,
-                              int& idx,
-                              double& off)
-  {
-    double scaled_location = (pos - left) * inv_cell_size - 0.5;
-    idx = fast_int_floor_kokkos(scaled_location);
-    off = scaled_location - idx;
-  }
-
-  struct alg_zeroer {
-    karray1d_dev arr;
-
-    KOKKOS_INLINE_FUNCTION
-    void
-    operator()(const int i) const
-    {
-      arr(i) = 0.0;
-    }
-  };
-
   struct alg_phi {
     karray1d_dev phi;
     int lower, gy, gz;
@@ -159,208 +130,6 @@ namespace {
 
       phi(base * 2 + 0) /= denominator;
       phi(base * 2 + 1) /= denominator;
-    }
-  };
-
-  struct alg_force_extractor {
-    karray1d_dev phi;
-    karray1d_dev enx;
-    karray1d_dev eny;
-    karray1d_dev enz;
-
-    int gx, gy, gz;
-    int dgx, dgy;
-    double ihx, ihy, ihz;
-    double igygz;
-    double igz;
-
-    alg_force_extractor(karray1d_dev const& phi,
-                        karray1d_dev const& enx,
-                        karray1d_dev const& eny,
-                        karray1d_dev const& enz,
-                        std::array<int, 3> const& g,
-                        std::array<double, 3> const& h)
-      : phi(phi)
-      , enx(enx)
-      , eny(eny)
-      , enz(enz)
-      , gx(g[0])
-      , gy(g[1])
-      , gz(g[2])
-      , ihx(0.5 / h[0])
-      , ihy(0.5 / h[1])
-      , ihz(0.5 / h[2])
-      , igygz(1.0 / (gy * gz))
-      , igz(1.0 / gz)
-    {}
-
-    KOKKOS_INLINE_FUNCTION
-    void
-    operator()(const int i) const
-    {
-      int ix = i * igygz;
-      int iy = (i - ix * gy * gz) * igz;
-      int iz = i - ix * gy * gz - iy * gz;
-
-      int ixl, ixr, iyl, iyr, izl, izr;
-      double idx, idy, idz;
-
-      // all x-y boundaries will be skipped (set to 0)
-      if (ix == 0 || ix == gx - 1 || iy == 0 || iy == gy - 1) return;
-
-      ixl = ix - 1;
-      ixr = ix + 1;
-      iyl = iy - 1;
-      iyr = iy + 1;
-      izl = iz - 1;
-      izr = iz + 1;
-
-      idx = ihx;
-      idy = ihy;
-      idz = ihz;
-
-      // periodic z
-      if (iz == 0) {
-        izl = gz - 1;
-      } else if (iz == gz - 1) {
-        izr = 0;
-      }
-
-      int idx_r = ixr * gy * gz + iy * gz + iz;
-      int idx_l = ixl * gy * gz + iy * gz + iz;
-      enx(i) = -(phi(idx_r) - phi(idx_l)) * idx;
-
-      idx_r = ix * gy * gz + iyr * gz + iz;
-      idx_l = ix * gy * gz + iyl * gz + iz;
-      eny(i) = -(phi(idx_r) - phi(idx_l)) * idy;
-
-      idx_r = ix * gy * gz + iy * gz + izr;
-      idx_l = ix * gy * gz + iy * gz + izl;
-      enz(i) = -(phi(idx_r) - phi(idx_l)) * idz;
-    }
-  };
-
-  struct alg_kicker {
-    Particles parts;
-    ConstParticleMasks masks;
-
-    karray1d_dev enx;
-    karray1d_dev eny;
-    karray1d_dev enz;
-
-    int gx, gy, gz;
-    double ihx, ihy, ihz;
-    double lx, ly, lz;
-    double factor, pref, m;
-
-    alg_kicker(Particles parts,
-               ConstParticleMasks masks,
-               karray1d_dev const& enx,
-               karray1d_dev const& eny,
-               karray1d_dev const& enz,
-               std::array<int, 3> const& g,
-               std::array<double, 3> const& h,
-               std::array<double, 3> const& l,
-               double factor,
-               double pref,
-               double m)
-      : parts(parts)
-      , masks(masks)
-      , enx(enx)
-      , eny(eny)
-      , enz(enz)
-      , gx(g[0])
-      , gy(g[1])
-      , gz(g[2])
-      , ihx(1.0 / h[0])
-      , ihy(1.0 / h[1])
-      , ihz(1.0 / h[2])
-      , lx(l[0])
-      , ly(l[1])
-      , lz(l[2])
-      , factor(factor)
-      , pref(pref)
-      , m(m)
-    {}
-
-    KOKKOS_INLINE_FUNCTION
-    void
-    operator()(const int i) const
-    {
-      if (masks(i)) {
-        int ix, iy, iz;
-        double ox, oy, oz;
-
-        get_leftmost_indices_offset(parts(i, 0), lx, ihx, ix, ox);
-        get_leftmost_indices_offset(parts(i, 2), ly, ihy, iy, oy);
-        get_leftmost_indices_offset(parts(i, 4), lz, ihz, iz, oz);
-
-        double aox = 1.0 - ox;
-        double aoy = 1.0 - oy;
-        double aoz = 1.0 - oz;
-
-        if (ix >= 0 && ix < gx - 1 && iy >= 0 && iy < gy - 1) {
-          while (iz > gz - 1) iz -= gz;
-          while (iz < 0) iz += gz;
-
-          int izp1 = (iz == (gz - 1)) ? 0 : iz + 1;
-
-          double val = 0;
-          int base = 0;
-
-          // enz
-          base = ix * gy * gz + iy * gz;
-          val = aox * aoy * aoz * enz(base + iz);       // x, y, z
-          val += aox * aoy * oz * enz(base + izp1);     // x, y, z+1
-          val += aox * oy * aoz * enz(base + gz + iz);  // x, y+1, z
-          val += aox * oy * oz * enz(base + gz + izp1); // x, y+1, z+1
-
-          base = (ix + 1) * gy * gz + iy * gz;
-          val += ox * aoy * aoz * enz(base + iz);      // x+1, y, z
-          val += ox * aoy * oz * enz(base + izp1);     // x+1, y, z+1
-          val += ox * oy * aoz * enz(base + gz + iz);  // x+1, y+1, z
-          val += ox * oy * oz * enz(base + gz + izp1); // x+1, y+1, z+1
-
-          double p = pref + parts(i, 5) * pref;
-          double Eoc_i = std::sqrt(p * p + m * m);
-          double Eoc_f = Eoc_i - factor * pref * val;
-          double dpop = (std::sqrt(Eoc_f * Eoc_f - m * m) -
-                         std::sqrt(Eoc_i * Eoc_i - m * m)) /
-                        pref;
-
-          parts(i, 5) += dpop;
-
-          // eny
-          base = ix * gy * gz + iy * gz;
-          val = aox * aoy * aoz * eny(base + iz);       // x, y, z
-          val += aox * aoy * oz * eny(base + izp1);     // x, y, z+1
-          val += aox * oy * aoz * eny(base + gz + iz);  // x, y+1, z
-          val += aox * oy * oz * eny(base + gz + izp1); // x, y+1, z+1
-
-          base = (ix + 1) * gy * gz + iy * gz;
-          val += ox * aoy * aoz * eny(base + iz);      // x+1, y, z
-          val += ox * aoy * oz * eny(base + izp1);     // x+1, y, z+1
-          val += ox * oy * aoz * eny(base + gz + iz);  // x+1, y+1, z
-          val += ox * oy * oz * eny(base + gz + izp1); // x+1, y+1, z+1
-
-          parts(i, 3) += factor * val;
-
-          // enx
-          base = ix * gy * gz + iy * gz;
-          val = aox * aoy * aoz * enx(base + iz);       // x, y, z
-          val += aox * aoy * oz * enx(base + izp1);     // x, y, z+1
-          val += aox * oy * aoz * enx(base + gz + iz);  // x, y+1, z
-          val += aox * oy * oz * enx(base + gz + izp1); // x, y+1, z+1
-
-          base = (ix + 1) * gy * gz + iy * gz;
-          val += ox * aoy * aoz * enx(base + iz);      // x+1, y, z
-          val += ox * aoy * oz * enx(base + izp1);     // x+1, y, z+1
-          val += ox * oy * aoz * enx(base + gz + iz);  // x+1, y+1, z
-          val += ox * oy * oz * enx(base + gz + izp1); // x+1, y+1, z+1
-
-          parts(i, 1) += factor * val;
-        }
-      }
     }
   };
 
@@ -521,7 +290,7 @@ Space_charge_rectangular::get_local_phi(Distributed_fft3d_rect& fft,
 {
   scoped_simple_timer timer("sc_rect_local_phi");
 
-  alg_zeroer az{phihat};
+  ku::alg_zeroer az{phihat};
   Kokkos::parallel_for(phihat.extent(0), az);
 
   fft.transform(rho, phihat);
@@ -583,7 +352,7 @@ Space_charge_rectangular::extract_force()
 
   // phi is in (gx, gy, gz)
   // en{x|y|z} is in (gx, gy, gz)
-  alg_force_extractor alg(phi, enx, eny, enz, g, h);
+  sc3d_kernels::xyz::alg_force_extractor alg(phi, enx, eny, enz, g, h);
   Kokkos::parallel_for(g[0] * g[1] * g[2], alg);
   Kokkos::fence();
 }
@@ -615,7 +384,8 @@ Space_charge_rectangular::apply_kick(Bunch& bunch,
   auto h = domain.get_cell_size();
   auto l = domain.get_left();
 
-  alg_kicker kicker(parts, masks, enx, eny, enz, g, h, l, factor, pref, m);
+  sc3d_kernels::xyz::alg_kicker kicker(
+    parts, masks, enx, eny, enz, g, h, l, factor, pref, m);
 
   Kokkos::parallel_for(bunch.size(), kicker);
   Kokkos::fence();

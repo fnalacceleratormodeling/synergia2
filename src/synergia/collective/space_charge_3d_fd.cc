@@ -3,8 +3,9 @@
 #include "space_charge_3d_fd.h"
 #include "space_charge_3d_fd_alias.h"
 #include "space_charge_3d_fd_impl.h"
-#include "space_charge_3d_fd_kernels.h"
 #include "space_charge_3d_fd_utils.h"
+
+#include "space_charge_3d_kernels.h"
 
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/physical_constants.h"
@@ -96,7 +97,7 @@ Space_charge_3d_fd::apply_impl(Bunch_simulator& sim,
   if (num_bunches_in_bunch_sim != num_bunches_in_train_0) {
     throw std::runtime_error(
       "sc3d-fd only works on a single bunch train, work is ongoing \
-		    to make it work on multiple bunche trains!");
+		    to make it work on multiple bunch trains!");
   }
 
   // construct the workspace for a new bunch simulator
@@ -311,12 +312,12 @@ Space_charge_3d_fd::get_force()
 {
   scoped_simple_timer timer("sc3d_fd_force");
 
-  alg_force_extractor alg(lctx.seqphi_view,
-                          lctx.enx,
-                          lctx.eny,
-                          lctx.enz,
-                          domain.get_grid_shape(),
-                          domain.get_cell_size());
+  sc3d_kernels::zyx::alg_force_extractor alg(lctx.seqphi_view,
+                                             lctx.enx,
+                                             lctx.eny,
+                                             lctx.enz,
+                                             domain.get_grid_shape(),
+                                             domain.get_cell_size());
   Kokkos::parallel_for(gctx.nsize, alg);
   Kokkos::fence();
 }
@@ -351,7 +352,7 @@ Space_charge_3d_fd::apply_kick(Bunch& bunch, double time_step)
   auto parts = bunch.get_local_particles();
   auto masks = bunch.get_local_particle_masks();
 
-  alg_kicker kicker(
+  sc3d_kernels::zyx::alg_kicker kicker(
     parts, masks, lctx.enx, lctx.eny, lctx.enz, g, h, l, factor, pref, m);
 
   Kokkos::parallel_for(bunch.size(), kicker);

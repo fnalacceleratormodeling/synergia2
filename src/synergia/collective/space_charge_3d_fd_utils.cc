@@ -267,10 +267,30 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
 
   /* create krylov solver */
   PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
+  PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
   PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
   PetscCall(KSPSetFromOptions(sctx.ksp));
   PetscCall(KSPSetUp(sctx.ksp));
-  PetscCall(KSPSetDM(sctx.ksp, sctx.da));
+  // PetscCall(KSPSetDM(sctx.ksp, sctx.da));
+
+  /* set preconditioner */
+  PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
+  PetscCall(PCSetType(sctx.pc, PCASM));
+  PetscCall(PCSetUp(sctx.pc));
+
+  /* Enable KSP logging if options are set */
+  if (gctx.ksp_view) {
+    PetscCall(KSPView(
+      sctx.ksp, PETSC_VIEWER_STDOUT_(PetscObjectComm((PetscObject)sctx.ksp))));
+  }
+  if (gctx.ksp_converged_reason) {
+    PetscCall(KSPConvergedReasonView(
+      sctx.ksp, PETSC_VIEWER_STDOUT_(PetscObjectComm((PetscObject)sctx.ksp))));
+  }
+
+  if (gctx.ksp_monitor_residual) {
+    PetscCall(KSPMonitorSet(sctx.ksp, &(MyMonitor), PETSC_NULL, PETSC_NULL));
+  }
 
   PetscFunctionReturn(0);
 }
@@ -299,9 +319,6 @@ solve(SubcommCtx& sctx, GlobalCtx& gctx)
 
   /* Scaling factor of hx*hy*hz */
   PetscCall(VecScale(sctx.rho_subcomm, hx * hy * hz));
-
-  /* Enable KSP logging if option is set */
-  if (gctx.ksplog) { PetscCall(KSPView(sctx.ksp, PETSC_VIEWER_STDOUT_WORLD)); }
 
   /* Solve for phi! */
   PetscCall(KSPSolve(sctx.ksp, sctx.rho_subcomm, sctx.phi_subcomm));
@@ -465,5 +482,28 @@ finalize(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
   /* Destroy subcomms */
   PetscCall(PetscSubcommDestroy(&(sctx.solverpsubcomm)));
+  PetscFunctionReturn(0);
+}
+
+/* --------------------------------------------------------------------- */
+/*!
+  MyMonitor wrapper around KSPMonitorResidual,
+  see https://petsc.org/main/docs/manualpages/KSP/KSPMonitorSet/
+  \param   KSP - ksp solver object
+  \param   n - iteration number
+  \param   rnorm - (estimated) 2-norm of (preconditioned) residual
+  \param   mctx - optional monitoring context, as set by KSPMonitorSet()
+  \return  ierr - PetscErrorCode
+*/
+PetscErrorCode
+MyMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void* mctx)
+{
+  PetscFunctionBeginUser;
+  PetscViewerAndFormat* vf;
+  PetscCall(PetscViewerAndFormatCreate(
+    PETSC_VIEWER_STDOUT_(PetscObjectComm((PetscObject)ksp)),
+    PETSC_VIEWER_ASCII_INFO,
+    &vf));
+  PetscCall(KSPMonitorResidual(ksp, it, rnorm, vf));
   PetscFunctionReturn(0);
 }
