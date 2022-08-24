@@ -5,3 +5,4 @@
 [submodule "src/synergia/utils/eigen"]
 	path = src/synergia/utils/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+	branch = master

@@ -124,8 +124,7 @@ set(extra_includes)
 # options
 option(SIMPLE_TIMER "use the simple timer 2 profiling" OFF)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" ON)
-option(ALLOW_PADDING "enable particle array padding for memory alignment"
-       OFF)
+option(ALLOW_PADDING "enable particle array padding for memory alignment" OFF)
 option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" OFF)
 option(USE_EXTERNAL_CEREAL "Use external build of cereal" OFF)
 option(
