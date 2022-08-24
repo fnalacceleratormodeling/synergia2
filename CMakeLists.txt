@@ -234,7 +234,7 @@ endif()
 find_package(GSL REQUIRED)
 
 # FFTW3
-if(NOT ENABLE_CUDA)
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
   find_package(FFTW3 REQUIRED)
   list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
 
