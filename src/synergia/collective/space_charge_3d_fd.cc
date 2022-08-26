@@ -163,12 +163,12 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
   if (gctx.dumps) {
     PetscViewer hdf5_viewer;
     PetscCall(
-      PetscPrintf(gctx.bunch_comm, "Dumping rho vector on all ranks!\n"));
+      PetscPrintf(gctx.bunch_comm, "Dumping rho vector on all ranks!\n "));
     std::string filename = "rho_on_rank_";
     filename.append(std::to_string(gctx.global_rank));
     filename.append(".h5");
     PetscCall(PetscViewerHDF5Open(
-      PETSC_COMM_WORLD, filename.c_str(), FILE_MODE_WRITE, &hdf5_viewer));
+      PETSC_COMM_SELF, filename.c_str(), FILE_MODE_WRITE, &hdf5_viewer));
     PetscCall(VecView(lctx.seqrho, hdf5_viewer));
     PetscCall(PetscViewerDestroy(&hdf5_viewer));
   }
@@ -213,7 +213,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
     filename.append(std::to_string(sctx.solversubcommid));
     filename.append(".h5");
     PetscCall(PetscViewerHDF5Open(
-      PETSC_COMM_WORLD, filename.c_str(), FILE_MODE_WRITE, &hdf5_viewer));
+      sctx.solversubcomm, filename.c_str(), FILE_MODE_WRITE, &hdf5_viewer));
     PetscCall(VecView(sctx.rho_subcomm, hdf5_viewer));
     PetscCall(PetscViewerDestroy(&hdf5_viewer));
   }
@@ -234,7 +234,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
     filename.append(std::to_string(sctx.solversubcommid));
     filename.append(".h5");
     PetscCall(PetscViewerHDF5Open(
-      PETSC_COMM_WORLD, filename.c_str(), FILE_MODE_WRITE, &hdf5_viewer));
+      sctx.solversubcomm, filename.c_str(), FILE_MODE_WRITE, &hdf5_viewer));
     PetscCall(VecView(sctx.phi_subcomm, hdf5_viewer));
     PetscCall(PetscViewerDestroy(&hdf5_viewer));
   }
@@ -268,7 +268,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
     filename.append(std::to_string(gctx.global_rank));
     filename.append(".h5");
     PetscCall(PetscViewerHDF5Open(
-      PETSC_COMM_WORLD, filename.c_str(), FILE_MODE_WRITE, &hdf5_viewer));
+      PETSC_COMM_SELF, filename.c_str(), FILE_MODE_WRITE, &hdf5_viewer));
     PetscCall(VecView(lctx.seqphi, hdf5_viewer));
     PetscCall(PetscViewerDestroy(&hdf5_viewer));
   }
@@ -277,28 +277,32 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
 
   // DEBUGGING!
   if (gctx.dumps) {
-    PetscCall(PetscPrintf(gctx.bunch_comm,
-                          "Dumping enx/eny/enz vector on all ranks!\n"));
+    // Disable this temporarily until a commxx of type MPI_COMM_SELF
+    // can be created
+    /*
+PetscCall(PetscPrintf(gctx.bunch_comm,
+                    "Dumping enx/eny/enz vector on all ranks!\n"));
 
-    std::string filename;
+std::string filename;
 
-    filename = "enx_on_rank_";
-    filename.append(std::to_string(gctx.global_rank));
-    filename.append(".h5");
-    Hdf5_file file_x(filename, Hdf5_file::Flag::truncate, Commxx());
-    file_x.write("enx", lctx.enx.data(), lctx.enx.size(), true);
+filename = "enx_on_rank_";
+filename.append(std::to_string(gctx.global_rank));
+filename.append(".h5");
+Hdf5_file file_x(filename, Hdf5_file::Flag::read_write, );
+file_x.write("enx", lctx.enx.data(), lctx.enx.size(), true);
 
-    filename = "eny_on_rank_";
-    filename.append(std::to_string(gctx.global_rank));
-    filename.append(".h5");
-    Hdf5_file file_y(filename, Hdf5_file::Flag::truncate, Commxx());
-    file_y.write("eny", lctx.eny.data(), lctx.eny.size(), true);
+filename = "eny_on_rank_";
+filename.append(std::to_string(gctx.global_rank));
+filename.append(".h5");
+Hdf5_file file_y(filename, Hdf5_file::Flag::read_write, Commxx());
+file_y.write("eny", lctx.eny.data(), lctx.eny.size(), true);
 
-    filename = "enz_on_rank_";
-    filename.append(std::to_string(gctx.global_rank));
-    filename.append(".h5");
-    Hdf5_file file_z(filename, Hdf5_file::Flag::truncate, Commxx());
-    file_z.write("enz", lctx.enz.data(), lctx.enz.size(), true);
+filename = "enz_on_rank_";
+filename.append(std::to_string(gctx.global_rank));
+filename.append(".h5");
+Hdf5_file file_z(filename, Hdf5_file::Flag::read_write, Commxx());
+file_z.write("enz", lctx.enz.data(), lctx.enz.size(), true);
+*/
   }
 
   apply_kick(bunch, time_step);
