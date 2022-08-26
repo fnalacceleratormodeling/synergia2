@@ -9,8 +9,8 @@ void
 get_leftmost_indices_offset(double pos,
                             double left,
                             double inv_cell_size,
-                            int& idx,
-                            double& off)
+                            int idx,
+                            double off)
 {
   std::fesetround(FE_DOWNWARD);
   double scaled_location = (pos - left) * inv_cell_size - 0.5;

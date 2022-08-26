@@ -72,14 +72,14 @@ struct GlobalCtx {
   MPI_Comm
     bunch_comm; /*! MPI communicator over which the bunch has been defined */
   PetscBool ksp_monitor_residual =
-    PETSC_FALSE; /*! enable KSPMonitorResidual to stdout */
+    PETSC_TRUE; /*! enable KSPMonitorResidual to stdout */
   PetscBool ksp_converged_reason =
-    PETSC_FALSE;                   /*! enable KSPConvergedReason to stdout */
+    PETSC_TRUE;                    /*! enable KSPConvergedReason to stdout */
   PetscBool ksp_view = PETSC_TRUE; /*! enable KSPView to stdout */
   PetscBool debug = PETSC_FALSE;   /*! enable verbose outputs */
-  PetscBool dumps = PETSC_FALSE;   /*! enable dumping states to HDF5 files */
-  PetscMPIInt global_rank;         /*! global MPI communicator rank */
-  PetscMPIInt global_size;         /*! global MPI communicator size */
+  PetscBool dumps = PETSC_TRUE;    /*! enable dumping states to HDF5 files */
+  PetscMPIInt global_rank = -1;    /*! global MPI communicator rank */
+  PetscMPIInt global_size = -1;    /*! global MPI communicator size */
 
   PetscReal Lx; /* length along x */
   PetscReal Ly; /* length along x */

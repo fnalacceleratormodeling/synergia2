@@ -11,8 +11,7 @@ namespace synergia {
   {
 
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
-    PetscErrorCode ierr;
-    ierr = PetscInitialize(
+    auto ierr = PetscInitialize(
       &argc, &argv, (char*)0, std::string("synergia2-v3 program!\n").c_str());
 #else
     if (MPI_Init(&argc, &argv) != MPI_SUCCESS) {
@@ -38,8 +37,7 @@ namespace synergia {
   {
     Kokkos::finalize();
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
-    PetscErrorCode ierr;
-    ierr = PetscFinalize();
+    auto ierr = PetscFinalize();
 #else
     if (MPI_Finalize() != MPI_SUCCESS) {
       std::runtime_error("Could not finalize MPI!");
