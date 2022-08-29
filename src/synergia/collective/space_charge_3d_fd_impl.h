@@ -101,7 +101,14 @@ struct GlobalCtx {
   IS iy_scat_glocal_to_subcomms; /*! IndexSet for scatters from global alias of
                                    local vectors to all subcomm vectors */
 
-  const std::string vectype = "standard"; /*! type of all vectors */
+  /*! type of all vectors */
+  const std::string
+#if defined KOKKOS_ENABLE_CUDA
+    vectype = "VECCUDA";
+#elif defined KOKKOS_ENABLE_OPENMP
+    vectype = "VECSTANDARD";
+#endif
+
   std::vector<PetscMPIInt>
     sids; /*! holds the solversubcommmid's from each solver */
 
