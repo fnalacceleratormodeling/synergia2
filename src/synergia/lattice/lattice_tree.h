@@ -6,60 +6,51 @@
 
 #include "synergia/utils/cereal.h"
 
-class Lattice_tree
-{
+class Lattice_tree {
 public:
+  // default ctor for serialization
+  Lattice_tree() : mx() {}
 
-    // default ctor for serialization
-    Lattice_tree() : mx()
-    { }
+  explicit Lattice_tree(synergia::MadX const& madx) : mx(madx) {}
 
-    explicit Lattice_tree(synergia::MadX const& madx)
-        : mx(madx)
-    { }
+  // set the value of a variable
+  void set_variable(std::string const& name, double val);
+  void set_variable(std::string const& name, std::string const& val);
 
-    // set the value of a variable
-    void set_variable(std::string const& name, double val);
-    void set_variable(std::string const& name, std::string const& val);
+  // set the attribute value of an element
+  void set_element_attribute(std::string const& label,
+                             std::string const& attr,
+                             double val);
 
-    // set the attribute value of an element
-    void set_element_attribute(
-            std::string const& label,
-            std::string const& attr,
-            double val);
+  void set_element_attribute(std::string const& label,
+                             std::string const& attr,
+                             std::string const& val);
 
-    void set_element_attribute(
-            std::string const& label,
-            std::string const& attr,
-            std::string const& val);
-
-    void print() const;
+  void print() const;
 
 public:
-
-    synergia::MadX mx;
+  synergia::MadX mx;
 
 private:
+  friend class cereal::access;
 
-    friend class cereal::access;
+  template <class Archive>
+  void
+  save(Archive& ar) const
+  {
+    std::string madx = mx.to_madx();
+    ar(madx);
+  }
 
+  template <class Archive>
+  void
+  load(Archive& ar)
+  {
+    std::string madx;
+    ar(madx);
 
-    template<class Archive>
-    void save(Archive & ar) const
-    {
-        std::string madx = mx.to_madx();
-        ar(madx);
-    }
-
-    template<class Archive>
-    void load(Archive & ar)
-    {
-        std::string madx;
-        ar(madx);
-
-        parse_madx(madx, mx);
-    }
+    parse_madx(madx, mx);
+  }
 };
-
 
 #endif

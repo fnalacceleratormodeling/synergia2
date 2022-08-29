@@ -1,34 +1,55 @@
 set(synergia_parallel_utils_src parallel_utils.cc commxx.cc logger.cc
                                 simple_timer.cc base64.cpp)
-
 add_library(synergia_parallel_utils SHARED ${synergia_parallel_utils_src})
 add_library(synergia_parallel_utils_static STATIC
             ${synergia_parallel_utils_src})
-
 target_link_libraries(
-  synergia_parallel_utils MPI::MPI_C ${kokkos_libs} cereal::cereal
+  synergia_parallel_utils cereal::cereal MPI::MPI_C
   $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
-
 target_link_libraries(
-  synergia_parallel_utils_static MPI::MPI_C ${kokkos_libs} cereal::cereal
+  synergia_parallel_utils_static cereal::cereal MPI::MPI_C
   $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
-
 target_link_options(synergia_parallel_utils PRIVATE ${LINKER_OPTIONS})
 target_link_options(synergia_parallel_utils_static PRIVATE ${LINKER_OPTIONS})
+
+add_library(synergia_serialization cereal_files.cc)
+target_link_libraries(synergia_serialization synergia_parallel_utils)
+target_link_options(synergia_serialization PRIVATE ${LINKER_OPTIONS})
 
 add_library(synergia_test_main STATIC catch_test_main.cc)
 target_link_libraries(
   synergia_test_main ${kokkos_libs} MPI::MPI_C
   $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
 
-add_library(synergia_serialization cereal_files.cc)
-target_link_libraries(synergia_serialization synergia_parallel_utils)
-target_link_options(synergia_serialization PRIVATE ${LINKER_OPTIONS})
-
 add_library(synergia_hdf5_utils hdf5_file.cc hdf5_misc.cc)
 target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES}
                       synergia_parallel_utils ${kokkos_libs})
 target_link_options(synergia_hdf5_utils PRIVATE ${LINKER_OPTIONS})
+
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
+  find_package(CUDAToolkit REQUIRED)
+  set(FFT_SRC distributed_fft2d_cuda.cc distributed_fft3d_cuda.cc
+              distributed_fft3d_rect_cuda.cc)
+  set(FFT_LIB CUDA::cufft)
+else()
+  set(FFT_SRC distributed_fft2d_fftw.cc distributed_fft3d_fftw.cc
+              distributed_fft3d_rect_fftw.cc)
+  set(FFT_LIB ${PARALLEL_FFTW_LIBRARIES})
+endif()
+
+add_library(synergia_distributed_fft ${FFT_SRC})
+target_link_libraries(synergia_distributed_fft ${FFT_LIB}
+                      synergia_parallel_utils ${kokkos_libs})
+target_link_options(synergia_distributed_fft PRIVATE ${LINKER_OPTIONS})
+
+add_library(synergia_command_line command_line_arg.cc)
+target_link_libraries(synergia_command_line)
+target_link_options(synergia_command_line PRIVATE ${LINKER_OPTIONS})
+
+add_library(lsexpr SHARED lsexpr.cc)
+add_library(lsexpr_static STATIC lsexpr.cc)
+target_link_options(lsexpr PRIVATE ${LINKER_OPTIONS})
+target_link_options(lsexpr_static PRIVATE ${LINKER_OPTIONS})
 
 if(BUILD_PYTHON_BINDINGS)
   pybind11_add_module(parallel_utils MODULE NO_EXTRAS parallel_utils_pywrap.cc)
@@ -49,36 +70,6 @@ if(BUILD_PYTHON_BINDINGS)
   install(TARGETS parallel_utils
           DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
 endif()
-
-if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
-  find_package(CUDAToolkit REQUIRED)
-  set(FFT_SRC distributed_fft2d_cuda.cc distributed_fft3d_cuda.cc
-              distributed_fft3d_rect_cuda.cc)
-  set(FFT_LIB CUDA::cufft)
-else()
-  set(FFT_SRC distributed_fft2d_fftw.cc distributed_fft3d_fftw.cc
-              distributed_fft3d_rect_fftw.cc)
-  set(FFT_LIB ${PARALLEL_FFTW_LIBRARIES})
-endif()
-
-add_library(synergia_distributed_fft ${FFT_SRC})
-
-target_link_libraries(synergia_distributed_fft ${FFT_LIB}
-                      synergia_parallel_utils ${kokkos_libs})
-
-target_link_options(synergia_distributed_fft PRIVATE ${LINKER_OPTIONS})
-
-add_library(synergia_command_line command_line_arg.cc)
-target_link_libraries(synergia_command_line ${kokkos_libs})
-target_link_options(synergia_command_line PRIVATE ${LINKER_OPTIONS})
-
-add_library(lsexpr SHARED lsexpr.cc)
-add_library(lsexpr_static STATIC lsexpr.cc)
-
-target_link_libraries(lsexpr ${kokkos_libs})
-target_link_libraries(lsexpr_static ${kokkos_libs})
-target_link_options(lsexpr PRIVATE ${LINKER_OPTIONS})
-target_link_options(lsexpr_static PRIVATE ${LINKER_OPTIONS})
 
 install(TARGETS synergia_parallel_utils synergia_hdf5_utils
                 synergia_distributed_fft synergia_serialization
@@ -110,6 +101,7 @@ install(
         logger.h
         lsexpr.h
         synergia_omp.h
+        utils.h
   DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/utils)
 if(BUILD_PYTHON_BINDINGS)
   install(FILES __init__.py DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)

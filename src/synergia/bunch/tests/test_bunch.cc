@@ -1,4 +1,3 @@
-#define CATCH_CONFIG_RUNNER
 #include "synergia/utils/catch.hpp"
 
 #include "synergia/foundation/physical_constants.h"
@@ -37,17 +36,4 @@ TEST_CASE("Bunch", "[Bunch]")
     CHECK(p2(0, 6) == 123);
     CHECK(p2(1, 6) == 124);
     CHECK(p2(4, 6) == 127);
-}
-
-
-int main(int argc, char* argv[])
-{
-    MPI_Init(&argc, &argv);
-    Kokkos::initialize(argc, argv);
-
-    int result = Catch::Session().run(argc, argv);
-
-    Kokkos::finalize();
-    MPI_Finalize();
-    return result;
 }

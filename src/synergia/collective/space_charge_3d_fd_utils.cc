@@ -110,14 +110,14 @@ init_subcomm_vecs(SubcommCtx& sctx, GlobalCtx& gctx)
 
   PetscFunctionBeginUser;
   PetscCall(VecCreate(sctx.solversubcomm, &sctx.phi_subcomm));
-  PetscCall(VecSetType(sctx.phi_subcomm, gctx.vectype.c_str()));
+  PetscCall(VecSetType(sctx.phi_subcomm, gctx.vectype));
   PetscCall(VecSetSizes(sctx.phi_subcomm, PETSC_DECIDE, gctx.nsize));
   PetscCall(VecSetFromOptions(sctx.phi_subcomm));
   PetscCall(
     PetscObjectSetName((PetscObject)(sctx.phi_subcomm), "phi_subcomm_on_sctx"));
 
   PetscCall(VecCreate(sctx.solversubcomm, &sctx.rho_subcomm));
-  PetscCall(VecSetType(sctx.rho_subcomm, gctx.vectype.c_str()));
+  PetscCall(VecSetType(sctx.rho_subcomm, gctx.vectype));
   PetscCall(VecSetSizes(sctx.rho_subcomm, PETSC_DECIDE, gctx.nsize));
   PetscCall(VecSetFromOptions(sctx.rho_subcomm));
   PetscCall(
@@ -166,6 +166,8 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
                          NULL,
                          NULL,
                          &sctx.da));
+  PetscCall(DMSetMatType(sctx.da, gctx.mattype));
+  PetscCall(DMSetVecType(sctx.da, gctx.vectype));
   PetscCall(DMSetFromOptions(sctx.da));
   PetscCall(DMSetUp(sctx.da));
 

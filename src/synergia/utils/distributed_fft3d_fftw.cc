@@ -1,7 +1,8 @@
-#include "distributed_fft3d.h"
 #include <cstring>
 #include <stdexcept>
 #include <thread>
+
+#include "distributed_fft3d.h"
 
 Distributed_fft3d::Distributed_fft3d()
   : Distributed_fft3d_base()

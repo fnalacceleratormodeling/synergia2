@@ -1,7 +1,8 @@
-#include "Eigen/Eigen"
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+
+#include "Eigen/Eigen"
 
 #include "synergia/foundation/math_constants.h"
 

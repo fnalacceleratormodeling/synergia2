@@ -20,7 +20,6 @@ target_link_libraries(tmapping
 	${kokkos_libs}
 	)
 
-
 copy_file(sis18.madx s3_sis18)
 copy_file(sis18-6.lsx s3_sis18)
 copy_file(sis18.py s3_sis18)

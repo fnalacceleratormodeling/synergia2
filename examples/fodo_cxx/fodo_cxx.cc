@@ -12,6 +12,7 @@
 #include "synergia/simulation/split_operator_stepper_elements.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/utils/utils.h"
 #include <iomanip>
 #include <iostream>
 #include <string>

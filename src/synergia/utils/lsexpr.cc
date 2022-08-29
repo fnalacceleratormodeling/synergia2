@@ -1,8 +1,8 @@
-#include "lsexpr.h"
 #include <cstring>
+#include <iostream>
 #include <limits>
 
-#include <iostream>
+#include "lsexpr.h"
 
 Lsexpr::Lsexpr() : label(""), is_atom(false), atom(""), sequence() {}
 

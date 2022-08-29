@@ -1,44 +1,10 @@
 #ifndef PARALLEL_UTILS_H_
 #define PARALLEL_UTILS_H_
 
-#include <Kokkos_Core.hpp>
 #include <iostream>
-#include <mpi.h>
 #include <vector>
 
 #include "commxx.h"
-
-#if defined BUILD_FD_SPACE_CHARGE_SOLVER
-#include <petsc.h>
-#include <string>
-#endif
-
-namespace synergia {
-
-  /// Initialize synergia. This function initializes MPI, Kokkos and
-  /// PETSc if it is included.
-  /// @param argc number of arguments
-  /// @param argv arguments given to the program
-  void initialize(int argc, char* argv[]);
-
-  /// Finalize synergia. This function finalizes MPI, Kokkos and
-  /// PETSc if it is included.
-  void finalize();
-}
-
-/// Perform a one-dimensional decomposition. In cases where the decomposition
-/// is uneven, i.e., processors is not an integral multiple of length, the
-/// extra items are assigned to the higher-numbered processors.
-/// @param processors is the number of processors.
-/// @param length is the length of the vector to decompose.
-/// @param offsets is a vector of length processors that will be filled with
-/// the vector offsets on each processor.
-/// @param counts is a vector of length processors that will be filled with
-/// the number of counts assigned to each processor.
-void decompose_1d_raw(int processors,
-                      int length,
-                      std::vector<int>& offsets,
-                      std::vector<int>& counts);
 
 /// See decompose_1d_raw. The number of processors is extracted from the
 /// Commxx object.

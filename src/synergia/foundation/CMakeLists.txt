@@ -2,13 +2,13 @@ add_library(synergia_foundation four_momentum.cc reference_particle.cc
                                 distribution.cc)
 
 target_link_libraries(synergia_foundation synergia_parallel_utils lsexpr
-                      GSL::gsl GSL::gslcblas ${kokkos_libs})
+                      GSL::gsl GSL::gslcblas)
 
 target_link_options(synergia_foundation PRIVATE ${LINKER_OPTIONS})
 
 if(BUILD_PYTHON_BINDINGS)
   pybind11_add_module(foundation MODULE NO_EXTRAS foundation_pywrap.cc)
-  target_link_libraries(foundation PRIVATE synergia_foundation)
+  target_link_libraries(foundation PRIVATE synergia_foundation ${kokkos_libs})
   copy_file(__init__.py foundation)
 endif()
 

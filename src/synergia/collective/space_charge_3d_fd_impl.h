@@ -100,17 +100,24 @@ struct GlobalCtx {
                                    local vectors to all subcomm vectors */
   IS iy_scat_glocal_to_subcomms; /*! IndexSet for scatters from global alias of
                                    local vectors to all subcomm vectors */
-
-  /*! type of all vectors */
-  const std::string
-#if defined KOKKOS_ENABLE_CUDA
-    vectype = "VECCUDA";
-#elif defined KOKKOS_ENABLE_OPENMP
-    vectype = "VECSTANDARD";
-#endif
-
   std::vector<PetscMPIInt>
     sids; /*! holds the solversubcommmid's from each solver */
+
+  /*! type of matrix created */
+  static constexpr MatType
+#if defined KOKKOS_ENABLE_CUDA
+    mattype = "aijcusparse";
+#elif defined KOKKOS_ENABLE_OPENMP
+    mattype = "aij";
+#endif
+
+  /*! type of all vectors on subcomms */
+  static constexpr VecType
+#if defined KOKKOS_ENABLE_CUDA
+    vectype = "cuda";
+#elif defined KOKKOS_ENABLE_OPENMP
+    vectype = "standard";
+#endif
 
   /*! function pointer to hold the appropriate function for creating vectors
       with array */

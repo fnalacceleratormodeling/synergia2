@@ -1,27 +1,16 @@
-if((NOT ${USE_EXTERNAL_KOKKOS}) AND ("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA"
-                                    ))
-  # We are using nvcc-wrapper, need to set these flags for now.
-  set_source_files_properties(mx_parse.cc PROPERTIES COMPILE_FLAGS --host-only)
-  set_source_files_properties(mx_tree.cc PROPERTIES COMPILE_FLAGS --host-only)
-  set_source_files_properties(madx.cc PROPERTIES COMPILE_FLAGS --host-only)
-endif()
+# This library is built separately to avoid linking to kokkos directly and avoid
+# calling host only functions from host-device code.
+add_library(synergia_lattice_hostonly mx_expr.cc mx_parse.cc mx_tree.cc madx.cc
+                                      lattice_tree.cc)
+target_link_libraries(synergia_lattice_hostonly synergia_foundation)
+target_link_options(synergia_lattice_hostonly PRIVATE ${LINKER_OPTIONS})
 
 add_library(
   synergia_lattice
-  lattice_element.cc
-  lattice_element_processor.cc
-  lattice.cc
-  lattice_element_slice.cc
-  dynamic_lattice.cc
-  lattice_tree.cc
-  madx.cc
-  mx_expr.cc
-  mx_parse.cc
-  mx_tree.cc
-  madx_reader.cc)
-
-target_link_libraries(synergia_lattice synergia_foundation synergia_bunch)
-
+  dynamic_lattice.cc madx_reader.cc lattice_element.cc lattice_element_slice.cc
+  lattice_element_processor.cc lattice.cc)
+target_link_libraries(synergia_lattice PUBLIC synergia_lattice_hostonly
+                                              synergia_hdf5_utils)
 target_link_options(synergia_lattice PRIVATE ${LINKER_OPTIONS})
 
 if(BUILD_PYTHON_BINDINGS)
@@ -36,7 +25,8 @@ if(BUILD_PYTHON_BINDINGS)
 
 endif()
 
-install(TARGETS synergia_lattice DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS synergia_lattice synergia_lattice_hostonly
+        DESTINATION ${LIB_INSTALL_DIR})
 
 install(
   FILES lattice_element.h

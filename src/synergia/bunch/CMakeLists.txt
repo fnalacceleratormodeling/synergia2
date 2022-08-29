@@ -1,11 +1,7 @@
-if((NOT ${USE_EXTERNAL_KOKKOS}) AND ("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA"
-                                    ))
-  # We are using nvcc-wrapper, need to set these flags for now.
-  set_source_files_properties(populate_host.cc PROPERTIES COMPILE_FLAGS
-                                                          --host-only)
-  set_source_files_properties(diagnostics_full2_host.cc PROPERTIES COMPILE_FLAGS
-                                                                   --host-only)
-endif()
+# This library is built separately to avoid linking to kokkos directly and avoid
+# calling host only functions from host-device code.
+add_library(synergia_bunch_hostonly diagnostics_full2_host.cc populate_host.cc)
+target_link_options(synergia_bunch_hostonly PRIVATE ${LINKER_OPTIONS})
 
 add_library(
   synergia_bunch
@@ -24,11 +20,11 @@ add_library(
   populate_global.cc
   populate_host.cc
   period.cc)
-
 target_link_libraries(
-  synergia_bunch synergia_parallel_utils synergia_hdf5_utils
-  synergia_foundation synergia_serialization ${kokkos_libs})
-
+  synergia_bunch
+  PUBLIC synergia_bunch_hostonly synergia_parallel_utils synergia_hdf5_utils
+         synergia_foundation synergia_serialization
+  PRIVATE ${kokkos_libs})
 target_link_options(synergia_bunch PRIVATE ${LINKER_OPTIONS})
 
 if(BUILD_PYTHON_BINDINGS)
@@ -38,7 +34,8 @@ if(BUILD_PYTHON_BINDINGS)
   # from exposing to Python as well set_target_properties(synergia_pydiag
   # PROPERTIES CXX_VISIBILITY_PRESET "hidden")
 
-  target_link_libraries(synergia_pydiag PRIVATE synergia_bunch pybind11::module)
+  target_link_libraries(synergia_pydiag PRIVATE synergia_bunch ${kokkos_libs}
+                                                pybind11::module)
 
   pybind11_add_module(bunch MODULE NO_EXTRAS bunch_pywrap.cc)
   target_link_libraries(bunch PRIVATE synergia_bunch synergia_pydiag)
@@ -50,7 +47,9 @@ if(BUILD_PYTHON_BINDINGS)
 
 endif()
 
-install(TARGETS synergia_bunch DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS synergia_bunch synergia_bunch_hostonly
+        DESTINATION ${LIB_INSTALL_DIR})
+
 install(
   FILES bunch.h
         bunch_train.h
@@ -65,6 +64,7 @@ install(
         populate.h
         period.h
   DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/bunch)
+
 if(BUILD_PYTHON_BINDINGS)
   install(FILES __init__.py DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
   install(TARGETS bunch DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)

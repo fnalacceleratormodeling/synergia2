@@ -117,7 +117,7 @@ namespace Lattice_simulator {
 
 }
 
-#ifdef __CUDA_ARCH__
+#ifdef SYNERGIA_ENABLE_CUDA
 
 // no implementations for CUDA arch
 

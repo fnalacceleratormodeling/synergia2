@@ -1030,4 +1030,4 @@ Lattice_simulator::adjust_chromaticities(Lattice& lattice,
       "Convergence not achieved. Increase the maximum number of steps.");
 }
 
-#endif // __CUDA_ARCH__
+#endif // SYNERGIA_ENABLE_CUDA
