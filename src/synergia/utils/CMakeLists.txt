@@ -24,6 +24,7 @@ target_link_libraries(
 add_library(synergia_hdf5_utils hdf5_file.cc hdf5_misc.cc)
 target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES}
                       synergia_parallel_utils ${kokkos_libs})
+target_include_directories(synergia_hdf5_utils PUBLIC ${HDF5_INCLUDE_DIRS})
 target_link_options(synergia_hdf5_utils PRIVATE ${LINKER_OPTIONS})
 
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
@@ -36,8 +37,11 @@ else()
               distributed_fft3d_rect_fftw.cc)
   set(FFT_LIB ${PARALLEL_FFTW_LIBRARIES})
 endif()
-
 add_library(synergia_distributed_fft ${FFT_SRC})
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
+  target_include_directories(synergia_distributed_fft
+                             PUBLIC ${FFTW3_INCLUDE_DIR})
+endif()
 target_link_libraries(synergia_distributed_fft ${FFT_LIB}
                       synergia_parallel_utils ${kokkos_libs})
 target_link_options(synergia_distributed_fft PRIVATE ${LINKER_OPTIONS})
@@ -62,7 +66,8 @@ if(BUILD_PYTHON_BINDINGS)
   target_link_libraries(
     utils
     PRIVATE ${kokkos_libs}
-            $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
+            $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>
+            MPI::MPI_C)
 
   copy_file(__init__.py utils)
 

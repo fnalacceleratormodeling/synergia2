@@ -21,19 +21,18 @@ enable_testing()
 
 # project specific cmake modules
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
+include(CopyFile)
+include(MPITest)
+include(AddPythonTest)
 
 # versions
-set(SYNERGIA2_VERSION_MAJOR 2018) # year
-set(SYNERGIA2_VERSION_MINOR 02) # month
-set(SYNERGIA2_VERSION_PATCH 20) # day
+set(SYNERGIA2_VERSION_MAJOR 2022) # year
+set(SYNERGIA2_VERSION_MINOR 08) # month
+set(SYNERGIA2_VERSION_PATCH 31) # day
 set(SYNERGIA2_VERSION_TWEAK 00) # sub-day counter
 set(SYNERGIA2_VERSION
     "${SYNERGIA2_VERSION_MAJOR}.${SYNERGIA2_VERSION_MINOR}.${SYNERGIA2_VERSION_PATCH}.${SYNERGIA2_VERSION_TWEAK}"
 )
-
-set(SYNERGIA_MAJOR_VERSION 3)
-set(SYNERGIA_MINOR_VERSION 1)
-set(SYNERGIA_SUBMINOR_VERSION 00)
 
 # Make sure we know which Kokkos back end we're using. If none is specified on
 # the command line, the default is OpenMP.
@@ -112,15 +111,6 @@ set(CMAKE_SHARED_LINKER_FLAGS
 set(CMAKE_MODULE_LINKER_FLAGS
     "${CMAKE_MODULE_LINKER_FLAGS} ${COMPILER_SPECIFIC_SHARED_LINKER_FLAGS}")
 
-# misc
-include(CopyFile)
-include(MPITest)
-include(SmartIncludeDirectories)
-include(AddPythonTest)
-
-# include dirs
-set(extra_includes)
-
 # options
 option(SIMPLE_TIMER "use the simple timer 2 profiling" OFF)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" ON)
@@ -167,7 +157,6 @@ set(MPI_CXX_SKIP_MPICXX
 set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
 find_package(MPI REQUIRED COMPONENTS C CXX) # CXX means we need to call C-APIs
                                             # in C++ code
-list(APPEND extra_includes ${MPI_C_INCLUDE_DIRS})
 add_compile_definitions(${MPI_CXX_COMPILE_DEFINITIONS})
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
 
@@ -209,18 +198,9 @@ if((Kokkos_VERSION_MAJOR LESS 3) OR (Kokkos_VERSION_MINOR LESS 7))
   message(FATAL_ERROR "Need at least Kokkos 3.7.00!")
 endif()
 
-# We still use OpenMP directly, so just add those flags for host-only build at
-# this stage
-if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
-  find_package(OpenMP REQUIRED)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
 # HDF5
 set(HDF5_PREFER_PARALLEL true)
 find_package(HDF5 REQUIRED)
-list(APPEND extra_includes ${HDF5_INCLUDE_DIRS})
 
 if(HDF5_IS_PARALLEL)
   message(STATUS "Using parallel hdf5")
@@ -235,7 +215,6 @@ find_package(GSL REQUIRED)
 # FFTW3
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "OpenMP")
   find_package(FFTW3 REQUIRED)
-  list(APPEND extra_includes ${FFTW3_INCLUDE_DIR})
 
   if(NOT FFTW3_MPI_FOUND)
     message(FATAL_ERROR "Missing FFTW3-mpi")
@@ -406,9 +385,6 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# include paths
-smart_include_directories("${extra_includes}")
 
 add_subdirectory(src)
 

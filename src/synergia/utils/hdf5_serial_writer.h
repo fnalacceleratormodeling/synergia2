@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "hdf5.h"
+#include <hdf5.h>
 
 #include "synergia/utils/cereal.h"
 #include "synergia/utils/hdf5_misc.h"

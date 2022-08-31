@@ -8,8 +8,7 @@
 #include <vector>
 
 #include <Kokkos_Core.hpp>
-
-#include "hdf5.h"
+#include <hdf5.h>
 
 namespace storage_order {
   constexpr int c = 0;

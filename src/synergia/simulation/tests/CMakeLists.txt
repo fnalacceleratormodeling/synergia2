@@ -1,4 +1,3 @@
-
 add_executable(test_bunch_simulator_mpi test_bunch_simulator_mpi.cc)
 target_link_libraries(test_bunch_simulator_mpi synergia_simulation
                       synergia_test_main)
