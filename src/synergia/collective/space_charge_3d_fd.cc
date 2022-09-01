@@ -277,9 +277,10 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
 
   // DEBUGGING!
   if (gctx.dumps) {
-    // Disable this temporarily until a commxx of type MPI_COMM_SELF
-    // can be created
     /*
+      Disable this temporarily until a commxx of type MPI_COMM_SELF
+      can be created
+
 PetscCall(PetscPrintf(gctx.bunch_comm,
                     "Dumping enx/eny/enz vector on all ranks!\n"));
 
@@ -438,13 +439,7 @@ Space_charge_3d_fd::allocate_sc3d_fd(const Bunch& bunch)
   /* store MPI communicator of bunch in gctx */
   PetscCall(PetscCommDuplicate(bunch_comm, &gctx.bunch_comm, NULL));
   PetscCallMPI(MPI_Comm_rank(gctx.bunch_comm, &gctx.global_rank));
-  PetscCall(PetscPrintf(
-    PETSC_COMM_WORLD, "Hello from MPI rank %d\n", gctx.global_rank));
-  PetscCall(PetscBarrier(NULL));
   PetscCallMPI(MPI_Comm_size(gctx.bunch_comm, &gctx.global_size));
-  PetscCall(
-    PetscPrintf(PETSC_COMM_WORLD, "Global size is %d\n", gctx.global_size));
-  PetscCall(PetscBarrier(NULL));
 
   /* Initialize task subcomms, display task-subcomm details */
   PetscCall(init_solver_subcomms(sctx, gctx));
