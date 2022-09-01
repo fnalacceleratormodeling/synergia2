@@ -16,6 +16,7 @@ enum class LongitudinalDistribution {
   uniform,
 };
 
+#ifdef BUILD_FD_SPACE_CHARGE_SOLVER
 struct Space_charge_3d_fd_options {
 
   std::array<int, 3> shape;
@@ -41,6 +42,7 @@ struct Space_charge_3d_fd_options {
     ar(comm_group_size);
   }
 };
+#endif
 
 struct Space_charge_3d_open_hockney_options {
 

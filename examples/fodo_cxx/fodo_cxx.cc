@@ -17,7 +17,11 @@
 #include <iostream>
 #include <string>
 
+#ifdef BUILD_FD_SPACE_CHARGE_SOLVER
 #include "synergia/collective/space_charge_3d_fd.h"
+#else
+#include "synergia/collective/Space_charge_3d_open_hockney.h"
+#endif
 
 #include "fodo_cxx_options.h"
 
@@ -90,7 +94,11 @@ run(Fodo_cxx_options opts)
   lattice.set_reference_particle(refpart);
 
   // space charge
+#ifdef BUILD_FD_SPACE_CHARGE_SOLVER
   Space_charge_3d_fd_options sc_ops(gridx, gridy, gridz);
+#else
+  Space_charge_3d_open_hockney_options sc_ops(gridx, gridy, gridz);
+#endif
   sc_ops.comm_group_size = 1;
 
   // stepper

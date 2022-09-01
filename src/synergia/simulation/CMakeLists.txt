@@ -1,19 +1,14 @@
-if((NOT ${USE_EXTERNAL_KOKKOS}) AND ("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA"
-                                    ))
-  # We are using nvcc-wrapper, need to set these flags for now.
-  set_source_files_properties(checkpoint_json.cc PROPERTIES COMPILE_FLAGS
-                                                            --host-only)
-  set_source_files_properties(lattice_simulator_host.cc PROPERTIES COMPILE_FLAGS
-                                                                   --host-only)
-endif()
-
 add_library(synergia_bunchsim bunch_simulator.cc independent_operation.cc
                               independent_operator.cc operation_extractor.cc)
-
 target_link_libraries(synergia_bunchsim synergia_foundation synergia_bunch
                       synergia_lattice)
-
 target_link_options(synergia_bunchsim PRIVATE ${LINKER_OPTIONS})
+
+add_library(synergia_simulation_hostonly checkpoint_json.cc
+                                         lattice_simulator_host.cc)
+target_link_libraries(synergia_simulation_hostonly synergia_foundation
+                      synergia_parallel_utils)
+target_link_options(synergia_simulation_hostonly PRIVATE ${LINKER_OPTIONS})
 
 add_library(
   synergia_simulation
@@ -24,13 +19,15 @@ add_library(
   split_operator_stepper_elements.cc
   propagator.cc
   lattice_simulator.cc
-  lattice_simulator_host.cc
-  checkpoint.cc
-  checkpoint_json.cc)
-
-target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
-                      synergia_lattice synergia_bunchsim synergia_collective)
-
+  checkpoint.cc)
+target_link_libraries(
+  synergia_simulation
+  synergia_simulation_hostonly
+  synergia_foundation
+  synergia_bunch
+  synergia_lattice
+  synergia_bunchsim
+  synergia_collective)
 target_link_options(synergia_simulation PRIVATE ${LINKER_OPTIONS})
 
 if(BUILD_PYTHON_BINDINGS)
@@ -44,8 +41,8 @@ if(BUILD_PYTHON_BINDINGS)
 
 endif()
 
-install(TARGETS synergia_simulation synergia_bunchsim
-        DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS synergia_simulation_hostonly synergia_simulation
+                synergia_bunchsim DESTINATION ${LIB_INSTALL_DIR})
 
 install(
   FILES bunch_simulator.h
