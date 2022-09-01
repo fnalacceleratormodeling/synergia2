@@ -22,12 +22,8 @@ add_library(
   checkpoint.cc)
 target_link_libraries(
   synergia_simulation
-  synergia_simulation_hostonly
-  synergia_foundation
-  synergia_bunch
-  synergia_lattice
-  synergia_bunchsim
-  synergia_collective)
+  PUBLIC synergia_simulation_hostonly synergia_foundation synergia_bunch
+         synergia_lattice synergia_bunchsim synergia_collective)
 target_link_options(synergia_simulation PRIVATE ${LINKER_OPTIONS})
 
 if(BUILD_PYTHON_BINDINGS)
