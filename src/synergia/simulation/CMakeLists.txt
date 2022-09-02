@@ -6,8 +6,6 @@ target_link_options(synergia_bunchsim PRIVATE ${LINKER_OPTIONS})
 
 add_library(synergia_simulation_hostonly checkpoint_json.cc
                                          lattice_simulator_host.cc)
-target_link_libraries(synergia_simulation_hostonly synergia_foundation
-                      synergia_parallel_utils)
 target_link_options(synergia_simulation_hostonly PRIVATE ${LINKER_OPTIONS})
 
 add_library(
