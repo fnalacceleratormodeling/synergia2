@@ -43,7 +43,6 @@ Space_charge_3d_fd::Space_charge_3d_fd(Space_charge_3d_fd_options const& ops)
 // Destructor
 Space_charge_3d_fd::~Space_charge_3d_fd()
 {
-
   if (allocated) {
     destroy_sc3d_fd();
     allocated = false;
