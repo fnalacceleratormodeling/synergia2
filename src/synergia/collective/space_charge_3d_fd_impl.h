@@ -7,6 +7,7 @@
 
 #include <petscdmda.h>
 #include <petscksp.h>
+#include <petscmat.h>
 #include <petscviewerhdf5.h>
 
 #include "synergia/utils/kokkos_views.h"
@@ -77,7 +78,7 @@ struct GlobalCtx {
     PETSC_FALSE;                    /*! enable KSPConvergedReason to stdout */
   PetscBool ksp_view = PETSC_FALSE; /*! enable KSPView to stdout */
   PetscBool debug = PETSC_FALSE;    /*! enable verbose outputs */
-  PetscBool dumps = PETSC_FALSE;    /*! enable dumping states to HDF5 files */
+  PetscBool dumps = PETSC_TRUE;    /*! enable dumping states to HDF5 files */
   PetscMPIInt global_rank = -1;     /*! global MPI communicator rank */
   PetscMPIInt global_size = -1;     /*! global MPI communicator size */
 

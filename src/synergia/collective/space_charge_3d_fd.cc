@@ -226,6 +226,21 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
 
   // DEBUGGING!
   if (gctx.dumps) {
+    PetscViewer ascii_viewer;
+    PetscCall(
+      PetscPrintf(gctx.bunch_comm, "Dumping matrix on all subcomms!\n"));
+    std::string filename = "mat_on_subcomm";
+    filename.append(std::to_string(sctx.solversubcommid));
+    filename.append(".ascii");
+    PetscCall(PetscObjectSetName((PetscObject)(sctx.A), "A_on_sctx"));
+    PetscCall(PetscViewerASCIIOpen(
+      sctx.solversubcomm, filename.c_str(), &ascii_viewer));
+    PetscCall(MatView(sctx.A, ascii_viewer));
+    PetscCall(PetscViewerDestroy(&ascii_viewer));
+  }
+
+  // DEBUGGING!
+  if (gctx.dumps) {
     PetscViewer hdf5_viewer;
     PetscCall(
       PetscPrintf(gctx.bunch_comm, "Dumping phi vector on all subcomms!\n"));

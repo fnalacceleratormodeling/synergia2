@@ -1,4 +1,5 @@
 #include "space_charge_3d_fd_utils.h"
+#include "Kokkos_Core.hpp"
 
 /* --------------------------------------------------------------------- */
 /*!
@@ -147,6 +148,8 @@ init_subcomm_vecs(SubcommCtx& sctx, GlobalCtx& gctx)
 PetscErrorCode
 init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
 {
+  DMDALocalInfo info; /* For storing DMDA info */
+
   PetscFunctionBeginUser;
 
   PetscCall(DMDACreate3d(gctx.bunch_comm,
@@ -172,7 +175,93 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
   PetscCall(DMSetUp(sctx.da));
 
   /* create discretization matrix */
-  PetscCall(DMCreateMatrix(sctx.da, &(sctx.A)));
+  PetscCall(MatCreate(PetscObjectComm((PetscObject)sctx.da), &(sctx.A)));
+  PetscCall(MatSetSizes(sctx.A, gctx.nsize, gctx.nsize, PETSC_DECIDE, PETSC_DECIDE));
+  PetscCall(MatSetType(sctx.A, gctx.mattype));
+  PetscCall(MatSetFromOptions(sctx.A));
+
+  /* Gather DMDA local info for preallocation of matrix */
+  PetscCall(DMDAGetLocalInfo(sctx.da, &info));
+
+  PetscInt i, j, k;
+  PetscCount ncoo =
+    ((PetscCount)info.xm) * ((PetscCount)info.ym) * ((PetscCount)info.zm) * 7;
+  PetscInt *coo_i, *coo_j, *ip, *jp;
+  MatStencil row, col[7];
+
+  /* reference :
+   ${PETSC_DIR}/src/snes/tutorials/ex55k.kokkos.cxx */
+
+  /* allocate array indices */
+  PetscCall(PetscMalloc2(
+    ncoo,
+    &coo_i,
+    ncoo,
+    &coo_j)); /* 7-point stencil such that each row has at most 7 nonzeros */
+
+  ip = coo_i;
+  jp = coo_j;
+  for (k = info.zs; k < info.zs + info.zm; k++) {
+    for (j = info.ys; j < info.ys + info.ym; j++) {
+      for (i = info.xs; i < info.xs + info.xm; i++) {
+        row.i = i;
+        row.j = j;
+        row.k = k;
+
+        /* Initialize neighbors with negative indices */
+        col[0].j = col[1].j = col[2].j = col[4].j = col[5].j = col[6].j = -1;
+
+        /* on boundaries, only one element is present */
+        if (i == 0 || j == 0 || k == 0 || i == info.mx - 1 ||
+            j == info.my - 1 || k == info.mz - 1) {
+          col[3].i = row.i;
+          col[3].j = row.j;
+          col[3].k = row.k;
+        } else {
+
+          col[0].i = i;
+          col[0].j = j;
+          col[0].k = k - 1;
+
+          col[1].i = i;
+          col[1].j = j - 1;
+          col[1].k = k;
+
+          col[2].i = i - 1;
+          col[2].j = j;
+          col[2].k = k;
+
+          col[3].i = row.i;
+          col[3].j = row.j;
+          col[3].k = row.k;
+
+          col[4].i = i + 1;
+          col[4].j = j;
+          col[4].k = k;
+
+          col[5].i = i;
+          col[5].j = j + 1;
+          col[5].k = k;
+
+          col[6].i = i;
+          col[6].j = j;
+          col[6].k = k + 1;
+        }
+
+        PetscCall(DMDAMapMatStencilToGlobal(info.da, 7, col, jp));
+        for (PetscInt k = 0; k < 7; k++) ip[k] = jp[3];
+        ip += 7;
+        jp += 7;
+      }
+    }
+  }
+
+  /* Preallocate matrix, this is symbolic and sets the locations
+     where we will add numeric values later, repeatedly */
+  PetscCall(MatSetPreallocationCOO(sctx.A, ncoo, coo_i, coo_j));
+
+  /* Free memory, perhaps this should use C++ arrays instead */
+  PetscCall(PetscFree2(coo_i, coo_j));
 
   PetscFunctionReturn(0);
 }
@@ -188,6 +277,7 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
 PetscErrorCode
 compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
 {
+
   PetscFunctionBeginUser;
 
   DMDALocalInfo info; /* For storing DMDA info */
@@ -210,62 +300,40 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
   hxdhyhz = (hx * hz) / hy;
   dhxhyhz = (hy * hz) / hx;
 
-  for (k = info.zs; k < info.zs + info.zm; k++) {
-    for (j = info.ys; j < info.ys + info.ym; j++) {
-      for (i = info.xs; i < info.xs + info.xm; i++) {
-        row.i = i;
-        row.j = j;
-        row.k = k;
-        if (i == 0 || j == 0 || k == 0 || i == info.mx - 1 ||
-            j == info.my - 1 || k == info.mz - 1) {
-          v[0] = 1.0; // on boundary: trivial equation
-          PetscCall(
-            MatSetValuesStencil(sctx.A, 1, &row, 1, &row, v, INSERT_VALUES));
-        } else {
-          v[0] = -hxhydhz;
-          col[0].i = i;
-          col[0].j = j;
-          col[0].k = k - 1;
+  PetscCount ncoo =
+    ((PetscCount)info.xm) * ((PetscCount)info.ym) * ((PetscCount)info.zm) * 7;
 
-          v[1] = -hxdhyhz;
-          col[1].i = i;
-          col[1].j = j - 1;
-          col[1].k = k;
+  karray1d_dev coo_v("coo_v",
+                     ncoo); /* Kokkos view containing the matrix values */
 
-          v[2] = -dhxhyhz;
-          col[2].i = i - 1;
-          col[2].j = j;
-          col[2].k = k;
+  PetscCallCXX(Kokkos::parallel_for(
+    "ComputeMat",
+    Kokkos::MDRangePolicy<
+      Kokkos::Rank<3, Kokkos::Iterate::Right, Kokkos::Iterate::Right>>(
+      {info.zs, info.ys, info.xs},
+      {info.zs + info.zm, info.ys + info.ym, info.xs + info.xm}),
+    KOKKOS_LAMBDA(PetscCount k, PetscCount j, PetscCount i) {
+      PetscInt p =
+        ((k - info.zs) * info.ym * info.xm + (j - info.ys) * info.xm + (i - info.xs)) * 7;
 
-          v[3] = 2 * (hxhydhz + hxdhyhz + dhxhyhz);
-          col[3].i = row.i;
-          col[3].j = row.j;
-          col[3].k = row.k;
+      if (i == 0 || j == 0 || k == 0 || i == info.mx - 1 || j == info.my - 1 ||
+          k == info.mz - 1) {
 
-          v[4] = -dhxhyhz;
-          col[4].i = i + 1;
-          col[4].j = j;
-          col[4].k = k;
+        coo_v(p + 3) = 1.0; // on boundary: trivial equation
+			    
+      } else {
 
-          v[5] = -hxdhyhz;
-          col[5].i = i;
-          col[5].j = j + 1;
-          col[5].k = k;
-
-          v[6] = -hxhydhz;
-          col[6].i = i;
-          col[6].j = j;
-          col[6].k = k + 1;
-
-          PetscCall(
-            MatSetValuesStencil(sctx.A, 1, &row, 7, col, v, INSERT_VALUES));
-        }
+        coo_v(p + 0) = -hxhydhz;
+        coo_v(p + 1) = -hxdhyhz;
+        coo_v(p + 2) = -dhxhyhz;
+        coo_v(p + 3) = 2 * (hxhydhz + hxdhyhz + dhxhyhz);
+        coo_v(p + 4) = -dhxhyhz;
+        coo_v(p + 5) = -hxdhyhz;
+        coo_v(p + 6) = -hxhydhz;
       }
-    }
-  }
+    }));
 
-  PetscCall(MatAssemblyBegin(sctx.A, MAT_FINAL_ASSEMBLY));
-  PetscCall(MatAssemblyEnd(sctx.A, MAT_FINAL_ASSEMBLY));
+  PetscCall(MatSetValuesCOO(sctx.A, coo_v.data(), INSERT_VALUES));
 
   /* create krylov solver */
   PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
