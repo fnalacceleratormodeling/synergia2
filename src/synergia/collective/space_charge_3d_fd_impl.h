@@ -78,7 +78,7 @@ struct GlobalCtx {
     PETSC_FALSE;                    /*! enable KSPConvergedReason to stdout */
   PetscBool ksp_view = PETSC_FALSE; /*! enable KSPView to stdout */
   PetscBool debug = PETSC_FALSE;    /*! enable verbose outputs */
-  PetscBool dumps = PETSC_TRUE;    /*! enable dumping states to HDF5 files */
+  PetscBool dumps = PETSC_FALSE;    /*! enable dumping states to HDF5 files */
   PetscMPIInt global_rank = -1;     /*! global MPI communicator rank */
   PetscMPIInt global_size = -1;     /*! global MPI communicator size */
 
@@ -121,7 +121,7 @@ struct GlobalCtx {
 #endif
 
   /*! function pointer to hold the appropriate function for creating vectors
-      with array */
+    with array */
   std::function<PetscErrorCode(MPI_Comm,
                                PetscInt,
                                PetscInt,

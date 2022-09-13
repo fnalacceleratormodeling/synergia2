@@ -46,7 +46,7 @@ init_local_vecs(LocalCtx& lctx, GlobalCtx& gctx)
   \param   sctx - subcomm context
   \param   gctx - global context
   \return  ierr - PetscErrorCode
-*/
+  */
 PetscErrorCode
 init_solver_subcomms(SubcommCtx& sctx, GlobalCtx& gctx)
 {
@@ -176,7 +176,8 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
 
   /* create discretization matrix */
   PetscCall(MatCreate(PetscObjectComm((PetscObject)sctx.da), &(sctx.A)));
-  PetscCall(MatSetSizes(sctx.A, gctx.nsize, gctx.nsize, PETSC_DECIDE, PETSC_DECIDE));
+  PetscCall(
+    MatSetSizes(sctx.A, gctx.nsize, gctx.nsize, PETSC_DECIDE, PETSC_DECIDE));
   PetscCall(MatSetType(sctx.A, gctx.mattype));
   PetscCall(MatSetFromOptions(sctx.A));
 
@@ -190,7 +191,7 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
   MatStencil row, col[7];
 
   /* reference :
-   ${PETSC_DIR}/src/snes/tutorials/ex55k.kokkos.cxx */
+     ${PETSC_DIR}/src/snes/tutorials/ex55k.kokkos.cxx */
 
   /* allocate array indices */
   PetscCall(PetscMalloc2(
@@ -313,14 +314,15 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
       {info.zs, info.ys, info.xs},
       {info.zs + info.zm, info.ys + info.ym, info.xs + info.xm}),
     KOKKOS_LAMBDA(PetscCount k, PetscCount j, PetscCount i) {
-      PetscInt p =
-        ((k - info.zs) * info.ym * info.xm + (j - info.ys) * info.xm + (i - info.xs)) * 7;
+      PetscInt p = ((k - info.zs) * info.ym * info.xm +
+                    (j - info.ys) * info.xm + (i - info.xs)) *
+                   7;
 
       if (i == 0 || j == 0 || k == 0 || i == info.mx - 1 || j == info.my - 1 ||
           k == info.mz - 1) {
 
         coo_v(p + 3) = 1.0; // on boundary: trivial equation
-			    
+
       } else {
 
         coo_v(p + 0) = -hxhydhz;
@@ -337,16 +339,28 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
 
   /* create krylov solver */
   PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
-  PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
+  PetscCall(KSPSetType(sctx.ksp, KSPCG));
   PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
   PetscCall(KSPSetFromOptions(sctx.ksp));
   PetscCall(KSPSetUp(sctx.ksp));
-  // PetscCall(KSPSetDM(sctx.ksp, sctx.da));
 
   /* set preconditioner */
   PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
   PetscCall(PCSetType(sctx.pc, PCASM));
   PetscCall(PCSetUp(sctx.pc));
+
+#if defined SYNERGIA_ENABLE_CUDA
+  KSP* subksp;            /* array of KSP contexts for local subblocks */
+  PetscInt nlocal, first; /* number of local subblocks, first local subblock */
+  PC subpc;               /* PC context for subblock */
+
+  PetscCall(PCASMGetSubKSP(sctx.pc, &nlocal, NULL, &subksp));
+  for (PetscInt idx = 0; idx < nlocal; idx++) {
+    PetscCall(KSPGetPC(subksp[idx], &subpc));
+    PetscCall(PCSetType(subpc, PCILU));
+    PetscCall(PCFactorSetMatSolverType(subpc, "cusparse"));
+  }
+#endif
 
   /* Enable KSP logging if options are set */
   if (gctx.ksp_view) {
@@ -361,6 +375,8 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
   if (gctx.ksp_monitor_residual) {
     PetscCall(KSPMonitorSet(sctx.ksp, &(MyMonitor), PETSC_NULL, PETSC_NULL));
   }
+
+  PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_TRUE));
 
   PetscFunctionReturn(0);
 }
@@ -402,7 +418,7 @@ solve(SubcommCtx& sctx, GlobalCtx& gctx)
   \param   sctx - subcomm context
   \param   gctx - global context
   \return  ierr - PetscErrorCode
-*/
+  */
 PetscErrorCode
 init_global_subcomm_scatters(SubcommCtx& sctx, GlobalCtx& gctx)
 {
@@ -457,7 +473,7 @@ init_global_subcomm_scatters(SubcommCtx& sctx, GlobalCtx& gctx)
   \param   sctx - subcomm context
   \param   gctx - global context
   \return  ierr - PetscErrorCode
-*/
+  */
 PetscErrorCode
 init_subcomm_local_scatters(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 {
@@ -504,7 +520,7 @@ init_subcomm_local_scatters(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
   \param   sctx - subcomm context
   \param   gctx - global context
   \return  ierr - PetscErrorCode
-*/
+  */
 PetscErrorCode
 finalize(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 {
@@ -564,7 +580,7 @@ finalize(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
   \param   rnorm - (estimated) 2-norm of (preconditioned) residual
   \param   mctx - optional monitoring context, as set by KSPMonitorSet()
   \return  ierr - PetscErrorCode
-*/
+  */
 PetscErrorCode
 MyMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void* mctx)
 {
