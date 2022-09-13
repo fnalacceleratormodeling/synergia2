@@ -8,12 +8,12 @@ TEST_CASE("kokkos_padding", "[BunchParticles]")
     auto harr = Kokkos::create_mirror_view(darr);
 
     INFO("This is a test for Kokkos::AllowPadding issue on the "
-            "device memory. If it fails, meaning the issue hasnt "
-            "been fixed in Kokkos yet");
+            "device memory. If it fails, this means the issue "
+            " has been fixed in Kokkos.");
 
     REQUIRE(darr.stride(0) == harr.stride(0));
-    REQUIRE(darr.stride(1) == harr.stride(1));
+    REQUIRE(darr.stride(1) != harr.stride(1));
 
-    CHECK_NOTHROW(Kokkos::deep_copy(harr, darr));
+    CHECK_THROWS(Kokkos::deep_copy(harr, darr));
 }
 
