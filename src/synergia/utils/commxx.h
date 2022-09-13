@@ -1,12 +1,11 @@
 #ifndef COMMXX_H_
 #define COMMXX_H_
 
-#include "mpi.h"
-
 #include <memory>
 #include <vector>
 
 #include <cereal/types/memory.hpp>
+#include <mpi.h>
 
 /// Commxx is a wrapper around MPI communicator (MPI_Comm) objects.
 ///

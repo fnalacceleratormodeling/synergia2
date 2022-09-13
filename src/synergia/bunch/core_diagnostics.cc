@@ -57,7 +57,7 @@ namespace core_diagnostics_impl {
 
     KOKKOS_INLINE_FUNCTION
     void
-    join(volatile value_type dst, const volatile value_type src) const
+    join(value_type dst, const value_type src) const
     {
       for (int j = 0; j < value_count; ++j) dst[j] += src[j];
     }
@@ -84,8 +84,7 @@ namespace core_diagnostics_impl {
   // join
   template <>
   KOKKOS_INLINE_FUNCTION void
-  particle_reducer<min_tag>::join(volatile value_type dst,
-                                  const volatile value_type src) const
+  particle_reducer<min_tag>::join(value_type dst, const value_type src) const
   {
     for (int j = 0; j < value_count; ++j)
       if (dst[j] > src[j]) dst[j] = src[j];
@@ -93,8 +92,7 @@ namespace core_diagnostics_impl {
 
   template <>
   KOKKOS_INLINE_FUNCTION void
-  particle_reducer<max_tag>::join(volatile value_type dst,
-                                  const volatile value_type src) const
+  particle_reducer<max_tag>::join(value_type dst, const value_type src) const
   {
     for (int j = 0; j < value_count; ++j)
       if (dst[j] < src[j]) dst[j] = src[j];

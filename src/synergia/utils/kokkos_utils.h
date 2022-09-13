@@ -5,7 +5,7 @@
 #include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/logger.h"
 
-namespace kt {
+namespace ku {
   struct alg_zeroer {
     karray1d_dev arr;
 

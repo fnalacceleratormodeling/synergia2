@@ -1,6 +1,7 @@
-#include "distributed_fft2d.h"
 #include <cstring>
 #include <stdexcept>
+
+#include "distributed_fft2d.h"
 
 Distributed_fft2d::Distributed_fft2d()
   : Distributed_fft2d_base()

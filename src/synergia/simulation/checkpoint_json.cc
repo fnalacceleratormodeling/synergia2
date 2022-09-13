@@ -1,5 +1,4 @@
 
-
 #include <fstream>
 
 #include "synergia/utils/json.h"

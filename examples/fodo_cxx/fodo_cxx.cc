@@ -12,11 +12,16 @@
 #include "synergia/simulation/split_operator_stepper_elements.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/utils/utils.h"
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-#include "synergia/collective/space_charge_3d_open_hockney.h"
+#ifdef BUILD_FD_SPACE_CHARGE_SOLVER
+#include "synergia/collective/space_charge_3d_fd.h"
+#else
+#include "synergia/collective/Space_charge_3d_open_hockney.h"
+#endif
 
 #include "fodo_cxx_options.h"
 
@@ -89,7 +94,11 @@ run(Fodo_cxx_options opts)
   lattice.set_reference_particle(refpart);
 
   // space charge
+#ifdef BUILD_FD_SPACE_CHARGE_SOLVER
+  Space_charge_3d_fd_options sc_ops(gridx, gridy, gridz);
+#else
   Space_charge_3d_open_hockney_options sc_ops(gridx, gridy, gridz);
+#endif
   sc_ops.comm_group_size = 1;
 
   // stepper
@@ -164,8 +173,7 @@ run(Fodo_cxx_options opts)
 int
 main(int argc, char** argv)
 {
-  MPI_Init(&argc, &argv);
-  Kokkos::initialize(argc, argv);
+  synergia::initialize(argc, argv);
 
   Fodo_cxx_options opts(argc, argv);
 
@@ -177,7 +185,6 @@ main(int argc, char** argv)
   simple_timer_print(logger);
 #endif
 
-  Kokkos::finalize();
-  MPI_Finalize();
+  synergia::finalize();
   return 0;
 }

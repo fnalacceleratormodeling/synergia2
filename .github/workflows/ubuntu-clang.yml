@@ -57,6 +57,7 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) \
           -DENABLE_KOKKOS_BACKEND=OpenMP \
+          -DBUILD_FD_SPACE_CHARGE_SOLVER=ON \
           -DUSE_EXTERNAL_KOKKOS=off -GNinja
 
     - name: build
@@ -99,4 +100,4 @@ jobs:
         export LD_LIBRARY_PATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib64:\${LD_LIBRARY_PATH}
         export PYTHONPATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib/python3.9/site-packages:\${PYTHONPATH}
         cd ${{github.workspace}}/build/examples/fodo
-        mpirun -np 1 python3.9 fodo_readme.py
+        mpirun -np 1 python fodo_readme.py

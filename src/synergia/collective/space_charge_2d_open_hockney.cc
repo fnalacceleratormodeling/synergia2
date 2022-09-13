@@ -1,11 +1,11 @@
 
 #include "space_charge_2d_open_hockney.h"
+#include "deposit.h"
 
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/math_constants.h"
 #include "synergia/foundation/physical_constants.h"
-
-#include "synergia/collective/deposit.h"
+#include "synergia/utils/kokkos_utils.h"
 #include "synergia/utils/simple_timer.h"
 
 using mconstants::pi;
@@ -133,17 +133,6 @@ namespace {
         return val;
     }
 #endif
-
-  struct alg_zeroer {
-    karray1d_dev arr;
-
-    KOKKOS_INLINE_FUNCTION
-    void
-    operator()(const int i) const
-    {
-      arr(i) = 0.0;
-    }
-  };
 
   struct alg_g2_pointlike {
     const double epsilon = 0.01;
@@ -480,7 +469,7 @@ Space_charge_2d_open_hockney::get_local_force2(Distributed_fft2d& fft)
 
   // zero phi2 when using multiple ranks
   if (fft.get_comm().size() > 1) {
-    alg_zeroer az{phi2};
+    ku::alg_zeroer az{phi2};
     Kokkos::parallel_for(dg[0] * dg[1] * 2, az);
   }
 

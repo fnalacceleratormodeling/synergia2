@@ -11,10 +11,6 @@ using namespace py::literals;
 
 PYBIND11_MODULE(parallel_utils, m)
 {
-  // m.def("generate_subcomms", generate_subcomms);
-  // m.def("make_optimal_spc_comm", make_optimal_spc_comm);
-  // m.def("decompose_1d_local", decompose_1d_local);
-
   py::enum_<LoggerV>(m, "LoggerV", py::arithmetic())
     .value("DEBUG", LoggerV::DEBUG)
     .value("DINFO", LoggerV::DINFO)

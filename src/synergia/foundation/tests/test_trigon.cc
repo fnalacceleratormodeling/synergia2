@@ -4,7 +4,8 @@
 
 #include <complex>
 
-template <unsigned int P> using Trig = Trigon<std::complex<double>, P, 6>;
+template <unsigned int P>
+using Trig = Trigon<std::complex<double>, P, 6>;
 static const std::complex<double> complex_zero = {0.0, 0.0};
 
 TEST_CASE("factorials")
@@ -31,12 +32,10 @@ TEST_CASE("arr_t")
 {
   // Default-constructed arr_t objects should be zero-initialized.
   arr_t<double, 6> x1;
-  for (double v : x1) {
-    CHECK(v == 0.0);
-  }
+  for (double v : x1) { CHECK(v == 0.0); }
 
   arr_t<std::complex<double>, 6> x2;
-  for (std::complex<double> v: x2) {
+  for (std::complex<double> v : x2) {
     CHECK(v.real() == 0.0);
     CHECK(v.imag() == 0.0);
   }

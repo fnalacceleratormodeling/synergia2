@@ -1,8 +1,6 @@
 #ifndef HDF5_MISC_H_
 #define HDF5_MISC_H_
 
-#include "hdf5.h"
-
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
@@ -10,6 +8,7 @@
 #include <vector>
 
 #include <Kokkos_Core.hpp>
+#include <hdf5.h>
 
 namespace storage_order {
   constexpr int c = 0;

@@ -9,7 +9,6 @@ using namespace py::literals;
 
 PYBIND11_MODULE(collective, m)
 {
-  // Space_charge_2d_open_hockney_options
   py::class_<Space_charge_2d_open_hockney_options>(
     m, "Space_charge_2d_open_hockney_options")
     .def(py::init<int, int, int>(),
@@ -31,6 +30,18 @@ PYBIND11_MODULE(collective, m)
     .def_readwrite("comm_group_size",
                    &Space_charge_3d_open_hockney_options::comm_group_size,
                    "Communication group size (must be 1 on GPUs).");
+
+#ifdef BUILD_FD_SPACE_CHARGE_SOLVER
+  py::class_<Space_charge_3d_fd_options>(m, "Space_charge_3d_fd_options")
+    .def(py::init<int, int, int>(),
+         "Construct the space charge 3d finite difference solver solver.",
+         "gridx"_a,
+         "gridy"_a,
+         "gridz"_a)
+    .def_readwrite("comm_group_size",
+                   &Space_charge_3d_fd_options::comm_group_size,
+                   "Communication group size (must be 1 on GPUs).");
+#endif
 
   py::class_<Space_charge_rectangular_options>(
     m, "Space_charge_rectangular_options")

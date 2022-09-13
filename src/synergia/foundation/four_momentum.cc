@@ -1,7 +1,9 @@
-#include "four_momentum.h"
-#include "synergia/utils/floating_point.h"
 #include <cmath>
 #include <stdexcept>
+
+#include "synergia/utils/floating_point.h"
+
+#include "four_momentum.h"
 
 void
 Four_momentum::update_from_gamma()

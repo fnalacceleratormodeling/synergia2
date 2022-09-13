@@ -1,9 +1,10 @@
-#include "distribution.h"
 #include <ctime>
 #include <fstream>
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_rng.h>
 #include <stdexcept>
+
+#include "distribution.h"
 
 unsigned long int
 Random_distribution::get_default_seed(const char* device)

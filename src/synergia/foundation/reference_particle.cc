@@ -1,6 +1,7 @@
-#include "reference_particle.h"
-#include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/floating_point.h"
+
+#include "physical_constants.h"
+#include "reference_particle.h"
 
 Reference_particle::Reference_particle()
   : charge(0)

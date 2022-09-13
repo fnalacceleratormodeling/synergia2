@@ -1,9 +1,10 @@
 #ifndef SIMPLE_TIMER_H
 #define SIMPLE_TIMER_H
 
-#include "synergia/utils/logger.h"
 #include <iomanip>
 #include <map>
+
+#include "logger.h"
 
 struct simple_timer_counter {
   struct timing {

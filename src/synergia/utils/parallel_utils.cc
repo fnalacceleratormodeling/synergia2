@@ -1,6 +1,10 @@
-#include "parallel_utils.h"
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
 #include <stdexcept>
+
+#include "parallel_utils.h"
+
 void
 decompose_1d_raw(int processors,
                  int length,
