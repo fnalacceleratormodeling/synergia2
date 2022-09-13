@@ -183,9 +183,9 @@ if(USE_EXTERNAL_KOKKOS)
 else()
   message(STATUS "Using vendored copy of kokkos")
   if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
-    set(CMAKE_CXX_COMPILER
-        "${CMAKE_SOURCE_DIR}/src/synergia/utils/kokkos/bin/nvcc_wrapper")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -expt-relaxed-constexpr")
+    set(Kokkos_ENABLE_CUDA_LAMBDA
+        ON
+        CACHE BOOL "enable CUDA LAMBDA feature" FORCE)
     message(STATUS "Using vendored copy of kokkos with CUDA")
   endif()
   add_subdirectory(src/synergia/utils/kokkos)
