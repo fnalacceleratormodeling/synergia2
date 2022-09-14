@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import pytest
 from synergia.lattice import Lattice, Lattice_element
 from synergia.foundation import Reference_particle
 
@@ -26,3 +26,9 @@ def test_get_reference_particle():
     reference_particle = Reference_particle(charge, mass, total_energy)
     lattice.set_reference_particle(reference_particle)
     assert(lattice.get_reference_particle().equal(reference_particle, tolerance))
+
+def test_throws_without_reference_particle():
+    lattice = Lattice(name)
+    with pytest.raises(RuntimeError):
+        lattice.get_reference_particle()
+
