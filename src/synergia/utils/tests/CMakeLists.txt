@@ -37,10 +37,12 @@ add_mpi_test(test_hdf5_read_mpi 2)
 add_mpi_test(test_hdf5_read_mpi 3)
 add_mpi_test(test_hdf5_read_mpi 4)
 
-add_executable(test_kokkos test_kokkos.cc)
-target_link_libraries(test_kokkos synergia_test_main)
+if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
+  add_executable(test_kokkos test_kokkos.cc)
+  target_link_libraries(test_kokkos synergia_test_main)
 
-add_mpi_test(test_kokkos 1)
+  add_mpi_test(test_kokkos 1)
+endif()
 
 add_executable(test_commxx_mpi test_commxx_mpi.cc)
 target_link_libraries(test_commxx_mpi synergia_parallel_utils
