@@ -20,7 +20,7 @@
 #ifdef BUILD_FD_SPACE_CHARGE_SOLVER
 #include "synergia/collective/space_charge_3d_fd.h"
 #else
-#include "synergia/collective/Space_charge_3d_open_hockney.h"
+#include "synergia/collective/space_charge_3d_open_hockney.h"
 #endif
 
 #include "fodo_cxx_options.h"

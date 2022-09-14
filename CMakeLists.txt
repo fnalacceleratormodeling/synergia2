@@ -6,6 +6,12 @@ endif()
 
 project(SYNERGIA2 LANGUAGES CXX C)
 
+
+if(${CMAKE_VERSION} VERSION_GREATER "3.22.0")
+    cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
+endif()
+
+
 # generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # and place it in the source directory https://stackoverflow.com/a/60910583
@@ -170,6 +176,9 @@ endif()
 if(${MPIEXEC_EXECUTABLE} MATCHES "srun")
   set(MPIEXEC_EXECUTABLE ${MPIEXEC_EXECUTABLE} "--mpi=${SRUN_MPI_PMIX}")
 endif()
+
+# We require OpenMP support
+find_package(OpenMP REQUIRED)
 
 # Follow official kokkos guidelines
 # https://github.com/kokkos/kokkos/wiki/Compiling#42-using-general-cmake-build-system
