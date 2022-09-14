@@ -39,4 +39,4 @@ def test_hdf5_version():
     from_syn_major, from_syn_minor, *_ = version.hdf5_library_version_tuple
     from_h5py_major, from_h5py_minor, *_ = v.hdf5_version_tuple
     assert from_syn_major == from_h5py_major
-    assert from_syn_minor = from_h5py_minor
+    assert from_syn_minor == from_h5py_minor
