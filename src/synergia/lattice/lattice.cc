@@ -256,15 +256,21 @@ Lattice::export_madx_file(std::string const& filename) const
     throw std::runtime_error("Lattice::as_madx_file() unable to create file");
   }
 
-  // "beam, pc={{momentum}}, particle={{particle}}"
-  mxfile << reference_particle.as_madx() << "\n\n";
 
-  // "{{element_label}} : {{element_type}}, {{attr}}={{val}}..."
-  std::unordered_set<std::string> elm_names;
-  for (auto const& e : elements) {
-    mxfile << e.as_madx() << "\n";
-    elm_names.insert(e.get_name());
-  }
+    // "beam, pc={{momentum}}, particle={{particle}}"
+    if (!reference_particle.has_value()) {
+        mxfile << "! This lattice has not defined a reference particle with BEAM statement information\n\n";
+    } else {
+        mxfile << reference_particle.value().as_madx() << "\n\n";
+    }
+    
+    // "{{element_label}} : {{element_type}}, {{attr}}={{val}}..."
+    std::unordered_set<std::string> elm_names;
+    for(auto const& e : elements)
+    {
+        mxfile << e.as_madx() << "\n";
+        elm_names.insert(e.get_name());
+    }
 
   double pos = 0.0;
   int idx = 0;

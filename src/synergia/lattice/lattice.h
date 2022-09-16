@@ -3,6 +3,8 @@
 
 #include <list>
 #include <string>
+#include <optional>
+#include <stdexcept>
 
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/lattice/lattice_element.h"
@@ -37,6 +39,8 @@ private:
   std::list<Lattice_element> elements;
 
   update_flags_t updated;
+    std::optional<Reference_particle> reference_particle;
+    std::list<Lattice_element> elements;
 
   // Lattice tree object for evaluating variables
   // in the lattice element attributes
@@ -98,25 +102,31 @@ public:
     updated.ref = true;
   }
 
-  /// Get the Lattice reference particle (const)
-  Reference_particle const&
-  get_reference_particle() const
-  {
-    return reference_particle;
-  }
 
-  Reference_particle&
-  get_reference_particle()
-  {
-    return reference_particle;
-  }
+    // check whether the reference particle is valid, throw if not
+    static void check_reference_particle_value(std::optional<Reference_particle> reference_particle)
+    {
+       if (!reference_particle.has_value()) {
+            throw std::runtime_error("reference particle not set- did you forget a BEAM? statement?");
+       }    
+    }
 
-  update_flags_t update();
-  update_flags_t
-  is_updated() const
-  {
-    return updated;
-  }
+    /// Get the Lattice reference particle (const)
+    Reference_particle const& get_reference_particle() const
+    {
+        check_reference_particle_value(reference_particle);
+        // only returns if valid
+        return reference_particle.value();
+    }
+        
+    Reference_particle& get_reference_particle()
+    {
+        check_reference_particle_value(reference_particle);
+        // only returns if valid
+        return reference_particle.value();
+    }
+    update_flags_t update();
+    update_flags_t is_updated() const { return updated; }
 
   /// Append a copy of a Lattice_element.
   /// @param element a Lattice_element
@@ -237,18 +247,43 @@ private:
     ar(CEREAL_NVP(tree));
   }
 
-  template <class Archive>
-  void
-  load(Archive& ar)
-  {
-    ar(CEREAL_NVP(name));
-    ar(CEREAL_NVP(reference_particle));
-    ar(CEREAL_NVP(elements));
-    ar(CEREAL_NVP(updated));
-    ar(CEREAL_NVP(tree));
+    template<class Archive>
+    void save(Archive & ar) const
+    {
+        bool has_reference_particle(reference_particle.has_value());
+        Reference_particle reference_particle_value;
 
-    for (auto& e : elements) e.set_lattice(*this);
-  }
+        ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(has_reference_particle));
+        if (has_reference_particle) {
+            reference_particle_value = reference_particle.value();
+            ar(CEREAL_NVP(reference_particle_value));
+        }
+        ar(CEREAL_NVP(elements));
+        ar(CEREAL_NVP(updated));
+        ar(CEREAL_NVP(tree));
+    }
+
+    template<class Archive>
+    void load(Archive & ar)
+    {
+        bool has_reference_particle;
+        Reference_particle reference_particle_value;
+
+        ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(has_reference_particle));
+        if (has_reference_particle) {
+            ar(CEREAL_NVP(reference_particle_value));
+        }
+        ar(CEREAL_NVP(elements));
+        ar(CEREAL_NVP(updated));
+        ar(CEREAL_NVP(tree));
+
+        reference_particle = reference_particle_value;
+        for(auto & e : elements) 
+            e.set_lattice(*this);
+    }
+
 };
 
 #endif /* LATTICE_H_ */
