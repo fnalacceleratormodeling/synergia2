@@ -73,7 +73,7 @@ public:
   /// @param lsexpr representation
   explicit Lattice(Lsexpr const& lsexpr);
 
-#if 0
+#if 0 // as_lsexpr() might come back some day
     /// Extract an Lsexpr representation of the Lattice
     Lsexpr
     as_lsexpr() const;
@@ -132,25 +132,14 @@ public:
   /// @param element a Lattice_element
   void append(Lattice_element const& element);
 
-#if 0
-    /// Derive internal attributes where necessary
-    void derive_internal_attributes();
-
-    /// Derive external attributes where necessary
-    void derive_external_attributes();
-
-    /// Complete all attribute updates. Includes defaults and derivations.
-    void complete_attributes();
-#endif
-
-  /// Set the value of the named double attribute on all elements
-  /// @param name attribute name
-  /// @param value attribute value
-  /// @param increment_revision can be set to false for attributes that do not
-  /// affect dynamics
-  void set_all_double_attribute(std::string const& name,
-                                double value,
-                                bool increment_revision = true);
+    /// Set the value of the named double attribute on all elements
+    /// @param name attribute name
+    /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
+    void
+    set_all_double_attribute(
+            std::string const& name, double value,
+            bool increment_revision = true);
 
   /// Set the value of the named string attribute on all elements
   /// @param name attribute name
