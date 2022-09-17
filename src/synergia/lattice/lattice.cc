@@ -95,7 +95,7 @@ Lattice::Lattice(Lsexpr const& lsexpr)
   }
 }
 
-#if 0
+#if 0 // as_lsexpr() might come back some day
 Lsexpr
 Lattice::as_lsexpr() const
 {
@@ -144,37 +144,6 @@ Lattice::append(Lattice_element const& element)
   elements.back().set_lattice(*this);
   updated.structure = true;
 }
-
-#if 0
-void
-Lattice::derive_external_attributes()
-{
-#if 0
-    bool needed = false;
-    for (Lattice_elements::const_iterator it = elements.begin();
-            it != elements.end(); ++it) {
-        if ((*it)->get_needs_external_derive()) {
-            needed = true;
-        }
-    }
-    if (needed) {
-        if (!reference_particle_allocated) {
-            throw std::runtime_error(
-                    "Lattice::derive_external_attributes requires a reference_particle");
-        }
-        double beta = reference_particle->get_beta();
-        double lattice_length = get_length();
-        for (Lattice_elements::const_iterator it = elements.begin();
-                it != elements.end(); ++it) {
-            if ((*it)->get_needs_external_derive()) {
-                element_adaptor_map_sptr->get_adaptor((*it)->get_type())->set_derived_attributes_external(
-                        *(*it), lattice_length, beta);
-            }
-        }
-    }
-#endif
-}
-#endif
 
 void
 Lattice::set_all_double_attribute(std::string const& name,
@@ -256,15 +225,21 @@ Lattice::export_madx_file(std::string const& filename) const
     throw std::runtime_error("Lattice::as_madx_file() unable to create file");
   }
 
-  // "beam, pc={{momentum}}, particle={{particle}}"
-  mxfile << reference_particle.as_madx() << "\n\n";
 
-  // "{{element_label}} : {{element_type}}, {{attr}}={{val}}..."
-  std::unordered_set<std::string> elm_names;
-  for (auto const& e : elements) {
-    mxfile << e.as_madx() << "\n";
-    elm_names.insert(e.get_name());
-  }
+    // "beam, pc={{momentum}}, particle={{particle}}"
+    if (!reference_particle.has_value()) {
+        mxfile << "! This lattice has not defined a reference particle with BEAM statement information\n\n";
+    } else {
+        mxfile << reference_particle.value().as_madx() << "\n\n";
+    }
+    
+    // "{{element_label}} : {{element_type}}, {{attr}}={{val}}..."
+    std::unordered_set<std::string> elm_names;
+    for(auto const& e : elements)
+    {
+        mxfile << e.as_madx() << "\n";
+        elm_names.insert(e.get_name());
+    }
 
   double pos = 0.0;
   int idx = 0;

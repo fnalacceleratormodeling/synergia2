@@ -3,6 +3,8 @@
 
 #include <list>
 #include <string>
+#include <optional>
+#include <stdexcept>
 
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/lattice/lattice_element.h"
@@ -33,7 +35,7 @@ public:
 private:
   std::string name;
 
-  Reference_particle reference_particle;
+  std::optional<Reference_particle> reference_particle;
   std::list<Lattice_element> elements;
 
   update_flags_t updated;
@@ -69,7 +71,7 @@ public:
   /// @param lsexpr representation
   explicit Lattice(Lsexpr const& lsexpr);
 
-#if 0
+#if 0 // as_lsexpr() might come back some day
     /// Extract an Lsexpr representation of the Lattice
     Lsexpr
     as_lsexpr() const;
@@ -98,49 +100,44 @@ public:
     updated.ref = true;
   }
 
-  /// Get the Lattice reference particle (const)
-  Reference_particle const&
-  get_reference_particle() const
-  {
-    return reference_particle;
-  }
 
-  Reference_particle&
-  get_reference_particle()
-  {
-    return reference_particle;
-  }
+    // check whether the reference particle is valid, throw if not
+    static void check_reference_particle_value(std::optional<Reference_particle> reference_particle)
+    {
+       if (!reference_particle.has_value()) {
+            throw std::runtime_error("reference particle not set- did you forget a BEAM? statement?");
+       }    
+    }
 
-  update_flags_t update();
-  update_flags_t
-  is_updated() const
-  {
-    return updated;
-  }
+    /// Get the Lattice reference particle (const)
+    Reference_particle const& get_reference_particle() const
+    {
+        check_reference_particle_value(reference_particle);
+        // only returns if valid
+        return reference_particle.value();
+    }
+        
+    Reference_particle& get_reference_particle()
+    {
+        check_reference_particle_value(reference_particle);
+        // only returns if valid
+        return reference_particle.value();
+    }
+    update_flags_t update();
+    update_flags_t is_updated() const { return updated; }
 
   /// Append a copy of a Lattice_element.
   /// @param element a Lattice_element
   void append(Lattice_element const& element);
 
-#if 0
-    /// Derive internal attributes where necessary
-    void derive_internal_attributes();
-
-    /// Derive external attributes where necessary
-    void derive_external_attributes();
-
-    /// Complete all attribute updates. Includes defaults and derivations.
-    void complete_attributes();
-#endif
-
-  /// Set the value of the named double attribute on all elements
-  /// @param name attribute name
-  /// @param value attribute value
-  /// @param increment_revision can be set to false for attributes that do not
-  /// affect dynamics
-  void set_all_double_attribute(std::string const& name,
-                                double value,
-                                bool increment_revision = true);
+    /// Set the value of the named double attribute on all elements
+    /// @param name attribute name
+    /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
+    void
+    set_all_double_attribute(
+            std::string const& name, double value,
+            bool increment_revision = true);
 
   /// Set the value of the named string attribute on all elements
   /// @param name attribute name
@@ -226,29 +223,44 @@ public:
 private:
   friend class cereal::access;
 
-  template <class Archive>
-  void
-  save(Archive& ar) const
-  {
-    ar(CEREAL_NVP(name));
-    ar(CEREAL_NVP(reference_particle));
-    ar(CEREAL_NVP(elements));
-    ar(CEREAL_NVP(updated));
-    ar(CEREAL_NVP(tree));
-  }
 
-  template <class Archive>
-  void
-  load(Archive& ar)
-  {
-    ar(CEREAL_NVP(name));
-    ar(CEREAL_NVP(reference_particle));
-    ar(CEREAL_NVP(elements));
-    ar(CEREAL_NVP(updated));
-    ar(CEREAL_NVP(tree));
+    template<class Archive>
+    void save(Archive & ar) const
+    {
+        bool has_reference_particle(reference_particle.has_value());
+        Reference_particle reference_particle_value;
 
-    for (auto& e : elements) e.set_lattice(*this);
-  }
+        ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(has_reference_particle));
+        if (has_reference_particle) {
+            reference_particle_value = reference_particle.value();
+            ar(CEREAL_NVP(reference_particle_value));
+        }
+        ar(CEREAL_NVP(elements));
+        ar(CEREAL_NVP(updated));
+        ar(CEREAL_NVP(tree));
+    }
+
+    template<class Archive>
+    void load(Archive & ar)
+    {
+        bool has_reference_particle;
+        Reference_particle reference_particle_value;
+
+        ar(CEREAL_NVP(name));
+        ar(CEREAL_NVP(has_reference_particle));
+        if (has_reference_particle) {
+            ar(CEREAL_NVP(reference_particle_value));
+        }
+        ar(CEREAL_NVP(elements));
+        ar(CEREAL_NVP(updated));
+        ar(CEREAL_NVP(tree));
+
+        reference_particle = reference_particle_value;
+        for(auto & e : elements) 
+            e.set_lattice(*this);
+    }
+
 };
 
 #endif /* LATTICE_H_ */

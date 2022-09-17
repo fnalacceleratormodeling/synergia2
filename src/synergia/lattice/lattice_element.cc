@@ -137,8 +137,9 @@ Lattice_element::Lattice_element(Lsexpr const& lsexpr)
 Lsexpr
 Lattice_element::as_lsexpr() const
 {
-  Lsexpr retval;
-#if 0
+
+    Lsexpr retval;
+#if 0 // as_lsexpr() might come back some day
     retval.push_back(Lsexpr(type, "type"));
     retval.push_back(Lsexpr(name, "name"));
     if (double_attributes.size() > 0) {
