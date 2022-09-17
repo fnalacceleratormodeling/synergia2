@@ -35,12 +35,10 @@ public:
 private:
   std::string name;
 
-  Reference_particle reference_particle;
+  std::optional<Reference_particle> reference_particle;
   std::list<Lattice_element> elements;
 
   update_flags_t updated;
-    std::optional<Reference_particle> reference_particle;
-    std::list<Lattice_element> elements;
 
   // Lattice tree object for evaluating variables
   // in the lattice element attributes
@@ -225,16 +223,6 @@ public:
 private:
   friend class cereal::access;
 
-  template <class Archive>
-  void
-  save(Archive& ar) const
-  {
-    ar(CEREAL_NVP(name));
-    ar(CEREAL_NVP(reference_particle));
-    ar(CEREAL_NVP(elements));
-    ar(CEREAL_NVP(updated));
-    ar(CEREAL_NVP(tree));
-  }
 
     template<class Archive>
     void save(Archive & ar) const
