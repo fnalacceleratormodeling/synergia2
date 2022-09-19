@@ -177,7 +177,7 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
   /* create discretization matrix */
   PetscCall(MatCreate(PetscObjectComm((PetscObject)sctx.da), &(sctx.A)));
   PetscCall(
-    MatSetSizes(sctx.A, gctx.nsize, gctx.nsize, PETSC_DECIDE, PETSC_DECIDE));
+    MatSetSizes(sctx.A, PETSC_DECIDE, PETSC_DECIDE, gctx.nsize, gctx.nsize));
   PetscCall(MatSetType(sctx.A, gctx.mattype));
   PetscCall(MatSetFromOptions(sctx.A));
 
@@ -376,8 +376,6 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
     PetscCall(KSPMonitorSet(sctx.ksp, &(MyMonitor), PETSC_NULL, PETSC_NULL));
   }
 
-  PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_TRUE));
-
   PetscFunctionReturn(0);
 }
 /* --------------------------------------------------------------------- */
@@ -408,6 +406,12 @@ solve(SubcommCtx& sctx, GlobalCtx& gctx)
 
   /* Solve for phi! */
   PetscCall(KSPSolve(sctx.ksp, sctx.rho_subcomm, sctx.phi_subcomm));
+
+  if (sctx.reuse == PETSC_FALSE) {
+    PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_TRUE));
+    PetscCall(PCSetReusePreconditioner(sctx.pc, PETSC_TRUE));
+    sctx.reuse = PETSC_TRUE;
+  }
 
   PetscFunctionReturn(0);
 }

@@ -37,10 +37,11 @@ struct SubcommCtx {
   Vec phi_subcomm;       /*! vector on the subcomm */
   Vec rho_subcomm;       /*! vector on the subcomm */
 
-  DM da;   /* DMDA to manage grid and vecs */
-  Mat A;   /* discretization matrix */
-  KSP ksp; /* krylov solver */
-  PC pc;   /* preconditioner */
+  DM da;                         /* DMDA to manage grid and vecs */
+  Mat A;                         /* discretization matrix */
+  KSP ksp;                       /* krylov solver */
+  PC pc;                         /* preconditioner */
+  PetscBool reuse = PETSC_FALSE; /* state of ksp/pc re-use */
 
   VecScatter scat_subcomm_to_local; /*! VecScatter from subcomm vector to
                                       constituent local vectors */

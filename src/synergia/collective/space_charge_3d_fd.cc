@@ -217,13 +217,6 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
     PetscCall(PetscViewerDestroy(&hdf5_viewer));
   }
 
-  {
-    scoped_simple_timer timer("sc3d_fd_linear_solver");
-
-    /* Solve for phi on each subcomm! */
-    PetscCall(solve(sctx, gctx));
-  }
-
   // DEBUGGING!
   if (gctx.dumps) {
     PetscViewer ascii_viewer;
@@ -237,6 +230,13 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
       sctx.solversubcomm, filename.c_str(), &ascii_viewer));
     PetscCall(MatView(sctx.A, ascii_viewer));
     PetscCall(PetscViewerDestroy(&ascii_viewer));
+  }
+
+  {
+    scoped_simple_timer timer("sc3d_fd_linear_solver");
+
+    /* Solve for phi on each subcomm! */
+    PetscCall(solve(sctx, gctx));
   }
 
   // DEBUGGING!
