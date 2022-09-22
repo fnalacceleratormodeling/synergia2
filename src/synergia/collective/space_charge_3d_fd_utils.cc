@@ -266,6 +266,33 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
     /* Free memory, perhaps this should use C++ arrays instead */
     PetscCall(PetscFree2(coo_i, coo_j));
 
+    /* create krylov solver */
+    PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
+    PetscCall(KSPSetType(sctx.ksp, KSPCG));
+    PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
+    PetscCall(KSPSetFromOptions(sctx.ksp));
+
+    /* set preconditioner */
+    PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
+    PetscCall(PCSetType(sctx.pc, PCGAMG));
+
+    /* Enable KSP logging if options are set */
+    if (gctx.ksp_view) {
+        PetscCall(KSPView(
+            sctx.ksp,
+            PETSC_VIEWER_STDOUT_(PetscObjectComm((PetscObject)sctx.ksp))));
+    }
+    if (gctx.ksp_converged_reason) {
+        PetscCall(KSPConvergedReasonView(
+            sctx.ksp,
+            PETSC_VIEWER_STDOUT_(PetscObjectComm((PetscObject)sctx.ksp))));
+    }
+
+    if (gctx.ksp_monitor_residual) {
+        PetscCall(
+            KSPMonitorSet(sctx.ksp, &(MyMonitor), PETSC_NULL, PETSC_NULL));
+    }
+
     PetscFunctionReturn(0);
 }
 
@@ -319,14 +346,10 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
             PetscInt p = ((k - info.zs) * info.ym * info.xm +
                           (j - info.ys) * info.xm + (i - info.xs)) *
                          7;
-
             if (i == 0 || j == 0 || k == 0 || i == info.mx - 1 ||
                 j == info.my - 1 || k == info.mz - 1) {
-
                 coo_v(p + 3) = 1.0; // on boundary: trivial equation
-
             } else {
-
                 coo_v(p + 0) = -hxhydhz;
                 coo_v(p + 1) = -hxdhyhz;
                 coo_v(p + 2) = -dhxhyhz;
@@ -336,51 +359,11 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
                 coo_v(p + 6) = -hxhydhz;
             }
         }));
-
+    Kokkos::fence();
     PetscCall(MatSetValuesCOO(sctx.A, coo_v.data(), INSERT_VALUES));
 
-    /* create krylov solver */
-    PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
-    PetscCall(KSPSetType(sctx.ksp, KSPCG));
-    PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
-    PetscCall(KSPSetFromOptions(sctx.ksp));
     PetscCall(KSPSetUp(sctx.ksp));
-
-    /* set preconditioner */
-    PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
-    PetscCall(PCSetType(sctx.pc, PCASM));
     PetscCall(PCSetUp(sctx.pc));
-
-#if defined SYNERGIA_ENABLE_CUDA
-    KSP* subksp; /* array of KSP contexts for local subblocks */
-    PetscInt nlocal,
-        first; /* number of local subblocks, first local subblock */
-    PC subpc;  /* PC context for subblock */
-
-    PetscCall(PCASMGetSubKSP(sctx.pc, &nlocal, NULL, &subksp));
-    for (PetscInt idx = 0; idx < nlocal; idx++) {
-        PetscCall(KSPGetPC(subksp[idx], &subpc));
-        PetscCall(PCSetType(subpc, PCILU));
-        PetscCall(PCFactorSetMatSolverType(subpc, "cusparse"));
-    }
-#endif
-
-    /* Enable KSP logging if options are set */
-    if (gctx.ksp_view) {
-        PetscCall(KSPView(
-            sctx.ksp,
-            PETSC_VIEWER_STDOUT_(PetscObjectComm((PetscObject)sctx.ksp))));
-    }
-    if (gctx.ksp_converged_reason) {
-        PetscCall(KSPConvergedReasonView(
-            sctx.ksp,
-            PETSC_VIEWER_STDOUT_(PetscObjectComm((PetscObject)sctx.ksp))));
-    }
-
-    if (gctx.ksp_monitor_residual) {
-        PetscCall(
-            KSPMonitorSet(sctx.ksp, &(MyMonitor), PETSC_NULL, PETSC_NULL));
-    }
 
     PetscFunctionReturn(0);
 }
