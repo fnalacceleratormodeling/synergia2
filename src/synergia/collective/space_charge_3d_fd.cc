@@ -130,7 +130,7 @@ Space_charge_3d_fd::apply_impl(Bunch_simulator& sim,
                                                      left_y + gctx.Ly,
                                                      left_z,
                                                      left_z + gctx.Lz));
-            PetscCallAbort(gctx.bunch_comm, compute_mat(sctx, gctx));
+            PetscCallAbort(gctx.bunch_comm, compute_mat(lctx, sctx, gctx));
         }
     }
 
@@ -187,7 +187,10 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
         }
 
         /* Hopefully there is some unrelated work that can occur here! */
-
+        {
+            scoped_simple_timer("sc3d_fd::compute_mat");
+            PetscCall(compute_mat(lctx, sctx, gctx));
+        }
         /* End global (alias of local) to subcomm scatters! */
         for (PetscInt i = 0; i < gctx.nsubcomms; i++) {
             PetscCall(VecScatterEnd(gctx.scat_glocal_to_subcomms[i],
@@ -435,7 +438,8 @@ Space_charge_3d_fd::update_domain(Bunch const& bunch)
                                         left_z,
                                         left_z + gctx.Lz));
 
-    PetscCall(compute_mat(sctx, gctx));
+    /* Defer updating the matrix for now, it will overlap
+      with the rho local->subcomm communication phase */
 
     PetscFunctionReturn(0);
 }
@@ -479,7 +483,7 @@ Space_charge_3d_fd::allocate_sc3d_fd(const Bunch& bunch)
     PetscCall(init_subcomm_local_aliases(lctx, sctx, gctx));
 
     /* create DM and Matrix on subcomms */
-    PetscCall(init_subcomm_mat(sctx, gctx));
+    PetscCall(init_subcomm_mat(lctx, sctx, gctx));
 
     /* Initialize global (alias of local) to subcomm scatters */
     PetscCall(init_global_subcomm_scatters(sctx, gctx));

@@ -143,12 +143,13 @@ init_subcomm_vecs(SubcommCtx& sctx, GlobalCtx& gctx)
 /* --------------------------------------------------------------------- */
 /*!
   Initialize DMDA and Matrix to solve Poisson Eq on each solver-subcommunicator
+  \param   lctx - local context
   \param   sctx - subcomm context
   \param   gctx - global context
   \return  ierr - PetscErrorCode
   */
 PetscErrorCode
-init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
+init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 {
     DMDALocalInfo info; /* For storing DMDA info */
 
@@ -266,6 +267,8 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
     /* Free memory, perhaps this should use C++ arrays instead */
     PetscCall(PetscFree2(coo_i, coo_j));
 
+    lctx.coo_v = karray1d_dev("coo_v", ncoo);
+
     /* create krylov solver */
     PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
     PetscCall(KSPSetType(sctx.ksp, KSPCG));
@@ -300,12 +303,13 @@ init_subcomm_mat(SubcommCtx& sctx, GlobalCtx& gctx)
 /*!
   Compute the RHS matrix to solve the (scaled) Poisson's Eq, setup the
   krylov solver associated with the RHS matrix
+  \param   lctx - local context
   \param   sctx - subcomm context
   \param   gctx - global context
   \return  ierr - PetscErrorCode
   */
 PetscErrorCode
-compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
+compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 {
 
     PetscFunctionBeginUser;
@@ -333,9 +337,6 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
     PetscCount ncoo = ((PetscCount)info.xm) * ((PetscCount)info.ym) *
                       ((PetscCount)info.zm) * 7;
 
-    karray1d_dev coo_v("coo_v",
-                       ncoo); /* Kokkos view containing the matrix values */
-
     PetscCallCXX(Kokkos::parallel_for(
         "ComputeMat",
         Kokkos::MDRangePolicy<
@@ -348,19 +349,19 @@ compute_mat(SubcommCtx& sctx, GlobalCtx& gctx)
                          7;
             if (i == 0 || j == 0 || k == 0 || i == info.mx - 1 ||
                 j == info.my - 1 || k == info.mz - 1) {
-                coo_v(p + 3) = 1.0; // on boundary: trivial equation
+                lctx.coo_v(p + 3) = 1.0; // on boundary: trivial equation
             } else {
-                coo_v(p + 0) = -hxhydhz;
-                coo_v(p + 1) = -hxdhyhz;
-                coo_v(p + 2) = -dhxhyhz;
-                coo_v(p + 3) = 2 * (hxhydhz + hxdhyhz + dhxhyhz);
-                coo_v(p + 4) = -dhxhyhz;
-                coo_v(p + 5) = -hxdhyhz;
-                coo_v(p + 6) = -hxhydhz;
+                lctx.coo_v(p + 0) = -hxhydhz;
+                lctx.coo_v(p + 1) = -hxdhyhz;
+                lctx.coo_v(p + 2) = -dhxhyhz;
+                lctx.coo_v(p + 3) = 2 * (hxhydhz + hxdhyhz + dhxhyhz);
+                lctx.coo_v(p + 4) = -dhxhyhz;
+                lctx.coo_v(p + 5) = -hxdhyhz;
+                lctx.coo_v(p + 6) = -hxhydhz;
             }
         }));
     Kokkos::fence();
-    PetscCall(MatSetValuesCOO(sctx.A, coo_v.data(), INSERT_VALUES));
+    PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
 
     PetscCall(KSPSetUp(sctx.ksp));
     PetscCall(PCSetUp(sctx.pc));

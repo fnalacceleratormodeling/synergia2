@@ -25,6 +25,8 @@ struct LocalCtx {
     karray1d_dev enx; /*! kokkos view for electric field along x */
     karray1d_dev eny; /*! kokkos view for electric field along y */
     karray1d_dev enz; /*! kokkos view for electric field along z */
+
+    karray1d_dev coo_v; /*! kokkos view for matrix entries in coo format */
 };
 
 /* Subcomm context */
