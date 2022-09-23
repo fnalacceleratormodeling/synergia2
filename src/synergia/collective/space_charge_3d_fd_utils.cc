@@ -271,7 +271,7 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
     /* create krylov solver */
     PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
-    PetscCall(KSPSetType(sctx.ksp, KSPCG));
+    PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
     PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
     PetscCall(KSPSetFromOptions(sctx.ksp));
 
@@ -315,11 +315,9 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     PetscFunctionBeginUser;
 
     DMDALocalInfo info; /* For storing DMDA info */
-    PetscInt i, j, k;
     PetscScalar v[7];
     PetscScalar hx, hy, hz;
     PetscScalar hxhydhz, hxdhyhz, dhxhyhz;
-    MatStencil row, col[7];
 
     PetscFunctionBeginUser;
     PetscCall(DMDAGetLocalInfo(sctx.da, &info));
@@ -331,9 +329,6 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     hxhydhz = (hx * hy) / hz;
     hxdhyhz = (hx * hz) / hy;
     dhxhyhz = (hy * hz) / hx;
-
-    PetscCount ncoo = ((PetscCount)info.xm) * ((PetscCount)info.ym) *
-                      ((PetscCount)info.zm) * 7;
 
     PetscCallCXX(Kokkos::parallel_for(
         "ComputeMat",
