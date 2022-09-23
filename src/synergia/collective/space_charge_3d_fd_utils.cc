@@ -319,16 +319,14 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     PetscScalar v[7];
     PetscScalar hx, hy, hz;
     PetscScalar hxhydhz, hxdhyhz, dhxhyhz;
-    PetscScalar coordsmin[3], coordsmax[3];
     MatStencil row, col[7];
 
     PetscFunctionBeginUser;
     PetscCall(DMDAGetLocalInfo(sctx.da, &info));
-    PetscCall(DMGetBoundingBox(sctx.da, coordsmin, coordsmax));
 
-    hx = (coordsmax[0] - coordsmin[0]) / (PetscReal)(info.mx);
-    hy = (coordsmax[1] - coordsmin[1]) / (PetscReal)(info.my);
-    hz = (coordsmax[2] - coordsmin[2]) / (PetscReal)(info.mz);
+    hx = (gctx.Lx) / (PetscReal)(info.mx);
+    hy = (gctx.Ly) / (PetscReal)(info.my);
+    hz = (gctx.Lz) / (PetscReal)(info.mz);
 
     hxhydhz = (hx * hy) / hz;
     hxdhyhz = (hx * hz) / hy;

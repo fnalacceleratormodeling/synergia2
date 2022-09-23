@@ -59,9 +59,9 @@ Space_charge_3d_fd::set_fixed_domain(std::array<double, 3> offset,
 
     use_fixed_domain = true;
 
-    gctx.Lx = static_cast<PetscReal>(domain.get_physical_size()[0]);
-    gctx.Ly = static_cast<PetscReal>(domain.get_physical_size()[1]);
-    gctx.Lz = static_cast<PetscReal>(domain.get_physical_size()[2]);
+    gctx.Lx = size[0];
+    gctx.Ly = size[1];
+    gctx.Lz = size[2];
 }
 
 void
@@ -422,21 +422,9 @@ Space_charge_3d_fd::update_domain(Bunch const& bunch)
 
     domain = Rectangular_grid_domain(options.shape, size, offset, false);
 
-    gctx.Lx = static_cast<PetscReal>(domain.get_physical_size()[0]);
-    gctx.Ly = static_cast<PetscReal>(domain.get_physical_size()[1]);
-    gctx.Lz = static_cast<PetscReal>(domain.get_physical_size()[2]);
-
-    auto left_x = static_cast<PetscReal>(domain.get_left()[0]);
-    auto left_y = static_cast<PetscReal>(domain.get_left()[1]);
-    auto left_z = static_cast<PetscReal>(domain.get_left()[2]);
-
-    PetscCall(DMDASetUniformCoordinates(sctx.da,
-                                        left_x,
-                                        left_x + gctx.Lx,
-                                        left_y,
-                                        left_y + gctx.Ly,
-                                        left_z,
-                                        left_z + gctx.Lz));
+    gctx.Lx = size[0];
+    gctx.Ly = size[1];
+    gctx.Lz = size[2];
 
     /* Defer updating the matrix for now, it will overlap
       with the rho local->subcomm communication phase */

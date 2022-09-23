@@ -12,7 +12,7 @@
 
 #include "synergia/utils/kokkos_views.h"
 
-/* Local (per MPI rank) context */
+/*! Local (per MPI rank) context */
 struct LocalCtx {
 
     Vec seqphi;  /*! local seq vector */
@@ -29,7 +29,7 @@ struct LocalCtx {
     karray1d_dev coo_v; /*! kokkos view for matrix entries in coo format */
 };
 
-/* Subcomm context */
+/*! Subcomm context */
 struct SubcommCtx {
 
     Vec phi_subcomm_local; /*! subcomm alias of the local vector on each MPI
@@ -65,7 +65,7 @@ struct SubcommCtx {
     PetscMPIInt solver_size;     /*! solver subcomm MPI communicator size */
 };
 
-/* Global (over all MPI ranks encompassing the bunch) context */
+/*! Global (over all MPI ranks encompassing the bunch) context */
 struct GlobalCtx {
 
     PetscInt nsubcomms = 1; /*! total number of subcomms */
@@ -87,9 +87,9 @@ struct GlobalCtx {
     PetscMPIInt global_rank = -1;     /*! global MPI communicator rank */
     PetscMPIInt global_size = -1;     /*! global MPI communicator size */
 
-    PetscReal Lx; /* length along x */
-    PetscReal Ly; /* length along x */
-    PetscReal Lz; /* length along x */
+    double Lx; /* length along x */
+    double Ly; /* length along x */
+    double Lz; /* length along x */
 
     Vec phi_global_local; /*! global alias of the local vector on each MPI rank
                            */

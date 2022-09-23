@@ -7,9 +7,10 @@
 #include "synergia/utils/distributed_fft3d.h"
 #include "synergia/utils/kokkos_views.h"
 
+/*! common kernels for 3D space charge solvers */
 namespace sc3d_kernels {
 
-    // Kernels where the data has zyx ordering
+    /*! Kernels where the data has zyx ordering */
     namespace zyx {
 
         struct alg_force_extractor {
@@ -307,7 +308,7 @@ namespace sc3d_kernels {
 
     }
 
-    // Kernels where the data has xyz ordering
+    /*! Kernels where the data has xyz ordering */
     namespace xyz {
         struct alg_force_extractor {
             karray1d_dev phi;

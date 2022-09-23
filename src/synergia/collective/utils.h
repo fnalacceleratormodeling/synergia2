@@ -12,17 +12,17 @@ get_leftmost_indices_offset(double pos,
                             int& idx,
                             double& off)
 {
-  double scaled_location = (pos - left) * inv_cell_size - 0.5;
-  // The static cast is likely spurious, but it might be better to
-  // have it be optimized away rather than not having it here.
-  idx = static_cast<int>(Kokkos::floor(scaled_location));
-  off = scaled_location - idx;
+    double scaled_location = (pos - left) * inv_cell_size - 0.5;
+    // The static cast is likely spurious, but it might be better to
+    // have it be optimized away rather than not having it here.
+    idx = static_cast<int>(Kokkos::floor(scaled_location));
+    off = scaled_location - idx;
 
 #if IDXPRINT == 1
-  std::cout << "particle with pos : " << pos << ", left : " << left
-            << ", inv_cell_size : " << inv_cell_size << ", idx : " << idx
-            << ", off : " << off << std::endl;
+    std::cout << "particle with pos : " << pos << ", left : " << left
+              << ", inv_cell_size : " << inv_cell_size << ", idx : " << idx
+              << ", off : " << off << std::endl;
 #endif
 
-  return;
+    return;
 }
