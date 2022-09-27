@@ -267,17 +267,8 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     /* Free memory, perhaps this should use C++ arrays instead */
     PetscCall(PetscFree2(coo_i, coo_j));
 
+    /* Create Kokkos view for use when updating the matrix */
     lctx.coo_v = karray1d_dev("coo_v", ncoo);
-
-    /* create krylov solver */
-    PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
-    PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
-    PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
-    PetscCall(KSPSetFromOptions(sctx.ksp));
-
-    /* set preconditioner */
-    PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
-    PetscCall(PCSetType(sctx.pc, PCGAMG));
 
     /* Enable KSP logging if options are set */
     if (gctx.ksp_view) {
@@ -315,7 +306,6 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     PetscFunctionBeginUser;
 
     DMDALocalInfo info; /* For storing DMDA info */
-    PetscScalar v[7];
     PetscScalar hx, hy, hz;
     PetscScalar hxhydhz, hxdhyhz, dhxhyhz;
 
@@ -340,10 +330,14 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
             PetscInt p = ((k - info.zs) * info.ym * info.xm +
                           (j - info.ys) * info.xm + (i - info.xs)) *
                          7;
+
             if (i == 0 || j == 0 || k == 0 || i == info.mx - 1 ||
                 j == info.my - 1 || k == info.mz - 1) {
+
                 lctx.coo_v(p + 3) = 1.0; // on boundary: trivial equation
+
             } else {
+
                 lctx.coo_v(p + 0) = -hxhydhz;
                 lctx.coo_v(p + 1) = -hxdhyhz;
                 lctx.coo_v(p + 2) = -dhxhyhz;
@@ -353,11 +347,9 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
                 lctx.coo_v(p + 6) = -hxhydhz;
             }
         }));
-    Kokkos::fence();
-    PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
 
-    PetscCall(KSPSetUp(sctx.ksp));
-    PetscCall(PCSetUp(sctx.pc));
+    Kokkos::fence(std::string("sc3d-fd-compute-mat-fence"));
+    PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
 
     PetscFunctionReturn(0);
 }
@@ -374,27 +366,54 @@ solve(SubcommCtx& sctx, GlobalCtx& gctx)
 
     DMDALocalInfo info; /* For storing DMDA info */
     PetscScalar hx, hy, hz;
-    PetscScalar coordsmin[3], coordsmax[3];
 
     PetscFunctionBeginUser;
     PetscCall(DMDAGetLocalInfo(sctx.da, &info));
-    PetscCall(DMGetBoundingBox(sctx.da, coordsmin, coordsmax));
 
-    hx = (coordsmax[0] - coordsmin[0]) / (PetscReal)(info.mx);
-    hy = (coordsmax[1] - coordsmin[1]) / (PetscReal)(info.my);
-    hz = (coordsmax[2] - coordsmin[2]) / (PetscReal)(info.mz);
+    hx = (gctx.Lx) / (PetscReal)(info.mx);
+    hy = (gctx.Ly) / (PetscReal)(info.my);
+    hz = (gctx.Lz) / (PetscReal)(info.mz);
 
     /* Scaling factor of hx*hy*hz */
     PetscCall(VecScale(sctx.rho_subcomm, hx * hy * hz));
 
-    /* Solve for phi! */
-    PetscCall(KSPSolve(sctx.ksp, sctx.rho_subcomm, sctx.phi_subcomm));
-
     if (sctx.reuse == PETSC_FALSE) {
+        /* create krylov solver */
+        PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
+        PetscCall(KSPSetType(sctx.ksp, KSPCG));
+        PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
+        PetscCall(KSPSetFromOptions(sctx.ksp));
+        PetscCall(KSPSetUp(sctx.ksp));
+
+        /* set preconditioner */
+        PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
+        PetscCall(PCSetType(sctx.pc, PCASM));
+        PetscCall(PCSetUp(sctx.pc));
+
+#if defined SYNERGIA_ENABLE_CUDA
+        KSP* subksp; /* array of KSP contexts for local subblocks */
+        PetscInt nlocal,
+            first; /* number of local subblocks, first local subblock */
+        PC subpc;  /* PC context for subblock */
+
+        PetscCall(PCASMGetSubKSP(sctx.pc, &nlocal, NULL, &subksp));
+        for (PetscInt idx = 0; idx < nlocal; idx++) {
+            PetscCall(KSPGetPC(subksp[idx], &subpc));
+            PetscCall(PCSetType(subpc, PCILU));
+            PetscCall(PCFactorSetMatSolverType(subpc, "cusparse"));
+        }
+#endif
+
         PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_TRUE));
         PetscCall(PCSetReusePreconditioner(sctx.pc, PETSC_TRUE));
+
+        PetscCall(KSPSetInitialGuessNonzero(sctx.ksp, PETSC_TRUE));
+
         sctx.reuse = PETSC_TRUE;
     }
+
+    /* Solve for phi! */
+    PetscCall(KSPSolve(sctx.ksp, sctx.rho_subcomm, sctx.phi_subcomm));
 
     PetscFunctionReturn(0);
 }
