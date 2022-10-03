@@ -38,7 +38,12 @@ Space_charge_3d_fd::Space_charge_3d_fd(Space_charge_3d_fd_options const& ops)
     , domain(ops.shape, {1.0, 1.0, 1.0})
     , use_fixed_domain(false)
     , allocated(false)
-{}
+{
+    if (ops.domain_fixed) {
+        set_fixed_domain(ops.offset, ops.size);
+        use_fixed_domain = true;
+    }
+}
 
 // Destructor
 Space_charge_3d_fd::~Space_charge_3d_fd()

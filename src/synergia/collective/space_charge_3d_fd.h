@@ -26,6 +26,9 @@ class Space_charge_3d_fd : public Collective_operator {
     LocalCtx lctx;
 
   private:
+    void set_fixed_domain(std::array<double, 3> offset,
+                          std::array<double, 3> size);
+
     void apply_impl(Bunch_simulator& simulator,
                     double time_step,
                     Logger& logger);
@@ -46,9 +49,6 @@ class Space_charge_3d_fd : public Collective_operator {
 
   public:
     Space_charge_3d_fd(Space_charge_3d_fd_options const& ops);
-
-    void set_fixed_domain(std::array<double, 3> offset,
-                          std::array<double, 3> size);
 
     ~Space_charge_3d_fd();
 };
