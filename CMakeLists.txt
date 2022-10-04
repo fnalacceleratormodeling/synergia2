@@ -138,7 +138,7 @@ if(${BUILD_FD_SPACE_CHARGE_SOLVER})
   add_definitions(-DBUILD_FD_SPACE_CHARGE_SOLVER)
   # set root of location to find PETSc's pkg-config
   set(PETSC $ENV{PETSC_DIR}/$ENV{PETSC_ARCH})
-  set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig)
+  set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
   find_package(PkgConfig REQUIRED)
   pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc)
 endif()

@@ -13,41 +13,44 @@ class Space_charge_3d_fd;
 /// Note: internal grid is stored in [z][y][x] order, but
 /// grid shape expects [x][y][z] order.
 class Space_charge_3d_fd : public Collective_operator {
-private:
-  const Space_charge_3d_fd_options options; /* Options to initialize sc-3d-fd */
-  std::string bunch_sim_id;
-  Rectangular_grid_domain domain;
-  bool use_fixed_domain;
-  bool allocated;
+  private:
+    const Space_charge_3d_fd_options
+        options; /* Options to initialize sc-3d-fd */
+    std::string bunch_sim_id;
+    Rectangular_grid_domain domain;
+    bool use_fixed_domain;
+    bool allocated;
 
-  GlobalCtx gctx;
-  SubcommCtx sctx;
-  LocalCtx lctx;
+    GlobalCtx gctx;
+    SubcommCtx sctx;
+    LocalCtx lctx;
 
-private:
-  void apply_impl(Bunch_simulator& simulator, double time_step, Logger& logger);
+  private:
+    void set_fixed_domain(std::array<double, 3> offset,
+                          std::array<double, 3> size);
 
-  void get_local_charge_density(const Bunch& bunch);
+    void apply_impl(Bunch_simulator& simulator,
+                    double time_step,
+                    Logger& logger);
 
-  PetscErrorCode apply_bunch(Bunch& bunch, double time_step, Logger& logger);
+    void get_local_charge_density(const Bunch& bunch);
 
-  void get_force();
+    PetscErrorCode apply_bunch(Bunch& bunch, double time_step, Logger& logger);
 
-  void apply_kick(Bunch& bunch, double time_step);
+    void get_force();
 
-  PetscErrorCode allocate_sc3d_fd(const Bunch& bunch);
+    void apply_kick(Bunch& bunch, double time_step);
 
-  PetscErrorCode destroy_sc3d_fd();
+    PetscErrorCode allocate_sc3d_fd(const Bunch& bunch);
 
-  PetscErrorCode update_domain(Bunch const& bunch);
+    PetscErrorCode destroy_sc3d_fd();
 
-public:
-  Space_charge_3d_fd(Space_charge_3d_fd_options const& ops);
+    PetscErrorCode update_domain(Bunch const& bunch);
 
-  void set_fixed_domain(std::array<double, 3> offset,
-                        std::array<double, 3> size);
+  public:
+    Space_charge_3d_fd(Space_charge_3d_fd_options const& ops);
 
-  ~Space_charge_3d_fd();
+    ~Space_charge_3d_fd();
 };
 
 #endif /* SPACE_CHARGE_3D_FD_H_ */
