@@ -351,6 +351,11 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     Kokkos::fence(std::string("sc3d-fd-compute-mat-fence"));
     PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
 
+    if (sctx.reuse == PETSC_TRUE) {
+        PetscCall(KSPSetUp(sctx.ksp));
+        PetscCall(PCSetUp(sctx.pc));
+    }
+
     PetscFunctionReturn(0);
 }
 /* --------------------------------------------------------------------- */
@@ -406,9 +411,7 @@ solve(SubcommCtx& sctx, GlobalCtx& gctx)
 
         PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_TRUE));
         PetscCall(PCSetReusePreconditioner(sctx.pc, PETSC_TRUE));
-
         PetscCall(KSPSetInitialGuessNonzero(sctx.ksp, PETSC_TRUE));
-
         sctx.reuse = PETSC_TRUE;
     }
 
