@@ -84,8 +84,6 @@ Space_charge_3d_fd::apply_impl(Bunch_simulator& sim,
                                Logger& logger)
 {
 
-    PetscErrorCode ierr;
-
     logger << "    Space charge 3d finite difference\n";
     scoped_simple_timer timer("sc3d_fd_total");
 
@@ -135,7 +133,11 @@ Space_charge_3d_fd::apply_impl(Bunch_simulator& sim,
                                                      left_y + gctx.Ly,
                                                      left_z,
                                                      left_z + gctx.Lz));
-            PetscCallAbort(gctx.bunch_comm, compute_mat(lctx, sctx, gctx));
+            /* The only time the matrix will be computed for this case */
+            {
+                scoped_simple_timer("sc3d_fd::compute_mat");
+                PetscCallAbort(gctx.bunch_comm, compute_mat(lctx, sctx, gctx));
+            }
         }
     }
 
@@ -193,8 +195,11 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
 
         /* Hopefully there is some unrelated work that can occur here! */
         {
-            scoped_simple_timer("sc3d_fd::compute_mat");
-            PetscCall(compute_mat(lctx, sctx, gctx));
+            /* Only update the finite difference operator if required! */
+            if (!use_fixed_domain) {
+                scoped_simple_timer("sc3d_fd_compute_mat");
+                PetscCall(compute_mat(lctx, sctx, gctx));
+            }
         }
         /* End global (alias of local) to subcomm scatters! */
         for (PetscInt i = 0; i < gctx.nsubcomms; i++) {
