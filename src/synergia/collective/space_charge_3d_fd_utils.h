@@ -2,6 +2,7 @@
 #define SPACE_CHARGE_3D_FD_UTILS_H_
 
 #include "space_charge_3d_fd_impl.h"
+#include "synergia/utils/simple_timer.h"
 
 PetscErrorCode init_solver_subcomms(SubcommCtx& sctx, GlobalCtx& gctx);
 
