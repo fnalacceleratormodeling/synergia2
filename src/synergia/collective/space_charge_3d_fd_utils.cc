@@ -302,8 +302,8 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 PetscErrorCode
 compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 {
-
     PetscFunctionBeginUser;
+    scoped_simple_timer("sc3d_fd_compute_mat");
 
     DMDALocalInfo info; /* For storing DMDA info */
     PetscScalar hx, hy, hz;
