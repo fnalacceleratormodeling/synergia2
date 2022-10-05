@@ -25,7 +25,7 @@
 
 #include "fodo_cxx_options.h"
 
-Lattice
+  Lattice
 get_lattice()
 {
   static std::string fodo_madx(R"foo(
@@ -48,7 +48,7 @@ endsequence;
   return reader.get_lattice("fodo");
 }
 
-void
+  void
 print_bunch_statistics(Bunch const& bunch, Logger& logger)
 {
   karray1d bunch_means(Core_diagnostics::calculate_mean(bunch));
@@ -57,7 +57,7 @@ print_bunch_statistics(Bunch const& bunch, Logger& logger)
   logger << "bunch means" << std::endl;
   for (int i = 0; i < 6; ++i) {
     logger << i << ":  " << std::setprecision(15) << bunch_means(i)
-           << std::endl;
+      << std::endl;
   }
   logger << "bunch stds" << std::endl;
   for (int i = 0; i < 6; ++i) {
@@ -65,7 +65,7 @@ print_bunch_statistics(Bunch const& bunch, Logger& logger)
   }
 }
 
-int
+  int
 run(Fodo_cxx_options opts)
 {
   int gridx = opts.gridx;
@@ -86,7 +86,7 @@ run(Fodo_cxx_options opts)
 
   Lattice lattice = get_lattice();
   screen << "Read lattice, length: " << lattice.get_length() << ", "
-         << lattice.get_elements().size() << " elements" << std::endl;
+    << lattice.get_elements().size() << " elements" << std::endl;
 
   Four_momentum four_momentum(pconstants::mp);
   four_momentum.set_momentum(3.0);
@@ -96,6 +96,7 @@ run(Fodo_cxx_options opts)
   // space charge
 #ifdef BUILD_FD_SPACE_CHARGE_SOLVER
   Space_charge_3d_fd_options sc_ops(gridx, gridy, gridz);
+  sc_ops.set_fixed_domain(std::array<double,3>{0.2,0.2,0.2}, std::array<double,3>{0.2,0.2,0.2});
 #else
   Space_charge_3d_open_hockney_options sc_ops(gridx, gridy, gridz);
 #endif
@@ -114,7 +115,7 @@ run(Fodo_cxx_options opts)
 
   // bunch simulator
   auto sim = Bunch_simulator::create_single_bunch_simulator(
-    lattice.get_reference_particle(), macroparticles, real_particles, Commxx());
+      lattice.get_reference_particle(), macroparticles, real_particles, Commxx());
 
   karray1d means("means", 6);
   for (int i = 0; i < 6; ++i) means(i) = 0.0;
@@ -143,11 +144,11 @@ run(Fodo_cxx_options opts)
 
   // diagnostics
   Diagnostics_bulk_track diag_bulk_track(
-    "tracks.h5", (100 < macroparticles) ? 100 : macroparticles, 0);
+      "tracks.h5", (100 < macroparticles) ? 100 : macroparticles, 0);
   sim.reg_diag_per_turn(diag_bulk_track);
 
   Diagnostics_particles diag_particles(
-    "particles.h5", (1000 < macroparticles) ? 1000 : macroparticles);
+      "particles.h5", (1000 < macroparticles) ? 1000 : macroparticles);
   sim.reg_diag_per_turn(diag_particles);
 
   Diagnostics_full2 diag_full2("diag.h5");
@@ -170,7 +171,7 @@ run(Fodo_cxx_options opts)
   return 0;
 }
 
-int
+  int
 main(int argc, char** argv)
 {
   synergia::initialize(argc, argv);
