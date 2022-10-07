@@ -192,6 +192,7 @@ BOOST_PYTHON_MODULE(bunch)
             ;
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
+    typedef Reference_particle & (Bunch::*get_design_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();
 
     scope
@@ -221,6 +222,11 @@ BOOST_PYTHON_MODULE(bunch)
                         get_reference_particle_non_const_type(
                                 &Bunch::get_reference_particle),
                         return_internal_reference< >())
+                .def("get_design_reference_particle",
+                        get_design_reference_particle_non_const_type(
+                                &Bunch::get_design_reference_particle),
+                        return_internal_reference< >())
+                
                 .def("get_local_particles",
                         get_local_particles_non_const_type(
                                 &Bunch::get_local_particles))
