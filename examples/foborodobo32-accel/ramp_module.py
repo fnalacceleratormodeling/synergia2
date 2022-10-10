@@ -26,7 +26,7 @@ class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
 
     def turn_end_action(self, stepper, bunch, turn_num):
         if bunch.get_comm().get_rank() == 0:
-            print('turn number: ', turn_num, ', number: ', self.numbers[turn_num],', reference particle state: ', bunch.get_reference_particle().get_state())
+            print('turn number: ', turn_num, ', number: ', self.numbers[turn_num%len(self.numbers)],', reference particle state: ', bunch.get_reference_particle().get_state())
             print('lattice momentum: ', stepper.get_lattice_simulator().get_lattice().get_reference_particle().get_momentum())
             print('bunch momentum: ', bunch.get_reference_particle().get_momentum())
             print('bunch design momentum: ', bunch.get_design_reference_particle().get_momentum())
