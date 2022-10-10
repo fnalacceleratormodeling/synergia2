@@ -270,6 +270,26 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     /* Create Kokkos view for use when updating the matrix */
     lctx.coo_v = karray1d_dev("coo_v", ncoo);
 
+    /* create krylov solver */
+    PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
+    PetscCall(KSPSetType(sctx.ksp, KSPFGMRES));
+    PetscCall(
+        KSPGMRESSetCGSRefinementType(sctx.ksp, KSP_GMRES_CGS_REFINE_IFNEEDED));
+
+    PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
+    PetscCall(KSPSetFromOptions(sctx.ksp));
+
+    /* set preconditioner */
+    PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
+    // PetscCall(PCSetType(sctx.pc, PCHYPRE));
+    // PetscCall(PCHYPRESetType(sctx.pc, std::string("boomeramg").data()));
+
+    PetscCall(PCSetType(sctx.pc, PCGAMG));
+    PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 5));
+    PetscCall(
+        PCGAMGSetThreshold(sctx.pc, (std::array<double, 1>{-0.05}).data(), 1));
+    PetscCall(PCGAMGSetThresholdScale(sctx.pc, 0.5));
+
     /* Enable KSP logging if options are set */
     if (gctx.ksp_view) {
         PetscCall(KSPView(
@@ -302,6 +322,7 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 PetscErrorCode
 compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 {
+
     PetscFunctionBeginUser;
     scoped_simple_timer("sc3d_fd_compute_mat");
 
@@ -330,14 +351,10 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
             PetscInt p = ((k - info.zs) * info.ym * info.xm +
                           (j - info.ys) * info.xm + (i - info.xs)) *
                          7;
-
             if (i == 0 || j == 0 || k == 0 || i == info.mx - 1 ||
                 j == info.my - 1 || k == info.mz - 1) {
-
                 lctx.coo_v(p + 3) = 1.0; // on boundary: trivial equation
-
             } else {
-
                 lctx.coo_v(p + 0) = -hxhydhz;
                 lctx.coo_v(p + 1) = -hxdhyhz;
                 lctx.coo_v(p + 2) = -dhxhyhz;
@@ -347,14 +364,11 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
                 lctx.coo_v(p + 6) = -hxhydhz;
             }
         }));
-
-    Kokkos::fence(std::string("sc3d-fd-compute-mat-fence"));
+    Kokkos::fence();
     PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
 
-    if (sctx.reuse == PETSC_TRUE) {
-        PetscCall(KSPSetUp(sctx.ksp));
-        PetscCall(PCSetUp(sctx.pc));
-    }
+    PetscCall(KSPSetUp(sctx.ksp));
+    PetscCall(PCSetUp(sctx.pc));
 
     PetscFunctionReturn(0);
 }
@@ -383,35 +397,10 @@ solve(SubcommCtx& sctx, GlobalCtx& gctx)
     PetscCall(VecScale(sctx.rho_subcomm, hx * hy * hz));
 
     if (sctx.reuse == PETSC_FALSE) {
-        /* create krylov solver */
-        PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
-        PetscCall(KSPSetType(sctx.ksp, KSPCG));
-        PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
-        PetscCall(KSPSetFromOptions(sctx.ksp));
-        PetscCall(KSPSetUp(sctx.ksp));
-
-        /* set preconditioner */
-        PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
-        PetscCall(PCSetType(sctx.pc, PCASM));
-        PetscCall(PCSetUp(sctx.pc));
-
-#if defined SYNERGIA_ENABLE_CUDA
-        KSP* subksp; /* array of KSP contexts for local subblocks */
-        PetscInt nlocal,
-            first; /* number of local subblocks, first local subblock */
-        PC subpc;  /* PC context for subblock */
-
-        PetscCall(PCASMGetSubKSP(sctx.pc, &nlocal, NULL, &subksp));
-        for (PetscInt idx = 0; idx < nlocal; idx++) {
-            PetscCall(KSPGetPC(subksp[idx], &subpc));
-            PetscCall(PCSetType(subpc, PCILU));
-            PetscCall(PCFactorSetMatSolverType(subpc, "cusparse"));
-        }
-#endif
-
         PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_TRUE));
         PetscCall(PCSetReusePreconditioner(sctx.pc, PETSC_TRUE));
         PetscCall(KSPSetInitialGuessNonzero(sctx.ksp, PETSC_TRUE));
+        PetscCall(PCGAMGSetReuseInterpolation(sctx.pc, PETSC_TRUE));
         sctx.reuse = PETSC_TRUE;
     }
 
