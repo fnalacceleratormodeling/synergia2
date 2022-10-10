@@ -102,7 +102,7 @@ struct Propagate_actions_callback : Propagate_actions
             BOOST_SERIALIZATION_BASE_OBJECT_NVP(Propagate_actions);
             std::string pickled_object(
                     extract<std::string > (
-                            import("cPickle").attr("dumps")(self)));
+                            import("pickle").attr("dumps")(self)));
             ar & BOOST_SERIALIZATION_NVP(pickled_object);
         }
     template<class Archive>
@@ -114,7 +114,7 @@ struct Propagate_actions_callback : Propagate_actions
             std::string pickled_object;
             ar & BOOST_SERIALIZATION_NVP(pickled_object);
             str pickle_str(pickled_object);
-            self = import("cPickle").attr("loads")(pickle_str);
+            self = import("pickle").attr("loads")(pickle_str);
         }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 private:
