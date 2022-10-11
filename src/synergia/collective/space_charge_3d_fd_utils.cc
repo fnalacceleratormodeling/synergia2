@@ -367,6 +367,19 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     Kokkos::fence();
     PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
 
+    if (sctx.reuse == PETSC_FALSE) {
+        PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_FALSE));
+        PetscCall(PCSetReusePreconditioner(sctx.pc, PETSC_FALSE));
+        PetscCall(KSPSetInitialGuessNonzero(sctx.ksp, PETSC_FALSE));
+        PetscCall(PCGAMGSetReuseInterpolation(sctx.pc, PETSC_FALSE));
+        sctx.reuse = PETSC_TRUE; /* will reset reuse at next solve  */
+    } else {
+        PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_TRUE));
+        PetscCall(PCSetReusePreconditioner(sctx.pc, PETSC_TRUE));
+        PetscCall(KSPSetInitialGuessNonzero(sctx.ksp, PETSC_TRUE));
+        PetscCall(PCGAMGSetReuseInterpolation(sctx.pc, PETSC_TRUE));
+    }
+
     PetscCall(KSPSetUp(sctx.ksp));
     PetscCall(PCSetUp(sctx.pc));
 
@@ -395,14 +408,6 @@ solve(SubcommCtx& sctx, GlobalCtx& gctx)
 
     /* Scaling factor of hx*hy*hz */
     PetscCall(VecScale(sctx.rho_subcomm, hx * hy * hz));
-
-    if (sctx.reuse == PETSC_FALSE) {
-        PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_TRUE));
-        PetscCall(PCSetReusePreconditioner(sctx.pc, PETSC_TRUE));
-        PetscCall(KSPSetInitialGuessNonzero(sctx.ksp, PETSC_TRUE));
-        PetscCall(PCGAMGSetReuseInterpolation(sctx.pc, PETSC_TRUE));
-        sctx.reuse = PETSC_TRUE;
-    }
 
     /* Solve for phi! */
     PetscCall(KSPSolve(sctx.ksp, sctx.rho_subcomm, sctx.phi_subcomm));

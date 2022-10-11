@@ -1,10 +1,9 @@
-#include "deposit.h"
-
 #include "space_charge_3d_fd.h"
 #include "space_charge_3d_fd_alias.h"
 #include "space_charge_3d_fd_impl.h"
 #include "space_charge_3d_fd_utils.h"
 
+#include "deposit.h"
 #include "space_charge_3d_kernels.h"
 
 #include "synergia/bunch/core_diagnostics.h"
@@ -98,7 +97,7 @@ Space_charge_3d_fd::apply_impl(Bunch_simulator& sim,
     if (num_bunches_in_bunch_sim != num_bunches_in_train_0) {
         throw std::runtime_error(
             "sc3d-fd only works on a single bunch train, work is ongoing \
-		    to make it work on multiple bunch trains!");
+        to make it work on multiple bunch trains!");
     }
 
     // construct the workspace for a new bunch simulator
@@ -116,7 +115,7 @@ Space_charge_3d_fd::apply_impl(Bunch_simulator& sim,
         allocated = true;
 
         /* Functionality that is present in update_domain that must be called
-          where a static domain is used ! */
+           where a static domain is used ! */
         if (use_fixed_domain) {
 
             auto left_x = static_cast<PetscReal>(domain.get_left()[0]);
@@ -205,8 +204,8 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
     }
 
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-         concurrent operations on each solver subcommunicator
-     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+       concurrent operations on each solver subcommunicator
+       - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
     // DEBUGGING!
     if (gctx.dumps) {
@@ -304,28 +303,29 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
           Disable this temporarily until a commxx of type MPI_COMM_SELF
           can be created
 
-    PetscCall(PetscPrintf(gctx.bunch_comm,
-                        "Dumping enx/eny/enz vector on all ranks!\n"));
+          PetscCall(PetscPrintf(gctx.bunch_comm,
+          "Dumping enx/eny/enz vector on all ranks!\n"));
 
-    std::string filename;
+          std::string filename;
 
-    filename = "enx_on_rank_";
-    filename.append(std::to_string(gctx.global_rank));
-    filename.append(".h5");
-    Hdf5_file file_x(filename, Hdf5_file::Flag::read_write, );
-    file_x.write("enx", lctx.enx.data(), lctx.enx.size(), true);
+          filename = "enx_on_rank_";
+          filename.append(std::to_string(gctx.global_rank));
+          filename.append(".h5");
+          Hdf5_file file_x(filename, Hdf5_file::Flag::read_write, );
+          file_x.write("enx", lctx.enx.data(), lctx.enx.size(), true);
 
-    filename = "eny_on_rank_";
-    filename.append(std::to_string(gctx.global_rank));
-    filename.append(".h5");
-    Hdf5_file file_y(filename, Hdf5_file::Flag::read_write, Commxx());
-    file_y.write("eny", lctx.eny.data(), lctx.eny.size(), true);
+          filename = "eny_on_rank_";
+          filename.append(std::to_string(gctx.global_rank));
+          filename.append(".h5");
+          Hdf5_file file_y(filename, Hdf5_file::Flag::read_write, Commxx());
+          file_y.write("eny", lctx.eny.data(), lctx.eny.size(), true);
 
-    filename = "enz_on_rank_";
-    filename.append(std::to_string(gctx.global_rank));
-    filename.append(".h5");
-    Hdf5_file file_z(filename, Hdf5_file::Flag::read_write, Commxx());
-    file_z.write("enz", lctx.enz.data(), lctx.enz.size(), true);
+          filename = "enz_on_rank_";
+          filename.append(std::to_string(gctx.global_rank));
+          filename.append(".h5");
+          Hdf5_file file_z(filename, Hdf5_file::Flag::read_write, Commxx());
+          file_z.write("enz", lctx.enz.data(), lctx.enz.size(), true);
+
     */
     }
 
@@ -371,7 +371,8 @@ Space_charge_3d_fd::apply_kick(Bunch& bunch, double time_step)
 
     double fn_norm = (1.0 / (pconstants::epsilon0));
 
-    //                   (1.0 / (4.0 * mconstants::pi * pconstants::epsilon0));
+    //                   (1.0 / (4.0 * mconstants::pi *
+    //                   pconstants::epsilon0));
 
     double unit_conversion = pconstants::c / (1e9 * pconstants::e);
     double factor = options.kick_scale * unit_conversion * q * time_step *
@@ -429,8 +430,48 @@ Space_charge_3d_fd::update_domain(Bunch const& bunch)
     gctx.Ly = size[1];
     gctx.Lz = size[2];
 
+    if (gctx.first_solve == true) {
+        gctx.Lx_ref = gctx.Lx;
+        gctx.Ly_ref = gctx.Ly;
+        gctx.Lz_ref = gctx.Lz;
+        gctx.first_solve = false;
+    }
+
+    if (sctx.reuse == PETSC_TRUE) {
+
+        double scale_x = gctx.Lx / gctx.Lx_ref;
+        double scale_y = gctx.Ly / gctx.Ly_ref;
+        double scale_z = gctx.Lz / gctx.Lz_ref;
+
+        if (scale_x < 1) scale_x = 1 / scale_x;
+        if (scale_y < 1) scale_y = 1 / scale_y;
+        if (scale_z < 1) scale_z = 1 / scale_z;
+
+        double scale = scale_x * scale_y * scale_z;
+
+        std::string scale_str = "Scale factors are total, x, y, z : ";
+        scale_str.append(std::to_string(scale));
+	scale_str.append(" , ");
+        scale_str.append(std::to_string(scale_x));
+        scale_str.append(" , ");
+        scale_str.append(std::to_string(scale_y));
+        scale_str.append(" , ");
+        scale_str.append(std::to_string(scale_z));
+        scale_str.append("\n");
+        PetscCall(PetscPrintf(gctx.bunch_comm, scale_str.c_str()));
+
+        /* rebuild preconditioner if domain has changed significantly */
+        if (scale > gctx.scale_threshold) {
+            gctx.Lx_ref = gctx.Lx;
+            gctx.Ly_ref = gctx.Ly;
+            gctx.Lz_ref = gctx.Lz;
+            sctx.reuse = PETSC_FALSE;
+            PetscCall(PetscPrintf(gctx.bunch_comm, (std::string("Will rebuild preconditioner!\n")).c_str()));
+        }
+    }
+
     /* Defer updating the matrix for now, it will overlap
-      with the rho local->subcomm communication phase */
+       with the rho local->subcomm communication phase */
 
     PetscFunctionReturn(0);
 }
