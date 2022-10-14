@@ -77,13 +77,13 @@ struct GlobalCtx {
 
     MPI_Comm bunch_comm; /*! MPI communicator over which the bunch has been
                             defined */
+    bool ksp_converged_reason =
+        false;             /*! enable KSPConvergedReason to stdout */
+    bool ksp_view = false; /*! enable KSPView to stdout */
     bool ksp_monitor_residual =
-        false; /*! enable KSPMonitorResidual to stdout */
-    PetscBool ksp_converged_reason =
-        PETSC_FALSE;                  /*! enable KSPConvergedReason to stdout */
-    PetscBool ksp_view = PETSC_FALSE; /*! enable KSPView to stdout */
-    PetscBool debug = PETSC_FALSE;    /*! enable verbose outputs */
-    PetscBool dumps = PETSC_FALSE;    /*! enable dumping states to HDF5 files */
+        false;          /*! enable KSPMonitorResidual to stdout */
+    bool debug = false; /*! enable verbose outputs */
+    bool dumps = false; /*! enable dumping states to HDF5 files */
 
     PetscMPIInt global_rank = -1; /*! global MPI communicator rank */
     PetscMPIInt global_size = -1; /*! global MPI communicator size */
@@ -92,15 +92,9 @@ struct GlobalCtx {
     double Ly; /*! length along x */
     double Lz; /*! length along x */
 
-    double Lx_ref; /*! length along x, when preconditioner was created */
-    double Ly_ref; /*! length along y, when preconditioner was created */
-    double Lz_ref; /*! length along z, when preconditioner was created */
-
-    bool first_solve =
-        true; /*! is this the first time this solver is called?  */
-
-    double scale_threshold = 100; /*! rebuild preconditioner if the size
-                                     of the domain changes by this factor */
+    double Lx_ref = -1; /*! length along x, when preconditioner was created */
+    double Ly_ref = -1; /*! length along y, when preconditioner was created */
+    double Lz_ref = -1; /*! length along z, when preconditioner was created */
 
     Vec phi_global_local; /*! global alias of the local vector on each MPI rank
                            */

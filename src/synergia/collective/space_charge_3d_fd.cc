@@ -37,6 +37,10 @@ Space_charge_3d_fd::Space_charge_3d_fd(Space_charge_3d_fd_options const& ops)
     , use_fixed_domain(false)
     , allocated(false)
 {
+    scale_x_threshold = ops.scale_thresholds[0];
+    scale_y_threshold = ops.scale_thresholds[1];
+    scale_z_threshold = ops.scale_thresholds[2];
+
     if (ops.domain_fixed) {
         set_fixed_domain(ops.offset, ops.size);
         use_fixed_domain = true;
@@ -159,7 +163,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
     // charge density
     get_local_charge_density(bunch); // [C/m^3]
 
-    // DEBUGGING!
+    // Debugging
     if (gctx.dumps) {
         PetscViewer hdf5_viewer;
         PetscCall(PetscPrintf(gctx.bunch_comm,
@@ -207,7 +211,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
        concurrent operations on each solver subcommunicator
        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-    // DEBUGGING!
+    // Debugging
     if (gctx.dumps) {
         PetscViewer hdf5_viewer;
         PetscCall(PetscPrintf(gctx.bunch_comm,
@@ -223,7 +227,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
         PetscCall(PetscViewerDestroy(&hdf5_viewer));
     }
 
-    // DEBUGGING!
+    // Debugging
     if (gctx.dumps) {
         PetscViewer ascii_viewer;
         PetscCall(
@@ -245,7 +249,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
         PetscCall(solve(sctx, gctx));
     }
 
-    // DEBUGGING!
+    // Debugging
     if (gctx.dumps) {
         PetscViewer hdf5_viewer;
         PetscCall(PetscPrintf(gctx.bunch_comm,
@@ -281,7 +285,7 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
                                 SCATTER_REVERSE));
     }
 
-    // DEBUGGING!
+    // Debugging
     if (gctx.dumps) {
         PetscViewer hdf5_viewer;
         PetscCall(
@@ -297,37 +301,9 @@ Space_charge_3d_fd::apply_bunch(Bunch& bunch, double time_step, Logger& logger)
 
     get_force();
 
-    // DEBUGGING!
-    if (gctx.dumps) {
-        /*
-          Disable this temporarily until a commxx of type MPI_COMM_SELF
-          can be created
-
-          PetscCall(PetscPrintf(gctx.bunch_comm,
-          "Dumping enx/eny/enz vector on all ranks!\n"));
-
-          std::string filename;
-
-          filename = "enx_on_rank_";
-          filename.append(std::to_string(gctx.global_rank));
-          filename.append(".h5");
-          Hdf5_file file_x(filename, Hdf5_file::Flag::read_write, );
-          file_x.write("enx", lctx.enx.data(), lctx.enx.size(), true);
-
-          filename = "eny_on_rank_";
-          filename.append(std::to_string(gctx.global_rank));
-          filename.append(".h5");
-          Hdf5_file file_y(filename, Hdf5_file::Flag::read_write, Commxx());
-          file_y.write("eny", lctx.eny.data(), lctx.eny.size(), true);
-
-          filename = "enz_on_rank_";
-          filename.append(std::to_string(gctx.global_rank));
-          filename.append(".h5");
-          Hdf5_file file_z(filename, Hdf5_file::Flag::read_write, Commxx());
-          file_z.write("enz", lctx.enz.data(), lctx.enz.size(), true);
-
-    */
-    }
+    // Note: enx/eny/enz vectors cannot be dumped to HDF5 files
+    // because we cannot create a commxx of type MPI_COMM_SELF
+    // as of now!
 
     apply_kick(bunch, time_step);
 
@@ -430,11 +406,11 @@ Space_charge_3d_fd::update_domain(Bunch const& bunch)
     gctx.Ly = size[1];
     gctx.Lz = size[2];
 
-    if (gctx.first_solve == true) {
+    if (gctx.Lx_ref < 0) {
+        // The first time this solver is being run
         gctx.Lx_ref = gctx.Lx;
         gctx.Ly_ref = gctx.Ly;
         gctx.Lz_ref = gctx.Lz;
-        gctx.first_solve = false;
     }
 
     if (sctx.reuse == PETSC_TRUE) {
@@ -447,26 +423,34 @@ Space_charge_3d_fd::update_domain(Bunch const& bunch)
         if (scale_y < 1) scale_y = 1 / scale_y;
         if (scale_z < 1) scale_z = 1 / scale_z;
 
-        double scale = scale_x * scale_y * scale_z;
-
-        std::string scale_str = "Scale factors are total, x, y, z : ";
-        scale_str.append(std::to_string(scale));
-	scale_str.append(" , ");
-        scale_str.append(std::to_string(scale_x));
-        scale_str.append(" , ");
-        scale_str.append(std::to_string(scale_y));
-        scale_str.append(" , ");
-        scale_str.append(std::to_string(scale_z));
-        scale_str.append("\n");
-        PetscCall(PetscPrintf(gctx.bunch_comm, scale_str.c_str()));
+        if (gctx.debug) {
+            double scale = scale_x * scale_y * scale_z;
+            std::string scale_str = "Scale factors are total, x, y, z : ";
+            scale_str.append(std::to_string(scale));
+            scale_str.append(" , ");
+            scale_str.append(std::to_string(scale_x));
+            scale_str.append(" , ");
+            scale_str.append(std::to_string(scale_y));
+            scale_str.append(" , ");
+            scale_str.append(std::to_string(scale_z));
+            scale_str.append("\n");
+            PetscCall(PetscPrintf(gctx.bunch_comm, "%s", scale_str.c_str()));
+        }
 
         /* rebuild preconditioner if domain has changed significantly */
-        if (scale > gctx.scale_threshold) {
+        if (scale_x > scale_x_threshold || scale_y > scale_y_threshold ||
+            scale_z > scale_z_threshold) {
             gctx.Lx_ref = gctx.Lx;
             gctx.Ly_ref = gctx.Ly;
             gctx.Lz_ref = gctx.Lz;
             sctx.reuse = PETSC_FALSE;
-            PetscCall(PetscPrintf(gctx.bunch_comm, (std::string("Will rebuild preconditioner!\n")).c_str()));
+
+            if (gctx.debug) {
+                PetscCall(PetscPrintf(
+                    gctx.bunch_comm,
+                    "%s",
+                    (std::string("Will rebuild preconditioner!\n")).c_str()));
+            }
         }
     }
 

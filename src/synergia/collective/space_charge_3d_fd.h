@@ -20,6 +20,15 @@ class Space_charge_3d_fd : public Collective_operator {
     Rectangular_grid_domain domain;
     bool use_fixed_domain;
     bool allocated;
+    double scale_x_threshold =
+        15; /*! rebuild preconditioner if the size
+              of the domain along x changes by this factor */
+    double scale_y_threshold =
+        15; /*! rebuild preconditioner if the size
+              of the domain along y changes by this factor */
+    double scale_z_threshold =
+        2.5; /*! rebuild preconditioner if the size
+              of the domain along z changes by this factor */
 
     GlobalCtx gctx;
     SubcommCtx sctx;
