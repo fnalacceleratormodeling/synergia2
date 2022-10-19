@@ -22,13 +22,22 @@ struct Space_charge_3d_fd_options {
     std::array<int, 3> shape;
     std::array<double, 3> size;
     std::array<double, 3> offset;
+    std::array<double, 3> scale_thresholds;
     bool domain_fixed;
     double n_sigma;
     double kick_scale;
     int comm_group_size;
 
-    Space_charge_3d_fd_options(int gridx = 32, int gridy = 32, int gridz = 64)
+    Space_charge_3d_fd_options(int gridx = 32,
+                               int gridy = 32,
+                               int gridz = 64,
+                               double scale_x_threshold = 15,
+                               double scale_y_threshold = 15,
+                               double scale_z_threshold = 2.5)
         : shape{gridx, gridy, gridz}
+        , scale_thresholds{scale_x_threshold,
+                           scale_y_threshold,
+                           scale_z_threshold}
         , domain_fixed(false)
         , n_sigma(8.0)
         , kick_scale(1.0)
