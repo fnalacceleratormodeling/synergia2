@@ -1,6 +1,8 @@
 # This library is built separately to avoid linking to kokkos directly and avoid
 # calling host only functions from host-device code.
 add_library(synergia_bunch_hostonly diagnostics_full2_host.cc populate_host.cc)
+target_link_libraries(synergia_bunch_hostonly PUBLIC Eigen3::Eigen)
+target_compile_definitions(synergia_bunch_hostonly PUBLIC EIGEN_NO_CUDA)
 target_link_options(synergia_bunch_hostonly PRIVATE ${LINKER_OPTIONS})
 
 add_library(

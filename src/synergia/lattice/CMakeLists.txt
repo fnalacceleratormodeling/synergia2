@@ -3,7 +3,9 @@
 add_library(synergia_lattice_hostonly mx_expr.cc mx_parse.cc mx_tree.cc madx.cc
                                       lattice_tree.cc)
 target_link_libraries(synergia_lattice_hostonly synergia_foundation)
-target_compile_definitions(synergia_lattice_hostonly PUBLIC BOOST_NO_CXX98_FUNCTION_BASE)
+target_compile_definitions(synergia_lattice_hostonly PUBLIC EIGEN_NO_CUDA)
+target_compile_definitions(synergia_lattice_hostonly
+                           PUBLIC BOOST_NO_CXX98_FUNCTION_BASE)
 target_compile_definitions(synergia_lattice_hostonly PUBLIC BOOST_NO_CXX03)
 target_link_options(synergia_lattice_hostonly PRIVATE ${LINKER_OPTIONS})
 

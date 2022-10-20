@@ -1,8 +1,8 @@
 add_library(synergia_foundation four_momentum.cc reference_particle.cc
                                 distribution.cc)
-
+target_compile_definitions(synergia_foundation PUBLIC EIGEN_NO_CUDA)
 target_link_libraries(synergia_foundation synergia_parallel_utils lsexpr
-                      GSL::gsl GSL::gslcblas)
+                      GSL::gsl GSL::gslcblas Eigen3::Eigen)
 
 target_link_options(synergia_foundation PRIVATE ${LINKER_OPTIONS})
 
