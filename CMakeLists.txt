@@ -6,11 +6,9 @@ endif()
 
 project(SYNERGIA2 LANGUAGES CXX C)
 
-
 if(${CMAKE_VERSION} VERSION_GREATER "3.22.0")
-    cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
+  cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
 endif()
-
 
 # generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -335,6 +333,17 @@ else()
   message(STATUS "using double for gsvector")
 endif()
 
+# Find Eigen, a dependency we vendor
+message(STATUS "Configuring Eigen3 for use in host routines.")
+# Eigen tries to determine fortran compiler ID via FC, which can cause issues
+# with flang-new, so unset that temporarily.
+set(FC_BACKUP $ENV{FC})
+unset(ENV{FC})
+add_subdirectory(${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
+set(ENV{FC} ${FC_BACKUP})
+find_package(Eigen3 REQUIRED PATHS
+             ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
+
 # Additional CXXFLAGS
 if(EXTRA_CXX_FLAGS)
   string(APPEND CMAKE_CXX_FLAGS ${EXTRA_CXX_FLAGS})
@@ -349,7 +358,6 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
                "${SYNERGIA2_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
 
-include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils
 )# for boost headers
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)

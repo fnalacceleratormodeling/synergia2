@@ -16,6 +16,7 @@ target_link_libraries(trigon
 
 add_executable(tmapping tmapping.cc)
 target_link_libraries(tmapping
+	synergia_foundation
 	synergia_serialization
 	${kokkos_libs}
 	)
