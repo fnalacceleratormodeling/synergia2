@@ -20,8 +20,6 @@ enum class LongitudinalDistribution {
 struct Space_charge_3d_fd_options {
 
     std::array<int, 3> shape;
-    std::array<double, 3> size;
-    std::array<double, 3> offset;
     std::array<double, 3> scale_thresholds;
     bool domain_fixed;
     double n_sigma;
