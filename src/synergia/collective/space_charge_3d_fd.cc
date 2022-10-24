@@ -480,6 +480,12 @@ Space_charge_3d_fd::allocate_sc3d_fd(const Bunch& bunch)
     PetscCallMPI(MPI_Comm_rank(gctx.bunch_comm, &gctx.global_rank));
     PetscCallMPI(MPI_Comm_size(gctx.bunch_comm, &gctx.global_size));
 
+    if (gctx.global_size < options.comm_group_size)
+        throw std::runtime_error(
+            "[sc3d-fd-error] Requested comm group size is too large.");
+
+    gctx.nsubcomms = gctx.global_size / options.comm_group_size;
+
     /* Initialize task subcomms, display task-subcomm details */
     PetscCall(init_solver_subcomms(sctx, gctx));
 

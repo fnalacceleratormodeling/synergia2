@@ -155,7 +155,7 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
     PetscFunctionBeginUser;
 
-    PetscCall(DMDACreate3d(gctx.bunch_comm,
+    PetscCall(DMDACreate3d(sctx.solversubcomm,
                            DM_BOUNDARY_NONE,
                            DM_BOUNDARY_NONE,
                            DM_BOUNDARY_NONE,
