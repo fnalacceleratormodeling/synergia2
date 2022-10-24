@@ -34,7 +34,7 @@ jobs:
 
     - name: Dependencies
       run: |
-        brew install gcc gsl hdf5 fftw libomp ninja
+        brew install gsl hdf5 fftw libomp ninja
         python3 -m venv ${{github.workspace}}/synergia-env
         source ${{github.workspace}}/synergia-env/bin/activate
         python3 -m pip install --upgrade pip setuptools wheel
@@ -56,7 +56,7 @@ jobs:
         source ${{github.workspace}}/synergia-env/bin/activate
         cmake -B ${{github.workspace}}/build \
         -DCMAKE_OSX_ARCHITECTURES="x86_64" \
-        -DCMAKE_C_COMPILER=gcc-12 -DCMAKE_CXX_COMPILER=g++-12 \
+        -DCMAKE_C_COMPILER=gcc-11 -DCMAKE_CXX_COMPILER=g++-11 \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DENABLE_KOKKOS_BACKEND=OpenMP \
         -DBUILD_PYTHON_BINDINGS=on -DBUILD_EXAMPLES=off -GNinja
 
