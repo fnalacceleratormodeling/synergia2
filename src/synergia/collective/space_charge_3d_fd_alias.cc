@@ -35,22 +35,22 @@ init_global_local_aliases(LocalCtx& lctx, GlobalCtx& gctx)
     /* consistency check */
     if (gctx.debug) {
         if (mtype_phi != mtype_rho)
-            SETERRQ(PETSC_COMM_WORLD,
+            SETERRQ(gctx.bunch_comm,
                     PETSC_ERR_ARG_NOTSAMETYPE,
                     "phi and rho vectors don't have the memory type!");
         if (!gctx.VecCreate_type_WithArray)
-            SETERRQ(PETSC_COMM_WORLD,
+            SETERRQ(gctx.bunch_comm,
                     PETSC_ERR_ARG_BADPTR,
                     "the function pointer in gctx is invalid!");
     }
 
-    PetscCall(gctx.VecCreate_type_WithArray(PETSC_COMM_WORLD,
+    PetscCall(gctx.VecCreate_type_WithArray(gctx.bunch_comm,
                                             1,
                                             phi_localsize,
                                             PETSC_DECIDE,
                                             d_phi_val,
                                             &gctx.phi_global_local));
-    PetscCall(gctx.VecCreate_type_WithArray(PETSC_COMM_WORLD,
+    PetscCall(gctx.VecCreate_type_WithArray(gctx.bunch_comm,
                                             1,
                                             rho_localsize,
                                             PETSC_DECIDE,
@@ -113,34 +113,34 @@ init_global_subcomm_aliases(SubcommCtx& sctx, GlobalCtx& gctx)
         if (gctx.sids[i] == sctx.solversubcommid) {
 
             if (gctx.debug) {
-                PetscCall(PetscPrintf(PETSC_COMM_WORLD, "\n"));
+                PetscCall(PetscPrintf(gctx.bunch_comm, "\n"));
                 PetscCall(
                     PetscPrintf(PetscObjectComm((PetscObject)sctx.phi_subcomm),
                                 "Hi there from solver-subcomm number %d, with "
                                 "subcommid of %d\n",
                                 i,
                                 gctx.sids[i]));
-                PetscCall(PetscPrintf(PETSC_COMM_WORLD, "\n"));
+                PetscCall(PetscPrintf(gctx.bunch_comm, "\n"));
                 if (mtype_phi != mtype_rho)
-                    SETERRQ(PETSC_COMM_WORLD,
+                    SETERRQ(gctx.bunch_comm,
                             PETSC_ERR_ARG_NOTSAMETYPE,
                             "phi and rho vectors don't have the memory type!");
                 if (!gctx.VecCreate_type_WithArray)
-                    SETERRQ(PETSC_COMM_WORLD,
+                    SETERRQ(gctx.bunch_comm,
                             PETSC_ERR_ARG_BADPTR,
                             "the function pointer in gctx is invalid!");
             }
 
             /* Create global aliases of subcomm vectors */
             PetscCall(
-                gctx.VecCreate_type_WithArray(PETSC_COMM_WORLD,
+                gctx.VecCreate_type_WithArray(gctx.bunch_comm,
                                               1,
                                               phi_localsize,
                                               PETSC_DECIDE,
                                               d_phi_val,
                                               &(gctx.phi_global_subcomm[i])));
             PetscCall(
-                gctx.VecCreate_type_WithArray(PETSC_COMM_WORLD,
+                gctx.VecCreate_type_WithArray(gctx.bunch_comm,
                                               1,
                                               rho_localsize,
                                               PETSC_DECIDE,
@@ -153,14 +153,14 @@ init_global_subcomm_aliases(SubcommCtx& sctx, GlobalCtx& gctx)
                do not contribute any values to the global alias,
                yet they must participate in collective calls */
             PetscCall(
-                gctx.VecCreate_type_WithArray(PETSC_COMM_WORLD,
+                gctx.VecCreate_type_WithArray(gctx.bunch_comm,
                                               1,
                                               0,
                                               PETSC_DECIDE,
                                               NULL,
                                               &(gctx.phi_global_subcomm[i])));
             PetscCall(
-                gctx.VecCreate_type_WithArray(PETSC_COMM_WORLD,
+                gctx.VecCreate_type_WithArray(gctx.bunch_comm,
                                               1,
                                               0,
                                               PETSC_DECIDE,
@@ -187,13 +187,13 @@ init_global_subcomm_aliases(SubcommCtx& sctx, GlobalCtx& gctx)
         for (PetscInt i = 0; i < gctx.nsubcomms; i++) {
             PetscCall(VecGetSize(gctx.rho_global_subcomm[i], &size));
             PetscCall(PetscPrintf(
-                PETSC_COMM_WORLD,
+                gctx.bunch_comm,
                 "Hello! the size of the global alias of subcomm vec "
                 "with index %d is %d\n",
                 i,
                 size));
         }
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD, "\n"));
+        PetscCall(PetscPrintf(gctx.bunch_comm, "\n"));
     }
 
     PetscFunctionReturn(0);
@@ -233,11 +233,11 @@ init_subcomm_local_aliases(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     /* consistency check */
     if (gctx.debug) {
         if (mtype_phi != mtype_rho)
-            SETERRQ(PETSC_COMM_WORLD,
+            SETERRQ(gctx.bunch_comm,
                     PETSC_ERR_ARG_NOTSAMETYPE,
                     "phi and rho vectors don't have the memory type!");
         if (!gctx.VecCreate_type_WithArray)
-            SETERRQ(PETSC_COMM_WORLD,
+            SETERRQ(gctx.bunch_comm,
                     PETSC_ERR_ARG_BADPTR,
                     "the function pointer in gctx is invalid!");
     }

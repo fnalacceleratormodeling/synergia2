@@ -53,7 +53,7 @@ init_solver_subcomms(SubcommCtx& sctx, GlobalCtx& gctx)
 
     PetscFunctionBeginUser;
 
-    PetscCall(PetscSubcommCreate(PETSC_COMM_WORLD, &(sctx.solverpsubcomm)));
+    PetscCall(PetscSubcommCreate(gctx.bunch_comm, &(sctx.solverpsubcomm)));
     PetscCall(PetscSubcommSetNumber(sctx.solverpsubcomm, gctx.nsubcomms));
     PetscCall(
         PetscSubcommSetType(sctx.solverpsubcomm, PETSC_SUBCOMM_CONTIGUOUS));
@@ -76,24 +76,24 @@ init_solver_subcomms(SubcommCtx& sctx, GlobalCtx& gctx)
                                gctx.sids.data(),
                                1,
                                MPI_INT,
-                               PETSC_COMM_WORLD));
+                               gctx.bunch_comm));
     std::sort(gctx.sids.begin(), gctx.sids.end());
     gctx.sids.erase(std::unique(gctx.sids.begin(), gctx.sids.end()),
                     gctx.sids.end());
 
     if (gctx.debug) {
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD,
+        PetscCall(PetscPrintf(gctx.bunch_comm,
                               "\nsolver-subcomms have been created!\n"));
-        PetscCall(
-            PetscSubcommView(sctx.solverpsubcomm, PETSC_VIEWER_STDOUT_WORLD));
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD, "\n"));
+        PetscCall(PetscSubcommView(sctx.solverpsubcomm,
+                                   PETSC_VIEWER_STDOUT_(gctx.bunch_comm)));
+        PetscCall(PetscPrintf(gctx.bunch_comm, "\n"));
         PetscCall(PetscSynchronizedPrintf(
-            PETSC_COMM_WORLD,
+            gctx.bunch_comm,
             "size of gct.sids vector on global-rank %d is : %d\n",
             gctx.global_rank,
             static_cast<int>(gctx.sids.size())));
-        PetscCall(PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT));
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD, "\n"));
+        PetscCall(PetscSynchronizedFlush(gctx.bunch_comm, PETSC_STDOUT));
+        PetscCall(PetscPrintf(gctx.bunch_comm, "\n"));
     }
 
     PetscFunctionReturn(0);
@@ -134,7 +134,7 @@ init_subcomm_vecs(SubcommCtx& sctx, GlobalCtx& gctx)
                         "subcomm vec here is %d\n",
                         sctx.solversubcommid,
                         size));
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD, "\n"));
+        PetscCall(PetscPrintf(gctx.bunch_comm, "\n"));
     }
 
     PetscFunctionReturn(0);
@@ -463,11 +463,11 @@ init_global_subcomm_scatters(SubcommCtx& sctx, GlobalCtx& gctx)
     if (gctx.debug) {
         for (PetscInt i = 0; i < gctx.nsubcomms; i++) {
             PetscCall(
-                PetscPrintf(PETSC_COMM_WORLD, "global-to-subcomm scatter\n"));
+                PetscPrintf(gctx.bunch_comm, "global-to-subcomm scatter\n"));
             PetscCall(VecScatterView(gctx.scat_glocal_to_subcomms[i],
                                      PETSC_VIEWER_STDOUT_WORLD));
         }
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD, "\n"));
+        PetscCall(PetscPrintf(gctx.bunch_comm, "\n"));
     }
 
     PetscFunctionReturn(0);
@@ -509,11 +509,11 @@ init_subcomm_local_scatters(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
                                &sctx.scat_subcomm_to_local));
 
     if (gctx.debug) {
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD, "subcomm-to-local scatter\n"));
+        PetscCall(PetscPrintf(gctx.bunch_comm, "subcomm-to-local scatter\n"));
         PetscCall(VecScatterView(sctx.scat_subcomm_to_local,
                                  PETSC_VIEWER_STDOUT_(PetscObjectComm(
                                      (PetscObject)sctx.phi_subcomm))));
-        PetscCall(PetscPrintf(PETSC_COMM_WORLD, "\n"));
+        PetscCall(PetscPrintf(gctx.bunch_comm, "\n"));
         PetscCall(PetscBarrier(NULL));
     }
 
