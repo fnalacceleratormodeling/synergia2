@@ -15,7 +15,7 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: macos-latest
+    runs-on: macos-12
 
     steps:
     - name: Cancel Previous runs
@@ -28,9 +28,13 @@ jobs:
       with:
         submodules: 'true'
 
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest      
+
     - name: Dependencies
       run: |
-        brew install gcc gsl hdf5 fftw libomp ninja
+        brew install gsl hdf5 fftw libomp ninja
         python3 -m venv ${{github.workspace}}/synergia-env
         source ${{github.workspace}}/synergia-env/bin/activate
         python3 -m pip install --upgrade pip setuptools wheel
@@ -40,9 +44,9 @@ jobs:
         # we build our own from source.
         mkdir tmp
         cd tmp
-        wget https://github.com/h5py/h5py/archive/refs/tags/3.6.0.tar.gz
-        tar xf 3.6.0.tar.gz
-        cd h5py-3.6.0
+        wget https://github.com/h5py/h5py/archive/refs/tags/3.7.0.tar.gz
+        tar xf 3.7.0.tar.gz
+        cd h5py-3.7.0
         HDF5_DIR=/usr/local python setup.py install
         cd ../..
         rm -r tmp/
@@ -50,7 +54,9 @@ jobs:
     - name: CMake
       run: |
         source ${{github.workspace}}/synergia-env/bin/activate
-        CC=gcc-11 CXX=g++-11 cmake -B ${{github.workspace}}/build \
+        cmake -B ${{github.workspace}}/build \
+        -DCMAKE_OSX_ARCHITECTURES="x86_64" \
+        -DCMAKE_C_COMPILER=gcc-11 -DCMAKE_CXX_COMPILER=g++-11 \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DENABLE_KOKKOS_BACKEND=OpenMP \
         -DBUILD_PYTHON_BINDINGS=on -DBUILD_EXAMPLES=off -GNinja
 
