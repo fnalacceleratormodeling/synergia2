@@ -69,7 +69,7 @@ jobs:
         source ${{github.workspace}}/synergia-env/bin/activate
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
          -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-         -DCMAKE_PREFIX_PATH="/usr/local/Cellar/libomp/15.0.2" \
+         -DCMAKE_PREFIX_PATH=$(./brew --prefix libomp) \
          -DENABLE_KOKKOS_BACKEND=OpenMP -DBUILD_PYTHON_BINDINGS=on -DBUILD_EXAMPLES=off -GNinja
 
     - name: Build
