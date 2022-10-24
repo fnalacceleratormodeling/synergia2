@@ -28,6 +28,10 @@ jobs:
       with:
         submodules: 'true'
 
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest      
+
     - name: Dependencies
       run: |
         brew install gcc gsl hdf5 fftw libomp ninja
