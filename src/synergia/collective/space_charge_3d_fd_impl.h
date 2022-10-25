@@ -33,11 +33,9 @@ struct LocalCtx {
 struct SubcommCtx {
 
     Vec phi_subcomm_local; /*! subcomm alias of the local vector on each MPI
-                            * rank
-                            */
+                             rank */
     Vec rho_subcomm_local; /*! subcomm alias of the local vector on each MPI
-                            * rank
-                            */
+                              rank */
     Vec phi_subcomm;       /*! vector on the subcomm */
     Vec rho_subcomm;       /*! vector on the subcomm */
 
