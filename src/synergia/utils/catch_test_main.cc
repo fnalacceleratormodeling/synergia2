@@ -14,24 +14,24 @@ main(int argc, char* argv[])
 {
 
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
-  PetscErrorCode ierr;
-  ierr = PetscInitialize(&argc, &argv, (char*)0, help.c_str());
-  auto initargs =
-    Kokkos::InitializationSettings{}; /* use default constructor */
-  Kokkos::initialize(initargs);
+    PetscErrorCode ierr;
+    ierr = PetscInitialize(&argc, &argv, (char*)0, help.c_str());
+    auto initargs =
+        Kokkos::InitializationSettings{}; /* use default constructor */
+    Kokkos::initialize(initargs);
 #else
-  MPI_Init(&argc, &argv);
-  Kokkos::initialize(argc, argv);
+    MPI_Init(&argc, &argv);
+    Kokkos::initialize(argc, argv);
 #endif
 
-  int result = Catch::Session().run(argc, argv);
+    int result = Catch::Session().run(argc, argv);
 
-  Kokkos::finalize();
+    Kokkos::finalize();
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
-  ierr = PetscFinalize();
+    ierr = PetscFinalize();
 #else
-  MPI_Finalize();
+    MPI_Finalize();
 #endif
 
-  return result;
+    return result;
 }

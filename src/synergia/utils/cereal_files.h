@@ -51,123 +51,124 @@ archive_save(T const& object,
              std::string const& filename,
              bool parallel = false)
 {
-  int try_no = 0;
-  bool fail = true;
-  while ((try_no < 5) && fail) {
-    try {
-      // ensure_serialization_directory_exists(parallel);
-      std::ofstream output_stream;
-      output_stream.open(filename.c_str());
-      int attempts = 0;
-      while (!output_stream.good()) {
-        std::cout << " archive_save attempt to open the file failed "
-                  << attempts + 1 << " times!" << std::endl;
-        if (output_stream.is_open()) output_stream.close();
-        sleep(3);
-        ++attempts;
-        output_stream.open(filename.c_str(), std::ofstream::out);
-        if (attempts > 5) break;
-      }
-      if (!output_stream.good()) {
-        std::string message("<archive>_save: unable to open ");
-        message += filename;
-        message += ": \"";
-        message += std::strerror(errno);
-        message += "\"";
-        throw std::runtime_error(message);
-      }
+    int try_no = 0;
+    bool fail = true;
+    while ((try_no < 5) && fail) {
+        try {
+            // ensure_serialization_directory_exists(parallel);
+            std::ofstream output_stream;
+            output_stream.open(filename.c_str());
+            int attempts = 0;
+            while (!output_stream.good()) {
+                std::cout << " archive_save attempt to open the file failed "
+                          << attempts + 1 << " times!" << std::endl;
+                if (output_stream.is_open()) output_stream.close();
+                sleep(3);
+                ++attempts;
+                output_stream.open(filename.c_str(), std::ofstream::out);
+                if (attempts > 5) break;
+            }
+            if (!output_stream.good()) {
+                std::string message("<archive>_save: unable to open ");
+                message += filename;
+                message += ": \"";
+                message += std::strerror(errno);
+                message += "\"";
+                throw std::runtime_error(message);
+            }
 
-      {
-        A ar(output_stream);
+            {
+                A ar(output_stream);
 
-        int num_objects = 1;
-        ar << CEREAL_NVP(num_objects);
+                int num_objects = 1;
+                ar << CEREAL_NVP(num_objects);
 
-        std::string object_typename(typeid(object).name());
-        ar << CEREAL_NVP(object_typename);
+                std::string object_typename(typeid(object).name());
+                ar << CEREAL_NVP(object_typename);
 
-        ar(object);
-      }
+                ar(object);
+            }
 
-      output_stream.close();
-      fail = false;
+            output_stream.close();
+            fail = false;
+        }
+        // catch(boost::archive::archive_exception& be){
+        catch (...) {
+            // try again
+            ++try_no;
+            fail = true;
+            std::cout << " boost archive exception  has been thrown: "
+                      << // be.what()<<
+                "; trying again archive_save; trying number= " << try_no
+                      << std::endl
+                      << std::flush;
+            sleep(3);
+        }
     }
-    // catch(boost::archive::archive_exception& be){
-    catch (...) {
-      // try again
-      ++try_no;
-      fail = true;
-      std::cout << " boost archive exception  has been thrown: "
-                << // be.what()<<
-        "; trying again archive_save; trying number= " << try_no << std::endl
-                << std::flush;
-      sleep(3);
-    }
-  }
 }
 
 template <typename T, typename A>
 void
 archive_load(T& object, std::string const& filename)
 {
-  std::ifstream input_stream(filename.c_str());
-  if (!input_stream.good()) {
-    std::string message("<archive>_load: unable to open ");
-    message += filename;
-    message += ": \"";
-    message += std::strerror(errno);
-    message += "\"";
-    throw std::runtime_error(message);
-  }
-  A input_archive(input_stream);
-  int num_objects;
-  input_archive >> CEREAL_NVP(num_objects);
-  std::string object_typename;
-  input_archive >> CEREAL_NVP(object_typename);
-  input_archive(object);
-  input_stream.close();
+    std::ifstream input_stream(filename.c_str());
+    if (!input_stream.good()) {
+        std::string message("<archive>_load: unable to open ");
+        message += filename;
+        message += ": \"";
+        message += std::strerror(errno);
+        message += "\"";
+        throw std::runtime_error(message);
+    }
+    A input_archive(input_stream);
+    int num_objects;
+    input_archive >> CEREAL_NVP(num_objects);
+    std::string object_typename;
+    input_archive >> CEREAL_NVP(object_typename);
+    input_archive(object);
+    input_stream.close();
 }
 
 template <typename T>
 void
 binary_save(T const& object, std::string const& filename, bool parallel = false)
 {
-  archive_save<T, cereal::BinaryOutputArchive>(object, filename, parallel);
+    archive_save<T, cereal::BinaryOutputArchive>(object, filename, parallel);
 }
 
 template <typename T>
 void
 binary_load(T& object, std::string const& filename)
 {
-  archive_load<T, cereal::BinaryInputArchive>(object, filename);
+    archive_load<T, cereal::BinaryInputArchive>(object, filename);
 }
 
 template <typename T>
 void
 xml_save(T const& object, std::string const& filename, bool parallel = false)
 {
-  archive_save<T, cereal::XMLOutputArchive>(object, filename, parallel);
+    archive_save<T, cereal::XMLOutputArchive>(object, filename, parallel);
 }
 
 template <typename T>
 void
 xml_load(T& object, std::string const& filename)
 {
-  archive_load<T, cereal::XMLInputArchive>(object, filename);
+    archive_load<T, cereal::XMLInputArchive>(object, filename);
 }
 
 template <typename T>
 void
 json_save(T const& object, std::string const& filename, bool parallel = false)
 {
-  archive_save<T, cereal::JSONOutputArchive>(object, filename, parallel);
+    archive_save<T, cereal::JSONOutputArchive>(object, filename, parallel);
 }
 
 template <typename T>
 void
 json_load(T& object, std::string const& filename)
 {
-  archive_load<T, cereal::JSONInputArchive>(object, filename);
+    archive_load<T, cereal::JSONInputArchive>(object, filename);
 }
 
 #endif /* SERIALIZATION_FILES_H_ */
