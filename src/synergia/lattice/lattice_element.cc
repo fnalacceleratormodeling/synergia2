@@ -34,6 +34,7 @@ namespace {
     {element_type_name::solenoid, element_type::solenoid},
     {element_type_name::elens, element_type::elens},
     {element_type_name::foil, element_type::foil},
+    {element_type_name::dipedge, element_type::dipedge},
   };
 
   element_type
