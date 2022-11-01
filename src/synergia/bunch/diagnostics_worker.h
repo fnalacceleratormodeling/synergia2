@@ -1,7 +1,6 @@
 #ifndef DIAGNOSTICS_WORKER_H
 #define DIAGNOSTICS_WORKER_H
 
-
 #include <memory>
 #include <string>
 
@@ -10,91 +9,90 @@
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/bunch/diagnostics_file.h"
 
-class Diagnostics_worker
-{
+class Diagnostics_worker {
 
-private:
-
+  private:
     std::shared_ptr<Diagnostics> diag;
     Diagnostics_file diag_file;
 
-public:
-
+  public:
     // default constructor for serialization only
-    Diagnostics_worker()
-        : diag(), diag_file()
-    { }
+    Diagnostics_worker() : diag(), diag_file() {}
 
     // construct a diag worker with given type of diag and filename
     // specialization is provided for s_p<Diagnostics> so the python
     // interface can register
-    template<class DiagCal>
-    Diagnostics_worker(
-            DiagCal const& diag,
-            std::shared_ptr<Commxx> const& comm)
+    template <class DiagCal>
+    Diagnostics_worker(DiagCal const& diag, std::shared_ptr<Commxx> const& comm)
         : diag(std::make_shared<DiagCal>(diag))
         , diag_file(diag.filename(), diag.serial(), comm)
-    { }
+    {}
 
     // for registering from python only
-    Diagnostics_worker(
-            std::shared_ptr<Diagnostics> const& diag,
-            std::shared_ptr<Commxx> const& comm)
-        : diag(diag)
-        , diag_file(diag->filename(), diag->serial(), comm)
-    { }
+    Diagnostics_worker(std::shared_ptr<Diagnostics> const& diag,
+                       std::shared_ptr<Commxx> const& comm)
+        : diag(diag), diag_file(diag->filename(), diag->serial(), comm)
+    {}
 
     std::string type() const;
 
     void update(Bunch const& bunch);
     void write();
 
-    void update_and_write(Bunch const& bunch)
-    { update(bunch); write(); }
+    void
+    update_and_write(Bunch const& bunch)
+    {
+        update(bunch);
+        write();
+    }
 
-private:
-
+  private:
     friend class cereal::access;
 
-    template<class AR>
-    void serialize(AR & ar)
+    template <class AR>
+    void
+    serialize(AR& ar)
     {
         ar(CEREAL_NVP(diag));
         ar(CEREAL_NVP(diag_file));
     }
 };
 
-class Diagnostics_handler
-{
-private:
-
-    Diagnostics_worker * worker;
+class Diagnostics_handler {
+  private:
+    Diagnostics_worker* worker;
     Bunch const* bunch;
 
-public:
+  public:
+    Diagnostics_handler() : worker(nullptr), bunch(nullptr) {}
 
-    Diagnostics_handler()
-        : worker(nullptr), bunch(nullptr)
-    { }
-
-    Diagnostics_handler(
-            Diagnostics_worker& worker,
-            Bunch const& bunch )
+    Diagnostics_handler(Diagnostics_worker& worker, Bunch const& bunch)
         : worker(&worker), bunch(&bunch)
-    { }
+    {}
 
-    std::string type() const
-    { return worker ? worker->type() : ""; }
+    std::string
+    type() const
+    {
+        return worker ? worker->type() : "";
+    }
 
-    void update()
-    { if(worker) worker->update(*bunch); }
+    void
+    update()
+    {
+        if (worker) worker->update(*bunch);
+    }
 
-    void write()
-    { if(worker) worker->write(); }
+    void
+    write()
+    {
+        if (worker) worker->write();
+    }
 
-    void update_and_write()
-    { if(worker) worker->update_and_write(*bunch); }
+    void
+    update_and_write()
+    {
+        if (worker) worker->update_and_write(*bunch);
+    }
 };
-
 
 #endif

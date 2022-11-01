@@ -28,10 +28,10 @@ Bunch_train::find_parent_comm()
          std::cout<<e.what()<<std::endl;
          MPI_Abort(MPI_COMM_WORLD, 333);
   }  
-}  
+}
 #endif
 
-void 
+void
 Bunch_train::calculates_counts_and_offsets_for_impedance()
 {
 #if 0
@@ -46,10 +46,9 @@ Bunch_train::calculates_counts_and_offsets_for_impedance()
   catch (std::exception const& e) {
         std::cout<<e.what()<<std::endl;
         MPI_Abort(MPI_COMM_WORLD, 333);
-  }  
+  }
 #endif
-}  
-
+}
 
 #if 0
 Commxx
@@ -57,7 +56,7 @@ Bunch_train::get_parent_comm()
 {
   if (!has_parent_comm) find_parent_comm(); 
   return parent_comm;
-}  
+}
 #endif
 
 void
@@ -106,25 +105,24 @@ Bunch_train::Bunch_train(Bunches const& bunches,
 }
 #endif
 
-Bunch_train::Bunch_train(
-        Reference_particle const & ref,
-        size_t num_bunches,
-        size_t num_particles_per_bunch,
-        double num_real_particles_per_bunch,
-        double spacing,
-        Commxx const & bt_comm,
-        size_t num_spectator_per_bunch,
-        int index ) 
-: comm(std::make_shared<Commxx>(bt_comm))
-, bunches()
-, spacings()
-, index(index)
-, num_bunches(num_bunches)
-, num_buckets(num_bunches)
-, bunch_idx_map(num_bunches, -1)
+Bunch_train::Bunch_train(Reference_particle const& ref,
+                         size_t num_bunches,
+                         size_t num_particles_per_bunch,
+                         double num_real_particles_per_bunch,
+                         double spacing,
+                         Commxx const& bt_comm,
+                         size_t num_spectator_per_bunch,
+                         int index)
+    : comm(std::make_shared<Commxx>(bt_comm))
+    , bunches()
+    , spacings()
+    , index(index)
+    , num_bunches(num_bunches)
+    , num_buckets(num_bunches)
+    , bunch_idx_map(num_bunches, -1)
 {
-    for(auto i=0; i<num_bunches; ++i)
-        spacings.emplace_back( spacing );
+    for (auto i = 0; i < num_bunches; ++i)
+        spacings.emplace_back(spacing);
 
     // empty train
     if (comm->is_null()) return;
@@ -137,33 +135,27 @@ Bunch_train::Bunch_train(
     int bunches_per_rank = 0;
     int color = 0;
 
-    if (size < num_bunches)
-    {
-       if (num_bunches % size != 0)
-       {
-           throw std::runtime_error( 
-                   "Bunch_train::Bunch_train() number of bunches must be divisible "
-                   "by the number of ranks." ); 
-       }
+    if (size < num_bunches) {
+        if (num_bunches % size != 0) {
+            throw std::runtime_error("Bunch_train::Bunch_train() number of "
+                                     "bunches must be divisible "
+                                     "by the number of ranks.");
+        }
 
-       bunches_per_rank = num_bunches / size;
-       color = rank;
-    }
-    else
-    {
-        if (size % num_bunches != 0)
-        {
+        bunches_per_rank = num_bunches / size;
+        color = rank;
+    } else {
+        if (size % num_bunches != 0) {
             throw std::runtime_error(
-                    "Bunch_train::Bunch_train() number of ranks must be divisible "
-                    "by the number of bunches." );
+                "Bunch_train::Bunch_train() number of ranks must be divisible "
+                "by the number of bunches.");
         }
 
         bunches_per_rank = 1;
-        color = rank / (size / num_bunches);  // rank / ranks_per_bunch
+        color = rank / (size / num_bunches); // rank / ranks_per_bunch
     }
 
-    for (int b=0; b<bunches_per_rank; ++b)
-    {
+    for (int b = 0; b < bunches_per_rank; ++b) {
         // bunch_index and array_index
         int b_idx = b + color * bunches_per_rank;
         int a_idx = bunches.size();
@@ -172,37 +164,37 @@ Bunch_train::Bunch_train(
         bunch_idx_map[b_idx] = a_idx;
 
         // construct and push bunch object
-        bunches.emplace_back( ref, 
-                num_particles_per_bunch,
-                num_real_particles_per_bunch,
-                comm->split(color),
-                num_spectator_per_bunch,
-                b_idx,         // bunch index in the train
-                b_idx,         // bucket index set to the same of bunch index
-                a_idx,         // array index in the bunches array
-                index          // train index
-                );
+        bunches.emplace_back(
+            ref,
+            num_particles_per_bunch,
+            num_real_particles_per_bunch,
+            comm->split(color),
+            num_spectator_per_bunch,
+            b_idx, // bunch index in the train
+            b_idx, // bucket index set to the same of bunch index
+            a_idx, // array index in the bunches array
+            index  // train index
+        );
     }
 }
 
-std::vector<double> &
+std::vector<double>&
 Bunch_train::get_spacings()
 {
     return spacings;
 }
 
-std::vector<int> &
-Bunch_train::get_proc_counts_for_impedance() 
+std::vector<int>&
+Bunch_train::get_proc_counts_for_impedance()
 {
-  return proc_counts_imped;
+    return proc_counts_imped;
 }
 
-std::vector<int> &
-Bunch_train::get_proc_offsets_for_impedance() 
+std::vector<int>&
+Bunch_train::get_proc_offsets_for_impedance()
 {
-  return proc_offsets_imped;
+    return proc_offsets_imped;
 }
-
 
 void
 Bunch_train::update_bunch_total_num()
@@ -227,7 +219,6 @@ Bunch_train::update_bunch_total_num()
     }
 #endif
 }
-
 
 #if 0
 template<class Archive>
@@ -262,4 +253,3 @@ void
 Bunch_train::serialize<cereal::XMLInputArchive >(
         cereal::XMLInputArchive & ar, const unsigned int version);
 #endif
-

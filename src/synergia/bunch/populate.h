@@ -1,8 +1,8 @@
 #ifndef POPULATE_H_
 #define POPULATE_H_
 
-#include "synergia/foundation/distribution.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/foundation/distribution.h"
 
 /// Populate a bunch with a Gaussian distribution in all six dimensions.
 /// @param dist the distribution generator
@@ -10,39 +10,38 @@
 /// @param means an array of length six of the mean value of the distribution
 ///  in each phase space variable
 /// @param covariances the six-by-six covariance matrix
-void
-populate_6d( 
-        Distribution & dist, 
-        Bunch &bunch, 
-        const_karray1d means, 
-        const_karray2d_row covariances );
+void populate_6d(Distribution& dist,
+                 Bunch& bunch,
+                 const_karray1d means,
+                 const_karray2d_row covariances);
 
-/// Populate a bunch with a truncated Gaussian distribution in all six dimensions.
+/// Populate a bunch with a truncated Gaussian distribution in all six
+/// dimensions.
 /// @param dist the distribution generator
 /// @param bunch the bunch
 /// @param means an array of length six of the mean value of the distribution
 ///  in each phase space variable
 /// @param covariances the six-by-six covariance matrix
-/// @param limits an array of length six giving the cutoffs in units of the individual sigmas. A zero value means "do not truncate."
-void
-populate_6d_truncated( 
-        Distribution & dist, 
-        Bunch & bunch, 
-        const_karray1d means, 
-        const_karray2d_row covariances, 
-        const_karray1d limits );
+/// @param limits an array of length six giving the cutoffs in units of the
+/// individual sigmas. A zero value means "do not truncate."
+void populate_6d_truncated(Distribution& dist,
+                           Bunch& bunch,
+                           const_karray1d means,
+                           const_karray2d_row covariances,
+                           const_karray1d limits);
 
-/// the 3 rms input parameters,arms, brms, crms, correspond to the  indices 
+/// the 3 rms input parameters,arms, brms, crms, correspond to the  indices
 /// rms _index[0], rms _index[1], rms _index[2]
 /// example: rms_index=[0,2,4]==> arms=xrms, brms=yrms, crms=zrms
 /// units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,
-karray2d_row
-get_correlation_matrix(
-        const_karray2d_row one_turn_map,
-        double arms, double brms, double crms, double beta, 
-        std::array<int, 3> const& rms_index = {0, 2, 4});
-
-
+karray2d_row get_correlation_matrix(const_karray2d_row one_turn_map,
+                                    double arms,
+                                    double brms,
+                                    double crms,
+                                    double beta,
+                                    std::array<int, 3> const& rms_index = {0,
+                                                                           2,
+                                                                           4});
 
 /// Populate a bunch with a Gaussian distribution in all four
 /// transverse dimensions. The time distribution is uniform, but the
@@ -54,13 +53,11 @@ get_correlation_matrix(
 /// @param covariances the six-by-six covariance matrix
 /// @param cdt the total range of the longitudinal coordinate will be
 ///  [-cdt/2,cdt/2] [m]
-void
-populate_transverse_gaussian(
-        Distribution& dist, 
-        Bunch& bunch,
-        const_karray1d means, 
-        const_karray2d_row covariances, 
-        double cdt);
+void populate_transverse_gaussian(Distribution& dist,
+                                  Bunch& bunch,
+                                  const_karray1d means,
+                                  const_karray2d_row covariances,
+                                  double cdt);
 
 // TODO: to be implemented...
 #if 0
@@ -114,14 +111,12 @@ populate_longitudinal_uniform(Distribution &dist, Bunch &bunch,   double length)
 // alternative populate KV distribution using a linear map to determine coefficients.
 void
 populate_transverseKV_logitudinalGaussian(Distribution &dist, Bunch &bunch,   karray2d_row const& map,
-                            double radiusx,  double radiusy,   double ctrms); 
+                            double radiusx,  double radiusy,   double ctrms);
 
 #endif
 
-                       
-void
-adjust_moments( Bunch & bunch, 
-                const_karray1d means,
-                const_karray2d_row covariances);                      
+void adjust_moments(Bunch& bunch,
+                    const_karray1d means,
+                    const_karray2d_row covariances);
 
 #endif /* POPULATE_H_ */

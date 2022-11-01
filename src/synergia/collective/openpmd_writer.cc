@@ -1,7 +1,5 @@
 #include "openpmd_writer.h"
 
-using namespace openPMD;
-
 Space_charge_openPMD_writer::Space_charge_openPMD_writer(
     std::string const& file)
     : series(file, openPMD::Access::CREATE)
@@ -57,9 +55,11 @@ Space_charge_openPMD_writer::write_particles(Bunch const& bunch)
                 sqrt(p * p - parts_x(i) * parts_x(i) - parts_y(i) * parts_y(i));
         });
 
-    ParticleSpecies& protons = series.iterations[iteration].particles["bunch"];
-    Datatype datatype = determineDatatype(shareRaw(h_parts.data()));
-    Dataset dataset(datatype, {npart});
+    openPMD::ParticleSpecies& protons =
+        series.iterations[iteration].particles["bunch"];
+    openPMD::Datatype datatype =
+        openPMD::determineDatatype(openPMD::shareRaw(h_parts.data()));
+    openPMD::Dataset dataset(datatype, {npart});
 
     protons["position"]["x"].resetDataset(dataset);
     protons["position"]["y"].resetDataset(dataset);
@@ -71,16 +71,19 @@ Space_charge_openPMD_writer::write_particles(Bunch const& bunch)
 
     series.flush();
 
-    protons["position"]["x"].storeChunk(shareRaw(parts_x.data()), {0}, {npart});
-    protons["position"]["y"].storeChunk(shareRaw(parts_y.data()), {0}, {npart});
-    protons["position"]["z"].storeChunk(shareRaw(parts_z.data()), {0}, {npart});
+    protons["position"]["x"].storeChunk(
+        openPMD::shareRaw(parts_x.data()), {0}, {npart});
+    protons["position"]["y"].storeChunk(
+        openPMD::shareRaw(parts_y.data()), {0}, {npart});
+    protons["position"]["z"].storeChunk(
+        openPMD::shareRaw(parts_z.data()), {0}, {npart});
 
     protons["moments"]["x"].storeChunk(
-        shareRaw(moments_x.data()), {0}, {npart});
+        openPMD::shareRaw(moments_x.data()), {0}, {npart});
     protons["moments"]["y"].storeChunk(
-        shareRaw(moments_y.data()), {0}, {npart});
+        openPMD::shareRaw(moments_y.data()), {0}, {npart});
     protons["moments"]["z"].storeChunk(
-        shareRaw(moments_z.data()), {0}, {npart});
+        openPMD::shareRaw(moments_z.data()), {0}, {npart});
 
     series.flush();
 }

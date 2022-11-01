@@ -4,30 +4,29 @@
 
 const char Diagnostics_basic::name[] = "diagnostics_basic";
 
-Diagnostics_basic::Diagnostics_basic(std::string const& filename, std::string const& local_dir) : 
-    Diagnostics_basic::Diagnostics(Diagnostics_basic::name, filename, local_dir), 
-    have_writers(false), 
-    writer_s_n(0), 
-    writer_repetition(0), 
-    writer_s(0), 
-    writer_num_particles(0), 
-    writer_real_num_particles(0), 
-    writer_pz(0), 
-    mean(boost::extents[6]), 
-    writer_mean(0), 
-    std(boost::extents[6]), 
-    writer_std(0), 
-    min(boost::extents[3]), 
-    writer_min(0), 
-    max(boost::extents[3]), 
-    writer_max(0)
-{
-}
+Diagnostics_basic::Diagnostics_basic(std::string const& filename,
+                                     std::string const& local_dir)
+    : Diagnostics_basic::Diagnostics(Diagnostics_basic::name,
+                                     filename,
+                                     local_dir)
+    , have_writers(false)
+    , writer_s_n(0)
+    , writer_repetition(0)
+    , writer_s(0)
+    , writer_num_particles(0)
+    , writer_real_num_particles(0)
+    , writer_pz(0)
+    , mean(boost::extents[6])
+    , writer_mean(0)
+    , std(boost::extents[6])
+    , writer_std(0)
+    , min(boost::extents[3])
+    , writer_min(0)
+    , max(boost::extents[3])
+    , writer_max(0)
+{}
 
-Diagnostics_basic::Diagnostics_basic() : 
-    have_writers(false)
-{
-}
+Diagnostics_basic::Diagnostics_basic() : have_writers(false) {}
 
 bool
 Diagnostics_basic::is_serial() const
@@ -38,22 +37,21 @@ Diagnostics_basic::is_serial() const
 void
 Diagnostics_basic::update()
 {
-    if (get_bunch().get_comm().has_this_rank())
-    {
-	    get_bunch().convert_to_state(get_bunch().fixed_z_lab);
+    if (get_bunch().get_comm().has_this_rank()) {
+        get_bunch().convert_to_state(get_bunch().fixed_z_lab);
 
-	    s_n = get_bunch().get_reference_particle().get_s_n();
-	    repetition = get_bunch().get_reference_particle().get_repetition();
-	    s = get_bunch().get_reference_particle().get_s();
+        s_n = get_bunch().get_reference_particle().get_s_n();
+        repetition = get_bunch().get_reference_particle().get_repetition();
+        s = get_bunch().get_reference_particle().get_s();
         pz = get_bunch().get_reference_particle().get_momentum();
 
-	    num_particles = get_bunch().get_total_num();
-	    real_num_particles = get_bunch().get_real_num();
+        num_particles = get_bunch().get_total_num();
+        real_num_particles = get_bunch().get_real_num();
 
-	    mean = Core_diagnostics::calculate_mean(get_bunch());
-	    std = Core_diagnostics::calculate_std(get_bunch(), mean);
-	    min = Core_diagnostics::calculate_min(get_bunch());
-	    max = Core_diagnostics::calculate_max(get_bunch());
+        mean = Core_diagnostics::calculate_mean(get_bunch());
+        std = Core_diagnostics::calculate_std(get_bunch(), mean);
+        min = Core_diagnostics::calculate_min(get_bunch());
+        max = Core_diagnostics::calculate_max(get_bunch());
     }
 }
 
@@ -120,9 +118,9 @@ Diagnostics_basic::get_max() const
 void
 Diagnostics_basic::init_writers(Hdf5_file_sptr file_sptr)
 {
-    if (!have_writers) 
-    {
-        Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
+    if (!have_writers) {
+        Four_momentum fourp(
+            get_bunch().get_reference_particle().get_four_momentum());
 
         int chg = get_bunch().get_reference_particle().get_charge();
         file_sptr->write(chg, "charge");
@@ -130,16 +128,19 @@ Diagnostics_basic::init_writers(Hdf5_file_sptr file_sptr)
         double pmass = fourp.get_mass();
         file_sptr->write(pmass, "mass");
 
-        writer_s_n = new Hdf5_serial_writer<double> (file_sptr, "s_n");
-        writer_repetition = new Hdf5_serial_writer<int> (file_sptr, "repetition");
-        writer_s = new Hdf5_serial_writer<double> (file_sptr, "s");
-        writer_num_particles = new Hdf5_serial_writer<int> (file_sptr, "num_particles");
-        writer_real_num_particles = new Hdf5_serial_writer<double> (file_sptr, "real_num_particles");
-        writer_pz = new Hdf5_serial_writer<double> (file_sptr, "pz");
-        writer_mean = new Hdf5_serial_writer<MArray1d_ref> (file_sptr, "mean");
-        writer_std = new Hdf5_serial_writer<MArray1d_ref> (file_sptr, "std");
-        writer_min = new Hdf5_serial_writer<MArray1d_ref> (file_sptr, "min");
-        writer_max = new Hdf5_serial_writer<MArray1d_ref> (file_sptr, "max");
+        writer_s_n = new Hdf5_serial_writer<double>(file_sptr, "s_n");
+        writer_repetition =
+            new Hdf5_serial_writer<int>(file_sptr, "repetition");
+        writer_s = new Hdf5_serial_writer<double>(file_sptr, "s");
+        writer_num_particles =
+            new Hdf5_serial_writer<int>(file_sptr, "num_particles");
+        writer_real_num_particles =
+            new Hdf5_serial_writer<double>(file_sptr, "real_num_particles");
+        writer_pz = new Hdf5_serial_writer<double>(file_sptr, "pz");
+        writer_mean = new Hdf5_serial_writer<MArray1d_ref>(file_sptr, "mean");
+        writer_std = new Hdf5_serial_writer<MArray1d_ref>(file_sptr, "std");
+        writer_min = new Hdf5_serial_writer<MArray1d_ref>(file_sptr, "min");
+        writer_max = new Hdf5_serial_writer<MArray1d_ref>(file_sptr, "max");
 
         have_writers = true;
     }
@@ -148,10 +149,8 @@ Diagnostics_basic::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_basic::write()
 {
-    if (get_bunch().get_comm().has_this_rank())
-    {
-        if (get_write_helper().write_locally()) 
-        {
+    if (get_bunch().get_comm().has_this_rank()) {
+        if (get_write_helper().write_locally()) {
             init_writers(get_write_helper().get_hdf5_file_sptr());
 
             writer_s_n->append(s_n);
@@ -170,52 +169,48 @@ Diagnostics_basic::write()
     }
 }
 
-template<class Archive>
+template <class Archive>
 void
-Diagnostics_basic::serialize(Archive & ar, const unsigned int version)
+Diagnostics_basic::serialize(Archive& ar, const unsigned int version)
 {
-    ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
-    ar & BOOST_SERIALIZATION_NVP(have_writers);
-    ar & BOOST_SERIALIZATION_NVP(s_n);
-    ar & BOOST_SERIALIZATION_NVP(writer_s_n);
-    ar & BOOST_SERIALIZATION_NVP(repetition);
-    ar & BOOST_SERIALIZATION_NVP(writer_repetition);
-    ar & BOOST_SERIALIZATION_NVP(s);
-    ar & BOOST_SERIALIZATION_NVP(writer_s);
-    ar & BOOST_SERIALIZATION_NVP(num_particles);
-    ar & BOOST_SERIALIZATION_NVP(writer_num_particles);
-    ar & BOOST_SERIALIZATION_NVP(real_num_particles);
-    ar & BOOST_SERIALIZATION_NVP(writer_real_num_particles);
-    ar & BOOST_SERIALIZATION_NVP(writer_pz);
-    ar & BOOST_SERIALIZATION_NVP(mean);
-    ar & BOOST_SERIALIZATION_NVP(writer_mean);
-    ar & BOOST_SERIALIZATION_NVP(std);
-    ar & BOOST_SERIALIZATION_NVP(writer_std);
-    ar & BOOST_SERIALIZATION_NVP(min);
-    ar & BOOST_SERIALIZATION_NVP(writer_min);
-    ar & BOOST_SERIALIZATION_NVP(max);
-    ar & BOOST_SERIALIZATION_NVP(writer_max);
+    ar& BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+    ar& BOOST_SERIALIZATION_NVP(have_writers);
+    ar& BOOST_SERIALIZATION_NVP(s_n);
+    ar& BOOST_SERIALIZATION_NVP(writer_s_n);
+    ar& BOOST_SERIALIZATION_NVP(repetition);
+    ar& BOOST_SERIALIZATION_NVP(writer_repetition);
+    ar& BOOST_SERIALIZATION_NVP(s);
+    ar& BOOST_SERIALIZATION_NVP(writer_s);
+    ar& BOOST_SERIALIZATION_NVP(num_particles);
+    ar& BOOST_SERIALIZATION_NVP(writer_num_particles);
+    ar& BOOST_SERIALIZATION_NVP(real_num_particles);
+    ar& BOOST_SERIALIZATION_NVP(writer_real_num_particles);
+    ar& BOOST_SERIALIZATION_NVP(writer_pz);
+    ar& BOOST_SERIALIZATION_NVP(mean);
+    ar& BOOST_SERIALIZATION_NVP(writer_mean);
+    ar& BOOST_SERIALIZATION_NVP(std);
+    ar& BOOST_SERIALIZATION_NVP(writer_std);
+    ar& BOOST_SERIALIZATION_NVP(min);
+    ar& BOOST_SERIALIZATION_NVP(writer_min);
+    ar& BOOST_SERIALIZATION_NVP(max);
+    ar& BOOST_SERIALIZATION_NVP(writer_max);
 }
 
-template
-void
-Diagnostics_basic::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
+template void Diagnostics_basic::serialize<boost::archive::binary_oarchive>(
+    boost::archive::binary_oarchive& ar,
+    const unsigned int version);
 
-template
-void
-Diagnostics_basic::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
+template void Diagnostics_basic::serialize<boost::archive::xml_oarchive>(
+    boost::archive::xml_oarchive& ar,
+    const unsigned int version);
 
-template
-void
-Diagnostics_basic::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
+template void Diagnostics_basic::serialize<boost::archive::binary_iarchive>(
+    boost::archive::binary_iarchive& ar,
+    const unsigned int version);
 
-template
-void
-Diagnostics_basic::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
+template void Diagnostics_basic::serialize<boost::archive::xml_iarchive>(
+    boost::archive::xml_iarchive& ar,
+    const unsigned int version);
 
 Diagnostics_basic::~Diagnostics_basic()
 {
@@ -234,5 +229,3 @@ Diagnostics_basic::~Diagnostics_basic()
 }
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_basic)
-
-

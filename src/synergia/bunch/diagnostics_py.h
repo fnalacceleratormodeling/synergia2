@@ -8,78 +8,78 @@
 #include <pybind11/pybind11.h>
 
 class PyDiagnostics : public Diagnostics {
-public:
-  explicit PyDiagnostics(std::string const& type = "PyDiagnostics",
-                         std::string const& filename = "py_diag.h5",
-                         bool serial = true)
-    : Diagnostics(type, filename, serial), self()
-  {}
+  public:
+    explicit PyDiagnostics(std::string const& type = "PyDiagnostics",
+                           std::string const& filename = "py_diag.h5",
+                           bool serial = true)
+        : Diagnostics(type, filename, serial), self()
+    {}
 
-  // Declared here so that we can force instantiation of typeinfo in
-  // diagnostics_py.cc
-  ~PyDiagnostics() noexcept;
+    // Declared here so that we can force instantiation of typeinfo in
+    // diagnostics_py.cc
+    ~PyDiagnostics() noexcept;
 
-  // hold a reference to the python instance so it wont go out of scope
-  void
-  reg_self()
-  {
-    self = pybind11::cast(this);
-  }
-
-private:
-  pybind11::object self;
-
-  void do_update(Bunch const& bunch) override;
-  void do_reduce(Commxx const& comm, int root) override;
-  void do_first_write(Hdf5_file& file) override;
-  void do_write(Hdf5_file& file) override;
-
-  friend class cereal::access;
-
-  template <class Archive>
-  void
-  save(Archive& ar) const
-  {
-    ar(cereal::base_class<Diagnostics>(this));
-
-    namespace py = pybind11;
-    py::object pickle;
-    try {
-      pickle = py::module::import("cPickle");
-    }
-    catch (...) {
-      pickle = py::module::import("pickle");
+    // hold a reference to the python instance so it wont go out of scope
+    void
+    reg_self()
+    {
+        self = pybind11::cast(this);
     }
 
-    auto s = pickle.attr("dumps")(self, 2).cast<std::string>();
-    auto base_s = base64_encode(
-      reinterpret_cast<const unsigned char*>(s.c_str()), s.length());
+  private:
+    pybind11::object self;
 
-    ar(base_s);
-  }
+    void do_update(Bunch const& bunch) override;
+    void do_reduce(Commxx const& comm, int root) override;
+    void do_first_write(Hdf5_file& file) override;
+    void do_write(Hdf5_file& file) override;
 
-  template <class Archive>
-  void
-  load(Archive& ar)
-  {
-    ar(cereal::base_class<Diagnostics>(this));
+    friend class cereal::access;
 
-    std::string base_s;
-    ar(base_s);
+    template <class Archive>
+    void
+    save(Archive& ar) const
+    {
+        ar(cereal::base_class<Diagnostics>(this));
 
-    std::string s = base64_decode(base_s);
+        namespace py = pybind11;
+        py::object pickle;
+        try {
+            pickle = py::module::import("cPickle");
+        }
+        catch (...) {
+            pickle = py::module::import("pickle");
+        }
 
-    namespace py = pybind11;
-    py::object pickle;
-    try {
-      pickle = py::module::import("cPickle");
+        auto s = pickle.attr("dumps")(self, 2).cast<std::string>();
+        auto base_s = base64_encode(
+            reinterpret_cast<const unsigned char*>(s.c_str()), s.length());
+
+        ar(base_s);
     }
-    catch (...) {
-      pickle = py::module::import("pickle");
-    }
 
-    self = pickle.attr("loads")(py::bytes(s));
-  }
+    template <class Archive>
+    void
+    load(Archive& ar)
+    {
+        ar(cereal::base_class<Diagnostics>(this));
+
+        std::string base_s;
+        ar(base_s);
+
+        std::string s = base64_decode(base_s);
+
+        namespace py = pybind11;
+        py::object pickle;
+        try {
+            pickle = py::module::import("cPickle");
+        }
+        catch (...) {
+            pickle = py::module::import("pickle");
+        }
+
+        self = pickle.attr("loads")(py::bytes(s));
+    }
 };
 
 CEREAL_REGISTER_TYPE(PyDiagnostics);

@@ -2,21 +2,20 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/core_diagnostics.h"
 
-#include <stdexcept>
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <stdexcept>
 
-template<>
-Bunch::bunch_t(
-        Reference_particle const& reference_particle, 
-        int total_num, 
-        double real_num, 
-        Commxx bunch_comm,
-        int total_spectator_num,
-        int bunch_index,
-        int bucket_index,
-        int array_index,
-        int train_index )
+template <>
+Bunch::bunch_t(Reference_particle const& reference_particle,
+               int total_num,
+               double real_num,
+               Commxx bunch_comm,
+               int total_spectator_num,
+               int bunch_index,
+               int bucket_index,
+               int array_index,
+               int train_index)
     : comm(std::make_shared<Commxx>(bunch_comm))
     , boundary(LB::open)
     , boundary_param(0.0)
@@ -24,16 +23,15 @@ Bunch::bunch_t(
     , design_ref_part(reference_particle)
     , particle_charge(reference_particle.get_charge())
     , real_num(real_num)
-    , parts{ BunchParticles(PG::regular, total_num, -1, *comm),
-             BunchParticles(PG::spectator, total_spectator_num, -1, *comm) }
+    , parts{BunchParticles(PG::regular, total_num, -1, *comm),
+            BunchParticles(PG::spectator, total_spectator_num, -1, *comm)}
     , bunch_index(bunch_index)
     , bucket_index(bucket_index)
     , array_index(array_index)
     , train_index(train_index)
-{
-}
+{}
 
-template<>
+template <>
 Bunch::bunch_t()
     : comm(new Commxx())
     , boundary(LB::open)
@@ -42,16 +40,15 @@ Bunch::bunch_t()
     , design_ref_part()
     , particle_charge(ref_part.get_charge())
     , real_num(1.0)
-    , parts{ BunchParticles(PG::regular, 0, 0, *comm), 
-             BunchParticles(PG::spectator, 0, 0, *comm) }
+    , parts{BunchParticles(PG::regular, 0, 0, *comm),
+            BunchParticles(PG::spectator, 0, 0, *comm)}
     , bunch_index(0)
     , bucket_index(0)
     , array_index(0)
     , train_index(0)
-{
-}
+{}
 
-template<>
+template <>
 void
 Bunch::inject(Bunch const& o)
 {
@@ -62,31 +59,27 @@ Bunch::inject(Bunch const& o)
     auto const& oref = o.ref_part;
 
     // The charge and mass of the bunch particles must match
-    if (particle_charge != o.particle_charge) 
-    {
+    if (particle_charge != o.particle_charge) {
         throw std::runtime_error(
-                "Bunch.inject: bunch particle charges do not match.");
+            "Bunch.inject: bunch particle charges do not match.");
     }
 
-    if (std::abs(ref.get_mass()/oref.get_mass() - 1.0) > particle_tolerance) 
-    {
+    if (std::abs(ref.get_mass() / oref.get_mass() - 1.0) > particle_tolerance) {
         throw std::runtime_error(
-                "Bunch:inject: bunch particle masses do not match.");
+            "Bunch:inject: bunch particle masses do not match.");
     }
 
     // total num for regualr particles
     int total_num = parts[0].num_total();
 
     // can only check particle weight if total_num is nonzero
-    if (total_num != 0) 
-    {
-        double wgt1 = real_num/total_num;
-        double wgt2 = o.get_real_num()/o.get_total_num();
+    if (total_num != 0) {
+        double wgt1 = real_num / total_num;
+        double wgt2 = o.get_real_num() / o.get_total_num();
 
-        if (std::abs(wgt1/wgt2 - 1.0) > weight_tolerance) 
-        {
-            throw std::runtime_error(
-                "Bunch.inject: macroparticle weight of injected bunch does not match.");
+        if (std::abs(wgt1 / wgt2 - 1.0) > weight_tolerance) {
+            throw std::runtime_error("Bunch.inject: macroparticle weight of "
+                                     "injected bunch does not match.");
         }
     }
 
@@ -100,11 +93,10 @@ Bunch::inject(Bunch const& o)
     karray1d_dev inj_st("", 6);
 
     auto h_ref_st_diff = Kokkos::create_mirror_view(ref_st_diff);
-    auto h_tgt_st      = Kokkos::create_mirror_view(tgt_st);
-    auto h_inj_st      = Kokkos::create_mirror_view(inj_st);
+    auto h_tgt_st = Kokkos::create_mirror_view(tgt_st);
+    auto h_inj_st = Kokkos::create_mirror_view(inj_st);
 
-    for (int i = 0; i < 6; ++i) 
-    {
+    for (int i = 0; i < 6; ++i) {
         h_tgt_st(i) = ref.get_state()[i];
         h_inj_st(i) = oref.get_state()[i];
         h_ref_st_diff(i) = h_inj_st(i) - h_tgt_st(i);
@@ -115,14 +107,20 @@ Bunch::inject(Bunch const& o)
     Kokkos::deep_copy(inj_st, h_inj_st);
 
     // regular
-    get_bunch_particles(PG::regular).inject(
-            o.get_bunch_particles(PG::regular),
-            ref_st_diff, tgt_st, inj_st, pdiff );
+    get_bunch_particles(PG::regular)
+        .inject(o.get_bunch_particles(PG::regular),
+                ref_st_diff,
+                tgt_st,
+                inj_st,
+                pdiff);
 
     // spectator
-    get_bunch_particles(PG::spectator).inject(
-            o.get_bunch_particles(PG::spectator),
-            ref_st_diff, tgt_st, inj_st, pdiff );
+    get_bunch_particles(PG::spectator)
+        .inject(o.get_bunch_particles(PG::spectator),
+                ref_st_diff,
+                tgt_st,
+                inj_st,
+                pdiff);
 
     // update total number, for both real and spectator particles
     int old_total = update_total_num();
@@ -131,38 +129,34 @@ Bunch::inject(Bunch const& o)
     if (old_total == 0) real_num = o.get_real_num();
 }
 
-template<>
+template <>
 void
 Bunch::print_statistics(Logger& logger) const
 {
     using LV = LoggerV;
 
-    logger(LV::DEBUG)
-        << "Bunch statistics: "
-        << "num_valid = " << get_local_num()
-        << ", size = " << size()
-        << ", capacity = " << capacity()
-        << ", total_num = " << get_total_num()
-        <<"\nMean and std: ";
+    logger(LV::DEBUG) << "Bunch statistics: "
+                      << "num_valid = " << get_local_num()
+                      << ", size = " << size() << ", capacity = " << capacity()
+                      << ", total_num = " << get_total_num()
+                      << "\nMean and std: ";
 
     // print particles after propagate
     auto mean = Core_diagnostics::calculate_mean(*this);
-    auto std  = Core_diagnostics::calculate_std(*this, mean);
+    auto std = Core_diagnostics::calculate_std(*this, mean);
 
-    logger(LV::DEBUG) 
-        << std::resetiosflags(std::ios::fixed)
-        << std::setprecision(16)
-        << std::setiosflags(std::ios::showpos | std::ios::scientific)
-        << "\n"
+    logger(LV::DEBUG) << std::resetiosflags(std::ios::fixed)
+                      << std::setprecision(16)
+                      << std::setiosflags(std::ios::showpos |
+                                          std::ios::scientific)
+                      << "\n"
         //<< "\nmean\tstd\n"
         ;
 
-    for (int i=0; i<6; ++i) 
+    for (int i = 0; i < 6; ++i)
         logger(LV::DEBUG) << mean[i] << ", " << std[i] << "\n";
 
-    logger(LV::DEBUG)
-        << std::resetiosflags(std::ios::showpos | std::ios::scientific)
-        << "\n";
-
+    logger(LV::DEBUG) << std::resetiosflags(std::ios::showpos |
+                                            std::ios::scientific)
+                      << "\n";
 }
-
