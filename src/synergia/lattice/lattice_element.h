@@ -44,6 +44,7 @@ enum class element_type {
   elens,
 
   foil,
+  dipedge,
 };
 
 namespace element_type_name {
@@ -69,6 +70,7 @@ namespace element_type_name {
   constexpr char const* solenoid = "solenoid";
   constexpr char const* elens = "elens";
   constexpr char const* foil = "foil";
+  constexpr char const* dipedge = "dipedge";
 }
 
 enum class marker_type {
