@@ -9,7 +9,8 @@ add_library(
   space_charge_3d_fd_utils.cc
   space_charge_3d_fd_alias.cc>
   impedance.cc
-  wake_field.cc)
+  wake_field.cc
+  openpmd_writer.cc)
 
 target_link_libraries(
   synergia_collective
@@ -18,7 +19,8 @@ target_link_libraries(
   synergia_parallel_utils
   synergia_bunchsim
   synergia_serialization
-  $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
+  $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>
+  openPMD::openPMD)
 
 target_link_options(synergia_collective PRIVATE ${LINKER_OPTIONS})
 

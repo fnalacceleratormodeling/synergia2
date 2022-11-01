@@ -131,6 +131,28 @@ option(
   "build the finite difference based space charge solver, requires PETSc & PkgConfig"
   OFF)
 
+# OpenPMD
+find_package(openPMD CONFIG)
+
+# if not found, fetch it
+if(NOT openPMD_FOUND)
+  include(FetchContent)
+  set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+  set(openPMD_BUILD_CLI_TOOLS OFF)
+  set(openPMD_BUILD_EXAMPLES OFF)
+  set(openPMD_BUILD_TESTING OFF)
+  # set(openPMD_BUILD_SHARED_LIBS OFF)  # precedence over BUILD_SHARED_LIBS if
+  # needed; or:
+  set(openPMD_INSTALL ${BUILD_SHARED_LIBS}) # only install if used as shared a
+                                            # library
+  set(openPMD_USE_PYTHON OFF)
+  FetchContent_Declare(
+    openPMD
+    GIT_REPOSITORY "https://github.com/openPMD/openPMD-api.git"
+    GIT_TAG "dev")
+  FetchContent_MakeAvailable(openPMD)
+endif()
+
 # PETSc
 if(${BUILD_FD_SPACE_CHARGE_SOLVER})
   add_definitions(-DBUILD_FD_SPACE_CHARGE_SOLVER)
