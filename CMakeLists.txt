@@ -132,7 +132,7 @@ option(
   OFF)
 
 # OpenPMD
-#find_package(openPMD CONFIG)
+find_package(openPMD CONFIG)
 
 # if not found, fetch it
 if(NOT openPMD_FOUND)
