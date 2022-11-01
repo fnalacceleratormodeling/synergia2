@@ -412,10 +412,13 @@ Space_charge_3d_open_hockney::apply_impl(Bunch_simulator& sim,
         bunch_sim_id = sim.id();
     }
 
+    auto write = pmd_writer.start_iteration();
+
     // apply to bunches
     for (size_t t = 0; t < 2; ++t) {
         for (size_t b = 0; b < sim[t].get_bunch_array_size(); ++b) {
             apply_bunch(sim[t][b], ffts[t][b], time_step, logger);
+            pmd_writer.write_particles(sim[t][b]);
         }
     }
 }

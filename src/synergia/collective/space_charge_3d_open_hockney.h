@@ -4,6 +4,7 @@
 #include "synergia/simulation/collective_operator.h"
 #include "synergia/simulation/implemented_collective_options.h"
 
+#include "synergia/collective/openpmd_writer.h"
 #include "synergia/collective/rectangular_grid.h"
 #include "synergia/collective/rectangular_grid_domain.h"
 
@@ -16,6 +17,8 @@ class Space_charge_3d_open_hockney;
 class Space_charge_3d_open_hockney : public Collective_operator {
   private:
     const Space_charge_3d_open_hockney_options options;
+
+    Space_charge_openPMD_writer pmd_writer;
 
     std::string bunch_sim_id;
 

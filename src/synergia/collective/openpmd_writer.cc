@@ -6,7 +6,7 @@ Space_charge_openPMD_writer::Space_charge_openPMD_writer(
     std::string const& file)
     : series(file, openPMD::Access::CREATE)
     , iteration(0)
-    , write_interval(-1) // every iteration
+    , write_interval(0) // every iteration
     , write(false)
 {}
 
