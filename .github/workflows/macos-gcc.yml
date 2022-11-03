@@ -44,9 +44,8 @@ jobs:
         # we build our own from source.
         mkdir tmp
         cd tmp
-        wget https://github.com/h5py/h5py/archive/refs/tags/3.7.0.tar.gz
-        tar xf 3.7.0.tar.gz
-        cd h5py-3.7.0
+        git clone https://github.com/h5py/h5py.git
+        cd h5py
         HDF5_DIR=/usr/local python setup.py install
         cd ../..
         rm -r tmp/

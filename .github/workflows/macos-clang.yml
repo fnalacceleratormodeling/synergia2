@@ -48,14 +48,7 @@ jobs:
         # We do not install h5py because the pip-installed version may not use
         # a version of HDF5 that matches what we have from Homebrew. Instead,
         # we build our own from source.
-        mkdir tmp
-        cd tmp
-        wget https://github.com/h5py/h5py/archive/refs/tags/3.7.0.tar.gz
-        tar xf 3.7.0.tar.gz
-        cd h5py-3.7.0
-        HDF5_DIR=/usr/local python setup.py install
-        cd ../..
-        rm -r tmp/
+        HDF5_DIR=$(brew --prefix hdf5) python3 -m pip install git+https://github.com/h5py/h5py.git@master
 
     # Debug: checkpoint at which to open tmate session
     - name: Setup tmate session
