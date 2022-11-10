@@ -16,6 +16,7 @@
 #include "synergia/libFF/ff_elens.h"
 #include "synergia/libFF/ff_nllens.h"
 #include "synergia/libFF/ff_foil.h"
+#include "synergia/libFF/ff_dipedge.h"
 
 namespace FF_element
 {
@@ -52,6 +53,7 @@ namespace FF_element
         case element_type::rcollimator:FF_drift::apply(slice, b); break;
 
         case element_type::foil:       FF_foil::apply(slice, b); break;
+        case element_type::dipedge:    FF_dipedge::apply(slice, b); break;
 
         default: 
             throw std::runtime_error(

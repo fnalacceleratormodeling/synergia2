@@ -1190,7 +1190,11 @@ namespace FF_algorithm {
     yp = yp + dpy;
   }
 
-  template <typename T>
+  
+// Calculations of dipedge taken from MAD-X SUBROUTINE tmfrng from
+// file twiss.f90.
+
+template <typename T>
   KOKKOS_INLINE_FUNCTION void
   dipedge_unit(T& x,
                T& xp,
