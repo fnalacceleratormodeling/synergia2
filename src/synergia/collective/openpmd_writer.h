@@ -22,7 +22,7 @@ class Space_charge_openPMD_writer {
         return write_interval;
     }
 
-    bool start_iteration();
+    bool start_iteration(MPI_Comm bunch_comm);
 
     // void write_rho_2d(Distributed_rectangular_grid_sptr rho);
     // void write_rho_3d(Distributed_rectangular_grid_sptr rho);
@@ -38,10 +38,12 @@ class Space_charge_openPMD_writer {
     void write_En(Rectangular_grid_domain En, int dim);
 
     // position, momentum, id
-    void write_particles(Bunch const& bunch);
+    void write_particles(Bunch& bunch);
 
   private:
     openPMD::Series series;
+
+    std::string filename;
 
     int iteration;
     int write_interval;

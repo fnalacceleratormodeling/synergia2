@@ -411,8 +411,23 @@ Space_charge_3d_open_hockney::apply_impl(Bunch_simulator& sim,
         construct_workspaces(sim);
         bunch_sim_id = sim.id();
     }
+    // count number of bunches
+    int num_bunches_in_bunch_sim = 0;
+    int num_bunches_in_train_0 = 0;
+    for (size_t t = 0; t < 2; ++t) {
+        for (size_t b = 0; b < sim[t].get_bunch_array_size(); ++b) {
+            num_bunches_in_bunch_sim += 1;
+            if (t == 0) num_bunches_in_train_0 += 1;
+        }
+    }
+    if (num_bunches_in_bunch_sim != 1) {
+        throw std::runtime_error(
+            "OpenPMD-writing only works on a single bunch train, work is ongoing \
+        to make it work on multiple bunches/bunch trains!");
+    }
 
-    auto write = pmd_writer.start_iteration();
+    MPI_Comm bunch_comm = MPI_Comm(sim[0][0].get_comm());
+    auto write = pmd_writer.start_iteration(bunch_comm);
 
     // apply to bunches
     for (size_t t = 0; t < 2; ++t) {
