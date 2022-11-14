@@ -233,7 +233,15 @@ if(HDF5_IS_PARALLEL)
   message(STATUS "Using parallel hdf5")
   add_definitions(-DUSE_PARALLEL_HDF5)
 else(HDF5_IS_PARALLEL)
-  message(STATUS "Using serial hdf5")
+  message(STATUS "Fetching hdf5")
+  include(FetchContent)
+  set(HDF5_ENABLE_PARALLEL ON)
+  FetchContent_Declare(
+        hdf5
+        GIT_REPOSITORY https://github.com/HDFGroup/hdf5
+        GIT_TAG        "hdf5-1_12_2"
+  )
+  FetchContent_MakeAvailable(hdf5)
 endif()
 
 # GSL
