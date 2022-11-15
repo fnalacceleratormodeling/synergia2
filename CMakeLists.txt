@@ -206,22 +206,16 @@ if((Kokkos_VERSION_MAJOR LESS 3) OR (Kokkos_VERSION_MINOR LESS 7))
 endif()
 
 # HDF5
+set(FETCH_HDF5 ON)
 set(HDF5_PREFER_PARALLEL true)
-find_package(HDF5 REQUIRED)
+find_package(HDF5)
 
-if(HDF5_IS_PARALLEL)
-  message(STATUS "Using parallel hdf5")
-  add_definitions(-DUSE_PARALLEL_HDF5)
-else(HDF5_IS_PARALLEL)
-  message(STATUS "Fetching hdf5")
-  include(FetchContent)
-  set(HDF5_ENABLE_PARALLEL ON)
-  FetchContent_Declare(
-        hdf5
-        GIT_REPOSITORY https://github.com/HDFGroup/hdf5
-        GIT_TAG        "hdf5-1_12_2"
-  )
-  FetchContent_MakeAvailable(hdf5)
+if(HDF5_FOUND)
+  if(HDF5_IS_PARALLEL)
+    message(STATUS "Using parallel hdf5")
+    add_definitions(-DUSE_PARALLEL_HDF5)
+    set(FETCH_HDF5 OFF)
+  endif()
 endif()
 
 # OpenPMD
@@ -229,6 +223,7 @@ find_package(openPMD CONFIG)
 
 # if not found, fetch it
 if(NOT openPMD_FOUND)
+  message(STATUS "fetching OpenPMD")
   include(FetchContent)
   set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
   set(openPMD_BUILD_CLI_TOOLS OFF)
@@ -241,9 +236,18 @@ if(NOT openPMD_FOUND)
     openPMD
     GIT_REPOSITORY "https://github.com/openPMD/openPMD-api.git"
     GIT_TAG "dev")
+  if(${FETCH_HDF5})
+    message(STATUS "fetching hdf5")
+    set(HDF5_ENABLE_PARALLEL ON)
+    set(HDF5_EXTERNALLY_CONFIGURED 1)
+    FetchContent_Declare(
+      hdf5
+      GIT_REPOSITORY https://github.com/HDFGroup/hdf5
+      GIT_TAG "hdf5-1_12_2")
+    FetchContent_MakeAvailable(hdf5)
+  endif()
   FetchContent_MakeAvailable(openPMD)
 endif()
-
 
 # GSL
 find_package(GSL REQUIRED)

@@ -22,9 +22,8 @@ target_link_libraries(
   $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
 
 add_library(synergia_hdf5_utils hdf5_file.cc hdf5_misc.cc)
-target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES}
+target_link_libraries(synergia_hdf5_utils hdf5::hdf5
                       synergia_parallel_utils ${kokkos_libs})
-target_include_directories(synergia_hdf5_utils PUBLIC ${HDF5_INCLUDE_DIRS})
 target_link_options(synergia_hdf5_utils PRIVATE ${LINKER_OPTIONS})
 
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
