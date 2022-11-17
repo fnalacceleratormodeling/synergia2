@@ -218,6 +218,10 @@ if(HDF5_FOUND)
   endif()
 endif()
 
+if(${FETCH_HDF5})
+  include(CMake/HDF5.cmake)
+endif()
+
 # OpenPMD
 find_package(openPMD CONFIG)
 
@@ -236,16 +240,6 @@ if(NOT openPMD_FOUND)
     openPMD
     GIT_REPOSITORY "https://github.com/openPMD/openPMD-api.git"
     GIT_TAG "dev")
-  if(${FETCH_HDF5})
-    message(STATUS "fetching hdf5")
-    set(HDF5_ENABLE_PARALLEL ON)
-    set(HDF5_EXTERNALLY_CONFIGURED 1)
-    FetchContent_Declare(
-      hdf5
-      GIT_REPOSITORY https://github.com/HDFGroup/hdf5
-      GIT_TAG "hdf5-1_12_2")
-    FetchContent_MakeAvailable(hdf5)
-  endif()
   FetchContent_MakeAvailable(openPMD)
 endif()
 
