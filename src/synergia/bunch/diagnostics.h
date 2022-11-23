@@ -68,11 +68,6 @@ class Diagnostics {
     }
 
     bool
-    serial() const
-    {
-        return single_file();
-    }
-    bool
     single_file() const
     {
         return single_file_;
