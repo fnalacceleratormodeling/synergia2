@@ -57,7 +57,6 @@ install(
         bunch_train.h
         core_diagnostics.h
         diagnostics.h
-        diagnostics_basic.h
         diagnostics_full2.h
         diagnostics_track.h
         diagnostics_bulk_track.h
