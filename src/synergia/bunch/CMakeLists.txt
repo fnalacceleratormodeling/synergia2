@@ -12,7 +12,7 @@ add_library(
   bunch_train.cc
   core_diagnostics.cc
   diagnostics_worker.cc
-  diagnostics_file.cc
+  diagnostics_io.cc
   diagnostics_full2.cc
   diagnostics_full2_host.cc
   diagnostics_particles.cc
@@ -24,8 +24,11 @@ add_library(
   period.cc)
 target_link_libraries(
   synergia_bunch
-  PUBLIC synergia_bunch_hostonly synergia_parallel_utils synergia_hdf5_utils
+  PUBLIC synergia_bunch_hostonly synergia_parallel_utils 
          synergia_foundation synergia_serialization
+	 #$<$<STREQUAL:${USE_OPENPMD_IO},OFF>:synergia_hdf5_utils>
+	 synergia_hdf5_utils
+         $<$<STREQUAL:${USE_OPENPMD_IO},ON>:openPMD::openPMD>
   PRIVATE ${kokkos_libs})
 target_link_options(synergia_bunch PRIVATE ${LINKER_OPTIONS})
 

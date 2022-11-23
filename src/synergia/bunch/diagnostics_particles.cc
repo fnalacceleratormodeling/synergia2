@@ -1,6 +1,7 @@
 
 #include "diagnostics_particles.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia_config.h"
 
 Diagnostics_particles::Diagnostics_particles(std::string const& filename,
                                              int num_part,
@@ -16,11 +17,14 @@ Diagnostics_particles::Diagnostics_particles(std::string const& filename,
 {}
 
 void
-Diagnostics_particles::do_write(Hdf5_file& file)
+Diagnostics_particles::do_write(io_device& file, const size_t iteration)
 {
+
     assert(bunch_ptr != nullptr);
     auto const& ref = bunch_ptr->get_reference_particle();
+#ifdef SYNERGIA_HAVE_OPENPMD
 
+#else
     file.write("charge", ref.get_charge());
     file.write("mass", ref.get_four_momentum().get_mass());
 
@@ -31,4 +35,5 @@ Diagnostics_particles::do_write(Hdf5_file& file)
 
     bunch_ptr->write_file(file, num_part, offset, num_spec_part, spec_offset);
     bunch_ptr = nullptr;
+#endif
 }

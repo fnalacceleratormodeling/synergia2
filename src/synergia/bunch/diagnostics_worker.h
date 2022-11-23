@@ -7,17 +7,17 @@
 #include <cereal/types/memory.hpp>
 
 #include "synergia/bunch/diagnostics.h"
-#include "synergia/bunch/diagnostics_file.h"
+#include "synergia/bunch/diagnostics_io.h"
 
 class Diagnostics_worker {
 
   private:
     std::shared_ptr<Diagnostics> diag;
-    Diagnostics_file diag_file;
+    Diagnostics_io diag_io;
 
   public:
     // default constructor for serialization only
-    Diagnostics_worker() : diag(), diag_file() {}
+    Diagnostics_worker() : diag(), diag_io() {}
 
     // construct a diag worker with given type of diag and filename
     // specialization is provided for s_p<Diagnostics> so the python
@@ -25,13 +25,13 @@ class Diagnostics_worker {
     template <class DiagCal>
     Diagnostics_worker(DiagCal const& diag, std::shared_ptr<Commxx> const& comm)
         : diag(std::make_shared<DiagCal>(diag))
-        , diag_file(diag.filename(), diag.single_file(), comm)
+        , diag_io(diag.filename(), diag.single_file(), comm)
     {}
 
     // for registering from python only
     Diagnostics_worker(std::shared_ptr<Diagnostics> const& diag,
                        std::shared_ptr<Commxx> const& comm)
-        : diag(diag), diag_file(diag->filename(), diag->single_file(), comm)
+        : diag(diag), diag_io(diag->filename(), diag->single_file(), comm)
     {}
 
     std::string type() const;
@@ -54,7 +54,7 @@ class Diagnostics_worker {
     serialize(AR& ar)
     {
         ar(CEREAL_NVP(diag));
-        ar(CEREAL_NVP(diag_file));
+        ar(CEREAL_NVP(diag_io));
     }
 };
 

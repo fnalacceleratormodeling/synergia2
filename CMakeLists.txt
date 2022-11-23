@@ -119,12 +119,15 @@ set(CMAKE_MODULE_LINKER_FLAGS
 option(SIMPLE_TIMER "use the simple timer 2 profiling" OFF)
 option(BUILD_PYTHON_BINDINGS "build the Python bindings of Synergia" ON)
 option(ALLOW_PADDING "enable particle array padding for memory alignment" OFF)
+option(USE_OPENPMD_IO
+       "enable the use of openPMD for parallel I/O, requires parallel HDF5" OFF)
 option(USE_EXTERNAL_KOKKOS "Use external build of kokkos" OFF)
 option(USE_EXTERNAL_CEREAL "Use external build of cereal" OFF)
 option(
   USE_EXTERNAL_PYBIND11
   "Use external build of pybind11, only applicable when building python bindings"
   OFF)
+option(USE_EXTERNAL_OPENPMD "Use external build of openPMD" OFF)
 option(BUILD_EXAMPLES "build examples" ON)
 option(
   BUILD_FD_SPACE_CHARGE_SOLVER
@@ -152,7 +155,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries" TRUE)
 # option for gsvector setting
 set(GSV
     "AVX"
-    CACHE STRING "set gsvector vectorization type (DOUBLE|SSE|AVX|AVX512)")
+    CACHE STRING "set gsvector vectorization type (DOUBLE|SSE|AVX|AVX2|AVX512)")
 
 # find MPI -- do not build the C++ bindings
 set(MPI_CXX_SKIP_MPICXX
@@ -212,8 +215,32 @@ find_package(HDF5 REQUIRED)
 if(HDF5_IS_PARALLEL)
   message(STATUS "Using parallel hdf5")
   add_definitions(-DUSE_PARALLEL_HDF5)
+  set(USE_OPENPMD_IO ON)
+  message(STATUS "Building openPMD I/O capabilities")
+  # OpenPMD
+  if(USE_EXTERNAL_OPENPMD)
+    find_package(openPMD CONFIG REQUIRED)
+    message(STATUS "using external installation of openPMD")
+  else()
+    message(STATUS "fetching OpenPMD")
+    include(FetchContent)
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+    set(openPMD_BUILD_CLI_TOOLS OFF)
+    set(openPMD_BUILD_EXAMPLES OFF)
+    set(openPMD_BUILD_SHARED_LIBS OFF)
+    set(openPMD_BUILD_TESTING OFF)
+    set(openPMD_INSTALL OFF)
+    set(openPMD_USE_PYTHON OFF)
+    FetchContent_Declare(
+      openPMD
+      GIT_REPOSITORY "https://github.com/openPMD/openPMD-api.git"
+      GIT_TAG "dev")
+    FetchContent_MakeAvailable(openPMD)
+  endif()
+  add_definitions(-DSYNERGIA_HAVE_OPENPMD)
 else(HDF5_IS_PARALLEL)
   message(STATUS "Using serial hdf5")
+  message(STATUS "openPMD I/O capabilties disabled")
 endif()
 
 # GSL

@@ -4,36 +4,42 @@
 #include "synergia/bunch/diagnostics.h"
 
 /// Diagnostics_particles dumps the state of particles in a bunch
-class Diagnostics_particles : public Diagnostics
-{
+class Diagnostics_particles : public Diagnostics {
 
-private:
-
+  private:
     Bunch const* bunch_ptr;
 
     int num_part, offset;
     int num_spec_part, spec_offset;
 
-public:
+  public:
+    Diagnostics_particles(std::string const& filename = "diag_particles.h5",
+                          int num_part = -1,
+                          int offset = 0,
+                          int num_spec_part = 0,
+                          int spec_offset = 0);
 
-    Diagnostics_particles(
-            std::string const& filename = "diag_particles.h5",
-            int num_part = -1, int offset = 0,
-            int num_spec_part = 0, int spec_offset = 0 );
-
-private:
-
-    void do_reduce(Commxx const& comm, int root) override { }
-    void do_first_write(Hdf5_file& file) override { }
-    void do_update(Bunch const& bunch) override { bunch_ptr = &bunch; }
-    void do_write(Hdf5_file& file) override;
+  private:
+    void
+    do_reduce(Commxx const& comm, int root) override
+    {}
+    void
+    do_first_write(io_device& file) override
+    {}
+    void
+    do_update(Bunch const& bunch) override
+    {
+        bunch_ptr = &bunch;
+    }
+    void do_write(io_device& file, const size_t iteration) override;
 
     friend class cereal::access;
 
-    template<class AR>
-    void serialize(AR & ar)
-    { 
-        ar(cereal::base_class<Diagnostics>(this)); 
+    template <class AR>
+    void
+    serialize(AR& ar)
+    {
+        ar(cereal::base_class<Diagnostics>(this));
         ar(num_part);
         ar(offset);
         ar(num_spec_part);

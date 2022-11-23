@@ -1,16 +1,15 @@
-#include <string>
-#include <iostream>
 #include "diagnostics_bulk_track.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/utils/parallel_utils.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia_config.h"
+#include <iostream>
+#include <string>
 
-
-Diagnostics_bulk_track::Diagnostics_bulk_track(
-        std::string const& filename,
-        int num_tracks, 
-        int offset,
-        ParticleGroup pg)
+Diagnostics_bulk_track::Diagnostics_bulk_track(std::string const& filename,
+                                               int num_tracks,
+                                               int offset,
+                                               ParticleGroup pg)
     : Diagnostics("diagnostis_bulk_track", filename, true)
     , total_num_tracks(num_tracks)
     , local_num_tracks(0)
@@ -19,8 +18,7 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(
     , setup(false)
     , track_coords("local_coords", 0, 0)
     , pg(pg)
-{
-}
+{}
 
 void
 Diagnostics_bulk_track::do_update(Bunch const& bunch)
@@ -29,44 +27,48 @@ Diagnostics_bulk_track::do_update(Bunch const& bunch)
 
     auto const& ref = bunch.get_reference_particle();
 
-    if (!setup)
-    {
+    if (!setup) {
         ref_charge = ref.get_charge();
-        ref_mass   = ref.get_four_momentum().get_mass();
-        ref_pz     = ref.get_four_momentum().get_momentum();
+        ref_mass = ref.get_four_momentum().get_mass();
+        ref_pz = ref.get_four_momentum().get_momentum();
 
         auto const& comm = bunch.get_comm();
 
         local_num_tracks = decompose_1d_local(comm, total_num_tracks);
         local_offset = decompose_1d_local(comm, offset);
 
-        if (local_num_tracks + local_offset > bunch.size(pg)) 
+        if (local_num_tracks + local_offset > bunch.size(pg))
             local_num_tracks = bunch.size(pg) - local_offset;
 
         setup = true;
     }
 
-    pz         = ref.get_momentum();
-    s          = ref.get_s();
-    s_n        = ref.get_s_n();
+    pz = ref.get_momentum();
+    s = ref.get_s();
+    s_n = ref.get_s_n();
     repetition = ref.get_repetition();
 
-    track_coords = bunch.get_particles_in_range(
-            local_offset, local_num_tracks, pg);
+    track_coords =
+        bunch.get_particles_in_range(local_offset, local_num_tracks, pg);
 }
 
 void
-Diagnostics_bulk_track::do_first_write(Hdf5_file& file)
+Diagnostics_bulk_track::do_first_write(io_device& file)
 {
+#ifdef SYNERGIA_HAVE_OPENPMD
+#else
     file.write("charge", ref_charge);
     file.write("mass", ref_mass);
     file.write("pz", ref_pz);
+#endif
 }
 
 void
-Diagnostics_bulk_track::do_write(Hdf5_file& file)
-{   
+Diagnostics_bulk_track::do_write(io_device& file, const size_t iteration)
+{
     scoped_simple_timer("diag_bulk_track_write");
+#ifdef SYNERGIA_HAVE_OPENPMD
+#else
 
     // write serial
     file.append_single("track_pz", pz);
@@ -76,6 +78,5 @@ Diagnostics_bulk_track::do_write(Hdf5_file& file)
 
     // write collective from all ranks
     file.append_collective("track_coords", track_coords);
+#endif
 }
-
-

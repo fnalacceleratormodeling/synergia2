@@ -6,7 +6,14 @@
 #include <cereal/archives/json.hpp>
 #include <cereal/types/polymorphic.hpp>
 
+#include "synergia/utils/commxx.h"
+#include "synergia/utils/synergia_config.h"
+
+#ifdef SYNERGIA_HAVE_OPENPMD
+#include <openPMD/openPMD.hpp>
+#else
 #include "synergia/utils/hdf5_file.h"
+#endif
 
 template <class PART>
 class bunch_t;
@@ -22,8 +29,8 @@ class Diagnostics {
 
     virtual void do_update(Bunch const&) = 0;
     virtual void do_reduce(Commxx const&, int) = 0;
-    virtual void do_write(Hdf5_file&) = 0;
-    virtual void do_first_write(Hdf5_file&) = 0;
+    virtual void do_write(io_device&, const size_t) = 0;
+    virtual void do_first_write(io_device&) = 0;
 
   public:
     Diagnostics(std::string const& type = "Diagnostics",
@@ -58,13 +65,13 @@ class Diagnostics {
     }
 
     void
-    write(Hdf5_file& file)
+    write(io_device& io_device, const size_t iteration)
     {
         if (first_write) {
-            do_first_write(file);
+            do_first_write(io_device);
             first_write = false;
         }
-        do_write(file);
+        do_write(io_device, iteration);
     }
 
     bool
@@ -97,10 +104,10 @@ class Diagnostics_dummy : public Diagnostics {
     do_reduce(Commxx const& comm, int writer_rank) override
     {}
     void
-    do_first_write(Hdf5_file& file) override
+    do_first_write(io_device& io_device) override
     {}
     void
-    do_write(Hdf5_file& file) override
+    do_write(io_device& io_device, size_t iteration) override
     {}
 
     friend class cereal::access;
