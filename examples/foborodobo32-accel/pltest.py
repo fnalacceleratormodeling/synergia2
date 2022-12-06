@@ -97,7 +97,6 @@ def main():
 
     logger = synergia.utils.Logger(0)
     lattice = get_lattice()
-    print('after lattice creation: ', lattice.is_updated())
     print('Read lattice, length = {}, {} elements'.format(lattice.get_length(), len(lattice.get_elements())), file=logger)
 
     # set the momentum of the beam.  This could have been in a beam statement
@@ -111,7 +110,6 @@ def main():
 
     # set it into the lattice object
     lattice.set_reference_particle(refpart)
-    print('after setting refpart energy: ', lattice.is_updated())
     energy = refpart.get_total_energy()
     momentum = refpart.get_momentum()
     gamma = refpart.get_gamma()
@@ -140,11 +138,11 @@ def main():
     screen = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.DEBUG)
 
     print('number of lattice elements: ', len(lattice.get_elements()))
-    print('lattice first element', lattice.get_elements()[0])
+    print('lattice first element a1 param: ', lattice.get_elements()[0].get_double_attribute('a1'))
     print()
     lattice.get_elements()[0].set_double_attribute('a1', -9999.0)
-    print('lattice first element mod: ', lattice.get_elements()[0])
-    print()
+    print('lattice first element a1 param after mod: ', lattice.get_elements()[0])
+    print('Modifying the lattice element directly from the lattice works')
     print()
     print()
     print('len(propagator.get_lattice_mutable().get_elements()): ', len(propagator.get_lattice_mutable().get_elements()))
@@ -154,34 +152,37 @@ def main():
     print('number propagator.get_lattice_mutable(): ', len(lattice_mutable.get_elements()))
     lattice_const = propagator.get_lattice_const()
     print('number of propagator.get_lattice_const(): ', len(lattice_const.get_elements()))
-    print('number of propagator lattice elements: ', len(propagator.get_lattice_elements()))
+    print('number of propagator.get_lattice_elements: ', len(propagator.get_lattice_elements()))
     print()
+    # print()
+    # print('dir(lattice_mutable): ', dir(lattice_mutable))
+    # print()
+    # print('dir(lattice_const): ', dir(lattice_const))
     print()
-    print('dir(lattice_mutable): ', dir(lattice_mutable))
-    print()
-    print('dir(lattice_const): ', dir(lattice_const))
-    print()
-    print('propagator lattice_elements first element orig: ', propagator.get_lattice_elements()[0])
+    print('propagator.get_lattice_elements first element a1 param orig: ', propagator.get_lattice_elements()[0].get_double_attribute('a1'))
     print()
     propagator.get_lattice_elements()[0].set_double_attribute('a1', 9999.0)
-    print('propagator lattice_elements first element mod: ', propagator.get_lattice_elements()[0])
+    print('propagator.get_lattice_elements first element a1 after nod mod: ', propagator.get_lattice_elements()[0].get_double_attribute('a1'))
+    print('Modifying the lattice element from propagator.get_lattice does NOT work')
     print()
     print()
-    print()
-    print('lattice_mutable first element orig: ', lattice_mutable.get_elements()[0])
+    print('lattice_mutable first element a1 param orig: ', lattice_mutable.get_elements()[0].get_double_attribute('a1'))
     lattice_mutable.get_elements()[0].set_double_attribute('a1', -222.0)
-    print('lattice mutable first element mod: ', lattice_mutable.get_elements()[0])
+    print('lattice mutable first element mod: ', lattice_mutable.get_elements()[0].get_double_attribute('a1'))
+    print('Modifying the lattice element from propagator.get_lattice_mutable().get_elements() is appears to work, or at tleast the readback shows the change')
     print()
-    print('lattice_const first element orig: ', lattice_const.get_elements()[0])
+    print('lattice_const first element a1 param orig: ', lattice_const.get_elements()[0].get_double_attribute('a1'))
+    print('reading the a1 param from the first element of propagator.get_lattice_const.get_elements() does not show the change done to propagator.get_lattice_mutable().get_elements()')
     lattice_const.get_elements()[0].set_double_attribute('a1', 333.0)
-    print('lattice const first element mod: ', lattice_const.get_elements()[0])
+    print('lattice_const first element a1 param mod: ', lattice_const.get_elements()[0].get_double_attribute('a1'))
+    print('reading a1 param from first element of propagator.get_lattice_const.get_elements() shows modifications done to that lattice')
     print()
     print()
-    print('propagator slices')
+    print('propagator slices does not show any of the modificatios to any lattice previously done above')
     i=0
     slices = propagator.get_lattice_element_slices()
     for s in slices:
-        if i >= 10:
+        if i >= 1:
             break
         print(s, s)
         i = i+1
