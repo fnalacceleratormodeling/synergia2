@@ -57,6 +57,9 @@ PYBIND11_MODULE(simulation, m)
 
     .def("get_lattice_elements", &Propagator::get_lattice_elements)
 
+    .def("get_lattice_mutable", py::overload_cast<>(&Propagator::get_lattice))
+    .def("get_lattice_const", py::overload_cast<>(&Propagator::get_lattice, py::const_))
+
     .def(
       "set_checkpoint_period", &Propagator::set_checkpoint_period, "period"_a)
 
