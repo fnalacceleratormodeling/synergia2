@@ -6,4 +6,4 @@ target_link_libraries(pltest
     synergia_bunch 
     synergia_command_line
     )
-
+copy_file(cfoborodobo32.madx cfoborodobo32.madx)
