@@ -48,8 +48,8 @@ def plot_element(element, x, y, angle, attributes, highlight):
                             linewidth=attribute.width)
         else:
             num = 8
-            xn = numpy.zeros([num + 1], numpy.float64)
-            yn = numpy.zeros([num + 1], numpy.float64)
+            xn = numpy.zeros([num + 1], numpy.double)
+            yn = numpy.zeros([num + 1], numpy.double)
             xn[0] = x
             yn[0] = y
             for i in range(1, num + 1):
