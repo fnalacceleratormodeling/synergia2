@@ -1,0 +1,52 @@
+! File fobodobo_s.lat
+! 
+! Written for the January, 2007 USPAS.
+! To be used in conjunction with CHEF.
+! 
+! Send complaints to the author: Leo Michelotti
+! 
+! Add an RF cavity (EGS) 01/30/2009
+!
+! ------------------
+! Parameters
+! ------------------
+n           :=   32;                   !         : number of cells
+bendangle   := twopi/(2*n);           ! [rad]   : dipole bend angle
+focus       :=   7;                   ! [m]     : focal length of equivalent 
+                                     !         :   thin quad
+sepn        :=  10;                   ! [m]     : distance between quad centers
+CFlength  :=   3;                 ! [m]     : CF  length
+strength    := 1/(focus*quadlength);  ! [m**-2] : CF quadrupole strength
+                                     !         :   = B'/brho, where
+                                     !         :   brho = momentum/0.299792458
+                                     !         :   quads occupied by dipole
+
+driftlength := sepn - CFlength;
+
+harmno:=80;
+lambda = (n*2*sepn)/harmno;
+
+hvoltage = 0.01;
+
+cavlen = 0.0; ! rf cavity length
+shortdlen = (driftlength - cavlen)/2.0;   ! 
+
+! this lattice has 32 copies of a 20 m cell.
+
+! ------------------
+! Elements
+! ------------------
+
+o: drift,      l=driftlength;
+os: drift,      l=shortdlen;
+bf: sbend, l=CFlength, angle=bendangle, k1=1/(focus*CFlength);
+bd: sbend, l=CFlength, angle=bendangle, k1=-1/(focus*CFlength);
+
+r: rfcavity,l=cavlen, volt=hvoltage, harmon=harmno, lag=0.25;
+
+! ------------------
+! Lattices
+! ------------------
+fobodobo:  line=( bf, o, bd, o);
+fobrdobo:  line=( bf, o, bd, os, r, os);
+model:     line=( 31*fobodobo,fobrdobo );
