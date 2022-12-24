@@ -175,8 +175,9 @@ def main():
             break
         print(s)
         i = i+1
-    #print(dir(list(slices)[0]))
-    list(slices)[0].print_()
+    print(dir(list(slices)[0]))
+    #list(slices)[0].print_()
+    print(list(slices)[0].get_lattice_element())
     print('The change to a1 is reflected in the lattice slices.')
 
     proplattice.get_reference_particle().set_total_energy(100.0)

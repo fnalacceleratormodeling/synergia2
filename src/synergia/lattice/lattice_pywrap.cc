@@ -267,6 +267,10 @@ PYBIND11_MODULE(lattice, m)
                 &Lattice_element_slice::print,
                 "Print the lattice element slice" )
 
+        .def( "get_lattice_element",
+                &Lattice_element_slice::get_lattice_element,
+                "Get the lattice element corresponding to this slice")
+
         .def( "__repr__", 
                 &Lattice_element_slice::as_string )
         ;
