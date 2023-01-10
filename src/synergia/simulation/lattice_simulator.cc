@@ -2495,13 +2495,16 @@ Lattice_simulator::tune_rfcavities()
         std::string slice_type = (*sit)->get_lattice_element().get_type();
 
         double volt = 0;
+        double lag = 0;
         if (slice_type == "rfcavity")
         {
             // save the volt(strength)
             volt = (*sit)->get_lattice_element().get_double_attribute("volt");
+            lag = (*sit)->get_lattice_element().get_double_attribute("lag");
 
             // set strength to 0
             (*sit)->get_lattice_element().set_double_attribute("volt", 0.0);
+            (*sit)->get_lattice_element().set_double_attribute("lag", 0.0);
         }
 
         // cdt should always start at 0 for each element for calculating slice cdt
@@ -2517,6 +2520,7 @@ Lattice_simulator::tune_rfcavities()
         {
             // restore the strength
             (*sit)->get_lattice_element().set_double_attribute("volt", volt);
+            (*sit)->get_lattice_element().set_double_attribute("lag", lag);
         }
     }
     state = bunch.get_reference_particle().get_state();
@@ -2531,10 +2535,9 @@ Lattice_simulator::tune_rfcavities()
         if (slice_type == "rfcavity")
         {
 
-            // set the frequency of the cavity if it doesn't already have one set and
+            // set the frequency of the cavity if
             // there is a reasonable harmonic number
-            if ( ((*sit)->get_lattice_element().get_double_attribute("freq", -1.0) <= 0.0) &&
-                 ((*sit)->get_lattice_element().get_double_attribute("harmon", -1.0) > 0.0) )
+            if ( (*sit)->get_lattice_element().get_double_attribute("harmon", -1.0) > 0.0 )
             {
                 double harmon = (*sit)->get_lattice_element().get_double_attribute("harmon");
                 // MAD-X definition of frequency is MHz
