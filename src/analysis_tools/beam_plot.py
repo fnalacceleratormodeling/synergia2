@@ -10,8 +10,7 @@ from mpl_toolkits.axes_grid import make_axes_locatable
 import h5py
 #from synergia.utils import Hdf5_file
 
-
-def plot_density(x, y, label, bins):
+def plot_density(options, x, y, label, bins):
     fancylabel = label.replace('_', ' ')
 
     fig = pyplot.figure(1)
@@ -185,14 +184,18 @@ def do_plots(options):
                        (particles[:, coords[options.vcoord]] >= options.minv) *
                        (particles[:, coords[options.vcoord]] < options.maxv))
 
-    plot_density(particles[selected_particles, coords[options.hcoord]],
+    plot_density(options, particles[selected_particles, coords[options.hcoord]],
                  particles[selected_particles, coords[options.vcoord]], 'foobar', options.bins)
     if options.outputfile:
         pyplot.savefig(options.outputfile)
     if options.show:
         pyplot.show()
 
+def beam_plot(command):
+    options = handle_args(command.split())
+    do_plots(options)
+
 if __name__ == '__main__':
-#    plotparams = generate_plotparams()
+    #plotparams = generate_plotparams()
     options = handle_args(sys.argv[1:])
     do_plots(options)
