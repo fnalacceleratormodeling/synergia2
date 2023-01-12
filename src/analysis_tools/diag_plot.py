@@ -189,6 +189,11 @@ def do_plots(options, plotparams):
     if options.show:
         pyplot.show()
 
+def diag_plot(command):
+    plotparams = generate_plotparams()
+    options = handle_args(command.split(), plotparams)
+    do_plots(options, plotparams)
+
 if __name__ == '__main__':
     plotparams = generate_plotparams()
     options = handle_args(sys.argv[1:], plotparams)

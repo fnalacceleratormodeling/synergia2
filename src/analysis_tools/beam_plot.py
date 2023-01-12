@@ -190,6 +190,9 @@ def do_plots(options):
     if options.show:
         pyplot.show()
 
+def beam_plot(command):
+    options = handle_args(command.split())
+    do_plots(options)
 if __name__ == '__main__':
 #    plotparams = generate_plotparams()
     options = handle_args(sys.argv[1:])
