@@ -143,6 +143,10 @@ def do_plots(options):
     if options.show:
         pyplot.show()
 
+def poincare_plot(command):
+    options = handle_args(command.split())
+    do_plots(options)
+
 if __name__ == '__main__':
     options = handle_args(sys.argv[1:])
     do_plots(options)
