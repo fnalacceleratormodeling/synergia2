@@ -85,7 +85,13 @@ class Diagnostics_io {
     {
 #ifdef SYNERGIA_HAVE_OPENPMD
 #else
-        ar(CEREAL_NVP(file));
+        try {
+            ar(CEREAL_NVP(file.value()));
+        }
+        catch (const std::bad_optional_access& e) {
+            std::cerr << "serializing a non-existent HDF5 file!" << e.what()
+                      << '\n';
+        }
 #endif
         ar(CEREAL_NVP(single_file));
         ar(CEREAL_NVP(iteration_count));
