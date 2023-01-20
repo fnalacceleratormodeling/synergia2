@@ -2,12 +2,15 @@
 #define DIAGNOSTICS_PARTICLES_H_
 
 #include "synergia/bunch/diagnostics.h"
+#include <functional>
+#include <optional>
 
 /// Diagnostics_particles dumps the state of particles in a bunch
 class Diagnostics_particles : public Diagnostics {
 
   private:
-    Bunch const* bunch_ptr;
+    // Bunch const& bunch_ptr;
+    std::optional<std::reference_wrapper<const Bunch>> bunch_ref;
 
     int num_part, offset;
     int num_spec_part, spec_offset;
@@ -23,13 +26,11 @@ class Diagnostics_particles : public Diagnostics {
     void
     do_reduce(Commxx const& comm, int root) override
     {}
-    void
-    do_first_write(io_device& file) override
-    {}
+    void do_first_write(io_device& file) override;
     void
     do_update(Bunch const& bunch) override
     {
-        bunch_ptr = &bunch;
+        bunch_ref.emplace(std::cref<Bunch>(bunch));
     }
     void do_write(io_device& file, const size_t iteration) override;
 
