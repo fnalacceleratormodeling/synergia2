@@ -383,11 +383,13 @@ class bunch_t {
     // TODO: when compiled for host, it returns a subview to the original
     // particle data -- overhead for the operation should be minimal
     karray2d_row
-    get_particles_in_range(int idx,
-                           int num,
-                           ParticleGroup pg = PG::regular) const
+    get_particles_in_range_row(int idx,
+                               int num,
+                               ParticleGroup pg = PG::regular) const
     {
-        return get_bunch_particles(pg).get_particles_in_range(idx, num).first;
+        return get_bunch_particles(pg)
+            .get_particles_in_range_row(idx, num)
+            .first;
     }
 
     karray1d_row

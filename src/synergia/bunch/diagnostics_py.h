@@ -2,9 +2,7 @@
 #define DIAGNOSTICS_PY_H
 
 #include "synergia/bunch/diagnostics.h"
-
 #include "synergia/utils/base64.h"
-#include "synergia_config.h"
 
 #include <pybind11/pybind11.h>
 

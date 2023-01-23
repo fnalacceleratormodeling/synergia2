@@ -339,7 +339,7 @@ bunch_particles_t<double>::convert_to_fixed_z_lab(double p_ref, double beta)
 
 template <>
 std::pair<karray2d_row, HostParticleMasks>
-bunch_particles_t<double>::get_particles_in_range(int idx, int n) const
+bunch_particles_t<double>::get_particles_in_range_row(int idx, int n) const
 {
     // index out of range
     if (idx == particle_index_null || idx < 0 || idx + n > n_active)
@@ -682,7 +682,7 @@ bunch_particles_t<double>::write_file(Hdf5_file const& file,
             "invalid num_part or offset for bunch_particles_t::write_file()");
     }
 
-    auto parts = get_particles_in_range(local_offset, local_num_part);
+    auto parts = get_particles_in_range_row(local_offset, local_num_part);
     file.write_collective(label, parts.first);
     file.write_collective(label + "_masks", parts.second);
 }

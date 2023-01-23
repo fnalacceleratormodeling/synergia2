@@ -2,7 +2,6 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/utils/parallel_utils.h"
 #include "synergia/utils/simple_timer.h"
-#include "synergia_config.h"
 #include <iostream>
 #include <string>
 
@@ -49,7 +48,7 @@ Diagnostics_bulk_track::do_update(Bunch const& bunch)
     repetition = ref.get_repetition();
 
     track_coords =
-        bunch.get_particles_in_range(local_offset, local_num_tracks, pg);
+        bunch.get_particles_in_range_row(local_offset, local_num_tracks, pg);
 }
 
 void

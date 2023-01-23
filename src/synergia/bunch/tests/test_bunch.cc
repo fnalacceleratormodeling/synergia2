@@ -1,7 +1,7 @@
 #include "synergia/utils/catch.hpp"
 
-#include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/foundation/physical_constants.h"
 
 const double mass = 100.0;
 const double total_energy = 125.0;
@@ -32,7 +32,7 @@ TEST_CASE("Bunch", "[Bunch]")
     auto idx3 = bunch.search_particle(15, 15);
     CHECK(idx3 == 15);
 
-    auto p2 = bunch.get_particles_in_range(123, 6);
+    auto p2 = bunch.get_particles_in_range_row(123, 6);
     CHECK(p2(0, 6) == 123);
     CHECK(p2(1, 6) == 124);
     CHECK(p2(4, 6) == 127);

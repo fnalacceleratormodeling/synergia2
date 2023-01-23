@@ -1,7 +1,6 @@
 
 #include "synergia/bunch/diagnostics_py.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia_config.h"
 
 PyDiagnostics::~PyDiagnostics() noexcept {}
 

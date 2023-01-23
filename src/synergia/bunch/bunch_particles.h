@@ -306,7 +306,7 @@ class bunch_particles_t {
 
     std::pair<karray1d_row, bool> get_particle(int idx) const;
 
-    std::pair<karray2d_row, HostParticleMasks> get_particles_in_range(
+    std::pair<karray2d_row, HostParticleMasks> get_particles_in_range_row(
         int idx,
         int num) const;
 

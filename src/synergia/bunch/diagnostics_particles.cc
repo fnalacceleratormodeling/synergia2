@@ -1,7 +1,6 @@
 
 #include "diagnostics_particles.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia_config.h"
 
 Diagnostics_particles::Diagnostics_particles(std::string const& filename,
                                              int num_part,
@@ -25,7 +24,6 @@ Diagnostics_particles::Diagnostics_particles(std::string const& filename,
 void
 Diagnostics_particles::do_first_write(io_device& file)
 {
-
 #ifdef SYNERGIA_HAVE_OPENPMD
     assert(bunch_ref.has_value());
     auto const& ref_part = bunch_ref.value().get().get_reference_particle();
@@ -37,7 +35,6 @@ Diagnostics_particles::do_first_write(io_device& file)
     file.setAttribute("pz", ref_part.get_momentum());
 #else
     // nothing to do if using the old HDF5 backend!
-
 #endif
     return;
 }
@@ -45,14 +42,13 @@ Diagnostics_particles::do_first_write(io_device& file)
 void
 Diagnostics_particles::do_write(io_device& file, const size_t iteration)
 {
+    assert(bunch_ref.has_value());
+    auto const& ref_part = bunch_ref.value().get().get_reference_particle();
 
 #ifdef SYNERGIA_HAVE_OPENPMD
     auto i = file.iterations[iteration];
 
 #else
-    assert(bunch_ref.has_value());
-    auto const& ref_part = bunch_ref.value().get().get_reference_particle();
-
     file.write("charge", ref_part.get_charge());
     file.write("mass", ref_part.get_four_momentum().get_mass());
 
@@ -63,8 +59,8 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
 
     bunch_ref.value().get().write_file(
         file, num_part, offset, num_spec_part, spec_offset);
-
+#endif
     // reset bunch_ref
     bunch_ref = std::nullopt;
-#endif
+    return;
 }

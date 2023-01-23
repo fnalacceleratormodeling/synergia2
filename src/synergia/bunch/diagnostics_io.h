@@ -9,12 +9,6 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/synergia_config.h"
 
-#ifdef SYNERGIA_HAVE_OPENPMD
-#include <openPMD/openPMD.hpp>
-#else
-#include "synergia/utils/hdf5_file.h"
-#endif
-
 class Diagnostics_io {
   private:
     std::optional<io_device> file;
