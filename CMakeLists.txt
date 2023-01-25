@@ -204,7 +204,8 @@ else()
 endif()
 
 # Check version of kokkos!
-if((Kokkos_VERSION_MAJOR LESS 3) OR (Kokkos_VERSION_MINOR LESS 7))
+message("-- Using Kokkos version: ${Kokkos_VERSION}")
+if(Kokkos_VERSION GREATER_EQUAL 3700)
   message(FATAL_ERROR "Need at least Kokkos 3.7.00!")
 endif()
 

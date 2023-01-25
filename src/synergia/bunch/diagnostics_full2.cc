@@ -43,6 +43,7 @@ Diagnostics_full2::do_first_write(io_device& file)
 #ifdef SYNERGIA_HAVE_OPENPMD
     file.setAttribute("charge", ref.get_charge());
     file.setAttribute("mass", ref.get_four_momentum().get_mass());
+    file.flush();
 #else
     file.write("charge", ref.get_charge());
     file.write("mass", ref.get_four_momentum().get_mass());
@@ -77,6 +78,8 @@ Diagnostics_full2::do_write(io_device& file, size_t iteration)
     i.setAttribute("emitz", emitz);
     i.setAttribute("emitxy", emitxy);
     i.setAttribute("emitxyz", emitxyz);
+
+    file.flush();
 #else
     // write serial
     file.append("s", ref.get_s());

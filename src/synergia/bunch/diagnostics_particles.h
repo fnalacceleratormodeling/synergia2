@@ -1,6 +1,7 @@
 #ifndef DIAGNOSTICS_PARTICLES_H_
 #define DIAGNOSTICS_PARTICLES_H_
 
+#include "synergia/bunch/bunch_particles.h"
 #include "synergia/bunch/diagnostics.h"
 #include <functional>
 #include <optional>
@@ -14,6 +15,17 @@ class Diagnostics_particles : public Diagnostics {
 
     int num_part, offset;
     int num_spec_part, spec_offset;
+    size_t local_num, local_offset, file_offset;
+    size_t spec_local_num, spec_local_offset, spec_file_offset;
+
+#ifdef SYNERGIA_HAVE_OPENPMD
+    bunch_particles_t<double>::host_parts_t parts_subset;
+    bunch_particles_t<double>::host_masks_t masks_subset;
+
+    bunch_particles_t<double>::host_parts_t spec_parts_subset;
+    bunch_particles_t<double>::host_masks_t spec_masks_subset;
+#else
+#endif
 
   public:
     Diagnostics_particles(std::string const& filename = "diag_particles.h5",

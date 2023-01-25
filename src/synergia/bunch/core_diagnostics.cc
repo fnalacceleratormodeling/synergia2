@@ -447,7 +447,7 @@ Core_diagnostics::kokkos_view_to_stl_vector(karray1d const& view)
     }
     size_t view_size = view.size();
     std::vector<double> retval;
-    retval.reserve(view_size);
+    retval.resize(view_size);
     size_t data_size = sizeof(double) * view_size;
     std::memcpy(retval.data(), view.data(), data_size);
     return retval;
@@ -461,7 +461,7 @@ Core_diagnostics::kokkos_view_to_stl_vector(karray2d_row const& view)
     }
     size_t view_size = view.size();
     std::vector<double> retval;
-    retval.reserve(view_size);
+    retval.resize(view_size);
     size_t data_size = sizeof(double) * view_size;
     std::memcpy(retval.data(), view.data(), data_size);
     return retval;

@@ -338,6 +338,31 @@ bunch_particles_t<double>::convert_to_fixed_z_lab(double p_ref, double beta)
 }
 
 template <>
+void
+bunch_particles_t<double>::get_particles_in_range(host_parts_t subset_parts,
+                                                  host_masks_t subset_masks,
+                                                  size_t local_num,
+                                                  size_t local_idx) const
+{
+    // index out of range
+    if (local_idx == particle_index_null || local_idx < 0 ||
+        local_idx + local_num > this->n_active)
+        throw std::runtime_error("Bunch::get_particle() index out of range");
+
+    ParticlesSubView parts_in_range =
+        Kokkos::subview(parts,
+                        Kokkos::make_pair(local_idx, local_idx + local_num),
+                        Kokkos::ALL);
+    ParticleMasksSubView masks_in_range = Kokkos::subview(
+        masks, Kokkos::make_pair(local_idx, local_idx + local_num));
+
+    Kokkos::deep_copy(subset_parts, parts_in_range);
+    Kokkos::deep_copy(subset_masks, masks_in_range);
+
+    return;
+}
+
+template <>
 std::pair<karray2d_row, HostParticleMasks>
 bunch_particles_t<double>::get_particles_in_range_row(int idx, int n) const
 {

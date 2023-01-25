@@ -1,8 +1,10 @@
 #ifndef BUNCH_H_
 #define BUNCH_H_
 
+#include <functional>
 #include <memory>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #include "synergia/foundation/reference_particle.h"
@@ -224,6 +226,33 @@ class bunch_t {
     get_bunch_particles(ParticleGroup pg = PG::regular) const
     {
         return parts[(int)pg];
+    }
+
+    std::pair<size_t, size_t>
+    get_local_particle_count_in_range(ParticleGroup pg,
+                                      int num_part,
+                                      int offset) const
+    {
+        size_t local_num_part = 0;
+        size_t local_offset = 0;
+        int n_active = (parts[(int)pg]).num_active();
+
+        if (num_part == -1) {
+            local_num_part = n_active;
+            local_offset = 0;
+        } else {
+            local_num_part = decompose_1d_local(*(this->comm), num_part);
+
+            local_offset = decompose_1d_local(*(this->comm), offset);
+        }
+
+        if (local_num_part < 0 || local_offset < 0 ||
+            local_num_part + local_offset > n_active) {
+            throw std::runtime_error("invalid num_part or offset for "
+                                     "bunch_particles_t::write_file()");
+        }
+
+        return std::make_pair(local_num_part, local_offset);
     }
 
     /// Get the array containing the macroparticles on this processor.

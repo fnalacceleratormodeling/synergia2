@@ -28,6 +28,12 @@ class Diagnostics_bulk_track : public Diagnostics {
 
     karray2d_row track_coords;
 
+#ifdef SYNERGIA_HAVE_OPENPMD
+    size_t track_parts_local_num;
+    size_t track_parts_offset_num;
+    size_t track_parts_total_num;
+#endif
+
     ParticleGroup pg;
 
   private:

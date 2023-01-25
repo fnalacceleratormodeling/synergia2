@@ -13,6 +13,12 @@ class Diagnostics_loss : public Diagnostics {
 
     karray2d_row coords;
 
+#ifdef SYNERGIA_HAVE_OPENPMD
+    size_t discards_local_num;
+    size_t discards_offset_num;
+    size_t discards_total_num;
+#endif
+
   public:
     Diagnostics_loss(std::string const& filename = "diag_loss.h5")
         : Diagnostics("diagnostics_loss", filename, true)

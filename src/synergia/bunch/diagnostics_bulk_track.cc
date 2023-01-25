@@ -49,12 +49,38 @@ Diagnostics_bulk_track::do_update(Bunch const& bunch)
 
     track_coords =
         bunch.get_particles_in_range_row(local_offset, local_num_tracks, pg);
+
+#ifdef SYNERGIA_HAVE_OPENPMD
+    track_parts_local_num = track_coords.extent(0);
+
+    if (MPI_Allreduce(&track_parts_local_num,
+                      &track_parts_total_num,
+                      1,
+                      MPI_SIZE_T,
+                      MPI_SUM,
+                      bunch.get_comm()) != MPI_SUCCESS) {
+        std::runtime_error("Error in MPI_Allreduce in diagnostics-bulk-track!");
+    }
+
+    if (MPI_Scan(&track_parts_local_num,
+                 &track_parts_offset_num,
+                 1,
+                 MPI_SIZE_T,
+                 MPI_SUM,
+                 bunch.get_comm()) != MPI_SUCCESS) {
+        std::runtime_error("Error in MPI_Scan in diagnostics-bulk-track!");
+    }
+
+#endif
 }
 
 void
 Diagnostics_bulk_track::do_first_write(io_device& file)
 {
 #ifdef SYNERGIA_HAVE_OPENPMD
+    file.setAttribute("charge", ref_charge);
+    file.setAttribute("mass", ref_mass);
+    file.setAttribute("pz", ref_pz);
 #else
     file.write("charge", ref_charge);
     file.write("mass", ref_mass);
@@ -66,9 +92,59 @@ void
 Diagnostics_bulk_track::do_write(io_device& file, const size_t iteration)
 {
     scoped_simple_timer("diag_bulk_track_write");
-#ifdef SYNERGIA_HAVE_OPENPMD
-#else
 
+#ifdef SYNERGIA_HAVE_OPENPMD
+    auto i = file.iterations[iteration];
+    i.setAttribute("track_pz", pz);
+    i.setAttribute("track_s", s);
+    i.setAttribute("track_s_n", s_n);
+    i.setAttribute("track_repitition", repetition);
+
+    openPMD::ParticleSpecies& protons =
+        file.iterations[iteration].particles["bunch_discards"];
+
+    openPMD::Datatype datatype = openPMD::determineDatatype<double>();
+    openPMD::Extent global_extent = {track_parts_total_num};
+    openPMD::Dataset dataset = openPMD::Dataset(datatype, global_extent);
+
+    auto parts_x = Kokkos::subview(track_coords, Kokkos::ALL, Bunch::x);
+    auto parts_y = Kokkos::subview(track_coords, Kokkos::ALL, Bunch::y);
+    auto parts_z = Kokkos::subview(track_coords, Kokkos::ALL, Bunch::cdt);
+
+    auto moments_x = Kokkos::subview(track_coords, Kokkos::ALL, Bunch::xp);
+    auto moments_y = Kokkos::subview(track_coords, Kokkos::ALL, Bunch::yp);
+    auto moments_dpop = Kokkos::subview(track_coords, Kokkos::ALL, Bunch::dpop);
+
+    protons["position"]["x"].resetDataset(dataset);
+    protons["position"]["y"].resetDataset(dataset);
+    protons["position"]["z"].resetDataset(dataset);
+
+    protons["moments"]["x"].resetDataset(dataset);
+    protons["moments"]["y"].resetDataset(dataset);
+    protons["moments"]["z"].resetDataset(dataset);
+
+    file.flush();
+
+    openPMD::Offset chunk_offset = {track_parts_offset_num -
+                                    track_parts_local_num};
+    openPMD::Extent chunk_extent = {track_parts_local_num};
+
+    protons["position"]["x"].storeChunkRaw(
+        parts_x.data(), chunk_offset, chunk_extent);
+    protons["position"]["y"].storeChunkRaw(
+        parts_y.data(), chunk_offset, chunk_extent);
+    protons["position"]["z"].storeChunkRaw(
+        parts_z.data(), chunk_offset, chunk_extent);
+    protons["moments"]["x"].storeChunkRaw(
+        moments_x.data(), chunk_offset, chunk_extent);
+    protons["moments"]["y"].storeChunkRaw(
+        moments_y.data(), chunk_offset, chunk_extent);
+    protons["moments"]["z"].storeChunkRaw(
+        moments_dpop.data(), chunk_offset, chunk_extent);
+
+    file.flush();
+
+#else
     // write serial
     file.append_single("track_pz", pz);
     file.append_single("track_s", s);
