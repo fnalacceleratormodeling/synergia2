@@ -21,86 +21,32 @@ public:
   static const Commxx World;
   static const Commxx Null;
 
-  static int
-  world_rank()
-  {
-    int r;
-    MPI_Comm_rank(MPI_COMM_WORLD, &r);
-    return r;
-  }
+  static int world_rank();
+  static int world_size();
 
-  static int
-  world_size()
-  {
-    int s;
-    MPI_Comm_size(MPI_COMM_WORLD, &s);
-    return s;
-  }
-
-private:
-  std::shared_ptr<const MPI_Comm> comm;
-  std::shared_ptr<const Commxx> parent_comm;
-
-  comm_type type;
-  int color, key;
-
-private:
-  Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key);
-  void construct();
-
-public:
   /// Construct a Commxx object of MPI_COMM_WORLD or MPI_COMM_NULL
-  Commxx(comm_type type = comm_type::world);
+  explicit Commxx(comm_type type = comm_type::world);
 
-  operator MPI_Comm() const
-  {
-    if (comm)
-      return *comm;
-    else
-      return MPI_COMM_NULL;
-  }
+  // Cast this Commxx object into a MPI_Comm
+  operator MPI_Comm() const;
 
   /// get communicator type
-  comm_type
-  get_type() const
-  {
-    return type;
-  }
+  comm_type get_type() const;
 
   /// Get communicator rank
   int get_rank() const;
-  int
-  rank() const
-  {
-    return get_rank();
-  }
+  int rank() const;
 
   /// Get communicator size
   int get_size() const;
-  int
-  size() const
-  {
-    return get_size();
-  }
+  int size() const;
 
   /// Test to see if the communicator contains this rank
-  bool
-  has_this_rank() const
-  {
-    return (bool)comm;
-  }
-  bool
-  is_null() const
-  {
-    return !(bool)comm;
-  }
+  bool has_this_rank() const;
+  bool is_null() const;
 
   /// is this the root Commxx object
-  bool
-  is_root() const
-  {
-    return type != comm_type::regular;
-  }
+  bool is_root() const;
 
   // get the parent communicator if available
   Commxx parent() const;
@@ -118,39 +64,123 @@ public:
   Commxx divide(int subgroup_size) const;
   Commxx group(std::vector<int> const& ranks) const;
 
-  template <class AR>
-  void
-  save(AR& ar) const
-  {
-    ar(CEREAL_NVP(parent_comm));
-    ar(CEREAL_NVP(type));
-    ar(CEREAL_NVP(color));
-    ar(CEREAL_NVP(key));
-  }
+  template <class AR> void save(AR& ar) const;
+  template <class AR> void load(AR& ar);
 
-  template <class AR>
-  void
-  load(AR& ar)
-  {
-    ar(CEREAL_NVP(parent_comm));
-    ar(CEREAL_NVP(type));
-    ar(CEREAL_NVP(color));
-    ar(CEREAL_NVP(key));
+private:
+  std::shared_ptr<const MPI_Comm> comm;
+  std::shared_ptr<const Commxx> parent_comm;
 
-    switch (type) {
-      case comm_type::null: comm.reset(); break;
-      case comm_type::world: comm.reset(new MPI_Comm(MPI_COMM_WORLD)); break;
-      case comm_type::regular: construct(); break;
-    }
-  }
+  comm_type type;
+  int color, key;
+
+  Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key);
+  void construct();
 };
 
+
 bool operator==(Commxx const& comm1, Commxx const& comm2);
+bool operator!=(Commxx const& comm1, Commxx const& comm2);
+
+// Implementations below.
+
+inline int
+Commxx::world_rank()
+{
+  int r = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &r);
+  return r;
+}
+
+inline int 
+Commxx::world_size()
+{
+  int s = 0;
+  MPI_Comm_size(MPI_COMM_WORLD, &s);
+  return s;
+}
+
+
+inline
+Commxx::operator MPI_Comm() const
+{
+  if (comm)
+    return *comm;
+  else
+    return MPI_COMM_NULL;
+}
+
+inline comm_type
+Commxx::get_type() const
+{
+  return type;
+}
+
+inline  int
+Commxx::rank() const
+{
+  return get_rank();
+}
+
+inline int
+Commxx::size() const
+{
+  return get_size();
+}
+
+inline bool
+Commxx::has_this_rank() const
+{
+  return (bool)comm;
+}
+
+inline bool
+Commxx::is_null() const
+{
+  return !(bool)comm;
+}
+
+/// is this the root Commxx object?
+inline bool
+Commxx::is_root() const
+{
+  return type != comm_type::regular;
+}
 
 inline bool
 operator!=(Commxx const& comm1, Commxx const& comm2)
 {
   return !(comm1 == comm2);
 }
+
+// Member template implementations
+
+template <class AR>
+void
+Commxx::save(AR& ar) const
+{
+  ar(CEREAL_NVP(parent_comm));
+  ar(CEREAL_NVP(type));
+  ar(CEREAL_NVP(color));
+  ar(CEREAL_NVP(key));
+}
+
+template <class AR>
+void
+Commxx::load(AR& ar)
+{
+  ar(CEREAL_NVP(parent_comm));
+  ar(CEREAL_NVP(type));
+  ar(CEREAL_NVP(color));
+  ar(CEREAL_NVP(key));
+
+  switch (type) {
+    case comm_type::null: comm.reset(); break;
+    case comm_type::world: comm.reset(new MPI_Comm(MPI_COMM_WORLD)); break;
+    case comm_type::regular: construct(); break;
+  }
+}
+
+
 
 #endif /* COMMXX_H_ */
