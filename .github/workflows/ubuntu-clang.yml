@@ -98,11 +98,6 @@ jobs:
         . /etc/profile.d/z10_spack_environment.sh 
         export SYNINSTALL=${{github.workspace}}/install
         export LD_LIBRARY_PATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib64:\${LD_LIBRARY_PATH}
-        export PYTHONPATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib/python3.9/site-packages:\${PYTHONPATH}
-        cd ${{github.workspace}}/build/examples/foborodobo32-accel
-        #mpirun -np 1 python fodo_readme.py
-        OMP_NUM_THREADS=1 python pltest.py
-        OMP_NUM_THREADS=1 python pltest.py
-        OMP_NUM_THREADS=1 python pltest.py
-        OMP_NUM_THREADS=1 python pltest.py
-        OMP_NUM_THREADS=1 python pltest.py
+        export PYTHONPATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib/python3.10/site-packages:\${PYTHONPATH}
+        cd ${{github.workspace}}/build/examples/fodo
+        mpirun -np 1 python fodo_readme.py
