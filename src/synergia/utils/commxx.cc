@@ -45,7 +45,7 @@ Commxx::construct()
   if (newcomm != MPI_COMM_NULL) comm.reset(new MPI_Comm(newcomm), comm_free());
 }
 
-Commxx::Commxx(std::shared_ptr<const Commxx> const& parent, int color, int key)
+Commxx::Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key)
   : comm()
   , parent_comm(std::move(parent))
   , type(comm_type::regular)

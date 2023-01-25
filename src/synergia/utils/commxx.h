@@ -45,7 +45,7 @@ private:
   int color, key;
 
 private:
-  Commxx(std::shared_ptr<const Commxx> const& parent, int color, int key);
+  Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key);
   void construct();
 
 public:
