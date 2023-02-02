@@ -350,6 +350,26 @@ PYBIND11_MODULE(simulation, m)
                 "commxx"_a = Commxx(),
                 "num_spectators"_a = 0)
 
+
+  
+    .def("get_trains", py::overload_cast<>(&Bunch_simulator::get_trains, py::const_))
+    //.def("get_trains", &Bunch_simulator::get_trains)
+
+    .def("get_bunch_ranks", &Bunch_simulator::get_bunch_ranks, "train"_a, "bunch"_a)
+
+    ; // end of Bunch_simulator
+
+  py::class<Bunch_train>(m,"Bunch_train")
+    .def("get_num_bunches", &Bunch_train::get_num_bunches)
+
+    .def("get_num_local_bunches", &Bunch_train::get_num_local_bunches)
+
+    .def("get_spacings", &Bunch_train::get_spacings)
+
+    .def("get_num_buckets", &Bunch_train::get_num_buckets))
+
+  ;  // end of Bunch_train
+
 #if 0
 		.def( "set_turns",
 			&Bunch_simulator::set_turns,
