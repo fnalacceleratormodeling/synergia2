@@ -3,11 +3,45 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/cereal_files.h"
 
+#include <mpi.h>
 
+int global_rank()
+{
+  int rank = 0;
+  int const status = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  if (status != MPI_SUCCESS) return -1;
+  return rank;
+}
+
+int global_size()
+{
+  int size = 0;
+  int const status = MPI_Comm_size(MPI_COMM_WORLD, &size);
+  if (status != MPI_SUCCESS) return -1;
+  return size;
+}
+
+TEST_CASE("static functions", "[commxx]")
+{
+  CHECK(Commxx::world_rank() == global_rank());
+  CHECK(Commxx::world_size() == global_size());
+}
 
 TEST_CASE("default construct", "[commxx]")
 {
     REQUIRE_NOTHROW(Commxx());
+    Commxx defaulted;
+    CHECK(defaulted.get_type() == comm_type::world);
+    CHECK(defaulted.get_rank() == global_rank());
+    CHECK(defaulted.rank() == global_rank());
+    CHECK(defaulted.get_size() == global_size());
+    CHECK(defaulted.size() == global_size());
+    CHECK(defaulted.has_this_rank());
+    CHECK(defaulted.is_root());
+    
+    REQUIRE_THROWS_AS(defaulted.dup(), std::bad_weak_ptr);
+    REQUIRE_THROWS_AS(defaulted.split(1), std::bad_weak_ptr);
+    REQUIRE_THROWS_AS(defaulted.split(0, 1), std::bad_weak_ptr);
 }
 
 TEST_CASE("construct with type", "[commxx]")
@@ -57,6 +91,7 @@ TEST_CASE("construct null", "[commxx]")
 {
     Commxx comm(comm_type::null);
     CHECK(comm == MPI_COMM_NULL);
+    
 }
 
 TEST_CASE("get_type")
@@ -173,21 +208,6 @@ TEST_CASE("is_root")
     {
         Commxx comm(comm_type::world);
         REQUIRE(comm.is_root());
-    }
-}
-
-TEST_CASE("get_parent")
-{
-    SECTION("null")
-    {
-        Commxx comm(comm_type::null);
-        REQUIRE_THROWS(comm.parent());
-    }
-
-    SECTION("world")
-    {
-        Commxx comm(comm_type::world);
-        REQUIRE_THROWS(comm.parent());
     }
 }
 
