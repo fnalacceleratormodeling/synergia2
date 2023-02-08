@@ -84,14 +84,6 @@ Commxx::get_size() const
 }
 
 Commxx
-Commxx::parent() const
-{
-  if (!parent_comm) throw std::runtime_error("Invalid parent communicator");
-
-  return *parent_comm;
-}
-
-Commxx
 Commxx::dup() const
 {
   if (is_null()) throw std::runtime_error("dup from a null comm");

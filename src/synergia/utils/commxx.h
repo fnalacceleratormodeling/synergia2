@@ -48,9 +48,6 @@ public:
   /// is this the root Commxx object
   bool is_root() const;
 
-  // get the parent communicator if available
-  Commxx parent() const;
-
   // the rank in the context of parent communicator
   // int rank_in_parent_comm() const;
 

@@ -49,7 +49,6 @@ PYBIND11_MODULE(parallel_utils, m)
     .def("get_size", &Commxx::size)
     .def("is_null", &Commxx::is_null)
     .def("is_root", &Commxx::is_root)
-    .def("parent", &Commxx::parent)
 
     .def_property_readonly_static("World",
                                   [](py::object) { return Commxx::World; })
