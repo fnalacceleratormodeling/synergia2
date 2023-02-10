@@ -53,11 +53,12 @@ PYBIND11_MODULE(simulation, m)
 
     .def("print_steps", &Propagator::print_steps)
 
-    .def("get_lattice_element_slices", &Propagator::get_lattice_element_slices)
+    .def("get_lattice_element_slices", &Propagator::get_lattice_element_slices, "Returns immutable copy of lattice element slices")
 
-    .def("get_lattice_elements", &Propagator::get_lattice_elements)
+    .def("get_lattice_elements", &Propagator::get_lattice_elements, "Returns immutable copy of lattice elements")
 
-    .def("get_lattice", py::overload_cast<>(&Propagator::get_lattice, py::const_), py::return_value_policy::reference)
+    .def("get_lattice", py::overload_cast<>(&Propagator::get_lattice, py::const_), py::return_value_policy::reference,
+        "Returns immutable reference to the lattice, but the attributes of the elements contained with may be modified with set_<>_attribute member functions")
 
     .def(
       "set_checkpoint_period", &Propagator::set_checkpoint_period, "period"_a)

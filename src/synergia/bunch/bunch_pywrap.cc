@@ -98,12 +98,13 @@ PYBIND11_MODULE(bunch, m)
 
     .def("get_reference_particle",
          (Reference_particle & (Bunch::*)()) & Bunch::get_reference_particle,
-         "Get the reference particle of the bunch.")
+          py::return_value_policy::reference,
+         "Get the reference particle of the bunch. Returns reference to object")
 
     .def("get_design_reference_particle",
          (Reference_particle & (Bunch::*)()) &
            Bunch::get_design_reference_particle,
-         "Get the design reference particle of the bunch.")
+         "Get a copy of the design reference particle of the bunch.")
 
     .def("checkout_particles",
          &Bunch::checkout_particles,

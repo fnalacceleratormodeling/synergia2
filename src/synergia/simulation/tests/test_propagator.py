@@ -55,7 +55,12 @@ def test_modify_lattice_elements(prop_fixture):
     assert slices[0].get_lattice_element().get_double_attribute('a1') == new_a1
     return 0
 
-
+def test_modify_reference_particle_energy(prop_fixture):
+    orig_energy = prop_fixture['propagator'].get_lattice().get_reference_particle().get_total_energy()
+    new_energy = orig_energy + 2.0
+    prop_fixture['propagator'].get_lattice().get_reference_particle().set_total_energy(new_energy)
+    assert prop_fixture['propagator'].get_lattice().get_reference_particle().get_total_energy() == new_energy
+    return True
 
 def test_set_get_checkpoint(prop_fixture):
     init_period = prop_fixture['propagator'].get_checkpoint_period()
