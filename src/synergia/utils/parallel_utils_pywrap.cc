@@ -31,6 +31,13 @@ PYBIND11_MODULE(parallel_utils, m)
          "verbosity"_a = LoggerV::DINFO,
          "log"_a = true)
 
+    .def(py::init<int, std::string const&, LoggerV, bool>(),
+         "Construct a logger.",
+         "rank"_a = 0,
+         "filename"_a = "logger",
+         "verbosity"_a = LoggerV::DINFO,
+         "log"_a = true)
+
     .def("write", &Logger::write, py::return_value_policy::reference_internal)
     .def("flush", &Logger::flush, py::return_value_policy::reference_internal);
 
