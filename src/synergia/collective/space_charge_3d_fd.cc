@@ -372,7 +372,6 @@ Space_charge_3d_fd::update_domain(Bunch const& bunch)
     PetscFunctionBeginUser;
 
     scoped_simple_timer timer("sc3d_fd_domain");
-
     auto spatial_mean_stddev =
         Core_diagnostics::calculate_spatial_mean_stddev(bunch);
     auto mean_x = spatial_mean_stddev(0);
