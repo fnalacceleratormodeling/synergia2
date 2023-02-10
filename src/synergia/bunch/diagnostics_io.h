@@ -83,9 +83,10 @@ class Diagnostics_io {
             ar(CEREAL_NVP(file.value()));
         }
         catch (const std::bad_optional_access& e) {
-            std::cerr << "serializing a non-existent HDF5 file!" << e.what()
-                      << '\n';
+            // consistent with old behavior! previously we let empty unique_ptrs
+            // be serialized
         }
+
 #endif
         ar(CEREAL_NVP(single_file));
         ar(CEREAL_NVP(iteration_count));

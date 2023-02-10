@@ -55,7 +55,7 @@ Diagnostics_io::Diagnostics_io()
 
 Diagnostics_io::~Diagnostics_io()
 {
-    close_file();
+    if (file.has_value()) { close_file(); }
 }
 
 io_device&

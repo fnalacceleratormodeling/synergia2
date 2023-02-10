@@ -1,4 +1,3 @@
-#include <arm_neon.h>
 #include <cmath>
 #include <functional>
 #include <stdexcept>
