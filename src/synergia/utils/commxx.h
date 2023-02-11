@@ -70,7 +70,8 @@ private:
 
   comm_type type;
   int color, key;
-
+  
+  static Commxx create_child(std::shared_ptr<const Commxx>&& parent, int color, int key);
   Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key);
   void construct();
 };

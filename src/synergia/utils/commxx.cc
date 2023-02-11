@@ -20,6 +20,14 @@ namespace {
 const Commxx Commxx::World(comm_type::world);
 const Commxx Commxx::Null(comm_type::null);
 
+
+Commxx
+Commxx::create_child(std::shared_ptr<const Commxx>&& parent, int color, int key)
+{
+  return Commxx(std::move(parent), color, key);
+}
+
+
 Commxx::Commxx(comm_type type)
   : comm(type == comm_type::null ? nullptr : new MPI_Comm(MPI_COMM_WORLD))
   , parent_comm()
@@ -87,21 +95,21 @@ Commxx
 Commxx::dup() const
 {
   if (is_null()) throw std::runtime_error("dup from a null comm");
-  return Commxx(shared_from_this(), 0, rank());
+  return create_child(shared_from_this(), 0, rank());
 }
 
 Commxx
 Commxx::split(int color) const
 {
   if (is_null()) throw std::runtime_error("split from a null comm");
-  return Commxx(shared_from_this(), color, rank());
+  return create_child(shared_from_this(), color, rank());
 }
 
 Commxx
 Commxx::split(int color, int key) const
 {
   if (is_null()) throw std::runtime_error("split from a null comm");
-  return Commxx(shared_from_this(), color, key);
+  return create_child(shared_from_this(), color, key);
 }
 
 Commxx
@@ -129,7 +137,7 @@ Commxx::group(std::vector<int> const& ranks) const
                 0 :
                 MPI_UNDEFINED;
 
-  return Commxx(shared_from_this(), color, r);
+  return create_child(shared_from_this(), color, r);
 }
 
 bool
