@@ -20,6 +20,12 @@ namespace {
 const Commxx Commxx::World(comm_type::world);
 const Commxx Commxx::Null(comm_type::null);
 
+inline bool
+valid_mpi_communicator(std::shared_ptr<const Commxx> const& pcomm)
+{
+  if (!pcomm) return false;   // there is no controlled Commxx
+  return ! pcomm->is_null();  // a null MPI communicator is not valid
+}
 
 Commxx
 Commxx::create_child(std::shared_ptr<const Commxx>&& parent, int color, int key)
@@ -29,7 +35,7 @@ Commxx::create_child(std::shared_ptr<const Commxx>&& parent, int color, int key)
 
 
 Commxx::Commxx(comm_type type)
-  : comm(type == comm_type::null ? nullptr : new MPI_Comm(MPI_COMM_WORLD))
+  : mpi_comm(type == comm_type::null ? nullptr : new MPI_Comm(MPI_COMM_WORLD))
   , parent_comm()
   , type(type)
   , color(0)
@@ -42,19 +48,19 @@ Commxx::Commxx(comm_type type)
 void
 Commxx::construct()
 {
-  if (!parent_comm || parent_comm->is_null())
+  if (!valid_mpi_communicator(parent_comm))
     throw std::runtime_error("invalid parent communicator while in construct");
 
   MPI_Comm newcomm;
-  MPI_Comm_split(*(parent_comm->comm), color, key, &newcomm);
+  MPI_Comm_split(*(parent_comm->mpi_comm), color, key, &newcomm);
 
   // do not construct the null communicator
   // always take the ownership
-  if (newcomm != MPI_COMM_NULL) comm.reset(new MPI_Comm(newcomm), comm_free());
+  if (newcomm != MPI_COMM_NULL) mpi_comm.reset(new MPI_Comm(newcomm), comm_free());
 }
 
 Commxx::Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key)
-  : comm()
+  : mpi_comm()
   , parent_comm(std::move(parent))
   , type(comm_type::regular)
   , color(color)
@@ -70,7 +76,7 @@ Commxx::get_rank() const
     throw std::runtime_error("Cannot get_rank() for a null commxx");
 
   int error, rank;
-  error = MPI_Comm_rank(*comm, &rank);
+  error = MPI_Comm_rank(*mpi_comm, &rank);
   if (error != MPI_SUCCESS) {
     throw std::runtime_error("MPI error in MPI_Comm_rank");
   }
@@ -84,7 +90,7 @@ Commxx::get_size() const
     throw std::runtime_error("Cannot get_size() for a null commxx");
 
   int error, size;
-  error = MPI_Comm_size(*comm, &size);
+  error = MPI_Comm_size(*mpi_comm, &size);
   if (error != MPI_SUCCESS) {
     throw std::runtime_error("MPI error in MPI_Comm_size");
   }

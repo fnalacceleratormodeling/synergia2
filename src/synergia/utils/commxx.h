@@ -65,7 +65,7 @@ public:
   template <class AR> void load(AR& ar);
 
 private:
-  std::shared_ptr<const MPI_Comm> comm;
+  std::shared_ptr<const MPI_Comm> mpi_comm;
   std::shared_ptr<const Commxx> parent_comm;
 
   comm_type type;
@@ -102,8 +102,8 @@ Commxx::world_size()
 inline
 Commxx::operator MPI_Comm() const
 {
-  if (comm)
-    return *comm;
+  if (mpi_comm)
+    return *mpi_comm;
   else
     return MPI_COMM_NULL;
 }
@@ -129,13 +129,13 @@ Commxx::size() const
 inline bool
 Commxx::has_this_rank() const
 {
-  return (bool)comm;
+  return (bool)mpi_comm;
 }
 
 inline bool
 Commxx::is_null() const
 {
-  return !(bool)comm;
+  return !(bool)mpi_comm;
 }
 
 /// is this the root Commxx object?
@@ -173,9 +173,18 @@ Commxx::load(AR& ar)
   ar(CEREAL_NVP(key));
 
   switch (type) {
-    case comm_type::null: comm.reset(); break;
-    case comm_type::world: comm.reset(new MPI_Comm(MPI_COMM_WORLD)); break;
-    case comm_type::regular: construct(); break;
+    case comm_type::null: {
+      mpi_comm.reset();
+      break;
+    }
+    case comm_type::world: {
+      mpi_comm.reset(new MPI_Comm(MPI_COMM_WORLD));
+      break;
+    }
+    case comm_type::regular: {
+      construct();
+      break;
+    }
   }
 }
 
