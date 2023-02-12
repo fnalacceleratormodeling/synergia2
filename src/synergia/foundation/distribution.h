@@ -23,7 +23,8 @@ public:
   /// uniformly in the unit disk.
   /// virtual void fill_unit_disk(double* x_array, double* y_array) = 0;
 
-  /// Skip ahead the random number generator by delta
+  /// Skip ahead the random number generator by delta.
+  /// NOTE: subclasses may implement this as a no-op.
   virtual void advance(uint64_t delta) = 0;
 };
 
