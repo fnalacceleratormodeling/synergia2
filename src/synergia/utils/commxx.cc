@@ -46,15 +46,15 @@ Commxx::Commxx(comm_type type)
 }
 
 void
-Commxx::construct()
+Commxx::split_parent_and_set_mpi_comm()
 {
   if (!valid_mpi_communicator(parent_comm))
-    throw std::runtime_error("invalid parent communicator while in construct");
+    throw std::runtime_error("invalid parent communicator while in split_parent_and_set_mpi_comm");
 
   MPI_Comm newcomm;
   MPI_Comm_split(*(parent_comm->mpi_comm), color, key, &newcomm);
 
-  // do not construct the null communicator
+  // do not split_parent_and_set_mpi_comm the null communicator
   // always take the ownership
   if (newcomm != MPI_COMM_NULL) mpi_comm.reset(new MPI_Comm(newcomm), comm_free());
 }
@@ -66,7 +66,7 @@ Commxx::Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key)
   , color(color)
   , key(key)
 {
-  construct();
+  split_parent_and_set_mpi_comm();
 }
 
 int

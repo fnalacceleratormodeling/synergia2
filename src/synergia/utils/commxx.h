@@ -59,6 +59,14 @@ public:
   Commxx split(int color) const;
   Commxx split(int color, int key) const;
   Commxx divide(int subgroup_size) const;
+  
+  // Create and return a new Commxx which has:
+  //  1. a new shared_ptr to *this as parent. This shared_ptr will point to the
+  //     same control block as the one that already owns *this, and it will
+  //     share ownership of *this with the other shared_ptrs that already own
+  //     *this.
+  //  2. and which has an MPI communicator that has the specified ranks
+  // from *this as the ranks it controls.
   Commxx group(std::vector<int> const& ranks) const;
 
   template <class AR> void save(AR& ar) const;
@@ -73,7 +81,7 @@ private:
   
   static Commxx create_child(std::shared_ptr<const Commxx>&& parent, int color, int key);
   Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key);
-  void construct();
+  void split_parent_and_set_mpi_comm();
 };
 
 
@@ -182,7 +190,7 @@ Commxx::load(AR& ar)
       break;
     }
     case comm_type::regular: {
-      construct();
+      split_parent_and_set_mpi_comm();
       break;
     }
   }
