@@ -82,9 +82,9 @@ Commxx::get_rank() const
   if (type == comm_type::null)
     throw std::runtime_error("Cannot get_rank() for a null commxx");
 
-  int error, rank;
-  error = MPI_Comm_rank(*mpi_comm, &rank);
-  if (error != MPI_SUCCESS) {
+  int rank;
+  int status = MPI_Comm_rank(*mpi_comm, &rank);
+  if (status != MPI_SUCCESS) {
     throw std::runtime_error("MPI error in MPI_Comm_rank");
   }
   return rank;
@@ -96,9 +96,9 @@ Commxx::get_size() const
   if (type == comm_type::null)
     throw std::runtime_error("Cannot get_size() for a null commxx");
 
-  int error, size;
-  error = MPI_Comm_size(*mpi_comm, &size);
-  if (error != MPI_SUCCESS) {
+  int size;
+  int status = MPI_Comm_size(*mpi_comm, &size);
+  if (status != MPI_SUCCESS) {
     throw std::runtime_error("MPI error in MPI_Comm_size");
   }
   return size;
@@ -164,6 +164,9 @@ operator==(Commxx const& comm1, Commxx const& comm2)
 
   // both not null
   int result;
-  MPI_Comm_compare((MPI_Comm)comm1, (MPI_Comm)comm2, &result);
+  int status = MPI_Comm_compare((MPI_Comm)comm1, (MPI_Comm)comm2, &result);
+  if (status != MPI_SUCCESS) {
+    throw std::runtime_error("MPI_Comm_compare failed while comparing Commxx objects");
+  }
   return result == MPI_IDENT;
 }
