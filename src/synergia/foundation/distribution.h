@@ -1,7 +1,6 @@
 #ifndef DISTRIBUTION_H_
 #define DISTRIBUTION_H_
 
-#include "synergia/utils/commxx.h"
 #include <gsl/gsl_rng.h>
 
 /// Distribution is a virtual base class for obtaining the next number or set
@@ -45,11 +44,10 @@ public:
   /// Construct a Random_distribution.
   /// @param seed The random number seed. If seed == 0, the seed is
   /// obtained from Random_distribution::get_default_seed().
-  /// @param comm Distribute the seed across the processors in this
-  /// communicator.
+  /// @param rank Set the seed for this rank.
   /// @param generator The underlying random number generator to be used.
   Random_distribution(unsigned long int seed,
-                      Commxx const& comm,
+                      int rank,
                       Generator generator = ranlxd2);
 
   virtual ~Random_distribution();

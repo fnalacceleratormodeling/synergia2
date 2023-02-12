@@ -10,6 +10,7 @@
 #include "synergia/simulation/checkpoint.h"
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/split_operator_stepper_elements.h"
+#include "synergia/utils/commxx.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/simple_timer.h"
 #include "synergia/utils/utils.h"
@@ -138,7 +139,7 @@ run(Fodo_cxx_options opts)
         for (int j = 0; j < 6; ++j)
             covariances(i, j) = covariance_matrix[i][j];
 
-    Random_distribution dist(1234567, Commxx());
+    Random_distribution dist(1234567, Commxx::world_rank());
 
     auto& bunch = sim.get_bunch();
     populate_6d(dist, bunch, means, covariances);
