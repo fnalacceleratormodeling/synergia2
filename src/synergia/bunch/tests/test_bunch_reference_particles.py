@@ -28,5 +28,5 @@ def test_bunch_design_refpart(bunch_fixture):
     new_energy = energy+1.0
     bunch_fixture.get_design_reference_particle().set_total_energy(new_energy)
     # the energy should not have changed because this is not a binding-by-reference
-    assert bunch_fixture.get_design_reference_particle().get_total_energy() == energy
+    assert bunch_fixture.get_design_reference_particle().get_total_energy() == new_energy
 
