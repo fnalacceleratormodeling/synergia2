@@ -146,10 +146,8 @@ Commxx::group(std::vector<int> const& ranks) const
   if (is_null()) throw std::runtime_error("group from a null comm");
 
   int r = rank();
-  int color = (std::find(ranks.begin(), ranks.end(), r) != ranks.end()) ?
-                0 :
-                MPI_UNDEFINED;
-
+  bool in_range = std::find(ranks.begin(), ranks.end(), r) != ranks.end();
+  int color = (in_range ? 0 : MPI_UNDEFINED);
   return create_child(shared_from_this(), color, r);
 }
 
