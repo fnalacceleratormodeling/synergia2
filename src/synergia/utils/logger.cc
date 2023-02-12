@@ -11,7 +11,7 @@ Logger::Logger(int rank, LoggerV verbosity, bool log)
   , verbosity(verbosity)
   , severity(LoggerV::INFO)
 {
-  if ((Commxx().get_rank() == rank) && log) { have_stream = true; }
+  if ((Commxx::world_rank() == rank) && log) { have_stream = true; }
 }
 
 Logger::Logger(int rank,
@@ -26,7 +26,7 @@ Logger::Logger(int rank,
   , verbosity(verbosity)
   , severity(LoggerV::INFO)
 {
-  if ((Commxx().get_rank() == rank) && log) {
+  if ((Commxx::world_rank() == rank) && log) {
     have_stream = screen;
     fstream_ptr = new std::ofstream(filename.c_str());
     have_fstream = true;
@@ -45,7 +45,7 @@ Logger::Logger(int rank,
   , verbosity(verbosity)
   , severity(LoggerV::INFO)
 {
-  if ((Commxx().get_rank() == rank) && log) {
+  if ((Commxx::world_rank() == rank) && log) {
     have_stream = screen;
     fstream_ptr = new std::ofstream(filename);
     have_fstream = true;

@@ -483,7 +483,7 @@ void checkpoint_resume()
 std::string ar_name()
 {
     std::stringstream ss;
-    ss << "cp-" << Commxx().rank() << ".json";
+    ss << "cp-" << Commxx::world_rank() << ".json";
     return ss.str();
 }
 

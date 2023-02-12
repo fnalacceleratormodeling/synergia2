@@ -25,7 +25,7 @@ public:
   operate_locally()
   {
     if (parallel) {
-      return Commxx().get_rank() == 0;
+      return Commxx::world_rank() == 0;
     } else {
       return true;
     }

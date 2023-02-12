@@ -73,7 +73,7 @@ def test_update_total():
     b = Bunch(reference_particle, total_num, real_num,
               Commxx())
     new_local_num = b.get_local_num() - 5
-    new_total_num = Commxx().get_size() * new_local_num
+    new_total_num = Commxx::world_size() * new_local_num
     b.set_local_num(new_local_num)
     b.update_total_num()
     assert_equal(b.get_total_num(),new_total_num)

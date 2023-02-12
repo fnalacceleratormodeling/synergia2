@@ -290,7 +290,7 @@ BOOST_FIXTURE_TEST_CASE(update_total_num_with_new_spectator, Fix_p100_s10)
 
     BOOST_CHECK_EQUAL(
             bunch.get_total_spectator_num(), 
-            new_local_num*Commxx().get_size() );
+            new_local_num*Commxx::world_size() );
 
     BOOST_CHECK_EQUAL(bunch.get_total_num(), 100);
 }
@@ -318,7 +318,7 @@ BOOST_FIXTURE_TEST_CASE(update_total_num_with_new_spectator, Fix_p100_s10)
 
     BOOST_CHECK_EQUAL(
             bunch.get_total_spectator_num(), 
-            new_local_num*Commxx().get_size() );
+            new_local_num*Commxx::world_size() );
 
     BOOST_CHECK_EQUAL(bunch.get_total_num(), 100);
 }
@@ -465,7 +465,7 @@ BOOST_FIXTURE_TEST_CASE(update_total_num, Fixture)
     bunch.set_local_num(new_local_num);
     bunch.update_total_num();
     BOOST_CHECK_EQUAL(bunch.get_total_num(),
-            new_local_num*Commxx().get_size());
+            new_local_num*Commxx::world_size());
 }
 
 BOOST_FIXTURE_TEST_CASE(set_get_sort_period, Fixture)
