@@ -52,11 +52,18 @@ Commxx::split_parent_and_set_mpi_comm()
     throw std::runtime_error("invalid parent communicator while in split_parent_and_set_mpi_comm");
 
   MPI_Comm newcomm;
-  MPI_Comm_split(*(parent_comm->mpi_comm), color, key, &newcomm);
+  int status = MPI_Comm_split(*(parent_comm->mpi_comm), color, key, &newcomm);
+  if (status != MPI_SUCCESS)
+    throw std::runtime_error("MPI_Comm_split failed in split_parent_and_set_mpi_comm");
 
-  // do not split_parent_and_set_mpi_comm the null communicator
-  // always take the ownership
-  if (newcomm != MPI_COMM_NULL) mpi_comm.reset(new MPI_Comm(newcomm), comm_free());
+  // Do not split_parent_and_set_mpi_comm the null communicator.
+  // Note that MPI_Commm_split sets 'newcomm' to MPI_COMM_NULL if 'color' is
+  // set to MPI_UNDEFINED.
+  if (newcomm != MPI_COMM_NULL) {
+    // Replace mpi_comm with a shared_ptr that will free and MPI_Comm and then
+    // delete the pointer.
+    mpi_comm.reset(new MPI_Comm(newcomm), comm_free());
+  }
 }
 
 Commxx::Commxx(std::shared_ptr<const Commxx>&& parent, int color, int key)
