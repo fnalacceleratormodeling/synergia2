@@ -43,6 +43,9 @@ public:
 
   /// Test to see if the communicator contains this rank
   bool has_this_rank() const;
+
+  // A Commxx is null if it lacks an MPI_Comm. It is non-null if it has any
+  // MPI_Comm, even MPI_Comm_null.
   bool is_null() const;
 
   /// is this the root Commxx object
@@ -61,12 +64,12 @@ public:
   Commxx divide(int subgroup_size) const;
   
   // Create and return a new Commxx which has:
-  //  1. a new shared_ptr to *this as parent. This shared_ptr will point to the
-  //     same control block as the one that already owns *this, and it will
+  //  1. a new shared_ptr to *this as parent. This shared_ptr will
   //     share ownership of *this with the other shared_ptrs that already own
   //     *this.
-  //  2. and which has an MPI communicator that has the specified ranks
-  // from *this as the ranks it controls.
+  //  2. an MPI communicator that has the specified ranks.
+  //     Other ranks (not in the specified ranks) end up with a Commxx that has
+  //     an mpi_comm that is MPI_COMM_NULL.
   Commxx group(std::vector<int> const& ranks) const;
 
   template <class AR> void save(AR& ar) const;
