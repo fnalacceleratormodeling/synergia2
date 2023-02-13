@@ -39,9 +39,9 @@ TEST_CASE("default construct", "[commxx]")
     CHECK(defaulted.has_this_rank());
     CHECK(defaulted.is_root());
     
-    REQUIRE_THROWS_AS(defaulted.dup(), std::bad_weak_ptr);
-    REQUIRE_THROWS_AS(defaulted.split(1), std::bad_weak_ptr);
-    REQUIRE_THROWS_AS(defaulted.split(0, 1), std::bad_weak_ptr);
+    REQUIRE_THROWS_AS(defaulted.dup(), std::runtime_error);
+    REQUIRE_THROWS_AS(defaulted.split(1), std::runtime_error);
+    REQUIRE_THROWS_AS(defaulted.split(0, 1), std::runtime_error);
 }
 
 TEST_CASE("construct with type", "[commxx]")

@@ -108,21 +108,36 @@ Commxx
 Commxx::dup() const
 {
   if (is_null()) throw std::runtime_error("dup from a null comm");
-  return create_child(shared_from_this(), 0, rank());
+  try {
+    return create_child(shared_from_this(), 0, rank());
+  }
+  catch (std::bad_weak_ptr const&) {
+    throw std::runtime_error("Illegal attempt to dup a Commxx not owned by a shared_ptr");
+  }
 }
 
 Commxx
 Commxx::split(int color) const
 {
   if (is_null()) throw std::runtime_error("split from a null comm");
-  return create_child(shared_from_this(), color, rank());
+  try {
+    return create_child(shared_from_this(), color, rank());
+  }
+  catch (std::bad_weak_ptr const&) {
+    throw std::runtime_error("Illegal attempt to split a Commxx not owned by a shared_ptr");
+  }
 }
 
 Commxx
 Commxx::split(int color, int key) const
 {
   if (is_null()) throw std::runtime_error("split from a null comm");
-  return create_child(shared_from_this(), color, key);
+  try {
+    return create_child(shared_from_this(), color, key);
+  }
+  catch (std::bad_weak_ptr const&) {
+    throw std::runtime_error("Illegal attempt to split a Commxx not owned by a shared_ptr");
+  }
 }
 
 Commxx
@@ -148,7 +163,12 @@ Commxx::group(std::vector<int> const& ranks) const
   int r = rank();
   bool in_range = std::find(ranks.begin(), ranks.end(), r) != ranks.end();
   int color = (in_range ? 0 : MPI_UNDEFINED);
-  return create_child(shared_from_this(), color, r);
+  try {
+    return create_child(shared_from_this(), color, r);
+  }
+  catch (std::bad_weak_ptr const&) {
+    throw std::runtime_error("Illegal attempt to group a Commxx not owned by a shared_ptr");
+  }
 }
 
 bool
