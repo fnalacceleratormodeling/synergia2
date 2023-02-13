@@ -81,8 +81,7 @@ install(TARGETS synergia_parallel_utils synergia_hdf5_utils
                 synergia_command_line lsexpr DESTINATION ${LIB_INSTALL_DIR})
 
 install(
-  FILES boost_test_mpi_fixture.h
-        command_line_arg.h
+  FILES command_line_arg.h
         commxx.h
         commxx_divider.h
         container_conversions.h
