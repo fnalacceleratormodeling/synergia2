@@ -80,9 +80,7 @@ public:
   /// uniformly in the unit disk.
   /// void fill_unit_disk(double* x_array, double* y_array) override;
 
-  void
-  advance(uint64_t delta) override
-  {}
+  void advance(uint64_t delta) override;
 
   void test();
 };

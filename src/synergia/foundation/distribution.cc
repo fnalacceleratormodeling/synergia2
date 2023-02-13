@@ -104,3 +104,9 @@ Random_distribution::~Random_distribution()
 {
   gsl_rng_free(rng);
 }
+
+void
+Random_distribution::advance(uint64_t)
+{
+  throw std::runtime_error("Random_distribution can not be advanced.");
+}
