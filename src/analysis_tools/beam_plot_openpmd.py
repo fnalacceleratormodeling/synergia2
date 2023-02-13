@@ -44,11 +44,10 @@ class Options:
     hcoord: Coords
     vcoord: Coords
     inputfile: str
-    num_contour: int
     show: bool = True
     outputfile: str = ""
     iteration: int = 0
-    bins: int = 25
+    num_countor: int = 25
     minh: np.float64 = np.finfo(np.double).min
     maxh: np.float64 = np.finfo(np.double).max
     minv: np.float64 = np.finfo(np.double).min
@@ -135,7 +134,7 @@ def do_plots(opts: Options):
     g = sns.JointGrid(
         data=to_plot_df, x=opts.hcoord.value, y=opts.vcoord.value, marginal_ticks=True
     )
-    g.plot_joint(sns.kdeplot, fill=True, cmap="mako", thresh=0, levels=opts.bins)
+    g.plot_joint(sns.kdeplot, fill=True, cmap="mako", thresh=0, levels=opts.num_countor)
     g.plot_marginals(sns.histplot, kde=False)
 
     plt.suptitle("Synergia3 Phase Space Distribution", fontsize="medium", y=0.985)
