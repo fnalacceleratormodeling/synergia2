@@ -44,10 +44,10 @@ class Options:
     hcoord: Coords
     vcoord: Coords
     inputfile: str
+    num_contour: int
     show: bool = True
     outputfile: str = ""
     iteration: int = 0
-    num_countor: int = 25
     minh: np.float64 = np.finfo(np.double).min
     maxh: np.float64 = np.finfo(np.double).max
     minv: np.float64 = np.finfo(np.double).min
@@ -73,7 +73,12 @@ def parse_args():
     parser.add_argument(
         "--maxv", help="maximum limit on vertical axis data", type=float
     )
-    parser.add_argument("--contour", help="number of contour levels to draw", type=int)
+    parser.add_argument(
+        "--contour",
+        help="number of contour levels to draw",
+        default=25,
+        type=int,
+    )
     parser.add_argument(
         "--output", help="save output to file (not on by default)", type=str
     )
@@ -108,7 +113,7 @@ def do_plots(opts: Options):
     parts_df = parts.to_df()
 
     print(
-        f"xcoord is {opts.hcoord}/{opts.hcoord.value}, ycoord is {opts.vcoord}/{opts.vcoord.value}"
+        f"xcoord is {opts.hcoord}/{opts.hcoord.value}, ycoord is {opts.vcoord}/{opts.vcoord.value}, num-contour is {opts.num_contour}"
     )
 
     if opts.hcoord == Coords("pz") or opts.vcoord == Coords("pz"):
@@ -134,7 +139,7 @@ def do_plots(opts: Options):
     g = sns.JointGrid(
         data=to_plot_df, x=opts.hcoord.value, y=opts.vcoord.value, marginal_ticks=True
     )
-    g.plot_joint(sns.kdeplot, fill=True, cmap="mako", thresh=0, levels=opts.num_countor)
+    g.plot_joint(sns.kdeplot, fill=True, cmap="mako", thresh=0, levels=opts.num_contour)
     g.plot_marginals(sns.histplot, kde=False)
 
     plt.suptitle("Synergia3 Phase Space Distribution", fontsize="medium", y=0.985)
