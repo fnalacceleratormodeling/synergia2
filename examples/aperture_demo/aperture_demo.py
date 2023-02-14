@@ -82,7 +82,7 @@ def create_simulator(ref_part):
          [0, 0, 0, 0, 0, 1e-08]])
     #print('bunch_covariances.shape: ', bunch_covariances.shape)
     
-    dist = synergia.foundation.PCG_random_distribution(1234567, synergia.utils.Commxx())
+    dist = synergia.foundation.PCG_random_distribution(1234567, synergia.utils.Commxx.World.rank())
 
     synergia.bunch.populate_6d( dist, 
         bunch, 

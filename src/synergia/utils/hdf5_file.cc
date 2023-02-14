@@ -84,7 +84,7 @@ Hdf5_file::open(Flag flag)
 
       std::cout << e.what() << "\n";
       std::cout << "caught hdf5 open file error, attempts number=" << attempts
-                << " on rank=" << Commxx().rank() << std::endl;
+                << " on rank=" << Commxx::world_rank() << std::endl;
 
       std::this_thread::sleep_for(std::chrono::seconds(3));
     }

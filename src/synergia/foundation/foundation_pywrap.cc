@@ -523,9 +523,9 @@ PYBIND11_MODULE(foundation, m)
   py::class_<Distribution>(m, "Distribution");
 
   py::class_<Random_distribution, Distribution>(m, "Random_distribution")
-    .def(py::init<unsigned long int, Commxx const&>(),
+    .def(py::init<unsigned long int, int>(),
          "seed"_a,
-         "comm"_a = Commxx())
+         "rank"_a)
 
     .def("get",
          &Random_distribution::get,
@@ -549,9 +549,9 @@ PYBIND11_MODULE(foundation, m)
 
   py::class_<PCG_random_distribution, Distribution>(m,
                                                     "PCG_random_distribution")
-    .def(py::init<unsigned long int, Commxx const&>(),
+    .def(py::init<unsigned long int, int>(),
          "seed"_a,
-         "comm"_a = Commxx())
+         "rank"_a)
 
     .def("get",
          &PCG_random_distribution::get,

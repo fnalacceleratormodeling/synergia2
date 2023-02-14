@@ -191,8 +191,8 @@ TEST_CASE("create single bunch", "[Bunch_simulator]")
 
 TEST_CASE("create bunch train (3 bunches)", "[Bunch_simulator]")
 {
-    int mpi_size = Commxx().size();
-    int mpi_rank = Commxx().rank();
+    int mpi_size = Commxx::world_size();
+    int mpi_rank = Commxx::world_rank();
 
     const size_t nb_pt = 3;
     const size_t nb_st = 0;
@@ -328,8 +328,8 @@ TEST_CASE("create bunch train (3 bunches)", "[Bunch_simulator]")
 
 TEST_CASE("create two bunch trains (4 and 2 bunches)", "[Bunch_simulator]")
 {
-    int mpi_size = Commxx().size();
-    int mpi_rank = Commxx().rank();
+    int mpi_size = Commxx::world_size();
+    int mpi_rank = Commxx::world_rank();
 
     const size_t nb_pt = 4;
     const size_t nb_st = 2;

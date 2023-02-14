@@ -1,7 +1,6 @@
 #ifndef DISTRIBUTION_H_
 #define DISTRIBUTION_H_
 
-#include "synergia/utils/commxx.h"
 #include <gsl/gsl_rng.h>
 
 /// Distribution is a virtual base class for obtaining the next number or set
@@ -24,7 +23,8 @@ public:
   /// uniformly in the unit disk.
   /// virtual void fill_unit_disk(double* x_array, double* y_array) = 0;
 
-  /// Skip ahead the random number generator by delta
+  /// Skip ahead the random number generator by delta.
+  /// NOTE: subclasses may implement this as a no-op.
   virtual void advance(uint64_t delta) = 0;
 };
 
@@ -45,11 +45,10 @@ public:
   /// Construct a Random_distribution.
   /// @param seed The random number seed. If seed == 0, the seed is
   /// obtained from Random_distribution::get_default_seed().
-  /// @param comm Distribute the seed across the processors in this
-  /// communicator.
+  /// @param rank Set the seed for this rank.
   /// @param generator The underlying random number generator to be used.
   Random_distribution(unsigned long int seed,
-                      Commxx const& comm,
+                      int rank,
                       Generator generator = ranlxd2);
 
   virtual ~Random_distribution();
@@ -81,9 +80,7 @@ public:
   /// uniformly in the unit disk.
   /// void fill_unit_disk(double* x_array, double* y_array) override;
 
-  void
-  advance(uint64_t delta) override
-  {}
+  void advance(uint64_t delta) override;
 
   void test();
 };

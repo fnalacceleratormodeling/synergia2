@@ -326,7 +326,7 @@ namespace Lattice_simulator {
 
     // bunch simulator
     auto sim = Bunch_simulator::create_single_bunch_simulator(
-      ref, Commxx().size(), 1e09);
+      ref, Commxx::world_size(), 1e09);
 
     //
     sim.get_bunch().get_design_reference_particle().set_state(ref.get_state());

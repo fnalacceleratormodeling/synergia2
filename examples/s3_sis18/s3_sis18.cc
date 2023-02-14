@@ -13,9 +13,11 @@
 #include "synergia/simulation/populate_stationary.h"
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/split_operator_stepper.h"
+#include "synergia/utils/commxx.h"
 #include "synergia/utils/lsexpr.h"
 #include "synergia/utils/simple_timer.h"
 #include "synergia/utils/utils.h"
+
 
 using LV = LoggerV;
 
@@ -161,7 +163,8 @@ run_and_save(std::string& prop_str, std::string& sim_str)
   double max_cdt = half_bucket_length / beta;
 
   // populate
-  PCG_random_distribution dist(5);
+
+  PCG_random_distribution dist(5, Commxx::world_rank());
   populate_6d_stationary_clipped_longitudinal_gaussian(
     dist, bunch, actions, min_cdt, max_cdt, nf);
 
@@ -277,7 +280,7 @@ std::string
 ar_name()
 {
   std::stringstream ss;
-  ss << "cp-" << Commxx().rank() << ".json";
+  ss << "cp-" << Commxx::world_rank() << ".json";
   return ss.str();
 }
 

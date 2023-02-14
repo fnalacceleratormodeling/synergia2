@@ -20,6 +20,7 @@
 
 #include "synergia/lattice/madx_reader.h"
 #include "synergia/utils/lsexpr.h"
+#include "synergia/utils/commxx.h"
 
 #include "synergia/collective/space_charge_2d_open_hockney.h"
 //#include "synergia/collective/space_charge_3d_open_hockney.h"
@@ -367,7 +368,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     double max_cdt =  half_bucket_length / beta;
 
     // populate
-    PCG_random_distribution dist(5);
+    PCG_random_distribution dist(5, Commxx::world_rank());
     populate_6d_stationary_clipped_longitudinal_gaussian(
             dist, bunch, actions, min_cdt, max_cdt, nf);
 
@@ -482,7 +483,7 @@ void checkpoint_resume()
 std::string ar_name()
 {
     std::stringstream ss;
-    ss << "cp-" << Commxx().rank() << ".json";
+    ss << "cp-" << Commxx::world_rank() << ".json";
     return ss.str();
 }
 

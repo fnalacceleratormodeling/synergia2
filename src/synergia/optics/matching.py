@@ -205,7 +205,7 @@ def  get_tunes(mymap):
     tune_z=mu/(2.*pi)
 
     l,v = numpy.linalg.eig(mymap)
-    if Commxx().get_rank()==0:
+    if Commxx.World.rank()==0:
       print "eigenvalues of one turn map: ", l
       print "absolute values of eigenvalues (should all be 1): ", abs(l)
       print "fractional tunes from eigenvalues: ", numpy.log(l).imag/(2.0*numpy.pi)
@@ -253,7 +253,7 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
     if comm == None:
        comm = Commxx()
 
-    if Commxx().get_rank()==0:
+    if Commxx.World.rank()==0:
        print_matched_parameters(correlation_matrix,beta, bunch_index)
 
     z_period_length= lattice_simulator.get_bucket_length()

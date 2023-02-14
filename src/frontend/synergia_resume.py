@@ -63,7 +63,7 @@ def check_size(options):
         s = line.split('=')
         if s[0] == 'mpi_size':
             original_size = int(s[1])
-    current_size = Commxx().get_size()
+    current_size = Commxx.World.size()
     if (original_size != current_size):
         sys.stderr.write('''synergia-pyresume: Error. Number of MPI processes (%d) must be equal to
                    number of MPI processes in original job (%d).\n''' % \

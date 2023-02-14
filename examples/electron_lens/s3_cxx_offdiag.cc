@@ -185,7 +185,7 @@ void run_and_save(std::string & prop_str, std::string & sim_str)
     covariances(5,4) = 3.351492383857787e-17;
     covariances(5,5) = 8.29770226173816e-06;
 
-    Random_distribution dist(13 /*opts.seed*/, bunch.get_comm());
+    Random_distribution dist(13 /*opts.seed*/, bunch.get_comm().rank());
     populate_6d(dist, bunch, means, covariances);
 #endif
 

@@ -11,8 +11,8 @@ private:
   std::normal_distribution<double> normal_dist;
 
 public:
-  PCG_random_distribution(uint64_t seed, Commxx const& comm = Commxx::World)
-    : rng(seed, comm.rank()), normal_dist(0.0, 1.0)
+  PCG_random_distribution(uint64_t seed, int rank)
+    : rng(seed, rank), normal_dist(0.0, 1.0)
   {}
 
   virtual ~PCG_random_distribution() = default;

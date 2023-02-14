@@ -20,8 +20,12 @@ Random_distribution::get_default_seed(const char* device)
 }
 
 Random_distribution::Random_distribution(unsigned long int seed,
-                                         Commxx const& comm,
-                                         Generator generator)
+                                         int rank,
+                                         Generator generator) :
+                                         rng(nullptr),
+                                         rng_type(nullptr),
+                                         rank(rank),
+                                         original_seed(0)
 {
   gsl_rng_env_setup();
   if (generator == ranlxd2) {
@@ -30,8 +34,7 @@ Random_distribution::Random_distribution(unsigned long int seed,
     rng_type = gsl_rng_mt19937;
   }
   rng = gsl_rng_alloc(rng_type);
-  rank = comm.get_rank();
-  set_seed(seed);
+  set_seed(seed); // NOTE: this resets original_seed
 }
 
 void
@@ -100,4 +103,10 @@ Random_distribution::fill_unit_disk(double* x_array, double* y_array)
 Random_distribution::~Random_distribution()
 {
   gsl_rng_free(rng);
+}
+
+void
+Random_distribution::advance(uint64_t)
+{
+  throw std::runtime_error("Random_distribution can not be advanced.");
 }

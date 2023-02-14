@@ -58,9 +58,9 @@ def create_simulator(ref_part):
     print("means: ", means)
     print("covars: ", covars)
 
-    comm = synergia.utils.parallel_utils.Commxx()
+    #comm = synergia.utils.parallel_utils.Commxx()
     #dist = synergia.foundation.Random_distribution(5, comm)
-    dist = synergia.foundation.PCG_random_distribution(5, comm)
+    dist = synergia.foundation.PCG_random_distribution(5, synergia.utils.parallel_utils.Commxx.World.rank())
 
     synergia.bunch.populate_6d(dist, bunch, means, covars)
 

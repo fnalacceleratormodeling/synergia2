@@ -121,7 +121,7 @@ TEST_CASE("foil")
     covariances(4,4) = 1e-6;
     covariances(5,5) = 1e-6;
 
-    Random_distribution dist(5, Commxx());
+    Random_distribution dist(5, Commxx::world_rank());
     populate_6d(dist, tb, means, covariances);
 #endif
 
