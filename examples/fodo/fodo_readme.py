@@ -2,6 +2,7 @@
 
 import numpy as np
 import synergia
+from synergia.utils import Commxx
 
 macroparticles = 1048576
 real_particles = 2.94e12
@@ -48,7 +49,7 @@ def create_simulator(ref_part):
          [0, 0, 0, 0, 0.00016427607645871527, 0],
          [0, 0, 0, 0, 0, 1e-08]])
     
-    dist = synergia.foundation.PCG_random_distribution(1234567)
+    dist = synergia.foundation.PCG_random_distribution(1234567, Commxx.World.rank())
 
     synergia.bunch.populate_6d(dist, 
         bunch, 
