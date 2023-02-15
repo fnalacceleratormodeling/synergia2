@@ -55,9 +55,10 @@ jobs:
         CC=/usr/bin/clang-14 CXX=/usr/bin/clang++-14 LDFLAGS="-fuse-ld=lld" cmake -B ${{github.workspace}}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
-          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.9) \
+          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.10) \
           -DENABLE_KOKKOS_BACKEND=OpenMP \
           -DBUILD_FD_SPACE_CHARGE_SOLVER=ON \
+          -DUSE_OPENPMD_IO=ON \
           -DUSE_EXTERNAL_KOKKOS=off -GNinja
 
     - name: build

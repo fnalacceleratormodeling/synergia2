@@ -13,12 +13,9 @@ add_library(
 
 target_link_libraries(
   synergia_collective
-  synergia_bunch
-  synergia_distributed_fft
-  synergia_parallel_utils
-  synergia_bunchsim
-  synergia_serialization
-  $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
+  PUBLIC synergia_bunch synergia_distributed_fft synergia_parallel_utils
+         synergia_bunchsim synergia_serialization
+  PRIVATE $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
 
 target_link_options(synergia_collective PRIVATE ${LINKER_OPTIONS})
 

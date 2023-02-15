@@ -5,39 +5,43 @@ target_link_libraries(test_command_line_arg synergia_command_line
                       synergia_test_main)
 add_test(test_command_line_arg test_command_line_arg)
 
-add_executable(test_hdf5_file_mpi test_hdf5_file_mpi.cc)
-target_link_libraries(test_hdf5_file_mpi synergia_hdf5_utils synergia_test_main)
+if(NOT ${USE_OPENPMD_IO})
+  add_executable(test_hdf5_file_mpi test_hdf5_file_mpi.cc)
+  target_link_libraries(test_hdf5_file_mpi synergia_hdf5_utils
+                        synergia_test_main)
 
-add_mpi_test(test_hdf5_file_mpi 1)
-add_mpi_test(test_hdf5_file_mpi 2)
-add_mpi_test(test_hdf5_file_mpi 3)
-add_mpi_test(test_hdf5_file_mpi 4)
+  add_mpi_test(test_hdf5_file_mpi 1)
+  add_mpi_test(test_hdf5_file_mpi 2)
+  add_mpi_test(test_hdf5_file_mpi 3)
+  add_mpi_test(test_hdf5_file_mpi 4)
 
-add_executable(test_hdf5_write_mpi test_hdf5_write_mpi.cc)
-target_link_libraries(test_hdf5_write_mpi synergia_hdf5_utils
-                      synergia_test_main)
+  add_executable(test_hdf5_write_mpi test_hdf5_write_mpi.cc)
+  target_link_libraries(test_hdf5_write_mpi synergia_hdf5_utils
+                        synergia_test_main)
 
-add_mpi_test(test_hdf5_write_mpi 1)
-add_mpi_test(test_hdf5_write_mpi 2)
-add_mpi_test(test_hdf5_write_mpi 3)
-add_mpi_test(test_hdf5_write_mpi 4)
+  add_mpi_test(test_hdf5_write_mpi 1)
+  add_mpi_test(test_hdf5_write_mpi 2)
+  add_mpi_test(test_hdf5_write_mpi 3)
+  add_mpi_test(test_hdf5_write_mpi 4)
 
-add_executable(test_hdf5_append_mpi test_hdf5_append_mpi.cc)
-target_link_libraries(test_hdf5_append_mpi synergia_hdf5_utils
-                      synergia_test_main)
+  add_executable(test_hdf5_append_mpi test_hdf5_append_mpi.cc)
+  target_link_libraries(test_hdf5_append_mpi synergia_hdf5_utils
+                        synergia_test_main)
 
-add_mpi_test(test_hdf5_append_mpi 1)
-add_mpi_test(test_hdf5_append_mpi 2)
-add_mpi_test(test_hdf5_append_mpi 3)
-add_mpi_test(test_hdf5_append_mpi 4)
+  add_mpi_test(test_hdf5_append_mpi 1)
+  add_mpi_test(test_hdf5_append_mpi 2)
+  add_mpi_test(test_hdf5_append_mpi 3)
+  add_mpi_test(test_hdf5_append_mpi 4)
 
-add_executable(test_hdf5_read_mpi test_hdf5_read_mpi.cc)
-target_link_libraries(test_hdf5_read_mpi synergia_hdf5_utils synergia_test_main)
+  add_executable(test_hdf5_read_mpi test_hdf5_read_mpi.cc)
+  target_link_libraries(test_hdf5_read_mpi synergia_hdf5_utils
+                        synergia_test_main)
 
-add_mpi_test(test_hdf5_read_mpi 1)
-add_mpi_test(test_hdf5_read_mpi 2)
-add_mpi_test(test_hdf5_read_mpi 3)
-add_mpi_test(test_hdf5_read_mpi 4)
+  add_mpi_test(test_hdf5_read_mpi 1)
+  add_mpi_test(test_hdf5_read_mpi 2)
+  add_mpi_test(test_hdf5_read_mpi 3)
+  add_mpi_test(test_hdf5_read_mpi 4)
+endif()
 
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
   add_executable(test_kokkos test_kokkos.cc)
@@ -80,10 +84,6 @@ add_mpi_test(test_distributed_fft3d 4)
 
 if(LINUX)
   add_executable(test_loading_kokkos test_loading_kokkos.cc)
-  target_link_libraries(test_loading_kokkos PRIVATE dl)
-  target_include_directories(
-    test_loading_kokkos
-    PRIVATE ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos
-            ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src)
+  target_link_libraries(test_loading_kokkos PRIVATE dl ${kokkos_libs})
   add_test(test_loading_kokkos test_loading_kokkos)
 endif()

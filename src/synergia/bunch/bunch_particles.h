@@ -10,31 +10,46 @@
 #include "synergia/utils/hdf5_file.h"
 
 #include <cereal/cereal.hpp>
+#include <utility>
 
 enum class ParticleGroup { regular = 0, spectator = 1 };
 
-typedef Kokkos::View<double* [7],
-                     Kokkos::LayoutLeft,
-                     Kokkos::DefaultExecutionSpace::memory_space>
-    Particles;
+using Particles = Kokkos::View<double* [7],
+                               Kokkos::LayoutLeft,
+                               Kokkos::DefaultExecutionSpace::memory_space>;
+using ConstParticles =
+    Kokkos::View<const double* [7],
+                 Kokkos::LayoutLeft,
+                 Kokkos::DefaultExecutionSpace::memory_space>;
 
-typedef Kokkos::View<const double* [7],
-                     Kokkos::LayoutLeft,
-                     Kokkos::DefaultExecutionSpace::memory_space>
-    ConstParticles;
+using ParticlesSubView = decltype(Kokkos::subview(std::declval<Particles>(),
+                                                  std::pair(1u, 1u),
+                                                  Kokkos::ALL));
+using ConstParticlesSubView =
+    decltype(Kokkos::subview(std::declval<ConstParticles>(),
+                             std::pair(1u, 1u),
+                             Kokkos::ALL));
 
-typedef Kokkos::View<uint8_t*, Kokkos::DefaultExecutionSpace::memory_space>
-    ParticleMasks;
+using ParticleMasks =
+    Kokkos::View<uint8_t*, Kokkos::DefaultExecutionSpace::memory_space>;
+using ConstParticleMasks =
+    Kokkos::View<const uint8_t*, Kokkos::DefaultExecutionSpace::memory_space>;
 
-typedef Kokkos::View<const uint8_t*,
-                     Kokkos::DefaultExecutionSpace::memory_space>
-    ConstParticleMasks;
+using ParticleMasksSubView =
+    decltype(Kokkos::subview(std::declval<ParticleMasks>(), std::pair(1u, 1u)));
+using ConstParticleMasksSubView =
+    decltype(Kokkos::subview(std::declval<ConstParticleMasks>(),
+                             std::pair(1u, 1u)));
 
-typedef Particles::HostMirror HostParticles;
-typedef ConstParticles::HostMirror ConstHostParticles;
+using HostParticles = Particles::HostMirror;
+using ConstHostParticles = ConstParticles::HostMirror;
+using HostParticlesSubView = ParticlesSubView::HostMirror;
+using ConstHostParticlesSubView = ConstParticlesSubView::HostMirror;
 
-typedef ParticleMasks::HostMirror HostParticleMasks;
-typedef ConstParticleMasks::HostMirror ConstHostParticleMasks;
+using HostParticleMasks = ParticleMasks::HostMirror;
+using ConstHostParticleMasks = ConstParticleMasks::HostMirror;
+using HostParticleMasksSubView = ParticleMasksSubView::HostMirror;
+using ConstHostParticleMasksSubView = ConstParticleMasksSubView::HostMirror;
 
 // serialization
 namespace cereal {
@@ -306,7 +321,13 @@ class bunch_particles_t {
 
     std::pair<karray1d_row, bool> get_particle(int idx) const;
 
-    std::pair<karray2d_row, HostParticleMasks> get_particles_in_range(
+    // hostview is allocated by the caller and filled by this routine
+    void get_particles_in_range(host_parts_t subset_parts,
+                                host_masks_t subset_masks,
+                                size_t num,
+                                size_t offset) const;
+
+    std::pair<karray2d_row, HostParticleMasks> get_particles_in_range_row(
         int idx,
         int num) const;
 

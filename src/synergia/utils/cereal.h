@@ -3,7 +3,7 @@
 
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
-#include <cereal/archives/xml.hpp>
+// #include <cereal/archives/xml.hpp>
 
 #include <cereal/types/complex.hpp>
 #include <cereal/types/map.hpp>

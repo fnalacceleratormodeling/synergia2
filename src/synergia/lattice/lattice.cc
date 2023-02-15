@@ -10,89 +10,94 @@
 #include <unordered_set>
 
 Lattice::Lattice()
-  : name("")
-  , reference_particle()
-  , elements()
-  , updated{true, true, true}
-  , tree()
+    : name("")
+    , reference_particle()
+    , elements()
+    , updated{true, true, true}
+    , tree()
 {}
 
 Lattice::Lattice(std::string const& name)
-  : name(name)
-  , reference_particle()
-  , elements()
-  , updated{true, true, true}
-  , tree()
+    : name(name)
+    , reference_particle()
+    , elements()
+    , updated{true, true, true}
+    , tree()
 {}
 
 Lattice::Lattice(std::string const& name, Reference_particle const& ref)
-  : name(name)
-  , reference_particle(ref)
-  , elements()
-  , updated{true, true, true}
-  , tree()
+    : name(name)
+    , reference_particle(ref)
+    , elements()
+    , updated{true, true, true}
+    , tree()
 {}
 
 Lattice::Lattice(std::string const& name, Lattice_tree const& tree)
-  : name(name)
-  , reference_particle()
-  , elements()
-  , updated{true, true, true}
-  , tree(tree)
+    : name(name)
+    , reference_particle()
+    , elements()
+    , updated{true, true, true}
+    , tree(tree)
 {}
 
 Lattice::Lattice(Lattice const& o)
-  : name(o.name)
-  , reference_particle(o.reference_particle)
-  , elements(o.elements)
-  , updated(o.updated)
-  , tree(o.tree)
+    : name(o.name)
+    , reference_particle(o.reference_particle)
+    , elements(o.elements)
+    , updated(o.updated)
+    , tree(o.tree)
 {
-  for (auto& e : elements) e.set_lattice(*this);
+    for (auto& e : elements)
+        e.set_lattice(*this);
 }
 
 Lattice::Lattice(Lattice&& o) noexcept
-  : name(std::move(o.name))
-  , reference_particle(std::move(o.reference_particle))
-  , elements(std::move(o.elements))
-  , updated(std::move(o.updated))
-  , tree(std::move(o.tree))
+    : name(std::move(o.name))
+    , reference_particle(std::move(o.reference_particle))
+    , elements(std::move(o.elements))
+    , updated(std::move(o.updated))
+    , tree(std::move(o.tree))
 {
-  for (auto& e : elements) e.set_lattice(*this);
+    for (auto& e : elements)
+        e.set_lattice(*this);
 }
 
 Lattice&
 Lattice::operator=(Lattice const& o)
 {
-  name = o.name;
-  reference_particle = o.reference_particle;
-  elements = o.elements;
-  updated = o.updated;
-  tree = o.tree;
+    name = o.name;
+    reference_particle = o.reference_particle;
+    elements = o.elements;
+    updated = o.updated;
+    tree = o.tree;
 
-  for (auto& e : elements) e.set_lattice(*this);
+    for (auto& e : elements)
+        e.set_lattice(*this);
 
-  return *this;
+    return *this;
 }
 
 Lattice::Lattice(Lsexpr const& lsexpr)
-  : name("")
-  , reference_particle()
-  , elements()
-  , updated{true, true, true}
-  , tree()
+    : name("")
+    , reference_particle()
+    , elements()
+    , updated{true, true, true}
+    , tree()
 {
-  for (auto const& lse : lsexpr) {
-    if (lse.is_labeled()) {
-      if (lse.get_label() == "name") {
-        name = lse.get_string();
-      } else if (lse.get_label() == "reference_particle") {
-        reference_particle = Reference_particle(lse);
-      } else if (lse.get_label() == "elements") {
-        for (auto const& ele : lse) { append(Lattice_element(ele)); }
-      }
+    for (auto const& lse : lsexpr) {
+        if (lse.is_labeled()) {
+            if (lse.get_label() == "name") {
+                name = lse.get_string();
+            } else if (lse.get_label() == "reference_particle") {
+                reference_particle = Reference_particle(lse);
+            } else if (lse.get_label() == "elements") {
+                for (auto const& ele : lse) {
+                    append(Lattice_element(ele));
+                }
+            }
+        }
     }
-  }
 }
 
 #if 0 // as_lsexpr() might come back some day
@@ -125,24 +130,24 @@ Lattice::as_lsexpr() const
 Lattice::update_flags_t
 Lattice::update()
 {
-  update_flags_t res = updated;
+    update_flags_t res = updated;
 
-  if (updated.ref || updated.structure || updated.element) {
-    // TODO: reconstruct the chef lattice
-    // ...
+    if (updated.ref || updated.structure || updated.element) {
+        // TODO: reconstruct the chef lattice
+        // ...
 
-    updated = {false, false, false};
-  }
+        updated = {false, false, false};
+    }
 
-  return res;
+    return res;
 }
 
 void
 Lattice::append(Lattice_element const& element)
 {
-  elements.push_back(Lattice_element_processor::process(element));
-  elements.back().set_lattice(*this);
-  updated.structure = true;
+    elements.push_back(Lattice_element_processor::process(element));
+    elements.back().set_lattice(*this);
+    updated.structure = true;
 }
 
 void
@@ -150,10 +155,10 @@ Lattice::set_all_double_attribute(std::string const& name,
                                   double value,
                                   bool increment_revision)
 {
-  for (auto& e : elements)
-    e.set_double_attribute(name, value, increment_revision);
+    for (auto& e : elements)
+        e.set_double_attribute(name, value, increment_revision);
 
-  updated.element = true;
+    updated.element = true;
 }
 
 void
@@ -161,119 +166,126 @@ Lattice::set_all_string_attribute(std::string const& name,
                                   std::string const& value,
                                   bool increment_revision)
 {
-  for (auto& e : elements)
-    e.set_string_attribute(name, value, increment_revision);
+    for (auto& e : elements)
+        e.set_string_attribute(name, value, increment_revision);
 
-  updated.element = true;
+    updated.element = true;
 }
 
 std::list<Lattice_element> const&
 Lattice::get_elements() const
 {
-  return elements;
+    return elements;
 }
 
 std::list<Lattice_element>&
 Lattice::get_elements()
 {
-  return elements;
+    return elements;
 }
 
 void
 Lattice::reset_all_markers()
 {
-  for (auto& e : elements) e.reset_markers();
+    for (auto& e : elements)
+        e.reset_markers();
 }
 
 double
 Lattice::get_length() const
 {
-  double length = 0.0;
-  for (auto const& e : elements) length += e.get_length();
-  return length;
+    double length = 0.0;
+    for (auto const& e : elements)
+        length += e.get_length();
+    return length;
 }
 
 double
 Lattice::get_total_angle() const
 {
-  double angle = 0.0;
-  for (auto const& e : elements) angle += e.get_bend_angle();
-  return angle;
+    double angle = 0.0;
+    for (auto const& e : elements)
+        angle += e.get_bend_angle();
+    return angle;
 }
 
 std::string
 Lattice::as_string() const
 {
-  std::stringstream sstream;
-  sstream << name << ":\n";
-  for (auto const& e : elements) sstream << e.as_string() << std::endl;
-  return sstream.str();
+    std::stringstream sstream;
+    sstream << name << ":\n";
+    for (auto const& e : elements)
+        sstream << e.as_string() << std::endl;
+    return sstream.str();
 }
 
 void
 Lattice::print(Logger& logger) const
 {
-  logger(LoggerV::DEBUG) << as_string() << std::endl;
+    logger(LoggerV::DEBUG) << as_string() << std::endl;
 }
 
 void
 Lattice::export_madx_file(std::string const& filename) const
 {
-  std::ofstream mxfile(filename);
+    std::ofstream mxfile(filename);
 
-  if (!mxfile.is_open()) {
-    throw std::runtime_error("Lattice::as_madx_file() unable to create file");
-  }
-
+    if (!mxfile.is_open()) {
+        throw std::runtime_error(
+            "Lattice::as_madx_file() unable to create file");
+    }
 
     // "beam, pc={{momentum}}, particle={{particle}}"
     if (!reference_particle.has_value()) {
-        mxfile << "! This lattice has not defined a reference particle with BEAM statement information\n\n";
+        mxfile << "! This lattice has not defined a reference particle with "
+                  "BEAM statement information\n\n";
     } else {
         mxfile << reference_particle.value().as_madx() << "\n\n";
     }
-    
+
     // "{{element_label}} : {{element_type}}, {{attr}}={{val}}..."
     std::unordered_set<std::string> elm_names;
-    for(auto const& e : elements)
-    {
+    for (auto const& e : elements) {
         mxfile << e.as_madx() << "\n";
         elm_names.insert(e.get_name());
     }
 
-  double pos = 0.0;
-  int idx = 0;
+    double pos = 0.0;
+    int idx = 0;
 
-  // "{{name}}: sequence, refer=entry"
-  mxfile << "\n"
-         << name << ": sequence, l = " << get_length() << ", refer = entry;\n";
+    // "{{name}}: sequence, refer=entry"
+    mxfile << "\n"
+           << name << ": sequence, l = " << get_length()
+           << ", refer = entry;\n";
 
-  // "{{element_label}} : {{element}}, at={{pos}}..."
-  for (auto const& e : elements) {
-    std::stringstream label;
-    label << name << "_" << idx;
+    // "{{element_label}} : {{element}}, at={{pos}}..."
+    for (auto const& e : elements) {
+        std::stringstream label;
+        label << name << "_" << idx;
 
-    while (elm_names.count(label.str())) label << "_dup";
+        while (elm_names.count(label.str()))
+            label << "_dup";
 
-    elm_names.insert(label.str());
+        elm_names.insert(label.str());
 
-    mxfile << label.str() << ": " << e.get_name() << ", at=" << pos << ";\n";
+        mxfile << label.str() << ": " << e.get_name() << ", at=" << pos
+               << ";\n";
 
-    pos += e.get_length();
-    ++idx;
-  }
+        pos += e.get_length();
+        ++idx;
+    }
 
-  // "endsequence;"
-  mxfile << "endsequence;\n";
+    // "endsequence;"
+    mxfile << "endsequence;\n";
 
-  // done
-  mxfile.close();
+    // done
+    mxfile.close();
 }
 
 Lattice
 Lattice::import_madx_file(std::string const& filename, std::string const& line)
 {
-  return MadX_reader().get_lattice(line, filename);
+    return MadX_reader().get_lattice(line, filename);
 }
 
 void
@@ -281,73 +293,73 @@ Lattice::save_deposited_charge(std::string const& fname,
                                int bunch_idx,
                                int train_idx) const
 {
-  static bool first_write = true;
-  static std::unique_ptr<Hdf5_file> file(
-    new Hdf5_file(fname, Hdf5_file::Flag::truncate, Commxx()));
+    static bool first_write = true;
+    static std::unique_ptr<Hdf5_file> file(
+        new Hdf5_file(fname, Hdf5_file::Flag::truncate, Commxx()));
 
-  if (fname != file->get_filename()) {
-    file.reset(new Hdf5_file(fname, Hdf5_file::Flag::truncate, Commxx()));
-    first_write = true;
-  }
-
-  if (first_write) {
-    int idx = 0;
-    double s = 0.0;
-    karray1d sn("s_n", elements.size());
-
-    for (auto const& elm : elements) {
-      s += elm.get_length();
-      sn[idx] = s;
-      ++idx;
+    if (fname != file->get_filename()) {
+        file.reset(new Hdf5_file(fname, Hdf5_file::Flag::truncate, Commxx()));
+        first_write = true;
     }
 
-    file->write_single("s_n", sn);
-    first_write = false;
-  }
+    if (first_write) {
+        int idx = 0;
+        double s = 0.0;
+        karray1d sn("s_n", elements.size());
 
-  int idx = 0;
-  karray1d values("values", elements.size());
+        for (auto const& elm : elements) {
+            s += elm.get_length();
+            sn[idx] = s;
+            ++idx;
+        }
 
-  for (auto const& elm : elements)
-    values[idx++] = elm.get_deposited_charge(bunch_idx, train_idx);
+        file->write_single("s_n", sn);
+        first_write = false;
+    }
 
-  MPI_Allreduce(MPI_IN_PLACE,
-                values.data(),
-                elements.size(),
-                MPI_DOUBLE,
-                MPI_SUM,
-                MPI_COMM_WORLD);
+    int idx = 0;
+    karray1d values("values", elements.size());
 
-  file->append_single("deposited_charge", values);
-  file->flush();
+    for (auto const& elm : elements)
+        values[idx++] = elm.get_deposited_charge(bunch_idx, train_idx);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  values.data(),
+                  elements.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD);
+
+    file->append_single("deposited_charge", values);
+    file->flush();
 }
 
 Lattice_tree const&
 Lattice::get_lattice_tree() const
 {
-  return tree;
+    return tree;
 }
 
 Lattice_tree&
 Lattice::get_lattice_tree()
 {
-  return tree;
+    return tree;
 }
 
 void
 Lattice::set_lattice_tree(Lattice_tree const& lattice_tree)
 {
-  tree = lattice_tree;
+    tree = lattice_tree;
 }
 
 void
 Lattice::set_variable(std::string const& name, double val)
 {
-  tree.set_variable(name, val);
+    tree.set_variable(name, val);
 }
 
 void
 Lattice::set_variable(std::string const& name, std::string const& val)
 {
-  tree.set_variable(name, val);
+    tree.set_variable(name, val);
 }

@@ -98,7 +98,7 @@ class Hdf5_file {
     }
 
     int
-    master_rank() const
+    get_root_rank() const
     {
         return root_rank;
     }

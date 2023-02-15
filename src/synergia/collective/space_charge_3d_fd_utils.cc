@@ -272,7 +272,7 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
     /* create krylov solver */
     PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
-    PetscCall(KSPSetType(sctx.ksp, KSPFGMRES));
+    PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
     PetscCall(
         KSPGMRESSetCGSRefinementType(sctx.ksp, KSP_GMRES_CGS_REFINE_IFNEEDED));
 
@@ -560,9 +560,9 @@ finalize(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     PetscCall(VecDestroy(&sctx.rho_subcomm_local));
 
     /* Destroy DMDA and matrix on subcomm */
-    PetscCall(KSPDestroy(&sctx.ksp));
     PetscCall(MatDestroy(&sctx.A));
     PetscCall(DMDestroy(&sctx.da));
+    PetscCall(KSPDestroy(&sctx.ksp));
 
     /* Destroy subcomm vectors */
     PetscCall(VecDestroy(&(lctx.seqphi)));
