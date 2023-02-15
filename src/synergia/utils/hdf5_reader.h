@@ -542,41 +542,56 @@ class Hdf5_reader {
 
         std::vector<std::string> names;
 
+        // declaration of cb is reused later, so define it here.
         auto cb =
-            [](hid_t oid, const char* name, const H5O_info_t* info, void* op) {
+#if H5_VERSION_GE(1, 12, 0)
+            [](hid_t oid, const char* name, const H5O_info2_t* info, void* op) {
+                if (info->type == H5O_TYPE_DATASET)
+                    ((std::vector<std::string>*)op)->push_back(name);
+                return 0;
+            };
+#else
+            [](hid_t oid, const char* name, const H5O_info1_t* info, void* op) {
                 if (info->type == H5O_TYPE_DATASET)
                     ((std::vector<std::string>*)op)->push_back(name);
                 return 0;
             };
 
+#endif // H5_VERSION_GE(1,12,0)
+
 #ifdef USE_PARALLEL_HDF5
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR < 12
+#if H5_VERSION_GE(1, 12, 0)
+        auto res = H5Ovisit3(file,
+                             H5_INDEX_NAME,
+                             H5_ITER_NATIVE,
+                             cb,
+                             (void*)&names,
+                             H5O_INFO_BASIC);
+
+#else
         auto res =
             H5Ovisit(file, H5_INDEX_NAME, H5_ITER_NATIVE, cb, (void*)&names);
-#else
-        auto res = H5Ovisit(file,
-                            H5_INDEX_NAME,
-                            H5_ITER_NATIVE,
-                            cb,
-                            (void*)&names,
-                            H5O_INFO_BASIC);
-#endif
+
+#endif // H5_VERSION_GE(1,12,0)
 
 #else
 
         if (comm.rank() == root_rank) {
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR < 12
+
+#if H5_VERSION_GE(1, 12, 0)
+            auto res = H5Ovisit3(file,
+                                 H5_INDEX_NAME,
+                                 H5_ITER_NATIVE,
+                                 cb,
+                                 (void*)&names,
+                                 H5O_INFO_BASIC);
+
+#else
+
             auto res = H5Ovisit(
                 file, H5_INDEX_NAME, H5_ITER_NATIVE, cb, (void*)&names);
-#else
-            auto res = H5Ovisit(file,
-                                H5_INDEX_NAME,
-                                H5_ITER_NATIVE,
-                                cb,
-                                (void*)&names,
-                                H5O_INFO_BASIC);
-#endif
+#endif // H5_VERSION_GE(1,12,0)
 
             bcast_vec_str_send(names, comm, root_rank);
         } else {
@@ -603,14 +618,17 @@ class Hdf5_reader {
             // if the name exists
             if (H5Oexists_by_name(file, name.c_str(), H5P_DEFAULT) > 0) {
                 // and it is a dataset
+
+#if H5_VERSION_GE(1, 12, 0)
+                H5O_info2_t info;
+                auto res = H5Oget_info_by_name3(
+                    file, name.c_str(), &info, H5O_INFO_BASIC, H5P_DEFAULT);
+#else
                 H5O_info_t info;
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR < 12
                 auto res =
                     H5Oget_info_by_name(file, name.c_str(), &info, H5P_DEFAULT);
-#else
-                auto res = H5Oget_info_by_name(
-                    file, name.c_str(), &info, H5O_INFO_BASIC, H5P_DEFAULT);
-#endif
+
+#endif // H5_VERSION_GE(1,12,0)
                 if (res < 0)
                     throw std::runtime_error("error when getting obj info");
 
