@@ -205,7 +205,7 @@ endif()
 
 # Check version of kokkos!
 message("-- Using Kokkos version: ${Kokkos_VERSION}")
-if(Kokkos_VERSION GREATER_EQUAL 3700)
+if(Kokkos_VERSION LESS_EQUAL 3.7.00)
   message(FATAL_ERROR "Need at least Kokkos 3.7.00!")
 endif()
 
