@@ -21,11 +21,11 @@ target_link_libraries(
   synergia_test_main ${kokkos_libs} MPI::MPI_C
   $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
 
-  add_library(synergia_hdf5_utils hdf5_file.cc hdf5_misc.cc)
-  target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES}
-                        synergia_parallel_utils ${kokkos_libs})
-  target_include_directories(synergia_hdf5_utils PUBLIC ${HDF5_INCLUDE_DIRS})
-  target_link_options(synergia_hdf5_utils PRIVATE ${LINKER_OPTIONS})
+add_library(synergia_hdf5_utils hdf5_file.cc hdf5_misc.cc)
+target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES}
+                      synergia_parallel_utils ${kokkos_libs})
+target_include_directories(synergia_hdf5_utils PUBLIC ${HDF5_INCLUDE_DIRS})
+target_link_options(synergia_hdf5_utils PRIVATE ${LINKER_OPTIONS})
 
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
   find_package(CUDAToolkit REQUIRED)
@@ -79,7 +79,7 @@ endif()
 install(TARGETS synergia_parallel_utils synergia_distributed_fft
                 synergia_serialization synergia_command_line lsexpr
         DESTINATION ${LIB_INSTALL_DIR})
-  install(TARGETS synergia_hdf5_utils DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS synergia_hdf5_utils DESTINATION ${LIB_INSTALL_DIR})
 
 install(
   FILES command_line_arg.h
