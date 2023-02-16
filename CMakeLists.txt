@@ -134,6 +134,11 @@ option(
   "build the finite difference based space charge solver, requires PETSc & PkgConfig"
   OFF)
 
+# Convert the variables to uppercase to ensure generator expressions work as
+# expected
+string(TOUPPER ${USE_OPENPMD_IO} USE_OPENPMD_IO)
+string(TOUPPER ${BUILD_FD_SPACE_CHARGE_SOLVER} BUILD_FD_SPACE_CHARGE_SOLVER)
+
 # PETSc
 if(${BUILD_FD_SPACE_CHARGE_SOLVER})
   add_definitions(-DBUILD_FD_SPACE_CHARGE_SOLVER)
@@ -326,7 +331,7 @@ if(BUILD_PYTHON_BINDINGS)
     FetchContent_Declare(
       pybind11
       GIT_REPOSITORY https://github.com/pybind/pybind11
-      GIT_TAG v2.10.0)
+      GIT_TAG v2.10.3)
     FetchContent_MakeAvailable(pybind11)
   endif()
 else(BUILD_PYTHON_BINDINGS)
