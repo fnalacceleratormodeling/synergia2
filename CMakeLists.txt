@@ -168,7 +168,7 @@ add_compile_definitions(${MPI_CXX_COMPILE_DEFINITIONS})
 execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
 
 # mpi oversubscribe
-message(MPI_VERSION is: ${MPI_VERSION})
+message("-- MPI_VERSION is: ${MPI_VERSION}")
 if(${MPI_VERSION} MATCHES "OpenRTE.*")
   set(MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS} "--oversubscribe")
 endif()
@@ -205,7 +205,7 @@ endif()
 
 # Check version of kokkos!
 message("-- Using Kokkos version: ${Kokkos_VERSION}")
-if(Kokkos_VERSION GREATER_EQUAL 3700)
+if(Kokkos_VERSION LESS_EQUAL 3.7.00)
   message(FATAL_ERROR "Need at least Kokkos 3.7.00!")
 endif()
 
