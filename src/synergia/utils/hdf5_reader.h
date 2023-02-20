@@ -551,7 +551,7 @@ class Hdf5_reader {
                 return 0;
             };
 #else
-            [](hid_t oid, const char* name, const H5O_info1_t* info, void* op) {
+            [](hid_t oid, const char* name, const H5O_info_t* info, void* op) {
                 if (info->type == H5O_TYPE_DATASET)
                     ((std::vector<std::string>*)op)->push_back(name);
                 return 0;
