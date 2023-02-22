@@ -303,8 +303,8 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     }
 
     if (gctx.ksp_monitor_residual) {
-        PetscCall(
-            KSPMonitorSet(sctx.ksp, &(MyMonitor), PETSC_NULL, PETSC_NULL));
+        PetscCall(KSPMonitorSet(
+            sctx.ksp, &(MyMonitor), PETSC_NULLPTR, PETSC_NULLPTR));
     }
 
     PetscFunctionReturn(0);
