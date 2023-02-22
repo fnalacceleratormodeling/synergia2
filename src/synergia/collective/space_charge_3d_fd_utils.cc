@@ -575,6 +575,9 @@ finalize(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
     /* Destroy subcomms */
     PetscCall(PetscSubcommDestroy(&(sctx.solverpsubcomm)));
+
+    /* Destroy copy of MPI_comms */
+    PetscCall(PetscCommDestroy(&(gctx.bunch_comm)));
     PetscFunctionReturn(0);
 }
 
