@@ -178,7 +178,7 @@ def do_plot(inputfile, options, plotparams, multiple_files):
             pyplot.legend(loc='best')
 
 def do_plots(options, plotparams):
-    pyplot.figure().canvas.set_window_title('Synergia Diagnostics')
+    pyplot.figure().canvas.manager.set_window_title('Synergia Diagnostics')
     multiple_files = False
     if len(options.inputfiles) > 1:
         multiple_files = True
