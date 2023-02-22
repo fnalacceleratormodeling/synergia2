@@ -15,7 +15,7 @@ def get_layout(num):
     elif num == 4:
         return 2, 2
     elif num <= 6:
-        return 2, 2
+        return 3, 2
     elif num <= 9:
         return 3, 3
     elif num <= 12:
