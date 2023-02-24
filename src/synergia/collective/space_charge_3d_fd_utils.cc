@@ -330,7 +330,6 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     PetscScalar hx, hy, hz;
     PetscScalar hxhydhz, hxdhyhz, dhxhyhz;
 
-    PetscFunctionBeginUser;
     PetscCall(DMDAGetLocalInfo(sctx.da, &info));
 
     hx = (gctx.Lx) / (PetscReal)(info.mx);
@@ -385,6 +384,7 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
     PetscFunctionReturn(0);
 }
+
 /* --------------------------------------------------------------------- */
 /*!
   Solve the scaled Poisson Eq!
