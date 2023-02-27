@@ -1963,7 +1963,7 @@ log_derivatives(T x, unsigned int power)
   T invx(1.0 / x);
   T powinvx = 1.0;
   T fact = 1.0;
-  for (size_t i = 1; i < power; ++i) {
+  for (int i = 1; i < power; ++i) {
     powinvx *= invx;
     if (i > 1) { fact *= -(i - 1); }
     retval[i] = fact * powinvx;
