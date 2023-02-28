@@ -51,7 +51,8 @@ def test_element_mapping():
             for pwr in range(trigon.power()+1):
                 for idx in range(trigon.count(pwr)):
                     
-                    # a non-wacko term will have a magnitude > 1e10
+                    # a non-wacko term will have a magnitude < 1e10
+                    # this failed before PR#137 fixing the trigon log calculation
                     assert abs(trigon.get_term(pwr, idx)) < 1.0e10
 
         del mapping
