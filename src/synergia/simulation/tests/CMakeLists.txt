@@ -16,4 +16,5 @@ add_mpi_test(test_bunch_simulator 1)
 
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)
+  add_py_test(test_nonlinear_maps.py)
 endif()
