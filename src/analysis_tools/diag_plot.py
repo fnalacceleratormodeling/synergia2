@@ -151,13 +151,13 @@ def do_plot(inputfile, options, plotparams, multiple_files):
         params = plotparams[plot]
         #x = hdf5_read_any(f, options.ind_var)
         x = f.get(options.ind_var)[()]
-        ymaster = f.get(params.y_attr)[()]
+        ymain = f.get(params.y_attr)[()]
         if (params.y_index1 == None) and (params.y_index2 == None):
-            y = ymaster
+            y = ymain
         elif (params.y_index2 == None):
-            y = ymaster[:, params.y_index1]
+            y = ymain[:, params.y_index1]
         else:
-            y = ymaster[:, params.y_index1, params.y_index2]
+            y = ymain[:, params.y_index1, params.y_index2]
         if not options.oneplot:
             pyplot.subplot(rows, cols, plot_index)
         extra_label = None
