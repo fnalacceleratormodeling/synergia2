@@ -3,7 +3,7 @@ add_py_test(test_parallel_utils.py)
 add_executable(test_command_line_arg test_command_line_arg.cc)
 target_link_libraries(test_command_line_arg synergia_command_line
                       synergia_test_main)
-add_test(test_command_line_arg test_command_line_arg)
+add_mpi_test(test_command_line_arg 1)
 
 if(NOT ${USE_OPENPMD_IO})
   add_executable(test_hdf5_file_mpi test_hdf5_file_mpi.cc)
