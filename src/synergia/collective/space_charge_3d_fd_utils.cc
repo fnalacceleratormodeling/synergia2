@@ -303,8 +303,8 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     }
 
     if (gctx.ksp_monitor_residual) {
-        PetscCall(
-            KSPMonitorSet(sctx.ksp, &(MyMonitor), PETSC_NULL, PETSC_NULL));
+        PetscCall(KSPMonitorSet(
+            sctx.ksp, &(MyMonitor), PETSC_NULLPTR, PETSC_NULLPTR));
     }
 
     PetscFunctionReturn(0);
@@ -330,7 +330,6 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     PetscScalar hx, hy, hz;
     PetscScalar hxhydhz, hxdhyhz, dhxhyhz;
 
-    PetscFunctionBeginUser;
     PetscCall(DMDAGetLocalInfo(sctx.da, &info));
 
     hx = (gctx.Lx) / (PetscReal)(info.mx);
@@ -385,6 +384,7 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
     PetscFunctionReturn(0);
 }
+
 /* --------------------------------------------------------------------- */
 /*!
   Solve the scaled Poisson Eq!
@@ -575,6 +575,9 @@ finalize(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
     /* Destroy subcomms */
     PetscCall(PetscSubcommDestroy(&(sctx.solverpsubcomm)));
+
+    /* Destroy copy of MPI_comms */
+    PetscCall(PetscCommDestroy(&(gctx.bunch_comm)));
     PetscFunctionReturn(0);
 }
 

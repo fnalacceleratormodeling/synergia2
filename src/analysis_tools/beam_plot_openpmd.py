@@ -4,13 +4,14 @@ import argparse
 import traceback
 import numpy as np
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, unique
 import openpmd_api as io
 
 # constant, speed of light
 C = 299792458.0
 
 
+@unique
 class Coords(Enum):
     x = str("position_x")
     xp = str("moments_x")
@@ -45,7 +46,6 @@ class Options:
     vcoord: Coords
     inputfile: str
     num_contour: int
-    show: bool = True
     outputfile: str = ""
     iteration: int = 0
     minh: np.float64 = np.finfo(np.double).min
@@ -82,7 +82,6 @@ def parse_args():
     parser.add_argument(
         "--output", help="save output to file (not on by default)", type=str
     )
-    parser.add_argument("--show", help="show plots on screen", action="store_true")
     parser.add_argument(
         "xcoord", help="x-coord to plot", type=Coords.argparse, choices=list(Coords)
     )

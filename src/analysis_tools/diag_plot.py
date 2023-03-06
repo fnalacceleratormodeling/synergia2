@@ -15,7 +15,7 @@ def get_layout(num):
     elif num == 4:
         return 2, 2
     elif num <= 6:
-        return 2, 2
+        return 3, 2
     elif num <= 9:
         return 3, 3
     elif num <= 12:
@@ -151,13 +151,13 @@ def do_plot(inputfile, options, plotparams, multiple_files):
         params = plotparams[plot]
         #x = hdf5_read_any(f, options.ind_var)
         x = f.get(options.ind_var)[()]
-        ymaster = f.get(params.y_attr)[()]
+        ymain = f.get(params.y_attr)[()]
         if (params.y_index1 == None) and (params.y_index2 == None):
-            y = ymaster
+            y = ymain
         elif (params.y_index2 == None):
-            y = ymaster[:, params.y_index1]
+            y = ymain[:, params.y_index1]
         else:
-            y = ymaster[:, params.y_index1, params.y_index2]
+            y = ymain[:, params.y_index1, params.y_index2]
         if not options.oneplot:
             pyplot.subplot(rows, cols, plot_index)
         extra_label = None
@@ -178,7 +178,7 @@ def do_plot(inputfile, options, plotparams, multiple_files):
             pyplot.legend(loc='best')
 
 def do_plots(options, plotparams):
-    pyplot.figure().canvas.set_window_title('Synergia Diagnostics')
+    pyplot.figure().canvas.manager.set_window_title('Synergia Diagnostics')
     multiple_files = False
     if len(options.inputfiles) > 1:
         multiple_files = True
@@ -188,11 +188,6 @@ def do_plots(options, plotparams):
         pyplot.savefig(options.outputfile)
     if options.show:
         pyplot.show()
-
-def diag_plot(command):
-    plotparams = generate_plotparams()
-    options = handle_args(command.split(), plotparams)
-    do_plots(options, plotparams)
 
 if __name__ == '__main__':
     plotparams = generate_plotparams()
