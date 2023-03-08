@@ -5,14 +5,14 @@ from dataclasses import dataclass
 from cycler import cycler
 from enum import Enum, unique
 from itertools import product, combinations
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union
 import traceback
 import openpmd_api as io
 import numpy as np
 import matplotlib.pyplot as plt
 
 idx_dict = {"x": 0, "xp": 1, "y": 2, "yp": 3, "z": 4, "zp": 5}
-diags: List[Tuple[str, str | Tuple[str, int]]] = [
+diags: List[Tuple[str, Union[str, Tuple[str, int]]]] = [
     (str("x_emit"), str("emitx")),
     (str("y_emit"), str("emity")),
     (str("z_emit"), str("emitz")),
@@ -148,7 +148,10 @@ def do_plot_file(
                 if isinstance(diag_to_plot.value, str):
                     y[count] = iteration.get_attribute(diag_to_plot.value)
                     labelstr = label_prepend + " " + diag_to_plot.value
-                elif isinstance(diag_to_plot.value, tuple) and len(diag_to_plot.value) == 2:
+                elif (
+                    isinstance(diag_to_plot.value, tuple)
+                    and len(diag_to_plot.value) == 2
+                ):
                     y[count] = iteration.get_attribute(diag_to_plot.value[0])[
                         diag_to_plot.value[1]
                     ]
@@ -159,14 +162,17 @@ def do_plot_file(
             _ax.set_xticks(x)
             _ax.set_xlabel(_xlabel)
 
-    else:   
+    else:
         for _ax, color_style, diag_to_plot in zip(ax, color_cycle, diags_to_plot):
             labelstr: str = ""
             for count, iteration in enumerate(series.read_iterations()):
                 if isinstance(diag_to_plot.value, str):
                     y[count] = iteration.get_attribute(diag_to_plot.value)
                     labelstr = label_prepend + " " + diag_to_plot.value
-                elif isinstance(diag_to_plot.value, tuple) and len(diag_to_plot.value) == 2:
+                elif (
+                    isinstance(diag_to_plot.value, tuple)
+                    and len(diag_to_plot.value) == 2
+                ):
                     y[count] = iteration.get_attribute(diag_to_plot.value[0])[
                         diag_to_plot.value[1]
                     ]
