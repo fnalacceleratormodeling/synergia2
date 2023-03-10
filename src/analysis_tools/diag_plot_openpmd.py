@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 idx_dict = {"x": 0, "xp": 1, "y": 2, "yp": 3, "z": 4, "zp": 5}
-diags: List[Tuple[str, Union[str,Tuple[str, int]]]] = [
+diags: List[Tuple[str, Union[str, Tuple[str, int]]]] = [
     (str("x_emit"), str("emitx")),
     (str("y_emit"), str("emity")),
     (str("z_emit"), str("emitz")),
@@ -124,7 +124,6 @@ def do_plot_diag(
     _ax: plt.Axes,
 ):
     color_cycle = cycler(color=["c", "m", "y", "k"])
-
     for color_style, filename in zip(color_cycle, filenames):
         series = io.Series(filename, io.Access_Type.read_only)
         dim = len(series.iterations)
@@ -158,9 +157,8 @@ def do_plot_diag(
         _ax.plot(x, y, **_style, label=labelstr)
         _ax.set_xticks(x)
         _ax.set_xlabel(_xlabel)
-
+        
     return
-
 
 def do_plots(opts: Options):
     num_plots = len(opts.diags_to_plot)
