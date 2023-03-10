@@ -101,7 +101,7 @@ Diagnostics_bulk_track::do_write(io_device& file, const size_t iteration)
     i.setAttribute("track_repitition", repetition);
 
     openPMD::ParticleSpecies& protons =
-        file.iterations[iteration].particles["bunch_discards"];
+        file.iterations[iteration].particles["track_coords"];
 
     openPMD::Datatype datatype = openPMD::determineDatatype<double>();
     openPMD::Extent global_extent = {track_parts_total_num};
