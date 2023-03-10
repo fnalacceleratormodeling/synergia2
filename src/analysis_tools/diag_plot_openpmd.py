@@ -2,17 +2,17 @@
 
 import argparse
 from dataclasses import dataclass
-from cycler import cycler
+from cycler import Cycler, cycler
 from enum import Enum, unique
 from itertools import product, combinations
-from typing import List, Tuple, Any
+from typing import List, Tuple, Union
 import traceback
 import openpmd_api as io
 import numpy as np
 import matplotlib.pyplot as plt
 
 idx_dict = {"x": 0, "xp": 1, "y": 2, "yp": 3, "z": 4, "zp": 5}
-diags: List[Tuple[str, str | Tuple[str, int]]] = [
+diags: List[Tuple[str, Union[str,Tuple[str, int]]]] = [
     (str("x_emit"), str("emitx")),
     (str("y_emit"), str("emity")),
     (str("z_emit"), str("emitz")),
@@ -72,15 +72,6 @@ def parse_args():
     parser.add_argument("filename", help="OpenPMD-series-filename", type=str)
 
     parser.add_argument(
-        "diag",
-        nargs="*",
-        help="diagnostic to plot",
-        type=Diags.argparse,
-        choices=list(Diags),
-        action="extend",
-    )
-
-    parser.add_argument(
         "--output", help="save output to file (not on by default)", type=str
     )
     parser.add_argument(
@@ -90,6 +81,15 @@ def parse_args():
     )
     parser.add_argument(
         "--oneplot", help="put all plots on the same axis", action="store_true"
+    )
+
+    parser.add_argument(
+        "diag",
+        nargs="*",
+        help="diagnostic to plot",
+        type=Diags.argparse,
+        choices=list(Diags),
+        action="extend",
     )
 
     args = parser.parse_args()
@@ -117,66 +117,47 @@ def get_layout(num):
         raise ValueError("Too many plots!")
 
 
-def do_plot_file(
-    filename: str,
-    label_prepend: str,
-    diags_to_plot: List[Diags],
-    line_style: Any,
-    ax: List[Any],
+def do_plot_diag(
+    diag: Diags,
+    filenames: List[str],
+    line_style: Cycler,
+    _ax: plt.Axes,
 ):
-    series = io.Series(filename, io.Access_Type.read_only)
-    dim = len(series.iterations)
-
-    x = np.zeros(dim)
-    y = np.zeros(dim)
-    _xlabel: str = ""
-    for count, iteration in enumerate(series.read_iterations()):
-        if opts.userep:
-            x[count] = iteration.get_attribute("repetition")
-            _xlabel = "repetition"
-        else:
-            x[count] = iteration.get_attribute("s")
-            _xlabel = "s"
-
     color_cycle = cycler(color=["c", "m", "y", "k"])
 
-    if len(ax) == 1:
-        _ax = ax[0]
-        for color_style, diag_to_plot in zip(color_cycle, diags_to_plot):
-            labelstr: str = ""
-            for count, iteration in enumerate(series.read_iterations()):
-                if isinstance(diag_to_plot.value, str):
-                    y[count] = iteration.get_attribute(diag_to_plot.value)
-                    labelstr = label_prepend + " " + diag_to_plot.value
-                elif isinstance(diag_to_plot.value, tuple) and len(diag_to_plot.value) == 2:
-                    y[count] = iteration.get_attribute(diag_to_plot.value[0])[
-                        diag_to_plot.value[1]
-                    ]
-                    labelstr = label_prepend + " " + diag_to_plot.value[0]
+    for color_style, filename in zip(color_cycle, filenames):
+        series = io.Series(filename, io.Access_Type.read_only)
+        dim = len(series.iterations)
+        x = np.zeros(dim)
+        y = np.zeros(dim)
+        _xlabel: str = ""
+        for count, iteration in enumerate(series.read_iterations()):
+            if opts.userep:
+                x[count] = iteration.get_attribute("repetition")
+                _xlabel = "repetition"
+            else:
+                x[count] = iteration.get_attribute("s")
+                _xlabel = "s"
 
-            _style = {**color_style, **line_style}
-            _ax.plot(x, y, **_style, label=labelstr)
-            _ax.set_xticks(x)
-            _ax.set_xlabel(_xlabel)
+        labelstr: str = ""
+        if len(filenames) != 1:
+            labelstr = labelstr + filename
 
-    else:   
-        for _ax, color_style, diag_to_plot in zip(ax, color_cycle, diags_to_plot):
-            labelstr: str = ""
-            for count, iteration in enumerate(series.read_iterations()):
-                if isinstance(diag_to_plot.value, str):
-                    y[count] = iteration.get_attribute(diag_to_plot.value)
-                    labelstr = label_prepend + " " + diag_to_plot.value
-                elif isinstance(diag_to_plot.value, tuple) and len(diag_to_plot.value) == 2:
-                    y[count] = iteration.get_attribute(diag_to_plot.value[0])[
-                        diag_to_plot.value[1]
-                    ]
-                    labelstr = label_prepend + " " + diag_to_plot.value[0]
+        if isinstance(diag.value, str):
+            labelstr = labelstr + " " + diag.value
+        elif isinstance(diag.value, tuple) and len(diag.value) == 2:
+            labelstr = labelstr + " " + diag.value[0]
 
-            _style = {**color_style, **line_style}
-            _ax.plot(x, y, **_style, label=labelstr)
+        for count, iteration in enumerate(series.read_iterations()):
+            if isinstance(diag.value, str):
+                y[count] = iteration.get_attribute(diag.value)
+            elif isinstance(diag.value, tuple) and len(diag.value) == 2:
+                y[count] = iteration.get_attribute(diag.value[0])[diag.value[1]]
 
-            _ax.set_xticks(x)
-            _ax.set_xlabel(_xlabel)
+        _style = {**color_style, **line_style}
+        _ax.plot(x, y, **_style, label=labelstr)
+        _ax.set_xticks(x)
+        _ax.set_xlabel(_xlabel)
 
     return
 
@@ -185,24 +166,32 @@ def do_plots(opts: Options):
     num_plots = len(opts.diags_to_plot)
     rows, cols = get_layout(num_plots)
     plt.rc("lines", linewidth=2)
-    fig = plt.figure()
+    style_cycle: Cycler = (
+        cycler(linestyle=["solid", "dashed", "dashdot", "dotted"])
+    ) + (cycler(marker=["o", "*", "+", "^"]))
 
     if opts.oneplot:
-        gs = fig.add_gridspec(nrows=1, ncols=1, hspace=0, wspace=0)
-        ax = [gs.subplots()]
+        fig, ax = plt.subplots()
+        fig.suptitle("Synergia3 Phase Space Distribution", fontsize="medium")
     else:
-        gs = fig.add_gridspec(nrows=rows, ncols=cols, hspace=0, wspace=0)
+        fig = plt.figure()
+        fig.suptitle("Synergia3 Phase Space Distribution", fontsize="medium")
+        gs = fig.add_gridspec(nrows=rows, ncols=cols, hspace=0)
         ax = gs.subplots(sharex="col")
+        if (not isinstance(ax, plt.Axes)) and len(ax) != 1:
+            ax = ax.flatten()
+    if isinstance(ax, plt.Axes):
+        for diag, linestyle in zip(opts.diags_to_plot, style_cycle):
+            do_plot_diag(diag, opts.inputfiles, linestyle, ax)
+    else:
+        for diag, linestyle, _ax in zip(opts.diags_to_plot, style_cycle, ax):
+            do_plot_diag(diag, opts.inputfiles, linestyle, _ax)
 
-    style_cycle: Any = cycler(linestyle=["-", "--", "-.", ".-"])
-    for inputfile, linestyle in zip(opts.inputfiles, style_cycle):
-        if len(opts.inputfiles) != 1:
-            do_plot_file(inputfile, inputfile, opts.diags_to_plot, linestyle, ax)
-        else:
-            do_plot_file(inputfile, "", opts.diags_to_plot, linestyle, ax)
-
-    fig.legend()
-    fig.suptitle("Synergia3 Phase Space Distribution", fontsize="medium")
+    if isinstance(ax, plt.Axes):
+        ax.legend()
+    else:
+        for _ax in ax:
+            _ax.legend()
 
     if opts.outputfile:
         plt.savefig(opts.outputfile)
@@ -222,7 +211,6 @@ if __name__ == "__main__":
             oneplot=inputs.oneplot,
             outputfile=inputs.output,
         )
-        print(opts)
         do_plots(opts)
 
     except Exception as e:
