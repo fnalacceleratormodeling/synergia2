@@ -3,9 +3,12 @@ set(tools
     synmad8tolsx
     syninspecth5
     syndiagplot
+    syndiagplotopenpmd
     syntrackplot
+    syntrackplotopenpmd
     synpoincareplot
     synbeamplot
+    synbeamplotopenpmd
     synlatticeview
     synlatticefns
     synprintmaps
