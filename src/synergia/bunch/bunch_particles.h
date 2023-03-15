@@ -3,14 +3,18 @@
 
 #include "synergia/foundation/trigon_traits.h"
 #include "synergia/utils/commxx.h"
+#include "synergia/utils/gsvector.h"
+#include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/logger.h"
 
-#include "synergia/utils/gsvector.h"
-#include "synergia/utils/hdf5_file.h"
-
 #include <cereal/cereal.hpp>
+#include <string>
 #include <utility>
+
+#if defined SYNERGIA_HAVE_OPENPMD
+#include <openPMD/openPMD.hpp>
+#endif
 
 enum class ParticleGroup { regular = 0, spectator = 1 };
 
@@ -255,6 +259,31 @@ class bunch_particles_t {
         return n_last_discarded;
     }
 
+    std::pair<size_t, size_t>
+    get_local_particle_count_in_range(int num_part, int offset) const
+    {
+        size_t local_num_part = 0;
+        size_t local_offset = 0;
+        int n_active = this->num_active();
+
+        if (num_part == -1) {
+            local_num_part = n_active;
+            local_offset = 0;
+        } else {
+            local_num_part = decompose_1d_local(*(this->comm), num_part);
+
+            local_offset = decompose_1d_local(*(this->comm), offset);
+        }
+
+        if (local_num_part < 0 || local_offset < 0 ||
+            local_num_part + local_offset > n_active) {
+            throw std::runtime_error("invalid num_part or offset for "
+                                     "bunch_particles_t::write_file()");
+        }
+
+        return std::make_pair(local_num_part, local_offset);
+    }
+
     // getters with names more consistent with std containers
     int
     size() const
@@ -295,6 +324,10 @@ class bunch_particles_t {
     // n is the new local capacity
     void reserve_local(int n);
 
+    // drain all particles and set n_active/n_valid to 0
+    // n_reserved does not change
+    void drain();
+
     // inject with
     void inject(bunch_particles_t const& o,
                 karray1d_dev const& ref_st_diff,
@@ -321,6 +354,15 @@ class bunch_particles_t {
 
     std::pair<karray1d_row, bool> get_particle(int idx) const;
 
+    // hostview is allocated by the caller and copied from by this routine
+    // this routine internally calls update valid and total num to
+    // ensure that the state is consistent!
+    void put_particles_in_range(host_parts_t subset_parts,
+                                host_masks_t subset_masks,
+                                size_t local_num,
+                                size_t local_offset,
+                                Commxx const& comm);
+
     // hostview is allocated by the caller and filled by this routine
     void get_particles_in_range(host_parts_t subset_parts,
                                 host_masks_t subset_masks,
@@ -335,6 +377,12 @@ class bunch_particles_t {
 
     void check_pz2_positive();
     void print_particle(size_t idx, Logger& logger) const;
+
+    std::string
+    get_label() const
+    {
+        return this->label;
+    };
 
     // read from a hdf5 file. total_num of current bunch must be the same
     // as the one stored in the particle file

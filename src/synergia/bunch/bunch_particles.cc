@@ -1,5 +1,6 @@
 
 #include <iomanip>
+#include <iterator>
 
 #include "synergia/bunch/bunch_particles.h"
 #include "synergia/utils/hdf5_file.h"
@@ -97,6 +98,18 @@ namespace {
         {
             for (int j = 0; j < 7; ++j)
                 parts(offset + i, j) = 0.0;
+        }
+    };
+
+    struct masks_zeroer {
+        ParticleMasks masks;
+        int offset;
+
+        KOKKOS_INLINE_FUNCTION
+        void
+        operator()(const int i) const
+        {
+            masks(offset + i) = 0.0;
         }
     };
 
@@ -251,6 +264,9 @@ bunch_particles_t<double>::reserve_local(int r)
     hparts = Kokkos::create_mirror_view(parts);
     hmasks = Kokkos::create_mirror_view(masks);
     hdiscards = Kokkos::create_mirror_view(discards);
+
+    // update n_reserved to reflect the increased size of particle views
+    n_reserved = r;
 }
 
 template <>
@@ -289,6 +305,23 @@ bunch_particles_t<double>::assign_ids(int train_idx, int bunch_idx)
     Kokkos::parallel_for(n_active, pia);
 }
 
+template <>
+void
+bunch_particles_t<double>::drain()
+{
+    // reset the particle array
+    particle_zeroer pz{parts, 0};
+    masks_zeroer mz{masks, 0};
+
+    Kokkos::parallel_for(n_reserved, pz);
+    Kokkos::parallel_for(n_reserved, mz);
+
+    // reset the pointers
+    n_valid = 0;
+    n_total = 0;
+
+    return;
+}
 template <>
 void
 bunch_particles_t<double>::inject(bunch_particles_t const& o,
@@ -338,6 +371,73 @@ bunch_particles_t<double>::convert_to_fixed_z_lab(double p_ref, double beta)
 }
 
 template <>
+int
+bunch_particles_t<double>::update_valid_num()
+{
+    int old_valid_num = n_valid;
+    mask_reducer mr{masks};
+    Kokkos::parallel_reduce(n_active, mr, n_valid);
+    return old_valid_num;
+}
+
+template <>
+int
+bunch_particles_t<double>::update_total_num(Commxx const& comm)
+{
+    int old_total_num = n_total;
+    MPI_Allreduce(&n_valid, &n_total, 1, MPI_INT, MPI_SUM, comm);
+    return old_total_num;
+}
+
+template <>
+void
+bunch_particles_t<double>::put_particles_in_range(host_parts_t subset_parts,
+                                                  host_masks_t subset_masks,
+                                                  size_t local_num,
+                                                  size_t local_idx,
+                                                  Commxx const& comm)
+{
+    // index out of range
+    if (local_idx == particle_index_null || local_idx < 0 ||
+        local_idx + local_num > this->n_reserved)
+        throw std::runtime_error("Bunch::get_particle() index out of range");
+
+    if (subset_parts.size() != local_num * 7) {
+        std::cerr << "subset_parts size is : " << subset_parts.size()
+                  << ", local_num * 7 is : " << local_num * 7 << "\n";
+        throw std::runtime_error("Bunch::put_particles_in_range() subset_parts "
+                                 "has inconsistent size!");
+    }
+    if (subset_masks.size() != local_num) {
+        std::cerr << "subset_masks size is : " << subset_masks.size()
+                  << ", local_num is : " << local_num << "\n";
+        throw std::runtime_error("Bunch::put_particles_in_range() subset_masks "
+                                 "has inconsistent size!");
+    }
+
+    ParticlesSubView parts_in_range =
+        Kokkos::subview(parts,
+                        Kokkos::make_pair(local_idx, local_idx + local_num),
+                        Kokkos::ALL);
+    ParticleMasksSubView masks_in_range = Kokkos::subview(
+        masks, Kokkos::make_pair(local_idx, local_idx + local_num));
+
+    Kokkos::deep_copy(parts_in_range, subset_parts);
+    Kokkos::deep_copy(masks_in_range, subset_masks);
+
+    // update num active
+    this->n_active += local_num;
+
+    // update local num from parts
+    this->update_valid_num();
+
+    // now we have the actual local num, update the total number
+    this->update_total_num(comm);
+
+    return;
+}
+
+template <>
 void
 bunch_particles_t<double>::get_particles_in_range(host_parts_t subset_parts,
                                                   host_masks_t subset_masks,
@@ -346,7 +446,7 @@ bunch_particles_t<double>::get_particles_in_range(host_parts_t subset_parts,
 {
     // index out of range
     if (local_idx == particle_index_null || local_idx < 0 ||
-        local_idx + local_num > this->n_active)
+        local_idx + local_num > this->n_reserved)
         throw std::runtime_error("Bunch::get_particle() index out of range");
 
     ParticlesSubView parts_in_range =
@@ -439,128 +539,6 @@ bunch_particles_t<double>::get_particles_last_discarded() const
 
     Kokkos::deep_copy(hdiscarded, discarded);
     return hdiscarded;
-}
-
-#if 0
-void
-bunch_particles_t::set_local_num(int n)
-{
-    num = n;
-
-#if 0
-    // make sure the new local_num is never less than 0
-    if (n < 0) n = 0;
-
-    // re-allocate depending on the new size
-    if (n <= num_aligned)
-    {
-        // previous values
-        // int prev_local_num = num;
-
-        // no need to resize the array, only move the pointers
-        num = n;
-
-        // update num_aligned
-        num_aligned = calculate_aligned_pos(num, alignment);
-
-        // clear the particle data (from local_num to prev_local_num)
-        // note this only happens when the new local_num is smaller than the old one
-        // particle_zeroer pz { parts, num };
-        // Kokkos::parallel_for(prev_num - num, pz);
-    }
-    else
-    {
-        // expand the local particle array, no additional lost particle slots
-        expand_local_num(num, 0);
-    }
-#endif
-}
-
-void
-bunch_particles_t::expand_local_num(int num, int added_lost)
-{
-#if 0
-    // keep the previous values
-    int prev_local_num = local_num;
-    int prev_local_num_padded = local_num_padded;
-
-    int local_num_lost = local_num_slots - local_num_padded;
-    int total_num_lost = local_num_lost + added_lost;
-
-    double * prev_storage = storage;
-    MArray2d_ref * prev_local_particles = local_particles;
-
-    // update the pointers
-    local_num = num;
-    local_num_aligned = calculate_aligned_pos(local_num);
-    local_num_padded = local_num + calculate_padding_size(local_num + total_num_lost);
-    local_num_slots = local_num_padded + total_num_lost;
-
-    // allocate for new storage
-    storage = (double*)boost::alignment::aligned_alloc(8 * sizeof(double), local_num_slots * 7 * sizeof(double));
-    local_particles = new MArray2d_ref(storage, boost::extents[local_num_slots][7], boost::fortran_storage_order());
-
-    // copy the particle data over
-    for (int i = 0; i < prev_local_num; ++i)
-    {
-        for (int j=0; j<7; ++j)
-        {
-            (*local_particles)[i][j] = (*prev_local_particles)[i][j];
-        }
-    }
-
-    // set the coordinates of extended and padding particles to 0
-    // TODO: what should be the id for the extended particles
-    for (int i = prev_local_num; i < local_num_padded; ++i)
-    {
-        for (int j=0; j<7; ++j)
-        {
-            (*local_particles)[i][j] = 0.0;
-        }
-    }
-
-    // copy over lost particles
-    for (int i=0; i<local_num_lost; ++i)
-    {
-        for (int j=0; j<7; ++j)
-        {
-            (*local_particles)[local_num_padded + i][j] =
-                (*prev_local_particles)[prev_local_num_padded + i][j];
-        }
-    }
-
-    // set additional lost particle data to 0
-    for (int i = local_num_padded + local_num_lost; i < local_num_slots; ++i)
-    {
-        for (int j=0; j<7; ++j)
-        {
-            (*local_particles)[i][j] = 0.0;
-        }
-    }
-
-    if (prev_storage) boost::alignment::aligned_free(prev_storage);
-    if (prev_local_particles) delete prev_local_particles;
-#endif
-}
-#endif
-
-template <>
-int
-bunch_particles_t<double>::update_valid_num()
-{
-    int old_valid_num = n_valid;
-    mask_reducer mr{masks};
-    Kokkos::parallel_reduce(n_active, mr, n_valid);
-    return old_valid_num;
-}
-
-template <>
-int
-bunch_particles_t<double>::update_total_num(Commxx const& comm)
-{
-    int old_total_num = n_total;
-    MPI_Allreduce(&n_valid, &n_total, 1, MPI_INT, MPI_SUM, comm);
-    return old_total_num;
 }
 
 template <>

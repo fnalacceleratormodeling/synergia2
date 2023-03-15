@@ -4,7 +4,7 @@
 #include <climits>
 #include <cstdint>
 
-#ifdef SYNERGIA_HAVE_OPENPMD
+#if defined SYNERGIA_HAVE_OPENPMD
 #include <openPMD/openPMD.hpp>
 #else
 #include "synergia/utils/hdf5_file.h"

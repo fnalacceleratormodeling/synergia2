@@ -13,7 +13,8 @@ main()
     }
 
     void* p_initialize =
-        dlsym(lib_kokkoscore, "_ZN6Kokkos10initializeENS_13InitArgumentsE");
+        dlsym(lib_kokkoscore,
+              "__ZN6Kokkos10initializeERKNS_22InitializationSettingsE");
 
     if (!p_initialize) {
         printf("Failed to find Kokkos::initialize\n");
@@ -21,7 +22,7 @@ main()
         return 2;
     }
 
-    void* p_finalize = dlsym(lib_kokkoscore, "_ZN6Kokkos8finalizeEv");
+    void* p_finalize = dlsym(lib_kokkoscore, "__ZN6Kokkos8finalizeEv");
     if (!p_finalize) {
         printf("Failed to find Kokkos::finalize\n");
         dlclose(lib_kokkoscore);
@@ -31,13 +32,13 @@ main()
     // Try calling the Kokkos::initialize() function used in the Python code
     // from a C++ program that is not linked to the library. Make sure to call
     // Kokkos::finalize() to clean up after ourselves.
-    using initialization_fun_t = void (*)(Kokkos::InitArguments);
+    using initialization_fun_t = void (*)(Kokkos::InitializationSettings);
     using finalization_fun_t = void (*)();
 
     auto call_ctor = reinterpret_cast<initialization_fun_t>(p_initialize);
     auto call_finalize = reinterpret_cast<finalization_fun_t>(p_finalize);
 
-    (*call_ctor)(Kokkos::InitArguments());
+    (*call_ctor)(Kokkos::InitializationSettings());
     (*call_finalize)();
 
     dlclose(lib_kokkoscore);

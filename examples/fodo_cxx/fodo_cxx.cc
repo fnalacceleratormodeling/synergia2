@@ -165,6 +165,7 @@ run(Fodo_cxx_options opts)
 
     bunch.checkout_particles();
     print_bunch_statistics(bunch, screen);
+
     // propagate
     Logger proplogger = Logger(0, LoggerV::INFO_TURN);
     propagator.propagate(sim, proplogger, turns);
@@ -175,6 +176,11 @@ run(Fodo_cxx_options opts)
 
     syn::checkpoint_save(propagator, sim);
 
+#if defined SYNERGIA_HAVE_OPENPMD
+    bunch.write_openpmd_file("bunch_dump.h5");
+#else
+    bunch.write_file("bunch_dump.h5");
+#endif
     return 0;
 }
 
