@@ -377,14 +377,17 @@ namespace Lattice_simulator {
       const double dpp;
       Lattice lattice;
 
-      Closed_orbit_params(double dpp, Lattice lattice)
-        : dpp(dpp), lattice(lattice)
+      Closed_orbit_params(double dpp, Lattice const& lattice_in)
+        : dpp(dpp), lattice(lattice_in)
       {
         // turn off any RF cavities because they
         // screw up the closed orbit calcation
         for (auto& ele : lattice.get_elements())
-          if (ele.get_type() == element_type::rfcavity)
+          if (ele.get_type() == element_type::rfcavity) {
             ele.set_double_attribute("volt", 0.0);
+            ele.set_double_attribute("lag", 0.0);
+            ele.set_double_attribute("freq", 0.0);
+          }
       }
     };
 
@@ -410,13 +413,14 @@ namespace Lattice_simulator {
 
       lp(0, 4) = 0.0;
       lp(0, 5) = copp->dpp;
-
       // checkin
       bunch.checkin_particles();
 
       // propagate
-      for (auto const& ele : copp->lattice.get_elements())
-        FF_element::apply(ele, bunch);
+      for (auto const& ele : copp->lattice.get_elements()) {
+          FF_element::apply(ele, bunch);
+        }
+
 
       // checkout
       bunch.checkout_particles();
