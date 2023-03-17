@@ -322,6 +322,7 @@ bunch_particles_t<double>::drain()
 
     return;
 }
+
 template <>
 void
 bunch_particles_t<double>::inject(bunch_particles_t const& o,
