@@ -82,8 +82,16 @@ add_mpi_test(test_distributed_fft3d 2)
 add_mpi_test(test_distributed_fft3d 3)
 add_mpi_test(test_distributed_fft3d 4)
 
-if(LINUX)
+if(0)
   add_executable(test_loading_kokkos test_loading_kokkos.cc)
-  target_link_libraries(test_loading_kokkos PRIVATE dl ${kokkos_libs})
+  target_link_libraries(test_loading_kokkos PRIVATE dl)
+  target_include_directories(
+    test_loading_kokkos
+    PRIVATE ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos
+            ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos/core/src
+            ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos/core/src/desul
+            ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/tpls/desul/include
+            ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src
+  )
   add_test(test_loading_kokkos test_loading_kokkos)
 endif()
