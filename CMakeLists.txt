@@ -170,13 +170,7 @@ set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
 find_package(MPI REQUIRED COMPONENTS C CXX) # CXX means we need to call C-APIs
                                             # in C++ code
 add_compile_definitions(${MPI_CXX_COMPILE_DEFINITIONS})
-execute_process(COMMAND ${MPIEXEC} --version OUTPUT_VARIABLE MPI_VERSION)
-
-# mpi oversubscribe
 message("-- MPI_VERSION is: ${MPI_VERSION}")
-if(${MPI_VERSION} MATCHES "OpenRTE.*")
-  set(MPIEXEC_PREFLAGS ${MPIEXEC_PREFLAGS} "--oversubscribe")
-endif()
 
 # launch tests with additional --mpi=${SRUN_MPI_PMIX} flag!
 if(${MPIEXEC_EXECUTABLE} MATCHES "srun")
