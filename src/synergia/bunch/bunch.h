@@ -7,12 +7,10 @@
 #include <utility>
 #include <vector>
 
-#include "synergia/foundation/reference_particle.h"
-
 #include "synergia/bunch/bunch_particles.h"
 #include "synergia/bunch/diagnostics_loss.h"
 #include "synergia/bunch/diagnostics_worker.h"
-
+#include "synergia/foundation/reference_particle.h"
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/logger.h"
@@ -236,20 +234,21 @@ class bunch_t {
         size_t local_num_part = 0;
         size_t local_offset = 0;
         int n_active = (parts[(int)pg]).num_active();
+        int n_reserved = (parts[(int)pg]).num_reserved();
 
         if (num_part == -1) {
             local_num_part = n_active;
             local_offset = 0;
         } else {
             local_num_part = decompose_1d_local(*(this->comm), num_part);
-
             local_offset = decompose_1d_local(*(this->comm), offset);
         }
 
         if (local_num_part < 0 || local_offset < 0 ||
-            local_num_part + local_offset > n_active) {
-            throw std::runtime_error("invalid num_part or offset for "
-                                     "bunch_particles_t::write_file()");
+            local_num_part + local_offset > n_reserved) {
+            throw std::runtime_error(
+                "invalid num_part or offset for "
+                "bunch_t::get_local_particle_count_in_range!");
         }
 
         return std::make_pair(local_num_part, local_offset);
@@ -597,6 +596,17 @@ class bunch_t {
         Hdf5_file file(filename, Hdf5_file::Flag::read_only, comm);
         get_bunch_particles(PG::regular).read_file(file, *comm);
     }
+
+#if defined SYNERGIA_HAVE_OPENPMD
+    void read_openpmd_file(std::string const& filename);
+
+    // num_part = -1 means write all particles
+    void write_openpmd_file(std::string const& filename,
+                            int num_part = -1,
+                            int offset = 0,
+                            int num_part_spec = 0,
+                            int offset_spec = 0) const;
+#endif
 
     // num_part = -1 means write all particles
     void
