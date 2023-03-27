@@ -88,6 +88,14 @@ def run():
     # propagate
     propagator.propagate(sim, simlog, turns)
 
+    # Optionally, write bunch to file
+    try:
+        bunch = sim.get_bunch()
+        bunch.write_openpmd_file("bunch_openpmd.h5")
+    except:
+        bunch = sim.get_bunch()
+        bunch.write_file("bunch.h5")
+
     # save
     synergia.simulation.checkpoint_save(propagator, sim)
 
