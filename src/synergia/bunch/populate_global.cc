@@ -3,13 +3,12 @@
 
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/bunch/populate_global.h"
-#include "synergia/foundation/math_constants.h"
 #include "synergia/utils/floating_point.h"
 
 #include "synergia/utils/pcg/pcg_random.hpp"
 #include <random>
 
-using mconstants::pi;
+constexpr auto pi = Kokkos::numbers::pi_v<double>;
 
 namespace {
     void

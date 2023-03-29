@@ -7,10 +7,8 @@
 
 #include "Eigen/Eigen"
 
-#include "synergia/foundation/math_constants.h"
-
 namespace Lattice_simulator {
-  std::array<double, 2> filter_transverse_tunes(double const* jac_arr);
+    std::array<double, 2> filter_transverse_tunes(double const* jac_arr);
 }
 
 #endif

@@ -4,12 +4,11 @@
 #include "space_charge_3d_kernels.h"
 
 #include "synergia/bunch/core_diagnostics.h"
-#include "synergia/foundation/math_constants.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/kokkos_utils.h"
 #include "synergia/utils/simple_timer.h"
 
-using mconstants::pi;
+constexpr auto pi = Kokkos::numbers::pi_v<double>;
 
 namespace {
     void

@@ -13,7 +13,7 @@ if(BUILD_PYTHON_BINDINGS)
 endif()
 
 install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
-install(FILES distribution.h four_momentum.h math_constants.h
+install(FILES distribution.h four_momentum.h
               physical_constants.h reference_particle.h
         DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/foundation)
 
