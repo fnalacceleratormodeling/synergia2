@@ -1,16 +1,12 @@
 #ifndef FF_RFCAVITY_H
 #define FF_RFCAVITY_H
 
-#include "synergia/foundation/math_constants.h"
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/libFF/ff_patterned_propagator.h"
 #include "synergia/utils/simple_timer.h"
 
-
-namespace rfcavity_impl
-{
-    struct RFCavityParams
-    {
+namespace rfcavity_impl {
+    struct RFCavityParams {
         int nh;
         double mhp[12];
 
@@ -27,9 +23,8 @@ namespace rfcavity_impl
         double ref_cdt_2;
     };
 
-    template<class BunchT>
-    struct PropThinRFCavity
-    {
+    template <class BunchT>
+    struct PropThinRFCavity {
         using gsv_t = typename BunchT::gsv_t;
 
         typename BunchT::bp_t::parts_t p;
@@ -37,23 +32,32 @@ namespace rfcavity_impl
         const RFCavityParams rp;
 
         KOKKOS_INLINE_FUNCTION
-        void operator()(const int idx) const
+        void
+        operator()(const int idx) const
         {
             int i = idx * gsv_t::size();
             int mask = 0;
-            for(int x=i; x<i+gsv_t::size(); ++x) mask |= m(x);
+            for (int x = i; x < i + gsv_t::size(); ++x)
+                mask |= m(x);
 
-            if (mask)
-            {
+            if (mask) {
                 gsv_t p1(&p(i, 1));
                 gsv_t p3(&p(i, 3));
                 gsv_t p4(&p(i, 4));
                 gsv_t p5(&p(i, 5));
 
-                FF_algorithm::thin_rfcavity_unit(
-                        p1, p3, p4, p5,
-                        rp.w_rf, rp.str, rp.phi_s, rp.m_b, rp.pref_b, rp.new_pref_b, 
-                        rp.mhp, rp.nh);
+                FF_algorithm::thin_rfcavity_unit(p1,
+                                                 p3,
+                                                 p4,
+                                                 p5,
+                                                 rp.w_rf,
+                                                 rp.str,
+                                                 rp.phi_s,
+                                                 rp.m_b,
+                                                 rp.pref_b,
+                                                 rp.new_pref_b,
+                                                 rp.mhp,
+                                                 rp.nh);
 
                 p1.store(&p(i, 1));
                 p3.store(&p(i, 3));
@@ -63,10 +67,8 @@ namespace rfcavity_impl
         }
     };
 
-
-    template<class BunchT>
-    struct PropRFCavity
-    {
+    template <class BunchT>
+    struct PropRFCavity {
         using gsv_t = typename BunchT::gsv_t;
 
         typename BunchT::bp_t::parts_t p;
@@ -74,14 +76,15 @@ namespace rfcavity_impl
         const RFCavityParams rp;
 
         KOKKOS_INLINE_FUNCTION
-        void operator()(const int idx) const
+        void
+        operator()(const int idx) const
         {
             int i = idx * gsv_t::size();
             int mask = 0;
-            for(int x=i; x<i+gsv_t::size(); ++x) mask |= m(x);
+            for (int x = i; x < i + gsv_t::size(); ++x)
+                mask |= m(x);
 
-            if (mask)
-            {
+            if (mask) {
                 gsv_t p0(&p(i, 0));
                 gsv_t p1(&p(i, 1));
                 gsv_t p2(&p(i, 2));
@@ -89,18 +92,40 @@ namespace rfcavity_impl
                 gsv_t p4(&p(i, 4));
                 gsv_t p5(&p(i, 5));
 
-                FF_algorithm::drift_unit(
-                        p0, p1, p2, p3, p4, p5,
-                        0.5 * rp.length, rp.pref_b, rp.m_b, rp.ref_cdt_1);
+                FF_algorithm::drift_unit(p0,
+                                         p1,
+                                         p2,
+                                         p3,
+                                         p4,
+                                         p5,
+                                         0.5 * rp.length,
+                                         rp.pref_b,
+                                         rp.m_b,
+                                         rp.ref_cdt_1);
 
-                FF_algorithm::thin_rfcavity_unit(
-                        p1, p3, p4, p5,
-                        rp.w_rf, rp.str, rp.phi_s, rp.m_b, rp.pref_b, rp.new_pref_b, 
-                        rp.mhp, rp.nh);
+                FF_algorithm::thin_rfcavity_unit(p1,
+                                                 p3,
+                                                 p4,
+                                                 p5,
+                                                 rp.w_rf,
+                                                 rp.str,
+                                                 rp.phi_s,
+                                                 rp.m_b,
+                                                 rp.pref_b,
+                                                 rp.new_pref_b,
+                                                 rp.mhp,
+                                                 rp.nh);
 
-                FF_algorithm::drift_unit(
-                        p0, p1, p2, p3, p4, p5,
-                        0.5 * rp.length, rp.pref_b, rp.m_b, rp.ref_cdt_2);
+                FF_algorithm::drift_unit(p0,
+                                         p1,
+                                         p2,
+                                         p3,
+                                         p4,
+                                         p5,
+                                         0.5 * rp.length,
+                                         rp.pref_b,
+                                         rp.m_b,
+                                         rp.ref_cdt_2);
 
                 p0.store(&p(i, 0));
                 p1.store(&p(i, 1));
@@ -112,13 +137,12 @@ namespace rfcavity_impl
         }
     };
 
-
 }
 
-namespace FF_rfcavity
-{
-    template<class BunchT>
-    void apply(Lattice_element_slice const& slice, BunchT& bunch)
+namespace FF_rfcavity {
+    template <class BunchT>
+    void
+    apply(Lattice_element_slice const& slice, BunchT& bunch)
     {
         using namespace rfcavity_impl;
 
@@ -127,116 +151,142 @@ namespace FF_rfcavity
         RFCavityParams rp;
 
         rp.length = slice.get_right() - slice.get_left();
-        Lattice_element const & elm = slice.get_lattice_element();
+        Lattice_element const& elm = slice.get_lattice_element();
 
-        int    harmonic_number = elm.get_double_attribute("harmon", -1.0);
-        double            volt = elm.get_double_attribute("volt", 0.0);
-        double             lag = elm.get_double_attribute("lag", 0.0);
-        double           shunt = elm.get_double_attribute("shunt", 0.0);
+        int harmonic_number = elm.get_double_attribute("harmon", -1.0);
+        double volt = elm.get_double_attribute("volt", 0.0);
+        double lag = elm.get_double_attribute("lag", 0.0);
+        double shunt = elm.get_double_attribute("shunt", 0.0);
         // freq is the synchronous frequency of the cavity in MHz
-        double            freq = elm.get_double_attribute("freq", -1.0);
+        double freq = elm.get_double_attribute("freq", -1.0);
         // delta_freq is the frequency offset from synchronous in MHz like freq
-        double      delta_freq = elm.get_double_attribute("delta_freq", 0.0);
+        double delta_freq = elm.get_double_attribute("delta_freq", 0.0);
 
-        // harmonics, 
+        // harmonics,
         // mhp[h*3]   = harmonic multiple
         // mhp[h*3+1] = relative strength
         // mhp[h*3+2] = phase shift
         // nh = number of harmonics
         rp.nh = 1;
-        rp.mhp[0] = 1.0; 
-        rp.mhp[1] = 1.0; 
+        rp.mhp[0] = 1.0;
+        rp.mhp[1] = 1.0;
         rp.mhp[2] = 0.0;
 
         // harmonic multiple = 2
-        if (elm.has_double_attribute("h2_str"))
-        {
-            rp.mhp[rp.nh*3+0] = 2; 
-            rp.mhp[rp.nh*3+1] = elm.get_double_attribute("h2_str", 0.0);
-            rp.mhp[rp.nh*3+2] = elm.get_double_attribute("h2_phase", 0.0);
+        if (elm.has_double_attribute("h2_str")) {
+            rp.mhp[rp.nh * 3 + 0] = 2;
+            rp.mhp[rp.nh * 3 + 1] = elm.get_double_attribute("h2_str", 0.0);
+            rp.mhp[rp.nh * 3 + 2] = elm.get_double_attribute("h2_phase", 0.0);
             ++rp.nh;
         }
 
         // harmonic multiple = 3
-        if (elm.has_double_attribute("h3_str"))
-        {
-            rp.mhp[rp.nh*3+0] = 3; 
-            rp.mhp[rp.nh*3+1] = elm.get_double_attribute("h3_str", 0.0);
-            rp.mhp[rp.nh*3+2] = elm.get_double_attribute("h3_phase", 0.0);
+        if (elm.has_double_attribute("h3_str")) {
+            rp.mhp[rp.nh * 3 + 0] = 3;
+            rp.mhp[rp.nh * 3 + 1] = elm.get_double_attribute("h3_str", 0.0);
+            rp.mhp[rp.nh * 3 + 2] = elm.get_double_attribute("h3_phase", 0.0);
             ++rp.nh;
         }
 
         // harmonic multiple = 4
-        if (elm.has_double_attribute("h4_str"))
-        {
-            rp.mhp[rp.nh*3+0] = 4; 
-            rp.mhp[rp.nh*3+1] = elm.get_double_attribute("h4_str", 0.0);
-            rp.mhp[rp.nh*3+2] = elm.get_double_attribute("h4_phase", 0.0);
+        if (elm.has_double_attribute("h4_str")) {
+            rp.mhp[rp.nh * 3 + 0] = 4;
+            rp.mhp[rp.nh * 3 + 1] = elm.get_double_attribute("h4_str", 0.0);
+            rp.mhp[rp.nh * 3 + 2] = elm.get_double_attribute("h4_phase", 0.0);
             ++rp.nh;
         }
 
         rp.str = volt * 1.0e-3;
 
         // keep lag within the range of [0, 1).
-        while (lag < 0.0)  { lag += 1.0; }
-        while (lag >= 1.0) { lag -= 1.0; }
+        while (lag < 0.0) {
+            lag += 1.0;
+        }
+        while (lag >= 1.0) {
+            lag -= 1.0;
+        }
 
-        //elm.set_double_attribute("lag", lag);
-        rp.phi_s = 2.0 * mconstants::pi * lag;
-        rp.w_rf  = 2.0 * mconstants::pi * (freq + delta_freq) * 1.0e6;
+        // elm.set_double_attribute("lag", lag);
+        rp.phi_s = 2.0 * Kokkos::numbers::pi_v<double> * lag;
+        rp.w_rf =
+            2.0 * Kokkos::numbers::pi_v<double> * (freq + delta_freq) * 1.0e6;
 
-        Reference_particle & ref_l = bunch.get_design_reference_particle();
-        Reference_particle & ref_b = bunch.get_reference_particle();
+        Reference_particle& ref_l = bunch.get_design_reference_particle();
+        Reference_particle& ref_b = bunch.get_reference_particle();
 
-        // The bunch particles momentum is with respect to the bunch reference particle
+        // The bunch particles momentum is with respect to the bunch reference
+        // particle
         rp.pref_b = ref_b.get_momentum();
         rp.m_b = bunch.get_mass();
 
         rp.new_pref_b = FF_algorithm::thin_rfcavity_pnew(
-                rp.pref_b, rp.m_b, rp.str, rp.phi_s);
+            rp.pref_b, rp.m_b, rp.str, rp.phi_s);
 
         // reference_cdt uses the lattice reference particle
         // double reference_cdt = get_reference_cdt(length, ref_l);
-        double ref_l_x    = ref_l.get_state()[Bunch::x];
-        double ref_l_xp   = ref_l.get_state()[Bunch::xp];
-        double ref_l_y    = ref_l.get_state()[Bunch::y];
-        double ref_l_yp   = ref_l.get_state()[Bunch::yp];
-        double ref_l_cdt  = 0.0;
+        double ref_l_x = ref_l.get_state()[Bunch::x];
+        double ref_l_xp = ref_l.get_state()[Bunch::xp];
+        double ref_l_y = ref_l.get_state()[Bunch::y];
+        double ref_l_yp = ref_l.get_state()[Bunch::yp];
+        double ref_l_cdt = 0.0;
         double ref_l_dpop = ref_l.get_state()[Bunch::dpop];
 
         double ref_l_p = ref_l.get_momentum();
         double ref_l_m = ref_l.get_mass();
 
-        // double new_ref_l_p = 
+        // double new_ref_l_p =
         //     FF_algorithm::thin_rfcavity_pnew(ref_l_p, ref_l_m, str, phi_s);
 
         // first half drift
-        FF_algorithm::drift_unit(
-                ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop,
-                0.5 * rp.length, ref_l_p, ref_l_m, 0.0);
+        FF_algorithm::drift_unit(ref_l_x,
+                                 ref_l_xp,
+                                 ref_l_y,
+                                 ref_l_yp,
+                                 ref_l_cdt,
+                                 ref_l_dpop,
+                                 0.5 * rp.length,
+                                 ref_l_p,
+                                 ref_l_m,
+                                 0.0);
 
         double total_ref_cdt = ref_l_cdt;
         rp.ref_cdt_1 = ref_l_cdt;
         ref_l_cdt = 0.0;
 
-        // do not give it the new_ref_l_p because the xp and yp dont get scaled, the momentum 
-        // of the lattice reference particle remains unchanged, only the dpop of the state
-        // has been changed
-        FF_algorithm::thin_rfcavity_unit(
-                ref_l_xp, ref_l_yp, ref_l_cdt, ref_l_dpop,
-                rp.w_rf, rp.str, rp.phi_s, ref_l_m, ref_l_p, ref_l_p, 
-                rp.mhp, rp.nh );
+        // do not give it the new_ref_l_p because the xp and yp dont get scaled,
+        // the momentum of the lattice reference particle remains unchanged,
+        // only the dpop of the state has been changed
+        FF_algorithm::thin_rfcavity_unit(ref_l_xp,
+                                         ref_l_yp,
+                                         ref_l_cdt,
+                                         ref_l_dpop,
+                                         rp.w_rf,
+                                         rp.str,
+                                         rp.phi_s,
+                                         ref_l_m,
+                                         ref_l_p,
+                                         ref_l_p,
+                                         rp.mhp,
+                                         rp.nh);
 
         // second half drift
-        FF_algorithm::drift_unit(
-                ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, ref_l_cdt, ref_l_dpop,
-                0.5 * rp.length, ref_l_p, ref_l_m, 0.0);
+        FF_algorithm::drift_unit(ref_l_x,
+                                 ref_l_xp,
+                                 ref_l_y,
+                                 ref_l_yp,
+                                 ref_l_cdt,
+                                 ref_l_dpop,
+                                 0.5 * rp.length,
+                                 ref_l_p,
+                                 ref_l_m,
+                                 0.0);
 
         total_ref_cdt += ref_l_cdt;
         rp.ref_cdt_2 = ref_l_cdt;
 
         // save the state
-        ref_l.set_state(ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, ref_l_dpop);
+        ref_l.set_state(
+            ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, ref_l_dpop);
 
         // bunch particles
         auto apply = [&](ParticleGroup pg) {
@@ -248,13 +298,10 @@ namespace FF_rfcavity
             using exec = typename BunchT::exec_space;
             auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
 
-            if (close_to_zero(rp.length))
-            {
+            if (close_to_zero(rp.length)) {
                 PropThinRFCavity<BunchT> rfcavity{parts, masks, rp};
                 Kokkos::parallel_for(range, rfcavity);
-            }
-            else
-            {
+            } else {
                 PropRFCavity<BunchT> rfcavity{parts, masks, rp};
                 Kokkos::parallel_for(range, rfcavity);
             }

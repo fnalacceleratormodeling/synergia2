@@ -2,7 +2,6 @@
 #include <functional>
 #include <stdexcept>
 
-#include "synergia/foundation/math_constants.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/logger.h"
 

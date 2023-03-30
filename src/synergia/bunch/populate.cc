@@ -4,11 +4,9 @@
 #include "core_diagnostics.h"
 #include "populate.h"
 #include "populate_host.h"
-
-#include "synergia/foundation/math_constants.h"
 #include "synergia/utils/floating_point.h"
 
-using mconstants::pi;
+constexpr auto pi = Kokkos::numbers::pi_v<double>;
 
 namespace {
     bool
