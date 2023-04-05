@@ -112,7 +112,7 @@ def do_plot_coord(
     x = np.zeros(dim)
     y = np.zeros(dim)
     _xlabel: str = ""
-    for count, iteration in enumerate(series.read_iterations()):
+    for count, iteration in series.iterations.items():
         x[count] = iteration.get_attribute("track_s")
         _xlabel = "track_s"
     del series
@@ -122,7 +122,8 @@ def do_plot_coord(
     for color_style, index in zip(color_cycle, indices):
         labelstr: str = ""
         series = io.Series(filename, io.Access_Type.read_only)
-        for count, iteration in enumerate(series.read_iterations()):
+
+        for count, iteration in series.iterations.items():
             _parts = iteration.particles["track_coords"]
             _data = _parts[coord.value[0]][coord.value[1]]
             y[count] = _data[index]
