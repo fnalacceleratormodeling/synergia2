@@ -130,7 +130,7 @@ def do_plot_diag(
         x = np.zeros(dim)
         y = np.zeros(dim)
         _xlabel: str = ""
-        for count, iteration in enumerate(series.read_iterations()):
+        for count, iteration in series.iterations.items():
             if opts.userep:
                 x[count] = iteration.get_attribute("repetition")
                 _xlabel = "repetition"
@@ -147,7 +147,7 @@ def do_plot_diag(
         elif isinstance(diag.value, tuple) and len(diag.value) == 2:
             labelstr = labelstr + " " + diag.value[0]
 
-        for count, iteration in enumerate(series.read_iterations()):
+        for count, iteration in series.iterations.items():
             if isinstance(diag.value, str):
                 y[count] = iteration.get_attribute(diag.value)
             elif isinstance(diag.value, tuple) and len(diag.value) == 2:
