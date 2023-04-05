@@ -96,11 +96,11 @@ if(LINUX)
             ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos/core/src/desul
             ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/tpls/desul/include
             ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src)
+  add_test(test_loading_kokkos test_loading_kokkos)
   set_property(
     TEST test_loading_kokkos
     PROPERTY
       ENVIRONMENT
       "LD_LIBRARY_PATH=${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos/core/src"
   )
-  add_test(test_loading_kokkos test_loading_kokkos)
 endif()
