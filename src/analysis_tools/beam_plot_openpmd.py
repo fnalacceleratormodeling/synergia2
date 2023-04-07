@@ -45,7 +45,7 @@ class Options:
     hcoord: Coords
     vcoord: Coords
     inputfile: str
-    num_contour: int
+    num_bins: int
     outputfile: str = ""
     iteration: int = 0
     minh: np.float64 = np.finfo(np.double).min
@@ -74,8 +74,8 @@ def parse_args():
         "--maxv", help="maximum limit on vertical axis data", type=float
     )
     parser.add_argument(
-        "--contour",
-        help="number of contour levels to draw",
+        "--bins",
+        help="number of bins for histogram to draw",
         default=25,
         type=int,
     )
@@ -112,7 +112,7 @@ def do_plots(opts: Options):
     parts_df = parts.to_df()
 
     print(
-        f"xcoord is {opts.hcoord}/{opts.hcoord.value}, ycoord is {opts.vcoord}/{opts.vcoord.value}, num-contour is {opts.num_contour}"
+        f"xcoord is {opts.hcoord}/{opts.hcoord.value}, ycoord is {opts.vcoord}/{opts.vcoord.value}, num-contour is {opts.num_bins}"
     )
 
     if opts.hcoord == Coords("pz") or opts.vcoord == Coords("pz"):
@@ -138,7 +138,7 @@ def do_plots(opts: Options):
     g = sns.JointGrid(
         data=to_plot_df, x=opts.hcoord.value, y=opts.vcoord.value, marginal_ticks=True
     )
-    g.plot_joint(sns.kdeplot, fill=True, cmap="mako", thresh=0, levels=opts.num_contour)
+    g.plot_joint(sns.histplot, cmap="mako", thresh=None, bins=opts.num_bins)
     g.plot_marginals(sns.histplot, kde=False)
 
     plt.suptitle("Synergia3 Phase Space Distribution", fontsize="medium", y=0.985)
@@ -157,7 +157,7 @@ if __name__ == "__main__":
             hcoord=inputs.xcoord,
             vcoord=inputs.ycoord,
             inputfile=inputs.filename,
-            num_contour=inputs.contour,
+            num_bins=inputs.bins,
             outputfile=inputs.output,
         )
         do_plots(opts)
