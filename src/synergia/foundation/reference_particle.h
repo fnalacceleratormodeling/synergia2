@@ -156,7 +156,7 @@ public:
   set_bunch_abs_time(double const& t);
 
   void
-  inc_bunch_abs_time(double const& dt);
+  increment_bunch_abs_time(double const& dt);
 
   void
   set_bunch_abs_offset(double const& toffset);

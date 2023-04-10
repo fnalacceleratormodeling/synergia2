@@ -481,6 +481,21 @@ PYBIND11_MODULE(foundation, m)
              "repetition_length"_a,
              "s"_a)
 
+        .def("set_bunch_abs_time",
+            &Reference_particle::set_bunch_abs_time,
+            "Set the bunch absolute time in [s].",
+            "t"_a)
+
+        .def("increment_bunch_abs_time",
+            &Reference_particle::increment_bunch_abs_time,
+            "Increment the bunch absolute time dt in [s].",
+            "dt"_a)
+
+        .def("set_bunch_abs_offset",
+            &Reference_particle::set_bunch_abs_offset,
+            "Set the bunch absolute offset time in [s].",
+            "toffset"_a)
+
         .def("get_charge",
              &Reference_particle::get_charge,
              "Return the Reference_particle charge in units of e.")
@@ -531,6 +546,14 @@ PYBIND11_MODULE(foundation, m)
         .def("get_repetition_length",
              &Reference_particle::get_repetition_length,
              "Get the repetition length in m.")
+
+        .def("get_bunch_abs_time",
+             &Reference_particle::get_bunch_abs_time,
+             "Get the bunch absolute time [s].")
+
+        .def("get_bunch_abs_offset",
+             &Reference_particle::get_bunch_abs_offset,
+             "Get the bunch absolute offset [s].")
 
         .def("equal",
              &Reference_particle::equal,

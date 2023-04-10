@@ -76,3 +76,18 @@ def test_set_get_trajectory():
     assert r.get_repetition_length() == pytest.approx(steps * step_length)
     assert r.get_s_n() == pytest.approx(partial_s)
     assert r.get_s() == pytest.approx(turns * steps * step_length + partial_s)
+
+def test_set_get_increment_abs_time():
+    r = Reference_particle(charge, four_momentum)
+    abstime = 1.0/1024.0 # exactly representable
+    incrtime = 1/32768.0 # exactly representable
+    r.set_bunch_abs_time(abstime)
+    assert r.get_bunch_abs_time() == abstime
+    r.increment_bunch_abs_time(incrtime)
+    assert r.get_bunch_abs_time() == (abstime + incrtime)
+
+def test_set_get_abs_offset():
+    r = Reference_particle(charge, four_momentum)
+    absoffset = 1/4096.0 # exactly representable
+    r.set_bunch_abs_offset(absoffset)
+    assert r.get_bunch_abs_offset() == absoffset

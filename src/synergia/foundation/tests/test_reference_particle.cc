@@ -304,7 +304,7 @@ TEST_CASE("incr_abs_time")
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(charge, four_momentum);
     reference_particle.set_bunch_abs_time(1/4096.0); // Exactly representable
-    reference_particle.inc_bunch_abs_time(1/32768.0); // exactly representable
+    reference_particle.increment_bunch_abs_time(1/32768.0); // exactly representable
     CHECK( reference_particle.get_bunch_abs_time() == (9.0/32768.0)); // 1/4096 + 1/32768 = 9/32768
 }
 
@@ -380,7 +380,7 @@ TEST_CASE("copy2")
     }
 
     std::cout << "reference_particle abs_time before: " << reference_particle.get_bunch_abs_time() << std::endl;
-    reference_particle.inc_bunch_abs_time(1/32768.0);
+    reference_particle.increment_bunch_abs_time(1/32768.0);
     std::cout << "reference_particle abs_time after: " << reference_particle.get_bunch_abs_time() << std::endl;
     CHECK(reference_particle.get_bunch_abs_time()
                 == (33.0/32768.0)); // exactly representable 

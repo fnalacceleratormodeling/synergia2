@@ -333,7 +333,7 @@ Reference_particle::set_bunch_abs_time(double const& t)
 }
 
 void
-Reference_particle::inc_bunch_abs_time(double const& incr)
+Reference_particle::increment_bunch_abs_time(double const& incr)
 {
   abs_time += incr;
 }
