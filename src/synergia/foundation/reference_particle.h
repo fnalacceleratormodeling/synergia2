@@ -20,6 +20,8 @@ private:
   int repetition;
   double s;
   double s_n;
+  double abs_time;
+  double abs_offset;
 
 public:
   /// Default constructor for internal use only
@@ -144,6 +146,21 @@ public:
   /// Get the repetition length in m.
   double get_repetition_length() const;
 
+  // get the absolute time
+  double get_bunch_abs_time() const;
+
+  // get the time offset
+  double get_bunch_abs_offset() const;
+
+  void
+  set_bunch_abs_time(double const& t);
+
+  void
+  inc_bunch_abs_time(double const& dt);
+
+  void
+  set_bunch_abs_offset(double const& toffset);
+
   /// Check equality to the given tolerance
   /// @param reference_particle another Reference_particle
   /// @param tolerance fractional accuracy
@@ -161,6 +178,8 @@ public:
     ar(CEREAL_NVP(repetition));
     ar(CEREAL_NVP(s));
     ar(CEREAL_NVP(s_n));
+    ar(CEREAL_NVP(abs_time));
+    ar(CEREAL_NVP(abs_offset));
   }
 };
 

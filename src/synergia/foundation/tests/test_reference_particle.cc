@@ -289,6 +289,35 @@ TEST_CASE("set_total_energy")
             == Approx(new_total_energy).margin(tolerance));
 }
 
+TEST_CASE("set_abs_time")
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(charge, four_momentum);
+    reference_particle.set_bunch_abs_time(1/4096.0); // Exactly representable
+    CHECK( reference_particle.get_bunch_abs_time() == (1/4096.0));
+}
+
+TEST_CASE("incr_abs_time")
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(charge, four_momentum);
+    reference_particle.set_bunch_abs_time(1/4096.0); // Exactly representable
+    reference_particle.inc_bunch_abs_time(1/32768.0); // exactly representable
+    CHECK( reference_particle.get_bunch_abs_time() == (9.0/32768.0)); // 1/4096 + 1/32768 = 9/32768
+}
+
+TEST_CASE("set_abs_offset")
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(charge, four_momentum);
+    reference_particle.set_bunch_abs_offset(1/32768.0); // Exactly representable
+    CHECK( reference_particle.get_bunch_abs_offset() == (1/32768.0));
+}
+
+
 TEST_CASE("copy")
 {
     Four_momentum four_momentum(mass);
@@ -298,7 +327,13 @@ TEST_CASE("copy")
     for (int i = 0; i < 6; ++i) state[i] = 1.1 * i;
 
     Reference_particle original_reference_particle(charge, four_momentum, state);
+    original_reference_particle.set_bunch_abs_time(1/2048.0); //exactly representable
+    original_reference_particle.set_bunch_abs_offset(1/32768.0); //exactly representable
+    std::cout << "original reference particle abs time: " << original_reference_particle.get_bunch_abs_time() << std::endl;
+    std::cout << "original reference particle abs offset: " << original_reference_particle.get_bunch_abs_offset() << std::endl;
     Reference_particle reference_particle(original_reference_particle);
+    std::cout << "copied reference particle abs time: " << reference_particle.get_bunch_abs_time() << std::endl;
+    std::cout << "copied reference particle abs offset: " << reference_particle.get_bunch_abs_offset() << std::endl;
 
     CHECK(reference_particle.get_four_momentum().get_total_energy()
             == Approx(total_energy).margin(tolerance));
@@ -308,6 +343,8 @@ TEST_CASE("copy")
         CHECK(reference_particle.get_state()[i]
                 == Approx(state[i]).margin(tolerance));
     }
+    CHECK(reference_particle.get_bunch_abs_time() == (1/2048.0));
+    CHECK(reference_particle.get_bunch_abs_offset() == (1/32768.0));
 }
 
 TEST_CASE("copy2")
@@ -315,6 +352,7 @@ TEST_CASE("copy2")
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle original_reference_particle(charge, four_momentum);
+    original_reference_particle.set_bunch_abs_time(1.0/1024.0); // exactly representable
     Reference_particle reference_particle(original_reference_particle);
 
     double new_total_energy = total_energy * 1.1;
@@ -340,6 +378,12 @@ TEST_CASE("copy2")
         CHECK(reference_particle.get_state()[i]
                 == Approx(0.0).margin(tolerance));
     }
+
+    std::cout << "reference_particle abs_time before: " << reference_particle.get_bunch_abs_time() << std::endl;
+    reference_particle.inc_bunch_abs_time(1/32768.0);
+    std::cout << "reference_particle abs_time after: " << reference_particle.get_bunch_abs_time() << std::endl;
+    CHECK(reference_particle.get_bunch_abs_time()
+                == (33.0/32768.0)); // exactly representable 
 }
 
 TEST_CASE("get_s")
@@ -425,6 +469,35 @@ TEST_CASE("equal_different_charge")
     Reference_particle reference_particle2(charge2, four_momentum);
     reference_particle2.set_state(new_state);
 
+    CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
+}
+
+TEST_CASE("equal_same_abs_time")
+{
+    Four_momentum four_momentum(mass);
+    Reference_particle reference_particle1(charge, four_momentum);
+
+    std::array<double, 6> new_state;
+    for (int i = 0; i < 6; ++i) new_state[i] = 1.1 * i;
+    reference_particle1.set_bunch_abs_time(1.0/1024.0);
+
+    Reference_particle reference_particle2(reference_particle1);
+ 
+    CHECK(reference_particle1.equal(reference_particle2, equal_tolerance));
+}
+
+TEST_CASE("equal_different_abs_time")
+{
+    Four_momentum four_momentum(mass);
+    Reference_particle reference_particle1(charge, four_momentum);
+
+    std::array<double, 6> new_state;
+    for (int i = 0; i < 6; ++i) new_state[i] = 1.1 * i;
+    reference_particle1.set_bunch_abs_time(1.0/1024.0);
+
+    Reference_particle reference_particle2(reference_particle1);
+    reference_particle2.set_bunch_abs_time(3/2048.0);
+ 
     CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
 }
 

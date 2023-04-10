@@ -10,6 +10,8 @@ Reference_particle::Reference_particle()
   , repetition(0)
   , s(0)
   , s_n(0)
+  , abs_time(0)
+  , abs_offset(0)
 {}
 
 Reference_particle::Reference_particle(int charge,
@@ -21,6 +23,8 @@ Reference_particle::Reference_particle(int charge,
   , repetition(0)
   , s(0)
   , s_n(0)
+  , abs_time(0)
+  , abs_offset(0)
 {}
 
 Reference_particle::Reference_particle(int charge,
@@ -31,6 +35,8 @@ Reference_particle::Reference_particle(int charge,
   , repetition(0)
   , s(0)
   , s_n(0)
+  , abs_time(0)
+  , abs_offset(0)
 {}
 
 Reference_particle::Reference_particle(int charge,
@@ -42,6 +48,8 @@ Reference_particle::Reference_particle(int charge,
   , repetition(0)
   , s(0)
   , s_n(0)
+  , abs_time(0)
+  , abs_offset(0)
 {}
 
 Reference_particle::Reference_particle(Lsexpr const& lsexpr)
@@ -306,6 +314,38 @@ Reference_particle::get_repetition_length() const
   return s;
 }
 
+double
+Reference_particle::get_bunch_abs_time() const
+{
+  return abs_time;
+}
+
+double
+Reference_particle::get_bunch_abs_offset() const
+{
+  return abs_offset;
+}
+
+void
+Reference_particle::set_bunch_abs_time(double const& t)
+{
+  abs_time = t;
+}
+
+void
+Reference_particle::inc_bunch_abs_time(double const& incr)
+{
+  abs_time += incr;
+}
+
+void
+Reference_particle::set_bunch_abs_offset(double const& offset)
+{
+  abs_offset = offset;
+}
+
+
+
 bool
 Reference_particle::equal(Reference_particle const& reference_particle,
                           double tolerance) const
@@ -320,6 +360,13 @@ Reference_particle::equal(Reference_particle const& reference_particle,
       return false;
     }
   }
+  if (!floating_point_equal(
+        abs_time, reference_particle.get_bunch_abs_time(), tolerance) ||
+      !floating_point_equal(
+        abs_offset, reference_particle.get_bunch_abs_offset(), tolerance)) {
+        return false;
+      }
+  
   return true;
 }
 
