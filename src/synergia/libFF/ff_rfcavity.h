@@ -4,6 +4,7 @@
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/libFF/ff_patterned_propagator.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/foundation/physical_constants.h"
 
 namespace rfcavity_impl {
     struct RFCavityParams {
@@ -317,6 +318,10 @@ namespace FF_rfcavity {
         // update the bunch reference particle with the updated ref_p
         ref_b.set_four_momentum(fm);
         ref_b.increment_trajectory(rp.length);
+        // absolute time
+        double const velocity = ref_b.get_beta()*pconstants::c;
+        ref_b.increment_bunch_abs_time(rp.length/velocity);
+
     }
 }
 

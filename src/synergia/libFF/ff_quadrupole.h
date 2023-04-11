@@ -3,6 +3,8 @@
 
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/foundation/physical_constants.h"
+
 
 namespace quad_impl
 {
@@ -550,6 +552,11 @@ namespace FF_quadrupole
 
             // advance the ref_part
             bunch.get_reference_particle().increment_trajectory(length);
+
+            // absolute time
+            double const velocity = bunch.get_reference_particle().get_beta()*pconstants::c;
+            bunch.get_reference_particle().increment_bunch_abs_time(length/velocity);
+
         }
 
         Kokkos::fence();

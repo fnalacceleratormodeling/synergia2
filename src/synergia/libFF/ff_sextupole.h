@@ -4,6 +4,7 @@
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/libFF/ff_patterned_propagator.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/foundation/physical_constants.h"
 
 
 namespace FF_sextupole
@@ -82,6 +83,10 @@ namespace FF_sextupole
 
             // trajectory
             bunch.get_reference_particle().increment_trajectory(length);
+            // absolute time
+            double const velocity = bunch.get_reference_particle().get_beta()*pconstants::c;
+            bunch.get_reference_particle().increment_bunch_abs_time(length/velocity);
+
         }
 
     }

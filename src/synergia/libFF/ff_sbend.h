@@ -3,6 +3,7 @@
 
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/foundation/physical_constants.h"
 
 
 // p [Gev/c] = -- * B*rho [ Tesla meters ]
@@ -955,6 +956,9 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
     }
 
     bunch.get_reference_particle().increment_trajectory(sp.length);
+    // absolute time
+    double const velocity = bunch.get_reference_particle().get_beta()*pconstants::c;
+    bunch.get_reference_particle().increment_bunch_abs_time(sp.length/velocity);
 
     Kokkos::fence();
 }
