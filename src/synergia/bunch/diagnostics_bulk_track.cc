@@ -105,7 +105,7 @@ Diagnostics_bulk_track::do_write(io_device& file, const size_t iteration)
     i.setAttribute("track_s", s);
     i.setAttribute("track_s_n", s_n);
     i.setAttribute("track_repitition", repetition);
-    i.setAttribute("bunch_abs_time", )
+    i.setAttribute("bunch_abs_time", bunch_abs_time);
 
     openPMD::ParticleSpecies& protons =
         file.iterations[iteration].particles["track_coords"];
