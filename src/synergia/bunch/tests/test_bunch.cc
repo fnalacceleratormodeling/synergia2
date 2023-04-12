@@ -3,6 +3,7 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/catch.hpp"
 
+#include <Kokkos_Core.hpp>
 #include <Kokkos_NumericTraits.hpp>
 #include <Kokkos_Random.hpp>
 
@@ -76,7 +77,9 @@ TEST_CASE("BunchI/O", "[Bunch]")
     Kokkos::fill_random(bp1.hparts, random_pool, 100.0);
 
     Kokkos::parallel_for(
-        "test_bunch_fill_masks", num_parts, KOKKOS_LAMBDA(const int& i) {
+        "test_bunch_fill_masks",
+        Kokkos::RangePolicy<Kokkos::DefaultHostExecutionSpace>(0, num_parts),
+        KOKKOS_LAMBDA(const int& i) {
             // acquire the state of the random number generator engine
             auto generator = random_pool.get_state();
             double x = generator.drand(0., 100.);
