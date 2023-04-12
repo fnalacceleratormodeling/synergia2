@@ -52,7 +52,7 @@ jobs:
       run: |
         lscpu
         . /etc/profile.d/z10_spack_environment.sh 
-        CC=/usr/bin/clang-15 CXX=/usr/bin/clang++-15 LDFLAGS="-fuse-ld=lld" cmake -B ${{github.workspace}}/build \
+        CC=/usr/bin/clang-15 CXX=/usr/bin/clang++-15 cmake -B ${{github.workspace}}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.10) \

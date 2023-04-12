@@ -146,7 +146,7 @@ if(${BUILD_FD_SPACE_CHARGE_SOLVER})
   set(PETSC $ENV{PETSC_DIR}/$ENV{PETSC_ARCH})
   set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
   find_package(PkgConfig REQUIRED)
-  pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc)
+  pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc>=3.19.0)
 endif()
 
 # srun --mpi=SRUN_MPI_PMIX
@@ -204,8 +204,8 @@ endif()
 
 # Check version of kokkos!
 message("-- Using Kokkos version: ${Kokkos_VERSION}")
-if(Kokkos_VERSION LESS 3.7.00)
-  message(FATAL_ERROR "Need at least Kokkos 3.7.00!")
+if(Kokkos_VERSION LESS 4.0.00)
+  message(FATAL_ERROR "Need at least Kokkos 4.0.00!")
 endif()
 
 # HDF5
@@ -325,7 +325,7 @@ if(BUILD_PYTHON_BINDINGS)
     FetchContent_Declare(
       pybind11
       GIT_REPOSITORY https://github.com/pybind/pybind11
-      GIT_TAG v2.10.3)
+      GIT_TAG v2.10.4)
     FetchContent_MakeAvailable(pybind11)
   endif()
 else(BUILD_PYTHON_BINDINGS)
