@@ -35,6 +35,8 @@ Diagnostics_particles::do_first_write(io_device& file)
     file.setAttribute("s", ref_part.get_s());
     file.setAttribute("s_n", ref_part.get_s_n());
     file.setAttribute("repetition", ref_part.get_repetition());
+    file.setAttribute("abs_offset", ref_part.get_bunch_abs_offset());
+    file.setAttribute("abs_time", ref_part.get_bunch_abs_time());
     file.setAttribute("pz", ref_part.get_momentum());
     file.flush();
 
@@ -271,6 +273,8 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
     file.write("s", ref_part.get_s());
     file.write("s_n", ref_part.get_s_n());
     file.write("repetition", ref_part.get_repetition());
+    file.write("abs_offset", ref_part.get_bunch_abs_offset());
+    file.write("abs_time", ref_part.get_bunch_abs_time());
     file.write("pz", ref_part.get_momentum());
 
     bunch_ref.value().get().write_file(

@@ -43,10 +43,12 @@ Diagnostics_full2::do_first_write(io_device& file)
 #ifdef SYNERGIA_HAVE_OPENPMD
     file.setAttribute("charge", ref.get_charge());
     file.setAttribute("mass", ref.get_four_momentum().get_mass());
+    file.setAttribute("abs_offset", ref.get_bunch_abs_offset());
     file.flush();
 #else
     file.write("charge", ref.get_charge());
     file.write("mass", ref.get_four_momentum().get_mass());
+    file.write("abs_offset", ref.get_bunch_abs_offset());
 #endif
     return;
 }
@@ -60,6 +62,7 @@ Diagnostics_full2::do_write(io_device& file, size_t iteration)
     i.setAttribute("s", ref.get_s());
     i.setAttribute("s_n", ref.get_s_n());
     i.setAttribute("repetition", ref.get_repetition());
+    i.setAttribute("abs_time", ref.get_bunch_abs_time());
     i.setAttribute("num_particles", num_particles);
     i.setAttribute("real_num_particles", real_num_particles);
     i.setAttribute("pz", ref.get_momentum());
@@ -85,6 +88,7 @@ Diagnostics_full2::do_write(io_device& file, size_t iteration)
     file.append("s", ref.get_s());
     file.append("s_n", ref.get_s_n());
     file.append("repetition", ref.get_repetition());
+    file.append("abs_time", ref.get_bunch_abs_time());
     file.append("num_particles", num_particles);
     file.append("real_num_particles", real_num_particles);
     file.append("pz", ref.get_momentum());

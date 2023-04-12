@@ -31,6 +31,7 @@ Diagnostics_bulk_track::do_update(Bunch const& bunch)
         ref_mass = ref.get_four_momentum().get_mass();
         ref_pz = ref.get_four_momentum().get_momentum();
 
+
         auto const& comm = bunch.get_comm();
 
         local_num_tracks = decompose_1d_local(comm, total_num_tracks);
@@ -46,6 +47,9 @@ Diagnostics_bulk_track::do_update(Bunch const& bunch)
     s = ref.get_s();
     s_n = ref.get_s_n();
     repetition = ref.get_repetition();
+    bunch_abs_offset = ref.get_bunch_abs_offset();
+    bunch_abs_time = ref.get_bunch_abs_time();
+
 
     track_coords =
         bunch.get_particles_in_range_row(local_offset, local_num_tracks, pg);
@@ -81,10 +85,12 @@ Diagnostics_bulk_track::do_first_write(io_device& file)
     file.setAttribute("charge", ref_charge);
     file.setAttribute("mass", ref_mass);
     file.setAttribute("pz", ref_pz);
+    file.setAttribute("bunch_abs_offset", bunch_abs_offset);
 #else
     file.write("charge", ref_charge);
     file.write("mass", ref_mass);
     file.write("pz", ref_pz);
+    file.write("bunch_abs_offset", bunch_abs_offset);
 #endif
 }
 
@@ -99,6 +105,7 @@ Diagnostics_bulk_track::do_write(io_device& file, const size_t iteration)
     i.setAttribute("track_s", s);
     i.setAttribute("track_s_n", s_n);
     i.setAttribute("track_repitition", repetition);
+    i.setAttribute("bunch_abs_time", )
 
     openPMD::ParticleSpecies& protons =
         file.iterations[iteration].particles["track_coords"];
@@ -150,6 +157,7 @@ Diagnostics_bulk_track::do_write(io_device& file, const size_t iteration)
     file.append_single("track_s", s);
     file.append_single("track_s_n", s_n);
     file.append_single("track_repetition", repetition);
+    file.append_single("bunch_abs_time", bunch_abs_time);
 
     // write collective from all ranks
     file.append_collective("track_coords", track_coords);

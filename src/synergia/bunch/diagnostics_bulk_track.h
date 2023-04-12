@@ -25,6 +25,8 @@ class Diagnostics_bulk_track : public Diagnostics {
     double ref_charge;
     double ref_mass;
     double ref_pz;
+    double bunch_abs_time;
+    double bunch_abs_offset;
 
     karray2d_row track_coords;
 
