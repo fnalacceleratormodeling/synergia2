@@ -1,9 +1,9 @@
-#include "Kokkos_Core_fwd.hpp"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/bunch_particles.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/catch.hpp"
 
+#include <Kokkos_Core.hpp>
 #include <Kokkos_NumericTraits.hpp>
 #include <Kokkos_Random.hpp>
 
