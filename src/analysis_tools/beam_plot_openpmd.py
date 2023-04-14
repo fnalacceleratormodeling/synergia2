@@ -45,13 +45,13 @@ class Options:
     hcoord: Coords
     vcoord: Coords
     inputfile: str
+    iteration: int
     num_bins: int
+    minh: float
+    maxh: float
+    minv: float
+    maxv: float
     outputfile: str = ""
-    iteration: int = 0
-    minh: float = -1.0 * np.finfo(np.float64).max
-    maxh: float = np.finfo(np.float64).max
-    minv: float = -1.0 * np.finfo(np.float64).max
-    maxv: float = np.finfo(np.float64).max
 
 
 def parse_args():
@@ -59,7 +59,7 @@ def parse_args():
     parser.add_argument("filename", help="OpenPMD-series-filename", type=str)
 
     parser.add_argument(
-        "--iteration", help="iteration of OpenPMD series to plot", type=int
+        "--iteration", help="iteration of OpenPMD series to plot", type=int, default=0
     )
     parser.add_argument(
         "--minh", help="minimum limit on horizontal axis data", type=float, 
@@ -110,14 +110,18 @@ def do_plots(opts: Options):
     betagamma = p_ref / mass
     gamma = np.sqrt(betagamma**1)
     beta = betagamma / gamma
-    print(f"Mass is {mass}, beta is {beta}")
 
     i = series.iterations[opts.iteration]
     parts = i.particles["bunch_particles"]
     parts_df = parts.to_df()
 
     print(
-        f"iteration is {opts.iteration}, xcoord is {opts.hcoord}/{opts.hcoord.value}, ycoord is {opts.vcoord}/{opts.vcoord.value}, num-contour is {opts.num_bins}"
+        f'''-------- Using the following parameters ----------
+iteration: {opts.iteration}; xcoord: {opts.hcoord.value}; ycoord: {opts.vcoord.value};
+minh, maxh: {opts.minh}/{opts.maxh};
+minv, maxv: {opts.minv}/{opts.maxv};
+num-bins: {opts.num_bins}
+--------------------------------------------------'''
     )
 
     if opts.hcoord == Coords("pz") or opts.vcoord == Coords("pz"):
@@ -139,6 +143,9 @@ def do_plots(opts: Options):
         & (parts_df[opts.vcoord.value] > opts.minv)
         & (parts_df[opts.vcoord.value] < opts.maxv)
     ]
+
+    if to_plot_df.empty:
+        raise Exception("Empty data frame to plot after applying co-ordinate selection."+"\n"+"Please check input co-ordinates and run again!")
 
     g = sns.JointGrid(
         data=to_plot_df, x=opts.hcoord.value, y=opts.vcoord.value, marginal_ticks=True
