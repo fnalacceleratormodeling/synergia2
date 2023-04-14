@@ -48,10 +48,10 @@ class Options:
     num_bins: int
     outputfile: str = ""
     iteration: int = 0
-    minh: np.float64 = np.finfo(np.double).min
-    maxh: np.float64 = np.finfo(np.double).max
-    minv: np.float64 = np.finfo(np.double).min
-    maxv: np.float64 = np.finfo(np.double).max
+    minh: float = -1.0 * np.finfo(np.float64).max
+    maxh: float = np.finfo(np.float64).max
+    minv: float = -1.0 * np.finfo(np.float64).max
+    maxv: float = np.finfo(np.float64).max
 
 
 def parse_args():
@@ -62,16 +62,21 @@ def parse_args():
         "--iteration", help="iteration of OpenPMD series to plot", type=int
     )
     parser.add_argument(
-        "--minh", help="minimum limit on horizontal axis data", type=float
+        "--minh", help="minimum limit on horizontal axis data", type=float, 
+        default=-1.0 * np.finfo(np.float64).max
     )
     parser.add_argument(
-        "--maxh", help="maximum limit on horizontal axis data", type=float
+        "--maxh", help="maximum limit on horizontal axis data", type=float,
+        default=np.finfo(np.float64).max
     )
     parser.add_argument(
-        "--minv", help="minimum limit on vertical axis data", type=float
+        "--minv", help="minimum limit on vertical axis data", type=float,
+        default=-1.0 * np.finfo(np.float64).max
     )
     parser.add_argument(
-        "--maxv", help="maximum limit on vertical axis data", type=float
+        "--maxv", help="maximum limit on vertical axis data", type=float,
+        default=np.finfo(np.float64).max
+
     )
     parser.add_argument(
         "--bins",
@@ -138,7 +143,7 @@ def do_plots(opts: Options):
     g = sns.JointGrid(
         data=to_plot_df, x=opts.hcoord.value, y=opts.vcoord.value, marginal_ticks=True
     )
-    g.plot_joint(sns.histplot, cmap="mako", thresh=None, bins=opts.num_bins)
+    g.plot_joint(sns.histplot, thresh=None, cmap="mako", bins=opts.num_bins)
     g.plot_marginals(sns.histplot, kde=False)
 
     plt.suptitle("Synergia3 Phase Space Distribution", fontsize="medium", y=0.985)
@@ -156,6 +161,10 @@ if __name__ == "__main__":
         opts = Options(
             hcoord=inputs.xcoord,
             vcoord=inputs.ycoord,
+            minh=inputs.minh,
+            maxh=inputs.maxh,
+            minv=inputs.minv,
+            maxv=inputs.maxv,
             inputfile=inputs.filename,
             iteration=inputs.iteration,
             num_bins=inputs.bins,

@@ -157,8 +157,9 @@ def do_plot_diag(
         _ax.plot(x, y, **_style, label=labelstr)
         _ax.set_xticks(x)
         _ax.set_xlabel(_xlabel)
-        
+
     return
+
 
 def do_plots(opts: Options):
     num_plots = len(opts.diags_to_plot)
