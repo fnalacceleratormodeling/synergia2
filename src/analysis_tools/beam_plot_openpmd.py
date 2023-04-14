@@ -112,7 +112,7 @@ def do_plots(opts: Options):
     parts_df = parts.to_df()
 
     print(
-        f"xcoord is {opts.hcoord}/{opts.hcoord.value}, ycoord is {opts.vcoord}/{opts.vcoord.value}, num-contour is {opts.num_bins}"
+        f"iteration is {opts.iteration}, xcoord is {opts.hcoord}/{opts.hcoord.value}, ycoord is {opts.vcoord}/{opts.vcoord.value}, num-contour is {opts.num_bins}"
     )
 
     if opts.hcoord == Coords("pz") or opts.vcoord == Coords("pz"):
@@ -157,6 +157,7 @@ if __name__ == "__main__":
             hcoord=inputs.xcoord,
             vcoord=inputs.ycoord,
             inputfile=inputs.filename,
+            iteration=inputs.iteration,
             num_bins=inputs.bins,
             outputfile=inputs.output,
         )
