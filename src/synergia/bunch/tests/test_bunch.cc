@@ -49,6 +49,7 @@ void
 check_particle_values(BunchParticles const& bp1, BunchParticles const& bp2)
 {
     bp1.checkout_particles();
+    bp2.checkout_particles();
 
     for (int i = 0; i < num_parts; ++i) {
         for (int j = 0; j < 6; ++j) {
@@ -94,6 +95,7 @@ TEST_CASE("BunchI/O", "[Bunch]")
 
     bp1.update_valid_num();
     bp1.update_total_num(bunch.get_comm());
+    bp1.checkin_particles();
 
     SECTION("write/read file")
     {
