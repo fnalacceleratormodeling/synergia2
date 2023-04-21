@@ -369,6 +369,10 @@ message(STATUS "Configuring Eigen3 for use in host routines.")
 # with flang-new, so unset that temporarily.
 set(FC_BACKUP $ENV{FC})
 unset(ENV{FC})
+# https://gitlab.com/libeigen/eigen/-/issues/848
+set(eigen_defs
+    EIGEN_NO_CUDA
+    $<$<STREQUAL:${CMAKE_HOST_SYSTEM_PROCESSOR},ppc64le>:EIGEN_DONT_VECTORIZE>)
 add_subdirectory(${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
 set(ENV{FC} ${FC_BACKUP})
 find_package(Eigen3 REQUIRED PATHS
