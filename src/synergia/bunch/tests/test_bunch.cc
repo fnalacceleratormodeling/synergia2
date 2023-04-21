@@ -93,9 +93,9 @@ TEST_CASE("BunchI/O", "[Bunch]")
             random_pool.free_state(generator);
         });
 
+    bp1.checkin_particles();
     bp1.update_valid_num();
     bp1.update_total_num(bunch.get_comm());
-    bp1.checkin_particles();
 
     SECTION("write/read file")
     {
