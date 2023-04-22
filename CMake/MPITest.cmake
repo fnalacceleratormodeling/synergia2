@@ -16,6 +16,7 @@ macro(add_mpi_test tname np)
         add_test(NAME ${tname}_${np}
             COMMAND ${CMAKE_COMMAND} -E env
                 OMPI_MCA_rmaps_base_oversubscribe=true
+		PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
                 ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${np}
                 ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${tname}> ${MPIEXEC_POSTFLAGS})
     endif()
