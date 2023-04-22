@@ -6,7 +6,7 @@ target_link_options(synergia_bunchsim PRIVATE ${LINKER_OPTIONS})
 
 add_library(synergia_simulation_hostonly checkpoint_json.cc
                                          lattice_simulator_host.cc)
-target_compile_definitions(synergia_simulation_hostonly PUBLIC EIGEN_NO_CUDA)
+target_compile_definitions(synergia_simulation_hostonly PUBLIC ${eigen_defs})
 target_link_libraries(synergia_simulation_hostonly Eigen3::Eigen ${kokkos_libs})
 target_link_options(synergia_simulation_hostonly PRIVATE ${LINKER_OPTIONS})
 
