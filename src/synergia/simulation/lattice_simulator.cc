@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/multi_array_conversions.h"
 
@@ -306,6 +306,10 @@ namespace Lattice_simulator {
     std::array<double, 6>
     tune_circular_lattice(Lattice& lattice)
     {
+        std::cout << "EGS: enter tune_circular_lattice, lattice gamma: " << std::cout.precision(15) << lattice.get_reference_particle().get_gamma() << std::endl;
+        std::cout << "EGS: enter tune_circular_lattice, lattice beta: " << std::cout.precision(15) << lattice.get_reference_particle().get_beta() << std::endl;
+        std::cout << "EGS: enter tune_circular_lattice, lattice mass: " << std::cout.precision(15) << lattice.get_reference_particle().get_mass() << std::endl;
+        std::cout << "EGS: enter tune_circular_lattice, lattice energy: " << std::cout.precision(15) << lattice.get_reference_particle().get_total_energy() << std::endl;
         // calculate closed orbit
         auto state = calculate_closed_orbit(lattice, 0.0);
         lattice.get_reference_particle().set_state(state);
@@ -446,6 +450,7 @@ namespace Lattice_simulator {
     std::array<double, 6>
     calculate_closed_orbit(Lattice const& lattice, double dpp)
     {
+        std::cout << "EGS: enter calculate_closed_orbit, lattice energy: " << std::cout.precision(15) << lattice.get_reference_particle().get_total_energy() << std::endl;
         // create params object, make a copy of the lattice
         Closed_orbit_params cop(dpp, lattice);
 

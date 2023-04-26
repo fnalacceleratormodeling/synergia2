@@ -271,6 +271,21 @@ TEST_CASE("copy_lattice_from_lattice_sptr")
     }
 }
 
+TEST_CASE("lattice_reference_particle")
+{
+      Lattice lattice(name);
+      Reference_particle reference_particle(1, 1.0, 1.25);
+      lattice.set_reference_particle(reference_particle);
+      CHECK(lattice.get_reference_particle().get_mass() == 1.0);
+      CHECK(lattice.get_reference_particle().get_gamma() == 1.25);
+      CHECK(lattice.get_reference_particle().get_total_energy() == 1.25);
+      // set new energy, beta=13/84, gamma=85/84
+      lattice.get_reference_particle().set_total_energy(85.0/84.0);
+      CHECK(lattice.get_reference_particle().get_gamma() == Approx(85.0/84.0).margin(tolerance));
+      CHECK(lattice.get_reference_particle().get_beta() == Approx(13.0/85.0).margin(tolerance));
+      CHECK(lattice.get_reference_particle().get_beta() == -1.0); // fail!
+}
+
 TEST_CASE("test_lsexpr")
 {
 #if 0

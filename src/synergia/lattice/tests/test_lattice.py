@@ -32,3 +32,11 @@ def test_throws_without_reference_particle():
     with pytest.raises(RuntimeError):
         lattice.get_reference_particle()
 
+def test_set_reference_particle_energy():
+    lattice = Lattice(name)
+    reference_particle = Reference_particle(charge, mass, total_energy)
+    lattice.set_reference_particle(reference_particle)
+    lattice.get_reference_particle().set_total_energy(total_energy+1)
+    assert lattice.get_reference_particle().get_total_energy() == total_energy+1.0
+
+
