@@ -310,6 +310,8 @@ namespace Lattice_simulator {
         std::cout << "EGS: enter tune_circular_lattice, lattice beta: " << std::cout.precision(15) << lattice.get_reference_particle().get_beta() << std::endl;
         std::cout << "EGS: enter tune_circular_lattice, lattice mass: " << std::cout.precision(15) << lattice.get_reference_particle().get_mass() << std::endl;
         std::cout << "EGS: enter tune_circular_lattice, lattice energy: " << std::cout.precision(15) << lattice.get_reference_particle().get_total_energy() << std::endl;
+        std::cout << "EGS: enter tune_circular_lattice, lattice.get_lattice_energy: " << std::cout.precision(15) << lattice.get_lattice_energy() << std::endl;
+
         // calculate closed orbit
         auto state = calculate_closed_orbit(lattice, 0.0);
         lattice.get_reference_particle().set_state(state);
