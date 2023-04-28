@@ -1,4 +1,6 @@
-add_py_test(test_parallel_utils.py)
+if(BUILD_PYTHON_BINDINGS)
+  add_py_test(test_parallel_utils.py)
+endif()
 
 add_executable(test_command_line_arg test_command_line_arg.cc)
 target_link_libraries(test_command_line_arg synergia_command_line
@@ -91,7 +93,6 @@ if(0)
             ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos/core/src
             ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos/core/src/desul
             ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/tpls/desul/include
-            ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src
-  )
+            ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src)
   add_test(test_loading_kokkos test_loading_kokkos)
 endif()
