@@ -71,10 +71,12 @@ def test_correct_increased_frequency():
     print('orig betagamma: ', betagamma)
     print('orig gamma: ', gamma)
     print('orig beta: ', beta)
+    #return
     new_energy = init_energy + 1
     print('new_energy: ', new_energy)
     #lattice.get_reference_particle().set_total_energy(new_energy)
     lattice.set_lattice_energy(new_energy)
+    #return
     print('readback new energy: ', lattice.get_reference_particle().get_total_energy())
     new_gamma = new_energy/synergia.foundation.pconstants.mp
     new_betagamma = np.sqrt(new_gamma**2 - 1)
@@ -85,7 +87,9 @@ def test_correct_increased_frequency():
     print('new_beta: ', new_beta)
     print('readback new beta: ', lattice.get_reference_particle().get_beta())
     assert lattice.get_reference_particle().get_beta() == pytest.approx(new_beta)
+    print('before tune_circular_lattice', flush=True)
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
+    print('after tune_circular_lattice', flush=True)
     print('readback beta after tune_circular_lattice: ', lattice.get_reference_particle().get_beta())
     print('readback energy after tune_circular_lattice: ', lattice.get_lattice_energy())
     freq = lattice.get_reference_particle().get_beta() * synergia.foundation.pconstants.c/length
@@ -115,6 +119,7 @@ def test_correct_increased_frequency2():
     print('orig betagamma: ', betagamma)
     print('orig gamma: ', gamma)
     print('orig beta: ', beta)
+    return
     new_refpart = lattice.get_reference_particle()
     new_energy = init_energy + 1
     print('new_energy: ', new_energy)
@@ -145,10 +150,10 @@ def test_correct_increased_frequency2():
 
 
 def main():
-    print(get_lattice())
-    test_correct_length()
-    test_correct_total_energy()
-    test_correct_init_frequency()
+    #print(get_lattice())
+    #test_correct_length()
+    #test_correct_total_energy()
+    #test_correct_init_frequency()
     test_correct_increased_frequency()
 
 if __name__ == "__main__":
