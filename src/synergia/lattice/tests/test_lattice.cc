@@ -283,8 +283,18 @@ TEST_CASE("lattice_reference_particle")
       lattice.get_reference_particle().set_total_energy(85.0/84.0);
       CHECK(lattice.get_reference_particle().get_gamma() == Approx(85.0/84.0).margin(tolerance));
       CHECK(lattice.get_reference_particle().get_beta() == Approx(13.0/85.0).margin(tolerance));
-      CHECK(lattice.get_reference_particle().get_beta() == -1.0); // fail!
 }
+
+TEST_CASE("lattice_energy")
+{
+      Lattice lattice(name);
+      Reference_particle reference_particle(1, 1.0, 1.25);
+      lattice.set_reference_particle(reference_particle);
+      CHECK(lattice.get_lattice_energy() == 1.25);
+      lattice.set_lattice_energy(7.0);
+      CHECK(lattice.get_lattice_energy() == 7.0);
+}
+
 
 TEST_CASE("test_lsexpr")
 {
