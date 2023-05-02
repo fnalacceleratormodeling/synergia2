@@ -13,7 +13,6 @@ expected_delta_E = turn_voltage*np.sin(np.pi/60)
 print('expected delta E/turn: ', expected_delta_E)
 nturns=200
 
-
 # prop_fixture is a propagator
 @pytest.fixture
 def prop_fixture():
@@ -109,7 +108,6 @@ def test_accel2(prop_fixture):
         bunch = sim.get_bunch()
         bunch_design_E = bunch.get_design_reference_particle().get_total_energy()
         bunch_E = bunch.get_reference_particle().get_total_energy()
-        context.energy = bunch_E
         lattice_E = lattice.get_lattice_energy()
 
         print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
@@ -132,7 +130,7 @@ def test_accel2(prop_fixture):
         # tune lattice
         synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
 
-        
+
     # end of turn end action method
 
     sim.reg_prop_action_turn_end(turn_end_action)
