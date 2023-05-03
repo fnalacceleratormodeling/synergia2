@@ -300,7 +300,7 @@ def main():
     print('final vertical chromaticity: ', vchrom, file=logger)
     print("alpha_c: ", alpha_c, ", slip_factor: ", slip_factor, file=logger)
 
-    dist = synergia.foundation.Random_distribution(opts.seed, comm) 
+    dist = synergia.foundation.Random_distribution(opts.seed, comm.get_rank())
 
     stdx = opts.stdx
     stdy = opts.stdy
