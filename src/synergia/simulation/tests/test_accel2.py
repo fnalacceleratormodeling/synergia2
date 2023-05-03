@@ -130,6 +130,13 @@ def test_accel2(prop_fixture):
         # tune lattice
         synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
 
+        # check frequency matches new energy
+        beta1 = lattice.get_reference_particle().get_beta()
+        beta2 = bunch.get_reference_particle().get_beta()
+        assert beta1 == pytest.approx(beta2)
+        freq = 96*beta1*synergia.foundation.pconstants.c/lattice.get_length()
+        assert freq == pytest.approx(synergia.simulation.Lattice_simulator.get_rf_frequency(lattice))
+
 
     # end of turn end action method
 

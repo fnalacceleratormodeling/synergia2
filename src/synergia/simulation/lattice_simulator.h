@@ -24,7 +24,10 @@ struct chromaticities_t {
 };
 
 namespace Lattice_simulator {
-  constexpr const double default_closed_orbit_tolerance = 1.0e-13;
+  // just to get a sense of things, the Booster acceleration script
+  // fails to find a closed orbit after about 100 turns if the
+  // tolerance is 1.0e-13.
+  constexpr const double default_closed_orbit_tolerance = 1.0e-12;
 
   void set_closed_orbit_tolerance(double tolerance);
   double get_closed_orbit_tolerance();

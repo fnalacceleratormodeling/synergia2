@@ -107,7 +107,6 @@ def test_correct_increased_frequency():
     assert rffreq*1.0e+6 == pytest.approx(freq)
 
 def test_correct_increased_frequency2():
-    return True
     lattice = get_lattice()
     length = lattice.get_length()
     # harmonic number is unity
@@ -150,10 +149,10 @@ def test_correct_increased_frequency2():
 
 
 def main():
-    #print(get_lattice())
-    #test_correct_length()
-    #test_correct_total_energy()
-    #test_correct_init_frequency()
+    print(get_lattice())
+    test_correct_length()
+    test_correct_total_energy()
+    test_correct_init_frequency()
     test_correct_increased_frequency()
 
 if __name__ == "__main__":

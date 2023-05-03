@@ -458,7 +458,7 @@ namespace Lattice_simulator {
     calculate_closed_orbit(Lattice const& lattice, double dpp)
     {
         //std::cout << "EGS: enter calculate_closed_orbit, lattice energy: " << lattice.get_lattice_energy() << std::endl;
-        std::cout << "EGS: enter calculate_closed_orbit, lattice energy: " << lattice.get_reference_particle().get_total_energy() << std::endl;
+        std::cout << "EGS: enter calculate_closed_orbit, lattice energy: " << std::setprecision(16) << lattice.get_reference_particle().get_total_energy() << std::endl;
         // create params object, make a copy of the lattice
         Closed_orbit_params cop(dpp, lattice);
 
