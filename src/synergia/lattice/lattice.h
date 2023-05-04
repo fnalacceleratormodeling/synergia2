@@ -137,7 +137,7 @@ public:
     {
        check_reference_particle_value(reference_particle);
         // only returns if valid
-        std::cout << "EGS: set_lattice_energy: " << energy << std::endl;
+        // std::cout << "EGS: set_lattice_energy: " << energy << std::endl;
       (reference_particle.value()).set_total_energy(energy);
     }
 
