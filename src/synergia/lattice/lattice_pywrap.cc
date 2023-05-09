@@ -353,6 +353,15 @@ PYBIND11_MODULE(lattice, m)
         .def( "set_reference_particle",
                 &Lattice::set_reference_particle )
 
+        .def( "get_lattice_energy",
+                &Lattice::get_lattice_energy,
+                "Get the design energy for the lattice" )
+
+        .def( "set_lattice_energy",
+                &Lattice::set_lattice_energy,
+                "Set the design energy of the lattice"
+                "energy"_a )
+
         .def( "get_elements",
                 (std::list<Lattice_element>& (Lattice::*)())
                 &Lattice::get_elements,

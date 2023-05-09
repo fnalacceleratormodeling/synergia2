@@ -123,6 +123,24 @@ public:
         // only returns if valid
         return reference_particle.value();
     }
+
+    double
+    get_lattice_energy() const
+    {
+       check_reference_particle_value(reference_particle);
+        // only returns if valid
+      return (reference_particle.value()).get_total_energy();
+    }
+
+    void
+    set_lattice_energy(double energy)
+    {
+       check_reference_particle_value(reference_particle);
+        // only returns if valid
+        // std::cout << "EGS: set_lattice_energy: " << energy << std::endl;
+      (reference_particle.value()).set_total_energy(energy);
+    }
+
     update_flags_t update();
     update_flags_t is_updated() const { return updated; }
 

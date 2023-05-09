@@ -57,7 +57,7 @@ PYBIND11_MODULE(simulation, m)
 
     .def("get_lattice_elements", &Propagator::get_lattice_elements, "Returns immutable copy of lattice elements")
 
-    .def("get_lattice", py::overload_cast<>(&Propagator::get_lattice, py::const_), py::return_value_policy::reference,
+    .def("get_lattice", py::overload_cast<>(&Propagator::get_lattice, py::const_), py::return_value_policy::reference_internal,
         "Returns immutable reference to the lattice, but the attributes of the elements contained with may be modified with set_<>_attribute member functions")
 
     .def(

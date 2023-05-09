@@ -1,4 +1,4 @@
-
+//#include <iostream>
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/multi_array_conversions.h"
 
@@ -7,6 +7,8 @@
 
 #include "lattice_simulator.h"
 #include "lattice_simulator_host.h"
+
+#define DEBUG 0
 
 namespace Lattice_simulator {
     static double closed_orbit_tolerance = default_closed_orbit_tolerance;
@@ -306,6 +308,14 @@ namespace Lattice_simulator {
     std::array<double, 6>
     tune_circular_lattice(Lattice& lattice)
     {
+        auto& ref = lattice.get_reference_particle();
+#if DEBUG
+        std::cout << "EGS: enter tune_circular_lattice, lattice gamma: " << ref.get_gamma() << std::endl;
+        std::cout << "EGS: enter tune_circular_lattice, lattice beta: " <<  ref.get_beta() << std::endl;
+        std::cout << "EGS: enter tune_circular_lattice, lattice mass: " << ref.get_mass() << std::endl;
+        std::cout << "EGS: enter tune_circular_lattice, lattice energy: " << ref.get_total_energy() << std::endl;
+        std::cout << "EGS: enter tune_circular_lattice, lattice.get_lattice_energy: " << lattice.get_lattice_energy() << std::endl;
+#endif
         // calculate closed orbit
         auto state = calculate_closed_orbit(lattice, 0.0);
         lattice.get_reference_particle().set_state(state);
@@ -316,9 +326,16 @@ namespace Lattice_simulator {
     std::array<double, 6>
     tune_rfcavities(Lattice& lattice)
     {
+#if DEBUG
+        std::cout << "EGS: tune_rf_cavities" << std::endl;
+#endif
         // make a copy of the original lattice
         Lattice temp_lattice(lattice);
         auto& ref = temp_lattice.get_reference_particle();
+#if DEBUG
+        std::cout << "EGS: tune_rf_cavities: beta: " << ref.get_beta() << std::endl;
+        std::cout << "EGS: tune_rf_cavities: energy: " << ref.get_total_energy() << std::endl;
+#endif
 
         // set rfcavity volt to 0 on the copied lattice
         for (auto& ele : temp_lattice.get_elements()) {
@@ -358,13 +375,15 @@ namespace Lattice_simulator {
         // go back and set the frequency of the cavities based on the
         // accumulated cdt
         double f = pconstants::c / accum_cdt;
+#if DEBUG
+        std::cout << "EGS: tune_rf_cavities f: " << f << std::endl;
+#endif
 
         for (auto& ele : lattice.get_elements()) {
             if (ele.get_type() == element_type::rfcavity) {
-                // set the frequency of the cavity if it doesn't already have
-                // one set and there is a reasonable harmonic number
-                if (ele.get_double_attribute("freq", -1.0) <= 0.0 &&
-                    ele.get_double_attribute("harmon", -1.0) > 0.0) {
+                // set the frequency of the cavity if there is a
+                // reasonable harmonic number
+                if (ele.get_double_attribute("harmon", -1.0) > 0.0) {
                     double harmon = ele.get_double_attribute("harmon");
                     // MAD-X definition of frequency is MHz
                     ele.set_double_attribute("freq", harmon * f * 1.0e-6);
@@ -446,6 +465,10 @@ namespace Lattice_simulator {
     std::array<double, 6>
     calculate_closed_orbit(Lattice const& lattice, double dpp)
     {
+#if DEBUG
+        //std::cout << "EGS: enter calculate_closed_orbit, lattice energy: " << lattice.get_lattice_energy() << std::endl;
+        std::cout << "EGS: enter calculate_closed_orbit, lattice energy: " << std::setprecision(16) << lattice.get_reference_particle().get_total_energy() << std::endl;
+#endif
         // create params object, make a copy of the lattice
         Closed_orbit_params cop(dpp, lattice);
 
