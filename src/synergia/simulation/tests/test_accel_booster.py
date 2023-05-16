@@ -395,7 +395,24 @@ def test_accel_booster(prop_fixture):
 
     # end of turn end action method
 
+    # step end action method
+    def step_end_action(sim, lattice, turn, step):
+        print('step ', step)
+        bunch = sim.get_bunch()
+        bunch.checkout_particles()
+        lp = bunch.get_particles_numpy()
+        # with acceleration, dp/p of all the central particles should remain at 0
+        for i in lp.shape[0]:
+            if lp[i, 5] != pytest.approx(0):
+                print('particle ', i, ' dp/p != 0: ', lp[i, 5])
+                print(step)
+            #assert lp[i, 5] == 0.0
+        
+    
+    # end of step end action method
+
     sim.reg_prop_action_turn_end(turn_end_action)
+    sim.reg_prop_action_step_end(step_end_action)
 
     simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
     prop_fixture.propagate(sim, simlog, nturns)
