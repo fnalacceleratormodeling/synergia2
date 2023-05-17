@@ -61,6 +61,8 @@ spack
 build**/**
 install/**
 
+# macos
+**/.DS_Store
 
 # clangd LSP files
 compile_commands.json

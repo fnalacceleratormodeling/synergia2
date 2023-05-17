@@ -229,16 +229,6 @@ Bunch::read_openpmd_file(std::string const& filename)
     auto moments_dpop = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::dpop);
     auto parts_idx = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::id);
 
-    masks["id"][openPMD::RecordComponent::SCALAR].resetDataset(masks_dataset);
-
-    protons["id"][openPMD::RecordComponent::SCALAR].resetDataset(dataset);
-    protons["position"]["x"].resetDataset(dataset);
-    protons["position"]["y"].resetDataset(dataset);
-    protons["position"]["z"].resetDataset(dataset);
-    protons["moments"]["x"].resetDataset(dataset);
-    protons["moments"]["y"].resetDataset(dataset);
-    protons["moments"]["z"].resetDataset(dataset);
-
     openPMD::Offset chunk_offset = {file_offset - local_num};
     openPMD::Extent chunk_extent = {local_num};
 
