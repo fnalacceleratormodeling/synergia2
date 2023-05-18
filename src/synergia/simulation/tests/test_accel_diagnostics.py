@@ -3,69 +3,44 @@ import sys, os
 import numpy as np
 import synergia
 import pytest
+import h5py
 
 macroparticles=16
 realparticles=4.0e10
 # lag 1/120 is a phase angle of 2pi/120 or pi/60 or 3 degrees
 # V = 0.2 MV * sin(pi/60) = 
-turn_voltage = 1.0e-3 # 1.0e-3 GV/turn
-expected_delta_E = turn_voltage*np.sin(np.pi/60)
+expected_delta_E = 0.0002*np.sin(np.pi/60)
 print('expected delta E/turn: ', expected_delta_E)
-nturns=3
+nturns=10
+mp = synergia.foundation.pconstants.mp
 
 # prop_fixture is a propagator
-pytest.fixture
+@pytest.fixture
 def prop_fixture():
-    # booster-like lattice
-    booster_madx = """
-ncells=24;
-turn_voltage=1.0; ! 1 MV /turn
-beam, particle=proton,energy=pmass+0.8;
+    fodo_madx = """
+beam, particle=proton,pc=0.75*pmass;
 
-f: sbend, l=2.0, angle=(pi/(2*ncells)), k1=0.0625;
-d: sbend, l=2.0, angle=(pi/(2*ncells)), k1=-0.0625;
-rfc: rfcavity, l=0.0, volt=turn_voltage/ncells, harmon=96, lag=(1/120.0);
+f: quadrupole, l=1.0, k1=0.0625;
+d: quadrupole, l=1.0, k1=-0.0625;
+rfc: rfcavity, l=0.0, volt=0.2, harmon=1, lag=(1/120.0);
 
-cell: sequence, l=20.0, refer=centre;
-fodo_1: f, at=1.5;
-fodo_2: d, at=8.5;
-fodo_3: d, at=11.5;
-fodo_4: f, at=18.5;
+fodo: sequence, l=20.0, refer=centre;
+fodo_1: f, at=1.0;
+fodo_2: d, at=9.0;
+fodo_3: d, at=11.0;
+fodo_4: f, at=19.0;
 fodo_5: rfc, at=20.0;
 endsequence;
 
-booster: sequence, l=480.0, refer=entry;
-cell, at=0.0;
-cell, at=20.0;
-cell, at=40.0;
-cell, at=60.0;
-cell, at=80.0;
-cell, at=100.0;
-cell, at=120.0;
-cell, at=140.0;
-cell, at=160.0;
-cell, at=180.0;
-cell, at=200.0;
-cell, at=220.0;
-cell, at=240.0;
-cell, at=260.0;
-cell, at=280.0;
-cell, at=300.0;
-cell, at=320.0;
-cell, at=340.0;
-cell, at=360.0;
-cell, at=380.0;
-cell, at=400.0;
-cell, at=420.0;
-cell, at=440.0;
-cell, at=460.0;
-endsequence;
-
+! beta_x == 32.1571909
+! beta_y == 10.3612857
+! alphax == alphay == 0
+! q_x == q_y == 0.18409
 """
 
     reader = synergia.lattice.MadX_reader()
-    reader.parse(booster_madx)
-    lattice = reader.get_lattice('booster')
+    reader.parse(fodo_madx)
+    lattice = reader.get_lattice('fodo')
     lattice.set_all_string_attribute('extractor_type', 'libff')
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
     stepper = synergia.simulation.Independent_stepper_elements(1)
@@ -76,11 +51,10 @@ endsequence;
 
 def test_lattice_energy(prop_fixture):
     energy = prop_fixture.get_lattice().get_lattice_energy()
-    assert energy == pytest.approx(synergia.foundation.pconstants.mp+0.8)
+    assert energy == pytest.approx(synergia.foundation.pconstants.mp*1.25)
 
 def test_lattice_length(prop_fixture):
-    assert prop_fixture.get_lattice().get_length() == 480.0
-
+    assert prop_fixture.get_lattice().get_length() == 20.0
 
 def create_simulator(ref_part):
     sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(ref_part, macroparticles, realparticles)
@@ -91,11 +65,20 @@ def create_simulator(ref_part):
     bunch.checkin_particles()
     return sim
 
+def test_accel1(prop_fixture):
 
-def test_accel2(prop_fixture):
+    # abort test if openPMD IO is active
+    names = dir(synergia.bunch.Bunch)
+    if names.count('write_openpmd_file'):
+        return True
 
     refpart = prop_fixture.get_lattice().get_reference_particle()
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
+
+    # E^2 = p^2 + m^2
+    # 2 E dE = 2 p dp
+    # expected dp = E/p dE
+    expected_dp = refpart.get_total_energy()/refpart.get_momentum() * expected_delta_E
 
     lattice = prop_fixture.get_lattice()
 
@@ -103,7 +86,17 @@ def test_accel2(prop_fixture):
     Ebun0 = sim.get_bunch().get_design_reference_particle().get_total_energy()
     assert Elat0 == pytest.approx(Ebun0, 1.0e-10)
 
-        # turn and action method
+    # diagnostics
+    diag_full2 = synergia.bunch.Diagnostics_full2("diag.h5")
+    sim.reg_diag_per_turn(diag_full2)
+
+    diag_bt = synergia.bunch.Diagnostics_bulk_track("tracks.h5", 4, 0)
+    sim.reg_diag_per_turn(diag_bt)
+
+    diag_part = synergia.bunch.Diagnostics_particles("particles.h5", 4)
+    sim.reg_diag_per_turn(diag_part)
+
+    # turn and action method
     def turn_end_action(sim, lattice, turn):
         bunch = sim.get_bunch()
         bunch_design_E = bunch.get_design_reference_particle().get_total_energy()
@@ -129,41 +122,11 @@ def test_accel2(prop_fixture):
 
         # tune lattice
         synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
-
-        # check frequency matches new energy
-        beta1 = lattice.get_reference_particle().get_beta()
-        beta2 = bunch.get_reference_particle().get_beta()
-        assert beta1 == pytest.approx(beta2)
-        freq = 96*beta1*synergia.foundation.pconstants.c/lattice.get_length()
-        assert freq == pytest.approx(synergia.simulation.Lattice_simulator.get_rf_frequency(lattice))
-
-        #bunch = sim.get_bunch()
-        #bunch.checkout_particles()
-        #lp = bunch.get_particles_numpy()
-        # with acceleration, dp/p of all the central particles should remain at 0
-        #for i in range(1):
-        #    if lp[i, 5] != pytest.approx(0):
-        #        print('particle ', i, ' dp/p != 0: ', lp[i, 5])
- 
+        
 
     # end of turn end action method
 
-    # step end action method
-    def step_end_action(sim, lattice, turn, step):
-        bunch = sim.get_bunch()
-        bunch.checkout_particles()
-        lp = bunch.get_particles_numpy()
-        # with acceleration, dp/p of all the central particles should remain at 0
-        for i in range(1):
-            if lp[i, 4] != pytest.approx(0) or lp[i, 5] != pytest.approx(0):
-                print('step ', step, ' particle ', i, ' cdt: ', lp[i, 4], ' dp/p: ', lp[i, 5])
-
-            #assert lp[i, 5] == pytest.approx(0.0)
-    
-    # end of step end action method
-
     sim.reg_prop_action_turn_end(turn_end_action)
-    sim.reg_prop_action_step_end(step_end_action)
 
     simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
     prop_fixture.propagate(sim, simlog, nturns)
@@ -175,17 +138,50 @@ def test_accel2(prop_fixture):
     assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
     assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
 
-    bunch = sim.get_bunch()
-    bunch.checkout_particles()
-    lp = bunch.get_particles_numpy()
-    # with acceleration, dp/p of all the central particles should remain at 0
-    for i in range(1):
-        assert lp[i, 4] == pytest.approx(0.0)
-        assert lp[i, 5] == pytest.approx(0.0)
+    # check pz in the diagnostics output
+    del sim
+    del prop_fixture
+
+    # calculate the momentas
+    energies = np.zeros(nturns+1)
+    energies[0] = Ebun0
+    for i in range(1,nturns+1):
+        energies[i] = energies[i-1] + expected_delta_E
+    pzs = np.sqrt(energies**2 - mp**2)
+
+    h5diag = h5py.File('diag.h5', 'r')
+    # are there the correct number of entries?
+    print('number of pz entries in diag: ', h5diag.get('pz').shape[0])
+    assert h5diag.get('pz').shape[0] == nturns+1
+    # Is the step between entries correct?
+    print('pz[1]: ', h5diag.get('pz')[1])
+    print('pz[0]: ', h5diag.get('pz')[0])
+    print('expected dp: ', expected_dp)
+    # This test only works as-is with the first step because expected_dp changes
+    assert h5diag.get('pz')[1]-h5diag.get('pz')[0] == pytest.approx(expected_dp, rel=1.0e-5)
+
+    for i in range(nturns+1):
+        assert h5diag.get('pz')[i] == pytest.approx(pzs[i])
+
+    # check pz in tracks file
+    h5trks = h5py.File('tracks.h5', 'r')
+    assert h5trks.get('track_pz').shape[0] == nturns+1
+    assert h5trks.get('track_pz')[1]-h5trks.get('track_pz')[0] == pytest.approx(expected_dp, rel=1.0e-5)
+    for i in range(nturns+1):
+        assert h5trks.get('track_pz')[i] == pytest.approx(h5diag.get('pz')[i])
+
+    # test pz in particles file
+    for i in range(nturns+1):
+        h5parts = h5py.File('particles_%04d.h5'%i, 'r')
+        assert h5trks.get('track_pz')[i] == h5parts.get('pz')
+        h5parts.close()
+
+    h5diag.close()
+    h5trks.close()
 
 def main():
     pf = prop_fixture()
-    test_accel2(pf)
+    test_accel1(pf)
 
 if __name__ == "__main__":
     main()
