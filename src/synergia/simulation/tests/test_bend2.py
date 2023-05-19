@@ -74,13 +74,16 @@ def test_accel1(prop_fixture):
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
     bunch = sim.get_bunch()
 
+    bunch.checkout_particles()
+    lp = bunch.get_particles_numpy()
+
+    print('dpop of test particle: ', lp[1, 5])
+
     simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
     prop_fixture.propagate(sim, simlog, nturns)
 
-    bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
-    assert lp[0, 5] == 0.0
 
     # check offset of increased momentum particle
     # Need the old and new radius of curvature for the sbend
@@ -100,16 +103,22 @@ def test_accel1(prop_fixture):
     # L = R theta => R = L/theta
     oldR = bend.get_length()/bend.get_bend_angle()
 
-    # R = p * c/(m * gamma * e * B)
-    # newR/oldR = (new-p/new-gamma)/(old-p/old-gamma)
+    # newR/oldR = new-p/old-p
 
-    old_gamma = bunch.get_design_reference_particle().get_gamma()
-    new_gamma = bunch.get_reference_particle().get_gamma()
-    newR = oldR * new_p * old_gamma/(orig_p * new_gamma)
+    newR = newp/origp
     print('oldR: ', oldR, ' newR: ', newR, ' difference: ', newR-oldR)
 
     x = oldR * (np.sqrt(2*(newR/oldR) - 1)) - oldR
-    assert lp[0, 0] == pytest.approx(x)
+    assert lp[1, 0] == pytest.approx(x)
+
+    new_bend_angle = np.arccos((newR-oldR)/oldR)
+    new_length = newR*new_bend_angle
+    beta = refpart.get_beta()
+    ctime_diff = (new_length - bend.get_length())/beta
+    print('after propagation cdt: ', lp[1, 4])
+    print('calculated cdt: ', ctime_diff)
+    
+    assert ctime_diff == pytest.approx(lp[1, 4])
 
     assert False
 

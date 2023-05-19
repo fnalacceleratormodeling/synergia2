@@ -122,6 +122,15 @@ def test_accel1(prop_fixture):
     print('x offset: ', x)
     assert lp[0, 0] == pytest.approx(x)
 
+    # check cdt
+    new_bend_angle = np.arccos((newR-oldR)/newR)
+    print('new bend angle: ', new_bend_angle)
+    new_beta = bunch.get_reference_particle().get_beta()
+    old_beta = bunch.get_design_reference_particle().get_beta()
+    old_ctime = bend.get_length()/new_beta
+    new_ctime = newR*new_bend_angle/new_beta
+    assert new_ctime - old_ctime == pytest.approx(lp[0, 4])
+
     assert False
                 
     
