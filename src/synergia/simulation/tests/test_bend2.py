@@ -66,7 +66,7 @@ def test_accel1(prop_fixture):
     refpart = prop_fixture.get_lattice().get_reference_particle()
 
     origE=refpart.get_total_energy()
-    origp = bunch.get_design_reference_particle().get_momentum()
+    origp = refpart.get_momentum()
     newE = origE+expected_delta_E
     newp = np.sqrt(newE**2 - mp**2)
     dpop = newp/origp - 1
@@ -105,33 +105,21 @@ def test_accel1(prop_fixture):
 
     # newR/oldR = new-p/old-p
 
-    newR = newp/origp
+    newR = oldR * newp/origp
     print('oldR: ', oldR, ' newR: ', newR, ' difference: ', newR-oldR)
 
     x = oldR * (np.sqrt(2*(newR/oldR) - 1)) - oldR
     assert lp[1, 0] == pytest.approx(x)
 
-    new_bend_angle = np.arccos((newR-oldR)/oldR)
+    new_bend_angle = np.arccos((newR-oldR)/newR)
     new_length = newR*new_bend_angle
-    beta = refpart.get_beta()
-    ctime_diff = (new_length - bend.get_length())/beta
+    oldbeta = refpart.get_beta()
+    newbeta = newp/newE
+    ctime_diff = new_length/newbeta - bend.get_length()/oldbeta
     print('after propagation cdt: ', lp[1, 4])
     print('calculated cdt: ', ctime_diff)
     
     assert ctime_diff == pytest.approx(lp[1, 4])
-
-    assert False
-
-                
-    # What about CDT?
-    assert lp[0,4] == pytest.approx(0.0)
-    assert lp[0,4] == 0.0
-    print('lp[0]: ', lp[0,:])
-
-    print('bunch design energy: ', bunch.get_design_reference_particle().get_total_energy())
-    print('bunch energy: ', bunch.get_reference_particle().get_total_energy())
-    
- 
 
 
 def main():

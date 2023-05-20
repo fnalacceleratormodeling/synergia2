@@ -6,26 +6,17 @@ import pytest
 
 macroparticles=16
 realparticles=4.0e10
-# lag 1/12 is a phase angle of 2pi/12 or pi/6 or 30 degrees
-# V = 0.2 MV * sin(pi/6) = 
-expected_delta_E = 0.0002*np.sin(np.pi/6)
-print('expected delta E/turn: ', expected_delta_E)
 nturns=1
-dpop_offset = 1.0e-3
-transmom_offset = 0.001
 mp = synergia.foundation.pconstants.mp
 
 # prop_fixture is a propagator
 @pytest.fixture
 def prop_fixture():
-    
 
     channel_madx = """
-beam, particle=proton,pc=0.75*pmass;
-rfc: rfcavity, l=0.0, volt=0.2, harmon=1, lag=(1/12.0);
+beam, particle=proton,energy=pmass+0.8;
 b: sbend, angle=pi/2, l=pi/2;
 channel: sequence, l=pi/2, refer=entry;
-rfc, at=0.0;
 b, at=0.0;
 endsequence;
 """
@@ -39,12 +30,15 @@ endsequence;
 
     return propagator
 
-
-
 def create_simulator(ref_part):
     sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(ref_part, macroparticles, realparticles)
     bunch = sim.get_bunch()
     bunch.checkout_particles()
+
+    energy = ref_part.get_total_energy()
+    #bunch.get_reference_particle().set_total_energy(energy+0.05)
+    bunch.get_reference_particle().set_total_energy(energy+0.0001)
+
     lp = bunch.get_particles_numpy()
     lp[:, 0:6] = 0.0
 
@@ -59,26 +53,12 @@ def test_accel1(prop_fixture):
 
     refpart = prop_fixture.get_lattice().get_reference_particle()
 
-    orig_E = refpart.get_total_energy()
-    orig_p = refpart.get_momentum()
-    print('orig_E: ', orig_E)
-    print('orig_p: ', orig_p)
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
-    bunch = sim.get_bunch()
-    bunch.checkout_particles()
-    lp = bunch.get_particles_numpy()
-    bunch.checkin_particles()
 
     simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
     prop_fixture.propagate(sim, simlog, nturns)
-
-    new_E = sim.get_bunch().get_reference_particle().get_total_energy()
-    new_p = sim.get_bunch().get_reference_particle().get_momentum()
-    print('new_E: ', new_E)
-    print('new_p: ', new_p)
-    assert new_E-orig_E == pytest.approx(nturns*expected_delta_E)
-    
-    # after acceleration, the dp/p of the particles should still be 0
+ 
+    # the dp/p of the particles should still be 0
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
@@ -104,6 +84,11 @@ def test_accel1(prop_fixture):
 
 
     # newR/oldR = new-p/old-p
+    orig_p = bunch.get_design_reference_particle().get_momentum()
+    new_p = bunch.get_reference_particle().get_momentum()
+
+    print('orig_p: ', orig_p)
+    print('new_p: ', new_p)
 
     newR = oldR * new_p/orig_p
     print('oldR: ', oldR, ' newR: ', newR, ' difference: ', newR-oldR)
@@ -127,9 +112,7 @@ def test_accel1(prop_fixture):
     # the design momentum of the bunch, not momentum after
     #  acceleration.
     assert ctime_diff == pytest.approx(lp[0, 4])
-
-    #assert False
-                
+               
   
 def main():
     pf = prop_fixture()
