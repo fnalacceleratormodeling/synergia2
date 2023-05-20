@@ -27,7 +27,7 @@ namespace sbend_impl
         double scale;
 
         double strength;
-        double pref_b;
+        double pref_b;   // bunch reference momentum
         double m_b;
         double ref_cdt;
 
