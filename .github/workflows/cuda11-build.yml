@@ -30,6 +30,13 @@ jobs:
       with:
         submodules: 'true'
 
+    # Debug: checkpoint at which to open tmate session
+    - name: cuda11 pre CMake
+      uses: mxschmitt/action-tmate@v3
+      if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_cmake_enabled }}
+      with:
+        sudo: false
+
     - name: CMake
       run: |
         lscpu
