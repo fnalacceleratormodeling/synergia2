@@ -1,0 +1,55 @@
+name: CI:cuda11-build
+
+on:
+  push:
+    branches: [ devel3 ]
+    paths-ignore:
+      - 'wiki/**'
+  pull_request:
+    branches: [ devel3 ]
+    paths-ignore:
+      - 'wiki/**'
+
+env:
+  BUILD_TYPE: RelWithDebInfo
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/fnalacceleratormodeling/synergia2-containers/cuda-11:main
+  
+    steps:
+    - name: Cancel Previous runs
+      uses: styfle/cancel-workflow-action@0.11.0
+      with:
+        access_token: ${{ github.token }}
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+
+    - name: CMake
+      run: |
+        lscpu
+        . /etc/profile.d/z10_spack_environment.sh 
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
+          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.10) \
+          -DENABLE_KOKKOS_BACKEND=CUDA \
+          -DBUILD_FD_SPACE_CHARGE_SOLVER=ON \
+          -DUSE_OPENPMD_IO=ON \
+          -DUSE_EXTERNAL_KOKKOS=OFF -GNinja
+
+    - name: build
+      # build synergia2
+      run: |
+        . /etc/profile.d/z10_spack_environment.sh 
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 2 
+
+    - name: install
+      # install synergia2
+      run: |
+        . /etc/profile.d/z10_spack_environment.sh 
+        cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
