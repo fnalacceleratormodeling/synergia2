@@ -1,4 +1,4 @@
-name: CI:cuda11-build
+name: CI:cuda11-gcc
 
 on:
   push:
