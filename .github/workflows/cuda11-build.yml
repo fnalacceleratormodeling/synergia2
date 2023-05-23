@@ -45,6 +45,7 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.10) \
           -DENABLE_KOKKOS_BACKEND=CUDA \
+          -DKokkos_ARCH_VOLTA70=ON \
           -DBUILD_FD_SPACE_CHARGE_SOLVER=ON \
           -DUSE_OPENPMD_IO=ON \
           -DUSE_EXTERNAL_KOKKOS=OFF -GNinja
