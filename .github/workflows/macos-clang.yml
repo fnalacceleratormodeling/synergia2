@@ -53,7 +53,7 @@ jobs:
         HDF5_DIR=$(brew --prefix hdf5) python3 -m pip install --no-binary=h5py h5py
 
     # Debug: checkpoint at which to open tmate session
-    - name: Setup tmate session
+    - name: macos-clang pre CMake
       uses: mxschmitt/action-tmate@v3
       if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_cmake_enabled }}
       with:
@@ -75,7 +75,7 @@ jobs:
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     # Debug: checkpoint at which to open tmate session
-    - name: Setup tmate session
+    - name: macos-clang pre ctest
       uses: mxschmitt/action-tmate@v3
       if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_tests_enabled }}
       with:

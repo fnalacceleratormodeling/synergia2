@@ -41,7 +41,7 @@ jobs:
         submodules: 'true'
 
     # Debug: checkpoint at which to open tmate session
-    - name: Setup tmate session
+    - name: ubuntu-clang pre CMake
       uses: mxschmitt/action-tmate@v3
       if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_cmake_enabled }}
       with:
@@ -74,7 +74,7 @@ jobs:
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     # Debug: checkpoint at which to open tmate session
-    - name: Setup tmate session
+    - name: ubuntu-clang pre ctest
       uses: mxschmitt/action-tmate@v3
       if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_tests_enabled }}
       with:
@@ -86,12 +86,6 @@ jobs:
         . /etc/profile.d/z10_spack_environment.sh 
         cd ${{github.workspace}}/build
         ctest -C ${{env.BUILD_TYPE}} --output-on-failure
-
-    # Debug: checkpoint at which to open tmate session
-    #- name: Setup tmate session
-    #  uses: mxschmitt/action-tmate@v3
-    #  with:
-    #    sudo: false
         
     - name: run-fodopy
     # Run the fodopy example from README.
