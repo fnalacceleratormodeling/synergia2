@@ -14,7 +14,7 @@ env:
   BUILD_TYPE: RelWithDebInfo
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/fnalacceleratormodeling/synergia2-containers/cuda-11:main
