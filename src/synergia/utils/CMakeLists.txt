@@ -84,7 +84,6 @@ install(TARGETS synergia_hdf5_utils DESTINATION ${LIB_INSTALL_DIR})
 install(
   FILES command_line_arg.h
         commxx.h
-        commxx_divider.h
         container_conversions.h
         distributed_fft3d.h
         distributed_fft2d.h
