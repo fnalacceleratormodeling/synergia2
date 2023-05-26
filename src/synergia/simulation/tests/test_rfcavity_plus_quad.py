@@ -6,9 +6,9 @@ import pytest
 
 macroparticles=16
 realparticles=4.0e10
-# lag 1/12 is a phase angle of 2pi/12 or pi/6 or 30 degrees
-# V = 0.2 MV * sin(pi/6) = 
-expected_delta_E = 0.0002*np.sin(np.pi/6)
+# lag 1/12 is a phase angle of 2pi/120 or pi/60 or 3 degrees
+# V = 0.2 MV * sin(pi/60) = 
+expected_delta_E = 0.0002*np.sin(np.pi/60)
 print('expected delta E/turn: ', expected_delta_E)
 nturns=1
 dpop_offset = 1.0e-3
@@ -22,18 +22,18 @@ def prop_fixture():
 
     channel_madx = """
 beam, particle=proton,pc=0.75*pmass;
-rfc: rfcavity, l=0.0, volt=0.2, harmon=1, lag=(1/12.0);
-q: quadrupole, l=1, k1=0.0625;
-channel: sequence, l=20.0, refer=centre;
+rfc: rfcavity, l=0.0, volt=0.2, harmon=1, lag=(1/120.0);
+q: quadrupole, l=20.0, k1=0;
+channel: sequence, l=20.0, refer=entry;
 rfc, at=0.0;
-!q, at=1.0;
+q, at=0.0;
 endsequence;
 """
     reader = synergia.lattice.MadX_reader()
     reader.parse(channel_madx)
     lattice = reader.get_lattice('channel')
     lattice.set_all_string_attribute('extractor_type', 'libff')
-    synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
+    synergia.simulation.Lattice_simulator.tune_linear_lattice(lattice)
     stepper = synergia.simulation.Independent_stepper_elements(1)
     propagator = synergia.simulation.Propagator(lattice, stepper)
 
@@ -47,25 +47,15 @@ def create_simulator(ref_part):
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
     lp[:, 0:6] = 0.0
-    lp[1, 5] = dpop_offset # particle with dp/p offset
-    lp[2, 5] = -dpop_offset # particle with negative dp/p offset
-    lp[3, 1] = transmom_offset # particle with transverse x momentum
-    lp[4, 3] = -transmom_offset # particle with transverse y momentum
 
-    lp[5, 1] = dpop_offset # particle with both trans xmomentum and dp/p
-    lp[5, 5] = transmom_offset
-
-    lp[6, 3] = -transmom_offset # particle with both trans y momentum and negative dp/p
-    lp[6, 5] = -dpop_offset
-
-    bunch.checkin_particles()
+    bunch.checkout_particles()
     return sim
 
 
 def test_accel1(prop_fixture):
 
-    print('lattice: ')
-    print(prop_fixture.get_lattice())
+    #print('lattice: ')
+    #print(prop_fixture.get_lattice())
 
     refpart = prop_fixture.get_lattice().get_reference_particle()
 
@@ -94,33 +84,25 @@ def test_accel1(prop_fixture):
     lp = bunch.get_particles_numpy()
     assert lp[0, 5] == 0.0
 
-    # What about CDT?
-    assert lp[0,4] == pytest.approx(0.0)
-    assert lp[0,4] == 0.0
-    print('lp[0]: ', lp[0,:])
+    length = prop_fixture.get_lattice().get_length()
 
-    print('bunch design energy: ', bunch.get_design_reference_particle().get_total_energy())
-    print('bunch energy: ', bunch.get_reference_particle().get_total_energy())
-    
-    # check new momenta
-    mom1_i = (1+dpop_offset)*orig_p
-    e1_i = np.sqrt(mom1_i**2 + mp**2)
-    e1_f = e1_i + expected_delta_E
-    mom1_f_should_be = np.sqrt(e1_f**2 - mp**2)
-    # check it
-    assert mom1_f_should_be == pytest.approx( (1+lp[1, 5]) * new_p)
+    # check cdt
+    new_beta = bunch.get_reference_particle().get_beta()
+    old_beta = bunch.get_design_reference_particle().get_beta()
+    old_ctime = length/old_beta
+    new_ctime = length/new_beta
+    ctime_diff = new_ctime-old_ctime
+    print('ctime diff: ', ctime_diff)
+    print('lp[0, 4]: ', lp[0, 4])
 
-    mom2_i = (1-dpop_offset)*orig_p
-    e2_i = np.sqrt(mom2_i**2 + mp**2)
-    e2_f = e2_i + expected_delta_E
-    mom2_f_should_be = np.sqrt(e2_f**2 - mp**2)
-    # check it
-    assert mom2_f_should_be == pytest.approx( (1+lp[2, 5]) * new_p)
+    # The reference time for a particle should be based on
+    # the design momentum of the bunch, not momentum after
+    #  acceleration.
+    assert ctime_diff == pytest.approx(lp[0, 4])
 
     #assert False
-
-    
-
+                
+  
 def main():
     pf = prop_fixture()
     test_accel1(pf)
