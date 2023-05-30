@@ -489,7 +489,9 @@ namespace sbend_impl
         double    y_l = ref_l.get_state()[Bunch::y];
         double   yp_l = ref_l.get_state()[Bunch::yp];
         double  cdt_l = 0.0;
-        double dpop_l = ref_l.get_state()[Bunch::dpop];
+        double dpop_l = 0.0;
+        //for reference particle start with dp/p==0
+        //double dpop_l = ref_l.get_state()[Bunch::dpop];
 
         double dphi =  -(sp.angle - (sp.e1 + sp.e2));
 
@@ -576,7 +578,9 @@ namespace sbend_impl
         double    y_l = ref_l.get_state()[Bunch::y];
         double   yp_l = ref_l.get_state()[Bunch::yp];
         double  cdt_l = 0.0;
-        double dpop_l = ref_l.get_state()[Bunch::dpop];
+        // for reference cdt, start with dp/p==0
+        // double dpop_l = ref_l.get_state()[Bunch::dpop];
+        double dpop_l = 0.0;
 
         double step_length = sp.length / sp.steps;
         double step_angle = sp.angle/sp.steps;
