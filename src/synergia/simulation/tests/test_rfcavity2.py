@@ -23,10 +23,8 @@ def prop_fixture():
     channel_madx = """
 beam, particle=proton,pc=0.75*pmass;
 rfc: rfcavity, l=0.0, volt=0.2, harmon=1, lag=(1/12.0);
-q: quadrupole, l=1, k1=0.0625;
 channel: sequence, l=20.0, refer=centre;
 rfc, at=0.0;
-!q, at=1.0;
 endsequence;
 """
     reader = synergia.lattice.MadX_reader()
@@ -71,13 +69,14 @@ def test_accel1(prop_fixture):
 
     orig_E = refpart.get_total_energy()
     orig_p = refpart.get_momentum()
+    orig_beta = orig_p/orig_E
     print('orig_E: ', orig_E)
     print('orig_p: ', orig_p)
+
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
-    bunch.checkin_particles()
 
     simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
     prop_fixture.propagate(sim, simlog, nturns)
@@ -92,11 +91,12 @@ def test_accel1(prop_fixture):
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
-    assert lp[0, 5] == 0.0
+    assert lp[0, 5] == pytest.approx(0.0)
 
-    # What about CDT?
-    assert lp[0,4] == pytest.approx(0.0)
-    assert lp[0,4] == 0.0
+    # CDT should reflect the new velocity
+    new_beta = new_p/new_E
+    L = prop_fixture.get_lattice().get_length()
+    assert lp[0,4] == pytest.approx(L*(1/new_beta - 1/orig_beta))
     print('lp[0]: ', lp[0,:])
 
     print('bunch design energy: ', bunch.get_design_reference_particle().get_total_energy())
@@ -116,8 +116,6 @@ def test_accel1(prop_fixture):
     mom2_f_should_be = np.sqrt(e2_f**2 - mp**2)
     # check it
     assert mom2_f_should_be == pytest.approx( (1+lp[2, 5]) * new_p)
-
-    #assert False
 
     
 

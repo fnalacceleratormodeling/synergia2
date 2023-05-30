@@ -11,10 +11,10 @@ realparticles=4.0e10
 turn_voltage = 1.0e-3 # 1.0e-3 GV/turn
 expected_delta_E = turn_voltage*np.sin(np.pi/60)
 print('expected delta E/turn: ', expected_delta_E)
-nturns=3
+nturns=100
 
 # prop_fixture is a propagator
-pytest.fixture
+@pytest.fixture
 def prop_fixture():
     # booster-like lattice
     booster_madx = """
@@ -22,8 +22,10 @@ ncells=24;
 turn_voltage=1.0; ! 1 MV /turn
 beam, particle=proton,energy=pmass+0.8;
 
-f: sbend, l=2.0, angle=(pi/(2*ncells)), k1=0.0625;
-d: sbend, l=2.0, angle=(pi/(2*ncells)), k1=-0.0625;
+!f: sbend, l=2.0, angle=(pi/(2*ncells)), k1=0.0625;
+!d: sbend, l=2.0, angle=(pi/(2*ncells)), k1=-0.0625;
+f: quadrupole, l=2.0, k1=0.0625;
+d: quadrupole, l=2.0, k1=-0.0625;
 rfc: rfcavity, l=0.0, volt=turn_voltage/ncells, harmon=96, lag=(1/120.0);
 
 cell: sequence, l=20.0, refer=centre;
@@ -103,6 +105,10 @@ def test_accel2(prop_fixture):
     Ebun0 = sim.get_bunch().get_design_reference_particle().get_total_energy()
     assert Elat0 == pytest.approx(Ebun0, 1.0e-10)
 
+    class context:
+        max_dpop = 0.0
+        max_cdt = 0.0
+
         # turn and action method
     def turn_end_action(sim, lattice, turn):
         bunch = sim.get_bunch()
@@ -110,9 +116,9 @@ def test_accel2(prop_fixture):
         bunch_E = bunch.get_reference_particle().get_total_energy()
         lattice_E = lattice.get_lattice_energy()
 
-        print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
-        print('turn_end_action: enter: lattice_E: ', lattice_E)
-        print('turn_end_action: enter: bunch_E: ', bunch_E)
+        #print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
+        #print('turn_end_action: enter: lattice_E: ', lattice_E)
+        #print('turn_end_action: enter: bunch_E: ', bunch_E)
 
         # after RF cavity, the bunch energy should have increased but
         # neither the bunch design energy nor the lattice energy
@@ -123,9 +129,9 @@ def test_accel2(prop_fixture):
         bunch.get_design_reference_particle().set_total_energy(bunch_E)
         lattice.set_lattice_energy(bunch_E)
 
-        print('turn_end_action: exit: bunch_design_E: ', bunch.get_design_reference_particle().get_total_energy())
-        print('turn_end_action: exit: lattice_E: ', lattice.get_reference_particle().get_total_energy())
-        print('turn_end_action: exit: bunch_E: ', bunch.get_reference_particle().get_total_energy())
+        #print('turn_end_action: exit: bunch_design_E: ', bunch.get_design_reference_particle().get_total_energy())
+        #print('turn_end_action: exit: lattice_E: ', lattice.get_reference_particle().get_total_energy())
+        #print('turn_end_action: exit: bunch_E: ', bunch.get_reference_particle().get_total_energy())
 
         # tune lattice
         synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
@@ -137,33 +143,20 @@ def test_accel2(prop_fixture):
         freq = 96*beta1*synergia.foundation.pconstants.c/lattice.get_length()
         assert freq == pytest.approx(synergia.simulation.Lattice_simulator.get_rf_frequency(lattice))
 
-        #bunch = sim.get_bunch()
-        #bunch.checkout_particles()
-        #lp = bunch.get_particles_numpy()
-        # with acceleration, dp/p of all the central particles should remain at 0
-        #for i in range(1):
-        #    if lp[i, 5] != pytest.approx(0):
-        #        print('particle ', i, ' dp/p != 0: ', lp[i, 5])
+        # The central particles should stay close to 0 in energy and time
+        bunch.checkout_particles()
+        lp = bunch.get_particles_numpy()
+        # assert abs(lp[0, 4]) < 1.0e-10
+        # assert abs(lp[0, 5]) < 1.0e-10
+        if abs(lp[0, 4]) > context.max_cdt:
+            context.max_cdt = lp[0, 4]
+        if abs(lp[0, 5]) > context.max_dpop:
+            context.max_dpop = lp[0, 5]
  
 
     # end of turn end action method
 
-    # step end action method
-    def step_end_action(sim, lattice, turn, step):
-        bunch = sim.get_bunch()
-        bunch.checkout_particles()
-        lp = bunch.get_particles_numpy()
-        # with acceleration, dp/p of all the central particles should remain at 0
-        for i in range(1):
-            if lp[i, 4] != pytest.approx(0) or lp[i, 5] != pytest.approx(0):
-                print('step ', step, ' particle ', i, ' cdt: ', lp[i, 4], ' dp/p: ', lp[i, 5])
-
-            #assert lp[i, 5] == pytest.approx(0.0)
-    
-    # end of step end action method
-
     sim.reg_prop_action_turn_end(turn_end_action)
-    sim.reg_prop_action_step_end(step_end_action)
 
     simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
     prop_fixture.propagate(sim, simlog, nturns)
@@ -175,13 +168,9 @@ def test_accel2(prop_fixture):
     assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
     assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
 
-    bunch = sim.get_bunch()
-    bunch.checkout_particles()
-    lp = bunch.get_particles_numpy()
-    # with acceleration, dp/p of all the central particles should remain at 0
-    for i in range(1):
-        assert lp[i, 4] == pytest.approx(0.0)
-        assert lp[i, 5] == pytest.approx(0.0)
+    assert context.max_cdt < 1.0e-12
+    assert context.max_dpop < 1.0e-12
+
 
 def main():
     pf = prop_fixture()

@@ -10,7 +10,7 @@ realparticles=4.0e10
 # V = 0.2 MV * sin(pi/60) = 
 expected_delta_E = 0.0002*np.sin(np.pi/60)
 print('expected delta E/turn: ', expected_delta_E)
-nturns=10
+nturns=100
 
 
 # prop_fixture is a propagator

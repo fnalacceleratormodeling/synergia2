@@ -337,6 +337,15 @@ def test_correct_init_frequency():
     # rffreq will be in MHz, while my calculated freq is in Hz
     assert rffreq*1.0e+6 == pytest.approx(freq)
 
+def test_correct_cdt():
+    lattice = get_lattice()
+    beta = lattice.get_reference_particle().get_beta()
+    length = lattice.get_length()
+    # get closed orbit state from tune_circular_lattice
+    closed_orbit_state = synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
+    cdt = closed_orbit_state[4]
+    assert length/beta == pytest.approx(cdt)
+
 def test_correct_increased_frequency():
     lattice = get_lattice()
     length = lattice.get_length()
@@ -384,47 +393,6 @@ def test_correct_increased_frequency():
     print('freq: ', freq)
     assert rffreq*1.0e+6 == pytest.approx(freq)
 
-def test_correct_increased_frequency2():
-    return True
-    lattice = get_lattice()
-    length = lattice.get_length()
-    # harmonic number is unity
-    init_energy = lattice.get_reference_particle().get_total_energy()
-    print('init_energy: ', init_energy)
-    gamma = init_energy/synergia.foundation.pconstants.mp
-    betagamma = np.sqrt(gamma**2 - 1)
-    beta = betagamma/gamma
-    print('orig betagamma: ', betagamma)
-    print('orig gamma: ', gamma)
-    print('orig beta: ', beta)
-    return
-    new_refpart = lattice.get_reference_particle()
-    new_energy = init_energy + 1
-    print('new_energy: ', new_energy)
-    new_refpart.set_total_energy(new_energy)
-    lattice.set_reference_particle(new_refpart)
-    print('readback new energy: ', lattice.get_reference_particle().get_total_energy())
-    new_gamma = new_energy/synergia.foundation.pconstants.mp
-    new_betagamma = np.sqrt(new_gamma**2 - 1)
-    new_beta = new_betagamma/new_gamma
-    print('new_betagamma: ', new_betagamma)
-    print('new_gamma: ', new_gamma)
-    print('readback new gamma: ', lattice.get_reference_particle().get_gamma())
-    print('new_beta: ', new_beta)
-    print('readback new beta: ', lattice.get_reference_particle().get_beta())
-    assert lattice.get_reference_particle().get_beta() == pytest.approx(new_beta)
-    synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
-    freq = 84*lattice.get_reference_particle().get_beta() * synergia.foundation.pconstants.c/length
-    ncavities = 0
-    rfelem = None
-    for elem in lattice.get_elements():
-        if elem.get_type() == synergia.lattice.element_type.rfcavity:
-            ncavities = ncavities+1
-            rfelem = elem
-    assert ncavities == 22
-    rffreq = rfelem.get_double_attribute('freq')
-    # rffreq will be in MHz, while my calculated freq is in Hz
-    assert rffreq*1.0e+6 == pytest.approx(freq)
 
 
 def main():

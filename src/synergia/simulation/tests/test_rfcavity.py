@@ -69,6 +69,7 @@ def test_accel1(prop_fixture):
 
     orig_E = refpart.get_total_energy()
     orig_p = refpart.get_momentum()
+    orig_beta = orig_p/orig_E
     print('orig_E: ', orig_E)
     print('orig_p: ', orig_p)
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
@@ -90,11 +91,12 @@ def test_accel1(prop_fixture):
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
-    assert lp[0, 5] == 0.0
+    assert lp[0, 5] == pytest.approx(0.0)
 
-    # What about CDT?
-    assert lp[0,4] == pytest.approx(0.0)
-    assert lp[0,4] == 0.0
+    # CDT should reflect the new velocity
+    new_beta = new_p/new_E
+    L = prop_fixture.get_lattice().get_length()
+    assert lp[0,4] == pytest.approx(L*(1/new_beta - 1/orig_beta))
     print('lp[0]: ', lp[0,:])
 
     print('bunch design energy: ', bunch.get_design_reference_particle().get_total_energy())
