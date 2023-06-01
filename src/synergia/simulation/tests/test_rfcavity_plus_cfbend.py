@@ -24,7 +24,7 @@ def prop_fixture():
     channel_madx = """
 beam, particle=proton,pc=0.75*pmass;
 rfc: rfcavity, l=0.0, volt=0.2, harmon=1, lag=(1/12.0);
-b: sbend, angle=pi/2, l=pi/2, k1=0;
+b: sbend, angle=pi/2, l=pi/2, k1=3.2e-6;
 channel: sequence, l=pi/2, refer=entry;
 rfc, at=0.0;
 b, at=0.0;
