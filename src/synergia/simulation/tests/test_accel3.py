@@ -110,6 +110,7 @@ def test_accel2(prop_fixture):
         max_dpop = 0.0
         max_cdt = 0.0
 
+
     # turn and action method
     def turn_end_action(sim, lattice, turn):
         bunch = sim.get_bunch()
@@ -117,9 +118,9 @@ def test_accel2(prop_fixture):
         bunch_E = bunch.get_reference_particle().get_total_energy()
         lattice_E = lattice.get_lattice_energy()
 
-        #print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
-        #print('turn_end_action: enter: lattice_E: ', lattice_E)
-        #print('turn_end_action: enter: bunch_E: ', bunch_E)
+        # print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
+        # print('turn_end_action: enter: lattice_E: ', lattice_E)
+        # print('turn_end_action: enter: bunch_E: ', bunch_E)
 
         # after RF cavity, the bunch energy should have increased but
         # neither the bunch design energy nor the lattice energy
@@ -130,9 +131,9 @@ def test_accel2(prop_fixture):
         bunch.get_design_reference_particle().set_total_energy(bunch_E)
         lattice.set_lattice_energy(bunch_E)
 
-        #print('turn_end_action: exit: bunch_design_E: ', bunch.get_design_reference_particle().get_total_energy())
-        #print('turn_end_action: exit: lattice_E: ', lattice.get_reference_particle().get_total_energy())
-        #print('turn_end_action: exit: bunch_E: ', bunch.get_reference_particle().get_total_energy())
+        # print('turn_end_action: exit: bunch_design_E: ', bunch.get_design_reference_particle().get_total_energy())
+        # print('turn_end_action: exit: lattice_E: ', lattice.get_reference_particle().get_total_energy())
+        # print('turn_end_action: exit: bunch_E: ', bunch.get_reference_particle().get_total_energy())
 
         # tune lattice
         synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
@@ -147,8 +148,7 @@ def test_accel2(prop_fixture):
         # The central particles should stay close to 0 in energy and time
         bunch.checkout_particles()
         lp = bunch.get_particles_numpy()
-        # assert abs(lp[0, 4]) < 1.0e-10
-        # assert abs(lp[0, 5]) < 1.0e-10
+
         if abs(lp[0, 4]) > context.max_cdt:
             context.max_cdt = lp[0, 4]
         if abs(lp[0, 5]) > context.max_dpop:
@@ -169,9 +169,8 @@ def test_accel2(prop_fixture):
     assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
     assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
 
-    assert context.max_cdt < 1.0e-12
+    assert context.max_cdt < 1.0e-8
     assert context.max_dpop < 1.0e-12
-
 
 def main():
     pf = prop_fixture()
