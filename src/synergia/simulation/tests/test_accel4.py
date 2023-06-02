@@ -23,8 +23,8 @@ turn_voltage=1.0; ! 1 MV /turn
 beam, particle=proton,energy=pmass+0.8;
 
 b: sbend, l=2.0, angle=(pi/(2*ncells));
-f: sbend, l=2.0, angle=(pi/(2*ncells));
-d: sbend, l=2.0, angle=(pi/(2*ncells));
+f: quadrupole, l=2.0, k1=0.0625;
+d: quadrupole, l=2.0, k1=-0.0625;
 rfc: rfcavity, l=0.0, volt=turn_voltage/ncells, harmon=96, lag=(1/120.0);
 
 cell: sequence, l=20.0, refer=centre;
@@ -169,8 +169,8 @@ def test_accel2(prop_fixture):
     assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
     assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
 
-    assert context.max_cdt < 1.0e-8
-    assert context.max_dpop < 1.0e-12
+    assert context.max_cdt < 1.0e-2
+    assert context.max_dpop < 1.0e-5
 
 def main():
     pf = prop_fixture()
