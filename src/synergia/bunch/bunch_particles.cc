@@ -458,19 +458,13 @@ bunch_particles_t<double>::get_particles_in_range(host_parts_t subset_parts,
     ParticleMasksSubView masks_in_range = Kokkos::subview(
         masks, Kokkos::make_pair(local_idx, local_idx + local_num));
 
-    Kokkos::parallel_for(
-        "get_particles_in_range_copy", local_num, KOKKOS_LAMBDA(const int i) {
-            subset_parts(i, 0) = parts_in_range(i, 0);
-            subset_parts(i, 1) = parts_in_range(i, 1);
-            subset_parts(i, 2) = parts_in_range(i, 2);
-            subset_parts(i, 3) = parts_in_range(i, 3);
-            subset_parts(i, 4) = parts_in_range(i, 4);
-            subset_parts(i, 5) = parts_in_range(i, 5);
-            subset_parts(i, 6) = parts_in_range(i, 6);
-            subset_parts(i, 7) = parts_in_range(i, 7);
+    // have to pack subset of particles into a buffer before they can be
+    // transferred to the host!
+    auto packed_parts_in_range = Particles("subset_packed_parts", local_num);
+    Kokkos::deep_copy(packed_parts_in_range, parts_in_range);
 
-            subset_masks(i) = masks_in_range(i);
-        });
+    Kokkos::deep_copy(subset_parts, packed_parts_in_range);
+    Kokkos::deep_copy(subset_masks, masks_in_range);
 
     return;
 }
