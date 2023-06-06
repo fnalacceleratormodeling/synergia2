@@ -13,7 +13,8 @@ namespace bunch_particles_impl {
 
 namespace {
     // Kokkos functors
-    struct particle_copier_many {
+
+    struct particle_copier_many_row {
         ConstParticles src;
         karray2d_row_dev dst;
 
@@ -457,7 +458,12 @@ bunch_particles_t<double>::get_particles_in_range(host_parts_t subset_parts,
     ParticleMasksSubView masks_in_range = Kokkos::subview(
         masks, Kokkos::make_pair(local_idx, local_idx + local_num));
 
-    Kokkos::deep_copy(subset_parts, parts_in_range);
+    // have to pack subset of particles into a buffer before they can be
+    // transferred to the host!
+    auto packed_parts_in_range = Particles("subset_packed_parts", local_num);
+    Kokkos::deep_copy(packed_parts_in_range, parts_in_range);
+
+    Kokkos::deep_copy(subset_parts, packed_parts_in_range);
     Kokkos::deep_copy(subset_masks, masks_in_range);
 
     return;
@@ -474,7 +480,7 @@ bunch_particles_t<double>::get_particles_in_range_row(int idx, int n) const
     karray2d_row_dev p("sub_p", n, 7);
     ParticleMasks pm("masks", n);
 
-    particle_copier_many pc{parts, p, masks, pm, idx};
+    particle_copier_many_row pc{parts, p, masks, pm, idx};
     Kokkos::parallel_for(n, pc);
 
     karray2d_row hp = create_mirror_view(p);
