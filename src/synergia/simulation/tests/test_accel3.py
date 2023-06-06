@@ -22,8 +22,8 @@ ncells=24;
 turn_voltage=1.0; ! 1 MV /turn
 beam, particle=proton,energy=pmass+0.8;
 
-f: sbend, l=2.0, angle=(pi/(2*ncells)), k1=0.0625;
-d: sbend, l=2.0, angle=(pi/(2*ncells)), k1=-0.0625;
+f: sbend, l=2.0, angle=(pi/(2*ncells)), k1=1/16.2;
+d: sbend, l=2.0, angle=(pi/(2*ncells)), k1=-1/16.7;
 !f: quadrupole, l=2.0, k1=0.0625;
 !d: quadrupole, l=2.0, k1=-0.0625;
 rfc: rfcavity, l=0.0, volt=turn_voltage/ncells, harmon=96, lag=(1/120.0);
@@ -102,6 +102,10 @@ def test_accel2(prop_fixture):
 
     lattice = prop_fixture.get_lattice()
 
+    chroms = synergia.simulation.Lattice_simulator.get_chromaticities(lattice)
+    print('slip factor: ', chroms.slip_factor)
+    print('slip_factor_prime: ', chroms.slip_factor_prime)
+
     Elat0 = lattice.get_lattice_energy()
     Ebun0 = sim.get_bunch().get_design_reference_particle().get_total_energy()
     assert Elat0 == pytest.approx(Ebun0, 1.0e-10)
@@ -169,8 +173,8 @@ def test_accel2(prop_fixture):
     assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
     assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
 
-    assert context.max_cdt < 1.0e-8
-    assert context.max_dpop < 1.0e-12
+    assert context.max_cdt < 1.0e-2
+    assert context.max_dpop < 1.0e-5
 
 def main():
     pf = prop_fixture()

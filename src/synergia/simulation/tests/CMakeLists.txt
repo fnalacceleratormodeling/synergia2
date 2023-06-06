@@ -24,7 +24,7 @@ if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_tune_circular_lattice2.py)
   add_py_test(test_prop_actions.py)
   add_py_test(test_accel.py)
-  add_py_test(test_accel2.py)
+  # test_accel2.py removed as redundant
   add_py_test(test_accel3.py)
   add_py_test(test_accel4.py)
   add_py_test(test_accel_booster.py)
