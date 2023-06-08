@@ -134,7 +134,9 @@ namespace solenoid_impl
         double y(reference_particle.get_state()[Bunch::y]);
         double yp(reference_particle.get_state()[Bunch::yp]);
         double cdt(0.0);
-        double dpop(reference_particle.get_state()[Bunch::dpop]);
+        // For calculating cdt, the dp/p of the reference particle should be 0
+        // double dpop(reference_particle.get_state()[Bunch::dpop]);
+        double dpop=0.0;
 
         double ref_p = reference_particle.get_momentum()*(1+dpop);
         double mass  = reference_particle.get_mass();
