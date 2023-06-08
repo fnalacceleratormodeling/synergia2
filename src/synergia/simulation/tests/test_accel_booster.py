@@ -347,8 +347,6 @@ def create_simulator(ref_part):
 
 
 def test_accel_booster(prop_fixture):
-    #assert False
-
     refpart = prop_fixture.get_lattice().get_reference_particle()
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
 
@@ -358,16 +356,20 @@ def test_accel_booster(prop_fixture):
     Ebun0 = sim.get_bunch().get_design_reference_particle().get_total_energy()
     assert Elat0 == pytest.approx(Ebun0, 1.0e-10)
 
-        # turn and action method
+    class context:
+        max_cdt = 0
+        max_dpop = 0
+
+    # turn and action method
     def turn_end_action(sim, lattice, turn):
         bunch = sim.get_bunch()
         bunch_design_E = bunch.get_design_reference_particle().get_total_energy()
         bunch_E = bunch.get_reference_particle().get_total_energy()
         lattice_E = lattice.get_lattice_energy()
 
-        print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
-        print('turn_end_action: enter: lattice_E: ', lattice_E)
-        print('turn_end_action: enter: bunch_E: ', bunch_E)
+        # print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
+        # print('turn_end_action: enter: lattice_E: ', lattice_E)
+        # print('turn_end_action: enter: bunch_E: ', bunch_E)
 
         # after RF cavity, the bunch energy should have increased but
         # neither the bunch design energy nor the lattice energy
@@ -378,9 +380,9 @@ def test_accel_booster(prop_fixture):
         bunch.get_design_reference_particle().set_total_energy(bunch_E)
         lattice.set_lattice_energy(bunch_E)
 
-        print('turn_end_action: exit: bunch_design_E: ', bunch.get_design_reference_particle().get_total_energy())
-        print('turn_end_action: exit: lattice_E: ', lattice.get_reference_particle().get_total_energy())
-        print('turn_end_action: exit: bunch_E: ', bunch.get_reference_particle().get_total_energy())
+        # print('turn_end_action: exit: bunch_design_E: ', bunch.get_design_reference_particle().get_total_energy())
+        # print('turn_end_action: exit: lattice_E: ', lattice.get_reference_particle().get_total_energy())
+        # print('turn_end_action: exit: bunch_E: ', bunch.get_reference_particle().get_total_energy())
 
         # tune lattice
         synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
@@ -395,7 +397,21 @@ def test_accel_booster(prop_fixture):
 
     # end of turn end action method
 
+    # step end action method
+    def step_end_action(sim, lattice, turn, step):
+        bunch = sim.get_bunch()
+        bunch.checkout_particles()
+        lp = bunch.get_particles_numpy()
+        
+        if abs(lp[0, 4]) > abs(context.max_cdt):
+            context.max_cdt = lp[0, 4]
+        if abs(lp[0, 5]) > abs(context.max_dpop):
+            context.max_dpop = lp[0, 5]
+    
+    # end of step end action method
+
     sim.reg_prop_action_turn_end(turn_end_action)
+    sim.reg_prop_action_step_end(step_end_action)
 
     simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
     prop_fixture.propagate(sim, simlog, nturns)
@@ -406,6 +422,9 @@ def test_accel_booster(prop_fixture):
     print('(Elat1-Elat0)/expected_delta_E: ', (Elat1-Elat0)/expected_delta_E)
     assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
     assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
+
+    assert abs(context.max_cdt) < 1.0e-2
+    assert abs(context.max_dpop) < 1.0e-4
 
 def main():
     pf = prop_fixture()

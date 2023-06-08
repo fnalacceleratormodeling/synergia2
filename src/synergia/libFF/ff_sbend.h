@@ -27,7 +27,7 @@ namespace sbend_impl
         double scale;
 
         double strength;
-        double pref_b;
+        double pref_b;   // bunch reference momentum
         double m_b;
         double ref_cdt;
 
@@ -489,7 +489,10 @@ namespace sbend_impl
         double    y_l = ref_l.get_state()[Bunch::y];
         double   yp_l = ref_l.get_state()[Bunch::yp];
         double  cdt_l = 0.0;
-        double dpop_l = ref_l.get_state()[Bunch::dpop];
+        double dpop_l = 0.0;
+
+        //for reference particle start with dp/p==0
+        //double dpop_l = ref_l.get_state()[Bunch::dpop];
 
         double dphi =  -(sp.angle - (sp.e1 + sp.e2));
 
@@ -576,7 +579,9 @@ namespace sbend_impl
         double    y_l = ref_l.get_state()[Bunch::y];
         double   yp_l = ref_l.get_state()[Bunch::yp];
         double  cdt_l = 0.0;
-        double dpop_l = ref_l.get_state()[Bunch::dpop];
+        // for reference cdt, start with dp/p==0
+        // double dpop_l = ref_l.get_state()[Bunch::dpop];
+        double dpop_l = 0.0;
 
         double step_length = sp.length / sp.steps;
         double step_angle = sp.angle/sp.steps;
@@ -905,8 +910,8 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
                 Kokkos::parallel_for(range, sbend2);
 #else
 
-                // Yoshida (same to the CF sbends)
-                prop_reference_cf(ref_l, sp);
+                // Yoshida (same as CF sbends)
+                prop_reference_cf(ref_l, sp);  // has a_n/b_n multipoles
 
                 auto range = RangePolicy<exec>(0, bp.size_in_gsv());
                 PropSbendCFSimd<typename BunchT::bp_t> sbend(bp, sp);
@@ -915,7 +920,7 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
             }
             else
             {
-                prop_reference(ref_l, sp);
+                prop_reference(ref_l, sp);  // no multipoles (not combined-function)
 
                 auto range = RangePolicy<exec>(0, bp.size_in_gsv());
                 PropSbendSimd<typename BunchT::bp_t> sbend(bp, sp);
@@ -934,7 +939,7 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
     else
     {
         // propagate reference
-        prop_reference_cf(ref_l, sp);
+        prop_reference_cf(ref_l, sp); // has k1, k2 attributes
 
         auto apply = [&](ParticleGroup pg) {
             auto bp = bunch.get_bunch_particles(pg);

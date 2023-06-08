@@ -351,6 +351,21 @@ PYBIND11_MODULE(simulation, m)
                 "commxx"_a = Commxx(),
                 "num_spectators"_a = 0)
 
+    .def_static("create_two_trains_simulator",
+                &Bunch_simulator::create_two_trains_simulator,
+                py::return_value_policy::move,
+                "Create a Bunch_simulator with two bunch trains.",
+                "reference_particle_pri"_a,
+                "reference_particle_sec"_a,
+                "num_particles"_a,
+                "num_real_particles"_a,
+                "num_bunches_pri"_a=1,
+                "num_bunch_sec"_a=1,
+                "spacing_pri"_a=0,
+                "spacing_sec"_a=0,
+                "commxx"_a = Commxx(),
+                "num_spectators"_a = 0)
+
 #if 0
 		.def( "set_turns",
 			&Bunch_simulator::set_turns,

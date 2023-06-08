@@ -230,7 +230,9 @@ namespace FF_rfcavity {
         double ref_l_y = ref_l.get_state()[Bunch::y];
         double ref_l_yp = ref_l.get_state()[Bunch::yp];
         double ref_l_cdt = 0.0;
-        double ref_l_dpop = ref_l.get_state()[Bunch::dpop];
+//        double ref_l_dpop = ref_l.get_state()[Bunch::dpop];
+        // EGS: Don't use reference dpop, for calculation of cdt
+        double ref_l_dpop = 0.0;
 
         double ref_l_p = ref_l.get_momentum();
         double ref_l_m = ref_l.get_mass();
@@ -285,9 +287,12 @@ namespace FF_rfcavity {
         total_ref_cdt += ref_l_cdt;
         rp.ref_cdt_2 = ref_l_cdt;
 
-        // save the state
+        // save the state, except for the longitudinal
+        //ref_l.set_state(
+        //    ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, ref_l_dpop);
+        // EGS: only update transverse coordinates of reference particle
         ref_l.set_state(
-            ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, ref_l_dpop);
+            ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, 0.0, 0.0);
 
         // bunch particles
         auto apply = [&](ParticleGroup pg) {

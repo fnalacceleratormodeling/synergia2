@@ -271,7 +271,9 @@ namespace quad_impl
         double y  = ref.get_state()[Bunch::y];
         double yp = ref.get_state()[Bunch::yp];
         double cdt  = 0.0;
-        double dpop = ref.get_state()[Bunch::dpop];
+        // EGS: don't use incomoing dp/p for reference time calculation
+        //double dpop = ref.get_state()[Bunch::dpop];
+        double dpop = 0.0;
 
         x -= xoff;
         y -= yoff;

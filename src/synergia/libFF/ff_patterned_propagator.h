@@ -216,7 +216,9 @@ struct FF_patterned_propagator
         double xp = ref.get_state()[1];
         double y  = ref.get_state()[2];
         double yp = ref.get_state()[3];
-        double dpop = ref.get_state()[5];
+        // Don't use dp/p for getting reference time
+        // double dpop = ref.get_state()[5];
+        double dpop = 0.0;
 
         kf_d(x, xp, y, yp, dpop, k);
 
@@ -234,6 +236,9 @@ struct FF_patterned_propagator
         double cdt = 0.0;
 
         auto  st = ref.get_state();
+        // EGS: use dp/p=0 for reference time calculation bacuse it might
+        //   have been changed by acceleration
+        st[5] = 0.0;
 
         // for >0 length, hk,vk is the strength/length of the kick
         double str[2*COMP];
@@ -268,6 +273,9 @@ struct FF_patterned_propagator
         double cdt = 0.0;
 
         auto  st = ref.get_state();
+        // EGS: use dp/p=0 for reference time calculation bacuse it might
+        //   have been changed by acceleration
+        st[5] = 0.0;
 
         // steps comes from base class, set in apply method
         double step_len = len / steps;
