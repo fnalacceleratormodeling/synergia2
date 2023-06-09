@@ -2,11 +2,14 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/utils/parallel_utils.h"
-#include "synergia_config.h"
+#include "synergia/utils/synergia_config.h"
+
+#include <synergia_version.h>
 
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
+#include <string>
 
 template <>
 Bunch::bunch_t(Reference_particle const& reference_particle,
@@ -301,6 +304,20 @@ Bunch::write_openpmd_file(std::string const& filename,
 
     auto io_device =
         openPMD::Series(filename, openPMD::Access::CREATE, this->get_comm());
+
+    std::string version =
+        std::to_string(synergia_version::synergia_version_year);
+    version.append(".");
+    version.append(std::to_string(synergia_version::synergia_version_month));
+    version.append(".");
+    version.append(std::to_string(synergia_version::synergia_version_day));
+    if constexpr (synergia_version::synergia_version_patch != 0) {
+        version.append("-");
+        version.append(
+            std::to_string(synergia_version::synergia_version_patch));
+    }
+
+    io_device.setSoftware("synergia3", version);
 
     if (local_num > 0) {
         if (num_part == -1) { num_part = this->get_total_num(PG::regular); }

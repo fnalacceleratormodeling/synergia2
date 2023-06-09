@@ -1,6 +1,8 @@
 #include "synergia/bunch/diagnostics_io.h"
 
 #include <iomanip>
+#include <string>
+#include <synergia_version.h>
 
 Diagnostics_io::Diagnostics_io(std::string filename,
                                bool single_file,
@@ -39,6 +41,21 @@ Diagnostics_io::Diagnostics_io(std::string filename,
 
 #ifdef SYNERGIA_HAVE_OPENPMD
     file.emplace(filename, openPMD::Access::CREATE, MPI_Comm(*comm));
+
+    std::string version =
+        std::to_string(synergia_version::synergia_version_year);
+    version.append(".");
+    version.append(std::to_string(synergia_version::synergia_version_month));
+    version.append(".");
+    version.append(std::to_string(synergia_version::synergia_version_day));
+    if constexpr (synergia_version::synergia_version_patch != 0) {
+        version.append("-");
+        version.append(
+            std::to_string(synergia_version::synergia_version_patch));
+    }
+
+    file->setSoftware("synergia3", version);
+
 #else
     file.emplace(get_filename(), Hdf5_file::Flag::truncate, comm);
 #endif
