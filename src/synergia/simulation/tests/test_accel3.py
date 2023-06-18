@@ -102,10 +102,6 @@ def test_accel2(prop_fixture):
 
     lattice = prop_fixture.get_lattice()
 
-    chroms = synergia.simulation.Lattice_simulator.get_chromaticities(lattice)
-    print('slip factor: ', chroms.slip_factor)
-    print('slip_factor_prime: ', chroms.slip_factor_prime)
-
     Elat0 = lattice.get_lattice_energy()
     Ebun0 = sim.get_bunch().get_design_reference_particle().get_total_energy()
     assert Elat0 == pytest.approx(Ebun0, 1.0e-10)
