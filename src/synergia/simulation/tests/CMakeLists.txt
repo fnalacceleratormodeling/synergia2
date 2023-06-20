@@ -14,6 +14,10 @@ target_link_libraries(test_bunch_simulator synergia_simulation
                       synergia_test_main)
 add_mpi_test(test_bunch_simulator 1)
 
+add_executable(test_get_tunes2 test_get_tunes2.cc)
+target_link_libraries(test_get_tunes2 synergia_simulation synergia_test_main)
+add_mpi_test(test_get_tunes2 1)
+
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)
   add_py_test(test_nonlinear_maps.py)
