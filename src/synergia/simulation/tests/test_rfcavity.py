@@ -16,7 +16,7 @@ transmom_offset = 0.001
 mp = synergia.foundation.pconstants.mp
 
 # prop_fixture is a propagator
-#@pytest.fixture
+@pytest.fixture
 def prop_fixture():
     
 

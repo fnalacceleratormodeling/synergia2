@@ -4,7 +4,7 @@ import numpy as np
 import synergia
 import pytest
 
-# This test is the same as test_get_tunes.py but with the Booster-like lattice.
+# This test is similar to test_get_tunes2.py but with the Booster-like lattice.
 
 # lattice_fixture is a lattice
 @pytest.fixture
@@ -20,7 +20,6 @@ d: sbend, l=2.0, angle=(pi/(2*ncells)), k1=-1/16.7;
 !f: quadrupole, l=2.0, k1=0.0625;
 !d: quadrupole, l=2.0, k1=-0.0625;
 rfc: rfcavity, l=0.0, volt=turn_voltage/ncells, harmon=96, lag=(1/120.0);
-
 
 cell: sequence, l=20.0, refer=centre;
 fodo_1: f, at=1.5;

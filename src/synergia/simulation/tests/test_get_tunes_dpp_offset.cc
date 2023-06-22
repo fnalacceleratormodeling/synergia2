@@ -69,32 +69,7 @@ endsequence;
     return reader.get_lattice("booster");
 }
 
-TEST_CASE("get_tunes")
-{
-/*
-    tunes = synergia.simulation.Lattice_simulator.calculate_tune_and_cdt(lattice_fixture)
-    print('Tunes: x: ', tunes[0], ', y: ', tunes[1])
-    assert tunes[0] == pytest.approx(0.16533417, rel=1.0e-4)
-    assert tunes[1] == pytest.approx(0.436092762, rel=1.0e-4)
-*/
-    Logger screen(0, LoggerV::INFO);
-
-    Lattice lattice = get_lattice();
-
-    screen << "Read lattice, length: " << lattice.get_length() << ", "
-           << lattice.get_elements().size() << " elements" << std::endl;
-
-    auto tunes(Lattice_simulator::calculate_tune_and_cdt(lattice));
-
-    screen << "x tune: " << std::setprecision(17) << tunes[0] << " should be " << 0.16533417 << std::endl;
-    screen << "y tune: " << std::setprecision(17) << tunes[1] << " should be " << 0.436092762 << std::endl;
-
-    CHECK(tunes[0] == Approx(0.16533417).epsilon(1.0e-4));
-    CHECK(tunes[1] == Approx(0.436092762).epsilon(1.0e-4));
-
-}
-
-TEST_CASE("get_chromaticities")
+TEST_CASE("get_tunes_dpp_offset")
 {
     Logger screen(0, LoggerV::INFO);
 
@@ -102,12 +77,19 @@ TEST_CASE("get_chromaticities")
     Reference_particle refpart(lattice.get_reference_particle());
     double beta = refpart.get_beta();
 
-    auto chroms(Lattice_simulator::get_chromaticities(lattice));
+    constexpr double dpp = 4.0e-4;
+    auto tunes(Lattice_simulator::calculate_tune_and_cdt(lattice, dpp));
 
-    screen << "H chrom: " << std::setprecision(17) << chroms.horizontal_chromaticity << " should be " << -65.68223681*beta << std::endl;
-    screen << "V chromaticity: " << std::setprecision(17) << chroms.vertical_chromaticity << " should be " << -25.5636675*beta << std::endl;
+    screen << "x tune: " << std::setprecision(17) << tunes[0] <<  std::endl;
+    screen << "y tune: " << std::setprecision(17) << tunes[1] <<  std::endl;
 
-    // CHECK( chroms.horizontal_chromaticity == Approx(-65.68223681*beta).epsilon(1.0e-4) );
-    // CHECK( chroms.vertical_chromaticity == Approx(-25.5636675*beta).epsilon(1.0e-4) );
-    
+    // from outputs of test_get_tunes2
+    constexpr double chromx=-60.349667735076068;
+    constexpr double chromy=-21.774885376635297;
+    constexpr double tunex_dpp0 = 0.16533644789863577;
+    constexpr double tuney_dpp0 = 0.4360932921548214;
+    // CHECK (tunes[0] == Approx(tunex_dpp0 + chromx*dpp).epsilon(1.0e-8));
+    // CHECK (tunes[1] == Approx(tuney_dpp0 + chromy*dpp).epsilon(1.0e-8));
+
 }
+ 

@@ -69,45 +69,35 @@ endsequence;
     return reader.get_lattice("booster");
 }
 
-TEST_CASE("get_tunes")
+TEST_CASE("closed_orbit_at_0dpp")
 {
-/*
-    tunes = synergia.simulation.Lattice_simulator.calculate_tune_and_cdt(lattice_fixture)
-    print('Tunes: x: ', tunes[0], ', y: ', tunes[1])
-    assert tunes[0] == pytest.approx(0.16533417, rel=1.0e-4)
-    assert tunes[1] == pytest.approx(0.436092762, rel=1.0e-4)
-*/
     Logger screen(0, LoggerV::INFO);
 
     Lattice lattice = get_lattice();
 
-    screen << "Read lattice, length: " << lattice.get_length() << ", "
-           << lattice.get_elements().size() << " elements" << std::endl;
+    auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice);
+    for (int i=0; i<6; ++i) {
+        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
+    }
 
-    auto tunes(Lattice_simulator::calculate_tune_and_cdt(lattice));
-
-    screen << "x tune: " << std::setprecision(17) << tunes[0] << " should be " << 0.16533417 << std::endl;
-    screen << "y tune: " << std::setprecision(17) << tunes[1] << " should be " << 0.436092762 << std::endl;
-
-    CHECK(tunes[0] == Approx(0.16533417).epsilon(1.0e-4));
-    CHECK(tunes[1] == Approx(0.436092762).epsilon(1.0e-4));
-
+    for (int i=0; i<6; ++i) {
+        CHECK (std::abs(closed_orbit_state[i]) < 1.0e-12);
+    }
 }
 
-TEST_CASE("get_chromaticities")
+TEST_CASE("closed_orbit_at_nonzero_dpp")
 {
     Logger screen(0, LoggerV::INFO);
 
     Lattice lattice = get_lattice();
-    Reference_particle refpart(lattice.get_reference_particle());
-    double beta = refpart.get_beta();
 
-    auto chroms(Lattice_simulator::get_chromaticities(lattice));
+    constexpr double dpp=4.0e-4;
+    auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
+    for (int i=0; i<6; ++i) {
+        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
+    }
 
-    screen << "H chrom: " << std::setprecision(17) << chroms.horizontal_chromaticity << " should be " << -65.68223681*beta << std::endl;
-    screen << "V chromaticity: " << std::setprecision(17) << chroms.vertical_chromaticity << " should be " << -25.5636675*beta << std::endl;
+    CHECK (closed_orbit_state[0] == Approx(0.00072931911596656749)); // previous run
+    CHECK (closed_orbit_state[1] == Approx(-5.7585101111132694e-15)); //previous run
 
-    // CHECK( chroms.horizontal_chromaticity == Approx(-65.68223681*beta).epsilon(1.0e-4) );
-    // CHECK( chroms.vertical_chromaticity == Approx(-25.5636675*beta).epsilon(1.0e-4) );
-    
 }

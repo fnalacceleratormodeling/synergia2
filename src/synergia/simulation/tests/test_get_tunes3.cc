@@ -21,17 +21,17 @@ ncells=24;
 turn_voltage=1.0; ! 1 MV /turn
 beam, particle=proton,energy=pmass+0.8;
 
-f: sbend, l=2.0, angle=(pi/(2*ncells)), k1=1/16.2;
-d: sbend, l=2.0, angle=(pi/(2*ncells)), k1=-1/16.7;
-!f: quadrupole, l=2.0, k1=0.0625;
-!d: quadrupole, l=2.0, k1=-0.0625;
+b: sbend, l=2.0, angle=(pi/(2*ncells));
+f: quadrupole, l=2.0, k1=1/16.2;
+d: quadrupole, l=2.0, k1=-1/16.7;
 rfc: rfcavity, l=0.0, volt=turn_voltage/ncells, harmon=96, lag=(1/120.0);
-
 
 cell: sequence, l=20.0, refer=centre;
 fodo_1: f, at=1.5;
+fodo_1a: b, at=5.0;
 fodo_2: d, at=8.5;
 fodo_3: d, at=11.5;
+fodo_3a: b, at=15.0;
 fodo_4: f, at=18.5;
 fodo_5: rfc, at=20.0;
 endsequence;
@@ -62,6 +62,7 @@ cell, at=420.0;
 cell, at=440.0;
 cell, at=460.0;
 endsequence;
+
 )foo");
 
     MadX_reader reader;
