@@ -70,6 +70,39 @@ endsequence;
     return reader.get_lattice("booster");
 }
 
+TEST_CASE("closed_orbit_at_0dpp")
+{
+    Logger screen(0, LoggerV::INFO);
+
+    Lattice lattice = get_lattice();
+
+    auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice);
+    for (int i=0; i<6; ++i) {
+        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
+    }
+
+    for (int i=0; i<6; ++i) {
+        CHECK (std::abs(closed_orbit_state[i]) < 1.0e-12);
+    }
+}
+
+TEST_CASE("closed_orbit_at_nonzero_dpp")
+{
+    Logger screen(0, LoggerV::INFO);
+
+    Lattice lattice = get_lattice();
+
+    constexpr double dpp=4.0e-4;
+    auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
+    for (int i=0; i<6; ++i) {
+        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
+    }
+
+    // CHECK (closed_orbit_state[0] == Approx(0.00072931911596656749)); // previous run
+    // CHECK (closed_orbit_state[1] == Approx(-5.7585101111132694e-15)); //previous run
+
+}
+
 TEST_CASE("get_tunes")
 {
 /*
