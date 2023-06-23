@@ -19,8 +19,8 @@ struct propagator_fixture
     std::unique_ptr<Bunch_simulator> sim;
 
 	
-    propagator_fixture(std::string const& elem_def)
-        : lattice(propagator_fixture::construct_test_lattice(elem_def))
+    propagator_fixture()
+        : lattice(propagator_fixture::construct_test_lattice())
         , screen(0, LoggerV::INFO_TURN)
         , propagator(Propagator(lattice, Independent_stepper_elements(1)))
         , sim()
@@ -34,23 +34,68 @@ struct propagator_fixture
     }
 
     Lattice
-    construct_test_lattice(const std::string elem_def)
+    construct_test_lattice()
     {
-        std::string lattice_head(R"foo(
-beam, particle=proton, energy=0.8+pmass;
-a: )foo");
-        std::string lattice_tail(R"foo(
-;
-channel: sequence, refer=entry, l=0;
-a, at=0.0;
+        std::string booster_madx(R"foo(
+ncells=24;
+turn_voltage=1.0; ! 1 MV /turn
+beam, particle=proton,energy=pmass+0.8;
+
+b: sbend, l=2.0, angle=(pi/(2*ncells));
+f: quadrupole, l=2.0, k1=1/16.2;
+d: quadrupole, l=2.0, k1=-1/16.7;
+rfc: rfcavity, l=0.0, volt=turn_voltage/ncells, harmon=96, lag=(1/120.0);
+
+cell: sequence, l=20.0, refer=centre;
+fodo_1: f, at=1.5;
+fodo_1a: b, at=5.0;
+fodo_2: d, at=8.5;
+fodo_3: d, at=11.5;
+fodo_3a: b, at=15.0;
+fodo_4: f, at=18.5;
+fodo_5: rfc, at=20.0;
 endsequence;
-)foo");
+
+booster: sequence, l=480.0, refer=entry;
+cell, at=0.0;
+cell, at=20.0;
+cell, at=40.0;
+cell, at=60.0;
+cell, at=80.0;
+cell, at=100.0;
+cell, at=120.0;
+cell, at=140.0;
+cell, at=160.0;
+cell, at=180.0;
+cell, at=200.0;
+cell, at=220.0;
+cell, at=240.0;
+cell, at=260.0;
+cell, at=280.0;
+cell, at=300.0;
+cell, at=320.0;
+cell, at=340.0;
+cell, at=360.0;
+cell, at=380.0;
+cell, at=400.0;
+cell, at=420.0;
+cell, at=440.0;
+cell, at=460.0;
+endsequence;)foo");
+
 
         // construct the lattice from the given element by sandwiching
         // it between the lattice_head and lattice_tail
-	    MadX_reader reader;
-	    reader.parse(lattice_head + elem_def + lattice_tail);
-	    Lattice lattice(reader.get_lattice("channel"));
+        MadX_reader reader;
+        reader.parse(booster_madx);
+        Lattice lattice(reader.get_lattice("booster"));
+        // Turn off RF cavities the same way it is done in calculate_closed_orbit
+        for (auto& ele : lattice.get_elements())
+            if (ele.get_type() == element_type::rfcavity) {
+                ele.set_double_attribute("volt", 0.0);
+                ele.set_double_attribute("lag", 0.0);
+                ele.set_double_attribute("freq", 0.0);
+            }
 
         return lattice;
     }
@@ -65,12 +110,10 @@ endsequence;
     { Logger l(0, LoggerV::DEBUG); lattice.print(l); }
 };
 
-void propagate_test_elem(std::string const& elem_def)
+void propagate_test_elem()
 {
-    std::cout << "propagate test element " << elem_def << "\n";
+    propagator_fixture pf;
 
-    propagator_fixture pf(elem_def);
-    pf.print_lattice();
     auto & b = pf.bunch();
 
     b.checkout_particles();
@@ -89,49 +132,13 @@ void propagate_test_elem(std::string const& elem_def)
     // For propagating particle at 0, all the transverse elements should
     // remain at 0
 
-    // on Ryzen 7,  CFsbends gets to 4.5e-17
+    // on Ryzen 7, x hits 7.82e-17
     for(int i=0; i<4; ++i) {
-        CHECK (std::abs(parts(0, i)) < 5.0e-17);
+        CHECK (std::abs(parts(0, i)) < 1.0e-16);
     }
 }
 
-TEST_CASE("sbend")
+TEST_CASE("booster_noCF")
 {
-    propagate_test_elem("sbend, l=2, angle=pi/24");
+    propagate_test_elem();
 }
-
-TEST_CASE("CFsbend")
-{
-    propagate_test_elem("sbend, l=2, angle=pi/24, k1=1/16.2");
-}
-
-TEST_CASE("drift")
-{
-    propagate_test_elem("drift, l=10");
-}
-
-TEST_CASE("quadrupole")
-{
-    propagate_test_elem("quadrupole, l=4, k1=1/10");
-}
-
-TEST_CASE("sextupole")
-{
-    propagate_test_elem("sextupole, l=0.5, k2=0.25");
-}
-
-TEST_CASE("octupole")
-{
-    propagate_test_elem("octupole, l=0.5, k3=0.25");
-}
-
-TEST_CASE("skew-quadrupole")
-{
-    propagate_test_elem("quadrupole, l=4, k1=1/10, tilt=pi/4");
-}
-
-TEST_CASE("rfcavity")
-{
-    propagate_test_elem("rfcavity, l=2, volt=0.05");
-}
-

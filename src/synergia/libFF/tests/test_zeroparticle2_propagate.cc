@@ -4,6 +4,7 @@
 
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/independent_stepper_elements.h"
+#include "synergia/libFF/ff_element.h"
 
 
 // Fixture that takes a string definition of an element,
@@ -55,8 +56,13 @@ endsequence;
         return lattice;
     }
 
+    // Propagate the same way it occurs on co_try
     void propagate()
-    { propagator.propagate(*sim, screen, 1); }
+    {
+        for ( const auto& elm: propagator.get_lattice_elements() ) {
+            FF_element::apply(elm, sim->get_bunch());
+        }
+    }
 
     Bunch& bunch()
     { return sim->get_bunch(); }
@@ -89,7 +95,7 @@ void propagate_test_elem(std::string const& elem_def)
     // For propagating particle at 0, all the transverse elements should
     // remain at 0
 
-    // on Ryzen 7,  CFsbends gets to 4.5e-17
+    // on Ryzen 7,  CFsbends have a momentum of 4.5e-17
     for(int i=0; i<4; ++i) {
         CHECK (std::abs(parts(0, i)) < 5.0e-17);
     }
