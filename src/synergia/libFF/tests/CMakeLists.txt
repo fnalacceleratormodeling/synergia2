@@ -20,3 +20,8 @@ target_link_libraries(test_foils synergia_simulation synergia_test_main
 add_mpi_test(test_foils 1)
 
 add_subdirectory(lattices)
+
+add_executable(test_zeroparticle_propagate test_zeroparticle_propagate.cc)
+target_link_libraries(test_zeroparticle_propagate synergia_simulation synergia_test_main
+                      ${kokkos_libs})
+add_mpi_test(test_zeroparticle_propagate 1)
