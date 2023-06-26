@@ -133,8 +133,9 @@ void propagate_test_elem()
     // remain at 0
 
     // on Ryzen 7,  CFsbends have a momentum of 2.17e-14
+    // on V100, CFsbends have a momentum of 5e-12
     for(int i=0; i<4; ++i) {
-        CHECK (std::abs(parts(0, i)) < 5.0e-14);
+        CHECK (std::abs(parts(0, i)) < 1.0e-11);
     }
 }
 
