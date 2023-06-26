@@ -65,7 +65,7 @@ endsequence;
     { Logger l(0, LoggerV::DEBUG); lattice.print(l); }
 };
 
-void propagate_test_elem(std::string const& elem_def)
+void propagate_test_elem(std::string const& elem_def, double tolerance)
 {
     std::cout << "propagate test element " << elem_def << "\n";
 
@@ -87,51 +87,51 @@ void propagate_test_elem(std::string const& elem_def)
     std::cout << "\n";
 
     // For propagating particle at 0, all the transverse elements should
-    // remain at 0
+    // remain close to 0
 
-    // on Ryzen 7,  CFsbends gets to 4.5e-17
     for(int i=0; i<4; ++i) {
-        CHECK (std::abs(parts(0, i)) < 5.0e-17);
+        CHECK (std::abs(parts(0, i)) < tolerance);
     }
 }
 
 TEST_CASE("sbend")
 {
-    propagate_test_elem("sbend, l=2, angle=pi/24");
+    propagate_test_elem("sbend, l=2, angle=pi/24", 2.0e-17);
 }
 
+// CFsbends are the worst for numerical noise in propagation
 TEST_CASE("CFsbend")
 {
-    propagate_test_elem("sbend, l=2, angle=pi/24, k1=1/16.2");
+    propagate_test_elem("sbend, l=2, angle=pi/24, k1=1/16.2", 1.0e-11);
 }
 
 TEST_CASE("drift")
 {
-    propagate_test_elem("drift, l=10");
+    propagate_test_elem("drift, l=10", 2.0e-17);
 }
 
 TEST_CASE("quadrupole")
 {
-    propagate_test_elem("quadrupole, l=4, k1=1/10");
+    propagate_test_elem("quadrupole, l=4, k1=1/10", 2.0e-17);
 }
 
 TEST_CASE("sextupole")
 {
-    propagate_test_elem("sextupole, l=0.5, k2=0.25");
+    propagate_test_elem("sextupole, l=0.5, k2=0.25", 2.0e-17);
 }
 
 TEST_CASE("octupole")
 {
-    propagate_test_elem("octupole, l=0.5, k3=0.25");
+    propagate_test_elem("octupole, l=0.5, k3=0.25", 2.0e-17);
 }
 
 TEST_CASE("skew-quadrupole")
 {
-    propagate_test_elem("quadrupole, l=4, k1=1/10, tilt=pi/4");
+    propagate_test_elem("quadrupole, l=4, k1=1/10, tilt=pi/4", 2.0e-17);
 }
 
 TEST_CASE("rfcavity")
 {
-    propagate_test_elem("rfcavity, l=2, volt=0.05");
+    propagate_test_elem("rfcavity, l=2, volt=0.05", 2.0e-17);
 }
 
