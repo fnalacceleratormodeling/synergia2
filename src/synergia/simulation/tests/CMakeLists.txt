@@ -14,6 +14,22 @@ target_link_libraries(test_bunch_simulator synergia_simulation
                       synergia_test_main)
 add_mpi_test(test_bunch_simulator 1)
 
+add_executable(test_get_tunes2 test_get_tunes2.cc)
+target_link_libraries(test_get_tunes2 synergia_simulation synergia_test_main)
+add_mpi_test(test_get_tunes2 1)
+
+add_executable(test_get_tunes3 test_get_tunes3.cc)
+target_link_libraries(test_get_tunes3 synergia_simulation synergia_test_main)
+add_mpi_test(test_get_tunes3 1)
+
+add_executable(test_get_tunes_dpp_offset test_get_tunes_dpp_offset.cc)
+target_link_libraries(test_get_tunes_dpp_offset synergia_simulation synergia_test_main)
+add_mpi_test(test_get_tunes_dpp_offset 1)
+
+add_executable(test_closed_orbits_and_others test_closed_orbits_and_others.cc)
+target_link_libraries(test_closed_orbits_and_others synergia_simulation synergia_test_main)
+add_mpi_test(test_closed_orbits_and_others 1)
+
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)
   add_py_test(test_nonlinear_maps.py)
@@ -41,4 +57,5 @@ if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_rfcavity_plus_oct.py)
   add_py_test(test_kicked_orbit_timing.py)
   add_py_test(test_kicked_orbit_timing2.py)
+  add_py_test(test_get_tunes.py)
 endif()

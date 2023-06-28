@@ -56,7 +56,7 @@ def create_simulator(ref_part):
     lp[6, 3] = -transmom_offset # particle with both trans y momentum and negative dp/p
     lp[6, 5] = -dpop_offset
 
-    bunch.checkout_particles()
+    bunch.checkin_particles()
     return sim
 
 
@@ -81,12 +81,6 @@ def test_accel1(prop_fixture):
     simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
     prop_fixture.propagate(sim, simlog, nturns)
 
-    new_E = sim.get_bunch().get_reference_particle().get_total_energy()
-    new_p = sim.get_bunch().get_reference_particle().get_momentum()
-    print('new_E: ', new_E)
-    print('new_p: ', new_p)
-    assert new_E-orig_E == pytest.approx(nturns*expected_delta_E)
-    
     # after acceleration, the dp/p of the particles should still be 0
     bunch = sim.get_bunch()
     bunch.checkout_particles()
@@ -94,6 +88,12 @@ def test_accel1(prop_fixture):
     assert lp[0, 5] == pytest.approx(0.0)
 
     # CDT should reflect the new velocity
+    new_E = sim.get_bunch().get_reference_particle().get_total_energy()
+    new_p = sim.get_bunch().get_reference_particle().get_momentum()
+    print('new_E: ', new_E)
+    print('new_p: ', new_p)
+    assert new_E-orig_E == pytest.approx(nturns*expected_delta_E)
+    
     new_beta = new_p/new_E
     L = prop_fixture.get_lattice().get_length()
     assert lp[0,4] == pytest.approx(L*(1/new_beta - 1/orig_beta))
@@ -102,18 +102,32 @@ def test_accel1(prop_fixture):
     print('bunch design energy: ', bunch.get_design_reference_particle().get_total_energy())
     print('bunch energy: ', bunch.get_reference_particle().get_total_energy())
     
-    # check new momenta
-    mom1_i = (1+dpop_offset)*orig_p
-    e1_i = np.sqrt(mom1_i**2 + mp**2)
-    e1_f = e1_i + expected_delta_E
-    mom1_f_should_be = np.sqrt(e1_f**2 - mp**2)
+    # check new momentum for particle 1 with dpop offset
+    mom1_i = (1+dpop_offset)*orig_p            # original momentum
+    e1_i = np.sqrt(mom1_i**2 + mp**2)          # original energy
+    e1_f = e1_i + expected_delta_E             # new energy after accel
+    mom1_f_should_be = np.sqrt(e1_f**2 - mp**2) # new momentum after accel
+    #WTF why doesn't e1_f printout show energy gain?
+    assert expected_delta_E != pytest.approx(0.0)
+    assert e1_f == pytest.approx(e1_i + expected_delta_E)
+
+    # printout for debugging test on v100 GPU
+    print('dpop_offset: ', dpop_offset)
+    print('mom1_i: ', mom1_i)
+    print('e1_i: ', e1_i)
+    print('e1_f: ', e1_f)
+    print('mom1_f_should_be: ', mom1_f_should_be)
+    print('lp[1, 5]: ', lp[1, 5])
+    print('mom1_f_should_be approx: ', (1+lp[1, 5]) * new_p)
+
     # check it
     assert mom1_f_should_be == pytest.approx( (1+lp[1, 5]) * new_p)
 
-    mom2_i = (1-dpop_offset)*orig_p
-    e2_i = np.sqrt(mom2_i**2 + mp**2)
-    e2_f = e2_i + expected_delta_E
-    mom2_f_should_be = np.sqrt(e2_f**2 - mp**2)
+    # check new momentum for particle with negative dpop offset
+    mom2_i = (1-dpop_offset)*orig_p       # original momentum
+    e2_i = np.sqrt(mom2_i**2 + mp**2)     # original energy
+    e2_f = e2_i + expected_delta_E        # energy after accel
+    mom2_f_should_be = np.sqrt(e2_f**2 - mp**2)  # momentum after accel
     # check it
     assert mom2_f_should_be == pytest.approx( (1+lp[2, 5]) * new_p)
 
