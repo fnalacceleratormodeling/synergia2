@@ -54,7 +54,7 @@ def create_simulator(ref_part):
     newp = np.sqrt(newE**2 - mp**2)
     dpop = newp/origp - 1
     lp[1, 5] = dpop
-    bunch.checkout_particles()
+    bunch.checkin_particles()
     return sim
 
 
