@@ -99,6 +99,14 @@ void propagate_test_elem(std::string const& elem_def, double tolerance)
     for(int i=0; i<4; ++i) {
         CHECK (std::abs(parts(0, i)) < tolerance);
     }
+
+    // Make sure elapsed c dt matches element length
+    Reference_particle const& refpart = b.get_design_reference_particle();
+    double cdtlength = refpart.get_state()[4]*refpart.get_beta();
+    double elem_length = pf.lattice.get_length();
+
+    CHECK( abs(1-cdtlength/elem_length) < 1.0e-7 );
+
 }
 
 TEST_CASE("sbend")
