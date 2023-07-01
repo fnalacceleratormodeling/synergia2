@@ -230,7 +230,6 @@ namespace FF_rfcavity {
         double ref_l_y = ref_l.get_state()[Bunch::y];
         double ref_l_yp = ref_l.get_state()[Bunch::yp];
         double ref_l_cdt = 0.0;
-//        double ref_l_dpop = ref_l.get_state()[Bunch::dpop];
         // EGS: Don't use reference dpop, for calculation of cdt
         double ref_l_dpop = 0.0;
 
@@ -287,12 +286,12 @@ namespace FF_rfcavity {
         total_ref_cdt += ref_l_cdt;
         rp.ref_cdt_2 = ref_l_cdt;
 
-        // save the state, except for the longitudinal
-        //ref_l.set_state(
-        //    ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, ref_l_dpop);
-        // EGS: only update transverse coordinates of reference particle
+        // save the new state. The cdt has to be saved so that the transit time
+	// in the RF cavity is accounted for. We don't save the new dp/p here but all
+	// elements should not use it as their starting value in reference time
+	// calculation.
         ref_l.set_state(
-            ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, 0.0, 0.0);
+            ref_l_x, ref_l_xp, ref_l_y, ref_l_yp, total_ref_cdt, 0.0);
 
         // bunch particles
         auto apply = [&](ParticleGroup pg) {
