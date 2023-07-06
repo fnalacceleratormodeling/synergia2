@@ -22,11 +22,13 @@ f: quadrupole, l=1.0, k1=0.0625;
 d: quadrupole, l=1.0, k1=-0.0625;
 rfc: rfcavity, l=0.0, volt=0.2, harmon=1, lag=(1/120.0);
 m1: marker;
+m2: marker;
 
 fodo: sequence, l=20.0, refer=centre;
 fodo_0: m1, at=0.0;
 fodo_1: f, at=1.0;
 fodo_2: d, at=9.0;
+m2, at=10.0;
 fodo_3: d, at=11.0;
 fodo_4: f, at=19.0;
 fodo_5: rfc, at=20.0;
@@ -140,10 +142,38 @@ def test_context(prop_fixture):
     assert context.odd_turn_count == 2
     #assert False
 
+#--------------------------------------------------------------------------------------------------------
+def fixmarker(inlattice, turn):
+    print('lattice id: ', id(inlattice))
+    for elem in inlattice.get_elements():
+        if elem.get_name() == "m2":
+            elem.set_double_attribute("foo", 2.5*(turn+1))
 
+def test_modify_lattice2(prop_fixture):
+    propagator = prop_fixture
+    lattice = propagator.get_lattice()
+    
+    sim = create_simulator(lattice.get_reference_particle())
+
+    # turn and action method
+    def turn_end_action(sim, lattice, turn):
+        print("turn_end_action, turn: ", turn, ", lattice: ", id(lattice))
+        fixmarker(lattice, turn)
+    # end of turn end action method
+
+    sim.reg_prop_action_turn_end(turn_end_action)
+
+    print("propagator.lattice id: ", id(propagator.get_lattice()))
+    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
+    propagator.propagate(sim, simlog, 10)
+    for elem in propagator.get_lattice().get_elements():
+        if elem.get_name() == "m2":
+            assert elem.get_double_attribute('foo') == 25.0
+    #assert False
+#--------------------------------------------------------------------------------------------------------
 def main():
     pf = prop_fixture()
-    test_accel1(pf)
+    test_modify_lattice2(pf)
 
 if __name__ == "__main__":
     main()
