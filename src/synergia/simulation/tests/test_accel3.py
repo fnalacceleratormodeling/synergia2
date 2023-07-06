@@ -109,14 +109,15 @@ def test_accel2(prop_fixture):
     class context:
         max_dpop = 0.0
         max_cdt = 0.0
+        energies = [Elat0] # save lattice energy at each turn
 
 
     # turn and action method
-    def turn_end_action(sim, lattice, turn):
+    def turn_end_action(sim, lattice_in, turn):
         bunch = sim.get_bunch()
         bunch_design_E = bunch.get_design_reference_particle().get_total_energy()
         bunch_E = bunch.get_reference_particle().get_total_energy()
-        lattice_E = lattice.get_lattice_energy()
+        lattice_E = lattice_in.get_lattice_energy()
 
         # print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
         # print('turn_end_action: enter: lattice_E: ', lattice_E)
@@ -129,20 +130,22 @@ def test_accel2(prop_fixture):
         # set the bunch design energy and lattice energy to match the bunch
         # energy
         bunch.get_design_reference_particle().set_total_energy(bunch_E)
-        lattice.set_lattice_energy(bunch_E)
+        lattice_in.set_lattice_energy(bunch_E)
 
+        # save new lattice energy
+        context.energies.append(lattice_in.get_lattice_energy())
         # print('turn_end_action: exit: bunch_design_E: ', bunch.get_design_reference_particle().get_total_energy())
         # print('turn_end_action: exit: lattice_E: ', lattice.get_reference_particle().get_total_energy())
         # print('turn_end_action: exit: bunch_E: ', bunch.get_reference_particle().get_total_energy())
 
         # tune lattice
-        synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
+        synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice_in)
 
         # check frequency matches new energy
-        beta1 = lattice.get_reference_particle().get_beta()
+        beta1 = lattice_in.get_reference_particle().get_beta()
         beta2 = bunch.get_reference_particle().get_beta()
         assert beta1 == pytest.approx(beta2)
-        freq = 96*beta1*synergia.foundation.pconstants.c/lattice.get_length()
+        freq = 96*beta1*synergia.foundation.pconstants.c/lattice_in.get_length()
         assert freq == pytest.approx(synergia.simulation.Lattice_simulator.get_rf_frequency(lattice))
 
         # The central particles should stay close to 0 in energy and time
@@ -171,6 +174,10 @@ def test_accel2(prop_fixture):
 
     assert context.max_cdt < 1.0e-2
     assert context.max_dpop < 1.0e-5
+
+    # check saved energy gain each turn
+    for i in range(1, len(context.energies)):
+        assert (context.energies[i] - context.energies[i-1]) == pytest.approx(expected_delta_E)
 
 def main():
     pf = prop_fixture()
