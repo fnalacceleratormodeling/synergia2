@@ -1,4 +1,6 @@
 
+#include <cstddef>
+#include <optional>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -34,8 +36,8 @@ PYBIND11_MODULE(bunch, m)
     py::class_<HostParticles>(m, "Particles", py::buffer_protocol())
         .def_buffer([](HostParticles const& p) -> py::buffer_info {
             return py::buffer_info(
-                p.data(),                   // pointer to buffer
-                sizeof(double),             // size of one scalar
+                p.data(),       // pointer to buffer
+                sizeof(double), // size of one scalar
                 py::format_descriptor<double>::format(),
                 2,                          // num of dimensions
                 {p.extent(0), p.extent(1)}, // dimensions
@@ -109,7 +111,8 @@ PYBIND11_MODULE(bunch, m)
         .def("read_openpmd_file",
              &Bunch::read_openpmd_file,
              "Read particle data from an OpenPMD file.",
-             "filename"_a)
+             "filename"_a,
+             "idx"_a = std::optional<std::size_t>(std::nullopt))
 
         .def("write_openpmd_file",
              &Bunch::write_openpmd_file,

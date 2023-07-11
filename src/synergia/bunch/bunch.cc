@@ -170,92 +170,115 @@ Bunch::print_statistics(Logger& logger) const
 #if defined SYNERGIA_HAVE_OPENPMD
 template <>
 void
-Bunch::read_openpmd_file(std::string const& filename)
+Bunch::read_openpmd_file(std::string const& filename,
+                         std::optional<std::size_t> idx)
 {
     auto series = openPMD::Series(filename, openPMD::Access::READ_ONLY);
 
     // get the last iteration from the series
-    auto num_iter = std::size(series.iterations);
-    auto iteration = series.iterations[num_iter - 1];
-    openPMD::ParticleSpecies& protons = iteration.particles["bunch_particles"];
-    openPMD::ParticleSpecies& masks =
-        iteration.particles["bunch_particles_masks"];
-    auto parts_ids = protons["id"][openPMD::RecordComponent::SCALAR];
-    auto extent = parts_ids.getExtent();
-    //  The extent should be a vector of one element!
-    auto num_part = extent[0];
-    assert((extent.size() == 1) &&
-           "Extent of particle_ids extent should be 1-dimensional!");
 
-    // reserver required space
-    this->get_bunch_particles(PG::regular).reserve(num_part, this->get_comm());
+    std::size_t index_to_read;
 
-    size_t local_num, local_offset, file_offset;
-    std::tie(local_num, local_offset) = this->get_local_particle_count_in_range(
-        ParticleGroup::regular, num_part, 0);
-    if (MPI_Scan(&local_num,
-                 &file_offset,
-                 1,
-                 MPI_SIZE_T,
-                 MPI_SUM,
-                 this->get_comm()) != MPI_SUCCESS) {
-        std::runtime_error("Error in MPI_Scan in bunch-read-file-openpmd!");
+    if (idx.has_value()) {
+        index_to_read = idx.value();
+    } else {
+        auto iters = series.iterations;
+        // C++ map.end is one-past the end!
+        index_to_read = (--iters.cend())->first;
     }
 
-    // drain to reset
-    this->get_bunch_particles(PG::regular).drain();
+    auto iteration = series.iterations[index_to_read];
 
-    bunch_particles_t<double>::host_parts_t parts_subset;
-    bunch_particles_t<double>::host_masks_t masks_subset;
-    parts_subset = bunch_particles_t<double>::host_parts_t(
-        "bunch_read_" + this->get_bunch_particles(PG::regular).get_label(),
-        local_num);
-    masks_subset = bunch_particles_t<double>::host_masks_t(
-        "bunch_read_" + this->get_bunch_particles(PG::regular).get_label() +
-            "_masks",
-        local_num);
-    this->get_bunch_particles(PG::regular)
-        .get_particles_in_range(
-            parts_subset, masks_subset, local_num, local_offset);
-
-    openPMD::Datatype datatype = openPMD::determineDatatype<double>();
-    openPMD::Extent global_extent = {static_cast<size_t>(num_part)};
-    openPMD::Dataset dataset = openPMD::Dataset(datatype, global_extent);
-    openPMD::Datatype masks_datatype = openPMD::determineDatatype<uint8_t>();
-    openPMD::Dataset masks_dataset =
-        openPMD::Dataset(masks_datatype, global_extent);
-
-    auto parts_x = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::x);
-    auto parts_y = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::y);
-    auto parts_z = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::cdt);
-
-    auto moments_x = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::xp);
-    auto moments_y = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::yp);
-    auto moments_dpop = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::dpop);
-    auto parts_idx = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::id);
-
-    openPMD::Offset chunk_offset = {file_offset - local_num};
-    openPMD::Extent chunk_extent = {local_num};
-
-    protons["position"]["x"].loadChunkRaw(
-        parts_x.data(), chunk_offset, chunk_extent);
-    protons["position"]["y"].loadChunkRaw(
-        parts_y.data(), chunk_offset, chunk_extent);
-    protons["position"]["z"].loadChunkRaw(
-        parts_z.data(), chunk_offset, chunk_extent);
-    protons["moments"]["x"].loadChunkRaw(
-        moments_x.data(), chunk_offset, chunk_extent);
-    protons["moments"]["y"].loadChunkRaw(
-        moments_y.data(), chunk_offset, chunk_extent);
-    protons["moments"]["z"].loadChunkRaw(
-        moments_dpop.data(), chunk_offset, chunk_extent);
-    protons["id"][openPMD::RecordComponent::SCALAR].loadChunkRaw(
-        parts_idx.data(), chunk_offset, chunk_extent);
-
-    masks["id"][openPMD::RecordComponent::SCALAR].loadChunkRaw(
-        masks_subset.data(), chunk_offset, chunk_extent);
-
+    // determine which software created the OpenPMD file
+    std::string software_name;
     try {
+        software_name = series.software();
+    }
+    catch (openPMD::error::NoSuchAttribute) {
+        std::cerr
+            << "Could not determine which software generated the input! \n";
+        return;
+    }
+
+    if (software_name == "synergia3") {
+        // input was created by synergia3!
+
+        openPMD::ParticleSpecies& protons =
+            iteration.particles["bunch_particles"];
+        openPMD::ParticleSpecies& masks =
+            iteration.particles["bunch_particles_masks"];
+        auto parts_ids = protons["id"][openPMD::RecordComponent::SCALAR];
+        auto extent = parts_ids.getExtent();
+        //  The extent should be a vector of one element!
+        auto num_part = extent[0];
+        assert((extent.size() == 1) &&
+               "Extent of particle_ids extent should be 1-dimensional!");
+
+        // reserver required space
+        this->get_bunch_particles(PG::regular)
+            .reserve(num_part, this->get_comm());
+
+        size_t local_num, local_offset, file_offset;
+        std::tie(local_num, local_offset) =
+            this->get_local_particle_count_in_range(
+                ParticleGroup::regular, num_part, 0);
+        if (MPI_Scan(&local_num,
+                     &file_offset,
+                     1,
+                     MPI_SIZE_T,
+                     MPI_SUM,
+                     this->get_comm()) != MPI_SUCCESS) {
+            std::runtime_error("Error in MPI_Scan in bunch-read-file-openpmd!");
+        }
+
+        // drain to reset
+        this->get_bunch_particles(PG::regular).drain();
+
+        bunch_particles_t<double>::host_parts_t parts_subset;
+        bunch_particles_t<double>::host_masks_t masks_subset;
+        parts_subset = bunch_particles_t<double>::host_parts_t(
+            "bunch_read_openpmd_" +
+                this->get_bunch_particles(PG::regular).get_label(),
+            local_num);
+        masks_subset = bunch_particles_t<double>::host_masks_t(
+            "bunch_read_openpmd_" +
+                this->get_bunch_particles(PG::regular).get_label() + "_masks",
+            local_num);
+        this->get_bunch_particles(PG::regular)
+            .get_particles_in_range(
+                parts_subset, masks_subset, local_num, local_offset);
+
+        auto parts_x = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::x);
+        auto parts_y = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::y);
+        auto parts_z = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::cdt);
+
+        auto moments_x = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::xp);
+        auto moments_y = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::yp);
+        auto moments_dpop =
+            Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::dpop);
+        auto parts_idx = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::id);
+
+        openPMD::Offset chunk_offset = {file_offset - local_num};
+        openPMD::Extent chunk_extent = {local_num};
+
+        protons["position"]["x"].loadChunkRaw(
+            parts_x.data(), chunk_offset, chunk_extent);
+        protons["position"]["y"].loadChunkRaw(
+            parts_y.data(), chunk_offset, chunk_extent);
+        protons["position"]["z"].loadChunkRaw(
+            parts_z.data(), chunk_offset, chunk_extent);
+        protons["moments"]["x"].loadChunkRaw(
+            moments_x.data(), chunk_offset, chunk_extent);
+        protons["moments"]["y"].loadChunkRaw(
+            moments_y.data(), chunk_offset, chunk_extent);
+        protons["moments"]["z"].loadChunkRaw(
+            moments_dpop.data(), chunk_offset, chunk_extent);
+        protons["id"][openPMD::RecordComponent::SCALAR].loadChunkRaw(
+            parts_idx.data(), chunk_offset, chunk_extent);
+
+        masks["id"][openPMD::RecordComponent::SCALAR].loadChunkRaw(
+            masks_subset.data(), chunk_offset, chunk_extent);
+
         series.flush();
 
         this->get_bunch_particles(PG::regular)
@@ -265,17 +288,116 @@ Bunch::read_openpmd_file(std::string const& filename)
                                     local_offset,
                                     this->get_comm());
 
-        std::string software_name = series.software();
-        if (software_name == "synergia3") {}
         return;
     }
-    catch (openPMD::error::NoSuchAttribute) {
-        std::cerr << "Could not determine which software generated the input! "
-                     "Assuming that it was generated by synergia3";
-        return;
+
+    else if (software_name == "ImpactX") {
+        // add logic to transform co-ordinates here
+
+        openPMD::ParticleSpecies& protons = iteration.particles["beam"];
+        auto parts_ids = protons["id"][openPMD::RecordComponent::SCALAR];
+        auto extent = parts_ids.getExtent();
+        //  The extent should be a vector of one element!
+        auto num_part = extent[0];
+        assert((extent.size() == 1) &&
+               "Extent of particle_ids extent should be 1-dimensional!");
+
+        // reserver required space
+        this->get_bunch_particles(PG::regular)
+            .reserve(num_part, this->get_comm());
+
+        size_t local_num, local_offset, file_offset;
+        std::tie(local_num, local_offset) =
+            this->get_local_particle_count_in_range(
+                ParticleGroup::regular, num_part, 0);
+        if (MPI_Scan(&local_num,
+                     &file_offset,
+                     1,
+                     MPI_SIZE_T,
+                     MPI_SUM,
+                     this->get_comm()) != MPI_SUCCESS) {
+            std::runtime_error("Error in MPI_Scan in bunch-read-file-openpmd!");
+        }
+
+        // drain to reset
+        this->get_bunch_particles(PG::regular).drain();
+
+        bunch_particles_t<double>::host_parts_t parts_subset;
+        bunch_particles_t<double>::host_masks_t masks_subset;
+        parts_subset = bunch_particles_t<double>::host_parts_t(
+            "bunch_read_openpmd_" +
+                this->get_bunch_particles(PG::regular).get_label(),
+            local_num);
+        masks_subset = bunch_particles_t<double>::host_masks_t(
+            "bunch_read_openpmd_" +
+                this->get_bunch_particles(PG::regular).get_label() + "_masks",
+            local_num);
+        this->get_bunch_particles(PG::regular)
+            .get_particles_in_range(
+                parts_subset, masks_subset, local_num, local_offset);
+
+        auto parts_x = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::x);
+        auto parts_y = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::y);
+        auto parts_z = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::cdt);
+
+        auto moments_x = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::xp);
+        auto moments_y = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::yp);
+        auto moments_dpop =
+            Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::dpop);
+        auto parts_idx = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::id);
+
+        Kokkos::View<uint64_t*> idx("bunch_openpmd_read_idx", num_part);
+
+        openPMD::Offset chunk_offset = {file_offset - local_num};
+        openPMD::Extent chunk_extent = {local_num};
+
+        protons["position"]["x"].loadChunkRaw(
+            parts_x.data(), chunk_offset, chunk_extent);
+        protons["position"]["y"].loadChunkRaw(
+            parts_y.data(), chunk_offset, chunk_extent);
+        protons["position"]["t"].loadChunkRaw(
+            parts_z.data(), chunk_offset, chunk_extent);
+        protons["momentum"]["x"].loadChunkRaw(
+            moments_x.data(), chunk_offset, chunk_extent);
+        protons["momentum"]["y"].loadChunkRaw(
+            moments_y.data(), chunk_offset, chunk_extent);
+        protons["momentum"]["t"].loadChunkRaw(
+            moments_dpop.data(), chunk_offset, chunk_extent);
+        protons["id"][openPMD::RecordComponent::SCALAR].loadChunkRaw(
+            idx.data(), chunk_offset, chunk_extent);
+
+        series.flush();
+
+        // as of Jul 2023, all particles in ImpactX output
+        // are valid particles!
+        Kokkos::parallel_for(
+            "set_particle_mask_ids", local_num, KOKKOS_LAMBDA(const int i) {
+                masks_subset[i] = 1;
+            });
+        // OpenPMD cannot implicitly convert uint64_t to float64, so do
+        // that conversion here while transferring input read into
+        // temporary idx view into the parts_subset view
+        Kokkos::parallel_for(
+            "set_particle_ids", local_num, KOKKOS_LAMBDA(const int i) {
+                parts_subset(i, 6) = static_cast<double>(idx[i]);
+            });
+
+        Kokkos::fence();
+
+        this->get_bunch_particles(PG::regular)
+            .put_particles_in_range(parts_subset,
+                                    masks_subset,
+                                    local_num,
+                                    local_offset,
+                                    this->get_comm());
+
+    }
+
+    else {
+        std::cerr << "Reading from OpenPMD files is only implemented for "
+                     "output generated by synergia3 and ImpactX! \n";
     }
 }
-
 // num_part = -1 means write all particles
 template <>
 void
@@ -331,7 +453,17 @@ Bunch::write_openpmd_file(std::string const& filename,
     io_device.setSoftware("synergia3", version);
 
     if (local_num > 0) {
-        if (num_part == -1) { num_part = this->get_total_num(PG::regular); }
+        if (num_part == -1) {
+            if (MPI_Allreduce(&local_num,
+                              &num_part,
+                              1,
+                              MPI_INT,
+                              MPI_SUM,
+                              this->get_comm()) != MPI_SUCCESS) {
+                std::runtime_error(
+                    "Error in MPI_Allreduce in bunch-write-file-openpmd!");
+            };
+        }
         auto label = (this->get_bunch_particles(PG::regular)).get_label();
 
         size_t iteration = 0;
