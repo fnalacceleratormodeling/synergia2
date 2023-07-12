@@ -371,37 +371,3 @@ Reference_particle::equal(Reference_particle const& reference_particle,
 
     return true;
 }
-
-#if 0
-template<class Archive>
-    void
-    Reference_particle::serialize(Archive & ar, const unsigned int version)
-    {
-        ar & BOOST_SERIALIZATION_NVP(charge)
-                & BOOST_SERIALIZATION_NVP(four_momentum)
-                & BOOST_SERIALIZATION_NVP(state)
-                & BOOST_SERIALIZATION_NVP(repetition)
-                & BOOST_SERIALIZATION_NVP(s)
-                & BOOST_SERIALIZATION_NVP(s_n);
-    }
-
-template
-void
-Reference_particle::serialize<boost::archive::binary_oarchive >(
-        boost::archive::binary_oarchive & ar, const unsigned int version);
-
-template
-void
-Reference_particle::serialize<boost::archive::xml_oarchive >(
-        boost::archive::xml_oarchive & ar, const unsigned int version);
-
-template
-void
-Reference_particle::serialize<boost::archive::binary_iarchive >(
-        boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void
-Reference_particle::serialize<boost::archive::xml_iarchive >(
-        boost::archive::xml_iarchive & ar, const unsigned int version);
-#endif
