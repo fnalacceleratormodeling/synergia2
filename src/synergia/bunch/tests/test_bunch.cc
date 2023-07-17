@@ -115,6 +115,12 @@ TEST_CASE("BunchI/O", "[Bunch]")
             bp2.checkout_particles();
 
             check_particle_values(bp1, bp2);
+
+            CHECK(mass == bunch2.get_mass());
+            CHECK(fm.get_beta() ==
+                  (bunch2.get_reference_particle()).get_beta());
+            CHECK(fm.get_gamma() ==
+                  (bunch2.get_reference_particle()).get_gamma());
         }
     }
 }
