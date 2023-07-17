@@ -214,6 +214,16 @@ Bunch::read_openpmd_file(std::string const& filename,
         assert((extent.size() == 1) &&
                "Extent of particle_ids extent should be 1-dimensional!");
 
+        double mass = protons.getAttribute("mass").get<double>();
+        double beta_ref = protons.getAttribute("beta_ref").get<double>();
+        double gamma_ref = protons.getAttribute("gamma_ref").get<double>();
+
+        Reference_particle& ref_part = this->get_reference_particle();
+        Four_momentum fm = Four_momentum(mass);
+        fm.set_beta(beta_ref);
+        fm.set_gamma(gamma_ref);
+        ref_part.set_four_momentum(fm);
+
         // reserver required space
         this->get_bunch_particles(PG::regular)
             .reserve(num_part, this->get_comm());
@@ -511,6 +521,12 @@ Bunch::write_openpmd_file(std::string const& filename,
         openPMD::ParticleSpecies& masks =
             io_device.iterations[iteration]
                 .particles["bunch_" + label + "_masks"];
+
+        protons.setAttribute("mass", this->get_mass());
+        protons.setAttribute("beta_ref",
+                             (this->get_reference_particle()).get_beta());
+        protons.setAttribute("gamma_ref",
+                             (this->get_reference_particle()).get_gamma());
 
         openPMD::Datatype datatype = openPMD::determineDatatype<double>();
         openPMD::Extent global_extent = {static_cast<size_t>(num_part)};
