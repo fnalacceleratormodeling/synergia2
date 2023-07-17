@@ -305,6 +305,12 @@ Bunch::read_openpmd_file(std::string const& filename,
         double beta_ref = protons.getAttribute("beta_ref").get<double>();
         double gamma_ref = protons.getAttribute("gamma_ref").get<double>();
 
+        Reference_particle& ref_part = this->get_reference_particle();
+        Four_momentum fm = Four_momentum(mass);
+        fm.set_beta(beta_ref);
+        fm.set_gamma(gamma_ref);
+        ref_part.set_four_momentum(fm);
+
         // reserver required space
         this->get_bunch_particles(PG::regular)
             .reserve(num_part, this->get_comm());
@@ -385,9 +391,27 @@ Bunch::read_openpmd_file(std::string const& filename,
                 parts_subset(i, 6) = static_cast<double>(idx[i]);
             });
 
-        Kokkos::fence();
+        Kokkos::parallel_for(
+            "convert_dpt_to_E", local_num, KOKKOS_LAMBDA(const int i) {
+                parts_subset(i, 5) =
+                    mass *
+                    (gamma_ref - (parts_subset(i, 5) * beta_ref * gamma_ref));
+            });
+        Kokkos::parallel_for(
+            "convert_E_to_dpop", local_num, KOKKOS_LAMBDA(const int i) {
+                auto p0 = beta_ref * gamma_ref * mass;
 
-        // add logic to transform co-ordinates here
+                parts_subset(i, 5) =
+                    (
+                        /* sqrt (E^2 - m^2) */
+                        Kokkos::sqrt((parts_subset(i, 5) * parts_subset(i, 5)) -
+                                     (mass * mass)) -
+                        /* subtract p0 */
+                        p0) *
+                    /* scale by p0 */
+                    (1 / p0);
+            });
+        Kokkos::fence();
 
         this->get_bunch_particles(PG::regular)
             .put_particles_in_range(parts_subset,
