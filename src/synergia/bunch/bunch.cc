@@ -1,6 +1,7 @@
 
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/core_diagnostics.h"
+#include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/parallel_utils.h"
 #include "synergia/utils/synergia_config.h"
 
@@ -215,6 +216,8 @@ Bunch::read_openpmd_file(std::string const& filename,
                "Extent of particle_ids extent should be 1-dimensional!");
 
         double mass = protons.getAttribute("mass").get<double>();
+        // convert mass to GeV!
+        mass = mass * pconstants::kg_to_GeV;
         double beta_ref = protons.getAttribute("beta_ref").get<double>();
         double gamma_ref = protons.getAttribute("gamma_ref").get<double>();
 
@@ -312,6 +315,8 @@ Bunch::read_openpmd_file(std::string const& filename,
                "Extent of particle_ids extent should be 1-dimensional!");
 
         double mass = protons.getAttribute("mass").get<double>();
+        // convert mass to GeV!
+        mass = mass * pconstants::kg_to_GeV;
         double beta_ref = protons.getAttribute("beta_ref").get<double>();
         double gamma_ref = protons.getAttribute("gamma_ref").get<double>();
 
@@ -522,7 +527,8 @@ Bunch::write_openpmd_file(std::string const& filename,
             io_device.iterations[iteration]
                 .particles["bunch_" + label + "_masks"];
 
-        protons.setAttribute("mass", this->get_mass());
+        // write mass in SI units!
+        protons.setAttribute("mass", this->get_mass() / pconstants::kg_to_GeV);
         protons.setAttribute("beta_ref",
                              (this->get_reference_particle()).get_beta());
         protons.setAttribute("gamma_ref",

@@ -125,6 +125,7 @@ run(Fodo_cxx_options opts)
     // get bunch and read openpmd file
     auto& bunch = sim.get_bunch();
     bunch.read_openpmd_file(opts.input_openpmd_filename);
+    bunch.write_openpmd_file("bunch_as_read_from_impactx.h5");
 
     screen << "Statistics before propagation" << std::endl;
 
@@ -142,11 +143,6 @@ run(Fodo_cxx_options opts)
 
     Diagnostics_full2 diag_full2("diag.h5");
     sim.reg_diag_per_turn(diag_full2);
-
-    screen << "Statistics before propagation" << std::endl;
-
-    bunch.checkout_particles();
-    print_bunch_statistics(bunch, screen);
 
     // propagate
     Logger proplogger = Logger(0, LoggerV::INFO_TURN);
