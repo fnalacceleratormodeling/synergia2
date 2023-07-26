@@ -23,11 +23,13 @@ target_link_libraries(test_get_tunes3 synergia_simulation synergia_test_main)
 add_mpi_test(test_get_tunes3 1)
 
 add_executable(test_get_tunes_dpp_offset test_get_tunes_dpp_offset.cc)
-target_link_libraries(test_get_tunes_dpp_offset synergia_simulation synergia_test_main)
+target_link_libraries(test_get_tunes_dpp_offset synergia_simulation
+                      synergia_test_main)
 add_mpi_test(test_get_tunes_dpp_offset 1)
 
 add_executable(test_closed_orbits_and_others test_closed_orbits_and_others.cc)
-target_link_libraries(test_closed_orbits_and_others synergia_simulation synergia_test_main)
+target_link_libraries(test_closed_orbits_and_others synergia_simulation
+                      synergia_test_main)
 add_mpi_test(test_closed_orbits_and_others 1)
 
 if(BUILD_PYTHON_BINDINGS)
