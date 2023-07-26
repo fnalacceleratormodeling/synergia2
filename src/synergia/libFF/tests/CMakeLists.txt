@@ -22,21 +22,21 @@ add_mpi_test(test_foils 1)
 add_subdirectory(lattices)
 
 add_executable(test_zeroparticle_propagate test_zeroparticle_propagate.cc)
-target_link_libraries(test_zeroparticle_propagate synergia_simulation synergia_test_main
-                      ${kokkos_libs})
+target_link_libraries(test_zeroparticle_propagate synergia_simulation
+                      synergia_test_main ${kokkos_libs})
 add_mpi_test(test_zeroparticle_propagate 1)
 
 add_executable(test_zeroparticle2_propagate test_zeroparticle2_propagate.cc)
-target_link_libraries(test_zeroparticle2_propagate synergia_simulation synergia_test_main
-                      ${kokkos_libs})
+target_link_libraries(test_zeroparticle2_propagate synergia_simulation
+                      synergia_test_main ${kokkos_libs})
 add_mpi_test(test_zeroparticle2_propagate 1)
 
 add_executable(test_booster_propagate test_booster_propagate.cc)
-target_link_libraries(test_booster_propagate synergia_simulation synergia_test_main
-                      ${kokkos_libs})
+target_link_libraries(test_booster_propagate synergia_simulation
+                      synergia_test_main ${kokkos_libs})
 add_mpi_test(test_booster_propagate 1)
 
 add_executable(test_booster2_propagate test_booster2_propagate.cc)
-target_link_libraries(test_booster2_propagate synergia_simulation synergia_test_main
-                      ${kokkos_libs})
+target_link_libraries(test_booster2_propagate synergia_simulation
+                      synergia_test_main ${kokkos_libs})
 add_mpi_test(test_booster2_propagate 1)

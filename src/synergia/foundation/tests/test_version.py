@@ -7,7 +7,7 @@ def test_synergia_version():
     """
     from synergia import version
 
-    assert version.__version__ == "2023.04.12.00"
+    assert version.__version__ == "2023.04.12-99"
 
 
 def test_python_version():

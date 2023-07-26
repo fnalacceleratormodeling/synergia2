@@ -1,8 +1,14 @@
 add_library(synergia_foundation four_momentum.cc reference_particle.cc
                                 distribution.cc)
 target_compile_definitions(synergia_foundation PUBLIC ${eigen_defs})
-target_link_libraries(synergia_foundation synergia_parallel_utils lsexpr
-                      GSL::gsl GSL::gslcblas Eigen3::Eigen ${kokkos_libs})
+target_link_libraries(
+  synergia_foundation
+  synergia_parallel_utils
+  lsexpr
+  GSL::gsl
+  GSL::gslcblas
+  Eigen3::Eigen
+  ${kokkos_libs})
 
 target_link_options(synergia_foundation PRIVATE ${LINKER_OPTIONS})
 
@@ -13,8 +19,8 @@ if(BUILD_PYTHON_BINDINGS)
 endif()
 
 install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
-install(FILES distribution.h four_momentum.h
-              physical_constants.h reference_particle.h
+install(FILES distribution.h four_momentum.h physical_constants.h
+              reference_particle.h
         DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/foundation)
 
 if(BUILD_PYTHON_BINDINGS)

@@ -2,7 +2,8 @@
 # calling host only functions from host-device code.
 add_library(synergia_lattice_hostonly mx_expr.cc mx_parse.cc mx_tree.cc madx.cc
                                       lattice_tree.cc)
-target_link_libraries(synergia_lattice_hostonly synergia_foundation)
+target_link_libraries(synergia_lattice_hostonly synergia_foundation
+                      synergia_boost)
 target_compile_definitions(synergia_lattice_hostonly PUBLIC ${eigen_defs})
 target_link_options(synergia_lattice_hostonly PRIVATE ${LINKER_OPTIONS})
 

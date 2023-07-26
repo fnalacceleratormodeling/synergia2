@@ -1,8 +1,10 @@
 #ifndef BUNCH_H_
 #define BUNCH_H_
 
+#include <cstddef>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -598,7 +600,9 @@ class bunch_t {
     }
 
 #if defined SYNERGIA_HAVE_OPENPMD
-    void read_openpmd_file(std::string const& filename);
+    void read_openpmd_file(std::string const& filename,
+                           std::optional<std::size_t> idx =
+                               std::optional<std::size_t>(std::nullopt));
 
     // num_part = -1 means write all particles
     void write_openpmd_file(std::string const& filename,

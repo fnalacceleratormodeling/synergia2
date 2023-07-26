@@ -25,9 +25,8 @@ add_library(
 target_link_libraries(
   synergia_bunch
   PUBLIC synergia_bunch_hostonly
-         synergia_parallel_utils
          synergia_foundation
-         synergia_serialization
+         synergia_utils
          # $<$<STREQUAL:${USE_OPENPMD_IO},OFF>:synergia_hdf5_utils>
          synergia_hdf5_utils
          $<$<STREQUAL:${USE_OPENPMD_IO},ON>:openPMD::openPMD>
