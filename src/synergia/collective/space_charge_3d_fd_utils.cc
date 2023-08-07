@@ -285,9 +285,9 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     // PetscCall(PCHYPRESetType(sctx.pc, std::string("boomeramg").data()));
 
     PetscCall(PCSetType(sctx.pc, PCGAMG));
-    PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 5));
+    PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 10));
     PetscCall(
-        PCGAMGSetThreshold(sctx.pc, (std::array<double, 1>{-0.05}).data(), 1));
+        PCGAMGSetThreshold(sctx.pc, (std::array<double, 1>{0.08}).data(), 1));
     PetscCall(PCGAMGSetThresholdScale(sctx.pc, 0.5));
 
     /* Enable KSP logging if options are set */
