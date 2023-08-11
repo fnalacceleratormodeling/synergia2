@@ -172,7 +172,7 @@ def test_accel1(prop_fixture):
 
     # test pz in particles file
     for i in range(nturns+1):
-        h5parts = h5py.File('particles_%04d.h5'%i, 'r')
+        h5parts = h5py.File(f"particles_{i:05d}.h5", 'r')
         assert h5trks.get('track_pz')[i] == h5parts.get('pz')
         h5parts.close()
 
