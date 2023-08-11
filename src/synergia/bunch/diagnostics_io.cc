@@ -94,7 +94,7 @@ Diagnostics_io::get_filename()
 
     if (!single_file) {
         sstream << "_";
-        sstream << std::setw(4);
+        sstream << std::setw(5);
         sstream << std::setfill('0');
         sstream << iteration_count;
     }
