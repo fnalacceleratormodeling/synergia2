@@ -102,7 +102,7 @@ run(Fodo_cxx_options opts)
 #else
     Space_charge_3d_open_hockney_options sc_ops(gridx, gridy, gridz);
 #endif
-    sc_ops.comm_group_size = 1;
+    sc_ops.comm_group_size = 4;
 
     // stepper
     Split_operator_stepper_elements stepper(sc_ops, 1);

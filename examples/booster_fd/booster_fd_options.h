@@ -3,9 +3,9 @@
 #include <string>
 
 struct Booster_fd_options {
-    int gridx = 32;
-    int gridy = 32;
-    int gridz = 32;
+    int gridx = 64;
+    int gridy = 64;
+    int gridz = 256;
     // at end of pip2_realistic_l6aperture
     double real_particles = 82716049382.71603;
     int num_particles = 5837;

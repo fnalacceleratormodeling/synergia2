@@ -272,23 +272,36 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 
     /* create krylov solver */
     PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
-    PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
-    PetscCall(
-        KSPGMRESSetCGSRefinementType(sctx.ksp, KSP_GMRES_CGS_REFINE_IFNEEDED));
+    PetscCall(KSPSetType(sctx.ksp, KSPPREONLY));
+
+    //PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
+    //PetscCall(
+    //    KSPGMRESSetCGSRefinementType(sctx.ksp, KSP_GMRES_CGS_REFINE_IFNEEDED));
 
     PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
     PetscCall(KSPSetFromOptions(sctx.ksp));
 
     /* set preconditioner */
     PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
-    // PetscCall(PCSetType(sctx.pc, PCHYPRE));
-    // PetscCall(PCHYPRESetType(sctx.pc, std::string("boomeramg").data()));
+    PetscCall(PCSetType(sctx.pc, PCLU));
+    PetscCall(PCFactorSetMatSolverType(sctx.pc, MATSOLVERSTRUMPACK ));
+    PetscCall(PCFactorSetUpMatSolverType(sctx.pc));
+    Mat M;
+    PetscCall(PCFactorGetMatrix(sctx.pc, &M));
+    PetscCall(MatSTRUMPACKSetColPerm(M, PETSC_FALSE));
+    PetscCall(MatSTRUMPACKSetReordering(M, MAT_STRUMPACK_GEOMETRIC));
+    PetscCall(MatSTRUMPACKSetGeometricNxyz(M, 32, 32, 32));
 
+    //PetscCall(PCSetType(sctx.pc, PCHYPRE));
+    //PetscCall(PCHYPRESetType(sctx.pc, std::string("boomeramg").data()));
+
+    /*
     PetscCall(PCSetType(sctx.pc, PCGAMG));
-    PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 10));
+    PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 20));
     PetscCall(
         PCGAMGSetThreshold(sctx.pc, (std::array<double, 1>{0.08}).data(), 1));
     PetscCall(PCGAMGSetThresholdScale(sctx.pc, 0.5));
+*/
 
     /* Enable KSP logging if options are set */
     if (gctx.ksp_view) {
@@ -365,6 +378,7 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
         }));
     Kokkos::fence();
     PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
+
 
     if (sctx.reuse == PETSC_FALSE) {
         PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_FALSE));
