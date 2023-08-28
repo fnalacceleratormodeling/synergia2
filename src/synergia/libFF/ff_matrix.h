@@ -40,70 +40,23 @@ In the latter case the tracking run is aborted.label:
 // p [Gev/c] = -- * B*rho [ Tesla meters ]
 #define PH_CNV_brho_to_p   (1.0e-9 * pconstants::c)
 
-namespace matrix_impl
-{
-    struct MatrixParams
-    {
-
-        double  k1, k2, k3, k4, k5, k6; // KICKn parameters
-        double  rm11, rm12, rm13, rm14, rm15, rm16,
-                rm21, rm22, rm23, rm24, rm25, rm26,
-                rm31, rm32, rm33, rm34, rm35, rm36,
-                rm41, rm42, rm43, rm44, rm45, rm46,
-                rm51, rm52, rm53, rm54, rm55, rm56,
-                rm61, rm62, rm63, rm64, rm65, rm66; // 36 RMij parameters
-        
-        double  t111, t112, t113, t114, t115, t116,
-                t121, t122, t123, t124, t125, t126,
-                t131, t132, t133, t134, t135, t136,
-                t141, t142, t143, t144, t145, t146,
-                t151, t152, t153, t154, t155, t156,
-                t161, t162, t163, t164, t165, t166,
-    
-                t211, t212, t213, t214, t215, t216,
-                t221, t222, t223, t224, t225, t226,
-                t231, t232, t233, t234, t235, t236,
-                t241, t242, t243, t244, t245, t246,
-                t251, t252, t253, t254, t255, t256,
-                t261, t262, t263, t264, t265, t266,
-    
-                t311, t312, t313, t314, t315, t316,
-                t321, t322, t323, t324, t325, t326,
-                t331, t332, t333, t334, t335, t336,
-                t341, t342, t343, t344, t345, t346,
-                t351, t352, t353, t354, t355, t356,
-                t361, t362, t363, t364, t365, t366,
-    
-                t411, t412, t413, t414, t415, t416,
-                t421, t422, t423, t424, t425, t426,
-                t431, t432, t433, t434, t435, t436,
-                t441, t442, t443, t444, t445, t446,
-                t451, t452, t453, t454, t455, t456,
-                t461, t462, t463, t464, t465, t466,
-    
-                t511, t512, t513, t514, t515, t516,
-                t521, t522, t523, t524, t525, t526,
-                t531, t532, t533, t534, t535, t536,
-                t541, t542, t543, t544, t545, t546,
-                t551, t552, t553, t554, t555, t556,
-                t561, t562, t563, t564, t565, t566,
-    
-                t611, t612, t613, t614, t615, t616,
-                t621, t622, t623, t624, t625, t626,
-                t631, t632, t633, t634, t635, t636,
-                t641, t642, t643, t644, t645, t646,
-                t651, t652, t653, t654, t655, t656,
-		        t661, t662, t663, t664, t665, t666; // 216 Tijk parameters
-	    
-    
+namespace matrix_impl {
+    struct MatrixParams {
+        double l;           // length
+        double kick[6];     // KICKn parameters
+        double rm[6][6];    // RM linear matrix
+        double tm[6][6][6]; // TM 2nd order tensor
+        // these are not currently used but may be in the future if
+        // we decide that scale matrix elements by momentum makes sense (iffy)
+        double scale, m_b;
+        double pref_b;
     };
 
-    template<class BP> // BP is bunch particles?
-    struct PropMatrix
-    {
+    template <class BP> // BP is bunch particles?
+    struct PropMatrix {
         typename BP::parts_t p;
         typename BP::const_masks_t masks;
-        const MatrixParams matrix_impl;
+        const MatrixParams mp;
 
         PropMatrix(BP & bp, MatrixParams const& mp)
             : p(bp.parts), masks(bp.masks), mp(mp)
@@ -117,25 +70,23 @@ namespace matrix_impl
 
                 // bend
                 FF_algorithm::matrix_unit(
-                        p(i,0), p(i,1), p(i,2), p(i,3),
-                        dipedge_params.re_2_1, dipedge_params.re_4_3,
-                        dipedge_params.te );
-
+                        p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
+			mp.kick, mp.rm, mp.tm);
            }
         }
     };
 
     template<class BP>
-    struct PropDipedgeSimd
+    struct PropMatrixSimd
     {
         using gsv_t = typename BP::gsv_t;
         using parts_t = typename BP::parts_t;
 
         typename BP::parts_t p;
         typename BP::const_masks_t masks;
-        const DipedgeParams mp;
+        const MatrixParams mp;
 
-        PropDipedgeSimd(BP & bp, DipedgeParams const& mp)
+        PropMatrixSimd(BP & bp, MatrixParams const& mp)
             : p(bp.parts), masks(bp.masks), mp(mp)
         { }
 
@@ -153,28 +104,35 @@ namespace matrix_impl
                 gsv_t p1(&p(i, 1));
                 gsv_t p2(&p(i, 2));
                 gsv_t p3(&p(i, 3));
-
+		gsv_t p4(&p(i, 4));
+		gsv_t p5(&p(i, 5));
+		
  
-                // bend
-                FF_algorithm::dipedge_unit<gsv_t>(
-                        p0, p1, p2, p3,
-                        dipedge_params.re_2_1,
-                        dipedge_params.re_4_3,
-                        dipedge_params.te );
-
+                // matrix
+                FF_algorithm::matrix_unit<gsv_t>(
+                        p0, p1, p2, p3, p4, p5,
+			mp.kick, mp.rm, mp.tm);
 
                 p0.store(&p(i, 0));
                 p1.store(&p(i, 1));
                 p2.store(&p(i, 2));
                 p3.store(&p(i, 3));
+		p4.store(&p(i, 4));
+		p5.store(&p(i, 5));
             }
         }
     };
 
+    // mstrix must have 0 length
     inline void prop_reference(
             Reference_particle & ref_l, 
-            DipedgeParams & dipedge_params )
+            MatrixParams & mp )
     {
+        if (mp.l != 0) {
+            throw std::runtime_error(
+                "error, matrix element has non-zero length");
+        }
+
         double pref_l = ref_l.get_momentum();
         double    m_l = ref_l.get_mass();
 
@@ -188,115 +146,336 @@ namespace matrix_impl
         double dpop_l = ref_l.get_state()[Bunch::dpop];
 
 
-        FF_algorithm::dipedge_unit(
-                x_l, xp_l, y_l, yp_l,
-                dipedge_params.re_2_1,
-                dipedge_params.re_4_3,
-                dipedge_params.te);
-        
+        FF_algorithm::matrix_unit(
+                x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
+		mp.kick, mp.rm, mp.tm);
     }
 }
 
-namespace FF_dipedge {
+namespace FF_matrix {
 
     template <class BunchT>
     inline void
     apply(Lattice_element_slice const& slice, BunchT& bunch)
     {
-        using namespace dipedge_impl;
+        using namespace matrix_impl;
 
-        scoped_simple_timer timer("libFF_dipedge");
+        scoped_simple_timer timer("libFF_matrix");
 
         auto const& ele = slice.get_lattice_element();
 
         MatrixParams mp;
 
-        mp.k1 = ele.get_double_attribute("kick1", 0.0);
-        mp.k2 = ele.get_double_attribute("kick2", 0.0);
-        mp.k3 = ele.get_double_attribute("kick3", 0.0);
-        mp.k4 = ele.get_double_attribute("kick4", 0.0);
-        mp.k5 = ele.get_double_attribute("kick5", 0.0);
-        mp.k6 = ele.get_double_attribute("kick6", 0.0);
+	// offset pointer so I can use 1-based indexing to match MAD-X
+	// convention
+	double* kp = &mp.kick[-1];
+        mp.kick[1] = ele.get_double_attribute("kick1", 0.0);
+        mp.kick[2] = ele.get_double_attribute("kick2", 0.0);
+        mp.kick[3] = ele.get_double_attribute("kick3", 0.0);
+        mp.kick[4] = ele.get_double_attribute("kick4", 0.0);
+        mp.kick[5] = ele.get_double_attribute("kick5", 0.0);
+        mp.kick[6] = ele.get_double_attribute("kick6", 0.0);
 
-        mp.rm11 = ele.get_double_attribute("rm11", 1.0);
-        mp.rm22 = ele.get_double_attribute("rm22", 1.0);
-        mp.rm33 = ele.get_double_attribute("rm33", 1.0);
-        mp.rm44 = ele.get_double_attribute("rm44", 1.0);
-        mp.rm55 = ele.get_double_attribute("rm55", 1.0);
-        mp.rm66 = ele.get_double_attribute("rm66", 1.0);
+	// diagonal elements default to 1, all others default to 0
+        mp.rm[0][0] = ele.get_double_attribute("rm11", 1.0); // diagonal
+        mp.rm[0][1] = ele.get_double_attribute("rm12", 0.0);
+        mp.rm[0][2] = ele.get_double_attribute("rm13", 0.0);
+        mp.rm[0][3] = ele.get_double_attribute("rm14", 0.0);
+        mp.rm[0][4] = ele.get_double_attribute("rm15", 0.0);
+        mp.rm[0][5] = ele.get_double_attribute("rm16", 0.0);
 
-        mp.rm12 = ele.get_double_attribute("rm12", 0.0);
-        mp.rm13 = ele.get_double_attribute("rm13", 0.0);
-        mp.rm14 = ele.get_double_attribute("rm14", 0.0)
-        mp.rm15 = ele.get_double_attribute("rm15", 0.0);
-        mp.rm16 = ele.get_double_attribute("rm16", 0.0);
-    
-        mp.rm21 = ele.get_double_attribute("rm21", 0.0);
-        mp.rm23 = ele.get_double_attribute("rm23", 0.0);
-        mp.rm24 = ele.get_double_attribute("rm24", 0.0)
-        mp.rm25 = ele.get_double_attribute("rm25", 0.0);
-        mp.rm26 = ele.get_double_attribute("rm26", 0.0);
-    
-        mp.rm31 = ele.get_double_attribute("rm31", 0.0);
-        mp.rm32 = ele.get_double_attribute("rm32", 0.0);
-        mp.rm34 = ele.get_double_attribute("rm34", 0.0)
-        mp.rm35 = ele.get_double_attribute("rm35", 0.0);
-        mp.rm36 = ele.get_double_attribute("rm36", 0.0);
-    
-        mp.rm41 = ele.get_double_attribute("rm41", 0.0)
-        mp.rm42 = ele.get_double_attribute("rm42", 0.0);
-        mp.rm43 = ele.get_double_attribute("rm43", 0.0);
-        mp.rm45 = ele.get_double_attribute("rm45", 0.0);
-        mp.rm46 = ele.get_double_attribute("rm46", 0.0);
-    
-        mp.rm51 = ele.get_double_attribute("rm51", 0.0);
-        mp.rm52 = ele.get_double_attribute("rm52", 0.0);
-        mp.rm53 = ele.get_double_attribute("rm53", 0.0);
-        mp.rm54 = ele.get_double_attribute("rm54", 0.0)
-        mp.rm56 = ele.get_double_attribute("rm56", 0.0);
-    
-        mp.rm61 = ele.get_double_attribute("rm61", 0.0);
-        mp.rm62 = ele.get_double_attribute("rm62", 0.0);
-        mp.rm63 = ele.get_double_attribute("rm63", 0.0);
-        mp.rm64 = ele.get_double_attribute("rm64", 0.0)
-        mp.rm65 = ele.get_double_attribute("rm65", 0.0);
-    
-	mp.t111 = ele.get_double_attribute("tm111", 0.0);
-	mp.t112 = ele.get_double_attribute("tm112", 0.0);
-	mp.t113 = ele.get_double_attribute("tm113", 0.0);
-	mp.t114 = ele.get_double_attribute("tm114", 0.0);
-	mp.t115 = ele.get_double_attribute("tm115", 0.0);
-	mp.t116 = ele.get_double_attribute("tm116", 0.0);
+        mp.rm[1][0] = ele.get_double_attribute("rm21", 0.0);
+        mp.rm[1][1] = ele.get_double_attribute("rm22", 1.0); // diagonal
+        mp.rm[1][2] = ele.get_double_attribute("rm23", 0.0);
+        mp.rm[1][3] = ele.get_double_attribute("rm24", 0.0);
+        mp.rm[1][4] = ele.get_double_attribute("rm25", 0.0);
+        mp.rm[1][5] = ele.get_double_attribute("rm26", 0.0);
 
-	mp.t121 = ele.get_double_attribute("tm121", 0.0);
-	mp.t122 = ele.get_double_attribute("tm122", 0.0);
-	mp.t123 = ele.get_double_attribute("tm123", 0.0);
-	mp.t124 = ele.get_double_attribute("tm124", 0.0);
-	mp.t125 = ele.get_double_attribute("tm125", 0.0);
-	mp.t126 = ele.get_double_attribute("tm126", 0.0);
+        mp.rm[2][0] = ele.get_double_attribute("rm31", 0.0);
+        mp.rm[2][1] = ele.get_double_attribute("rm32", 0.0);
+        mp.rm[2][2] = ele.get_double_attribute("rm33", 1.0); // diagonal
+        mp.rm[2][3] = ele.get_double_attribute("rm34", 0.0);
+        mp.rm[2][4] = ele.get_double_attribute("rm35", 0.0);
+        mp.rm[2][5] = ele.get_double_attribute("rm36", 0.0);
 
-	mp.t131 = ele.get_double_attribute("tm131", 0.0);
-	mp.t132 = ele.get_double_attribute("tm132", 0.0);
-	mp.t133 = ele.get_double_attribute("tm133", 0.0);
-	mp.t134 = ele.get_double_attribute("tm134", 0.0);
-	mp.t135 = ele.get_double_attribute("tm135", 0.0);
-	mp.t136 = ele.get_double_attribute("tm136", 0.0);
+        mp.rm[3][0] = ele.get_double_attribute("rm41", 0.0);
+        mp.rm[3][1] = ele.get_double_attribute("rm42", 0.0);
+        mp.rm[3][2] = ele.get_double_attribute("rm43", 0.0);
+        mp.rm[3][3] = ele.get_double_attribute("rm44", 0.0); // diagonal
+        mp.rm[3][4] = ele.get_double_attribute("rm45", 0.0);
+        mp.rm[3][5] = ele.get_double_attribute("rm46", 0.0);
 
-	mp.t131 = ele.get_double_attribute("tm131", 0.0);
-	mp.t132 = ele.get_double_attribute("tm132", 0.0);
-	mp.t133 = ele.get_double_attribute("tm133", 0.0);
-	mp.t134 = ele.get_double_attribute("tm134", 0.0);
-	mp.t135 = ele.get_double_attribute("tm135", 0.0);
-	mp.t136 = ele.get_double_attribute("tm136", 0.0);
+        mp.rm[4][0] = ele.get_double_attribute("rm51", 0.0);
+        mp.rm[4][1] = ele.get_double_attribute("rm52", 0.0);
+        mp.rm[4][2] = ele.get_double_attribute("rm53", 0.0);
+        mp.rm[4][3] = ele.get_double_attribute("rm54", 0.0);
+        mp.rm[4][4] = ele.get_double_attribute("rm55", 1.0); // diagonal
+        mp.rm[4][5] = ele.get_double_attribute("rm56", 0.0);
 
-	dipedge_params.re_2_1 = h * tanedg;
-        dipedge_params.re_4_3 = -h * tan(psip);
+        mp.rm[5][0] = ele.get_double_attribute("rm61", 0.0);
+        mp.rm[5][1] = ele.get_double_attribute("rm62", 0.0);
+        mp.rm[5][2] = ele.get_double_attribute("rm63", 0.0);
+        mp.rm[5][3] = ele.get_double_attribute("rm64", 0.0);
+        mp.rm[5][4] = ele.get_double_attribute("rm65", 0.0);
+        mp.rm[5][5] = ele.get_double_attribute("rm66", 1.0); // diagonal
 
+        mp.tm[0][0][0] = ele.get_double_attribute("tm111", 0.0);
+        mp.tm[0][0][1] = ele.get_double_attribute("tm112", 0.0);
+        mp.tm[0][0][2] = ele.get_double_attribute("tm113", 0.0);
+        mp.tm[0][0][3] = ele.get_double_attribute("tm114", 0.0);
+        mp.tm[0][0][4] = ele.get_double_attribute("tm115", 0.0);
+        mp.tm[0][0][5] = ele.get_double_attribute("tm116", 0.0);
 
+        mp.tm[0][1][0] = ele.get_double_attribute("tm121", 0.0);
+        mp.tm[0][1][1] = ele.get_double_attribute("tm122", 0.0);
+        mp.tm[0][1][2] = ele.get_double_attribute("tm123", 0.0);
+        mp.tm[0][1][3] = ele.get_double_attribute("tm124", 0.0);
+        mp.tm[0][1][4] = ele.get_double_attribute("tm125", 0.0);
+        mp.tm[0][1][5] = ele.get_double_attribute("tm126", 0.0);
+
+        mp.tm[0][2][0] = ele.get_double_attribute("tm131", 0.0);
+        mp.tm[0][2][1] = ele.get_double_attribute("tm132", 0.0);
+        mp.tm[0][2][2] = ele.get_double_attribute("tm133", 0.0);
+        mp.tm[0][2][3] = ele.get_double_attribute("tm134", 0.0);
+        mp.tm[0][2][4] = ele.get_double_attribute("tm135", 0.0);
+        mp.tm[0][2][5] = ele.get_double_attribute("tm136", 0.0);
+
+        mp.tm[0][3][0] = ele.get_double_attribute("tm141", 0.0);
+        mp.tm[0][3][1] = ele.get_double_attribute("tm142", 0.0);
+        mp.tm[0][3][2] = ele.get_double_attribute("tm143", 0.0);
+        mp.tm[0][3][3] = ele.get_double_attribute("tm144", 0.0);
+        mp.tm[0][3][4] = ele.get_double_attribute("tm145", 0.0);
+        mp.tm[0][3][5] = ele.get_double_attribute("tm146", 0.0);
+
+        mp.tm[0][4][0] = ele.get_double_attribute("tm151", 0.0);
+        mp.tm[0][4][1] = ele.get_double_attribute("tm152", 0.0);
+        mp.tm[0][4][2] = ele.get_double_attribute("tm153", 0.0);
+        mp.tm[0][4][3] = ele.get_double_attribute("tm154", 0.0);
+        mp.tm[0][4][4] = ele.get_double_attribute("tm155", 0.0);
+        mp.tm[0][4][5] = ele.get_double_attribute("tm156", 0.0);
+
+        mp.tm[0][5][0] = ele.get_double_attribute("tm161", 0.0);
+        mp.tm[0][5][1] = ele.get_double_attribute("tm162", 0.0);
+        mp.tm[0][5][2] = ele.get_double_attribute("tm163", 0.0);
+        mp.tm[0][5][3] = ele.get_double_attribute("tm164", 0.0);
+        mp.tm[0][5][4] = ele.get_double_attribute("tm165", 0.0);
+        mp.tm[0][5][5] = ele.get_double_attribute("tm166", 0.0);
+
+        mp.tm[1][0][0] = ele.get_double_attribute("tm211", 0.0);
+        mp.tm[1][0][1] = ele.get_double_attribute("tm212", 0.0);
+        mp.tm[1][0][2] = ele.get_double_attribute("tm213", 0.0);
+        mp.tm[1][0][3] = ele.get_double_attribute("tm214", 0.0);
+        mp.tm[1][0][4] = ele.get_double_attribute("tm215", 0.0);
+        mp.tm[1][0][5] = ele.get_double_attribute("tm216", 0.0);
+
+        mp.tm[1][1][0] = ele.get_double_attribute("tm221", 0.0);
+        mp.tm[1][1][1] = ele.get_double_attribute("tm222", 0.0);
+        mp.tm[1][1][2] = ele.get_double_attribute("tm223", 0.0);
+        mp.tm[1][1][3] = ele.get_double_attribute("tm224", 0.0);
+        mp.tm[1][1][4] = ele.get_double_attribute("tm225", 0.0);
+        mp.tm[1][1][5] = ele.get_double_attribute("tm226", 0.0);
+
+        mp.tm[1][2][0] = ele.get_double_attribute("tm231", 0.0);
+        mp.tm[1][2][1] = ele.get_double_attribute("tm232", 0.0);
+        mp.tm[1][2][2] = ele.get_double_attribute("tm233", 0.0);
+        mp.tm[1][2][3] = ele.get_double_attribute("tm234", 0.0);
+        mp.tm[1][2][4] = ele.get_double_attribute("tm235", 0.0);
+        mp.tm[1][2][5] = ele.get_double_attribute("tm236", 0.0);
+
+        mp.tm[1][3][0] = ele.get_double_attribute("tm241", 0.0);
+        mp.tm[1][3][1] = ele.get_double_attribute("tm242", 0.0);
+        mp.tm[1][3][2] = ele.get_double_attribute("tm243", 0.0);
+        mp.tm[1][3][3] = ele.get_double_attribute("tm244", 0.0);
+        mp.tm[1][3][4] = ele.get_double_attribute("tm245", 0.0);
+        mp.tm[1][3][5] = ele.get_double_attribute("tm246", 0.0);
+
+        mp.tm[1][4][0] = ele.get_double_attribute("tm251", 0.0);
+        mp.tm[1][4][1] = ele.get_double_attribute("tm252", 0.0);
+        mp.tm[1][4][2] = ele.get_double_attribute("tm253", 0.0);
+        mp.tm[1][4][3] = ele.get_double_attribute("tm254", 0.0);
+        mp.tm[1][4][4] = ele.get_double_attribute("tm255", 0.0);
+        mp.tm[1][4][5] = ele.get_double_attribute("tm256", 0.0);
+
+        mp.tm[1][5][0] = ele.get_double_attribute("tm261", 0.0);
+        mp.tm[1][5][1] = ele.get_double_attribute("tm262", 0.0);
+        mp.tm[1][5][2] = ele.get_double_attribute("tm263", 0.0);
+        mp.tm[1][5][3] = ele.get_double_attribute("tm264", 0.0);
+        mp.tm[1][5][4] = ele.get_double_attribute("tm265", 0.0);
+        mp.tm[1][5][5] = ele.get_double_attribute("tm266", 0.0);
+
+        mp.tm[2][0][0] = ele.get_double_attribute("tm311", 0.0);
+        mp.tm[2][0][1] = ele.get_double_attribute("tm312", 0.0);
+        mp.tm[2][0][2] = ele.get_double_attribute("tm313", 0.0);
+        mp.tm[2][0][3] = ele.get_double_attribute("tm314", 0.0);
+        mp.tm[2][0][4] = ele.get_double_attribute("tm315", 0.0);
+        mp.tm[2][0][5] = ele.get_double_attribute("tm316", 0.0);
+
+        mp.tm[2][1][0] = ele.get_double_attribute("tm321", 0.0);
+        mp.tm[2][1][1] = ele.get_double_attribute("tm322", 0.0);
+        mp.tm[2][1][2] = ele.get_double_attribute("tm323", 0.0);
+        mp.tm[2][1][3] = ele.get_double_attribute("tm324", 0.0);
+        mp.tm[2][1][4] = ele.get_double_attribute("tm325", 0.0);
+        mp.tm[2][1][5] = ele.get_double_attribute("tm326", 0.0);
+
+        mp.tm[2][2][0] = ele.get_double_attribute("tm331", 0.0);
+        mp.tm[2][2][1] = ele.get_double_attribute("tm332", 0.0);
+        mp.tm[2][2][2] = ele.get_double_attribute("tm333", 0.0);
+        mp.tm[2][2][3] = ele.get_double_attribute("tm334", 0.0);
+        mp.tm[2][2][4] = ele.get_double_attribute("tm335", 0.0);
+        mp.tm[2][2][5] = ele.get_double_attribute("tm336", 0.0);
+
+        mp.tm[2][3][0] = ele.get_double_attribute("tm341", 0.0);
+        mp.tm[2][3][1] = ele.get_double_attribute("tm342", 0.0);
+        mp.tm[2][3][2] = ele.get_double_attribute("tm343", 0.0);
+        mp.tm[2][3][3] = ele.get_double_attribute("tm344", 0.0);
+        mp.tm[2][3][4] = ele.get_double_attribute("tm345", 0.0);
+        mp.tm[2][3][5] = ele.get_double_attribute("tm346", 0.0);
+
+        mp.tm[2][4][0] = ele.get_double_attribute("tm351", 0.0);
+        mp.tm[2][4][1] = ele.get_double_attribute("tm352", 0.0);
+        mp.tm[2][4][2] = ele.get_double_attribute("tm353", 0.0);
+        mp.tm[2][4][3] = ele.get_double_attribute("tm354", 0.0);
+        mp.tm[2][4][4] = ele.get_double_attribute("tm355", 0.0);
+        mp.tm[2][4][5] = ele.get_double_attribute("tm356", 0.0);
+
+        mp.tm[2][5][0] = ele.get_double_attribute("tm361", 0.0);
+        mp.tm[2][5][1] = ele.get_double_attribute("tm362", 0.0);
+        mp.tm[2][5][2] = ele.get_double_attribute("tm363", 0.0);
+        mp.tm[2][5][3] = ele.get_double_attribute("tm364", 0.0);
+        mp.tm[2][5][4] = ele.get_double_attribute("tm365", 0.0);
+        mp.tm[2][5][5] = ele.get_double_attribute("tm366", 0.0);
+
+        mp.tm[3][0][0] = ele.get_double_attribute("tm411", 0.0);
+        mp.tm[3][0][1] = ele.get_double_attribute("tm412", 0.0);
+        mp.tm[3][0][2] = ele.get_double_attribute("tm413", 0.0);
+        mp.tm[3][0][3] = ele.get_double_attribute("tm414", 0.0);
+        mp.tm[3][0][4] = ele.get_double_attribute("tm415", 0.0);
+        mp.tm[3][0][5] = ele.get_double_attribute("tm416", 0.0);
+
+        mp.tm[3][1][0] = ele.get_double_attribute("tm421", 0.0);
+        mp.tm[3][1][1] = ele.get_double_attribute("tm422", 0.0);
+        mp.tm[3][1][2] = ele.get_double_attribute("tm423", 0.0);
+        mp.tm[3][1][3] = ele.get_double_attribute("tm424", 0.0);
+        mp.tm[3][1][4] = ele.get_double_attribute("tm425", 0.0);
+        mp.tm[3][1][5] = ele.get_double_attribute("tm426", 0.0);
+
+        mp.tm[3][2][0] = ele.get_double_attribute("tm431", 0.0);
+        mp.tm[3][2][1] = ele.get_double_attribute("tm432", 0.0);
+        mp.tm[3][2][2] = ele.get_double_attribute("tm433", 0.0);
+        mp.tm[3][2][3] = ele.get_double_attribute("tm434", 0.0);
+        mp.tm[3][2][4] = ele.get_double_attribute("tm435", 0.0);
+        mp.tm[3][2][5] = ele.get_double_attribute("tm436", 0.0);
+
+        mp.tm[3][3][0] = ele.get_double_attribute("tm441", 0.0);
+        mp.tm[3][3][1] = ele.get_double_attribute("tm442", 0.0);
+        mp.tm[3][3][2] = ele.get_double_attribute("tm443", 0.0);
+        mp.tm[3][3][3] = ele.get_double_attribute("tm444", 0.0);
+        mp.tm[3][3][4] = ele.get_double_attribute("tm445", 0.0);
+        mp.tm[3][3][5] = ele.get_double_attribute("tm446", 0.0);
+
+        mp.tm[3][4][0] = ele.get_double_attribute("tm451", 0.0);
+        mp.tm[3][4][1] = ele.get_double_attribute("tm452", 0.0);
+        mp.tm[3][4][2] = ele.get_double_attribute("tm453", 0.0);
+        mp.tm[3][4][3] = ele.get_double_attribute("tm454", 0.0);
+        mp.tm[3][4][4] = ele.get_double_attribute("tm455", 0.0);
+        mp.tm[3][4][5] = ele.get_double_attribute("tm456", 0.0);
+
+        mp.tm[3][5][0] = ele.get_double_attribute("tm461", 0.0);
+        mp.tm[3][5][1] = ele.get_double_attribute("tm462", 0.0);
+        mp.tm[3][5][2] = ele.get_double_attribute("tm463", 0.0);
+        mp.tm[3][5][3] = ele.get_double_attribute("tm464", 0.0);
+        mp.tm[3][5][4] = ele.get_double_attribute("tm465", 0.0);
+        mp.tm[3][5][5] = ele.get_double_attribute("tm466", 0.0);
+
+        mp.tm[4][0][0] = ele.get_double_attribute("tm511", 0.0);
+        mp.tm[4][0][1] = ele.get_double_attribute("tm512", 0.0);
+        mp.tm[4][0][2] = ele.get_double_attribute("tm513", 0.0);
+        mp.tm[4][0][3] = ele.get_double_attribute("tm514", 0.0);
+        mp.tm[4][0][4] = ele.get_double_attribute("tm515", 0.0);
+        mp.tm[4][0][5] = ele.get_double_attribute("tm516", 0.0);
+
+        mp.tm[4][1][0] = ele.get_double_attribute("tm521", 0.0);
+        mp.tm[4][1][1] = ele.get_double_attribute("tm522", 0.0);
+        mp.tm[4][1][2] = ele.get_double_attribute("tm523", 0.0);
+        mp.tm[4][1][3] = ele.get_double_attribute("tm524", 0.0);
+        mp.tm[4][1][4] = ele.get_double_attribute("tm525", 0.0);
+        mp.tm[4][1][5] = ele.get_double_attribute("tm526", 0.0);
+
+        mp.tm[4][2][0] = ele.get_double_attribute("tm531", 0.0);
+        mp.tm[4][2][1] = ele.get_double_attribute("tm532", 0.0);
+        mp.tm[4][2][2] = ele.get_double_attribute("tm533", 0.0);
+        mp.tm[4][2][3] = ele.get_double_attribute("tm534", 0.0);
+        mp.tm[4][2][4] = ele.get_double_attribute("tm535", 0.0);
+        mp.tm[4][2][5] = ele.get_double_attribute("tm536", 0.0);
+
+        mp.tm[4][3][0] = ele.get_double_attribute("tm541", 0.0);
+        mp.tm[4][3][1] = ele.get_double_attribute("tm542", 0.0);
+        mp.tm[4][3][2] = ele.get_double_attribute("tm543", 0.0);
+        mp.tm[4][3][3] = ele.get_double_attribute("tm544", 0.0);
+        mp.tm[4][3][4] = ele.get_double_attribute("tm545", 0.0);
+        mp.tm[4][3][5] = ele.get_double_attribute("tm546", 0.0);
+
+        mp.tm[4][4][0] = ele.get_double_attribute("tm551", 0.0);
+        mp.tm[4][4][1] = ele.get_double_attribute("tm552", 0.0);
+        mp.tm[4][4][2] = ele.get_double_attribute("tm553", 0.0);
+        mp.tm[4][4][3] = ele.get_double_attribute("tm554", 0.0);
+        mp.tm[4][4][4] = ele.get_double_attribute("tm555", 0.0);
+        mp.tm[4][4][5] = ele.get_double_attribute("tm556", 0.0);
+
+        mp.tm[4][5][0] = ele.get_double_attribute("tm561", 0.0);
+        mp.tm[4][5][1] = ele.get_double_attribute("tm562", 0.0);
+        mp.tm[4][5][2] = ele.get_double_attribute("tm563", 0.0);
+        mp.tm[4][5][3] = ele.get_double_attribute("tm564", 0.0);
+        mp.tm[4][5][4] = ele.get_double_attribute("tm565", 0.0);
+        mp.tm[4][5][5] = ele.get_double_attribute("tm566", 0.0);
+
+        mp.tm[5][0][0] = ele.get_double_attribute("tm611", 0.0);
+        mp.tm[5][0][1] = ele.get_double_attribute("tm612", 0.0);
+        mp.tm[5][0][2] = ele.get_double_attribute("tm613", 0.0);
+        mp.tm[5][0][3] = ele.get_double_attribute("tm614", 0.0);
+        mp.tm[5][0][4] = ele.get_double_attribute("tm615", 0.0);
+        mp.tm[5][0][5] = ele.get_double_attribute("tm616", 0.0);
+
+        mp.tm[5][1][0] = ele.get_double_attribute("tm621", 0.0);
+        mp.tm[5][1][1] = ele.get_double_attribute("tm622", 0.0);
+        mp.tm[5][1][2] = ele.get_double_attribute("tm623", 0.0);
+        mp.tm[5][1][3] = ele.get_double_attribute("tm624", 0.0);
+        mp.tm[5][1][4] = ele.get_double_attribute("tm625", 0.0);
+        mp.tm[5][1][5] = ele.get_double_attribute("tm626", 0.0);
+
+        mp.tm[5][2][0] = ele.get_double_attribute("tm631", 0.0);
+        mp.tm[5][2][1] = ele.get_double_attribute("tm632", 0.0);
+        mp.tm[5][2][2] = ele.get_double_attribute("tm633", 0.0);
+        mp.tm[5][2][3] = ele.get_double_attribute("tm634", 0.0);
+        mp.tm[5][2][4] = ele.get_double_attribute("tm635", 0.0);
+        mp.tm[5][2][5] = ele.get_double_attribute("tm636", 0.0);
+
+        mp.tm[5][3][0] = ele.get_double_attribute("tm641", 0.0);
+        mp.tm[5][3][1] = ele.get_double_attribute("tm642", 0.0);
+        mp.tm[5][3][2] = ele.get_double_attribute("tm643", 0.0);
+        mp.tm[5][3][3] = ele.get_double_attribute("tm644", 0.0);
+        mp.tm[5][3][4] = ele.get_double_attribute("tm645", 0.0);
+        mp.tm[5][3][5] = ele.get_double_attribute("tm646", 0.0);
+
+        mp.tm[5][4][0] = ele.get_double_attribute("tm651", 0.0);
+        mp.tm[5][4][1] = ele.get_double_attribute("tm652", 0.0);
+        mp.tm[5][4][2] = ele.get_double_attribute("tm653", 0.0);
+        mp.tm[5][4][3] = ele.get_double_attribute("tm654", 0.0);
+        mp.tm[5][4][4] = ele.get_double_attribute("tm655", 0.0);
+        mp.tm[5][4][5] = ele.get_double_attribute("tm656", 0.0);
+
+        mp.tm[5][5][0] = ele.get_double_attribute("tm661", 0.0);
+        mp.tm[5][5][1] = ele.get_double_attribute("tm662", 0.0);
+        mp.tm[5][5][2] = ele.get_double_attribute("tm663", 0.0);
+        mp.tm[5][5][3] = ele.get_double_attribute("tm664", 0.0);
+        mp.tm[5][5][4] = ele.get_double_attribute("tm665", 0.0);
+        mp.tm[5][5][5] = ele.get_double_attribute("tm666", 0.0);
+
+	    // jury is still out whether to scale matrix by momentum
         Reference_particle& ref_l = bunch.get_design_reference_particle();
         Reference_particle const& ref_b = bunch.get_reference_particle();
 
-        dipedge_params.scale =
+        mp.scale =
             ref_l.get_momentum() /
             (ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]));
 
@@ -313,11 +492,8 @@ namespace FF_dipedge {
         double m_b = bunch.get_mass();
 
         // common
-        dipedge_params.pref_b = pref_b;
-        dipedge_params.m_b = m_b;
-
-        dipedge_params.ce1 = cos(-edge);
-        dipedge_params.se1 = sin(-edge);
+        mp.pref_b = pref_b;
+        mp.m_b = m_b;
 
         using namespace Kokkos;
         using exec = typename BunchT::exec_space;
@@ -326,25 +502,25 @@ namespace FF_dipedge {
             auto bp = bunch.get_bunch_particles(pg);
             if (!bp.num_valid()) return;
 
-            // dipedge is a 0 length element with no multipole moments
-            // (currently)
+            // matrix is a 0 length element with no multipole moments
+
 #if LIBFF_USE_GSV
-            prop_reference(ref_l, dipedge_params);
+            prop_reference(ref_l, mp);
 
             auto range = RangePolicy<exec>(0, bp.size_in_gsv());
-            PropDipedgeSimd<typename BunchT::bp_t> dipedge(bp, dipedge_params);
-            Kokkos::parallel_for(range, dipedge);
+            PropMatrixSimd<typename BunchT::bp_t> matrix(bp, mp);
+            Kokkos::parallel_for(range, matrix);
 
 #else  // LIBFF_USE_GSV
             auto range = RangePolicy<exec>(0, bp.size());
-            PropDipedge<typename BunchT::bp_t> dipedge(bp, dipedge_params);
-            Kokkos::parallel_for(range, dipedge);
+            PropMatrix<typename BunchT::bp_t> matrix(bp, mp);
+            Kokkos::parallel_for(range, matrix);
 #endif // LIBFF_USE_GSV
         };
 
         apply(ParticleGroup::regular);
         apply(ParticleGroup::spectator);
-        // dipedge has 0 length so there is no need to increment trajectory here
+        // matrix has 0 length so there is no need to increment trajectory here
         // bunch.get_reference_particle().increment_trajectory(0);
         Kokkos::fence();
     }
