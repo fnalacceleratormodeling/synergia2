@@ -44,6 +44,8 @@ PYBIND11_MODULE(lattice, m)
         .value("marker",     element_type::marker)
         .value("instrument", element_type::instrument)
         .value("rcollimator",element_type::rcollimator)
+        .value("dipedge", element_type::dipedge)
+        .value("matrix", element_type::matrix)
         ;
 
     py::enum_<marker_type>(m, "marker_type", py::arithmetic())
