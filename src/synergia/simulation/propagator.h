@@ -30,6 +30,7 @@ class Propagator {
         {
             return *slice_it;
         }
+
         pointer
         operator->()
         {
