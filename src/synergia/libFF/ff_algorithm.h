@@ -2413,21 +2413,13 @@ namespace FF_algorithm {
                 double const rm[6][6],
                 double const tm[6][6][6])
     {
-
-        T newx(x);
-        T newxp(xp);
-        T newy(y);
-        T newyp(yp);
-        T newcdt(cdt);
-        T newdpop(dpop);
-
-        // constant
-        newx = newx + T(k[0]);
-        newxp = newxp + T(k[1]);
-        newy = newy + T(k[2]);
-        newyp = newyp + T(k[3]);
-        newcdt = newcdt + T(k[4]);
-        newdpop = newdpop + T(k[5]);
+        // Initialize coordinates with constant term
+        T newx(k[0]);
+        T newxp(k[1]);
+        T newy(k[2]);
+        T newyp(k[3]);
+        T newcdt(k[4]);
+        T newdpop(k[5]);
 
         // linear
         newx = newx + T(rm[0][0]) * x + T(rm[0][1]) * xp + T(rm[0][2]) * y +

@@ -58,27 +58,32 @@ namespace matrix_impl {
         typename BP::const_masks_t masks;
         const MatrixParams mp;
 
-        PropMatrix(BP & bp, MatrixParams const& mp)
+        PropMatrix(BP& bp, MatrixParams const& mp)
             : p(bp.parts), masks(bp.masks), mp(mp)
-            { }
+        {}
 
         KOKKOS_INLINE_FUNCTION
-        void operator()(const int i) const
+        void
+        operator()(const int i) const
         {
-            if (masks(i))
-            {
+            if (masks(i)) {
 
                 // bend
-                FF_algorithm::matrix_unit(
-                        p(i,0), p(i,1), p(i,2), p(i,3), p(i,4), p(i,5),
-			mp.kick, mp.rm, mp.tm);
-           }
+                FF_algorithm::matrix_unit(p(i, 0),
+                                          p(i, 1),
+                                          p(i, 2),
+                                          p(i, 3),
+                                          p(i, 4),
+                                          p(i, 5),
+                                          mp.kick,
+                                          mp.rm,
+                                          mp.tm);
+            }
         }
     };
 
-    template<class BP>
-    struct PropMatrixSimd
-    {
+    template <class BP>
+    struct PropMatrixSimd {
         using gsv_t = typename BP::gsv_t;
         using parts_t = typename BP::parts_t;
 
@@ -86,47 +91,45 @@ namespace matrix_impl {
         typename BP::const_masks_t masks;
         const MatrixParams mp;
 
-        PropMatrixSimd(BP & bp, MatrixParams const& mp)
+        PropMatrixSimd(BP& bp, MatrixParams const& mp)
             : p(bp.parts), masks(bp.masks), mp(mp)
-        { }
+        {}
 
         KOKKOS_INLINE_FUNCTION
-        void operator()(const int idx) const
+        void
+        operator()(const int idx) const
         {
             int i = idx * gsv_t::size();
 
             int m = 0;
-            for(int x=i; x<i+gsv_t::size(); ++x) m |= masks(x);
+            for (int x = i; x < i + gsv_t::size(); ++x)
+                m |= masks(x);
 
-            if (m)
-            {
+            if (m) {
                 gsv_t p0(&p(i, 0));
                 gsv_t p1(&p(i, 1));
                 gsv_t p2(&p(i, 2));
                 gsv_t p3(&p(i, 3));
-		gsv_t p4(&p(i, 4));
-		gsv_t p5(&p(i, 5));
-		
- 
+                gsv_t p4(&p(i, 4));
+                gsv_t p5(&p(i, 5));
+
                 // matrix
                 FF_algorithm::matrix_unit<gsv_t>(
-                        p0, p1, p2, p3, p4, p5,
-			mp.kick, mp.rm, mp.tm);
+                    p0, p1, p2, p3, p4, p5, mp.kick, mp.rm, mp.tm);
 
                 p0.store(&p(i, 0));
                 p1.store(&p(i, 1));
                 p2.store(&p(i, 2));
                 p3.store(&p(i, 3));
-		p4.store(&p(i, 4));
-		p5.store(&p(i, 5));
+                p4.store(&p(i, 4));
+                p5.store(&p(i, 5));
             }
         }
     };
 
     // mstrix must have 0 length
-    inline void prop_reference(
-            Reference_particle & ref_l, 
-            MatrixParams & mp )
+    inline void
+    prop_reference(Reference_particle& ref_l, MatrixParams& mp)
     {
         if (mp.l != 0) {
             throw std::runtime_error(
@@ -134,21 +137,19 @@ namespace matrix_impl {
         }
 
         double pref_l = ref_l.get_momentum();
-        double    m_l = ref_l.get_mass();
+        double m_l = ref_l.get_mass();
 
-        // propagate the reference particle, and set the edge kick strength 
+        // propagate the reference particle, and set the edge kick strength
         // from the reference particle
-        double    x_l = ref_l.get_state()[Bunch::x];
-        double   xp_l = ref_l.get_state()[Bunch::xp];
-        double    y_l = ref_l.get_state()[Bunch::y];
-        double   yp_l = ref_l.get_state()[Bunch::yp];
-        double  cdt_l = 0.0;
+        double x_l = ref_l.get_state()[Bunch::x];
+        double xp_l = ref_l.get_state()[Bunch::xp];
+        double y_l = ref_l.get_state()[Bunch::y];
+        double yp_l = ref_l.get_state()[Bunch::yp];
+        double cdt_l = 0.0;
         double dpop_l = ref_l.get_state()[Bunch::dpop];
 
-
         FF_algorithm::matrix_unit(
-                x_l, xp_l, y_l, yp_l, cdt_l, dpop_l,
-		mp.kick, mp.rm, mp.tm);
+            x_l, xp_l, y_l, yp_l, cdt_l, dpop_l, mp.kick, mp.rm, mp.tm);
     }
 }
 
@@ -166,9 +167,10 @@ namespace FF_matrix {
 
         MatrixParams mp;
 
-	// offset pointer so I can use 1-based indexing to match MAD-X
-	// convention
-	double* kp = &mp.kick[-1];
+        mp.l = ele.get_double_attribute("l", 0.0);
+        // offset pointer so I can use 1-based indexing to match MAD-X
+        // convention
+        double* kp = &mp.kick[-1];
         mp.kick[1] = ele.get_double_attribute("kick1", 0.0);
         mp.kick[2] = ele.get_double_attribute("kick2", 0.0);
         mp.kick[3] = ele.get_double_attribute("kick3", 0.0);
@@ -176,7 +178,7 @@ namespace FF_matrix {
         mp.kick[5] = ele.get_double_attribute("kick5", 0.0);
         mp.kick[6] = ele.get_double_attribute("kick6", 0.0);
 
-	// diagonal elements default to 1, all others default to 0
+        // diagonal elements default to 1, all others default to 0
         mp.rm[0][0] = ele.get_double_attribute("rm11", 1.0); // diagonal
         mp.rm[0][1] = ele.get_double_attribute("rm12", 0.0);
         mp.rm[0][2] = ele.get_double_attribute("rm13", 0.0);
@@ -201,7 +203,7 @@ namespace FF_matrix {
         mp.rm[3][0] = ele.get_double_attribute("rm41", 0.0);
         mp.rm[3][1] = ele.get_double_attribute("rm42", 0.0);
         mp.rm[3][2] = ele.get_double_attribute("rm43", 0.0);
-        mp.rm[3][3] = ele.get_double_attribute("rm44", 0.0); // diagonal
+        mp.rm[3][3] = ele.get_double_attribute("rm44", 1.0); // diagonal
         mp.rm[3][4] = ele.get_double_attribute("rm45", 0.0);
         mp.rm[3][5] = ele.get_double_attribute("rm46", 0.0);
 
@@ -471,7 +473,7 @@ namespace FF_matrix {
         mp.tm[5][5][4] = ele.get_double_attribute("tm665", 0.0);
         mp.tm[5][5][5] = ele.get_double_attribute("tm666", 0.0);
 
-	    // jury is still out whether to scale matrix by momentum
+        // jury is still out whether to scale matrix by momentum
         Reference_particle& ref_l = bunch.get_design_reference_particle();
         Reference_particle const& ref_b = bunch.get_reference_particle();
 
@@ -502,7 +504,7 @@ namespace FF_matrix {
             auto bp = bunch.get_bunch_particles(pg);
             if (!bp.num_valid()) return;
 
-            // matrix is a 0 length element with no multipole moments
+                // matrix is a 0 length element with no multipole moments
 
 #if LIBFF_USE_GSV
             prop_reference(ref_l, mp);
