@@ -16,6 +16,11 @@ class Propagator {
     static const int PRE_TURN = -1;
     static const int FINAL_STEP = -1;
 
+    // a function that takes a generic data_t to determine whether the
+    // propagation can be halted at the end of a turn
+    using halt_data_turn_t = std::function<bool(Bunch_simulator&, void*)>;
+    using halt_turn_t = std::function<bool(Bunch_simulator&)>;
+
     struct Slice_iterator {
         using iterator_category = std::forward_iterator_tag;
         using difference_type = int;
@@ -187,6 +192,8 @@ class Propagator {
 
     std::unique_ptr<Stepper> stepper_ptr;
 
+    halt_turn_t halt_func_turn;
+
     int checkpoint_period;
     bool final_checkpoint;
 
@@ -195,7 +202,7 @@ class Propagator {
 
     void do_start_repetition(Bunch_simulator& simulator);
 
-    void do_turn_end(Bunch_simulator& simulator,
+    bool do_turn_end(Bunch_simulator& simulator,
                      int turn_count,
                      Logger& logger);
 
@@ -279,6 +286,14 @@ class Propagator {
     get_lattice() const
     {
         return lattice;
+    }
+
+    // bind a halt check function
+    void
+    reg_halt_data_turn(halt_data_turn_t fun, void* data)
+    {
+        using namespace std::placeholders;
+        halt_func_turn = std::bind(fun, _1, data);
     }
 
     // print

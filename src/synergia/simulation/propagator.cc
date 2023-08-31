@@ -108,7 +108,7 @@ Propagator::check_out_of_particles(Bunch_simulator const& simulator,
     return false;
 }
 
-void
+bool
 Propagator::do_turn_end(Bunch_simulator& simulator,
                         int turn_count,
                         Logger& logger)
@@ -129,6 +129,13 @@ Propagator::do_turn_end(Bunch_simulator& simulator,
 
     // increment the turn number
     simulator.inc_turn();
+
+    if (halt_func_turn) {
+        bool res = halt_func_turn(simulator);
+        return res;
+    } else {
+        return false;
+    }
 }
 
 void
@@ -215,7 +222,13 @@ Propagator::propagate(Bunch_simulator& sim, Logger& logger, int max_turns)
             if (out_of_particles) break;
 
             ++turns_since_checkpoint;
-            do_turn_end(sim, turn, logger);
+            bool halt = do_turn_end(sim, turn, logger);
+
+            if (halt) {
+                logger(LoggerV::INFO_TURN) << "Propagator: halting condition "
+                                              "satisfied, ending propagation\n";
+                break;
+            }
 
             // checkpoint save
             // syn::checkpoint_save(*this, sim);
