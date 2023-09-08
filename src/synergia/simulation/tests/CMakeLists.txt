@@ -45,6 +45,7 @@ if(BUILD_PYTHON_BINDINGS)
   # test_accel2.py removed as redundant
   add_py_test(test_accel3.py)
   add_py_test(test_accel4.py)
+  add_py_test(test_accel5.py)
   add_py_test(test_accel_booster.py)
   add_py_test(test_accel_diagnostics.py)
   add_py_test(test_bend2.py)

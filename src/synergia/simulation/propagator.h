@@ -296,6 +296,12 @@ class Propagator {
         halt_func_turn = std::bind(fun, _1, data);
     }
 
+    void
+    reg_halt_data_turn(halt_turn_t fun)
+    {
+        halt_func_turn = fun;
+    }
+
     // print
     void
     print_steps(Logger& logger) const
