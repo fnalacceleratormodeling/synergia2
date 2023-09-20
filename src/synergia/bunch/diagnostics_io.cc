@@ -48,11 +48,8 @@ Diagnostics_io::Diagnostics_io(std::string filename,
     version.append(std::to_string(synergia_version::synergia_version_month));
     version.append(".");
     version.append(std::to_string(synergia_version::synergia_version_day));
-    if constexpr (synergia_version::synergia_version_patch != 0) {
-        version.append("-");
-        version.append(
-            std::to_string(synergia_version::synergia_version_patch));
-    }
+    version.append("-");
+    version.append(synergia_version::synergia_git_hash);
 
     file->setSoftware("synergia3", version);
 

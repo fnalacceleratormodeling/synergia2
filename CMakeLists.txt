@@ -10,6 +10,28 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.22.0")
   cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
 endif()
 
+# Syenrgia3 Version
+set(SYNERGIA3_VERSION_YEAR 2023)
+set(SYNERGIA3_VERSION_MONTH 04)
+set(SYNERGIA3_VERSION_DAY 12)
+if(DEFINED ENV{GITHUB_SHA})
+  set(SYNERGIA3_GIT_HASH_FULL $ENV{GITHUB_SHA})
+  string(SUBSTRING ${SYNERGIA3_GIT_HASH_FULL} 0 7 SYNERGIA3_GIT_HASH)
+else()
+  # Get the latest abbreviated commit hash of the working branch
+  # https://jonathanhamberg.com/post/cmake-embedding-git-hash/
+  execute_process(
+    COMMAND git log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    OUTPUT_VARIABLE SYNERGIA3_GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
+set(SYNERGIA3_VERSION
+    "${SYNERGIA3_VERSION_YEAR}.${SYNERGIA3_VERSION_MONTH}.${SYNERGIA3_VERSION_DAY}-${SYNERGIA3_GIT_HASH}"
+)
+message(STATUS "Preparing to install Synergia3 version: ${SYNERGIA3_VERSION}")
+
 # generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # and place it in the source directory https://stackoverflow.com/a/60910583
@@ -28,15 +50,6 @@ set(CMAKE_MODULE_PATH "${SYNERGIA3_SOURCE_DIR}/CMake")
 include(CopyFile)
 include(MPITest)
 include(AddPythonTest)
-
-# versions
-set(SYNERGIA3_VERSION_YEAR 2023)
-set(SYNERGIA3_VERSION_MONTH 04)
-set(SYNERGIA3_VERSION_DAY 12)
-set(SYNERGIA3_VERSION_PATCH 99) # 0 if release, 99 if development version
-set(SYNERGIA3_VERSION
-    "${SYNERGIA3_VERSION_YEAR}.${SYNERGIA3_VERSION_MONTH}.${SYNERGIA3_VERSION_DAY}-${SYNERGIA3_VERSION_PATCH}"
-)
 
 # Make sure we know which Kokkos back end we're using. If none is specified on
 # the command line, the default is OpenMP.
