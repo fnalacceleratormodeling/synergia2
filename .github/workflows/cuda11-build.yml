@@ -32,7 +32,7 @@ jobs:
         access_token: ${{ github.token }}
 
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: 'true'
 
@@ -48,10 +48,10 @@ jobs:
     - name: CMake
       run: |
         lscpu
-        . /etc/profile.d/z10_spack_environment.sh 
+        . /opt/spack-environment/activate.sh
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
-          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.10) \
+          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.11) \
           -DENABLE_KOKKOS_BACKEND=CUDA \
           -DKokkos_ARCH_VOLTA70=ON \
           -DBUILD_FD_SPACE_CHARGE_SOLVER=ON \
@@ -61,11 +61,11 @@ jobs:
     - name: build
       # build synergia2
       run: |
-        . /etc/profile.d/z10_spack_environment.sh 
+        . /opt/spack-environment/activate.sh
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 2 
 
     - name: install
       # install synergia2
       run: |
-        . /etc/profile.d/z10_spack_environment.sh 
+        . /opt/spack-environment/activate.sh
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}

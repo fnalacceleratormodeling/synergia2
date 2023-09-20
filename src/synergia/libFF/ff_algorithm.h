@@ -1258,17 +1258,27 @@ namespace FF_algorithm {
                  double re_4_3,
                  double const* te)
     {
+	    T newx(x);
+	    T newxp(xp);
+	    T newy(y);
+	    T newyp(yp);
+	    
         // linear terms
-        xp = xp + T(re_2_1) * x;
-        yp = yp + T(re_4_3) * y;
+        newxp = xp + T(re_2_1) * x;
+        newyp = yp + T(re_4_3) * y;
 
         // quadratic terms
-        x = x + T(te[0]) * x * x + T(te[1]) * y * y;
-        xp = xp + T(te[2]) * x * x + T(te[4]) * y * y +
+        newx = x + T(te[0]) * x * x + T(te[1]) * y * y;
+        newxp = newxp + T(te[2]) * x * x + T(te[4]) * y * y +
              T(te[3]) * x * xp * T(2) + T(te[5]) * y * yp * T(2);
-        y = y + T(te[6]) * x * y * T(2);
-        yp = yp + T(te[7]) * x * y * T(2) + T(te[8]) * x * yp * T(2) +
+        newy = y + T(te[6]) * x * y * T(2);
+        newyp = newyp + T(te[7]) * x * y * T(2) + T(te[8]) * x * yp * T(2) +
              T(te[9]) * y * xp * T(2);
+
+	x = newx;
+	xp = newxp;
+	y = newy;
+	yp = newyp;
     }
 
     template <class T>
@@ -2391,6 +2401,168 @@ namespace FF_algorithm {
 
 #endif
 
+    template <typename T>
+    KOKKOS_INLINE_FUNCTION void
+    matrix_unit(T& x,
+                T& xp,
+                T& y,
+                T& yp,
+                T& cdt,
+                T& dpop,
+                double const k[6],
+                double const rm[6][6],
+                double const tm[6][6][6])
+    {
+        // Initialize coordinates with constant term
+        T newx(k[0]);
+        T newxp(k[1]);
+        T newy(k[2]);
+        T newyp(k[3]);
+        T newcdt(k[4]);
+        T newdpop(k[5]);
+
+        // linear
+        newx = newx + T(rm[0][0]) * x + T(rm[0][1]) * xp + T(rm[0][2]) * y +
+                T(rm[0][3]) * yp + T(rm[0][4]) * cdt + T(rm[0][5]) * dpop;
+
+        newxp = newxp + T(rm[1][0]) * x + T(rm[1][1]) * xp + T(rm[1][2]) * y +
+                 T(rm[1][3]) * yp + T(rm[1][4]) * cdt + T(rm[1][5]) * dpop;
+
+        newy = newy + T(rm[2][0]) * x + T(rm[2][1]) * xp + T(rm[2][2]) * y +
+                T(rm[2][3]) * yp + T(rm[2][4]) * cdt + T(rm[2][5]) * dpop;
+
+        newyp = newyp + T(rm[3][0]) * x + T(rm[3][1]) * xp + T(rm[3][2]) * y +
+                 T(rm[3][3]) * yp + T(rm[3][4]) * cdt + T(rm[3][5]) * dpop;
+
+        newcdt = newcdt + T(rm[4][0]) * x + T(rm[4][1]) * xp + T(rm[4][2]) * y +
+                  T(rm[4][3]) * yp + T(rm[4][4]) * cdt + T(rm[4][5]) * dpop;
+
+        newdpop = newdpop + T(rm[5][0]) * x + T(rm[5][1]) * xp + T(rm[5][2]) * y +
+                   T(rm[5][3]) * yp + T(rm[5][4]) * cdt + T(rm[5][5]) * dpop;
+
+        // tensor
+        newx = newx + T(tm[0][0][0]) * x * x + T(tm[0][0][1]) * x * xp +
+                T(tm[0][0][2]) * x * y + T(tm[0][0][3]) * x * yp +
+                T(tm[0][0][4]) * x * cdt + T(tm[0][0][5]) * x * dpop +
+                T(tm[0][1][0]) * xp * x + T(tm[0][1][1]) * xp * xp +
+                T(tm[0][1][2]) * xp * y + T(tm[0][1][3]) * xp * yp +
+                T(tm[0][1][4]) * xp * cdt + T(tm[0][1][5]) * xp * dpop +
+                T(tm[0][2][0]) * y * x + T(tm[0][2][1]) * y * xp +
+                T(tm[0][2][2]) * y * y + T(tm[0][2][3]) * y * yp +
+                T(tm[0][2][4]) * y * cdt + T(tm[0][2][5]) * y * dpop +
+                T(tm[0][3][0]) * yp * x + T(tm[0][3][1]) * yp * xp +
+                T(tm[0][3][2]) * yp * y + T(tm[0][3][3]) * yp * yp +
+                T(tm[0][3][4]) * yp * cdt + T(tm[0][3][5]) * yp * dpop +
+                T(tm[0][4][0]) * cdt * x + T(tm[0][4][1]) * cdt * xp +
+                T(tm[0][4][2]) * cdt * y + T(tm[0][4][3]) * cdt * yp +
+                T(tm[0][4][4]) * cdt * cdt + T(tm[0][4][5]) * cdt * dpop +
+                T(tm[0][5][0]) * dpop * x + T(tm[0][5][1]) * dpop * xp +
+                T(tm[0][5][2]) * dpop * y + T(tm[0][5][3]) * dpop * yp +
+                T(tm[0][5][4]) * dpop * cdt + T(tm[0][5][5]) * dpop * dpop;
+
+        newxp = newxp + T(tm[1][0][0]) * x * x + T(tm[1][0][1]) * x * xp +
+                 T(tm[1][0][2]) * x * y + T(tm[1][0][3]) * x * yp +
+                 T(tm[1][0][4]) * x * cdt + T(tm[1][0][5]) * x * dpop +
+                 T(tm[1][1][0]) * xp * x + T(tm[1][1][1]) * xp * xp +
+                 T(tm[1][1][2]) * xp * y + T(tm[1][1][3]) * xp * yp +
+                 T(tm[1][1][4]) * xp * cdt + T(tm[1][1][5]) * xp * dpop +
+                 T(tm[1][2][0]) * y * x + T(tm[1][2][1]) * y * xp +
+                 T(tm[1][2][2]) * y * y + T(tm[1][2][3]) * y * yp +
+                 T(tm[1][2][4]) * y * cdt + T(tm[1][2][5]) * y * dpop +
+                 T(tm[1][3][0]) * yp * x + T(tm[1][3][1]) * yp * xp +
+                 T(tm[1][3][2]) * yp * y + T(tm[1][3][3]) * yp * yp +
+                 T(tm[1][3][4]) * yp * cdt + T(tm[1][3][5]) * yp * dpop +
+                 T(tm[1][4][0]) * cdt * x + T(tm[1][4][1]) * cdt * xp +
+                 T(tm[1][4][2]) * cdt * y + T(tm[1][4][3]) * cdt * yp +
+                 T(tm[1][4][4]) * cdt * cdt + T(tm[1][4][5]) * cdt * dpop +
+                 T(tm[1][5][0]) * dpop * x + T(tm[1][5][1]) * dpop * xp +
+                 T(tm[1][5][2]) * dpop * y + T(tm[1][5][3]) * dpop * yp +
+                 T(tm[1][5][4]) * dpop * cdt + T(tm[1][5][5]) * dpop * dpop;
+
+        newy = newy + T(tm[2][0][0]) * x * x + T(tm[2][0][1]) * x * xp +
+                T(tm[2][0][2]) * x * y + T(tm[2][0][3]) * x * yp +
+                T(tm[2][0][4]) * x * cdt + T(tm[2][0][5]) * x * dpop +
+                T(tm[2][1][0]) * xp * x + T(tm[2][1][1]) * xp * xp +
+                T(tm[2][1][2]) * xp * y + T(tm[2][1][3]) * xp * yp +
+                T(tm[2][1][4]) * xp * cdt + T(tm[2][1][5]) * xp * dpop +
+                T(tm[2][2][0]) * y * x + T(tm[2][2][1]) * y * xp +
+                T(tm[2][2][2]) * y * y + T(tm[2][2][3]) * y * yp +
+                T(tm[2][2][4]) * y * cdt + T(tm[2][2][5]) * y * dpop +
+                T(tm[2][3][0]) * yp * x + T(tm[2][3][1]) * yp * xp +
+                T(tm[2][3][2]) * yp * y + T(tm[2][3][3]) * yp * yp +
+                T(tm[2][3][4]) * yp * cdt + T(tm[2][3][5]) * yp * dpop +
+                T(tm[2][4][0]) * cdt * x + T(tm[2][4][1]) * cdt * xp +
+                T(tm[2][4][2]) * cdt * y + T(tm[2][4][3]) * cdt * yp +
+                T(tm[2][4][4]) * cdt * cdt + T(tm[2][4][5]) * cdt * dpop +
+                T(tm[2][5][0]) * dpop * x + T(tm[2][5][1]) * dpop * xp +
+                T(tm[2][5][2]) * dpop * y + T(tm[2][5][3]) * dpop * yp +
+                T(tm[2][5][4]) * dpop * cdt + T(tm[2][5][5]) * dpop * dpop;
+
+        newyp = newyp + T(tm[3][0][0]) * x * x + T(tm[3][0][1]) * x * xp +
+                 T(tm[3][0][2]) * x * y + T(tm[3][0][3]) * x * yp +
+                 T(tm[3][0][4]) * x * cdt + T(tm[3][0][5]) * x * dpop +
+                 T(tm[3][1][0]) * xp * x + T(tm[3][1][1]) * xp * xp +
+                 T(tm[3][1][2]) * xp * y + T(tm[3][1][3]) * xp * yp +
+                 T(tm[3][1][4]) * xp * cdt + T(tm[3][1][5]) * xp * dpop +
+                 T(tm[3][2][0]) * y * x + T(tm[3][2][1]) * y * xp +
+                 T(tm[3][2][2]) * y * y + T(tm[3][2][3]) * y * yp +
+                 T(tm[3][2][4]) * y * cdt + T(tm[3][2][5]) * y * dpop +
+                 T(tm[3][3][0]) * yp * x + T(tm[3][3][1]) * yp * xp +
+                 T(tm[3][3][2]) * yp * y + T(tm[3][3][3]) * yp * yp +
+                 T(tm[3][3][4]) * yp * cdt + T(tm[3][3][5]) * yp * dpop +
+                 T(tm[3][4][0]) * cdt * x + T(tm[3][4][1]) * cdt * xp +
+                 T(tm[3][4][2]) * cdt * y + T(tm[3][4][3]) * cdt * yp +
+                 T(tm[3][4][4]) * cdt * cdt + T(tm[3][4][5]) * cdt * dpop +
+                 T(tm[3][5][0]) * dpop * x + T(tm[3][5][1]) * dpop * xp +
+                 T(tm[3][5][2]) * dpop * y + T(tm[3][5][3]) * dpop * yp +
+                 T(tm[3][5][4]) * dpop * cdt + T(tm[3][5][5]) * dpop * dpop;
+
+        newcdt = newcdt + T(tm[4][0][0]) * x * x + T(tm[4][0][1]) * x * xp +
+                  T(tm[4][0][2]) * x * y + T(tm[4][0][3]) * x * yp +
+                  T(tm[4][0][4]) * x * cdt + T(tm[4][0][5]) * x * dpop +
+                  T(tm[4][1][0]) * xp * x + T(tm[4][1][1]) * xp * xp +
+                  T(tm[4][1][2]) * xp * y + T(tm[4][1][3]) * xp * yp +
+                  T(tm[4][1][4]) * xp * cdt + T(tm[4][1][5]) * xp * dpop +
+                  T(tm[4][2][0]) * y * x + T(tm[4][2][1]) * y * xp +
+                  T(tm[4][2][2]) * y * y + T(tm[4][2][3]) * y * yp +
+                  T(tm[4][2][4]) * y * cdt + T(tm[4][2][5]) * y * dpop +
+                  T(tm[4][3][0]) * yp * x + T(tm[4][3][1]) * yp * xp +
+                  T(tm[4][3][2]) * yp * y + T(tm[4][3][3]) * yp * yp +
+                  T(tm[4][3][4]) * yp * cdt + T(tm[4][3][5]) * yp * dpop +
+                  T(tm[4][4][0]) * cdt * x + T(tm[4][4][1]) * cdt * xp +
+                  T(tm[4][4][2]) * cdt * y + T(tm[4][4][3]) * cdt * yp +
+                  T(tm[4][4][4]) * cdt * cdt + T(tm[4][4][5]) * cdt * dpop +
+                  T(tm[4][5][0]) * dpop * x + T(tm[4][5][1]) * dpop * xp +
+                  T(tm[4][5][2]) * dpop * y + T(tm[4][5][3]) * dpop * yp +
+                  T(tm[4][5][4]) * dpop * cdt + T(tm[4][5][5]) * dpop * dpop;
+
+        newdpop = newdpop + T(tm[5][0][0]) * x * x + T(tm[5][0][1]) * x * xp +
+                   T(tm[5][0][2]) * x * y + T(tm[5][0][3]) * x * yp +
+                   T(tm[5][0][4]) * x * cdt + T(tm[5][0][5]) * x * dpop +
+                   T(tm[5][1][0]) * xp * x + T(tm[5][1][1]) * xp * xp +
+                   T(tm[5][1][2]) * xp * y + T(tm[5][1][3]) * xp * yp +
+                   T(tm[5][1][4]) * xp * cdt + T(tm[5][1][5]) * xp * dpop +
+                   T(tm[5][2][0]) * y * x + T(tm[5][2][1]) * y * xp +
+                   T(tm[5][2][2]) * y * y + T(tm[5][2][3]) * y * yp +
+                   T(tm[5][2][4]) * y * cdt + T(tm[5][2][5]) * y * dpop +
+                   T(tm[5][3][0]) * yp * x + T(tm[5][3][1]) * yp * xp +
+                   T(tm[5][3][2]) * yp * y + T(tm[5][3][3]) * yp * yp +
+                   T(tm[5][3][4]) * yp * cdt + T(tm[5][3][5]) * yp * dpop +
+                   T(tm[5][4][0]) * cdt * x + T(tm[5][4][1]) * cdt * xp +
+                   T(tm[5][4][2]) * cdt * y + T(tm[5][4][3]) * cdt * yp +
+                   T(tm[5][4][4]) * cdt * cdt + T(tm[5][4][5]) * cdt * dpop +
+                   T(tm[5][5][0]) * dpop * x + T(tm[5][5][1]) * dpop * xp +
+                   T(tm[5][5][2]) * dpop * y + T(tm[5][5][3]) * dpop * yp +
+                   T(tm[5][5][4]) * dpop * cdt + T(tm[5][5][5]) * dpop * dpop;
+
+        x = newx;
+        xp = newxp;
+        y = newy;
+        yp = newyp;
+        cdt = newcdt;
+        dpop = newdpop;
+    }
 };
+
 
 #endif // FF_ALGORITHM_H

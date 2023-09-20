@@ -55,6 +55,17 @@ add_library(lsexpr_static STATIC lsexpr.cc)
 target_link_options(lsexpr PRIVATE ${LINKER_OPTIONS})
 target_link_options(lsexpr_static PRIVATE ${LINKER_OPTIONS})
 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/synergia_version.h.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/synergia_version.h" IMMEDIATE @ONLY)
+
+add_library(synergia_utils INTERFACE)
+target_include_directories(synergia_utils
+                           INTERFACE "${CMAKE_CURRENT_BINARY_DIR}")
+
+add_library(synergia_boost INTERFACE)
+target_include_directories(synergia_boost
+                           INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
+
 if(BUILD_PYTHON_BINDINGS)
   pybind11_add_module(parallel_utils MODULE NO_EXTRAS parallel_utils_pywrap.cc)
   target_link_libraries(parallel_utils PRIVATE synergia_parallel_utils)

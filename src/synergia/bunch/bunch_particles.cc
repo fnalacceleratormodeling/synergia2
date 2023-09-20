@@ -1,5 +1,6 @@
 
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 
 #include "synergia/bunch/bunch_particles.h"
@@ -320,6 +321,7 @@ bunch_particles_t<double>::drain()
     // reset the pointers
     n_valid = 0;
     n_total = 0;
+    n_active = 0;
 
     return;
 }
@@ -387,7 +389,11 @@ int
 bunch_particles_t<double>::update_total_num(Commxx const& comm)
 {
     int old_total_num = n_total;
-    MPI_Allreduce(&n_valid, &n_total, 1, MPI_INT, MPI_SUM, comm);
+    if (MPI_Allreduce(&n_valid, &n_total, 1, MPI_INT, MPI_SUM, comm) !=
+        MPI_SUCCESS) {
+        std::runtime_error(
+            "Error in MPI_Allreduce in bunch_particles::update_total_num!");
+    }
     return old_total_num;
 }
 

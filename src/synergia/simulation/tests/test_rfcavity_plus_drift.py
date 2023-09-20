@@ -80,7 +80,7 @@ def test_accel1(prop_fixture):
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
-    assert lp[0, 5] == 0.0
+    assert lp[0, 5] == pytest.approx(0.0)
 
     length = prop_fixture.get_lattice().get_length()
 

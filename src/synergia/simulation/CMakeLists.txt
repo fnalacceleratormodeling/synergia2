@@ -13,7 +13,6 @@ target_link_options(synergia_simulation_hostonly PRIVATE ${LINKER_OPTIONS})
 add_library(
   synergia_simulation
   step.cc
-  stepper.cc
   independent_stepper_elements.cc
   split_operator_stepper.cc
   split_operator_stepper_elements.cc

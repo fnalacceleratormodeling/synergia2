@@ -7,56 +7,6 @@
 void
 Propagator::do_before_start(Bunch_simulator& simulator, Logger& logger)
 {
-#if 0
-    if (state.first_turn == 0) 
-    {
-        Reference_particle const & lattice_reference_particle = 
-                stepper_sptr->get_lattice_simulator().get_lattice().get_reference_particle();
-
-        if (state.bunch_simulator_ptr) 
-        {
-            state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
-                    *stepper_sptr, state.bunch_simulator_ptr->get_bunch());
-
-            // set the bunch design_reference_particle from lattice reference particle
-            state.bunch_simulator_ptr->get_bunch().set_design_reference_particle(
-                    lattice_reference_particle);
-
-        } 
-        else 
-        {
-            size_t num_bunches = state.bunch_train_simulator_ptr->get_bunch_train().get_size();
-            for (int i = 0; i < num_bunches; ++i) 
-            {
-                state.bunch_train_simulator_ptr->get_diagnostics_actionss().at(
-                        i)->first_action(*stepper_sptr,
-                        *(state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(
-                                i)));
-
-                // set the bunch design_reference_particle from lattice reference particle
-                state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(i)
-                    ->set_design_reference_particle(lattice_reference_particle);
-            }
-        }
-
-
-        t = simple_timer_show(t, "propagate-diagnostics_actions_first");
-
-        if (state.bunch_simulator_ptr) 
-        {
-            state.propagate_actions_ptr->first_action(*stepper_sptr,
-                    state.bunch_simulator_ptr->get_bunch());
-        } 
-        else 
-        {
-            state.propagate_actions_ptr->first_action(*stepper_sptr,
-                    state.bunch_train_simulator_ptr->get_bunch_train());
-        }
-
-        t = simple_timer_show(t, "propagate-general_actions_first");
-    }
-#endif
-
     if (simulator.current_turn() == 0) {
         Kokkos::Profiling::pushRegion("diagnostic-actions");
         simulator.diag_action_step_and_turn(PRE_TURN, FINAL_STEP);
@@ -74,18 +24,6 @@ Propagator::do_before_start(Bunch_simulator& simulator, Logger& logger)
 void
 Propagator::do_start_repetition(Bunch_simulator& simulator)
 {
-#if 0
-    if (state.bunch_simulator_ptr) {
-        state.bunch_simulator_ptr->get_bunch().get_reference_particle().start_repetition();
-    } else {
-        Bunches & bunches(
-                state.bunch_train_simulator_ptr->get_bunch_train().get_bunches());
-        for (Bunches::iterator it = bunches.begin(); it != bunches.end();
-                ++it) {
-            (*it)->get_reference_particle().start_repetition();
-        }
-    }
-#endif
 
     for (auto& bunch : simulator[0].get_bunches())
         bunch.get_reference_particle().start_repetition();
@@ -161,90 +99,6 @@ Propagator::do_step(Bunch_simulator& simulator,
     logger << "\n";
 
     logger(LoggerV::INFO_OPR) << "\n\n";
-
-#if 0
-    double t_step0 = MPI_Wtime();
-
-    if (state.bunch_simulator_ptr) 
-    {
-        Bunch & bunch(state.bunch_simulator_ptr->get_bunch());
-
-        Diagnostics_actions & diagnostics_actions(
-                state.bunch_simulator_ptr->get_diagnostics_actions());
-
-        step.apply(bunch, state.verbosity,
-                diagnostics_actions.get_per_operator_diagnosticss(),
-                diagnostics_actions.get_per_operation_diagnosticss(), *stepper_sptr, logger);       
-
-        t = simple_timer_show(t, "propagate-step_apply");
-
-        diagnostics_actions.step_end_action(
-                *stepper_sptr, step, bunch, turn, step_count);
-
-        t = simple_timer_show(t, "propagate-diagnostics_actions_step");
-
-        state.propagate_actions_ptr->step_end_action(
-                *stepper_sptr, step, bunch, turn, step_count);
-    } 
-    else 
-    {
-        Bunch_train & bunch_train(
-                state.bunch_train_simulator_ptr->get_bunch_train());
-        Diagnostics_actionss & diagnostics_actionss(
-                state.bunch_train_simulator_ptr->get_diagnostics_actionss());
-        size_t num_bunches =
-                state.bunch_train_simulator_ptr->get_bunch_train().get_size();
-        Train_diagnosticss per_operator_train_diagnosticss(num_bunches),
-                per_operation_train_diagnosticss(num_bunches);
-        for (int i = 0; i < num_bunches; ++i) {
-            per_operator_train_diagnosticss.at(i) =
-                    diagnostics_actionss.at(i)->get_per_operator_diagnosticss();
-            per_operation_train_diagnosticss.at(i) =
-                    diagnostics_actionss.at(i)->get_per_operation_diagnosticss();
-        }
-      
-        
-          step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
-                    per_operation_train_diagnosticss, 
-                    state.propagate_actions_ptr, *stepper_sptr, step_count, turn,
-                    logger);  
-                
-                
-        t = simple_timer_show(t, "propagate-step_apply");
-        for (int i = 0; i < num_bunches; ++i) {
-            diagnostics_actionss.at(i)->step_end_action(*stepper_sptr, step,
-                    *(state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(
-                            i)), turn, step_count);
-        }
-        t = simple_timer_show(t, "propagate-diagnostics_actions_step");
-        state.propagate_actions_ptr->step_end_action(*stepper_sptr, step,
-                bunch_train, turn, step_count);
-    }
-
-    t = simple_timer_show(t, "propagate-general_actions-step");
-    double t_step1 = MPI_Wtime();
-    if (state.verbosity > 1) {
-        int p = cout.precision();
-        logger << "Propagator:";
-        logger << "     step " << std::setw(digits(num_steps)) << step_count
-                << "/" << num_steps;
-        if (state.bunch_train_simulator_ptr) {
-            logger << ", s_n=" << std::fixed << std::setprecision(4)
-                    << state.bunch_train_simulator_ptr->get_bunch_train().get_bunches()[0]->get_reference_particle().get_s_n();
-
-        }
-        if (state.bunch_simulator_ptr) {
-            logger << ", s_n=" << std::fixed << std::setprecision(4)
-                    << state.bunch_simulator_ptr->get_bunch().get_reference_particle().get_s_n();
-            logger << ", macroparticles = "
-                    << state.bunch_simulator_ptr->get_bunch().get_total_num();
-        }
-        logger << ", time = " << std::fixed << std::setprecision(3)
-                << t_step1 - t_step0 << "s";
-        logger << std::endl;
-        cout.precision(p);
-    }
-#endif
 }
 
 bool
@@ -252,23 +106,9 @@ Propagator::check_out_of_particles(Bunch_simulator const& simulator,
                                    Logger& logger)
 {
     return false;
-#if 0
-    // n.b.: We only check out_of_particles for single-bunch propagation.
-    // Checking all bunches in a multi-bunch simulation would require a
-    // global communication. The costs exceed the potential benefits.
-	bool retval = false;
-    if (state.bunch_simulator_ptr) {
-        if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
-            logger
-                    << "Propagator::propagate: No particles left in bunch. Exiting.\n";
-            retval = true;
-        }
-    }
-	return retval;
-#endif
 }
 
-void
+bool
 Propagator::do_turn_end(Bunch_simulator& simulator,
                         int turn_count,
                         Logger& logger)
@@ -290,126 +130,12 @@ Propagator::do_turn_end(Bunch_simulator& simulator,
     // increment the turn number
     simulator.inc_turn();
 
-    // double t_turn1 = MPI_Wtime();
-
-#if 0
-    if (state.verbosity > 0) 
-    {
-        int p = cout.precision();
-        logger << "Propagator:";
-        logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
-                << "/" << state.num_turns;
-        if (state.bunch_simulator_ptr) 
-        {
-            logger << ", macroparticles = "
-                    << state.bunch_simulator_ptr->get_bunch().get_total_num();
-        } 
-        else 
-        {
-            Bunch_train & bunch_train(
-                    state.bunch_train_simulator_ptr->get_bunch_train());
-            size_t num_bunches = bunch_train.get_size();
-            bunch_train.update_bunch_total_num();
-            Bunches & bunches(bunch_train.get_bunches());
-            logger << ", macroparticles = (";
-            for (std::vector<Bunch_sptr >::const_iterator bit = bunches.begin(); bit!=bunches.end(); ++bit) {
-                if (bit != bunches.begin()) {
-                    logger << ", " ;
-                }
-                logger << (*bit)->get_total_num();
-            }
-             logger << ")  " ;
-        }
-        logger << ", time = " << std::fixed << std::setprecision(4)
-                << t_turn1 - t_turn0 << "s";
-        logger << std::endl;
-        cout.precision(p);
+    if (halt_func_turn) {
+        bool res = halt_func_turn(simulator);
+        return res;
+    } else {
+        return false;
     }
-#endif
-
-#if 0
-    t = simple_timer_current();
-
-    if (state.bunch_simulator_ptr) 
-    {
-        state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
-                *stepper_sptr, state.bunch_simulator_ptr->get_bunch(), turn);
-    } 
-    else 
-    {
-        size_t num_bunches =
-                state.bunch_train_simulator_ptr->get_bunch_train().get_size();
-        for (int i = 0; i < num_bunches; ++i) {
-            state.bunch_train_simulator_ptr->get_diagnostics_actionss().at(i)->turn_end_action(
-                    *stepper_sptr,
-                    *(state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(
-                            i)), turn);
-        }
-    }
-
-    t = simple_timer_show(t, "propagate-diagnostics_turn");
-
-    if (state.bunch_simulator_ptr) 
-    {
-        state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
-                state.bunch_simulator_ptr->get_bunch(), turn);
-    } 
-    else 
-    {
-        state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
-                state.bunch_train_simulator_ptr->get_bunch_train(), turn);
-    }
-
-    t = simple_timer_show(t, "propagate-general_actions_turn");
-
-    if (stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_have_loss_diagnostics())
-    {
-         Diagnostics_losses diagnostics_list =
-             stepper_sptr->get_lattice_simulator().get_lattice_sptr()->get_loss_diagnostics_list();
-
-         for (Diagnostics_losses::const_iterator d_it = diagnostics_list.begin();
-             d_it != diagnostics_list.end(); ++d_it)
-         { 
-             (*d_it)->write();              
-         }
-    }
-        
-    
-    
-    state.first_turn = turn + 1;
-    double t_turn1 = MPI_Wtime();
-    if (state.verbosity > 0) {
-        int p = cout.precision();
-        logger << "Propagator:";
-        logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
-                << "/" << state.num_turns;
-        if (state.bunch_simulator_ptr) {
-            logger << ", macroparticles = "
-                    << state.bunch_simulator_ptr->get_bunch().get_total_num();
-        } else {
-            Bunch_train & bunch_train(
-                    state.bunch_train_simulator_ptr->get_bunch_train());
-            size_t num_bunches = bunch_train.get_size();
-            bunch_train.update_bunch_total_num();
-            Bunches & bunches(bunch_train.get_bunches());
-            logger << ", macroparticles = (";
-            for (auto const & bunch : bunches)
-            {
-            }
-            for (std::vector<Bunch_sptr >::const_iterator bit = bunches.begin(); bit!=bunches.end(); ++bit) {
-                if (bit != bunches.begin()) {
-                    logger << ", " ;
-                }
-                logger << (*bit)->get_total_num();
-            }
-             logger << ")  " ;
-        }
-        logger << ", time = " << std::fixed << std::setprecision(4)
-                << t_turn1 - t_turn0 << "s";
-        logger << std::endl;
-        cout.precision(p);
-    }
-#endif
 }
 
 void
@@ -496,7 +222,13 @@ Propagator::propagate(Bunch_simulator& sim, Logger& logger, int max_turns)
             if (out_of_particles) break;
 
             ++turns_since_checkpoint;
-            do_turn_end(sim, turn, logger);
+            bool halt = do_turn_end(sim, turn, logger);
+
+            if (halt) {
+                logger(LoggerV::INFO_TURN) << "Propagator: halting condition "
+                                              "satisfied, ending propagation\n";
+                break;
+            }
 
             // checkpoint save
             // syn::checkpoint_save(*this, sim);
@@ -508,40 +240,6 @@ Propagator::propagate(Bunch_simulator& sim, Logger& logger, int max_turns)
                 // t = simple_timer_show(t, "propagate-checkpoint_period");
                 turns_since_checkpoint = 0;
             }
-
-#if 0
-            if (((turn - orig_first_turn + 1) == sim.max_turns) 
-                    && (turn != (sim.num_turns - 1))) 
-            {
-                logger(LoggerV::INFO_TURN) 
-                    << "Propagator: maximum number of turns reached\n";
-
-                if (turns_since_checkpoint > 0) 
-                {
-                    t = simple_timer_current();
-                    checkpoint(sim, logger, t);
-                    t = simple_timer_show(t, "propagate-checkpoint_max");
-                }
-
-                break;
-            }
-#endif
-
-#if 0
-            if (fs::exists(stop_file_name) || fs::exists(alt_stop_file_name)) 
-            {
-                logger << "Propagator: stop file detected\n";
-
-                if (turns_since_checkpoint > 0) 
-                {
-                    t = simple_timer_current();
-                    checkpoint(sim, logger, t);
-                    t = simple_timer_show(t, "propagate-checkpoint_stop");
-                }
-
-                break;
-            }
-#endif
         }
 
         if (last_turn != total_turns) {

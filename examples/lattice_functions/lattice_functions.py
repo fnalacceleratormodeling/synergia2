@@ -41,6 +41,8 @@ def main():
     psi_y = []
     disp_x = []
     disp_y = []
+    dprime_x = []
+    dprime_y = []
     for elem in lattice.get_elements():
         arcLength.append(elem.lf.arcLength)
         beta_x.append(elem.lf.beta.hor)
@@ -51,7 +53,9 @@ def main():
         alpha_y.append(elem.lf.alpha.ver)
         psi_y.append(elem.lf.psi.ver)
         disp_y.append(elem.lf.dispersion.ver)
-    
+        dprime_x.append(elem.lf.dPrime.hor)
+        dprime_y.append(elem.lf.dPrime.ver)    
+
     plt.figure()
     plt.title('beta x,y')
     plt.plot(arcLength, beta_x, label='beta_x')
@@ -83,7 +87,15 @@ def main():
     plt.xlabel('s [m]')
     plt.ylabel('dispersion')
     plt.legend(loc='best')
-    
+
+    plt.figure()
+    plt.title('dPrime x,y')
+    plt.plot(arcLength, dprime_x, label='dprime x')
+    plt.plot(arcLength, dprime_y, label='dprime y')
+    plt.xlabel('s [m]')
+    plt.ylabel('dprime')
+    plt.legend(loc='best')
+
     plt.show()
         
   

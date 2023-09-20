@@ -27,7 +27,10 @@ namespace Lattice_simulator {
   // just to get a sense of things, the Booster acceleration script
   // fails to find a closed orbit after about 100 turns if the
   // tolerance is 1.0e-13.
-  constexpr const double default_closed_orbit_tolerance = 1.0e-12;
+  //
+  // The 0 particle propagating in simple Booster model on the V100 develops
+  // momentum components of about 2e12.
+  constexpr const double default_closed_orbit_tolerance = 1.0e-11;
 
   void set_closed_orbit_tolerance(double tolerance);
   double get_closed_orbit_tolerance();

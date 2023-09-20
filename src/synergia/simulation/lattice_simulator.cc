@@ -568,7 +568,9 @@ namespace Lattice_simulator {
 
         // closed orbit
         auto probe = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
-
+#if 0 // XXXXX EGS remove
+        std::cout << "probe: " << probe[0] << ", " << probe[1] << ", " << probe[2] << ", " << probe[3] << ", " << probe[4] << ", " << probe[5] << std::endl;
+#endif
         // comm world
         Commxx comm;
 
@@ -624,7 +626,14 @@ namespace Lattice_simulator {
 
         // one-turn-map
         auto kjac = tb.get_jacobian(0);
-
+#if 0  // XXXX EGS remove
+        std::cout << "one-turn-map: " << std::endl;
+        for(int i=0; i<6; ++i) {
+            for (int j=0; j<6; ++j) {
+                std::cout << i << ", " << j << ": " << kjac(i,j) << std::endl;
+            }
+        }
+#endif
         // auto jac = karray_to_matrix(kjac);
         // auto nus = filter_transverse_tunes(jac);
         auto nus = filter_transverse_tunes(kjac.data());

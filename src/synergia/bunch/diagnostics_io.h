@@ -5,8 +5,8 @@
 #include <memory>
 #include <optional>
 
-#include "kokkos_views.h"
 #include "synergia/utils/commxx.h"
+#include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/synergia_config.h"
 
 class Diagnostics_io {

@@ -4,11 +4,33 @@ else()
   cmake_minimum_required(VERSION 3.16)
 endif()
 
-project(SYNERGIA2 LANGUAGES CXX C)
+project(SYNERGIA3 LANGUAGES CXX C)
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.22.0")
   cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
 endif()
+
+# Syenrgia3 Version
+set(SYNERGIA3_VERSION_YEAR 2023)
+set(SYNERGIA3_VERSION_MONTH 04)
+set(SYNERGIA3_VERSION_DAY 12)
+if(DEFINED ENV{GITHUB_SHA})
+  set(SYNERGIA3_GIT_HASH_FULL $ENV{GITHUB_SHA})
+  string(SUBSTRING ${SYNERGIA3_GIT_HASH_FULL} 0 7 SYNERGIA3_GIT_HASH)
+else()
+  # Get the latest abbreviated commit hash of the working branch
+  # https://jonathanhamberg.com/post/cmake-embedding-git-hash/
+  execute_process(
+    COMMAND git log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    OUTPUT_VARIABLE SYNERGIA3_GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
+set(SYNERGIA3_VERSION
+    "${SYNERGIA3_VERSION_YEAR}.${SYNERGIA3_VERSION_MONTH}.${SYNERGIA3_VERSION_DAY}-${SYNERGIA3_GIT_HASH}"
+)
+message(STATUS "Preparing to install Synergia3 version: ${SYNERGIA3_VERSION}")
 
 # generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -24,19 +46,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 enable_testing()
 
 # project specific cmake modules
-set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
+set(CMAKE_MODULE_PATH "${SYNERGIA3_SOURCE_DIR}/CMake")
 include(CopyFile)
 include(MPITest)
 include(AddPythonTest)
-
-# versions
-set(SYNERGIA2_VERSION_MAJOR 2023) # year
-set(SYNERGIA2_VERSION_MINOR 04) # month
-set(SYNERGIA2_VERSION_PATCH 12) # day
-set(SYNERGIA2_VERSION_TWEAK 00) # sub-day counter
-set(SYNERGIA2_VERSION
-    "${SYNERGIA2_VERSION_MAJOR}.${SYNERGIA2_VERSION_MINOR}.${SYNERGIA2_VERSION_PATCH}.${SYNERGIA2_VERSION_TWEAK}"
-)
 
 # Make sure we know which Kokkos back end we're using. If none is specified on
 # the command line, the default is OpenMP.
@@ -187,7 +200,7 @@ if(USE_EXTERNAL_KOKKOS)
   message(STATUS "Using external installation of kokkos")
   set(kokkos_libs "Kokkos::kokkos")
   if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "CUDA")
-    project(SYNERGIA2 LANGUAGES CXX C CUDA)
+    project(SYNERGIA3 LANGUAGES CXX C CUDA)
   endif()
 else()
   message(STATUS "Using vendored copy of kokkos")
@@ -373,10 +386,10 @@ unset(ENV{FC})
 set(eigen_defs
     EIGEN_NO_CUDA
     $<$<STREQUAL:${CMAKE_HOST_SYSTEM_PROCESSOR},ppc64le>:EIGEN_DONT_VECTORIZE>)
-add_subdirectory(${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
+add_subdirectory(${SYNERGIA3_SOURCE_DIR}/src/synergia/utils/eigen)
 set(ENV{FC} ${FC_BACKUP})
 find_package(Eigen3 REQUIRED PATHS
-             ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/eigen)
+             ${SYNERGIA3_SOURCE_DIR}/src/synergia/utils/eigen)
 
 # Additional CXXFLAGS
 if(EXTRA_CXX_FLAGS)
@@ -386,15 +399,13 @@ endif()
 # External libraries generate many warnings add_definitions(-Wall -pedantic
 # -Wno-long-long)
 
-configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
-               "${SYNERGIA2_BINARY_DIR}/synergia-local" IMMEDIATE)
+configure_file("${SYNERGIA3_SOURCE_DIR}/synergia-local.in"
+               "${SYNERGIA3_BINARY_DIR}/synergia-local" IMMEDIATE)
 
-configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
-               "${SYNERGIA2_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
+configure_file("${SYNERGIA3_SOURCE_DIR}/src/local_paths.py.in"
+               "${SYNERGIA3_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
 
-include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils
-)# for boost headers
-include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
+include_directories(BEFORE ${SYNERGIA3_SOURCE_DIR}/src)
 
 if(NOT TARGET test-exes)
   add_custom_target(test-exes)

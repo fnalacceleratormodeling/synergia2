@@ -197,9 +197,9 @@ namespace syn {
             return {&t, {}, hdf5_atomic_data_type<T>(), sizeof(T), 1};
         } else if constexpr (Kokkos::is_view<T>::value) {
             size_t size = 1;
-            std::vector<hsize_t> dims(T::Rank);
+            std::vector<hsize_t> dims(T::rank);
 
-            for (int i = 0; i < T::Rank; ++i) {
+            for (int i = 0; i < T::rank; ++i) {
                 dims[i] = t.extent(i);
                 size *= t.extent(i);
             }
@@ -221,7 +221,7 @@ namespace syn {
                 throw std::runtime_error(
                     "resize_data_obj: non-zero rank resizing scalar");
         } else if constexpr (Kokkos::is_view<T>::value) {
-            if (di.dims.size() != T::Rank)
+            if (di.dims.size() != T::rank)
                 throw std::runtime_error(
                     "resize_data_obj: inconsistent data rank");
 
