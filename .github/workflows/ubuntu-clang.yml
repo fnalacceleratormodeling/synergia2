@@ -40,6 +40,8 @@ jobs:
       with:
         submodules: 'true'
 
+    - uses: rui314/setup-mold@v1
+
     # Debug: checkpoint at which to open tmate session
     - name: ubuntu-clang pre CMake
       uses: mxschmitt/action-tmate@v3

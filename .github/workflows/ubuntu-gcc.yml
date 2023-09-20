@@ -30,6 +30,8 @@ jobs:
       with:
         submodules: 'true'
 
+    - uses: rui314/setup-mold@v1
+
     - name: CMake
       run: |
         lscpu
