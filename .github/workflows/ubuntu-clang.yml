@@ -55,7 +55,7 @@ jobs:
         CC=/usr/bin/clang-16 CXX=/usr/bin/clang++-16 cmake -B ${{github.workspace}}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
-          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.11) \
+          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3) \
           -DENABLE_KOKKOS_BACKEND=OpenMP \
           -DBUILD_FD_SPACE_CHARGE_SOLVER=ON \
           -DUSE_OPENPMD_IO=ON \
@@ -93,6 +93,7 @@ jobs:
         . /opt/spack-environment/activate.sh
         export SYNINSTALL=${{github.workspace}}/install
         export LD_LIBRARY_PATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib64:\${LD_LIBRARY_PATH}
-        export PYTHONPATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib/python3.11/site-packages:\${PYTHONPATH}
+        export PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+        export PYTHONPATH=${SYNINSTALL}/lib:${SYNINSTALL}/lib/python${PYTHON_VERSION}/site-packages:\${PYTHONPATH}
         cd ${{github.workspace}}/build/examples/fodo
         mpirun -np 1 python fodo_readme.py

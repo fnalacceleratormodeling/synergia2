@@ -49,7 +49,7 @@ jobs:
         . /opt/spack-environment/activate.sh
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
-          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3.11) \
+          -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3) \
           -DENABLE_KOKKOS_BACKEND=CUDA \
           -DKokkos_ARCH_VOLTA70=ON \
           -DBUILD_FD_SPACE_CHARGE_SOLVER=ON \
