@@ -12,6 +12,7 @@ on:
 
 env:
   BUILD_TYPE: RelWithDebInfo
+  PYTHON_VERSION: '3.10'
 
 jobs:
   build-and-test:
@@ -34,7 +35,7 @@ jobs:
 
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.10' 
+        python-version: ${{env.PYTHON_VERSION}}
 
     - name: Dependencies
       run: |
@@ -53,7 +54,7 @@ jobs:
         -DCMAKE_OSX_ARCHITECTURES="x86_64" \
         -DCMAKE_C_COMPILER=gcc-11 -DCMAKE_CXX_COMPILER=g++-11 \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DENABLE_KOKKOS_BACKEND=OpenMP \
-        -DPython_EXECUTABLE=${{github.workspace}}/synergia-env/bin/python3.10 \
+        -DPython_EXECUTABLE=${{github.workspace}}/synergia-env/bin/python${{env.PYTHON_VERSION}} \
         -DBUILD_PYTHON_BINDINGS=on -DBUILD_EXAMPLES=off -GNinja
 
     - name: Build
