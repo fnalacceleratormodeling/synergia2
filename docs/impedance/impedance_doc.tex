@@ -1,0 +1,169 @@
+%\documentclass[prstab,twocolumn]{revtex4}
+%\documentclass[prstab,onecolumn]{revtex4}
+
+\documentclass[preprint]{revtex4}
+
+\usepackage{graphicx}
+\usepackage{epstopdf} 
+\DeclareGraphicsExtensions{.eps, .pdf}
+%\usepackage{amssymb, amsmath}
+\usepackage{caption}
+\usepackage[lofdepth,lotdepth]{subfig}
+
+
+\begin{document}
+%\DeclareMathOperator{\sech}{sech}
+\newcommand{\sech}{\mathop{\mathrm{sech}}\nolimits}
+\newcommand{\csch}{\mathop{\mathrm{csch}}\nolimits}
+\def\H{{\bar{H}}}
+\def\E{{\bar{E}}}
+\def\h{{\bar{h}}}
+\def\e{{\bar{e}}}
+\def\M{{\cal{M}}}
+\def\ce{{\cal{E}}}
+\def\ch{{\cal{H}}}
+\def\R{{\cal{R}}}
+\def\O{{\cal{O}}}
+\def\T{{\bf{\cal{T}}}}
+\def\t{\theta}
+\def\a{\bar{a}}
+\def\b{\bar{b}}
+\def\z{\bar{z}}
+\def\x{\bar{x}}
+\def\y{\bar{y}}
+\def\bxi{\bar{\xi}}
+\def\u{\bar{u}}
+\def\v{\bar{v}}
+\def\w{\bar{w}}
+\def\f{\bar{f}}
+\def\g{\bar{g}}
+\def\W{\tilde{W}}
+\def\P{\bar{\Phi}}
+\def\Ax{\bar{A_x}}
+\def\Ay{\bar{A_y}}
+\def\A{\bar{A}}
+\def\p{\bar{\phi}}
+\def\dP{\overline{\partial \Phi}}
+\def\dAx{{{\overline{\partial A}}_x}}
+\def\dAy{{{\overline{\partial A}}_y}}
+\def\tx{{t_x}}
+\def\ty{{t_y}}
+\def\nx{{n_x}}
+\def\ny{{n_y}}
+\def\Q{{\bar{Q}}}
+
+
+%\title{Wake fields in Synergia}
+%\author{Alexandru Macridin}
+
+
+
+
+\maketitle
+
+\section{Wake field for Synergia}
+
+The wake field effects in Synergia are introduced using the split operator method. Every step, each macroparticle
+momentum is kicked according to
+
+\begin{eqnarray}
+\label{eq:wz}
+\beta c \Delta p_z &=& -qQ W^{||}(z), \\
+\label{eq:wx}
+\beta c \Delta p_x &=& -qQ \left( W_X(z) X + W_x(z) x \right)\\
+\label{eq:wy}
+\beta c \Delta p_y &=& -qQ \left( W_Y(z) Y + W_y(z) y \right),
+\end{eqnarray}
+\noindent where $Q,X,Y$ ($q,x,y$) represent the charge and horizontal and vertical displacements
+of the leading (trailing) particle. The wake functions, $W^{||},W_X, W_Y, W_x, W_y$ 
+depend only on the distance, $z$, between the leading and the trailing particle. 
+
+
+
+The  Eqs.~\ref{eq:wz},\ref{eq:wx} and \ref{eq:wy} are valid for vacuum chambers
+with horizontal and vertical mirror symmetry.  For pipes with circular or rectangular symmetries,
+the detuning wakes $W_x(z),W_y(z)$ are zero in the ultrarelativistic limit . 
+
+
+
+
+
+
+\subsection{Wake field file}
+
+The wake functions $W^{||}(z),W_X(z), W_Y(z), W_x(z), W_y(z)$  in Synergia simulations are read from a file.
+
+\subsubsection{Reading a wake file}
+\label{sssec:rwf}
+
+A typical wake file has 6 columns ($z$, $W_X$, $W_x $, $W_Y$, $W_y$ and $W^{||}$) or less if due to the symmetry
+some of the wakes are zero. The order of columns is important. {\bf To make sure there is no mistake check the reading order 
+corresponding to your {\em wake\_type} parameter in wake\_field.cc.}
+
+Examples: 
+\begin{itemize}
+
+\item wake\_type="XLXTYLYTZ", requires 6 columns wake file, in order $z$, $W_X$ (lead particle X transverse , i.e. XL),
+$W_x $ (trailing particle X transverse, i.e XT), $W_Y$, (lead particle Y transverse , i.e. YL),
+$W_y $ (trailing particle Y transverse, i.e YT) and $W^{||}$ (longitudinal wake, i.e. Z). 
+
+\item wake\_type="XLYLZ" (used for IOTA, see the wake file {\em IOTA\_straight\_rw\_wake.dat} ) requires 3 columns, in order $z$, $W_X=W_Y$ 
+(lead particle X transverse equal to lead particle Y transverse , i.e. XLYL) and 
+$W^{||}$ (longitudinal wake, i.e. Z). 
+\end{itemize}
+
+
+\subsubsection{Preparing a wake file}
+
+The units of the quantities in the wake file are:
+
+\begin{itemize}
+
+\item $z[m]$.  $z=\beta c t$
+\item  $\frac{W_X}{Z_0 L}[m^{-2} s^{-1}]$. The transverse wake   per unit length,  divided
+by the vacuum impedance $Z_0 \approx 376.7 \Omega$. Valid for both leading and trailing transverse wakes.
+
+\item $\frac{W^||}{Z_0 L}[m^{-1} s^{-1}]$.   The longitudinal wake per unit length,  divided
+by the vacuum impedance $Z_0 \approx 376.7 \Omega$.
+\end{itemize}
+
+$z$ in the wake file is  on a quadratic grid, i.e every row corresponds to an integer $i$
+such  $z_i=i*|i|*\Delta z+\Delta_0$. $i$ can start from negative values if the wake in front of the source particle is 
+considered (at finite $\gamma$). $\Delta z$ determines the grid resolution and $\Delta_0 \ll \Delta z$ is chosen to avoid 
+the point $z=0$.
+
+Example:
+
+The wake file for IOTA was calculated as described in {\em A. Macridin, et. al,  FERMILAB-PUB-12-518-CD}
+for a circular pipe.
+
+\subsection{Impedance in Synergia}
+
+The {\bf \em Impedance} object in Synergia is a collective operator and should be implemented 
+in Synergia in  the same way the space charge solvers are implemented (via the  {\bf \em Stepper class}).
+
+\noindent The constructor is:
+
+\noindent impedance\_op=synergia.collective.Impedance(wake\_file, wake\_type, zgrid, lattice\_length, bucket\_distance, registred\_turns, full\_machine, wave\_number)
+
+\noindent where
+
+\begin{itemize}
+
+\item wake\_file (string) is the name of the wake file  
+\item wake\_type (string) is the type of the file, see the discussion  in Sec~\ref{sssec:rwf}. For IOTA, wake\_type="XLYLZ".
+\item zgrid (integer) determines the number of slices the bunch is longitudinally divided.
+\item lattice\_length (double, float) is the ring length.
+\item  bucket\_distance (double, float) the distances between buckets
+\item  registred\_turns (integer) The number of previous turns considered to produce wakes.  
+\item full\_machine (bool).  When full\_machine=1 one considers that all the buckets are filled with identical bunches.
+It is a single bunch calculation (since all the bunches are identical), but the bunch feels the wake 
+produced by the other buckets. The multi-bunch instabilities are suppressed in this approximation.
+\item wave\_number (integer type vector of size 3). wave\_number=[wnx,wny,wnz]. Relevant when full\_machine=1. The buckets are filled with
+identical bunches which are displaced along the ring with the wave number wn. For example, the horizontal displacement of 
+the buckets along the ring is modulated by $\cos\left(\frac{2 \pi ~\text{wnx bucket\_index}}{\text{num\_buckets}}\right)$;
+
+\end{itemize}
+
+\end{document}
+
