@@ -84,9 +84,13 @@ add_mpi_test(test_distributed_fft3d 2)
 add_mpi_test(test_distributed_fft3d 3)
 add_mpi_test(test_distributed_fft3d 4)
 
-if(0)
+if(LINUX)
   add_executable(test_loading_kokkos test_loading_kokkos.cc)
-  target_link_libraries(test_loading_kokkos PRIVATE dl)
+  if(Kokkos_ENABLE_OPENMP)
+    target_link_libraries(test_loading_kokkos PRIVATE dl OpenMP::OpenMP_CXX)
+  else()
+    target_link_libraries(test_loading_kokkos PRIVATE dl)
+  endif()
   target_include_directories(
     test_loading_kokkos
     PRIVATE ${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos
@@ -95,4 +99,10 @@ if(0)
             ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/tpls/desul/include
             ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/kokkos/core/src)
   add_test(test_loading_kokkos test_loading_kokkos)
+  set_property(
+    TEST test_loading_kokkos
+    PROPERTY
+      ENVIRONMENT
+      "LD_LIBRARY_PATH=${SYNERGIA2_BINARY_DIR}/src/synergia/utils/kokkos/core/src"
+  )
 endif()
