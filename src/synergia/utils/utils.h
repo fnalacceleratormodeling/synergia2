@@ -28,8 +28,8 @@ namespace synergia {
                             (char*)0,
                             std::string("synergia2-v3 program!\n").c_str());
         if (ierr != 0) std::runtime_error("Error initializing PETSc!");
-        //PetscCallAbort(PETSC_COMM_WORLD, PetscLogGpuTimeBegin());
-        PetscCallAbort(PETSC_COMM_WORLD, PetscLogDefaultBegin());
+            // PetscCallAbort(PETSC_COMM_WORLD, PetscLogGpuTimeBegin());
+            // PetscCallAbort(PETSC_COMM_WORLD, PetscLogDefaultBegin());
 #else
         if (MPI_Init(&argc, &argv) != MPI_SUCCESS) {
             std::runtime_error("Could not initialize MPI!");
@@ -56,9 +56,9 @@ namespace synergia {
     {
         Kokkos::finalize();
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
-         //PetscCallAbort(PETSC_COMM_WORLD, PetscLogGpuTimeEnd());
-         PetscCallAbort(PETSC_COMM_WORLD,
-                       PetscLogView(PETSC_VIEWER_STDOUT_WORLD));
+        // PetscCallAbort(PETSC_COMM_WORLD, PetscLogGpuTimeEnd());
+        // PetscCallAbort(PETSC_COMM_WORLD,
+        // PetscLogView(PETSC_VIEWER_STDOUT_WORLD));
         auto ierr = PetscFinalize();
         if (ierr != 0) std::runtime_error("Error finalizing PETSc!");
 #else
