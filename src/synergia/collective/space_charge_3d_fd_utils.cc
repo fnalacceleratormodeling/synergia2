@@ -406,6 +406,7 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
         }));
     Kokkos::fence();
     PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
+
     PetscCall(KSPSetUp(sctx.ksp));
     PetscCall(PCSetUp(sctx.pc));
 

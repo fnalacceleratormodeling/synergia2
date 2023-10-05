@@ -19,8 +19,8 @@ class Space_charge_3d_fd : public Collective_operator {
     std::string bunch_sim_id;
     Rectangular_grid_domain domain;
     bool use_fixed_domain;
-    bool allocated;
-    bool initialized;
+    bool allocated = false;
+    bool initialized = false;
     double scale_x_threshold =
         15; /*! rebuild preconditioner if the size
               of the domain along x changes by this factor */
