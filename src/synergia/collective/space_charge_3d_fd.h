@@ -20,6 +20,7 @@ class Space_charge_3d_fd : public Collective_operator {
     Rectangular_grid_domain domain;
     bool use_fixed_domain;
     bool allocated;
+    bool initialized;
     double scale_x_threshold =
         15; /*! rebuild preconditioner if the size
               of the domain along x changes by this factor */
@@ -51,6 +52,8 @@ class Space_charge_3d_fd : public Collective_operator {
     void apply_kick(Bunch& bunch, double time_step);
 
     PetscErrorCode allocate_sc3d_fd(const Bunch& bunch);
+
+    PetscErrorCode init_solver_sc3d_fd();
 
     PetscErrorCode destroy_sc3d_fd();
 

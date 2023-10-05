@@ -1,5 +1,4 @@
 #include "space_charge_3d_fd_utils.h"
-#include "Kokkos_Core.hpp"
 
 /* --------------------------------------------------------------------- */
 /*!
@@ -270,38 +269,66 @@ init_subcomm_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
     /* Create Kokkos view for use when updating the matrix */
     lctx.coo_v = karray1d_dev("coo_v", ncoo);
 
+    PetscFunctionReturn(0);
+}
+
+/* --------------------------------------------------------------------- */
+/*!
+  Initialize the KSP/PC solvers
+  \param   lctx - local context
+  \param   sctx - subcomm context
+  \param   gctx - global context
+  \return  ierr - PetscErrorCode
+  */
+PetscErrorCode
+init_solver(LocalCtx& lctx,
+            SubcommCtx& sctx,
+            GlobalCtx& gctx,
+            bool fixed_domain)
+{
+    PetscFunctionBeginUser;
+
     /* create krylov solver */
     PetscCall(KSPCreate(sctx.solversubcomm, &sctx.ksp));
-    PetscCall(KSPSetType(sctx.ksp, KSPPREONLY));
 
-    //PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
-    //PetscCall(
-    //    KSPGMRESSetCGSRefinementType(sctx.ksp, KSP_GMRES_CGS_REFINE_IFNEEDED));
-
+    if (fixed_domain) {
+        PetscCall(KSPSetType(sctx.ksp, KSPPREONLY));
+    } else {
+        PetscCall(KSPSetType(sctx.ksp, KSPGMRES));
+        PetscCall(KSPGMRESSetCGSRefinementType(sctx.ksp,
+                                               KSP_GMRES_CGS_REFINE_IFNEEDED));
+    }
     PetscCall(KSPSetOperators(sctx.ksp, sctx.A, sctx.A));
     PetscCall(KSPSetFromOptions(sctx.ksp));
 
     /* set preconditioner */
     PetscCall(KSPGetPC(sctx.ksp, &(sctx.pc)));
-    PetscCall(PCSetType(sctx.pc, PCLU));
-    PetscCall(PCFactorSetMatSolverType(sctx.pc, MATSOLVERSTRUMPACK ));
-    PetscCall(PCFactorSetUpMatSolverType(sctx.pc));
-    Mat M;
-    PetscCall(PCFactorGetMatrix(sctx.pc, &M));
-    PetscCall(MatSTRUMPACKSetColPerm(M, PETSC_FALSE));
-    PetscCall(MatSTRUMPACKSetReordering(M, MAT_STRUMPACK_GEOMETRIC));
-    PetscCall(MatSTRUMPACKSetGeometricNxyz(M, 32, 32, 32));
 
-    //PetscCall(PCSetType(sctx.pc, PCHYPRE));
-    //PetscCall(PCHYPRESetType(sctx.pc, std::string("boomeramg").data()));
+    if (fixed_domain) {
+        PetscCall(PCSetType(sctx.pc, PCLU));
+#if defined PETSC_HAVE_STRUMPACK
+        PetscCall(PCFactorSetMatSolverType(sctx.pc, MATSOLVERSTRUMPACK));
+        PetscCall(PCFactorSetUpMatSolverType(sctx.pc));
+        Mat M;
+        PetscCall(PCFactorGetMatrix(sctx.pc, &M));
+        PetscCall(MatSTRUMPACKSetColPerm(M, PETSC_FALSE));
+        PetscCall(MatSTRUMPACKSetReordering(M, MAT_STRUMPACK_GEOMETRIC));
+        PetscCall(MatSTRUMPACKSetGeometricNxyz(
+            M, gctx.nsize_x, gctx.nsize_y, gctx.nsize_z));
+#endif
+    } else {
+#if defined PETSC_HAVE_HYPRE
+        PetscCall(PCSetType(sctx.pc, PCHYPRE));
+        PetscCall(PCHYPRESetType(sctx.pc, std::string("boomeramg").data()));
+#else
 
-    /*
-    PetscCall(PCSetType(sctx.pc, PCGAMG));
-    PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 20));
-    PetscCall(
-        PCGAMGSetThreshold(sctx.pc, (std::array<double, 1>{0.08}).data(), 1));
-    PetscCall(PCGAMGSetThresholdScale(sctx.pc, 0.5));
-*/
+        PetscCall(PCSetType(sctx.pc, PCGAMG));
+        PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 20));
+        PetscCall(PCGAMGSetThreshold(
+            sctx.pc, (std::array<double, 1>{0.08}).data(), 1));
+        PetscCall(PCGAMGSetThresholdScale(sctx.pc, 0.5));
+#endif
+    }
 
     /* Enable KSP logging if options are set */
     if (gctx.ksp_view) {
@@ -337,6 +364,7 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
 {
 
     PetscFunctionBeginUser;
+
     scoped_simple_timer("sc3d_fd_compute_mat");
 
     DMDALocalInfo info; /* For storing DMDA info */
@@ -378,7 +406,8 @@ compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx)
         }));
     Kokkos::fence();
     PetscCall(MatSetValuesCOO(sctx.A, lctx.coo_v.data(), INSERT_VALUES));
-
+    PetscCall(KSPSetUp(sctx.ksp));
+    PetscCall(PCSetUp(sctx.pc));
 
     if (sctx.reuse == PETSC_FALSE) {
         PetscCall(KSPSetReusePreconditioner(sctx.ksp, PETSC_FALSE));

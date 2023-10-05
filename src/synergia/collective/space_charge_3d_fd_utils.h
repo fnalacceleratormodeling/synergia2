@@ -2,7 +2,6 @@
 #define SPACE_CHARGE_3D_FD_UTILS_H_
 
 #include "space_charge_3d_fd_impl.h"
-#include "synergia/utils/simple_timer.h"
 
 PetscErrorCode init_solver_subcomms(SubcommCtx& sctx, GlobalCtx& gctx);
 
@@ -12,6 +11,11 @@ PetscErrorCode init_subcomm_vecs(SubcommCtx& sctx, GlobalCtx& gctx);
 PetscErrorCode init_subcomm_mat(LocalCtx& lctx,
                                 SubcommCtx& sctx,
                                 GlobalCtx& gctx);
+
+PetscErrorCode init_solver(LocalCtx& lctx,
+                           SubcommCtx& sctx,
+                           GlobalCtx& gctx,
+                           bool fixed_domain);
 
 PetscErrorCode compute_mat(LocalCtx& lctx, SubcommCtx& sctx, GlobalCtx& gctx);
 

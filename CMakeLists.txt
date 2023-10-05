@@ -159,7 +159,7 @@ if(${BUILD_FD_SPACE_CHARGE_SOLVER})
   set(PETSC $ENV{PETSC_DIR}/$ENV{PETSC_ARCH})
   set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
   find_package(PkgConfig REQUIRED)
-  pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc>=3.19.0)
+  pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc>=3.20.0)
 endif()
 
 # srun --mpi=SRUN_MPI_PMIX

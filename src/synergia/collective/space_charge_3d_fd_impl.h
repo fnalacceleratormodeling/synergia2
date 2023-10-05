@@ -2,7 +2,6 @@
 #define SPACE_CHARGE_3D_FD_IMPL_H_
 
 #include <functional>
-#include <string>
 #include <vector>
 
 #include <petscdmda.h>
@@ -11,6 +10,7 @@
 #include <petscviewerhdf5.h>
 
 #include "synergia/utils/kokkos_views.h"
+#include "synergia/utils/simple_timer.h"
 
 /*! Local (per MPI rank) context */
 struct LocalCtx {
