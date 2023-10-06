@@ -159,7 +159,15 @@ if(${BUILD_FD_SPACE_CHARGE_SOLVER})
   set(PETSC $ENV{PETSC_DIR}/$ENV{PETSC_ARCH})
   set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
   find_package(PkgConfig REQUIRED)
-  pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc>=3.20.0)
+  pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc>=3.19.0)
+  if(${PETSC_VERSION} STRGREATER_EQUAL 3.20.0)
+    message(STATUS "Found PETSc version ${PETSC_VERSION}")
+  else()
+    message(
+      STATUS
+        "Found PETSc version ${PETSC_VERSION}, using default CPU based LU facorization, upgrade to version 3.20.0 and install STRUMPACK for enhanced performance on GPUs when using fixed domains"
+    )
+  endif()
 endif()
 
 # srun --mpi=SRUN_MPI_PMIX

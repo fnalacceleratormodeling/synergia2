@@ -306,7 +306,8 @@ init_solver(LocalCtx& lctx,
 
     if (fixed_domain) {
         PetscCall(PCSetType(sctx.pc, PCLU));
-#if defined PETSC_HAVE_STRUMPACK
+        /* Use STRUMPACK with updated interface if available */
+#if defined PETSC_HAVE_STRUMPACK && PETSC_VERSION_GE(3, 20, 0)
         PetscCall(PCFactorSetMatSolverType(sctx.pc, MATSOLVERSTRUMPACK));
         PetscCall(PCFactorSetUpMatSolverType(sctx.pc));
         Mat M;
@@ -321,7 +322,6 @@ init_solver(LocalCtx& lctx,
         PetscCall(PCSetType(sctx.pc, PCHYPRE));
         PetscCall(PCHYPRESetType(sctx.pc, std::string("boomeramg").data()));
 #else
-
         PetscCall(PCSetType(sctx.pc, PCGAMG));
         PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 20));
         PetscCall(PCGAMGSetThreshold(
