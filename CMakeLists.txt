@@ -33,12 +33,12 @@ set(SYNERGIA3_VERSION
 message(STATUS "Preparing to install Synergia3 version: ${SYNERGIA3_VERSION}")
 
 # generate compile_commands.json
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-# and place it in the source directory https://stackoverflow.com/a/60910583
-add_custom_target(
-  copy-compile-commands ALL
-  ${CMAKE_COMMAND} -E copy_if_different
-  ${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_CURRENT_LIST_DIR})
+if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles" OR ${CMAKE_GENERATOR} STREQUAL
+                                                   "Ninja")
+  if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  endif()
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
