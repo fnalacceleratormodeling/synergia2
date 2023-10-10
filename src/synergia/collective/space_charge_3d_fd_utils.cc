@@ -284,6 +284,7 @@ PetscErrorCode
 init_solver(LocalCtx& lctx,
             SubcommCtx& sctx,
             GlobalCtx& gctx,
+            Logger& logger,
             bool fixed_domain)
 {
     PetscFunctionBeginUser;
@@ -316,6 +317,15 @@ init_solver(LocalCtx& lctx,
         PetscCall(MatSTRUMPACKSetReordering(M, MAT_STRUMPACK_GEOMETRIC));
         PetscCall(MatSTRUMPACKSetGeometricNxyz(
             M, gctx.nsize_x, gctx.nsize_y, gctx.nsize_z));
+#else
+        /* If strumpack unavailble on a CUDA build */
+#if defined SYNERGIA_ENABLE_CUDA
+        logger(LoggerV::WARNING)
+            << "\n Direct solver STRUMPACK unavailable, using the default LU "
+               "solver from PETSc. For better performance install STRUMPACK "
+               "and re-install PETSc and Synergia3\n";
+#endif
+
 #endif
     } else {
 #if defined PETSC_HAVE_HYPRE

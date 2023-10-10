@@ -53,7 +53,7 @@ class Space_charge_3d_fd : public Collective_operator {
 
     PetscErrorCode allocate_sc3d_fd(const Bunch& bunch);
 
-    PetscErrorCode init_solver_sc3d_fd();
+    PetscErrorCode init_solver_sc3d_fd(Logger& logger);
 
     PetscErrorCode destroy_sc3d_fd();
 
