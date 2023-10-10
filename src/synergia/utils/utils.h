@@ -58,7 +58,7 @@ namespace synergia {
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
         // PetscCallAbort(PETSC_COMM_WORLD, PetscLogGpuTimeEnd());
         // PetscCallAbort(PETSC_COMM_WORLD,
-        //                PetscLogView(PETSC_VIEWER_STDOUT_WORLD));
+        // PetscLogView(PETSC_VIEWER_STDOUT_WORLD));
         auto ierr = PetscFinalize();
         if (ierr != 0) std::runtime_error("Error finalizing PETSc!");
 #else

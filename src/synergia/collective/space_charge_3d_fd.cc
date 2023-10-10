@@ -8,7 +8,6 @@
 
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/physical_constants.h"
-#include "synergia/utils/hdf5_file.h"
 
 namespace {
     double
@@ -117,6 +116,8 @@ Space_charge_3d_fd::apply_impl(Bunch_simulator& sim,
         // Update this bit when enabling bunch sim with two bunch trains!
         allocate_sc3d_fd(sim[0][0]);
         allocated = true;
+
+        if (!initialized) { init_solver_sc3d_fd(logger); }
 
         /* Functionality that is present in update_domain that must be called
            where a static domain is used ! */
@@ -455,6 +456,17 @@ Space_charge_3d_fd::update_domain(Bunch const& bunch)
 
     /* Defer updating the matrix for now, it will overlap
        with the rho local->subcomm communication phase */
+
+    PetscFunctionReturn(0);
+}
+
+PetscErrorCode
+Space_charge_3d_fd::init_solver_sc3d_fd(Logger& logger)
+{
+    PetscFunctionBeginUser;
+
+    PetscCall(init_solver(lctx, sctx, gctx, logger, use_fixed_domain));
+    initialized = true;
 
     PetscFunctionReturn(0);
 }

@@ -33,12 +33,12 @@ set(SYNERGIA3_VERSION
 message(STATUS "Preparing to install Synergia3 version: ${SYNERGIA3_VERSION}")
 
 # generate compile_commands.json
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-# and place it in the source directory https://stackoverflow.com/a/60910583
-add_custom_target(
-  copy-compile-commands ALL
-  ${CMAKE_COMMAND} -E copy_if_different
-  ${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_CURRENT_LIST_DIR})
+if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles" OR ${CMAKE_GENERATOR} STREQUAL
+                                                   "Ninja")
+  if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  endif()
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -160,6 +160,14 @@ if(${BUILD_FD_SPACE_CHARGE_SOLVER})
   set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
   find_package(PkgConfig REQUIRED)
   pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc>=3.19.0)
+  if(${PETSC_VERSION} STRGREATER_EQUAL 3.20.0)
+    message(STATUS "Found PETSc version ${PETSC_VERSION}")
+  else()
+    message(
+      STATUS
+        "Found PETSc version ${PETSC_VERSION}, using default CPU based LU facorization, upgrade to version 3.20.0 and install STRUMPACK for enhanced performance on GPUs when using fixed domains"
+    )
+  endif()
 endif()
 
 # srun --mpi=SRUN_MPI_PMIX
@@ -338,7 +346,7 @@ if(BUILD_PYTHON_BINDINGS)
     FetchContent_Declare(
       pybind11
       GIT_REPOSITORY https://github.com/pybind/pybind11
-      GIT_TAG v2.10.4)
+      GIT_TAG v2.11.1)
     FetchContent_MakeAvailable(pybind11)
   endif()
 else(BUILD_PYTHON_BINDINGS)
