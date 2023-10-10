@@ -167,12 +167,12 @@ namespace FF_matrix {
         mp.l = ele.get_double_attribute("l", 0.0);
         // offset pointer so I can use 1-based indexing to match MAD-X
         // convention
-        mp.kick[1] = ele.get_double_attribute("kick1", 0.0);
-        mp.kick[2] = ele.get_double_attribute("kick2", 0.0);
-        mp.kick[3] = ele.get_double_attribute("kick3", 0.0);
-        mp.kick[4] = ele.get_double_attribute("kick4", 0.0);
-        mp.kick[5] = ele.get_double_attribute("kick5", 0.0);
-        mp.kick[6] = ele.get_double_attribute("kick6", 0.0);
+        mp.kick[0] = ele.get_double_attribute("kick1", 0.0);
+        mp.kick[1] = ele.get_double_attribute("kick2", 0.0);
+        mp.kick[2] = ele.get_double_attribute("kick3", 0.0);
+        mp.kick[3] = ele.get_double_attribute("kick4", 0.0);
+        mp.kick[4] = ele.get_double_attribute("kick5", 0.0);
+        mp.kick[5] = ele.get_double_attribute("kick6", 0.0);
 
         // diagonal elements default to 1, all others default to 0
         mp.rm[0][0] = ele.get_double_attribute("rm11", 1.0); // diagonal
