@@ -4,7 +4,6 @@
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/utils/simple_timer.h"
 
-
 // Implementation of MAD-X arbitrary matrix element
 
 /* MAD-X Documentation on matrix:
@@ -16,29 +15,27 @@ label: MATRIX, TYPE=string, L=real,
     RM11=real, ..., RM66=real,
    TM111=real, ..., TM666=real;
 
-The MATRIX element allows the definition of an arbitrary transfer matrix. It has four real
-array attributes:
-LLength of the element, which may be zero.
+The MATRIX element allows the definition of an arbitrary transfer matrix. It has
+four real array attributes: LLength of the element, which may be zero.
 
-KICKi  Defines the kick of the element acting on the six phase space coordinates.
+KICKi  Defines the kick of the element acting on the six phase space
+coordinates.
 
 RMik   Defines the linear transfer matrix (6 × 6 terms) of the element.
 
 TMikl  Defines the second-order terms (6 × 6 × 6 terms) of the element.
 
-Data values that are not explicitly entered are taken from the identity transformation for the
-RMik matrix elements, and taken as zero for the KICKi kick factors and the TMikl second order
-terms. In the thin-lens tracking module a non-zero length for an arbitrary matrix is accepted,98
-CHAPTER 11. ELEMENT TYPES
-however no non-zero second order terms are allowed to avoid non symplectic tracking runs.
-In the latter case the tracking run is aborted.label:
+Data values that are not explicitly entered are taken from the identity
+transformation for the RMik matrix elements, and taken as zero for the KICKi
+kick factors and the TMikl second order terms. In the thin-lens tracking module
+a non-zero length for an arbitrary matrix is accepted,98 CHAPTER 11. ELEMENT
+TYPES however no non-zero second order terms are allowed to avoid non symplectic
+tracking runs. In the latter case the tracking run is aborted.label:
 
  */
 
-
-
 // p [Gev/c] = -- * B*rho [ Tesla meters ]
-#define PH_CNV_brho_to_p   (1.0e-9 * pconstants::c)
+#define PH_CNV_brho_to_p (1.0e-9 * pconstants::c)
 
 namespace matrix_impl {
     struct MatrixParams {
@@ -170,13 +167,12 @@ namespace FF_matrix {
         mp.l = ele.get_double_attribute("l", 0.0);
         // offset pointer so I can use 1-based indexing to match MAD-X
         // convention
-        double* kp = &mp.kick[-1];
-        mp.kick[1] = ele.get_double_attribute("kick1", 0.0);
-        mp.kick[2] = ele.get_double_attribute("kick2", 0.0);
-        mp.kick[3] = ele.get_double_attribute("kick3", 0.0);
-        mp.kick[4] = ele.get_double_attribute("kick4", 0.0);
-        mp.kick[5] = ele.get_double_attribute("kick5", 0.0);
-        mp.kick[6] = ele.get_double_attribute("kick6", 0.0);
+        mp.kick[0] = ele.get_double_attribute("kick1", 0.0);
+        mp.kick[1] = ele.get_double_attribute("kick2", 0.0);
+        mp.kick[2] = ele.get_double_attribute("kick3", 0.0);
+        mp.kick[3] = ele.get_double_attribute("kick4", 0.0);
+        mp.kick[4] = ele.get_double_attribute("kick5", 0.0);
+        mp.kick[5] = ele.get_double_attribute("kick6", 0.0);
 
         // diagonal elements default to 1, all others default to 0
         mp.rm[0][0] = ele.get_double_attribute("rm11", 1.0); // diagonal
@@ -529,4 +525,3 @@ namespace FF_matrix {
 }
 
 #endif // FF_MATRIX_H
-
