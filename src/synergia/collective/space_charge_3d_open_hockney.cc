@@ -549,6 +549,9 @@ Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
 
     if constexpr (std::is_same_v<Kokkos::DefaultExecutionSpace,
                                  Kokkos::DefaultHostExecutionSpace>) {
+        static_assert(std::is_same_v<Kokkos::DefaultExecutionSpace,
+                                     Kokkos::DefaultHostExecutionSpace>,
+                      "Compiling for host-only platforms!");
         deposit_charge_rectangular_3d_omp_reduce(rho2, domain, dg, bunch);
 
     } else {
