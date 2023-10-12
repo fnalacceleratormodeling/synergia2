@@ -6,6 +6,7 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/kokkos_utils.h"
 #include "synergia/utils/simple_timer.h"
+#include <type_traits>
 
 constexpr auto pi = Kokkos::numbers::pi_v<double>;
 
@@ -404,13 +405,14 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
     if (bunch.size() > particle_bin.extent(0))
         Kokkos::resize(particle_bin, bunch.size(), 6);
 
-#ifdef SYNERGIA_ENABLE_CUDA
-    deposit_charge_rectangular_2d_kokkos_scatter_view(
-        rho2, doubled_domain, particle_bin, bunch);
-#else
-    deposit_charge_rectangular_2d_omp_reduce(
-        rho2, doubled_domain, particle_bin, bunch);
-#endif
+    if constexpr (std::is_same_v<Kokkos::DefaultExecutionSpace,
+                                 Kokkos::DefaultHostExecutionSpace>) {
+        deposit_charge_rectangular_2d_omp_reduce(
+            rho2, doubled_domain, particle_bin, bunch);
+    } else {
+        deposit_charge_rectangular_2d_kokkos_scatter_view(
+            rho2, doubled_domain, particle_bin, bunch);
+    }
 }
 
 void

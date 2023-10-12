@@ -5,14 +5,6 @@
 #include <Kokkos_Core.hpp>
 #include <synergia/foundation/trigon_traits.h>
 
-// no simd when build for CUDA
-#ifdef SYNERGIA_ENABLE_CUDA
-#undef GSV_SSE
-#undef GSV_AVX
-#undef GSV_V4D
-#undef GSV_MIC
-#endif
-
 // helper
 namespace detail {
   template <class T, class E = void>

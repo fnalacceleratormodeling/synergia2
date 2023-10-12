@@ -319,13 +319,14 @@ init_solver(LocalCtx& lctx,
             M, gctx.nsize_x, gctx.nsize_y, gctx.nsize_z));
 #else
         /* If strumpack unavailble on a CUDA build */
-#if defined SYNERGIA_ENABLE_CUDA
-        logger(LoggerV::WARNING)
-            << "\n Direct solver STRUMPACK unavailable, using the default LU "
-               "solver from PETSc. For better performance install STRUMPACK "
-               "and re-install PETSc and Synergia3\n";
-#endif
-
+        if constexpr (!std::is_same_v<Kokkos::DefaultExecutionSpace,
+                                      Kokkos::DefaultHostExecutionSpace>) {
+            logger(LoggerV::WARNING) << "\n Direct solver STRUMPACK "
+                                        "unavailable, using the default LU "
+                                        "solver from PETSc. For better "
+                                        "performance install STRUMPACK "
+                                        "and re-install PETSc and Synergia3\n";
+        }
 #endif
     } else {
 #if defined PETSC_HAVE_HYPRE
