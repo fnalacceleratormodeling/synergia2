@@ -22,6 +22,7 @@ namespace synergia {
     {
 
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
+        PETSC_MPI_THREAD_REQUIRED = MPI_THREAD_MULTIPLE;
         auto ierr =
             PetscInitialize(&argc,
                             &argv,
