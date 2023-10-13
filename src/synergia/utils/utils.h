@@ -4,7 +4,6 @@
 #include <Kokkos_Core.hpp>
 #include <iostream>
 #include <mpi.h>
-#include <vector>
 
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
 #include <petsc.h>
