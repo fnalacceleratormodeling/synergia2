@@ -1,7 +1,6 @@
 #ifndef PARALLEL_UTILS_H_
 #define PARALLEL_UTILS_H_
 
-#include <iostream>
 #include <vector>
 
 #include "commxx.h"
