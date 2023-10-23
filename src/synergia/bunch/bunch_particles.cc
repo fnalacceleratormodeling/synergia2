@@ -1,7 +1,6 @@
 
 #include <iomanip>
 #include <iostream>
-#include <iterator>
 
 #include "synergia/bunch/bunch_particles.h"
 #include "synergia/utils/hdf5_file.h"

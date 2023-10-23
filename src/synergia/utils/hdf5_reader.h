@@ -3,7 +3,6 @@
 
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_misc.h"
-#include "synergia/utils/kokkos_views.h"
 
 class Hdf5_reader {
   public:
