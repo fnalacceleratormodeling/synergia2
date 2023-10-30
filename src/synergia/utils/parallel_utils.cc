@@ -1,6 +1,4 @@
 #include <cmath>
-#include <cstdlib>
-#include <iostream>
 #include <stdexcept>
 
 #include "parallel_utils.h"

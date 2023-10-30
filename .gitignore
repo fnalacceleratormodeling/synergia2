@@ -65,6 +65,7 @@ install/**
 **/.DS_Store
 
 # clangd LSP files
+.clangd
 compile_commands.json
 **.cache/clangd
 

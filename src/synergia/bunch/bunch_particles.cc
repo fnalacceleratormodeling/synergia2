@@ -1,7 +1,6 @@
 
 #include <iomanip>
 #include <iostream>
-#include <iterator>
 
 #include "synergia/bunch/bunch_particles.h"
 #include "synergia/utils/hdf5_file.h"
@@ -406,7 +405,7 @@ bunch_particles_t<double>::put_particles_in_range(host_parts_t subset_parts,
                                                   Commxx const& comm)
 {
     // index out of range
-    if (local_idx == particle_index_null || local_idx < 0 ||
+    if (local_idx == particle_index_null ||
         local_idx + local_num > this->n_reserved)
         throw std::runtime_error("Bunch::get_particle() index out of range");
 
@@ -453,7 +452,7 @@ bunch_particles_t<double>::get_particles_in_range(host_parts_t subset_parts,
                                                   size_t local_idx) const
 {
     // index out of range
-    if (local_idx == particle_index_null || local_idx < 0 ||
+    if (local_idx == particle_index_null ||
         local_idx + local_num > this->n_reserved)
         throw std::runtime_error("Bunch::get_particle() index out of range");
 
