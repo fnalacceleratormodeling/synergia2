@@ -105,15 +105,12 @@ def do_plots(opts: Options):
     sns.set_theme(style="darkgrid")
 
     series = io.Series(opts.inputfile, io.Access_Type.read_only)
-    mass = series.get_attribute("mass")
-    p_ref = series.get_attribute("pz")
-    betagamma = p_ref / mass
-    gamma = np.sqrt(betagamma**1)
-    beta = betagamma / gamma
-
     i = series.iterations[opts.iteration]
     parts = i.particles["bunch_particles"]
     parts_df = parts.to_df()
+
+    mass = parts.get_attribute("mass")
+    beta = parts.get_attribute("beta_ref")
 
     print(
         f'''-------- Using the following parameters ----------
