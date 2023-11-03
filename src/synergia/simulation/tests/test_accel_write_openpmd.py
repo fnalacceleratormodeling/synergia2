@@ -19,7 +19,10 @@ print('expected delta E/turn: ', expected_delta_E)
 nturns=100
 
 # prop_fixture is a propagator
-#@pytest.fixture
+# can't run this test with the fixture because I need the propagator
+# and simulator to be deleted so I can read the contents of the
+# generated hdf5 files
+#
 def prop_fixture():
     # booster-like lattice
     booster_madx = """
@@ -186,23 +189,41 @@ def check_energies(energies):
         s = io.Series('diag_part.h5', io.Access_Type.read_only)
         iters = s.iterations
         N = len(iters)
+        print(N, ' iterations in file')
         for k in range(N):
             mass = iters[k].particles['bunch_particles'].get_attribute('mass')
+            # file mass is stored in kg
+            mass = mass * 1.0e-9 * synergia.foundation.pconstants.c**2/synergia.foundation.pconstants.e
             gamma_ref = iters[k].particles['bunch_particles'].get_attribute('gamma_ref')
             step_energy = mass*gamma_ref
-            assert energies[k] == pytest.approx(step_energy)
+            print('iteration', k, ' gamma_ref: ', gamma_ref, ', step energy: ', step_energy, ', prop energy: ', energies[k], flush=True)
+            assert energies[k] == pytest.approx(step_energy, rel=1.0e-12)
+        s.close()
+        os.remove('diag_part.h5')
 
     else:
         # legacy branch
-        pass
+        N = len(energies)
+        for k in range(N):
+            h5 = h5py.File(f'diag_part_{k:05d}.h5', 'r')
+            mass = h5.get('mass')[()]
+            step_pz = h5.get('pz')[()]
+            step_energy = np.sqrt(step_pz**2 + mass**2)
+            print('interation', k, 'step_energy: ', step_energy, ', prop_energy: ', energies[k])
+            assert step_energy == pytest.approx(energies[k], rel=1.0e-12)
+            h5.close()
+            os.remove(f'diag_part_{k:05d}.h5')
 
     return
 
-def main():
+def test_accel_write_openpmd():
     pf = prop_fixture()
     energies = prop_accel_bunch(pf)
     del pf
     check_energies(energies)
+
+def main():
+    test_accel_write_openpmd()
 
 if __name__ == "__main__":
     main()
