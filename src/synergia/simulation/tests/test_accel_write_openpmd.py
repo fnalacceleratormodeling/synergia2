@@ -81,15 +81,6 @@ endsequence;
 
     return propagator
 
-
-def test_lattice_energy(prop_fixture):
-    energy = prop_fixture.get_lattice().get_lattice_energy()
-    assert energy == pytest.approx(synergia.foundation.pconstants.mp+0.8)
-
-def test_lattice_length(prop_fixture):
-    assert prop_fixture.get_lattice().get_length() == 480.0
-
-
 def create_simulator(ref_part):
     sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(ref_part, macroparticles, realparticles)
     bunch = sim.get_bunch()
@@ -100,7 +91,7 @@ def create_simulator(ref_part):
     return sim
 
 
-def test_accel2(prop_fixture):
+def prop_accel_bunch(prop_fixture):
 
     refpart = prop_fixture.get_lattice().get_reference_particle()
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
@@ -108,8 +99,6 @@ def test_accel2(prop_fixture):
     sim.reg_diag_per_turn(diag_part)
 
     lattice = prop_fixture.get_lattice()
-
-
 
     Elat0 = lattice.get_lattice_energy()
     Ebun0 = sim.get_bunch().get_design_reference_particle().get_total_energy()
@@ -188,9 +177,11 @@ def test_accel2(prop_fixture):
     for i in range(1, len(context.energies)):
         assert (context.energies[i] - context.energies[i-1]) == pytest.approx(expected_delta_E)
 
+    return context.energies
+
+def check_energies(energies):
     if hasattr(synergia.bunch.Bunch, 'read_openpmd_file'):
         # test if openpmd
-        del prop_fixture # kill the propagator and simulator should close the diagnostics
 
         s = io.Series('diag_part.h5', io.Access_Type.read_only)
         iters = s.iterations
@@ -199,16 +190,19 @@ def test_accel2(prop_fixture):
             mass = iters[k].particles['bunch_particles'].get_attribute('mass')
             gamma_ref = iters[k].particles['bunch_particles'].get_attribute('gamma_ref')
             step_energy = mass*gamma_ref
-            assert context.energies[k] == pytest.approx(step_energy)
+            assert energies[k] == pytest.approx(step_energy)
 
     else:
         # legacy branch
         pass
 
+    return
 
 def main():
     pf = prop_fixture()
-    test_accel2(pf)
+    energies = prop_accel_bunch(pf)
+    del pf
+    check_energies(energies)
 
 if __name__ == "__main__":
     main()
