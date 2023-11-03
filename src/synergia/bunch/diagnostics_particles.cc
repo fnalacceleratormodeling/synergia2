@@ -125,10 +125,12 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
             "mass", bunch_ref.value().get().get_mass() / pconstants::kg_to_GeV);
         protons.setAttribute(
             "beta_ref",
-            (bunch_ref.value().get().get_reference_particle()).get_beta());
+            (bunch_ref.value().get().get_design_reference_particle())
+                .get_beta());
         protons.setAttribute(
             "gamma_ref",
-            (bunch_ref.value().get().get_reference_particle()).get_gamma());
+            (bunch_ref.value().get().get_design_reference_particle())
+                .get_gamma());
 
         openPMD::Datatype datatype = openPMD::determineDatatype<double>();
         openPMD::Extent global_extent = {static_cast<size_t>(num_part)};
