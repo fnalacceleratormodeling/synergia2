@@ -328,6 +328,7 @@ PYBIND11_MODULE(foundation, m)
     pc.attr("positron_charge") = pconstants::positron_charge;
     pc.attr("muon_charge") = pconstants::muon_charge;
     pc.attr("antimuon_charge") = pconstants::antimuon_charge;
+    pc.attr("kg_to_GeV") = pconstants::kg_to_GeV;
 
     // Four_momentum
     py::class_<Four_momentum>(m, "Four_momentum")
