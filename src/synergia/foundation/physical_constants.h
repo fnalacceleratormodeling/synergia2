@@ -22,9 +22,6 @@ namespace pconstants {
     constexpr double mmu = 0.1056583715;       // Mass of muon [GeV/c^2]
     constexpr double muon_mass = 0.1056583715; // Mass of muon [GeV/c^2]
     constexpr double e = 1.602176565e-19;      // Charge of proton [C]
-    constexpr double kg_to_GeV =
-        5.6095886038044526e+26; // conversion of mass from SI units to GeV used
-                                // by synergia3
 #else
 #if PDG_VERSION == 2010
     //  K. Nakamura et al. (Particle Data Group), J. Phys. G 37, 075021 (2010)
@@ -118,6 +115,12 @@ namespace pconstants {
     constexpr int positron_charge = 1;    // Charge in units of e
     constexpr int muon_charge = -1;       // Charge in units of e
     constexpr int antimuon_charge = 1;    // Charge in units of e
+
+    // mass [kg] * c**2 [m^2/s^2] = E [J]
+    // E[j]/q[C} = E [eV]
+    // conversion of mass from SI units to GeV used
+    constexpr double kg_to_GeV = 1.0e-9 * c * c / e;
+
 }
 
 #endif /* PHYSICAL_CONSTANTS_H_ */

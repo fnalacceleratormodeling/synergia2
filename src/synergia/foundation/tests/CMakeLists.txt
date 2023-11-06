@@ -11,6 +11,7 @@ if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_version.py)
   add_py_test(test_four_momentum.py)
   add_py_test(test_reference_particle.py)
+  add_py_test(test_kg_to_GeV.py)
 
 endif()
 
