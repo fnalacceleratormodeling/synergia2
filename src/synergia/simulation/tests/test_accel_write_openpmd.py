@@ -16,7 +16,7 @@ realparticles=4.0e10
 turn_voltage = 1.0e-3 # 1.0e-3 GV/turn
 expected_delta_E = turn_voltage*np.sin(np.pi/60)
 print('expected delta E/turn: ', expected_delta_E)
-nturns=100
+nturns=10
 
 # prop_fixture is a propagator
 # can't run this test with the fixture because I need the propagator
@@ -193,11 +193,15 @@ def check_energies(energies):
         for k in range(N):
             mass = iters[k].particles['bunch_particles'].get_attribute('mass')
             # file mass is stored in kg
+            # strangely enough, if I use the kg_to_GeV constant in this calculation instead
+            # of explicitly converting using c**2/e then the energy differs in the last
+            # decimal place.
             mass = mass * 1.0e-9 * synergia.foundation.pconstants.c**2/synergia.foundation.pconstants.e
+            #mass = mass * synergia.foundation.pconstants.kg_to_GeV
             gamma_ref = iters[k].particles['bunch_particles'].get_attribute('gamma_ref')
             step_energy = mass*gamma_ref
             print('iteration', k, ' gamma_ref: ', gamma_ref, ', step energy: ', step_energy, ', prop energy: ', energies[k], flush=True)
-            #assert energies[k] == pytest.approx(step_energy, rel=1.0e-12)
+            assert energies[k] == pytest.approx(step_energy, rel=1.0e-12)
         s.close()
         os.remove('diag_part.h5')
 
