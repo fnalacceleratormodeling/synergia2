@@ -1,4 +1,3 @@
-
 #include "synergia/foundation/physical_constants.h"
 
 #include "synergia/bunch/bunch.h"
@@ -106,7 +105,7 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
     auto const& ref_part = bunch_ref.value().get().get_reference_particle();
 
 #ifdef SYNERGIA_HAVE_OPENPMD
-
+    
     // writing particles
     if (local_num > 0) {
 
@@ -125,11 +124,11 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
             "mass", bunch_ref.value().get().get_mass() / pconstants::kg_to_GeV);
         protons.setAttribute(
             "beta_ref",
-            (bunch_ref.value().get().get_design_reference_particle())
+            (bunch_ref.value().get().get_reference_particle())
                 .get_beta());
         protons.setAttribute(
             "gamma_ref",
-            (bunch_ref.value().get().get_design_reference_particle())
+            (bunch_ref.value().get().get_reference_particle())
                 .get_gamma());
 
         openPMD::Datatype datatype = openPMD::determineDatatype<double>();

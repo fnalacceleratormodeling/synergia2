@@ -527,9 +527,9 @@ Bunch::write_openpmd_file(std::string const& filename,
         // write mass in SI units!
         protons.setAttribute("mass", this->get_mass() / pconstants::kg_to_GeV);
         protons.setAttribute(
-            "beta_ref", (this->get_design_reference_particle()).get_beta());
+            "beta_ref", (this->get_reference_particle()).get_beta());
         protons.setAttribute(
-            "gamma_ref", (this->get_design_reference_particle()).get_gamma());
+            "gamma_ref", (this->get_reference_particle()).get_gamma());
 
         openPMD::Datatype datatype = openPMD::determineDatatype<double>();
         openPMD::Extent global_extent = {static_cast<size_t>(num_part)};
