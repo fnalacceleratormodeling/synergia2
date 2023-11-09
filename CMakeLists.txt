@@ -251,7 +251,7 @@ if(HDF5_IS_PARALLEL)
       set(openPMD_BUILD_SHARED_LIBS OFF)
       set(openPMD_BUILD_TESTING OFF)
       set(openPMD_INSTALL OFF)
-      set(openPMD_USE_PYTHON OFF)
+      set(openPMD_USE_PYTHON ON)
       FetchContent_Declare(
         openPMD
         GIT_REPOSITORY "https://github.com/openPMD/openPMD-api.git"
