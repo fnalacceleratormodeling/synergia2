@@ -328,16 +328,18 @@ init_solver(LocalCtx& lctx,
 
 #endif
     } else {
-#if defined PETSC_HAVE_HYPRE
-        PetscCall(PCSetType(sctx.pc, PCHYPRE));
-        PetscCall(PCHYPRESetType(sctx.pc, std::string("boomeramg").data()));
-#else
+        /*
+        #if defined PETSC_HAVE_HYPRE
+                PetscCall(PCSetType(sctx.pc, PCHYPRE));
+                PetscCall(PCHYPRESetType(sctx.pc,
+        std::string("boomeramg").data())); #else
+        */
         PetscCall(PCSetType(sctx.pc, PCGAMG));
         PetscCall(PCGAMGSetAggressiveLevels(sctx.pc, 20));
         PetscCall(PCGAMGSetThreshold(
             sctx.pc, (std::array<double, 1>{0.08}).data(), 1));
         PetscCall(PCGAMGSetThresholdScale(sctx.pc, 0.5));
-#endif
+        // #endif
     }
 
     /* Enable KSP logging if options are set */
