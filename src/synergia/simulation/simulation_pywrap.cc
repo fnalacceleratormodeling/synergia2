@@ -57,7 +57,9 @@ PYBIND11_MODULE(simulation, m)
         .def("print_steps", &Propagator::print_steps)
 
         .def("get_lattice_element_slices",
-             &Propagator::get_lattice_element_slices,
+             py::overload_cast<>(&Propagator::get_lattice_element_slices, py::const_),
+             // &Propagator::get_lattice_element_slices,
+             py::return_value_policy::reference,
              "Returns immutable copy of lattice element slices")
 
         .def("get_lattice_elements",
