@@ -4,7 +4,7 @@ import pytest
 import numpy
 import synergia
 
-@pytest.fixture
+#@pytest.fixture
 def prop_fixture():
     fodo_madx = """
 beam, particle=proton,pc=3.0;
@@ -45,13 +45,21 @@ def test_prop_get_lattice(prop_fixture):
     return True
 
 def test_modify_lattice_elements(prop_fixture):
-    # print(prop_fixture['propagator'].get_lattice().get_elements()[0])
+    print(prop_fixture['propagator'].get_lattice().get_elements()[0], flush=True)
     orig_a1 = prop_fixture['propagator'].get_lattice().get_elements()[0].get_double_attribute('a1')
+    print('orig_a1: ', orig_a1, flush=True)
+
     new_a1 = orig_a1 + 100.0
     prop_fixture['propagator'].get_lattice().get_elements()[0].set_double_attribute('a1', new_a1)
+    print('new_a1 from lattice: ', prop_fixture['propagator'].get_lattice().get_elements()[0].get_double_attribute('a1'), flush=True)
     assert prop_fixture['propagator'].get_lattice().get_elements()[0].get_double_attribute('a1') == new_a1
 
+    print('past new_a1 assert', flush=True)
     slices = list(prop_fixture['propagator'].get_lattice_element_slices())
+    print('got slices', flush=True)
+    print('len(slices): ', len(slices), flush=True)
+    print('slices[0]: ', slices[0], flush=True)
+    print('new_a1 from slice: ', slices[0].get_lattice_element().get_double_attribute('a1'))
     assert slices[0].get_lattice_element().get_double_attribute('a1') == new_a1
     return 0
 
@@ -74,3 +82,6 @@ def test_set_get_final_checkpoint(prop_fixture):
     prop_fixture['propagator'].set_final_checkpoint(not init_fcp)
     assert prop_fixture['propagator'].get_final_checkpoint() is not init_fcp
     return True
+
+if __name__ == "__main__":
+    test_modify_lattice_elements(prop_fixture())

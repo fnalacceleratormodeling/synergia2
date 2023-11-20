@@ -10,6 +10,7 @@ import synergia
 # elements_to_test is just being used as a container for a set of lattice elements
 
 elements_to_test = """
+beam, particle=proton, energy=1.738;
 d: drift, l=1.0;
 q: quadrupole, l=1.0, k1=0.1;
 s: sextupole, l=0.1, k2=0.1;

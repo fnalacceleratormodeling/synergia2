@@ -263,9 +263,17 @@ class Propagator {
     }
 
     // slices
+    Lattice_element_slices const&
+    get_lattice_element_slices() const
+    {
+        std::cout << "EGS: enter const get_lattice_element_slices" << std::endl;
+        return slices;
+    }
+
     Lattice_element_slices&
     get_lattice_element_slices()
     {
+        std::cout << "EGS: enter non-const get_lattice_element_slices" << std::endl;
         return slices;
     }
 
