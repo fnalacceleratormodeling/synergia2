@@ -22,7 +22,7 @@ struct Wake_field {
   // number of terms
   int size_wake;
 
-  // z_coord, z_wake, xw_lead, xw_trail, yw_lead, yw_trail
+   // z_coord, z_wake, xw_lead, xw_trail, yw_lead, yw_trail
   // all in a single buffer.
   //
   // total size = size_wake * 6. Fortran ordering.
@@ -62,7 +62,12 @@ struct Wake_field {
     karray1d_hst h_yw_trail;
 #endif
 
-  Wake_field(std::string const& wake_file, std::string const& wake_type);
+  Wake_field(std::string const& wake_file, std::string const& wake_type,
+    const double& mwf_xlead,
+    const double& mwf_xtrail,
+    const double& mwf_ylead,
+    const double& mwf_ytrail,
+    const double& mwf_zwake);
 
   void multiply_xw_lead(double mltp);
   void multiply_xw_trail(double mltp);
