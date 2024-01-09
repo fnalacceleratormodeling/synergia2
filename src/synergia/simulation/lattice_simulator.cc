@@ -650,6 +650,116 @@ namespace Lattice_simulator {
         return {tune_h, tune_v, c_delta_t};
     }
 
+
+	// calculate cdt only without gettings tunes
+	double
+    calculate_cdt(Lattice const& lattice, double dpp)
+    {
+        // trigon bunch
+        using trigon_t = Trigon<double, 2, 6>;
+
+        // get the reference particle
+        auto const& ref = lattice.get_reference_particle();
+
+        // closed orbit
+        auto probe = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
+        std::cout << std::setprecision(16) << "calculate_cdt probe state: " <<
+            probe[0] << " "  << probe[1] << " " << probe[2] << " " << probe[3] << " " << 
+            probe[4] << " " << probe[5] << std::endl;
+        // comm world
+        Commxx comm;
+
+        // don't need a trigon bunch
+        bunch_t<double> pb(ref, comm.size(), 1e9, comm);
+
+        // design reference particle from the closed orbit
+        auto ref_l = ref;
+        //ref_l.set_state(probe);
+        ref_l.set_state(0, 0, 0, 0, 0, 0);
+        pb.set_design_reference_particle(ref_l);
+
+        auto pparts = pb.get_host_particles();
+
+        // init value
+        for (int i = 0; i < 6; ++i) {
+            pparts(0, i) = probe[i];
+        }
+
+        // check in
+        pb.checkin_particles();
+
+        // init c_delta_t
+        double ref_ct = 0.0;
+
+        // propagate trigon
+        for (auto& ele : lattice.get_elements()) {
+            if (ele.get_type() == element_type::rfcavity) {
+                Lattice_element dup = ele;
+                dup.set_double_attribute("volt", 0.0);
+
+                FF_element::apply(dup, pb);
+            } else {
+                FF_element::apply(ele, pb);
+            }
+
+            pb.checkout_particles();
+
+            // cdt from reference particle
+            ref_ct +=
+                pb.get_design_reference_particle().get_state()[Bunch::cdt];
+        }
+
+        std::cout << "ref_ct: " << ref_ct << std::endl;
+
+        // checkout particles
+        pb.checkout_particles();
+
+        // Add in the extra delta_t from the propagated particle
+        double c_delta_t = pparts(0, 4) + ref_ct;
+        return c_delta_t;
+    }
+    // end of calculate_cdt
+
+    // get slip factor and momentum compaction factor without calculating tunes
+    // so it can work on a nominally unstable lattice. Returns values in the
+    // chromaticity structure but doesn't fill in the chromaticities
+    chromaticities_t
+    get_slip_factors(Lattice const& lattice, double dpp)
+    {
+   chromaticities_t chroms;
+
+        auto ref = lattice.get_reference_particle();
+        double gamma = ref.get_gamma();
+
+        // tune = [tune_h, tune_v, cdt]
+        double cT0 = calculate_cdt(lattice, 0.0);
+        double c_delta_t_plus = calculate_cdt(lattice, dpp);
+        double c_delta_t_minus = calculate_cdt(lattice, -dpp);
+        double c_delta_t_plusplus = calculate_cdt(lattice, 2.0 * dpp);
+        double c_delta_t_minusminus = calculate_cdt(lattice, -2.0 * dpp);
+
+        double a_slip, b_slip;
+        a_slip = 0.5 * (c_delta_t_plus - c_delta_t_minus) / cT0 / dpp;
+        b_slip = 0.25 * (c_delta_t_plusplus - c_delta_t_minusminus) / cT0 / dpp;
+        double slip_factor_alt = (4 * a_slip - b_slip) / 3.0;
+        double cdtp_m_cdtm = c_delta_t_plus - c_delta_t_minus;
+        double cdtp_p_cdtm_m2cdt0 = c_delta_t_plus + c_delta_t_minus - 2 * cT0;
+        double cdtpp_m_cdtmm = c_delta_t_plusplus - c_delta_t_minusminus;
+        double cdtpp_p_cdtmm_m2cdt0 =
+            c_delta_t_plusplus + c_delta_t_minusminus - 2 * cT0;
+
+        chroms.slip_factor =
+            (8.0 * cdtp_m_cdtm - cdtpp_m_cdtmm) / (12.0 * dpp * cT0);
+
+        chroms.slip_factor_prime =
+            2.0 * (16 * cdtp_p_cdtm_m2cdt0 - cdtpp_p_cdtmm_m2cdt0) /
+            (24.0 * dpp * dpp * cT0);
+
+        chroms.momentum_compaction = chroms.slip_factor + 1. / gamma / gamma;
+
+        return chroms;
+    }
+
     chromaticities_t
     get_chromaticities(Lattice const& lattice, double dpp)
     {

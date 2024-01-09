@@ -140,8 +140,18 @@ PYBIND11_MODULE(simulation, m)
              "lattice"_a,
              "dpp"_a = 0.0)
 
+        .def("calculate_cdt",
+             &Lattice_simulator::calculate_cdt,
+             "lattice"_a,
+             "dpp"_a = 0.0)
+
         .def("get_chromaticities",
              &Lattice_simulator::get_chromaticities,
+             "lattice"_a,
+             "dpp"_a = 1.0e-5)
+
+        .def("get_slip_factors",
+             &Lattice_simulator::get_slip_factors,
              "lattice"_a,
              "dpp"_a = 1.0e-5)
 
