@@ -32,6 +32,16 @@ target_link_libraries(test_closed_orbits_and_others synergia_simulation
                       synergia_test_main)
 add_mpi_test(test_closed_orbits_and_others 1)
 
+add_executable(test_closed_orbit2 test_closed_orbit2.cc)
+target_link_libraries(test_closed_orbit2 synergia_simulation
+                      synergia_test_main)
+add_mpi_test(test_closed_orbit2 1)
+
+add_executable(test_closed_orbit3 test_closed_orbit3.cc)
+target_link_libraries(test_closed_orbit3 synergia_simulation
+                      synergia_test_main)
+add_mpi_test(test_closed_orbit3 1)
+
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)
   add_py_test(test_nonlinear_maps.py)

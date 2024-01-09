@@ -49,7 +49,7 @@ def create_simulator(ref_part):
     lp = bunch.get_particles_numpy()
     lp[:, 0:6] = 0.0
 
-    bunch.checkout_particles()
+    bunch.checkin_particles()
     return sim
 
 
