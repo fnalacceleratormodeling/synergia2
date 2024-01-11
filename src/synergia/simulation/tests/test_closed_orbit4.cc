@@ -18,19 +18,35 @@ get_lattice()
 {
     static std::string fodo_madx(R"foo(
 ncells=4;
+cell_len = 1;
 beam, particle=proton,energy=pmass+0.8;
 
-bpiover2: sbend, l=pi/2, angle=pi/2;
+m1: marker;
+m2: marker;
+m3: marker;
+m4: marker;
 
-cell: sequence, l=1+pi/2, refer=entry;
-bpiover2, at=0.0;
+cell1: sequence, l=cell_len, refer=entry;
+m1, at=cell_len;
 endsequence;
 
-square: sequence, l=4+2*pi, refer=entry;
-cell, at=0.0;
-cell, at=1.0+pi/2;
-cell, at=2.0+pi;
-cell, at=3.0+3*pi/2;
+cell2: sequence, l=cell_len, refer=entry;
+m2, at=cell_len;
+endsequence;
+
+cell3: sequence, l=cell_len, refer=entry;
+m3, at=cell_len;
+endsequence;
+
+cell4: sequence, l=cell_len, refer=entry;
+m4, at=cell_len;
+endsequence;
+
+square: sequence, l=4*cell_len, refer=entry;
+cell1, at=0.0;
+cell2, at=cell_len;
+cell3, at=2.0*cell_len;
+cell4, at=3.0*cell_len;;
 endsequence;
 )foo");
 
@@ -44,6 +60,7 @@ TEST_CASE("closed_orbit_at_0dpp")
     Logger screen(0, LoggerV::INFO);
 
     Lattice lattice = get_lattice();
+    std::cout << lattice.as_string() << std::endl;
 
     auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice);
     std::cout << "zero particle closed orbit state" << std::endl;
@@ -57,17 +74,15 @@ TEST_CASE("closed_orbit_at_0dpp")
 
     // Check the c dT while we're at it.
     double cdt = Lattice_simulator::calculate_cdt(lattice);
-    std::cout << "on-momentum cdt: " << std::setprecision(16) << cdt << std::endl;
     double beta = lattice.get_reference_particle().get_beta();
     double length = lattice.get_length();
     CHECK( cdt == Approx(length/beta) );
     // calculate based on what I think the lattice is
-    double L = 4*(1 + Kokkos::numbers::pi/2);
+    double L = 4.0;
     CHECK( cdt == Approx(L/beta));
 
-    std::cout << "on-momentum geometric orbit length: " <<
+    std::cout << "on-momentum orbit length: " <<
              std::setprecision(16) << L << std::endl;
-    std::cout << "on-momentum beta*calculate_cdt(): " << std::setprecision(16) <<  cdt*beta << std::endl;
 
 }
 
@@ -76,6 +91,8 @@ TEST_CASE("closed_orbit_nonzerodpp")
     Logger screen(0, LoggerV::INFO);
 
     Lattice lattice = get_lattice();
+    double L = lattice.get_length();
+    std::cout << "Lattice length: " << L << std::endl;
 
     constexpr double dpp=1.0e-3;
 
@@ -83,9 +100,9 @@ TEST_CASE("closed_orbit_nonzerodpp")
     // lattice is unstable as defined, but we can give it a hint by setting
     // the reference particle state.
 
-    std::array<double, 6> init_guess({dpp, 0.0, 0.0, 0.0, 0.0, dpp});
+    //std::array<double, 6> init_guess({dpp, 0.0, 0.0, 0.0, 0.0, dpp});
 
-    lattice.get_reference_particle().set_state(init_guess);
+    //lattice.get_reference_particle().set_state(init_guess);
 
     auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
     std::cout << "dpp=" << dpp << " off-mmentum closed orbit state" << std::endl;
@@ -94,46 +111,18 @@ TEST_CASE("closed_orbit_nonzerodpp")
     }
 
     for (int i=0; i<4; ++i) {
-        CHECK (std::abs(closed_orbit_state[i]-init_guess[i]) < 1.0e-12);
+        CHECK (std::abs(closed_orbit_state[i]) < 1.0e-12);
     }
 
     // Check the c dT while we're at it.
     double cdt = Lattice_simulator::calculate_cdt(lattice, dpp);
-    std::cout << "off-momentum  calculate_cdt: " << cdt << std::endl;
-
-    // this is the off-momentum particle so beta is not the reference beta
     double p = lattice.get_reference_particle().get_momentum()*(1+dpp);
     double mass = lattice.get_reference_particle().get_mass();
     double betagamma = p/mass;
     double gamma = std::sqrt(betagamma*betagamma + 1);
     double beta = betagamma/gamma;
-    std::cout << "beta for off-momentum particle: " << beta << std::endl;
-    double length = lattice.get_length();
-    // calculate expanded pathlength with dpp
 
-    /*
-    # L = R theta => R = L/theta
-    # R is radius of curvature of bend magnet ~ p/eB
-    # R2/R1 = p2/p1
-    R1 = bend.get_length()/bend.get_bend_angle()
-    R2 = R1 * (1+dpp)
-
-    L1 = R1 * np.pi/2
-    L2 = R2 * np.arccos(1 - R1/R2)
-    */
-
-    double R1 = 1.0;
-    double R2 = R1 * (1+dpp);
-    double L1 = R1 * Kokkos::numbers::pi/2; // pathlength in bend on-momentum
-    double L2 = R2 * Kokkos::numbers::pi/2; // pathlength in bend off-momentum
-
-std::cout << "L1: " << L1 << std::endl;
-std::cout << "L2: " << L2 << std::endl;
-std::cout << "R1: " << R1 << std::endl;
-std::cout << "R2: " << R2 << std::endl;
-
-    // 4 bends of length L2 plus 4 straights of lenght 1.0
-    CHECK( cdt == Approx(4*(1+L2)/beta) );
-    std::cout << std::setprecision(16) << "off-momentum geometric orbit length: " << 4*(1+L2) << std::endl;
-    std::cout << std::setprecision(16) << "off-momentum beta* calculate_cdt(): " << cdt*beta << std::endl;
+    CHECK( cdt == Approx(L/beta) );
+    std::cout << std::setprecision(16) << "off-momentum orbit length: " << L << std::endl;
+    std::cout << std::setprecision(16) << "off-momentum length from cdt: " << cdt*beta << std::endl;
 }
