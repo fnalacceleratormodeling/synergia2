@@ -1,4 +1,3 @@
-
 #include "synergia/foundation/physical_constants.h"
 
 #include "synergia/bunch/bunch.h"
