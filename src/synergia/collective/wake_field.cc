@@ -5,7 +5,12 @@
 #include <stdexcept>
 
 Wake_field::Wake_field(std::string const& wake_file,
-                       std::string const& wake_type)
+                      std::string const& wake_type,
+                      const double& mwf_xlead,
+                      const double& mwf_xtrail,
+                      const double& mwf_ylead,
+                      const double& mwf_ytrail,
+                      const double& mwf_zwake)
   : wake_file(wake_file), wake_type(wake_type)
 {
 
@@ -80,7 +85,7 @@ Wake_field::Wake_field(std::string const& wake_file,
                 z_coord_v.push_back(temp_wake[0]);
 
                 if (wake_type == "Z") {
-                  z_wake_v.push_back(temp_wake[1]);
+                  z_wake_v.push_back(temp_wake[1]*mwf_zwake);
                 }
                 /* else if(wake_type=="XL") {
                     xw_lead.push_back(temp_wake[1]);
@@ -95,8 +100,8 @@ Wake_field::Wake_field(std::string const& wake_file,
                     yw_trail.push_back(temp_wake[1]);
                 } */
                 else if (wake_type == "XLYL") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  yw_lead_v.push_back(temp_wake[1]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  yw_lead_v.push_back(temp_wake[1]*mwf_ylead);
                 } else {
                   throw std::runtime_error("invalid specification of the wake "
                                            "type for 2 columns wake file");
@@ -142,14 +147,14 @@ Wake_field::Wake_field(std::string const& wake_file,
                     yw_trail.push_back(temp_wake[2]);
                 } 			*/
                 if (wake_type == "XLYLZ") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  yw_lead_v.push_back(temp_wake[1]);
-                  z_wake_v.push_back(temp_wake[2]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  yw_lead_v.push_back(temp_wake[1]*mwf_ylead);
+                  z_wake_v.push_back(temp_wake[2]*mwf_zwake);
                 } else if (wake_type == "XLXTYLYT") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  xw_trail_v.push_back(temp_wake[2]);
-                  yw_lead_v.push_back(temp_wake[1]);
-                  yw_trail_v.push_back(temp_wake[2]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  xw_trail_v.push_back(temp_wake[2]*mwf_xtrail);
+                  yw_lead_v.push_back(temp_wake[1]*mwf_ylead);
+                  yw_trail_v.push_back(temp_wake[2]*mwf_ytrail);
                 } else if (wake_type == "XZ_Elliptical_coeff") {
                   double cxs = 0.42; // approximate values for the main injector
                   double cxw =
@@ -157,11 +162,11 @@ Wake_field::Wake_field(std::string const& wake_file,
                   double cys = 0.81; //           be changed!!!
                   double cyw = 0.40;
                   double cl = 0.985;
-                  xw_lead_v.push_back(cxs * temp_wake[1]);
-                  xw_trail_v.push_back(cxw * temp_wake[1]);
-                  yw_lead_v.push_back(cys * temp_wake[1]);
-                  yw_trail_v.push_back(cyw * temp_wake[1]);
-                  z_wake_v.push_back(cl * temp_wake[2]);
+                  xw_lead_v.push_back(cxs * temp_wake[1]*mwf_xlead);
+                  xw_trail_v.push_back(cxw * temp_wake[1]*mwf_xtrail);
+                  yw_lead_v.push_back(cys * temp_wake[1]*mwf_ylead);
+                  yw_trail_v.push_back(cyw * temp_wake[1]*mwf_ytrail);
+                  z_wake_v.push_back(cl * temp_wake[2]*mwf_zwake);
                 } else {
                   throw std::runtime_error("invalid specification of the wake "
                                            "type for 3 columns wake file");
@@ -176,23 +181,23 @@ Wake_field::Wake_field(std::string const& wake_file,
                 z_coord_v.push_back(temp_wake[0]);
 
                 if (wake_type == "XLXTYLYTZ") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  xw_trail_v.push_back(temp_wake[2]);
-                  yw_lead_v.push_back(temp_wake[1]);
-                  yw_trail_v.push_back(temp_wake[2]);
-                  z_wake_v.push_back(temp_wake[3]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  xw_trail_v.push_back(temp_wake[2]*mwf_xtrail);
+                  yw_lead_v.push_back(temp_wake[1]*mwf_ylead);
+                  yw_trail_v.push_back(temp_wake[2]*mwf_ytrail);
+                  z_wake_v.push_back(temp_wake[3]*mwf_zwake);
                 } else if (wake_type == "XLYLZ") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  yw_lead_v.push_back(temp_wake[2]);
-                  z_wake_v.push_back(temp_wake[3]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  yw_lead_v.push_back(temp_wake[2]*mwf_ylead);
+                  z_wake_v.push_back(temp_wake[3]*mwf_zwake);
                 } else if (wake_type ==
                            "XLXTYLYTZpp") { // this is for old wake files for
                                             // parallel planes geometry
-                  xw_lead_v.push_back(temp_wake[1]);
-                  xw_trail_v.push_back(-temp_wake[1]);
-                  yw_lead_v.push_back(temp_wake[2]);
-                  yw_trail_v.push_back(temp_wake[1]);
-                  z_wake_v.push_back(temp_wake[3]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  xw_trail_v.push_back(-temp_wake[1]*mwf_xtrail);
+                  yw_lead_v.push_back(temp_wake[2]*mwf_ylead);
+                  yw_trail_v.push_back(temp_wake[1]*mwf_ytrail);
+                  z_wake_v.push_back(temp_wake[3]*mwf_zwake);
                 } else {
                   throw std::runtime_error("invalid specification of the wake "
                                            "type for 4 columns wake file");
@@ -207,21 +212,21 @@ Wake_field::Wake_field(std::string const& wake_file,
                 z_coord_v.push_back(temp_wake[0]);
 
                 if (wake_type == "XLXTYLYT") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  xw_trail_v.push_back(temp_wake[2]);
-                  yw_lead_v.push_back(temp_wake[3]);
-                  yw_trail_v.push_back(temp_wake[4]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  xw_trail_v.push_back(temp_wake[2]*mwf_xtrail);
+                  yw_lead_v.push_back(temp_wake[3]*mwf_ylead);
+                  yw_trail_v.push_back(temp_wake[4]*mwf_ytrail);
                 } else if (wake_type == "XLXTYLYTZpp") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  xw_trail_v.push_back(-temp_wake[1]);
-                  yw_lead_v.push_back(temp_wake[2]);
-                  yw_trail_v.push_back(temp_wake[3]);
-                  z_wake_v.push_back(temp_wake[4]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  xw_trail_v.push_back(-temp_wake[1]*mwf_xtrail);
+                  yw_lead_v.push_back(temp_wake[2]*mwf_ylead);
+                  yw_trail_v.push_back(temp_wake[3]*mwf_ytrail);
+                  z_wake_v.push_back(temp_wake[4]*mwf_zwake);
                 } else if (wake_type == "TRANSVERSEpp") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  xw_trail_v.push_back(-temp_wake[1]);
-                  yw_lead_v.push_back(temp_wake[2]);
-                  yw_trail_v.push_back(temp_wake[3]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  xw_trail_v.push_back(-temp_wake[1]*mwf_xtrail);
+                  yw_lead_v.push_back(temp_wake[2]*mwf_ylead);
+                  yw_trail_v.push_back(temp_wake[3]*mwf_ytrail);
                   // z_wake.push_back();
                 } else {
                   throw std::runtime_error("invalid specification of the wake "
@@ -237,11 +242,11 @@ Wake_field::Wake_field(std::string const& wake_file,
                 z_coord_v.push_back(temp_wake[0]);
 
                 if (wake_type == "XLXTYLYTZ") {
-                  xw_lead_v.push_back(temp_wake[1]);
-                  xw_trail_v.push_back(temp_wake[2]);
-                  yw_lead_v.push_back(temp_wake[3]);
-                  yw_trail_v.push_back(temp_wake[4]);
-                  z_wake_v.push_back(temp_wake[5]);
+                  xw_lead_v.push_back(temp_wake[1]*mwf_xlead);
+                  xw_trail_v.push_back(temp_wake[2]*mwf_xtrail);
+                  yw_lead_v.push_back(temp_wake[3]*mwf_ylead);
+                  yw_trail_v.push_back(temp_wake[4]*mwf_ytrail);
+                  z_wake_v.push_back(temp_wake[5]*mwf_zwake);
                 } else {
                   throw std::runtime_error("invalid specification of the wake "
                                            "type for 6 columns wake file");

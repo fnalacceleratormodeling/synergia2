@@ -54,11 +54,16 @@ PYBIND11_MODULE(collective, m)
                    "Communication group size (must be 1 on GPUs).");
 
   py::class_<Impedance_options>(m, "Impedance_options")
+    .def(py::init<std::string const&, std::string const&>(),
+         "Options for constructing the impedance operator.",
+         "wake_file"_a,
+         "wake_type"_a)
+
     .def(py::init<std::string const&, std::string const&, int>(),
          "Construct the impedance operator.",
          "wake_file"_a,
          "wake_type"_a,
-         "z_grid"_a)
+         "z_grid"_a=1000)
 
     .def_readwrite("z_grid",
                    &Impedance_options::z_grid,
@@ -82,7 +87,30 @@ PYBIND11_MODULE(collective, m)
 
     .def_readwrite("bunch_spacing",
                    &Impedance_options::bunch_spacing,
-                   "Bunch spacing (double, default to 1.0).");
+                   "Bunch spacing (double, default to 1.0).")
+                   
+     .def_readwrite("mwf_xlead",
+                    &Impedance_options::mwf_xlead,
+                    "factor to scale x leading wake")
+
+     .def_readwrite("mwf_xtrail",
+                    &Impedance_options::mwf_xtrail,
+                    "factor to scale x trailing wake")
+                    
+     .def_readwrite("mwf_ylead",
+                    &Impedance_options::mwf_ylead,
+                    "factor to scale y leading wake")
+                    
+     .def_readwrite("mwf_ytrail",
+                    &Impedance_options::mwf_ytrail,
+                    "factor to scale y trailing wake")
+                    
+     .def_readwrite("mwf_zwake",
+                    &Impedance_options::mwf_zwake,
+                    "factor to scale z (longitudinal) wake")
+                    
+                    ; // terminates Impedance_options class wrappings
+
 
   py::class_<Dummy_CO_options>(m, "Dummy_CO_options")
     .def(py::init<>(), "Construct a dummy collective operator.");

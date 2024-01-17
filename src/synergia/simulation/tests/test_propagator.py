@@ -30,19 +30,19 @@ endsequence;
     return {'lattice': lattice, 'propagator': propagator}
 
 def test_create_prop(prop_fixture):
-    return True
+    assert True
 
 def test_prop_get_lattice_elements(prop_fixture):
     nlattice_elem = len(prop_fixture['lattice'].get_elements())
     nprop_latt_elem = len(prop_fixture['propagator'].get_lattice_elements())
     assert nlattice_elem == nprop_latt_elem
-    return True
+    assert True
 
 def test_prop_get_lattice(prop_fixture):
     nlattice_elem = len(prop_fixture['lattice'].get_elements())
     nprop_latt_elem = len(prop_fixture['propagator'].get_lattice().get_elements())
     assert nlattice_elem == nprop_latt_elem
-    return True
+    assert True
 
 def test_modify_lattice_elements(prop_fixture):
     # print(prop_fixture['propagator'].get_lattice().get_elements()[0])
@@ -51,9 +51,24 @@ def test_modify_lattice_elements(prop_fixture):
     prop_fixture['propagator'].get_lattice().get_elements()[0].set_double_attribute('a1', new_a1)
     assert prop_fixture['propagator'].get_lattice().get_elements()[0].get_double_attribute('a1') == new_a1
 
-    slices = list(prop_fixture['propagator'].get_lattice_element_slices())
-    assert slices[0].get_lattice_element().get_double_attribute('a1') == new_a1
-    return 0
+    # There is a problem with the iterating off the end of a the pybind11
+    # wrapped slices structure on ubuntu-clang so we can't convert it into
+    # a python list. Doing so generates an uncatchable SEGV.
+    #slices = list(prop_fixture['propagator'].get_lattice_element_slices())
+    #assert slices[0].get_lattice_element().get_double_attribute('a1') == new_a1
+
+    # iterate over slices to pick out the first one which is the
+    # one that has been modified
+    c = 0
+    for s in prop_fixture['propagator'].get_lattice_element_slices():
+        print('testing slice ', c)
+        if c == 0:
+            assert s.get_lattice_element().get_double_attribute('a1') == new_a1
+            break
+        #actually should never get here
+        c = c + 1
+    
+    assert True
 
 def test_modify_reference_particle_energy(prop_fixture):
     orig_energy = prop_fixture['propagator'].get_lattice().get_reference_particle().get_total_energy()

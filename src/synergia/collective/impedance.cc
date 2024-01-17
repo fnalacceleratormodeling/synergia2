@@ -554,7 +554,9 @@ Impedance::Impedance(Impedance_options const& opts)
     , h_zbinning()
     , wakes()
     , h_wakes()
-    , wake_field(opts.wake_file, opts.wake_type)
+    , wake_field(opts.wake_file, opts.wake_type,
+        opts.mwf_xlead, opts.mwf_xtrail, opts.mwf_ylead, opts.mwf_ytrail,
+        opts.mwf_zwake)
 {}
 
 void

@@ -59,6 +59,7 @@ jobs:
           -DENABLE_KOKKOS_BACKEND=OpenMP \
           -DBUILD_FD_SPACE_CHARGE_SOLVER=ON \
           -DUSE_OPENPMD_IO=ON \
+          -DUSE_EXTERNAL_OPENPMD=ON \
           -DUSE_EXTERNAL_KOKKOS=OFF -GNinja
 
     - name: build
@@ -85,7 +86,7 @@ jobs:
       run:  |
         . /opt/spack-environment/activate.sh
         cd ${{github.workspace}}/build
-        ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+        ctest -C ${{env.BUILD_TYPE}} -VV --output-on-failure
         
     - name: run-fodopy
     # Run the fodopy example from README.

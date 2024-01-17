@@ -33,7 +33,7 @@ class Diagnostics_io {
     ~Diagnostics_io();
 
     Diagnostics_io(Diagnostics_io const&) = delete;
-    Diagnostics_io(Diagnostics_io&&) noexcept = default;
+    Diagnostics_io(Diagnostics_io&&) = default;
 
     io_device& get_io_device();
 
