@@ -32,6 +32,16 @@ target_link_libraries(test_closed_orbits_and_others synergia_simulation
                       synergia_test_main)
 add_mpi_test(test_closed_orbits_and_others 1)
 
+add_executable(test_propagator test_propagator.cc)
+target_link_libraries(test_propagator synergia_simulation
+                      synergia_test_main)
+add_mpi_test(test_propagator 1)
+
+add_executable(test_lattice_no_beam_statement test_lattice_no_beam_statement.cc)
+target_link_libraries(test_lattice_no_beam_statement synergia_simulation
+                      synergia_test_main)
+add_mpi_test(test_lattice_no_beam_statement 1)
+
 add_executable(test_closed_orbit2 test_closed_orbit2.cc)
 target_link_libraries(test_closed_orbit2 synergia_simulation
                       synergia_test_main)

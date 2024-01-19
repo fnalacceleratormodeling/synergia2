@@ -214,6 +214,11 @@ struct Impedance_options {
     double orbit_length;
     double bunch_spacing;
     std::array<int, 3> wn;
+    double mwf_xlead;
+    double mwf_xtrail;
+    double mwf_ylead;
+    double mwf_ytrail;
+    double mwf_zwake;
 
     Impedance_options(std::string const& wake_file = "",
                       std::string const& wake_type = "",
@@ -226,6 +231,11 @@ struct Impedance_options {
         , num_buckets(1)
         , orbit_length(1)
         , bunch_spacing(1)
+        , mwf_xlead(1.0)
+        , mwf_xtrail(1.0)
+        , mwf_ylead(1.0)
+        , mwf_ytrail(1.0)
+        , mwf_zwake(1.0)
     {}
 
     template <class Archive>
@@ -240,6 +250,11 @@ struct Impedance_options {
         ar(num_buckets);
         ar(orbit_length);
         ar(bunch_spacing);
+        ar(mwf_xlead);
+        ar(mwf_xtrail);
+        ar(mwf_ylead);
+        ar(mwf_ytrail);
+        ar(mwf_zwake);
     }
 };
 
