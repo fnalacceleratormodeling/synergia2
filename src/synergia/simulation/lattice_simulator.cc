@@ -651,8 +651,8 @@ namespace Lattice_simulator {
     }
 
 
-	// calculate cdt only without gettings tunes
-	double
+    // calculate cdt only without gettings tunes
+    double
     calculate_cdt(Lattice const& lattice, double dpp)
     {
         // trigon bunch
