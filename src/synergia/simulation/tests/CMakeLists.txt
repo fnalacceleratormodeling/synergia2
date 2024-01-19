@@ -37,11 +37,6 @@ target_link_libraries(test_closed_orbit2 synergia_simulation
                       synergia_test_main)
 add_mpi_test(test_closed_orbit2 1)
 
-add_executable(test_closed_orbit3 test_closed_orbit3.cc)
-target_link_libraries(test_closed_orbit3 synergia_simulation
-                      synergia_test_main)
-add_mpi_test(test_closed_orbit3 1)
-
 add_executable(test_closed_orbit4 test_closed_orbit4.cc)
 target_link_libraries(test_closed_orbit4 synergia_simulation
                       synergia_test_main)

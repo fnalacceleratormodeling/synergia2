@@ -29,21 +29,21 @@ beam, particle=proton,energy=pmass+0.8;
 
 bpiover2: sbend, l=pi/2, angle=pi/2;
 
-cell: sequence, l=1+pi/2, refer=entry;
+cell: sequence, l=pi/2, refer=entry;
 bpiover2, at=0.0;
 endsequence;
 
-square: sequence, l=4+2*pi, refer=entry;
+circle: sequence, l=2*pi, refer=entry;
 cell, at=0.0;
-cell, at=1.0+pi/2;
-cell, at=2.0+pi;
-cell, at=3.0+3*pi/2;
+cell, at=pi/2;
+cell, at=pi;
+cell, at=3*pi/2;
 endsequence;
 )foo");
 
     MadX_reader reader;
     reader.parse(fodo_madx);
-    return reader.get_lattice("square");
+    return reader.get_lattice("circle");
 }
 
 Propagator get_propagator(Lattice const& lattice)
@@ -137,104 +137,54 @@ TEST_CASE("closed_orbit_at_0dpp")
 
     // check the cdt of particle 1
     
-
-}
-
-
-
+	double cTref = 4 * L1/beta;
 #if 0
-    std::cout << "zero particle closed orbit state" << std::endl;
-    for (int i=0; i<6; ++i) {
-        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
-    }
-
-    for (int i=0; i<6; ++i) {
-        CHECK (std::abs(closed_orbit_state[i]) < 1.0e-12);
-    }
-
-    // Check the c dT while we're at it.
-    double cdt = Lattice_simulator::calculate_cdt(lattice);
-    std::cout << "on-momentum cdt: " << std::setprecision(16) << cdt << std::endl;
-    double beta = lattice.get_reference_particle().get_beta();
-    double length = lattice.get_length();
-    CHECK( cdt == Approx(length/beta) );
-    // calculate based on what I think the lattice is
-    double L = 4*(1 + Kokkos::numbers::pi/2);
-    CHECK( cdt == Approx(L/beta));
-
-    std::cout << "on-momentum geometric orbit length: " <<
-             std::setprecision(16) << L << std::endl;
-    std::cout << "on-momentum beta*calculate_cdt(): " << std::setprecision(16) <<  cdt*beta << std::endl;
-
-}
+	std::cout << "L1: " << std::setprecision(16) << L1 << std::endl;
+	std::cout << "beta: " << std::setprecision(16) << beta <<std::endl;
+	std::cout << "cTref: " << std::setprecision(16) << cTref << std::endl;
 #endif
 
+	// need beta for off-momentum particle
+	double betagamma2 = beta * gamma * (1+dpp);
+	double gamma2 = std::sqrt(betagamma2*betagamma2 + 1.0);
+	double beta2 = betagamma2/gamma2;
+
+	double cToff_momentum = 4 * L2/beta2;
+
 #if 0
-TEST_CASE("closed_orbit_nonzerodpp")
-{
-    Logger screen(0, LoggerV::INFO);
+	std::cout << "L2: " << std::setprecision(16) << L2 << std::endl;
+	std::cout << "beta2: " << std::setprecision(16) << beta2 <<std::endl;
+	std::cout << "cToff_momentum: " << std::setprecision(16) << cToff_momentum << std::endl;
+#endif
 
-    Lattice lattice = get_lattice();
+	double cTdiff = cToff_momentum - cTref;
+	CHECK(bp(1, 0) == Approx(dpp));
+	CHECK(cTdiff == Approx(bp(1, 4)));
 
-    constexpr double dpp=1.0e-3;
+	double cdt0 = Lattice_simulator::calculate_cdt(lattice, 0.0);
+	CHECK( cdt0 == Approx(cTref) );
 
-    // determining the closed orbit state doesn't converge because this
-    // lattice is unstable as defined, but we can give it a hint by setting
-    // the reference particle state.
+#if 0
+	std::cout << std::setprecision(16) << "cdt0 from calculate_cdt" <<
+		cdt0 << std::endl;
+#endif
 
-    std::array<double, 6> init_guess({dpp, 0.0, 0.0, 0.0, 0.0, dpp});
+	double cdt1 = Lattice_simulator::calculate_cdt(lattice, dpp);
+	CHECK( cdt1 == Approx(cToff_momentum) );
 
-    lattice.get_reference_particle().set_state(init_guess);
+#if 0
+	std::cout << std::setprecision(16) << "cdt1 from calculate_cdt" <<
+		cdt1 << std::endl;
+#endif
 
-    auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
-    std::cout << "dpp=" << dpp << " off-mmentum closed orbit state" << std::endl;
-    for (int i=0; i<6; ++i) {
-        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
-    }
+	auto chrom = Lattice_simulator::get_slip_factors(lattice);
 
-    for (int i=0; i<4; ++i) {
-        CHECK (std::abs(closed_orbit_state[i]-init_guess[i]) < 1.0e-12);
-    }
+	double slip_factor_geom = (cToff_momentum/cTref-1.0)/dpp;
+	// chrom.slip_factor is calculated removing higher order corrections
+	CHECK (chrom.slip_factor == Approx(slip_factor_geom).epsilon(4.0e-4) );
 
-    // Check the c dT while we're at it.
-    double cdt = Lattice_simulator::calculate_cdt(lattice, dpp);
-    std::cout << "off-momentum  calculate_cdt: " << cdt << std::endl;
+	std::cout << "slip factor from LS: " << std::setprecision(16) << chrom.slip_factor << std::endl;
+	std::cout << "slip factor from geometry: " << std::setprecision(16) << slip_factor_geom  << std::endl;
 
-    // this is the off-momentum particle so beta is not the reference beta
-    double p = lattice.get_reference_particle().get_momentum()*(1+dpp);
-    double mass = lattice.get_reference_particle().get_mass();
-    double betagamma = p/mass;
-    double gamma = std::sqrt(betagamma*betagamma + 1);
-    double beta = betagamma/gamma;
-    std::cout << "beta for off-momentum particle: " << beta << std::endl;
-    double length = lattice.get_length();
-    // calculate expanded pathlength with dpp
-
-    /*
-    # L = R theta => R = L/theta
-    # R is radius of curvature of bend magnet ~ p/eB
-    # R2/R1 = p2/p1
-    R1 = bend.get_length()/bend.get_bend_angle()
-    R2 = R1 * (1+dpp)
-
-    L1 = R1 * np.pi/2
-    L2 = R2 * np.arccos(1 - R1/R2)
-    */
-
-    double R1 = 1.0;
-    double R2 = R1 * (1+dpp);
-    double L1 = R1 * Kokkos::numbers::pi/2; // pathlength in bend on-momentum
-    double L2 = R2 * Kokkos::numbers::pi/2; // pathlength in bend off-momentum
-
-std::cout << "L1: " << L1 << std::endl;
-std::cout << "L2: " << L2 << std::endl;
-std::cout << "R1: " << R1 << std::endl;
-std::cout << "R2: " << R2 << std::endl;
-
-    // 4 bends of length L2 plus 4 straights of lenght 1.0
-    CHECK( cdt == Approx(4*(1+L2)/beta) );
-    std::cout << std::setprecision(16) << "off-momentum geometric orbit length: " << 4*(1+L2) << std::endl;
-    std::cout << std::setprecision(16) << "off-momentum beta* calculate_cdt(): " << cdt*beta << std::endl;
 }
 
-#endif

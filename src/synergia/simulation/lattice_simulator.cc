@@ -661,7 +661,11 @@ namespace Lattice_simulator {
         // get the reference particle
         auto const& ref = lattice.get_reference_particle();
 
-        // closed orbit
+        // Need the closed orbit for the case where the lattice has a
+        // orbit deviation or non-zero dp/p. This then requires that the
+        // closed orbit solver can function which means stability at the
+        // starting point (from the reference particle state).
+        // get the closed orbit
         auto probe = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
         std::cout << std::setprecision(16) << "calculate_cdt probe state: " <<
             probe[0] << " "  << probe[1] << " " << probe[2] << " " << probe[3] << " " << 
@@ -669,13 +673,14 @@ namespace Lattice_simulator {
         // comm world
         Commxx comm;
 
-        // don't need a trigon bunch
+        // don't need a trigon bunch since we're not getting tunes
         bunch_t<double> pb(ref, comm.size(), 1e9, comm);
 
         // design reference particle from the closed orbit
         auto ref_l = ref;
-        //ref_l.set_state(probe);
-        ref_l.set_state(0, 0, 0, 0, 0, 0);
+        // zero out cdt to start
+        probe[4] = 0.0;
+        ref_l.set_state(probe);
         pb.set_design_reference_particle(ref_l);
 
         auto pparts = pb.get_host_particles();
@@ -691,7 +696,8 @@ namespace Lattice_simulator {
         // init c_delta_t
         double ref_ct = 0.0;
 
-        // propagate trigon
+        // propagate the reference particle state and the particle
+        // without RF cavities 
         for (auto& ele : lattice.get_elements()) {
             if (ele.get_type() == element_type::rfcavity) {
                 Lattice_element dup = ele;
@@ -704,12 +710,10 @@ namespace Lattice_simulator {
 
             pb.checkout_particles();
 
-            // cdt from reference particle
+            // accumulate reference cdt from reference particle
             ref_ct +=
                 pb.get_design_reference_particle().get_state()[Bunch::cdt];
         }
-
-        std::cout << "ref_ct: " << ref_ct << std::endl;
 
         // checkout particles
         pb.checkout_particles();

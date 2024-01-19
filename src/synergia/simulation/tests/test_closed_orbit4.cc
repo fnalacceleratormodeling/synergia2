@@ -60,14 +60,20 @@ TEST_CASE("closed_orbit_at_0dpp")
     Logger screen(0, LoggerV::INFO);
 
     Lattice lattice = get_lattice();
+
+#if 0
     std::cout << lattice.as_string() << std::endl;
+#endif
 
     auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice);
+
+#if 0
     std::cout << "zero particle closed orbit state" << std::endl;
     for (int i=0; i<6; ++i) {
         std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
     }
-
+#endif
+	
     for (int i=0; i<6; ++i) {
         CHECK (std::abs(closed_orbit_state[i]) < 1.0e-12);
     }
@@ -81,8 +87,10 @@ TEST_CASE("closed_orbit_at_0dpp")
     double L = 4.0;
     CHECK( cdt == Approx(L/beta));
 
+#if 0
     std::cout << "on-momentum orbit length: " <<
              std::setprecision(16) << L << std::endl;
+#endif
 
 }
 
@@ -92,7 +100,6 @@ TEST_CASE("closed_orbit_nonzerodpp")
 
     Lattice lattice = get_lattice();
     double L = lattice.get_length();
-    std::cout << "Lattice length: " << L << std::endl;
 
     constexpr double dpp=1.0e-3;
 
@@ -105,10 +112,13 @@ TEST_CASE("closed_orbit_nonzerodpp")
     //lattice.get_reference_particle().set_state(init_guess);
 
     auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
+
+#if 0
     std::cout << "dpp=" << dpp << " off-mmentum closed orbit state" << std::endl;
     for (int i=0; i<6; ++i) {
         std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
     }
+#endif
 
     for (int i=0; i<4; ++i) {
         CHECK (std::abs(closed_orbit_state[i]) < 1.0e-12);
@@ -123,6 +133,10 @@ TEST_CASE("closed_orbit_nonzerodpp")
     double beta = betagamma/gamma;
 
     CHECK( cdt == Approx(L/beta) );
+
+#if 0
     std::cout << std::setprecision(16) << "off-momentum orbit length: " << L << std::endl;
     std::cout << std::setprecision(16) << "off-momentum length from cdt: " << cdt*beta << std::endl;
+#endif
+
 }
