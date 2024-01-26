@@ -11,7 +11,7 @@ Fodo_cxx_options::Fodo_cxx_options(int argc, char** argv)
   , gridz(128)
   , macroparticles(1048576)
   , real_particles(2940000000000.0)
-  , turns(4)
+  , turns(100)
 {
   for (int i = 1; i < argc; ++i) {
     Command_line_arg arg(argv[i]);

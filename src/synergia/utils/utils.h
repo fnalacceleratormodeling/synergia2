@@ -28,6 +28,13 @@ namespace synergia {
                             (char*)0,
                             std::string("synergia2-v3 program!\n").c_str());
         if (ierr != 0) std::runtime_error("Error initializing PETSc!");
+	/*
+	ierr = PetscOptionsInsertString(NULL, std::string("-use_gpu_aware_mpi 0").c_str());
+	if (ierr != 0) std::runtime_error("Error initializing PETSc without GPU aware MPI!");
+	ierr =  PetscOptionsPush(NULL);
+	if (ierr != 0) std::runtime_error("Error pushing PETSc options!");
+	*/
+
             // PetscCallAbort(PETSC_COMM_WORLD, PetscLogGpuTimeBegin());
             // PetscCallAbort(PETSC_COMM_WORLD, PetscLogDefaultBegin());
 #else

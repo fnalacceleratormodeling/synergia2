@@ -88,7 +88,7 @@ run(Booster_fd_options opts)
         std::array<int, 3>{gridx, gridy, gridz},
         std::array<double, 3>{pipesizex, pipesizey, pipesizez});
 #endif
-    sc_ops.comm_group_size = 8;
+    sc_ops.comm_group_size = 4;
 
     // stepper
     Split_operator_stepper_elements stepper(sc_ops, 1);

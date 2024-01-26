@@ -9,7 +9,7 @@ struct Booster_fd_options {
     // at end of pip2_realistic_l6aperture
     double real_particles = 82716049382.71603;
     int num_particles = 5837;
-    int turns = 1;
+    int turns = 100;
     int steps = 24 * 6; // 6 steps per period
     double pipesizex = 0.14986;
     double pipesizey = 0.077216;
