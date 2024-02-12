@@ -59,7 +59,7 @@ spack-setup.sh
 spack
 
 build**/**
-install/**
+install**/**
 
 # macos
 **/.DS_Store
