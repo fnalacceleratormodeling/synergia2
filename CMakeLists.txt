@@ -384,21 +384,6 @@ else()
   message(STATUS "using double for gsvector")
 endif()
 
-# Find Eigen, a dependency we vendor
-message(STATUS "Configuring Eigen3 for use in host routines.")
-# Eigen tries to determine fortran compiler ID via FC, which can cause issues
-# with flang-new, so unset that temporarily.
-set(FC_BACKUP $ENV{FC})
-unset(ENV{FC})
-# https://gitlab.com/libeigen/eigen/-/issues/848
-set(eigen_defs
-    EIGEN_NO_CUDA
-    $<$<STREQUAL:${CMAKE_HOST_SYSTEM_PROCESSOR},ppc64le>:EIGEN_DONT_VECTORIZE>)
-add_subdirectory(${SYNERGIA3_SOURCE_DIR}/src/synergia/utils/eigen)
-set(ENV{FC} ${FC_BACKUP})
-find_package(Eigen3 REQUIRED PATHS
-             ${SYNERGIA3_SOURCE_DIR}/src/synergia/utils/eigen)
-
 # Additional CXXFLAGS
 if(EXTRA_CXX_FLAGS)
   string(APPEND CMAKE_CXX_FLAGS ${EXTRA_CXX_FLAGS})
@@ -432,16 +417,16 @@ add_custom_target(
 add_dependencies(check test-exes)
 
 set(INCLUDE_INSTALL_DIR
-    include/
+    "${CMAKE_INSTALL_PREFIX}/include/"
     CACHE PATH "include install directory")
 set(LIB_INSTALL_DIR
-    lib/
+    "${CMAKE_INSTALL_PREFIX}/lib/"
     CACHE PATH "library install directory")
 set(BIN_INSTALL_DIR
-    bin/
+    "${CMAKE_INSTALL_PREFIX}/bin/"
     CACHE PATH "executable install directory")
 set(PYTHON_INSTALL_DIR
-    "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages/"
+    "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages/"
     CACHE PATH "python install directory")
 
 set(SYNERGIA_EXTRA_LIBRARY_PATHS
@@ -455,6 +440,22 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# possibly move the following to using block/endblock when cmake min version
+# becomes 3.25 Find Eigen, a dependency we vendor
+message(STATUS "Configuring Eigen3 for use in host routines.")
+# Eigen tries to determine fortran compiler ID via FC, which can cause issues
+# with flang-new, so unset that temporarily.
+set(FC_BACKUP $ENV{FC})
+unset(ENV{FC})
+# https://gitlab.com/libeigen/eigen/-/issues/848
+set(eigen_defs
+    EIGEN_NO_CUDA
+    $<$<STREQUAL:${CMAKE_HOST_SYSTEM_PROCESSOR},ppc64le>:EIGEN_DONT_VECTORIZE>)
+add_subdirectory(${SYNERGIA3_SOURCE_DIR}/src/synergia/utils/eigen)
+set(ENV{FC} ${FC_BACKUP})
+find_package(Eigen3 REQUIRED PATHS
+             ${SYNERGIA3_BINARY_DIR}/src/synergia/utils/eigen)
 
 add_subdirectory(src)
 
