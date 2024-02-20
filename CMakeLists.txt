@@ -255,7 +255,7 @@ if(HDF5_IS_PARALLEL)
       FetchContent_Declare(
         openPMD
         GIT_REPOSITORY "https://github.com/openPMD/openPMD-api.git"
-        GIT_TAG "dev")
+        GIT_TAG 0.15.2)
       FetchContent_MakeAvailable(openPMD)
     endif()
     add_definitions(-DSYNERGIA_HAVE_OPENPMD)
