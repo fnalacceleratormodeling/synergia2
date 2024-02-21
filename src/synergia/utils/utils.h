@@ -2,7 +2,6 @@
 #define UTILS_H_
 
 #include <Kokkos_Core.hpp>
-#include <iostream>
 #include <mpi.h>
 
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
