@@ -66,8 +66,12 @@ namespace Lattice_simulator {
   // [tune_h, tune_v, c_delta_t]
   std::array<double, 3> calculate_tune_and_cdt(Lattice const& lattice,
                                                double dpp = 0.0);
+  // only c T
+  double calculate_cdt(Lattice const& lattice, double dpp = 0.0);
 
   chromaticities_t get_chromaticities(Lattice const& lattice,
+                                      double dpp = 1e-5);
+  chromaticities_t get_slip_factors(Lattice const& lattice,
                                       double dpp = 1e-5);
 
   // get the full mapping of the one turn map
