@@ -14,7 +14,8 @@ main(int argc, char* argv[])
 {
 
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
-    PetscErrorCode ierr;
+    PETSC_MPI_THREAD_REQUIRED = MPI_THREAD_MULTIPLE;
+    [[maybe_unused]] PetscErrorCode ierr;
     ierr = PetscInitialize(&argc, &argv, (char*)0, help.c_str());
     auto initargs =
         Kokkos::InitializationSettings{}; /* use default constructor */
