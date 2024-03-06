@@ -127,6 +127,11 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
             "gamma_ref",
             (bunch_ref.value().get().get_reference_particle()).get_gamma());
 
+        // OpenPMD2.0: EXT_BeamPhysics
+        protons.setAttribute("numParticles",
+                             bunch_ref.value().get().get_total_num());
+        protons.setAttribute("speciesType", std::string("proton"));
+
         openPMD::Datatype datatype = openPMD::determineDatatype<double>();
         openPMD::Extent global_extent = {static_cast<size_t>(num_part)};
         openPMD::Dataset dataset = openPMD::Dataset(datatype, global_extent);
