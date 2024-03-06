@@ -16,7 +16,6 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/logger.h"
-#include "synergia/utils/restrict_extension.h"
 
 #include <cereal/types/array.hpp>
 #include <cereal/types/map.hpp>
