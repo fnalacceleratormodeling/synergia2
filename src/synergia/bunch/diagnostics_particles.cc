@@ -116,8 +116,6 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
 
         openPMD::ParticleSpecies& protons =
             file.iterations[iteration].particles["bunch_particles"];
-        openPMD::ParticleSpecies& masks =
-            file.iterations[iteration].particles["bunch_particles_masks"];
 
         // write mass in SI units!
         protons.setAttribute(
@@ -128,6 +126,11 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
         protons.setAttribute(
             "gamma_ref",
             (bunch_ref.value().get().get_reference_particle()).get_gamma());
+
+        // OpenPMD2.0: EXT_BeamPhysics
+        protons.setAttribute("numParticles",
+                             bunch_ref.value().get().get_total_num());
+        protons.setAttribute("speciesType", std::string("proton"));
 
         openPMD::Datatype datatype = openPMD::determineDatatype<double>();
         openPMD::Extent global_extent = {static_cast<size_t>(num_part)};
@@ -155,18 +158,21 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
 
         auto parts_idx = Kokkos::subview(parts_subset, Kokkos::ALL, Bunch::id);
 
-        masks["id"][openPMD::RecordComponent::SCALAR].resetDataset(
-            masks_dataset);
-
         protons["position"]["x"].resetDataset(dataset);
         protons["position"]["y"].resetDataset(dataset);
         protons["position"]["z"].resetDataset(dataset);
+
+        protons["positionOffset"]["x"].resetDataset(dataset);
+        protons["positionOffset"]["y"].resetDataset(dataset);
+        protons["positionOffset"]["z"].resetDataset(dataset);
 
         protons["moments"]["x"].resetDataset(dataset);
         protons["moments"]["y"].resetDataset(dataset);
         protons["moments"]["z"].resetDataset(dataset);
 
         protons["id"][openPMD::RecordComponent::SCALAR].resetDataset(dataset);
+        protons["masks"][openPMD::RecordComponent::SCALAR].resetDataset(
+            masks_dataset);
 
         openPMD::Offset chunk_offset = {file_offset - local_num};
         openPMD::Extent chunk_extent = {local_num};
@@ -177,17 +183,23 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
             parts_y.data(), chunk_offset, chunk_extent);
         protons["position"]["z"].storeChunkRaw(
             parts_z.data(), chunk_offset, chunk_extent);
+
         protons["moments"]["x"].storeChunkRaw(
             moments_x.data(), chunk_offset, chunk_extent);
         protons["moments"]["y"].storeChunkRaw(
             moments_y.data(), chunk_offset, chunk_extent);
         protons["moments"]["z"].storeChunkRaw(
             moments_dpop.data(), chunk_offset, chunk_extent);
+
         protons["id"][openPMD::RecordComponent::SCALAR].storeChunkRaw(
             parts_idx.data(), chunk_offset, chunk_extent);
 
-        masks["id"][openPMD::RecordComponent::SCALAR].storeChunkRaw(
+        protons["masks"][openPMD::RecordComponent::SCALAR].storeChunkRaw(
             masks_subset.data(), chunk_offset, chunk_extent);
+
+        protons["positionOffset"]["x"].makeConstant(0);
+        protons["positionOffset"]["y"].makeConstant(0);
+        protons["positionOffset"]["z"].makeConstant(0);
 
         file.flush();
     }
@@ -202,10 +214,6 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
 
         openPMD::ParticleSpecies& protons =
             file.iterations[iteration].particles["bunch_spectator_particles"];
-
-        openPMD::ParticleSpecies& masks =
-            file.iterations[iteration]
-                .particles["bunch_spectator_particles_masks"];
 
         openPMD::Datatype datatype = openPMD::determineDatatype<double>();
         openPMD::Extent global_extent = {static_cast<size_t>(num_spec_part)};
@@ -243,13 +251,16 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
         protons["position"]["y"].resetDataset(dataset);
         protons["position"]["z"].resetDataset(dataset);
 
+        protons["positionOffset"]["x"].resetDataset(dataset);
+        protons["positionOffset"]["y"].resetDataset(dataset);
+        protons["positionOffset"]["z"].resetDataset(dataset);
+
         protons["moments"]["x"].resetDataset(dataset);
         protons["moments"]["y"].resetDataset(dataset);
         protons["moments"]["z"].resetDataset(dataset);
 
         protons["id"][openPMD::RecordComponent::SCALAR].resetDataset(dataset);
-
-        masks["id"][openPMD::RecordComponent::SCALAR].resetDataset(
+        protons["masks"][openPMD::RecordComponent::SCALAR].resetDataset(
             masks_dataset);
 
         openPMD::Offset chunk_offset = {spec_file_offset - spec_local_num};
@@ -261,17 +272,23 @@ Diagnostics_particles::do_write(io_device& file, const size_t iteration)
             parts_y.data(), chunk_offset, chunk_extent);
         protons["position"]["z"].storeChunkRaw(
             parts_z.data(), chunk_offset, chunk_extent);
+
         protons["moments"]["x"].storeChunkRaw(
             moments_x.data(), chunk_offset, chunk_extent);
         protons["moments"]["y"].storeChunkRaw(
             moments_y.data(), chunk_offset, chunk_extent);
         protons["moments"]["z"].storeChunkRaw(
             moments_dpop.data(), chunk_offset, chunk_extent);
+
         protons["id"][openPMD::RecordComponent::SCALAR].storeChunkRaw(
             parts_idx.data(), chunk_offset, chunk_extent);
 
-        masks["id"][openPMD::RecordComponent::SCALAR].storeChunkRaw(
+        protons["masks"][openPMD::RecordComponent::SCALAR].storeChunkRaw(
             masks_subset.data(), chunk_offset, chunk_extent);
+
+        protons["positionOffset"]["x"].makeConstant(0);
+        protons["positionOffset"]["y"].makeConstant(0);
+        protons["positionOffset"]["z"].makeConstant(0);
 
         file.flush();
     }

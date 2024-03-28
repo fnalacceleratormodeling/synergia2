@@ -62,21 +62,28 @@ def parse_args():
         "--iteration", help="iteration of OpenPMD series to plot", type=int, default=0
     )
     parser.add_argument(
-        "--minh", help="minimum limit on horizontal axis data", type=float, 
-        default=-1.0 * np.finfo(np.float64).max
+        "--minh",
+        help="minimum limit on horizontal axis data",
+        type=float,
+        default=-1.0 * np.finfo(np.float64).max,
     )
     parser.add_argument(
-        "--maxh", help="maximum limit on horizontal axis data", type=float,
-        default=np.finfo(np.float64).max
+        "--maxh",
+        help="maximum limit on horizontal axis data",
+        type=float,
+        default=np.finfo(np.float64).max,
     )
     parser.add_argument(
-        "--minv", help="minimum limit on vertical axis data", type=float,
-        default=-1.0 * np.finfo(np.float64).max
+        "--minv",
+        help="minimum limit on vertical axis data",
+        type=float,
+        default=-1.0 * np.finfo(np.float64).max,
     )
     parser.add_argument(
-        "--maxv", help="maximum limit on vertical axis data", type=float,
-        default=np.finfo(np.float64).max
-
+        "--maxv",
+        help="maximum limit on vertical axis data",
+        type=float,
+        default=np.finfo(np.float64).max,
     )
     parser.add_argument(
         "--bins",
@@ -113,12 +120,12 @@ def do_plots(opts: Options):
     beta = parts.get_attribute("beta_ref")
 
     print(
-        f'''-------- Using the following parameters ----------
+        f"""-------- Using the following parameters ----------
 iteration: {opts.iteration}; xcoord: {opts.hcoord.value}; ycoord: {opts.vcoord.value};
 minh, maxh: {opts.minh}/{opts.maxh};
 minv, maxv: {opts.minv}/{opts.maxv};
 num-bins: {opts.num_bins}
---------------------------------------------------'''
+--------------------------------------------------"""
     )
 
     if opts.hcoord == Coords("pz") or opts.vcoord == Coords("pz"):
@@ -135,14 +142,19 @@ num-bins: {opts.num_bins}
         parts_df["z"] = parts_df["position_z"] * beta
 
     to_plot_df = parts_df[
-        (parts_df[opts.hcoord.value] > opts.minh)
+        (parts_df["masks"] != 0)
+        & (parts_df[opts.hcoord.value] > opts.minh)
         & (parts_df[opts.hcoord.value] < opts.maxh)
         & (parts_df[opts.vcoord.value] > opts.minv)
         & (parts_df[opts.vcoord.value] < opts.maxv)
     ]
 
     if to_plot_df.empty:
-        raise Exception("Empty data frame to plot after applying co-ordinate selection."+"\n"+"Please check input co-ordinates and run again!")
+        raise Exception(
+            "Empty data frame to plot after applying co-ordinate selection."
+            + "\n"
+            + "Please check input co-ordinates and run again!"
+        )
 
     g = sns.JointGrid(
         data=to_plot_df, x=opts.hcoord.value, y=opts.vcoord.value, marginal_ticks=True
