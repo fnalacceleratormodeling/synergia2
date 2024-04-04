@@ -49,7 +49,8 @@ if(BUILD_PYTHON_BINDINGS)
   copy_file(__init__.py bunch)
 
   install(FILES __init__.py DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
-  install(TARGETS bunch synergia_pydiag DESTINATION ${LIB_INSTALL_DIR})
+  install(TARGETS synergia_pydiag DESTINATION ${LIB_INSTALL_DIR})
+  install(TARGETS bunch DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
 
 endif()
 
@@ -69,10 +70,5 @@ install(
         populate.h
         period.h
   DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/bunch)
-
-if(BUILD_PYTHON_BINDINGS)
-  install(FILES __init__.py DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
-  install(TARGETS bunch DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
-endif()
 
 add_subdirectory(tests)
