@@ -128,7 +128,7 @@ namespace Lattice_simulator {
   karray2d_row get_linear_one_turn_map(Lattice const& lattice);
 
   // [alpha, beta, psi]
-  std::array<double, 3> map_to_twiss(karray2d_row map);
+  std::array<double, 3> map_to_twiss(karray2d_row const& map);
 
   template <unsigned int order>
   NormalForm<order>
