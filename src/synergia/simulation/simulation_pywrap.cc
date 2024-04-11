@@ -4,6 +4,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "kokkos_views.h"
 #include "synergia/simulation/checkpoint.h"
 #include "synergia/simulation/independent_stepper_elements.h"
 #include "synergia/simulation/lattice_simulator.h"
@@ -13,15 +14,6 @@
 #include "synergia/simulation/stepper.h"
 
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/core_diagnostics.h"
-#include "synergia/bunch/diagnostics_bulk_track.h"
-#include "synergia/bunch/diagnostics_full2.h"
-#include "synergia/bunch/diagnostics_loss.h"
-#include "synergia/bunch/diagnostics_particles.h"
-#include "synergia/bunch/diagnostics_py.h"
-#include "synergia/bunch/diagnostics_worker.h"
-#include "synergia/bunch/populate.h"
-
 #include "synergia/bunch/diagnostics_py.h"
 
 namespace py = pybind11;
@@ -306,14 +298,13 @@ PYBIND11_MODULE(simulation, m)
                         "Lattice_simulator::map_to_twiss(map): "
                         "map must be a numpy array of (2, 2)");
 
-                using ka2d_unmanaged =
-                    Kokkos::View<double**,
-                                 Kokkos::LayoutRight,
-                                 Kokkos::HostSpace,
-                                 Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
-
-                ka2d_unmanaged ka_map(
-                    map.mutable_data(), map.shape(0), map.shape(1));
+                auto accessor = map.unchecked<2>();
+                karray2d_row ka_map("map_to_twiss_python_input", 2, 2);
+                for (size_t idx1 = 0; idx1 < 2; idx1++) {
+                    for (size_t idx2 = 0; idx2 < 2; idx2++) {
+                        ka_map(idx1, idx2) = accessor(idx1, idx2);
+                    }
+                }
 
                 return Lattice_simulator::map_to_twiss(ka_map);
             },
