@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       debug_cmake_enabled:
-        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        description: 'tmate before cmake'
         required: false
         default: false
       debug_tests_enabled:
-        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        description: 'tmate before ctest'
         required: false
         default: false
   push:
