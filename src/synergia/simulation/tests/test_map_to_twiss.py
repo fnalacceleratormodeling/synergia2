@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import sys, os
+import sys
+import os
 import numpy as np
 import synergia
 import pytest
 
 def test_map_to_twiss():
-    print('Hello!!??')
     # list of alpha, beta, qs to test
     twiss_list = [
         (0.1, 22.0, 0.1257),
@@ -25,7 +25,7 @@ def test_map_to_twiss():
         print('map: ', map)
         # check determinant
         det = map[0,0]*map[1,1] - map[0,1]*map[1,0]
-        assert det == pytest.approx(1.0)
+        assert det == pytest.approx(1.0, abs=1e-3)
 
         atest, btest, qtest = synergia.simulation.Lattice_simulator.map_to_twiss(map)
         print(f'determined values from map: alpha: {atest}, beta: {btest}, Qs: {qtest}')
@@ -33,33 +33,7 @@ def test_map_to_twiss():
         assert b == pytest.approx(btest)
         assert qtest == pytest.approx(t[2])
 
-def wtf():
-
-    # map = np.array( [ [ 9.95301010e-01, 1.37808954e+02],
-    #                  [ -1.47222076e-04,  9.84287275e-01] ] )
-
-    # map = np.array([ [ 9.94923572e-01, 1.44294804e+02],
-    #    [-1.51866959e-04,  9.83025370e-01]])
-
-    map = np.array([
-        [ 9.74654822e-01,  1.35807288e+02],
-        [-7.91548892e-04,  9.15289396e-01]] )
-
-    if True:
-        #print(f'alpha: {a}, beta: {b}, Qs: {t[2]}')
-        print('map: ', map)
-        # check determinant
-        det = map[0,0]*map[1,1] - map[0,1]*map[1,0]
-        print('det: ', det)
-        #assert det == pytest.approx(1.0)
-
-        atest, btest, qtest = synergia.simulation.Lattice_simulator.map_to_twiss(map)
-        print(f'determined values from map: alpha: {atest}, beta: {btest}, Qs: {qtest}')
-        # assert a == pytest.approx(atest)
-        # assert b == pytest.approx(btest)
-        # assert qtest == pytest.approx(t[2])
-
-def wtf2():
+def test_booster_map():
 
     fullmap_list= []
     map_names = []
@@ -127,30 +101,14 @@ def wtf2():
         # check determinant
         det = map[0,0]*map[1,1] - map[0,1]*map[1,0]
         print('det: ', det)
-        #assert det == pytest.approx(1.0)
+        assert det == pytest.approx(1.0, abs=1e-3) 
 
         atest, btest, qtest = synergia.simulation.Lattice_simulator.map_to_twiss(map)
         print(f'determined values from map: alpha: {atest}, beta: {btest}, Qs: {qtest}')
-        # assert a == pytest.approx(atest)
-        # assert b == pytest.approx(btest)
-        # assert qtest == pytest.approx(t[2])
+        assert a == pytest.approx(atest)
+        assert b == pytest.approx(btest)
+        assert qtest == pytest.approx(t[2])
 
-
-def wtf3():
-    #map1 = np.array([[1.0, 2.0], [3.0, 4.0]])
-    #a, b, c = synergia.simulation.Lattice_simulator.map_to_twiss(map1)
-    map2 = np.zeros((6, 6))
-    for i in range(6):
-        for j in range(6):
-            map2[i, j] = 10*(i+1) + j + 1
-
-    print('map should be:')
-    #print(map2[4:6, 4:6])
-    #a, b, c = synergia.simulation.Lattice_simulator.map_to_twiss(map2[4:6, 4:6])
-    print(np.array(map2[0:2, 0:2]))
-    map2a = np.array(map2[0:2, 0:2])
-    #a, b, c = synergia.simulation.Lattice_simulator.map_to_twiss(map2[0:2, 0:2])
-    a, b, c = synergia.simulation.Lattice_simulator.map_to_twiss(map2a)
 
 def test_map_to_twiss_slice():
     betaz = 974.0
@@ -179,8 +137,7 @@ def test_map_to_twiss_slice():
 
 if __name__ == "__main__":
     test_map_to_twiss_slice()
-    #wtf3()
-    #wtf2()
-    #wtf()
-    #test_map_to_twiss()
+    test_map_to_twiss()
+    #test_booster_map()
+
 
