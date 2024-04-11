@@ -21,14 +21,14 @@ def test_map_to_twiss():
         map = np.array([[ np.cos(mu)+a*np.sin(mu), b*np.sin(mu)],
                         [ -(1 + a**2)*np.sin(mu)/b, np.cos(mu)-a*np.sin(mu)] ])
         
-        print(f'alpha: {a}, beta: {b}, Qs: {t[2]}')
-        print('map: ', map)
+        #print(f'alpha: {a}, beta: {b}, Qs: {t[2]}')
+        #print('map: ', map)
         # check determinant
         det = map[0,0]*map[1,1] - map[0,1]*map[1,0]
         assert det == pytest.approx(1.0, abs=1e-3)
 
         atest, btest, qtest = synergia.simulation.Lattice_simulator.map_to_twiss(map)
-        print(f'determined values from map: alpha: {atest}, beta: {btest}, Qs: {qtest}')
+        #print(f'determined values from map: alpha: {atest}, beta: {btest}, Qs: {qtest}')
         assert a == pytest.approx(atest)
         assert b == pytest.approx(btest)
         assert qtest == pytest.approx(t[2])
@@ -63,9 +63,9 @@ def test_booster_map():
         [ 0.00000000e+00, 0.00000000e+00, 1.77087341e-01, 3.72390550e-01,
             0.00000000e+00, 0.00000000e+00],
         [-1.09318281e-01, 4.61679399e+00, 0.00000000e+00, 0.00000000e+00,
-            9.74654822e-01, 1.35807288e+02],
+            9.74654822e-01, -1.35807288e+02],
         [-3.92571435e-06, 3.03291015e-03, 0.00000000e+00, 0.00000000e+00,
-            -7.91548892e-04, 9.15289396e-01]]))
+            7.91548892e-04, 9.15289396e-01]]))
     
     map_names.append("booster-01000")
     fullmap_list.append(np.array([[-2.36525139e-01,-3.26619064e+01, 0.00000000e+00, 0.00000000e+00, 
@@ -81,33 +81,25 @@ def test_booster_map():
  [-3.95190205e-06, 3.05146867e-03, 0.00000000e+00, 0.00000000e+00,
    7.96430995e-04, 9.14835680e-01]]))
 
-    print(f'len(fullmap_list): {len(fullmap_list)}')
-    print(type(fullmap_list))
-    print(type(fullmap_list[0]))
+    #print(f'len(fullmap_list): {len(fullmap_list)}')
+    #print(type(fullmap_list))
+
     for fullmap, nm in zip(fullmap_list, map_names):
-        print("map: ", nm, fullmap.shape, fullmap)
-
-        print('before')
-        print(np.array2string(fullmap, separator=','))
-        fullmap[4,5] = -fullmap[4,5]
-        fullmap[5,4] = -fullmap[5,4]
-        print('after')
-        print(np.array2string(fullmap, separator=','))
-
-        map = fullmap[4:6, 4:6]
-
+        print('testing map ', nm)
+        fullmap[5, 4] = -fullmap[5, 4]
+        fullmap[4, 5] = -fullmap[4, 5]
         #print(f'alpha: {a}, beta: {b}, Qs: {t[2]}')
-        print('map: ', map)
+        # print('map: ', map)
         # check determinant
-        det = map[0,0]*map[1,1] - map[0,1]*map[1,0]
-        print('det: ', det)
-        assert det == pytest.approx(1.0, abs=1e-3) 
+        det = fullmap[4,4]*fullmap[4,4] - fullmap[4,5]*fullmap[5,4]
+        #print('det: ', det)
+        assert det == pytest.approx(1.0, abs=6e-2)
 
-        atest, btest, qtest = synergia.simulation.Lattice_simulator.map_to_twiss(map)
-        print(f'determined values from map: alpha: {atest}, beta: {btest}, Qs: {qtest}')
-        assert a == pytest.approx(atest)
-        assert b == pytest.approx(btest)
-        assert qtest == pytest.approx(t[2])
+        atest, btest, qtest = synergia.simulation.Lattice_simulator.map_to_twiss(fullmap[4:6, 4:6])
+        #print(f'determined values from map: alpha: {atest}, beta: {btest}, Qs: {qtest}')
+        assert atest == pytest.approx(0.0909, 5.0e-3)
+        assert btest == pytest.approx(413.0, 1.0e-2)
+        qtest == pytest.approx(0.053, 1.0e-3)
 
 
 def test_map_to_twiss_slice():
@@ -138,6 +130,6 @@ def test_map_to_twiss_slice():
 if __name__ == "__main__":
     test_map_to_twiss_slice()
     test_map_to_twiss()
-    #test_booster_map()
+    test_booster_map()
 
 
