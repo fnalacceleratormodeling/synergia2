@@ -1,4 +1,4 @@
-name: CI:cuda11-gcc
+name: CI:cuda12-gcc
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/fnalacceleratormodeling/synergia2-containers/cuda-11:main
+      image: ghcr.io/fnalacceleratormodeling/synergia2-containers/cuda-12:main
   
     steps:
     - name: Cancel Previous runs
