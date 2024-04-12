@@ -306,14 +306,13 @@ PYBIND11_MODULE(simulation, m)
                         "Lattice_simulator::map_to_twiss(map): "
                         "map must be a numpy array of (2, 2)");
 
-                using ka2d_unmanaged =
-                    Kokkos::View<double**,
-                                 Kokkos::LayoutRight,
-                                 Kokkos::HostSpace,
-                                 Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
-
-                ka2d_unmanaged ka_map(
-                    map.mutable_data(), map.shape(0), map.shape(1));
+                auto accessor = map.unchecked<2>();
+                karray2d_row ka_map("map_to_twiss_python_input", 2, 2);
+                for (size_t idx1 = 0; idx1 < 2; idx1++) {
+                    for (size_t idx2 = 0; idx2 < 2; idx2++) {
+                        ka_map(idx1, idx2) = accessor(idx1, idx2);
+                    }
+                }
 
                 return Lattice_simulator::map_to_twiss(ka_map);
             },
