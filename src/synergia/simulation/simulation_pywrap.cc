@@ -4,7 +4,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "kokkos_views.h"
 #include "synergia/simulation/checkpoint.h"
 #include "synergia/simulation/independent_stepper_elements.h"
 #include "synergia/simulation/lattice_simulator.h"
