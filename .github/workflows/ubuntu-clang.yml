@@ -52,7 +52,7 @@ jobs:
       run: |
         lscpu
         . /opt/spack-environment/activate.sh
-        CC=/usr/bin/clang-17 CXX=/usr/bin/clang++-17 cmake -B ${{github.workspace}}/build \
+        CC=/usr/bin/clang-17 CXX=/usr/bin/clang++-17 LDFLAGS="-fsanitize=address" cmake -B ${{github.workspace}}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_CXX_FLAGS="-stdlib=libc++ -g -O0 -fsanitize=address -fno-omit-frame-pointer -fsanitize-recover=address" \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
