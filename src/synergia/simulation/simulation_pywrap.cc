@@ -4,6 +4,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "kokkos_views.h"
 #include "synergia/simulation/checkpoint.h"
 #include "synergia/simulation/independent_stepper_elements.h"
 #include "synergia/simulation/lattice_simulator.h"
@@ -13,15 +14,6 @@
 #include "synergia/simulation/stepper.h"
 
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/core_diagnostics.h"
-#include "synergia/bunch/diagnostics_bulk_track.h"
-#include "synergia/bunch/diagnostics_full2.h"
-#include "synergia/bunch/diagnostics_loss.h"
-#include "synergia/bunch/diagnostics_particles.h"
-#include "synergia/bunch/diagnostics_py.h"
-#include "synergia/bunch/diagnostics_worker.h"
-#include "synergia/bunch/populate.h"
-
 #include "synergia/bunch/diagnostics_py.h"
 
 namespace py = pybind11;
