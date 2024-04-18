@@ -41,6 +41,11 @@ TEST_CASE("Bunch", "[Bunch]")
     CHECK(p2(0, 6) == 123);
     CHECK(p2(1, 6) == 124);
     CHECK(p2(4, 6) == 127);
+    
+    CHECK(bunch.get_real_num() == Approx(1e13) );
+    bunch.set_real_num(1.2e13);
+    CHECK(bunch.get_real_num() == Approx(1.2e13) );
+
 }
 
 #if defined SYNERGIA_HAVE_OPENPMD
