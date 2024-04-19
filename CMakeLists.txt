@@ -51,6 +51,10 @@ include(CopyFile)
 include(MPITest)
 include(AddPythonTest)
 
+#Global ASAN flags?
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
+
 # Make sure we know which Kokkos back end we're using. If none is specified on
 # the command line, the default is OpenMP.
 if("${ENABLE_KOKKOS_BACKEND}" STREQUAL "")

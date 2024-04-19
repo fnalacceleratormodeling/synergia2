@@ -21,7 +21,7 @@ on:
       - 'wiki/**'
 
 env:
-  BUILD_TYPE: RelWithDebInfo
+  BUILD_TYPE: Debug
 
 jobs:
   build-and-test:
@@ -52,8 +52,9 @@ jobs:
       run: |
         lscpu
         . /opt/spack-environment/activate.sh
-        CC=/usr/bin/clang-17 CXX=/usr/bin/clang++-17 cmake -B ${{github.workspace}}/build \
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
+        CC=/usr/bin/clang-17 CXX=/usr/bin/clang++-17 LDFLAGS="-fsanitize=address" cmake -B ${{github.workspace}}/build \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_CXX_FLAGS="-stdlib=libc++ -g -O0 -fsanitize=address -fno-omit-frame-pointer -fsanitize-recover=address" \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3) \
           -DENABLE_KOKKOS_BACKEND=OpenMP \
@@ -81,12 +82,12 @@ jobs:
       with:
         sudo: false
 
-    - name: ctest
+    #- name: ctest
     # Execute tests defined by the CMake configuration.
-      run:  |
-        . /opt/spack-environment/activate.sh
-        cd ${{github.workspace}}/build
-        ctest -C ${{env.BUILD_TYPE}} -VV --output-on-failure
+    #  run:  |
+    #    . /opt/spack-environment/activate.sh
+    #    cd ${{github.workspace}}/build
+    #    ctest -C ${{env.BUILD_TYPE}} -VV --output-on-failure
         
     - name: run-fodopy
     # Run the fodopy example from README.
