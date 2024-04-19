@@ -11,5 +11,6 @@ target_link_libraries(test_bunch_particles synergia_bunch synergia_test_main)
 add_mpi_test(test_bunch_particles 1)
 
 if(BUILD_PYTHON_BINDINGS)
+  add_py_test(test_bunch.py)
   add_py_test(test_bunch_reference_particles.py)
 endif()

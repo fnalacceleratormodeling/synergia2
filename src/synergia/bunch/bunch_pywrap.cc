@@ -186,6 +186,15 @@ PYBIND11_MODULE(bunch, m)
              "Get the number of particles in the bunch across all rank",
              "particle_group"_a = ParticleGroup::regular)
 
+        .def("get_real_num",
+             &Bunch::get_real_num,
+             "Get the charge represented by particles in this bunch")
+
+        .def("set_real_num",
+            &Bunch::set_real_num,
+            "Set the real number of charges represented by this bunch",
+            "num"_a)
+
         .def("set_longitudinal_boundary",
              &Bunch::set_longitudinal_boundary,
              "Set the longitudinal boundary of the bunch",
