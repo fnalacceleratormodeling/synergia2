@@ -1,28 +1,27 @@
 install(
   FILES LICENSE
         README.md
-        changelog.txt
-        dispatch_example1.cpp
-        dispatch_example2.cpp
-        instrset.h
-        instrset_detect.cpp
-        vector_convert.h
-        vectorclass.h
         vectorf128.h
-        vectorf256.h
-        vectorf256e.h
-        vectorf512.h
-        vectorf512e.h
-        vectori128.h
-        vectori256.h
-        vectori256e.h
+        vectorfp16.h
         vectori512.h
-        vectori512e.h
-        vectori512s.h
-        vectori512se.h
-        vectormath_common.h
         vectormath_exp.h
+        instrset.h
+        vectorf256.h
+        vectorfp16e.h
+        vectori512e.h
         vectormath_hyp.h
+        vectorf256e.h
+        vectori128.h
+        vectori512s.h
         vectormath_lib.h
+        changelog.txt
+        vector_convert.h
+        vectorf512.h
+        vectori256.h
+        vectori512se.h
         vectormath_trig.h
+        vectorclass.h
+        vectorf512e.h
+        vectori256e.h
+        vectormath_common.h
   DESTINATION include/synergia/utils/vectorclass)
