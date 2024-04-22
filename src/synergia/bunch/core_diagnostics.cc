@@ -1,9 +1,5 @@
 #include <cmath>
-#include <functional>
 #include <stdexcept>
-
-#include "synergia/foundation/physical_constants.h"
-#include "synergia/utils/logger.h"
 
 #include "core_diagnostics.h"
 
