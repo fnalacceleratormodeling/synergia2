@@ -206,8 +206,13 @@ Core_diagnostics::calculate_mean(Bunch const& bunch)
 
     karray1d mean("mean", 6);
 
-    auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
+    auto bparts = bunch.get_bunch_particles();
+    if (bparts.get_memory_location() == MemoryLocation::Host) {
+        std::runtime_error("Bunch particles are active on Host memory space!");
+    }
+
+    auto particles = bparts.parts;
+    auto masks = bparts.masks;
     const int npart = bunch.size();
 
     particle_reducer<mean_tag> pr(particles, masks);
@@ -231,8 +236,12 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
 
     double mean = 0;
 
-    auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
+    auto bparts = bunch.get_bunch_particles();
+    if (bparts.get_memory_location() == MemoryLocation::Host) {
+        std::runtime_error("Bunch particles are active on Host memory space!");
+    }
+    auto particles = bparts.parts;
+    auto masks = bparts.masks;
     const int npart = bunch.size();
 
     particle_reducer<z_mean_tag> pr(particles, masks);
@@ -255,8 +264,12 @@ Core_diagnostics::calculate_abs_mean(Bunch const& bunch)
 
     karray1d abs_mean("abs_mean", 6);
 
-    auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
+    auto bparts = bunch.get_bunch_particles();
+    if (bparts.get_memory_location() == MemoryLocation::Host) {
+        std::runtime_error("Bunch particles are active on Host memory space!");
+    }
+    auto particles = bparts.parts;
+    auto masks = bparts.masks;
     const int npart = bunch.size();
 
     particle_reducer<abs_mean_tag> pr(particles, masks);
@@ -284,8 +297,12 @@ Core_diagnostics::calculate_std(Bunch const& bunch, karray1d const& mean)
 
     karray1d std("std", 6);
 
-    auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
+    auto bparts = bunch.get_bunch_particles();
+    if (bparts.get_memory_location() == MemoryLocation::Host) {
+        std::runtime_error("Bunch particles are active on Host memory space!");
+    }
+    auto particles = bparts.parts;
+    auto masks = bparts.masks;
     const int npart = bunch.size();
 
     particle_reducer<std_tag> pr(particles, masks, mean);
@@ -308,8 +325,12 @@ Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
 
     karray2d_row sum2("sum2", 6, 6);
 
-    auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
+    auto bparts = bunch.get_bunch_particles();
+    if (bparts.get_memory_location() == MemoryLocation::Host) {
+        std::runtime_error("Bunch particles are active on Host memory space!");
+    }
+    auto particles = bparts.parts;
+    auto masks = bparts.masks;
     auto npart = bunch.size();
 
     particle_reducer<mom2_tag> pr(particles, masks, mean);
@@ -350,8 +371,12 @@ Core_diagnostics::calculate_min(Bunch const& bunch)
     min(1) = 1e100;
     min(2) = 1e100;
 
-    auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
+    auto bparts = bunch.get_bunch_particles();
+    if (bparts.get_memory_location() == MemoryLocation::Host) {
+        std::runtime_error("Bunch particles are active on Host memory space!");
+    }
+    auto particles = bparts.parts;
+    auto masks = bparts.masks;
     const int npart = bunch.size();
 
     particle_reducer<min_tag> pr(particles, masks);
@@ -375,8 +400,12 @@ Core_diagnostics::calculate_max(Bunch const& bunch)
     max(1) = -1e100;
     max(2) = -1e100;
 
-    auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
+    auto bparts = bunch.get_bunch_particles();
+    if (bparts.get_memory_location() == MemoryLocation::Host) {
+        std::runtime_error("Bunch particles are active on Host memory space!");
+    }
+    auto particles = bparts.parts;
+    auto masks = bparts.masks;
     const int npart = bunch.size();
 
     particle_reducer<max_tag> pr(particles, masks);
@@ -395,8 +424,12 @@ Core_diagnostics::calculate_spatial_mean_stddev(Bunch const& bunch)
     using core_diagnostics_impl::particle_reducer;
     using core_diagnostics_impl::spatial_mean_stddev_tag;
 
-    auto particles = bunch.get_local_particles();
-    auto masks = bunch.get_local_particle_masks();
+    auto bparts = bunch.get_bunch_particles();
+    if (bparts.get_memory_location() == MemoryLocation::Host) {
+        std::runtime_error("Bunch particles are active on Host memory space!");
+    }
+    auto particles = bparts.parts;
+    auto masks = bparts.masks;
     const int npart = bunch.size();
 
     const auto total_bunch_particles = bunch.get_total_num();
