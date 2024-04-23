@@ -485,6 +485,12 @@ class bunch_t {
         return std::make_pair(boundary, boundary_param);
     }
 
+    // adjust_bunch_particle_reference_energy
+    // This method adjusts the particle coordinates to use the passed in reference energy
+    void
+    adjust_bunch_particle_reference_energy(newE)
+    {}
+    
     // bucket index
     void
     set_bucket_index(int index)
