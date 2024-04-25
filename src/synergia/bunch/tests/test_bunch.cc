@@ -41,17 +41,16 @@ TEST_CASE("Bunch", "[Bunch]")
     CHECK(p2(0, 6) == 123);
     CHECK(p2(1, 6) == 124);
     CHECK(p2(4, 6) == 127);
-    
-    CHECK(bunch.get_real_num() == Approx(1e13) );
-    bunch.set_real_num(1.2e13);
-    CHECK(bunch.get_real_num() == Approx(1.2e13) );
 
+    CHECK(bunch.get_real_num() == Approx(1e13));
+    bunch.set_real_num(1.2e13);
+    CHECK(bunch.get_real_num() == Approx(1.2e13));
 }
 
 #if defined SYNERGIA_HAVE_OPENPMD
 
 void
-check_particle_values(BunchParticles const& bp1, BunchParticles const& bp2)
+check_particle_values(BunchParticles& bp1, BunchParticles& bp2)
 {
     bp1.checkout_particles();
     bp2.checkout_particles();

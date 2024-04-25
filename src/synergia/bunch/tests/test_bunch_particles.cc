@@ -25,7 +25,7 @@ init_particle_values(BunchParticles& bp)
 }
 
 void
-check_particle_values(BunchParticles const& bp)
+check_particle_values(BunchParticles& bp)
 {
     bp.checkout_particles();
 

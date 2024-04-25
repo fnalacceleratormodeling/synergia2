@@ -430,7 +430,7 @@ class Bunch_simulator {
                                const_karray1d limits);
 
     // serialization helper
-    void save_checkpoint_particles(std::string const& fname) const;
+    void save_checkpoint_particles(std::string const& fname);
     void load_checkpoint_particles(std::string const& fname);
 
     std::string
