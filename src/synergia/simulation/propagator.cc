@@ -49,6 +49,7 @@ Propagator::do_step(Bunch_simulator& simulator,
     // ensure that particles are on the device in case any of the
     // following might have transferred them onto the host
     // custom diagnostics routines, turn_end_action, etc
+    Kokkos::Profiling::pushRegion("memory-location check before step-apply");
     for (auto& train : simulator.get_trains()) {
         for (auto& bunch : train.get_bunches()) {
             auto bparts = bunch.get_bunch_particles();
@@ -58,6 +59,7 @@ Propagator::do_step(Bunch_simulator& simulator,
             }
         }
     }
+    Kokkos::Profiling::popRegion();
 
     // propagate through the step
     step.apply(simulator, logger);
