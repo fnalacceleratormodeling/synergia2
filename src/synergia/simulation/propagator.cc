@@ -46,6 +46,19 @@ Propagator::do_step(Bunch_simulator& simulator,
     // lattice elements has been updated
     lattice.update();
 
+    // ensure that particles are on the device in case any of the
+    // following might have transferred them onto the host
+    // custom diagnostics routines, turn_end_action, etc
+    for (auto& train : simulator.get_trains()) {
+        for (auto& bunch : train.get_bunches()) {
+            auto bparts = bunch.get_bunch_particles();
+            if (bparts.get_memory_location() == MemoryLocation::Host) {
+                std::runtime_error(
+                    "Bunch particles are active on Host memory space!");
+            }
+        }
+    }
+
     // propagate through the step
     step.apply(simulator, logger);
 
