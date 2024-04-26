@@ -1,11 +1,15 @@
-#include "synergia/bunch/bunch.h"
-#include "synergia/bunch/bunch_particles.h"
-#include "synergia/foundation/physical_constants.h"
-#include "synergia/utils/catch.hpp"
+
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_NumericTraits.hpp>
 #include <Kokkos_Random.hpp>
+
+#include "synergia/bunch/bunch.h"
+#include "synergia/bunch/bunch_particles.h"
+#include "synergia/foundation/physical_constants.h"
 
 constexpr double mass = 100.0;
 constexpr double total_energy = 125.0;
@@ -42,9 +46,9 @@ TEST_CASE("Bunch", "[Bunch]")
     CHECK(p2(1, 6) == 124);
     CHECK(p2(4, 6) == 127);
 
-    CHECK(bunch.get_real_num() == Approx(1e13));
+    REQUIRE_THAT(bunch.get_real_num(), Catch::Matchers::WithinRel(1e13));
     bunch.set_real_num(1.2e13);
-    CHECK(bunch.get_real_num() == Approx(1.2e13));
+    REQUIRE_THAT(bunch.get_real_num(), Catch::Matchers::WithinRel(1.2e13));
 }
 
 #if defined SYNERGIA_HAVE_OPENPMD
