@@ -1,8 +1,7 @@
-#include "synergia/utils/catch.hpp"
+#include <catch2/catch_test_macros.hpp>
 
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/kokkos_views.h"
-
 
 TEST_CASE("hdf5_append", "[Hdf5_file_append]")
 {
@@ -34,8 +33,8 @@ TEST_CASE("hdf5_append_scalar", "[Hdf5_file_append]")
         file.append("v3", 4.0, true);
 
         // v4: [[10, 11, 12, 13], [20, 21, 22, 23]]
-        file.append("v4", 10.0+mpi_rank, true);
-        file.append("v4", 20.0+mpi_rank, true);
+        file.append("v4", 10.0 + mpi_rank, true);
+        file.append("v4", 20.0 + mpi_rank, true);
     }
 
     {
@@ -57,8 +56,7 @@ TEST_CASE("hdf5_append_scalar", "[Hdf5_file_append]")
         auto v3 = file.read<karray2d_row>("v3");
         REQUIRE(v3.extent(0) == 2);
         REQUIRE(v3.extent(1) == mpi_size);
-        for(int i=0; i<mpi_size; ++i) 
-        {
+        for (int i = 0; i < mpi_size; ++i) {
             CHECK(v3(0, i) == 3.0);
             CHECK(v3(1, i) == 4.0);
         }
@@ -67,14 +65,12 @@ TEST_CASE("hdf5_append_scalar", "[Hdf5_file_append]")
         auto v4 = file.read<karray2d_row>("v4");
         REQUIRE(v4.extent(0) == 2);
         REQUIRE(v4.extent(1) == mpi_size);
-        for(int i=0; i<mpi_size; ++i) 
-        {
+        for (int i = 0; i < mpi_size; ++i) {
             CHECK(v4(0, i) == 10.0 + i);
             CHECK(v4(1, i) == 20.0 + i);
         }
     }
 }
-
 
 TEST_CASE("hdf5_append_kv", "[Hdf5_file_append]")
 {
@@ -92,11 +88,11 @@ TEST_CASE("hdf5_append_kv", "[Hdf5_file_append]")
         //          [3, 4]
         // v1_file: [ [1, 2], [3, 4] ]
         karray1d_row v1("v", 2);
-        v1(0) = 1.0; 
+        v1(0) = 1.0;
         v1(1) = 2.0;
         file.append("v1", v1, false);
 
-        v1(0) = 3.0; 
+        v1(0) = 3.0;
         v1(1) = 4.0;
         file.append("v1", v1, false);
 
@@ -105,11 +101,11 @@ TEST_CASE("hdf5_append_kv", "[Hdf5_file_append]")
         // v2_file: [ [1, 2, 1, 2, 1, 2, ... ],
         //            [3, 4, 3, 4, 3, 4, ... ] ]
         karray1d_row v2("v", 2);
-        v2(0) = 1.0; 
+        v2(0) = 1.0;
         v2(1) = 2.0;
         file.append("v2", v2, true);
 
-        v2(0) = 3.0; 
+        v2(0) = 3.0;
         v2(1) = 4.0;
         file.append("v2", v2, true);
 
@@ -164,12 +160,11 @@ TEST_CASE("hdf5_append_kv", "[Hdf5_file_append]")
         auto v2 = file.read<karray2d_row>("v2");
         REQUIRE(v2.extent(0) == 2);
         REQUIRE(v2.extent(1) == mpi_size * 2);
-        for(int i=0; i<mpi_size; ++i)
-        {
-            CHECK(v2(0, i*2+0) == 1.0);
-            CHECK(v2(0, i*2+1) == 2.0);
-            CHECK(v2(1, i*2+0) == 3.0);
-            CHECK(v2(1, i*2+1) == 4.0);
+        for (int i = 0; i < mpi_size; ++i) {
+            CHECK(v2(0, i * 2 + 0) == 1.0);
+            CHECK(v2(0, i * 2 + 1) == 2.0);
+            CHECK(v2(1, i * 2 + 0) == 3.0);
+            CHECK(v2(1, i * 2 + 1) == 4.0);
         }
 
         // v3
@@ -191,20 +186,18 @@ TEST_CASE("hdf5_append_kv", "[Hdf5_file_append]")
         REQUIRE(v4.extent(0) == 2);
         REQUIRE(v4.extent(1) == mpi_size * 2);
         REQUIRE(v4.extent(2) == 2);
-        for(int i=0; i<mpi_size; ++i)
-        {
-            CHECK(v4(0, i*2+0, 0) == 1.1);
-            CHECK(v4(0, i*2+0, 1) == 1.2);
-            CHECK(v4(0, i*2+1, 0) == 2.1);
-            CHECK(v4(0, i*2+1, 1) == 2.2);
-            CHECK(v4(1, i*2+0, 0) == 3.1);
-            CHECK(v4(1, i*2+0, 1) == 3.2);
-            CHECK(v4(1, i*2+1, 0) == 4.1);
-            CHECK(v4(1, i*2+1, 1) == 4.2);
+        for (int i = 0; i < mpi_size; ++i) {
+            CHECK(v4(0, i * 2 + 0, 0) == 1.1);
+            CHECK(v4(0, i * 2 + 0, 1) == 1.2);
+            CHECK(v4(0, i * 2 + 1, 0) == 2.1);
+            CHECK(v4(0, i * 2 + 1, 1) == 2.2);
+            CHECK(v4(1, i * 2 + 0, 0) == 3.1);
+            CHECK(v4(1, i * 2 + 0, 1) == 3.2);
+            CHECK(v4(1, i * 2 + 1, 0) == 4.1);
+            CHECK(v4(1, i * 2 + 1, 1) == 4.2);
         }
     }
 }
-
 
 TEST_CASE("hdf5_append_resume", "[Hdf5_file_append]")
 {
@@ -257,5 +250,3 @@ TEST_CASE("hdf5_append_resume", "[Hdf5_file_append]")
         CHECK(v2(2) == 7.0);
     }
 }
-
-

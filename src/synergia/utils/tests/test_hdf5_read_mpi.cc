@@ -1,32 +1,44 @@
-#include "synergia/utils/catch.hpp"
+#include <catch2/catch_test_macros.hpp>
 
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/kokkos_views.h"
 
-std::vector<int> get_rows(int mpi_size)
+std::vector<int>
+get_rows(int mpi_size)
 {
     std::vector<int> rows;
 
-    switch(mpi_size)
-    {
-        case 1: rows = {4}; break;
-        case 2: rows = {1, 3}; break;
-        case 3: rows = {1, 1, 2}; break;
-        case 4: rows = {1, 1, 0, 2}; break;
-        default: break;
+    switch (mpi_size) {
+        case 1:
+            rows = {4};
+            break;
+        case 2:
+            rows = {1, 3};
+            break;
+        case 3:
+            rows = {1, 1, 2};
+            break;
+        case 4:
+            rows = {1, 1, 0, 2};
+            break;
+        default:
+            break;
     }
 
     return rows;
 }
 
-std::vector<int> get_offsets(std::vector<int> const& rows)
+std::vector<int>
+get_offsets(std::vector<int> const& rows)
 {
     std::vector<int> offs(rows.size(), 0);
-    for(int i=0; i<rows.size()-1; ++i) offs[i+1] = offs[i] + rows[i];
+    for (int i = 0; i < rows.size() - 1; ++i)
+        offs[i + 1] = offs[i] + rows[i];
     return offs;
 }
 
-void prepare_file(std::string const& fname)
+void
+prepare_file(std::string const& fname)
 {
     Hdf5_file file(fname, Hdf5_file::Flag::truncate, Commxx());
 
@@ -42,7 +54,8 @@ void prepare_file(std::string const& fname)
 
     // v4: [2, 3, 4, 5]
     karray1d_row v4("v", 4);
-    for(int i=0; i<4; ++i) v4(i) = i+2.0;
+    for (int i = 0; i < 4; ++i)
+        v4(i) = i + 2.0;
     file.write("v4", v4, false);
 
     // v5: []
@@ -51,7 +64,8 @@ void prepare_file(std::string const& fname)
 
     // v6: [[0, 2], [0, 3], [0, 4], [0, 5]]
     karray2d_row v6("v", 4, 2);
-    for(int i=0; i<4; ++i) v6(i, 1) = i+2.0;
+    for (int i = 0; i < 4; ++i)
+        v6(i, 1) = i + 2.0;
     file.write("v6", v6, false);
 }
 
@@ -119,7 +133,6 @@ TEST_CASE("hdf5_read_get_dims", "[Hdf5_file_read]")
     // vx
     CHECK_THROWS(file.get_dims("vx"));
 }
-
 
 TEST_CASE("hdf5_read_single", "[Hdf5_file_read]")
 {
@@ -202,12 +215,14 @@ TEST_CASE("hdf5_read_collective", "[Hdf5_file_read]")
     // v4 read with karray
     auto v4 = file.read<karray1d_row>("v4", rows[mpi_rank]);
     REQUIRE(v4.extent(0) == rows[mpi_rank]);
-    for(int i=0; i<rows[mpi_rank]; ++i) CHECK(v4(i) == offs[mpi_rank]+i+2.0);
+    for (int i = 0; i < rows[mpi_rank]; ++i)
+        CHECK(v4(i) == offs[mpi_rank] + i + 2.0);
 
     // v4 read with raw array
     std::vector<double> rv4(rows[mpi_rank]);
     file.read("v4", rv4.data(), rows[mpi_rank]);
-    for(int i=0; i<rows[mpi_rank]; ++i) CHECK(rv4[i] == offs[mpi_rank]+i+2.0);
+    for (int i = 0; i < rows[mpi_rank]; ++i)
+        CHECK(rv4[i] == offs[mpi_rank] + i + 2.0);
 
     // v5
     auto v5 = file.read<karray2d_row>("v5", 0);
@@ -218,7 +233,6 @@ TEST_CASE("hdf5_read_collective", "[Hdf5_file_read]")
     auto v6 = file.read<karray2d_row>("v6", rows[mpi_rank]);
     REQUIRE(v6.extent(0) == rows[mpi_rank]);
     REQUIRE(v6.extent(1) == 2);
-    for(int i=0; i<rows[mpi_rank]; ++i) CHECK(v6(i, 1) == offs[mpi_rank]+i+2.0);
+    for (int i = 0; i < rows[mpi_rank]; ++i)
+        CHECK(v6(i, 1) == offs[mpi_rank] + i + 2.0);
 }
-
-
