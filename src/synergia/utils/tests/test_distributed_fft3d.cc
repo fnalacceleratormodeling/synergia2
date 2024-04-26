@@ -1,8 +1,7 @@
-#include "synergia/utils/catch.hpp"
-#include "synergia/utils/distributed_fft3d.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <cmath>
-#include <complex>
+#include "synergia/utils/distributed_fft3d.h"
 
 // set DBGPRINT to 1 to print values for tolerance failures
 #define DBGPRINT 0

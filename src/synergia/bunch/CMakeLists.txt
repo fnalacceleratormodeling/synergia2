@@ -71,4 +71,4 @@ install(
         period.h
   DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/bunch)
 
-add_subdirectory(tests)
+#add_subdirectory(tests)

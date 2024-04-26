@@ -1,7 +1,7 @@
-#define CATCH_CONFIG_RUNNER
-#include "synergia/utils/catch.hpp"
+
 
 #include <Kokkos_Core.hpp>
+#include <catch2/catch_session.hpp>
 #include <mpi.h>
 
 #if defined BUILD_FD_SPACE_CHARGE_SOLVER
