@@ -658,7 +658,7 @@ class bunch_t {
 
     // checkpoint partiles
     void
-    save_checkpoint_particles(Hdf5_file& file, int idx) const
+    save_checkpoint_particles(Hdf5_file& file, int idx)
     {
         get_bunch_particles(PG::regular).save_checkpoint_particles(file, idx);
         get_bunch_particles(PG::spectator).save_checkpoint_particles(file, idx);
