@@ -1070,6 +1070,18 @@ namespace FF_algorithm {
         dpop = sqrt((E - T(m)) * (E + T(m))) / T(new_ref_p) - T(1.0);
     }
 
+    // adjust particle coordinates to use new reference energy
+    template <typename T>
+    KOKKOS_INLINE_FUNCTION void
+    adjust_particle_ref_coords(T& px,
+                       T& py,
+                       T const& cdt,
+                       T& dpop,
+                       double m,
+                       double old_E,
+                       double new_E)
+    {}
+        
     KOKKOS_INLINE_FUNCTION
     double
     factorial(int n)
