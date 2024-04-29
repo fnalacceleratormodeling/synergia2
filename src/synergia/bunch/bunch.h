@@ -488,7 +488,7 @@ class bunch_t {
     // adjust_bunch_particle_reference_energy
     // This method adjusts the particle coordinates to use the passed in reference energy
     void
-    adjust_bunch_particle_reference_energy(newE)
+    adjust_bunch_particle_reference_energy(double newE)
     {}
     
     // bucket index
