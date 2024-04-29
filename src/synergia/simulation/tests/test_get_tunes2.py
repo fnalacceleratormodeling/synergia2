@@ -6,6 +6,7 @@ import pytest
 
 # This test is similar to test_get_tunes2.py but with the Booster-like lattice.
 
+
 # lattice_fixture is a lattice
 @pytest.fixture
 def lattice_fixture():
@@ -60,30 +61,36 @@ endsequence;
 
     reader = synergia.lattice.MadX_reader()
     reader.parse(booster_madx)
-    lattice = reader.get_lattice('booster')
-    lattice.set_all_string_attribute('extractor_type', 'libff')
+    lattice = reader.get_lattice("booster")
+    lattice.set_all_string_attribute("extractor_type", "libff")
 
     return lattice
 
+
 def test_tunes(lattice_fixture):
-    tunes = synergia.simulation.Lattice_simulator.calculate_tune_and_cdt(lattice_fixture)
-    print('Tunes: x: ', tunes[0], ', y: ', tunes[1])
+    tunes = synergia.simulation.Lattice_simulator.calculate_tune_and_cdt(
+        lattice_fixture
+    )
+    print("Tunes: x: ", tunes[0], ", y: ", tunes[1])
     assert tunes[0] == pytest.approx(0.16533417, rel=1.0e-4)
     assert tunes[1] == pytest.approx(0.436092762, rel=1.0e-4)
+
 
 def test_chromaticities(lattice_fixture):
     beta = lattice_fixture.get_reference_particle().get_beta()
     chrom = synergia.simulation.Lattice_simulator.get_chromaticities(lattice_fixture)
-    print('H chromaticitity: ', chrom.horizontal_chromaticity)
-    print('V chromaticitity: ', chrom.vertical_chromaticity)
+    print("H chromaticitity: ", chrom.horizontal_chromaticity)
+    print("V chromaticitity: ", chrom.vertical_chromaticity)
     # MADX chromaticiticity is with respect to PT
-    #assert chrom.horizontal_chromaticity == pytest.approx(-65.68223681*beta)
-    #assert chrom.vertical_chromaticity == pytest.approx(-25.5636675*beta)
+    # assert chrom.horizontal_chromaticity == pytest.approx(-65.68223681*beta)
+    # assert chrom.vertical_chromaticity == pytest.approx(-25.5636675*beta)
+
 
 def main():
     lf = lattice_fixture()
     test_tunes(lf)
     test_chromaticities(lf)
+
 
 if __name__ == "__main__":
     main()

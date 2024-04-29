@@ -4,13 +4,13 @@ import numpy as np
 import synergia
 import pytest
 
-macroparticles=16
-realparticles=4.0e10
+macroparticles = 16
+realparticles = 4.0e10
 # lag 1/120 is a phase angle of 2pi/120 or pi/60 or 3 degrees
-# V = 0.2 MV * sin(pi/60) = 
-expected_delta_E = 0.0002*np.sin(np.pi/60)
-print('expected delta E/turn: ', expected_delta_E)
-nturns=1
+# V = 0.2 MV * sin(pi/60) =
+expected_delta_E = 0.0002 * np.sin(np.pi / 60)
+print("expected delta E/turn: ", expected_delta_E)
+nturns = 1
 
 
 @pytest.fixture
@@ -42,8 +42,8 @@ endsequence;
 
     reader = synergia.lattice.MadX_reader()
     reader.parse(fodo_madx)
-    lattice = reader.get_lattice('fodo')
-    lattice.set_all_string_attribute('extractor_type', 'libff')
+    lattice = reader.get_lattice("fodo")
+    lattice.set_all_string_attribute("extractor_type", "libff")
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
     stepper = synergia.simulation.Independent_stepper_elements(1)
     propagator = synergia.simulation.Propagator(lattice, stepper)
@@ -52,7 +52,9 @@ endsequence;
 
 
 def create_simulator(ref_part):
-    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(ref_part, macroparticles, realparticles)
+    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
+        ref_part, macroparticles, realparticles
+    )
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
@@ -73,53 +75,64 @@ def create_propagator(lattice):
 def test_modify_lattice(prop_fixture):
     propagator = prop_fixture
     lattice = propagator.get_lattice()
-    
+
     sim = create_simulator(lattice.get_reference_particle())
 
     # turn and action method
     def turn_end_action(sim, lattice, turn):
-        lattice.get_elements()[0].set_double_attribute("foo", 3.125*(turn+1))
-        print('test_modify lattice turn ', turn)
-        
+        lattice.get_elements()[0].set_double_attribute("foo", 3.125 * (turn + 1))
+        print("test_modify lattice turn ", turn)
+
     # end of turn end action method
 
     sim.reg_prop_action_turn_end(turn_end_action)
 
-    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
+    simlog = synergia.utils.parallel_utils.Logger(
+        0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False
+    )
     propagator.propagate(sim, simlog, 10)
-    print('foo attribute: ', lattice.get_elements()[0].get_double_attribute('foo'))
-    print('foo attribute through propagator: ', propagator.get_lattice().get_elements()[0].get_double_attribute('foo'))
-    assert propagator.get_lattice().get_elements()[0].get_double_attribute('foo') == 31.25
-    #assert False
+    print("foo attribute: ", lattice.get_elements()[0].get_double_attribute("foo"))
+    print(
+        "foo attribute through propagator: ",
+        propagator.get_lattice().get_elements()[0].get_double_attribute("foo"),
+    )
+    assert (
+        propagator.get_lattice().get_elements()[0].get_double_attribute("foo") == 31.25
+    )
+    # assert False
+
 
 def test_modify_lattice_energy(prop_fixture):
     propagator = prop_fixture
     lattice = propagator.get_lattice()
-    
+
     sim = create_simulator(lattice.get_reference_particle())
 
     # turn and action method
     def turn_end_action(sim, lattice, turn):
-        lattice.set_lattice_energy(8.0+(turn+1)*0.25)
-        print('test_modify lattice_energy turn ', turn)
-        
+        lattice.set_lattice_energy(8.0 + (turn + 1) * 0.25)
+        print("test_modify lattice_energy turn ", turn)
+
     # end of turn end action method
 
     sim.reg_prop_action_turn_end(turn_end_action)
 
-    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
+    simlog = synergia.utils.parallel_utils.Logger(
+        0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False
+    )
     propagator.propagate(sim, simlog, 1)
-    print('lattice energy: ', propagator.get_lattice().get_lattice_energy())
+    print("lattice energy: ", propagator.get_lattice().get_lattice_energy())
 
     assert propagator.get_lattice().get_lattice_energy() == 8.25
-    #assert False
+    # assert False
+
 
 # this test activates a context class that can maintain separate state but is accessible within the
 # prop_action. This test will increment a counter for odd numbered turns.
 def test_context(prop_fixture):
     propagator = prop_fixture
     lattice = propagator.get_lattice()
-    
+
     sim = create_simulator(lattice.get_reference_particle())
 
     class context:
@@ -127,53 +140,65 @@ def test_context(prop_fixture):
 
     # turn and action method
     def turn_end_action(sim, lattice, turn):
-        if turn%2 == 1:
-            context.odd_turn_count = context.odd_turn_count+1
-        print('test_context: turn  ', turn, ', odd_turn_count: ', context.odd_turn_count)
+        if turn % 2 == 1:
+            context.odd_turn_count = context.odd_turn_count + 1
+        print(
+            "test_context: turn  ", turn, ", odd_turn_count: ", context.odd_turn_count
+        )
 
     # end of turn end action method
 
     sim.reg_prop_action_turn_end(turn_end_action)
 
-    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
+    simlog = synergia.utils.parallel_utils.Logger(
+        0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False
+    )
     propagator.propagate(sim, simlog, 5)
 
-    print('after propagate: odd_turn_count: ', context.odd_turn_count)
+    print("after propagate: odd_turn_count: ", context.odd_turn_count)
     assert context.odd_turn_count == 2
-    #assert False
+    # assert False
 
-#--------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------
 def fixmarker(inlattice, turn):
-    print('lattice id: ', id(inlattice))
+    print("lattice id: ", id(inlattice))
     for elem in inlattice.get_elements():
         if elem.get_name() == "m2":
-            elem.set_double_attribute("foo", 2.5*(turn+1))
+            elem.set_double_attribute("foo", 2.5 * (turn + 1))
+
 
 def test_modify_lattice2(prop_fixture):
     propagator = prop_fixture
     lattice = propagator.get_lattice()
-    
+
     sim = create_simulator(lattice.get_reference_particle())
 
     # turn and action method
     def turn_end_action(sim, lattice, turn):
         print("turn_end_action, turn: ", turn, ", lattice: ", id(lattice))
         fixmarker(lattice, turn)
+
     # end of turn end action method
 
     sim.reg_prop_action_turn_end(turn_end_action)
 
     print("propagator.lattice id: ", id(propagator.get_lattice()))
-    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
+    simlog = synergia.utils.parallel_utils.Logger(
+        0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False
+    )
     propagator.propagate(sim, simlog, 10)
     for elem in propagator.get_lattice().get_elements():
         if elem.get_name() == "m2":
-            assert elem.get_double_attribute('foo') == 25.0
-    #assert False
-#--------------------------------------------------------------------------------------------------------
+            assert elem.get_double_attribute("foo") == 25.0
+    # assert False
+
+
+# --------------------------------------------------------------------------------------------------------
 def main():
     pf = prop_fixture()
     test_modify_lattice2(pf)
+
 
 if __name__ == "__main__":
     main()

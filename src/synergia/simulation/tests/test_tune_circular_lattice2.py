@@ -307,92 +307,113 @@ beam, particle=proton, energy=1.7388477415186678; ! this energy causes closed or
 
     reader = synergia.lattice.MadX_reader()
     reader.parse(fodo_madx)
-    lattice = reader.get_lattice('booster')
+    lattice = reader.get_lattice("booster")
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
- 
+
     return lattice
+
 
 def test_correct_total_energy():
     lattice = get_lattice()
-    assert lattice.get_reference_particle().get_total_energy() == pytest.approx(1.7388477415186678)
+    assert lattice.get_reference_particle().get_total_energy() == pytest.approx(
+        1.7388477415186678
+    )
     assert lattice.get_lattice_energy() == pytest.approx(1.7388477415186678)
+
 
 def test_correct_length():
     lattice = get_lattice()
     assert lattice.get_length() == pytest.approx(474.202752)
 
+
 def test_correct_init_frequency():
     lattice = get_lattice()
     length = lattice.get_length()
     # harmonic number is unity
-    freq = 84*lattice.get_reference_particle().get_beta() * synergia.foundation.pconstants.c/length
+    freq = (
+        84
+        * lattice.get_reference_particle().get_beta()
+        * synergia.foundation.pconstants.c
+        / length
+    )
     ncavities = 0
     rfelem = None
     for elem in lattice.get_elements():
         if elem.get_type() == synergia.lattice.element_type.rfcavity:
-            ncavities = ncavities+1
+            ncavities = ncavities + 1
             rfelem = elem
     assert ncavities == 22
-    rffreq = rfelem.get_double_attribute('freq')
+    rffreq = rfelem.get_double_attribute("freq")
     # rffreq will be in MHz, while my calculated freq is in Hz
-    assert rffreq*1.0e+6 == pytest.approx(freq)
+    assert rffreq * 1.0e6 == pytest.approx(freq)
+
 
 def test_correct_cdt():
     lattice = get_lattice()
     beta = lattice.get_reference_particle().get_beta()
     length = lattice.get_length()
     # get closed orbit state from tune_circular_lattice
-    closed_orbit_state = synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
+    closed_orbit_state = synergia.simulation.Lattice_simulator.tune_circular_lattice(
+        lattice
+    )
     cdt = closed_orbit_state[4]
-    assert length/beta == pytest.approx(cdt)
+    assert length / beta == pytest.approx(cdt)
+
 
 def test_correct_increased_frequency():
     lattice = get_lattice()
     length = lattice.get_length()
     # harmonic number is unity
     init_energy = lattice.get_reference_particle().get_total_energy()
-    print('init_energy: ', init_energy)
-    gamma = init_energy/synergia.foundation.pconstants.mp
+    print("init_energy: ", init_energy)
+    gamma = init_energy / synergia.foundation.pconstants.mp
     betagamma = np.sqrt(gamma**2 - 1)
-    beta = betagamma/gamma
-    print('orig betagamma: ', betagamma)
-    print('orig gamma: ', gamma)
-    print('orig beta: ', beta)
-    #return
+    beta = betagamma / gamma
+    print("orig betagamma: ", betagamma)
+    print("orig gamma: ", gamma)
+    print("orig beta: ", beta)
+    # return
     new_energy = init_energy + 1
-    print('new_energy: ', new_energy)
-    #lattice.get_reference_particle().set_total_energy(new_energy)
+    print("new_energy: ", new_energy)
+    # lattice.get_reference_particle().set_total_energy(new_energy)
     lattice.set_lattice_energy(new_energy)
-    #return
-    print('readback new energy: ', lattice.get_reference_particle().get_total_energy())
-    new_gamma = new_energy/synergia.foundation.pconstants.mp
+    # return
+    print("readback new energy: ", lattice.get_reference_particle().get_total_energy())
+    new_gamma = new_energy / synergia.foundation.pconstants.mp
     new_betagamma = np.sqrt(new_gamma**2 - 1)
-    new_beta = new_betagamma/new_gamma
-    print('new_betagamma: ', new_betagamma)
-    print('new_gamma: ', new_gamma)
-    print('readback new gamma: ', lattice.get_reference_particle().get_gamma())
-    print('new_beta: ', new_beta)
-    print('readback new beta: ', lattice.get_reference_particle().get_beta())
+    new_beta = new_betagamma / new_gamma
+    print("new_betagamma: ", new_betagamma)
+    print("new_gamma: ", new_gamma)
+    print("readback new gamma: ", lattice.get_reference_particle().get_gamma())
+    print("new_beta: ", new_beta)
+    print("readback new beta: ", lattice.get_reference_particle().get_beta())
     assert lattice.get_reference_particle().get_beta() == pytest.approx(new_beta)
-    print('before tune_circular_lattice', flush=True)
+    print("before tune_circular_lattice", flush=True)
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
-    print('after tune_circular_lattice', flush=True)
-    print('readback beta after tune_circular_lattice: ', lattice.get_reference_particle().get_beta())
-    print('readback energy after tune_circular_lattice: ', lattice.get_lattice_energy())
-    freq = 84*lattice.get_reference_particle().get_beta() * synergia.foundation.pconstants.c/length
+    print("after tune_circular_lattice", flush=True)
+    print(
+        "readback beta after tune_circular_lattice: ",
+        lattice.get_reference_particle().get_beta(),
+    )
+    print("readback energy after tune_circular_lattice: ", lattice.get_lattice_energy())
+    freq = (
+        84
+        * lattice.get_reference_particle().get_beta()
+        * synergia.foundation.pconstants.c
+        / length
+    )
     ncavities = 0
     rfelem = None
     for elem in lattice.get_elements():
         if elem.get_type() == synergia.lattice.element_type.rfcavity:
-            ncavities = ncavities+1
+            ncavities = ncavities + 1
             rfelem = elem
     assert ncavities == 22
-    rffreq = rfelem.get_double_attribute('freq')
+    rffreq = rfelem.get_double_attribute("freq")
     # rffreq will be in MHz, while my calculated freq is in Hz
-    print('rffreq: ', rffreq*1.0e6)
-    print('freq: ', freq)
-    assert rffreq*1.0e+6 == pytest.approx(freq)
-
+    print("rffreq: ", rffreq * 1.0e6)
+    print("freq: ", freq)
+    assert rffreq * 1.0e6 == pytest.approx(freq)
 
 
 def main():
@@ -401,6 +422,7 @@ def main():
     test_correct_total_energy()
     test_correct_init_frequency()
     test_correct_increased_frequency()
+
 
 if __name__ == "__main__":
     main()

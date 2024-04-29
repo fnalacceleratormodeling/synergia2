@@ -4,22 +4,63 @@ import numpy as np
 import synergia
 import pytest
 
-macroparticles=40 # 8 particles in transverse ring x 5 longitudinal positions
-realparticles=4.0e10
+macroparticles = 40  # 8 particles in transverse ring x 5 longitudinal positions
+realparticles = 4.0e10
 
 # extracted map from 400 MeV Booster simulation
-booster_map = np.array([[-2.36091394e-01, -3.26760289e+01,  0.00000000e+00,
-         0.00000000e+00,  1.50784719e-04,  3.94071286e+00],
-       [ 2.87151957e-02, -2.61249729e-01,  0.00000000e+00,
-         0.00000000e+00,  6.41040556e-07, -9.02291366e-02],
-       [ 0.00000000e+00,  0.00000000e+00,  3.62462342e-01,
-        -4.88366765e+00,  0.00000000e+00,  0.00000000e+00],
-       [ 0.00000000e+00,  0.00000000e+00,  1.77021951e-01,
-         3.73786762e-01,  0.00000000e+00,  0.00000000e+00],
-       [-1.30316509e-01,  5.56865107e+00,  0.00000000e+00,
-         0.00000000e+00,  9.96790543e-01,  3.03415425e+02],
-       [ 2.12179267e-07,  2.34390926e-04,  0.00000000e+00,
-         0.00000000e+00, -4.66014699e-05,  9.89011964e-01]])
+booster_map = np.array(
+    [
+        [
+            -2.36091394e-01,
+            -3.26760289e01,
+            0.00000000e00,
+            0.00000000e00,
+            1.50784719e-04,
+            3.94071286e00,
+        ],
+        [
+            2.87151957e-02,
+            -2.61249729e-01,
+            0.00000000e00,
+            0.00000000e00,
+            6.41040556e-07,
+            -9.02291366e-02,
+        ],
+        [
+            0.00000000e00,
+            0.00000000e00,
+            3.62462342e-01,
+            -4.88366765e00,
+            0.00000000e00,
+            0.00000000e00,
+        ],
+        [
+            0.00000000e00,
+            0.00000000e00,
+            1.77021951e-01,
+            3.73786762e-01,
+            0.00000000e00,
+            0.00000000e00,
+        ],
+        [
+            -1.30316509e-01,
+            5.56865107e00,
+            0.00000000e00,
+            0.00000000e00,
+            9.96790543e-01,
+            3.03415425e02,
+        ],
+        [
+            2.12179267e-07,
+            2.34390926e-04,
+            0.00000000e00,
+            0.00000000e00,
+            -4.66014699e-05,
+            9.89011964e-01,
+        ],
+    ]
+)
+
 
 # prop_fixture is a propagator
 @pytest.fixture
@@ -57,28 +98,31 @@ endsequence;
 
     reader = synergia.lattice.MadX_reader()
     reader.parse(channel_madx)
-    lattice = reader.get_lattice('channel')
+    lattice = reader.get_lattice("channel")
     print(lattice)
-    lattice.set_all_string_attribute('extractor_type', 'libff')
+    lattice.set_all_string_attribute("extractor_type", "libff")
     stepper = synergia.simulation.Independent_stepper_elements(1)
     propagator = synergia.simulation.Propagator(lattice, stepper)
 
     return propagator
 
+
 def create_simulator(ref_part):
-    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(ref_part, macroparticles, realparticles)
+    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
+        ref_part, macroparticles, realparticles
+    )
     bunch = sim.get_bunch()
-    s2o2 = np.sqrt(2.0)/2
+    s2o2 = np.sqrt(2.0) / 2
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
 
     dr = 0.001
 
     # populate longitudinal coordinates first
-    k=0
+    k = 0
     for iz in range(-2, 3):
         # loop over longitudinal position
-        cdt = 0.5*iz
+        cdt = 0.5 * iz
         for j in range(8):
             lp[k, 0:6] = 0.0
             lp[k, 4] = cdt
@@ -90,33 +134,34 @@ def create_simulator(ref_part):
         lp[k, 0] = dr
         k = k + 1
 
-        lp[k, 0] = s2o2*dr
-        lp[k, 2] = s2o2*dr
+        lp[k, 0] = s2o2 * dr
+        lp[k, 2] = s2o2 * dr
         k = k + 1
 
         lp[k, 2] = dr
         k = k + 1
 
-        lp[k, 0] = -s2o2*dr
-        lp[k, 2] = s2o2*dr
+        lp[k, 0] = -s2o2 * dr
+        lp[k, 2] = s2o2 * dr
         k = k + 1
 
         lp[k, 0] = -dr
         k = k + 1
 
-        lp[k, 0] = -s2o2*dr
-        lp[k, 2] = -s2o2*dr
+        lp[k, 0] = -s2o2 * dr
+        lp[k, 2] = -s2o2 * dr
         k = k + 1
 
         lp[k, 2] = -dr
         k = k + 1
 
-        lp[k, 0] = s2o2*dr
-        lp[k, 2] = -s2o2*dr
+        lp[k, 0] = s2o2 * dr
+        lp[k, 2] = -s2o2 * dr
         k = k + 1
 
     bunch.checkin_particles()
     return sim
+
 
 def test_lattice_prop(pf):
     refpart = pf.get_lattice().get_reference_particle()
@@ -143,12 +188,14 @@ def test_lattice_prop(pf):
 
     for i in range(40):
         for j in range(6):
-            #print(i, j)
-            assert op_by_map[i,j] == pytest.approx(prop_particles[i, j])
+            # print(i, j)
+            assert op_by_map[i, j] == pytest.approx(prop_particles[i, j])
+
 
 def main():
     pf = pf()
     test_lattice_prop(pf)
+
 
 if __name__ == "__main__":
     main()
