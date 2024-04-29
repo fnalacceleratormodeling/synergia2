@@ -1,4 +1,4 @@
-#include "synergia/utils/catch.hpp"
+#include <catch2/catch_test_macros.hpp>
 
 #include "synergia/simulation/lattice_simulator.h"
 
@@ -11,7 +11,6 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-
 
 Lattice
 get_lattice()
@@ -80,16 +79,14 @@ TEST_CASE("get_tunes_dpp_offset")
     constexpr double dpp = 4.0e-4;
     auto tunes(Lattice_simulator::calculate_tune_and_cdt(lattice, dpp));
 
-    screen << "x tune: " << std::setprecision(17) << tunes[0] <<  std::endl;
-    screen << "y tune: " << std::setprecision(17) << tunes[1] <<  std::endl;
+    screen << "x tune: " << std::setprecision(17) << tunes[0] << std::endl;
+    screen << "y tune: " << std::setprecision(17) << tunes[1] << std::endl;
 
     // from outputs of test_get_tunes2
-    constexpr double chromx=-60.349667735076068;
-    constexpr double chromy=-21.774885376635297;
+    constexpr double chromx = -60.349667735076068;
+    constexpr double chromy = -21.774885376635297;
     constexpr double tunex_dpp0 = 0.16533644789863577;
     constexpr double tuney_dpp0 = 0.4360932921548214;
     // CHECK (tunes[0] == Approx(tunex_dpp0 + chromx*dpp).epsilon(1.0e-8));
     // CHECK (tunes[1] == Approx(tuney_dpp0 + chromy*dpp).epsilon(1.0e-8));
-
 }
- 
