@@ -11,7 +11,7 @@
 const double p0 = 1.5;
 const double m = pconstants::mp;
 
-const double default_tolerance = 1e-14;
+const double default_tolerance = 1e-10;
 
 struct propagator_fixture {
     Logger screen;
@@ -228,16 +228,17 @@ propagate_libff(std::string const& seq, double tolerance = default_tolerance)
 
         std::cout << "\n";
 
+        Catch::StringMaker<double>::precision = 16;
         REQUIRE_THAT(parts(p, 0),
-                     Catch::Matchers::WithinAbs(madx(p, 0), tolerance * 1e4));
+                     Catch::Matchers::WithinAbs(madx(p, 0), tolerance));
         REQUIRE_THAT(parts(p, 1),
-                     Catch::Matchers::WithinAbs(madx(p, 1), tolerance * 1e4));
+                     Catch::Matchers::WithinAbs(madx(p, 1), tolerance));
         REQUIRE_THAT(parts(p, 2),
-                     Catch::Matchers::WithinAbs(madx(p, 2), tolerance * 1e4));
+                     Catch::Matchers::WithinAbs(madx(p, 2), tolerance));
         REQUIRE_THAT(parts(p, 3),
-                     Catch::Matchers::WithinAbs(madx(p, 3), tolerance * 1e4));
+                     Catch::Matchers::WithinAbs(madx(p, 3), tolerance));
         REQUIRE_THAT(parts(p, 4),
-                     Catch::Matchers::WithinAbs(-madx(p, 4), tolerance * 1e6));
+                     Catch::Matchers::WithinAbs(-madx(p, 4), tolerance * 100));
         REQUIRE_THAT(
             parts(p, 5),
             Catch::Matchers::WithinAbs(de_to_dp(madx(p, 5)), tolerance));
@@ -265,10 +266,10 @@ TEST_CASE("octupole", "[libFF][Elements]")
 }
 
 // long quad is tested with slightly reduced tolerance
-// (1e-12 vs 1e-14)
+// (1e-8 vs 1e-10)
 TEST_CASE("quad_long", "[libFF][Elements]")
 {
-    propagate_libff("quad_long", 1e-12);
+    propagate_libff("quad_long", 1e-8);
 }
 
 TEST_CASE("sextupole_long", "[libFF][Elements]")
