@@ -1,8 +1,10 @@
-#include "synergia/utils/catch.hpp"
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <iostream>
+
 #include "synergia/lattice/mx_expr.h"
 #include "synergia/lattice/mx_parse.h"
-
-#include <iostream>
 
 using namespace synergia;
 
@@ -14,7 +16,7 @@ TEST_CASE("mx_expr")
         mx_expr expr;
         CHECK(parse_expression("3+1", expr));
         REQUIRE_NOTHROW(mx_eval(expr));
-        CHECK(mx_eval(expr) == Approx(4.0).margin(tolerance));
+        REQUIRE_THAT(mx_eval(expr), Catch::Matchers::WithinAbs(4.0, tolerance));
         CHECK(mx_expr_is_number(expr));
     }
 
@@ -56,7 +58,7 @@ TEST_CASE("mx_expr_writer")
         CHECK(parse_expression("3.1234567890123456", expr));
 
         std::string s = mx_expr_str(expr);
-        CHECK(std::stod(s) == Approx(d).margin(1e-16));
+        REQUIRE_THAT(std::stod(s), Catch::Matchers::WithinAbs(d, 1e-14));
     }
 
     {
@@ -127,13 +129,9 @@ TEST_CASE("mx_expr_writer")
 
     {
         mx_expr expr;
-        CHECK(parse_expression("(-3+1.1234556790123456)*2+sin(a->c) + pi", expr));
+        CHECK(
+            parse_expression("(-3+1.1234556790123456)*2+sin(a->c) + pi", expr));
 
         std::cout << mx_expr_str(expr) << "\n";
     }
-
-
-
 }
-
-
