@@ -1,10 +1,10 @@
-#include "synergia/utils/catch.hpp"
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include "synergia/lattice/madx_reader.h"
-#include "synergia/lattice/mx_parse.h"
 
 #include "synergia/utils/cereal_files.h"
-
 
 TEST_CASE("print")
 {
@@ -40,7 +40,7 @@ TEST_CASE("dynamic lattice")
         d, at=0.6, from=c;
         endsequence;
     )";
- 
+
     MadX_reader reader;
     reader.parse(str);
 
@@ -50,31 +50,36 @@ TEST_CASE("dynamic lattice")
     auto& elms = lattice.get_elements();
 
     // original a->k1
-    CHECK(lattice.get_elements().front().get_double_attribute("k1")
-            == Approx(2.0).margin(1e-12));
+    REQUIRE_THAT(lattice.get_elements().front().get_double_attribute("k1"),
+                 Catch::Matchers::WithinAbs(2.0, 1e-12));
 
     // set x
     lattice.get_lattice_tree().set_variable("x", 3.0);
 
     // a->k1 after setting a new x
-    CHECK(lattice.get_elements().front().get_double_attribute("k1")
-            == Approx(4.0).margin(1e-12));
+    REQUIRE_THAT(lattice.get_elements().front().get_double_attribute("k1"),
+                 Catch::Matchers::WithinAbs(4.0, 1e-12));
 
     // find element d
     auto it = elms.end();
-    --it; --it;
+    --it;
+    --it;
 
     // original values
-    CHECK(it->get_double_attribute("l") == Approx(0.8).margin(1e-12));
-    CHECK(it->get_double_attribute("k1") == Approx(1.0).margin(1e-12));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbsMatcher(0.8, 1e-12));
+    REQUIRE_THAT(it->get_double_attribute("k1"),
+                 Catch::Matchers::WithinAbsMatcher(1.0, 1e-12));
 
     // set o->l to 0.3
     lattice.get_lattice_tree().set_element_attribute("o", "l", 0.3);
     lattice.get_lattice_tree().print();
 
     // updated values
-    CHECK(it->get_double_attribute("l") == Approx(1.2).margin(1e-12));
-    CHECK(it->get_double_attribute("k1") == Approx(1.5).margin(1e-12));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbsMatcher(1.2, 1e-12));
+    REQUIRE_THAT(it->get_double_attribute("k1"),
+                 Catch::Matchers::WithinAbsMatcher(1.5, 1e-12));
 
     // element c
     --it;
@@ -86,8 +91,8 @@ TEST_CASE("dynamic lattice")
     REQUIRE_NOTHROW(it->set_double_attribute("k1", "o->l*3"));
 
     // check value 0.3*3 = 0.9
-    CHECK(it->get_double_attribute("k1") == Approx(0.9).margin(1e-12));
-
+    REQUIRE_THAT(it->get_double_attribute("k1"),
+                 Catch::Matchers::WithinAbsMatcher(0.9, 1e-12));
 }
 
 TEST_CASE("serialization")
@@ -113,7 +118,7 @@ TEST_CASE("serialization")
             d, at=0.6, from=c;
             endsequence;
         )";
-     
+
         MadX_reader reader;
         reader.parse(str);
 
@@ -131,8 +136,8 @@ TEST_CASE("serialization")
         json_load(lattice, "dyn_lattice.json");
 
         lattice.get_lattice_tree().set_variable("x", 5.0);
-        CHECK(lattice.get_elements().front().get_double_attribute("k1")
-                == Approx(6.0).margin(1e-12));
+        REQUIRE_THAT(lattice.get_elements().front().get_double_attribute("k1"),
+                     Catch::Matchers::WithinAbs(6.0, 1e-12));
 
         std::cout << lattice.get_lattice_tree().mx.to_madx() << "\n";
         std::cout << lattice.as_string() << "\n";

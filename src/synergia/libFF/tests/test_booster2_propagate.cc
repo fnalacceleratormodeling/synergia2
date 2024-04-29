@@ -1,36 +1,32 @@
-#include "synergia/utils/catch.hpp"
+#include <catch2/catch_test_macros.hpp>
 
 #include "synergia/lattice/madx_reader.h"
 
-#include "synergia/simulation/propagator.h"
 #include "synergia/simulation/independent_stepper_elements.h"
-
+#include "synergia/simulation/propagator.h"
 
 // Fixture that takes a string definition of an element,
 // stuffs it into a lattice and creates a simulator/bunch ready to
 // propagate, and a propagator to do the propagation.
 
-
-struct propagator_fixture
-{
+struct propagator_fixture {
     Logger screen;
     Lattice lattice;
     Propagator propagator;
     std::unique_ptr<Bunch_simulator> sim;
 
-	
     propagator_fixture()
         : lattice(propagator_fixture::construct_test_lattice())
         , screen(0, LoggerV::INFO_TURN)
         , propagator(Propagator(lattice, Independent_stepper_elements(1)))
         , sim()
     {
-  
-	    const Reference_particle& refpart = lattice.get_reference_particle();	    
+
+        const Reference_particle& refpart = lattice.get_reference_particle();
 
         sim = std::make_unique<Bunch_simulator>(
-                Bunch_simulator::create_single_bunch_simulator(
-                    refpart, 8, 1e09, Commxx()));
+            Bunch_simulator::create_single_bunch_simulator(
+                refpart, 8, 1e09, Commxx()));
     }
 
     Lattice
@@ -83,13 +79,13 @@ cell, at=440.0;
 cell, at=460.0;
 endsequence;)foo");
 
-
         // construct the lattice from the given element by sandwiching
         // it between the lattice_head and lattice_tail
         MadX_reader reader;
         reader.parse(booster_madx);
         Lattice lattice(reader.get_lattice("booster"));
-        // Turn off RF cavities the same way it is done in calculate_closed_orbit
+        // Turn off RF cavities the same way it is done in
+        // calculate_closed_orbit
         for (auto& ele : lattice.get_elements())
             if (ele.get_type() == element_type::rfcavity) {
                 ele.set_double_attribute("volt", 0.0);
@@ -100,25 +96,37 @@ endsequence;)foo");
         return lattice;
     }
 
-    void propagate()
-    { propagator.propagate(*sim, screen, 1); }
+    void
+    propagate()
+    {
+        propagator.propagate(*sim, screen, 1);
+    }
 
-    Bunch& bunch()
-    { return sim->get_bunch(); }
+    Bunch&
+    bunch()
+    {
+        return sim->get_bunch();
+    }
 
-    void print_lattice()
-    { Logger l(0, LoggerV::DEBUG); lattice.print(l); }
+    void
+    print_lattice()
+    {
+        Logger l(0, LoggerV::DEBUG);
+        lattice.print(l);
+    }
 };
 
-void propagate_test_elem()
+void
+propagate_test_elem()
 {
     propagator_fixture pf;
 
-    auto & b = pf.bunch();
+    auto& b = pf.bunch();
 
     b.checkout_particles();
     auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.0;
+    for (int i = 0; i < 6; ++i)
+        parts(0, i) = 0.0;
     b.checkin_particles();
 
     pf.propagate();
@@ -126,15 +134,16 @@ void propagate_test_elem()
     b.checkout_particles();
     parts = b.get_host_particles();
     std::cout << std::scientific << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
+    for (int i = 0; i < 6; ++i)
+        std::cout << parts(0, i) << "\n";
     std::cout << "\n";
 
     // For propagating particle at 0, all the transverse elements should
     // remain at 0
 
     // on Ryzen 7, x hits 7.82e-17
-    for(int i=0; i<4; ++i) {
-        CHECK (std::abs(parts(0, i)) < 1.0e-16);
+    for (int i = 0; i < 4; ++i) {
+        CHECK(std::abs(parts(0, i)) < 1.0e-16);
     }
 }
 

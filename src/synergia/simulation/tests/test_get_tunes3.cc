@@ -1,5 +1,8 @@
-#include "synergia/utils/catch.hpp"
 
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+
+#include "catch2/matchers/catch_matchers.hpp"
 #include "synergia/simulation/lattice_simulator.h"
 
 #include "synergia/foundation/physical_constants.h"
@@ -11,7 +14,6 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-
 
 Lattice
 get_lattice()
@@ -76,13 +78,15 @@ TEST_CASE("closed_orbit_at_0dpp")
 
     Lattice lattice = get_lattice();
 
-    auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice);
-    for (int i=0; i<6; ++i) {
-        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
+    auto closed_orbit_state =
+        Lattice_simulator::calculate_closed_orbit(lattice);
+    for (int i = 0; i < 6; ++i) {
+        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i]
+                  << std::endl;
     }
 
-    for (int i=0; i<6; ++i) {
-        CHECK (std::abs(closed_orbit_state[i]) < 1.0e-12);
+    for (int i = 0; i < 6; ++i) {
+        CHECK(std::abs(closed_orbit_state[i]) < 1.0e-12);
     }
 }
 
@@ -92,25 +96,28 @@ TEST_CASE("closed_orbit_at_nonzero_dpp")
 
     Lattice lattice = get_lattice();
 
-    constexpr double dpp=4.0e-4;
-    auto closed_orbit_state = Lattice_simulator::calculate_closed_orbit(lattice, dpp);
-    for (int i=0; i<6; ++i) {
-        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i] << std::endl;    
+    constexpr double dpp = 4.0e-4;
+    auto closed_orbit_state =
+        Lattice_simulator::calculate_closed_orbit(lattice, dpp);
+    for (int i = 0; i < 6; ++i) {
+        std::cout << std::setprecision(17) << i << ": " << closed_orbit_state[i]
+                  << std::endl;
     }
 
-    // CHECK (closed_orbit_state[0] == Approx(0.00072931911596656749)); // previous run
-    // CHECK (closed_orbit_state[1] == Approx(-5.7585101111132694e-15)); //previous run
-
+    // CHECK (closed_orbit_state[0] == Approx(0.00072931911596656749)); //
+    // previous run CHECK (closed_orbit_state[1] ==
+    // Approx(-5.7585101111132694e-15)); //previous run
 }
 
 TEST_CASE("get_tunes")
 {
-/*
-    tunes = synergia.simulation.Lattice_simulator.calculate_tune_and_cdt(lattice_fixture)
-    print('Tunes: x: ', tunes[0], ', y: ', tunes[1])
-    assert tunes[0] == pytest.approx(0.16533417, rel<=1.0e-4)
-    assert tunes[1] == pytest.approx(0.436092762, rel=1.0e-4)
-*/
+    /*
+        tunes =
+       synergia.simulation.Lattice_simulator.calculate_tune_and_cdt(lattice_fixture)
+        print('Tunes: x: ', tunes[0], ', y: ', tunes[1])
+        assert tunes[0] == pytest.approx(0.16533417, rel<=1.0e-4)
+        assert tunes[1] == pytest.approx(0.436092762, rel=1.0e-4)
+    */
     Logger screen(0, LoggerV::INFO);
 
     Lattice lattice = get_lattice();
@@ -120,12 +127,15 @@ TEST_CASE("get_tunes")
 
     auto tunes(Lattice_simulator::calculate_tune_and_cdt(lattice));
 
-    screen << "x tune: " << std::setprecision(17) << tunes[0] << " should be " << 0.5859328358008487 << std::endl;
-    screen << "y tune: " << std::setprecision(17) << tunes[1] << " should be " << 0.43609276190863433 << std::endl;
+    screen << "x tune: " << std::setprecision(17) << tunes[0] << " should be "
+           << 0.5859328358008487 << std::endl;
+    screen << "y tune: " << std::setprecision(17) << tunes[1] << " should be "
+           << 0.43609276190863433 << std::endl;
 
-    CHECK(tunes[0] == Approx(0.5859328358008487).epsilon(1.0e-4));
-    CHECK(tunes[1] == Approx(0.43609276190863433).epsilon(1.0e-4));
-
+    REQUIRE_THAT(tunes[0],
+                 Catch::Matchers::WithinRel(0.5859328358008487, 1.0e-4));
+    REQUIRE_THAT(tunes[1],
+                 Catch::Matchers::WithinRel(0.43609276190863433, 1.0e-4));
 }
 
 TEST_CASE("get_chromaticities")
@@ -138,10 +148,17 @@ TEST_CASE("get_chromaticities")
 
     auto chroms(Lattice_simulator::get_chromaticities(lattice));
 
-    screen << "H chrom: " << std::setprecision(17) << chroms.horizontal_chromaticity << " should be " << -44.380743697521531*beta << std::endl;
-    screen << "V chromaticity: " << std::setprecision(17) << chroms.vertical_chromaticity << " should be " << -25.5284944071458533*beta << std::endl;
+    screen << "H chrom: " << std::setprecision(17)
+           << chroms.horizontal_chromaticity << " should be "
+           << -44.380743697521531 * beta << std::endl;
+    screen << "V chromaticity: " << std::setprecision(17)
+           << chroms.vertical_chromaticity << " should be "
+           << -25.5284944071458533 * beta << std::endl;
 
-    CHECK( chroms.horizontal_chromaticity == Approx(-65.68223681*beta).epsilon(1.0) );  //comparing chromaticities vs. MAD-X good to 1%
-    CHECK( chroms.vertical_chromaticity == Approx(-25.5636675*beta).epsilon(1.0) );
-    
+    REQUIRE_THAT(chroms.horizontal_chromaticity,
+                 Catch::Matchers::WithinRel(
+                     -44.380743697521531 * beta,
+                     0.05)); // comparing chromaticities vs. MAD-X good to 5%
+    REQUIRE_THAT(chroms.vertical_chromaticity,
+                 Catch::Matchers::WithinRel(-25.5284944071458533 * beta, 0.05));
 }

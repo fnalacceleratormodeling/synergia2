@@ -60,10 +60,11 @@ booster: line=(24*cell14);
 beam, particle=proton, energy=0.8+pmass;
 """
 
+
 def test_booster_normal_form():
     reader = synergia.lattice.MadX_reader()
     reader.parse(simple_booster_src)
-    lattice = reader.get_lattice('booster')
+    lattice = reader.get_lattice("booster")
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
 
     # normal form

@@ -1,4 +1,6 @@
-#include "synergia/utils/catch.hpp"
+
+
+#include <catch2/catch_test_macros.hpp>
 
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/kokkos_views.h"

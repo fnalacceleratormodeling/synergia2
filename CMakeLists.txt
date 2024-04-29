@@ -43,7 +43,6 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-enable_testing()
 
 # project specific cmake modules
 set(CMAKE_MODULE_PATH "${SYNERGIA3_SOURCE_DIR}/CMake")
@@ -228,6 +227,24 @@ message("-- Using Kokkos version: ${Kokkos_VERSION}")
 if(Kokkos_VERSION LESS 4.0.00)
   message(FATAL_ERROR "Need at least Kokkos 4.0.00!")
 endif()
+
+# Catch2-v3 for testing! This has to happen after $kokkos_libs is defined!
+if(USE_EXTERNAL_CATCH2)
+  find_package(Catch2 3 REQUIRED CONFIG)
+  message(STATUS "Using external catch2-v3")
+else()
+  include(FetchContent)
+  FetchContent_Declare(
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG v3.5.4)
+  FetchContent_MakeAvailable(Catch2)
+endif()
+set(testing_libs
+    Catch2::Catch2 ${kokkos_libs} MPI::MPI_C
+    $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
+set(test_main "${CMAKE_SOURCE_DIR}/src/synergia/utils/catch_test_main.cc")
+enable_testing()
 
 # HDF5
 set(HDF5_PREFER_PARALLEL true)

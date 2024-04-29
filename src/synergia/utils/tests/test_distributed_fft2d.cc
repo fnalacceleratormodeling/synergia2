@@ -1,8 +1,10 @@
-#include "synergia/utils/catch.hpp"
-#include "synergia/utils/distributed_fft2d.h"
 
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <cmath>
-#include <complex>
+
+#include "synergia/utils/distributed_fft2d.h"
 
 // set DBGPRINT to 1 to print values for tolerance failures
 #define DBGPRINT 1
@@ -115,10 +117,10 @@ TEST_CASE("transform_roundtrip")
             int idx_real = j * shape1 * 2 + k * 2 + 0;
             int idx_imag = j * shape1 * 2 + k * 2 + 1;
 
-            CHECK(src(idx_real) * norm ==
-                  Approx(orig(idx_real)).margin(tolerance));
-            CHECK(src(idx_imag) * norm ==
-                  Approx(orig(idx_imag)).margin(tolerance));
+            REQUIRE_THAT(src(idx_real) * norm,
+                         Catch::Matchers::WithinAbs(orig(idx_real), tolerance));
+            REQUIRE_THAT(src(idx_imag) * norm,
+                         Catch::Matchers::WithinAbs(orig(idx_imag), tolerance));
         }
     }
 }

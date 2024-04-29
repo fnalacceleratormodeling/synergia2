@@ -1,30 +1,32 @@
-#include "synergia/utils/catch.hpp"
 
-#include "synergia/utils/commxx.h"
+
+#include <catch2/catch_test_macros.hpp>
+
 #include "synergia/utils/cereal_files.h"
+#include "synergia/utils/commxx.h"
 
-#include <mpi.h>
-
-int global_rank()
+int
+global_rank()
 {
-  int rank = 0;
-  int const status = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  if (status != MPI_SUCCESS) return -1;
-  return rank;
+    int rank = 0;
+    int const status = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    if (status != MPI_SUCCESS) return -1;
+    return rank;
 }
 
-int global_size()
+int
+global_size()
 {
-  int size = 0;
-  int const status = MPI_Comm_size(MPI_COMM_WORLD, &size);
-  if (status != MPI_SUCCESS) return -1;
-  return size;
+    int size = 0;
+    int const status = MPI_Comm_size(MPI_COMM_WORLD, &size);
+    if (status != MPI_SUCCESS) return -1;
+    return size;
 }
 
 TEST_CASE("static functions", "[commxx]")
 {
-  CHECK(Commxx::world_rank() == global_rank());
-  CHECK(Commxx::world_size() == global_size());
+    CHECK(Commxx::world_rank() == global_rank());
+    CHECK(Commxx::world_size() == global_size());
 }
 
 TEST_CASE("default construct", "[commxx]")
@@ -38,7 +40,7 @@ TEST_CASE("default construct", "[commxx]")
     CHECK(defaulted.size() == global_size());
     CHECK(defaulted.has_this_rank());
     CHECK(defaulted.is_root());
-    
+
     REQUIRE_THROWS_AS(defaulted.dup(), std::runtime_error);
     REQUIRE_THROWS_AS(defaulted.split(1), std::runtime_error);
     REQUIRE_THROWS_AS(defaulted.split(0, 1), std::runtime_error);
@@ -91,7 +93,6 @@ TEST_CASE("construct null", "[commxx]")
 {
     Commxx comm(comm_type::null);
     CHECK(comm == MPI_COMM_NULL);
-    
 }
 
 TEST_CASE("get_type")
@@ -327,8 +328,7 @@ TEST_CASE("split with color only")
             CHECK(comm2.rank() == 0);
         }
 
-        if (world_size == 3)
-        {
+        if (world_size == 3) {
             SECTION("split color [0 1 1]")
             {
                 // workd_rank:       0  1  2
@@ -336,8 +336,8 @@ TEST_CASE("split with color only")
                 // size after split: 1  2  2
                 // rank after split: 0  0  1
                 int color[3] = {0, 1, 1};
-                int size[3]  = {1, 2, 2};
-                int rank[3]  = {0, 0, 1};
+                int size[3] = {1, 2, 2};
+                int rank[3] = {0, 0, 1};
 
                 REQUIRE_NOTHROW(comm1_ptr->split(color[world_rank]));
                 auto comm2 = comm1_ptr->split(color[world_rank]);
@@ -345,9 +345,7 @@ TEST_CASE("split with color only")
                 CHECK(comm2.size() == size[world_rank]);
                 CHECK(comm2.rank() == rank[world_rank]);
             }
-        }
-        else if (world_size == 4)
-        {
+        } else if (world_size == 4) {
             SECTION("split color [0 0 1 1]")
             {
                 // workd_rank:       0  1  2  3
@@ -355,8 +353,8 @@ TEST_CASE("split with color only")
                 // size after split: 2  2  2  2
                 // rank after split: 0  1  0  1
                 int color[4] = {0, 0, 1, 1};
-                int size[4]  = {2, 2, 2, 2};
-                int rank[4]  = {0, 1, 0, 1};
+                int size[4] = {2, 2, 2, 2};
+                int rank[4] = {0, 1, 0, 1};
 
                 REQUIRE_NOTHROW(comm1_ptr->split(color[world_rank]));
                 auto comm2 = comm1_ptr->split(color[world_rank]);
@@ -372,8 +370,8 @@ TEST_CASE("split with color only")
                 // size after split: 1  3  3  3
                 // rank after split: 0  0  1  2
                 int color[4] = {0, 1, 1, 1};
-                int size[4]  = {1, 3, 3, 3};
-                int rank[4]  = {0, 0, 1, 2};
+                int size[4] = {1, 3, 3, 3};
+                int rank[4] = {0, 0, 1, 2};
 
                 REQUIRE_NOTHROW(comm1_ptr->split(color[world_rank]));
                 auto comm2 = comm1_ptr->split(color[world_rank]);
@@ -445,8 +443,7 @@ TEST_CASE("split with color and key")
             CHECK(comm2.rank() == 0);
         }
 
-        if (world_size == 3)
-        {
+        if (world_size == 3) {
             SECTION("split color/key [0/0 1/2 1/1]")
             {
                 // workd_rank:       0  1  2
@@ -455,19 +452,19 @@ TEST_CASE("split with color and key")
                 // size after split: 1  2  2
                 // rank after split: 0  1  0
                 int color[3] = {0, 1, 1};
-                int key[3]   = {0, 2, 1};
-                int size[3]  = {1, 2, 2};
-                int rank[3]  = {0, 1, 0};
+                int key[3] = {0, 2, 1};
+                int size[3] = {1, 2, 2};
+                int rank[3] = {0, 1, 0};
 
-                REQUIRE_NOTHROW(comm1_ptr->split(color[world_rank], key[world_rank]));
-                auto comm2 = comm1_ptr->split(color[world_rank], key[world_rank]);
+                REQUIRE_NOTHROW(
+                    comm1_ptr->split(color[world_rank], key[world_rank]));
+                auto comm2 =
+                    comm1_ptr->split(color[world_rank], key[world_rank]);
 
                 CHECK(comm2.size() == size[world_rank]);
                 CHECK(comm2.rank() == rank[world_rank]);
             }
-        }
-        else if (world_size == 4)
-        {
+        } else if (world_size == 4) {
             SECTION("split color/key [0/0 0/1 1/2 1/1]")
             {
                 // workd_rank:       0  1  2  3
@@ -476,12 +473,14 @@ TEST_CASE("split with color and key")
                 // size after split: 2  2  2  2
                 // rank after split: 0  1  1  0
                 int color[4] = {0, 0, 1, 1};
-                int key[4]   = {0, 1, 2, 1};
-                int size[4]  = {2, 2, 2, 2};
-                int rank[4]  = {0, 1, 1, 0};
+                int key[4] = {0, 1, 2, 1};
+                int size[4] = {2, 2, 2, 2};
+                int rank[4] = {0, 1, 1, 0};
 
-                REQUIRE_NOTHROW(comm1_ptr->split(color[world_rank], key[world_rank]));
-                auto comm2 = comm1_ptr->split(color[world_rank], key[world_rank]);
+                REQUIRE_NOTHROW(
+                    comm1_ptr->split(color[world_rank], key[world_rank]));
+                auto comm2 =
+                    comm1_ptr->split(color[world_rank], key[world_rank]);
 
                 CHECK(comm2.size() == size[world_rank]);
                 CHECK(comm2.rank() == rank[world_rank]);
@@ -495,12 +494,14 @@ TEST_CASE("split with color and key")
                 // size after split: 1  3  3  3
                 // rank after split: 0  2  1  0
                 int color[4] = {0, 1, 1, 1};
-                int key[4]   = {0, 3, 2, 1};
-                int size[4]  = {1, 3, 3, 3};
-                int rank[4]  = {0, 2, 1, 0};
+                int key[4] = {0, 3, 2, 1};
+                int size[4] = {1, 3, 3, 3};
+                int rank[4] = {0, 2, 1, 0};
 
-                REQUIRE_NOTHROW(comm1_ptr->split(color[world_rank], key[world_rank]));
-                auto comm2 = comm1_ptr->split(color[world_rank], key[world_rank]);
+                REQUIRE_NOTHROW(
+                    comm1_ptr->split(color[world_rank], key[world_rank]));
+                auto comm2 =
+                    comm1_ptr->split(color[world_rank], key[world_rank]);
 
                 CHECK(comm2.size() == size[world_rank]);
                 CHECK(comm2.rank() == rank[world_rank]);
@@ -508,7 +509,6 @@ TEST_CASE("split with color and key")
         }
     }
 }
-
 
 TEST_CASE("divide")
 {
@@ -537,8 +537,8 @@ TEST_CASE("divide")
         SECTION("subgroup size > world_size")
         {
             // effectively a dup
-            REQUIRE_NOTHROW(comm1_ptr->divide(world_size+1));
-            auto comm2 = comm1_ptr->divide(world_size+1);
+            REQUIRE_NOTHROW(comm1_ptr->divide(world_size + 1));
+            auto comm2 = comm1_ptr->divide(world_size + 1);
 
             CHECK(comm2.size() == world_size);
             CHECK(comm2.rank() == world_rank);
@@ -554,11 +554,10 @@ TEST_CASE("divide")
             CHECK(comm2.rank() == world_rank);
         }
 
-        if (world_size == 2)
-        {
+        if (world_size == 2) {
             SECTION("divide into 2 groups")
             {
-                int subgroup_size = world_size/2;
+                int subgroup_size = world_size / 2;
 
                 REQUIRE_NOTHROW(comm1_ptr->divide(subgroup_size));
                 auto comm2 = comm1_ptr->divide(subgroup_size);
@@ -566,19 +565,15 @@ TEST_CASE("divide")
                 CHECK(comm2.size() == subgroup_size);
                 CHECK(comm2.rank() == 0);
             }
-        }
-        else if (world_size == 3)
-        {
+        } else if (world_size == 3) {
             SECTION("uneven divide")
             {
                 REQUIRE_THROWS(comm1_ptr->divide(2));
             }
-        }
-        else if (world_size == 4)
-        {
+        } else if (world_size == 4) {
             SECTION("divide into 2 groups")
             {
-                int subgroup_size = world_size/2;
+                int subgroup_size = world_size / 2;
 
                 REQUIRE_NOTHROW(comm1_ptr->divide(subgroup_size));
                 auto comm2 = comm1_ptr->divide(subgroup_size);
@@ -642,13 +637,10 @@ TEST_CASE("group")
             REQUIRE_NOTHROW(comm1_ptr->group(group));
             auto comm2 = comm1_ptr->group(group);
 
-            if (world_rank == 2)
-            {
+            if (world_rank == 2) {
                 CHECK(comm2.size() == 1);
                 CHECK(comm2.rank() == 0);
-            }
-            else
-            {
+            } else {
                 CHECK(comm2.is_null());
             }
         }
@@ -662,18 +654,13 @@ TEST_CASE("group")
 
             int size[5] = {0, 0, 1, 2, 2};
 
-            if (world_rank == 1)
-            {
+            if (world_rank == 1) {
                 CHECK(comm2.size() == size[world_size]);
                 CHECK(comm2.rank() == 0);
-            }
-            else if (world_rank == 2)
-            {
+            } else if (world_rank == 2) {
                 CHECK(comm2.size() == size[world_size]);
                 CHECK(comm2.rank() == 1);
-            }
-            else
-            {
+            } else {
                 CHECK(comm2.is_null());
             }
         }
@@ -685,12 +672,11 @@ TEST_CASE("combined")
     auto world_size = Commxx::world_size();
     auto world_rank = Commxx::world_rank();
 
-    if (world_size == 4)
-    {
+    if (world_size == 4) {
         auto comm1_ptr = std::make_shared<Commxx>(comm_type::world);
         auto const& comm1 = *comm1_ptr;
 
-        int color = world_rank<2 ? 0 : 1;
+        int color = world_rank < 2 ? 0 : 1;
 
         auto comm2_ptr = std::make_shared<Commxx>(comm1_ptr->split(color));
         auto comm3_ptr = std::make_shared<Commxx>(comm2_ptr->divide(1));
@@ -699,4 +685,3 @@ TEST_CASE("combined")
         CHECK(comm3_ptr->rank() == 0);
     }
 }
-

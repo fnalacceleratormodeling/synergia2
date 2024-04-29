@@ -4,14 +4,15 @@ import numpy as np
 import synergia
 import pytest
 
-macroparticles=16
-realparticles=4.0e10
+macroparticles = 16
+realparticles = 4.0e10
 # lag 1/120 is a phase angle of 2pi/120 or pi/60 or 3 degrees
-# V = 0.2 MV * sin(pi/60) = 
-turn_voltage = 1.0e-3 # 1.0e-3 GV/turn
-expected_delta_E = turn_voltage*np.sin(np.pi/60)
-print('expected delta E/turn: ', expected_delta_E)
-nturns=100
+# V = 0.2 MV * sin(pi/60) =
+turn_voltage = 1.0e-3  # 1.0e-3 GV/turn
+expected_delta_E = turn_voltage * np.sin(np.pi / 60)
+print("expected delta E/turn: ", expected_delta_E)
+nturns = 100
+
 
 # prop_fixture is a propagator
 @pytest.fixture
@@ -68,8 +69,8 @@ endsequence;
 
     reader = synergia.lattice.MadX_reader()
     reader.parse(booster_madx)
-    lattice = reader.get_lattice('booster')
-    lattice.set_all_string_attribute('extractor_type', 'libff')
+    lattice = reader.get_lattice("booster")
+    lattice.set_all_string_attribute("extractor_type", "libff")
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
     stepper = synergia.simulation.Independent_stepper_elements(1)
     propagator = synergia.simulation.Propagator(lattice, stepper)
@@ -79,14 +80,17 @@ endsequence;
 
 def test_lattice_energy(prop_fixture):
     energy = prop_fixture.get_lattice().get_lattice_energy()
-    assert energy == pytest.approx(synergia.foundation.pconstants.mp+0.8)
+    assert energy == pytest.approx(synergia.foundation.pconstants.mp + 0.8)
+
 
 def test_lattice_length(prop_fixture):
     assert prop_fixture.get_lattice().get_length() == 480.0
 
 
 def create_simulator(ref_part):
-    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(ref_part, macroparticles, realparticles)
+    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
+        ref_part, macroparticles, realparticles
+    )
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
@@ -96,7 +100,6 @@ def create_simulator(ref_part):
 
 
 def test_accel2(prop_fixture):
-
     refpart = prop_fixture.get_lattice().get_reference_particle()
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
 
@@ -109,8 +112,7 @@ def test_accel2(prop_fixture):
     class context:
         max_dpop = 0.0
         max_cdt = 0.0
-        energies = [Elat0] # save lattice energy at each turn
-
+        energies = [Elat0]  # save lattice energy at each turn
 
     # turn and action method
     def turn_end_action(sim, lattice_in, turn):
@@ -145,8 +147,10 @@ def test_accel2(prop_fixture):
         beta1 = lattice_in.get_reference_particle().get_beta()
         beta2 = bunch.get_reference_particle().get_beta()
         assert beta1 == pytest.approx(beta2)
-        freq = 96*beta1*synergia.foundation.pconstants.c/lattice_in.get_length()
-        assert freq == pytest.approx(synergia.simulation.Lattice_simulator.get_rf_frequency(lattice))
+        freq = 96 * beta1 * synergia.foundation.pconstants.c / lattice_in.get_length()
+        assert freq == pytest.approx(
+            synergia.simulation.Lattice_simulator.get_rf_frequency(lattice)
+        )
 
         # The central particles should stay close to 0 in energy and time
         bunch.checkout_particles()
@@ -156,32 +160,37 @@ def test_accel2(prop_fixture):
             context.max_cdt = lp[0, 4]
         if abs(lp[0, 5]) > context.max_dpop:
             context.max_dpop = lp[0, 5]
- 
 
     # end of turn end action method
 
     sim.reg_prop_action_turn_end(turn_end_action)
 
-    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
+    simlog = synergia.utils.parallel_utils.Logger(
+        0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False
+    )
     prop_fixture.propagate(sim, simlog, nturns)
 
     Ebun1 = sim.get_bunch().get_reference_particle().get_total_energy()
     Elat1 = prop_fixture.get_lattice().get_lattice_energy()
-    print('(Ebun1-Ebun0)/expected_delta_E: ', (Ebun1-Ebun0)/expected_delta_E)
-    print('(Elat1-Elat0)/expected_delta_E: ', (Elat1-Elat0)/expected_delta_E)
-    assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
-    assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
+    print("(Ebun1-Ebun0)/expected_delta_E: ", (Ebun1 - Ebun0) / expected_delta_E)
+    print("(Elat1-Elat0)/expected_delta_E: ", (Elat1 - Elat0) / expected_delta_E)
+    assert (Ebun1 - Ebun0) / expected_delta_E == pytest.approx(nturns)
+    assert (Elat1 - Elat0) / expected_delta_E == pytest.approx(nturns)
 
     assert context.max_cdt < 1.0e-2
     assert context.max_dpop < 1.0e-5
 
     # check saved energy gain each turn
     for i in range(1, len(context.energies)):
-        assert (context.energies[i] - context.energies[i-1]) == pytest.approx(expected_delta_E)
+        assert (context.energies[i] - context.energies[i - 1]) == pytest.approx(
+            expected_delta_E
+        )
+
 
 def main():
     pf = prop_fixture()
     test_accel2(pf)
+
 
 if __name__ == "__main__":
     main()

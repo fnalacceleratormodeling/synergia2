@@ -4,13 +4,13 @@ import numpy as np
 import synergia
 import pytest
 
-macroparticles=16
-realparticles=4.0e10
+macroparticles = 16
+realparticles = 4.0e10
 # lag 1/120 is a phase angle of 2pi/120 or pi/60 or 3 degrees
-# V = 0.2 MV * sin(pi/60) = 
-expected_delta_E = 0.0002*np.sin(np.pi/60)
-print('expected delta E/turn: ', expected_delta_E)
-nturns=100
+# V = 0.2 MV * sin(pi/60) =
+expected_delta_E = 0.0002 * np.sin(np.pi / 60)
+print("expected delta E/turn: ", expected_delta_E)
+nturns = 100
 
 
 # prop_fixture is a propagator
@@ -39,8 +39,8 @@ endsequence;
 
     reader = synergia.lattice.MadX_reader()
     reader.parse(fodo_madx)
-    lattice = reader.get_lattice('fodo')
-    lattice.set_all_string_attribute('extractor_type', 'libff')
+    lattice = reader.get_lattice("fodo")
+    lattice.set_all_string_attribute("extractor_type", "libff")
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
     stepper = synergia.simulation.Independent_stepper_elements(1)
     propagator = synergia.simulation.Propagator(lattice, stepper)
@@ -50,14 +50,17 @@ endsequence;
 
 def test_lattice_energy(prop_fixture):
     energy = prop_fixture.get_lattice().get_lattice_energy()
-    assert energy == pytest.approx(synergia.foundation.pconstants.mp*1.25)
+    assert energy == pytest.approx(synergia.foundation.pconstants.mp * 1.25)
+
 
 def test_lattice_length(prop_fixture):
     assert prop_fixture.get_lattice().get_length() == 20.0
 
 
 def create_simulator(ref_part):
-    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(ref_part, macroparticles, realparticles)
+    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
+        ref_part, macroparticles, realparticles
+    )
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
@@ -67,7 +70,6 @@ def create_simulator(ref_part):
 
 
 def test_accel1(prop_fixture):
-
     refpart = prop_fixture.get_lattice().get_reference_particle()
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
 
@@ -84,9 +86,9 @@ def test_accel1(prop_fixture):
         bunch_E = bunch.get_reference_particle().get_total_energy()
         lattice_E = lattice.get_lattice_energy()
 
-        print('turn_end_action: enter: bunch_design_E: ', bunch_design_E)
-        print('turn_end_action: enter: lattice_E: ', lattice_E)
-        print('turn_end_action: enter: bunch_E: ', bunch_E)
+        print("turn_end_action: enter: bunch_design_E: ", bunch_design_E)
+        print("turn_end_action: enter: lattice_E: ", lattice_E)
+        print("turn_end_action: enter: bunch_E: ", bunch_E)
 
         # after RF cavity, the bunch energy should have increased but
         # neither the bunch design energy nor the lattice energy
@@ -97,32 +99,43 @@ def test_accel1(prop_fixture):
         bunch.get_design_reference_particle().set_total_energy(bunch_E)
         lattice.set_lattice_energy(bunch_E)
 
-        print('turn_end_action: exit: bunch_design_E: ', bunch.get_design_reference_particle().get_total_energy())
-        print('turn_end_action: exit: lattice_E: ', lattice.get_reference_particle().get_total_energy())
-        print('turn_end_action: exit: bunch_E: ', bunch.get_reference_particle().get_total_energy())
+        print(
+            "turn_end_action: exit: bunch_design_E: ",
+            bunch.get_design_reference_particle().get_total_energy(),
+        )
+        print(
+            "turn_end_action: exit: lattice_E: ",
+            lattice.get_reference_particle().get_total_energy(),
+        )
+        print(
+            "turn_end_action: exit: bunch_E: ",
+            bunch.get_reference_particle().get_total_energy(),
+        )
 
         # tune lattice
         synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
-        
 
     # end of turn end action method
 
     sim.reg_prop_action_turn_end(turn_end_action)
 
-    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
+    simlog = synergia.utils.parallel_utils.Logger(
+        0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False
+    )
     prop_fixture.propagate(sim, simlog, nturns)
 
     Ebun1 = sim.get_bunch().get_reference_particle().get_total_energy()
     Elat1 = prop_fixture.get_lattice().get_lattice_energy()
-    print('(Ebun1-Ebun0)/expected_delta_E: ', (Ebun1-Ebun0)/expected_delta_E)
-    print('(Elat1-Elat0)/expected_delta_E: ', (Elat1-Elat0)/expected_delta_E)
-    assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
-    assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
+    print("(Ebun1-Ebun0)/expected_delta_E: ", (Ebun1 - Ebun0) / expected_delta_E)
+    print("(Elat1-Elat0)/expected_delta_E: ", (Elat1 - Elat0) / expected_delta_E)
+    assert (Ebun1 - Ebun0) / expected_delta_E == pytest.approx(nturns)
+    assert (Elat1 - Elat0) / expected_delta_E == pytest.approx(nturns)
 
 
 def main():
     pf = prop_fixture()
     test_accel1(pf)
+
 
 if __name__ == "__main__":
     main()

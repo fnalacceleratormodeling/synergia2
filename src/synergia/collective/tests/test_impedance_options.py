@@ -4,11 +4,14 @@ import numpy as np
 import synergia
 import pytest
 
+
 def test_default_contructor():
     io = synergia.collective.Impedance_options("foo.dat", "XLYLZ")
 
+
 def test_constructor_onearg():
     io = synergia.collective.Impedance_options("foo.dat", "XLYLZ", 100)
+
 
 def test_IO_defaults():
     io = synergia.collective.Impedance_options("foo.dat", "XLYLZ")
@@ -34,6 +37,7 @@ def test_IO_defaults():
     assert io.mwf_ytrail == 1.0
 
     assert io.mwf_zwake == 1.0
+
 
 def test_IO_set_attributes():
     io = synergia.collective.Impedance_options("foo.dat", "XLYLZ", 100)

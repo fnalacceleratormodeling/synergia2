@@ -1,7 +1,9 @@
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+
+#include "catch2/matchers/catch_matchers.hpp"
 #include "synergia/collective/space_charge_3d_fd.h"
 #include "synergia/foundation/physical_constants.h"
-
-#include "synergia/utils/catch.hpp"
 
 TEST_CASE("PointCharge", "[PointCharge]")
 {
@@ -72,9 +74,9 @@ TEST_CASE("PointCharge", "[PointCharge]")
                        << '\n';
             }
 
-            CHECK(bunch_parts(0, 1) == Approx(0).margin(.01));
-            CHECK(bunch_parts(0, 3) == Approx(0).margin(.01));
-            CHECK(bunch_parts(0, 5) == Approx(0).margin(.01));
+            REQUIRE_THAT(bunch_parts(0, 1), Catch::Matchers::WithinAbs(0, .01));
+            REQUIRE_THAT(bunch_parts(0, 3), Catch::Matchers::WithinAbs(0, .01));
+            REQUIRE_THAT(bunch_parts(0, 5), Catch::Matchers::WithinAbs(0, .01));
         }
     }
 }
