@@ -1,36 +1,33 @@
-#include "synergia/utils/catch.hpp"
+
+#include <catch2/catch_test_macros.hpp>
 
 #include "synergia/lattice/madx_reader.h"
 
-#include "synergia/simulation/propagator.h"
 #include "synergia/simulation/independent_stepper_elements.h"
-
+#include "synergia/simulation/propagator.h"
 
 // Fixture that takes a string definition of an element,
 // stuffs it into a lattice and creates a simulator/bunch ready to
 // propagate, and a propagator to do the propagation.
 
-
-struct propagator_fixture
-{
+struct propagator_fixture {
     Logger screen;
     Lattice lattice;
     Propagator propagator;
     std::unique_ptr<Bunch_simulator> sim;
 
-	
     propagator_fixture(std::string const& elem_def)
         : lattice(propagator_fixture::construct_test_lattice(elem_def))
         , screen(0, LoggerV::INFO_TURN)
         , propagator(Propagator(lattice, Independent_stepper_elements(1)))
         , sim()
     {
-  
-	    const Reference_particle& refpart = lattice.get_reference_particle();	    
+
+        const Reference_particle& refpart = lattice.get_reference_particle();
 
         sim = std::make_unique<Bunch_simulator>(
-                Bunch_simulator::create_single_bunch_simulator(
-                    refpart, 8, 1e09, Commxx()));
+            Bunch_simulator::create_single_bunch_simulator(
+                refpart, 8, 1e09, Commxx()));
     }
 
     Lattice
@@ -48,34 +45,46 @@ endsequence;
 
         // construct the lattice from the given element by sandwiching
         // it between the lattice_head and lattice_tail
-	    MadX_reader reader;
-	    reader.parse(lattice_head + elem_def + lattice_tail);
-	    Lattice lattice(reader.get_lattice("channel"));
+        MadX_reader reader;
+        reader.parse(lattice_head + elem_def + lattice_tail);
+        Lattice lattice(reader.get_lattice("channel"));
 
         return lattice;
     }
 
-    void propagate()
-    { propagator.propagate(*sim, screen, 1); }
+    void
+    propagate()
+    {
+        propagator.propagate(*sim, screen, 1);
+    }
 
-    Bunch& bunch()
-    { return sim->get_bunch(); }
+    Bunch&
+    bunch()
+    {
+        return sim->get_bunch();
+    }
 
-    void print_lattice()
-    { Logger l(0, LoggerV::DEBUG); lattice.print(l); }
+    void
+    print_lattice()
+    {
+        Logger l(0, LoggerV::DEBUG);
+        lattice.print(l);
+    }
 };
 
-void propagate_test_elem(std::string const& elem_def, double tolerance)
+void
+propagate_test_elem(std::string const& elem_def, double tolerance)
 {
     std::cout << "propagate test element " << elem_def << "\n";
 
     propagator_fixture pf(elem_def);
     pf.print_lattice();
-    auto & b = pf.bunch();
+    auto& b = pf.bunch();
 
     b.checkout_particles();
     auto parts = b.get_host_particles();
-    for (int i=0; i<6; ++i) parts(0, i) = 0.0;
+    for (int i = 0; i < 6; ++i)
+        parts(0, i) = 0.0;
     b.checkin_particles();
 
     pf.propagate();
@@ -83,23 +92,23 @@ void propagate_test_elem(std::string const& elem_def, double tolerance)
     b.checkout_particles();
     parts = b.get_host_particles();
     std::cout << std::scientific << std::setprecision(16);
-    for (int i=0; i<6; ++i) std::cout << parts(0, i) << "\n";
+    for (int i = 0; i < 6; ++i)
+        std::cout << parts(0, i) << "\n";
     std::cout << "\n";
 
     // For propagating particle at 0, all the transverse elements should
     // remain close to 0
 
-    for(int i=0; i<4; ++i) {
-        CHECK (std::abs(parts(0, i)) < tolerance);
+    for (int i = 0; i < 4; ++i) {
+        CHECK(std::abs(parts(0, i)) < tolerance);
     }
 
     // Make sure elapsed c dt matches element length
     Reference_particle const& refpart = b.get_design_reference_particle();
-    double cdtlength = refpart.get_state()[4]*refpart.get_beta();
+    double cdtlength = refpart.get_state()[4] * refpart.get_beta();
     double elem_length = pf.lattice.get_length();
 
-    CHECK( abs(1-cdtlength/elem_length) < 1.0e-7 );
-
+    CHECK(abs(1 - cdtlength / elem_length) < 1.0e-7);
 }
 
 TEST_CASE("sbend")
@@ -142,4 +151,3 @@ TEST_CASE("rfcavity")
 {
     propagate_test_elem("rfcavity, l=2, volt=0.05", 2.0e-17);
 }
-
