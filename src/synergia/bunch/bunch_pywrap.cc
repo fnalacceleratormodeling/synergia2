@@ -205,6 +205,11 @@ PYBIND11_MODULE(bunch, m)
              &Bunch::get_longitudinal_boundary,
              "Get the longitudinal boundary of the bunch")
 
+        .def("adjust_bunch_particle_reference_energy",
+            &Bunch::adjust_bunch_particle_reference_energy,
+            "Set the reference energy of the bunch and adjust the normalization of the particles to match",
+            "newE"_a)
+
         .def(
             "add_diagnostics",
             [](Bunch& self, std::shared_ptr<Diagnostics> const& diag) {
