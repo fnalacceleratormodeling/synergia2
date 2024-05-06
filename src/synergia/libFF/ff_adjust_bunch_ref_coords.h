@@ -139,7 +139,7 @@ namespace FF_adjust_bunch_ref_coords {
             using exec = typename BunchT::exec_space;
             auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
 
-            AdjustCoords<BunchT> adjuster(parts, masks, cp);
+            AdjustCoords<BunchT> adjuster{parts, masks, cp};
             Kokkos::parallel_for(range, adjuster);
         };
         apply(ParticleGroup::regular);
