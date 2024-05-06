@@ -796,11 +796,6 @@ namespace Lattice_simulator {
         if (map.extent(0) != 2 || map.extent(1) != 2)
             throw std::runtime_error("map_to_twiss: wrong dimensions");
 
-        std::cout << "EGS: map_to_twiss input array" << std::endl;
-        for (int i=0; i<2; ++i) {
-            std::cout << std::setprecision(9) << map(i, 0) << ", " << map(i, 1) << std::endl;
-        }
-
         // [alpha, beta, psi]
         std::array<double, 3> ret;
 
