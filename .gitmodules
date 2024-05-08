@@ -1,7 +1,7 @@
 [submodule "src/synergia/utils/kokkos"]
 	path = src/synergia/utils/kokkos
 	url = https://github.com/kokkos/kokkos.git
-	branch = master
+	branch = develop
 [submodule "src/synergia/utils/eigen"]
 	path = src/synergia/utils/eigen
 	url = https://gitlab.com/libeigen/eigen.git
