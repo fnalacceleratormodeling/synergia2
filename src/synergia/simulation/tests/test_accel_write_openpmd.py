@@ -4,19 +4,20 @@ import numpy as np
 import synergia
 import pytest
 
-if hasattr(synergia.bunch.Bunch, 'read_openpmd_file'):
+if hasattr(synergia.bunch.Bunch, "read_openpmd_file"):
     import openpmd_api as io
 else:
     import h5py
 
-macroparticles=16
-realparticles=4.0e10
+macroparticles = 16
+realparticles = 4.0e10
 # lag 1/120 is a phase angle of 2pi/120 or pi/60 or 3 degrees
-# V = 0.2 MV * sin(pi/60) = 
-turn_voltage = 1.0e-3 # 1.0e-3 GV/turn
-expected_delta_E = turn_voltage*np.sin(np.pi/60)
-print('expected delta E/turn: ', expected_delta_E)
-nturns=10
+# V = 0.2 MV * sin(pi/60) =
+turn_voltage = 1.0e-3  # 1.0e-3 GV/turn
+expected_delta_E = turn_voltage * np.sin(np.pi / 60)
+print("expected delta E/turn: ", expected_delta_E)
+nturns = 10
+
 
 # prop_fixture is a propagator
 # can't run this test with the fixture because I need the propagator
@@ -76,16 +77,19 @@ endsequence;
 
     reader = synergia.lattice.MadX_reader()
     reader.parse(booster_madx)
-    lattice = reader.get_lattice('booster')
-    lattice.set_all_string_attribute('extractor_type', 'libff')
+    lattice = reader.get_lattice("booster")
+    lattice.set_all_string_attribute("extractor_type", "libff")
     synergia.simulation.Lattice_simulator.tune_circular_lattice(lattice)
     stepper = synergia.simulation.Independent_stepper_elements(1)
     propagator = synergia.simulation.Propagator(lattice, stepper)
 
     return propagator
 
+
 def create_simulator(ref_part):
-    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(ref_part, macroparticles, realparticles)
+    sim = synergia.simulation.Bunch_simulator.create_single_bunch_simulator(
+        ref_part, macroparticles, realparticles
+    )
     bunch = sim.get_bunch()
     bunch.checkout_particles()
     lp = bunch.get_particles_numpy()
@@ -95,7 +99,6 @@ def create_simulator(ref_part):
 
 
 def prop_accel_bunch(prop_fixture):
-
     refpart = prop_fixture.get_lattice().get_reference_particle()
     sim = create_simulator(prop_fixture.get_lattice().get_reference_particle())
     diag_part = synergia.bunch.Diagnostics_particles("diag_part.h5")
@@ -110,8 +113,7 @@ def prop_accel_bunch(prop_fixture):
     class context:
         max_dpop = 0.0
         max_cdt = 0.0
-        energies = [Elat0] # save lattice energy at each turn
-
+        energies = [Elat0]  # save lattice energy at each turn
 
     # turn and action method
     def turn_end_action(sim, lattice_in, turn):
@@ -146,8 +148,10 @@ def prop_accel_bunch(prop_fixture):
         beta1 = lattice_in.get_reference_particle().get_beta()
         beta2 = bunch.get_reference_particle().get_beta()
         assert beta1 == pytest.approx(beta2)
-        freq = 96*beta1*synergia.foundation.pconstants.c/lattice_in.get_length()
-        assert freq == pytest.approx(synergia.simulation.Lattice_simulator.get_rf_frequency(lattice))
+        freq = 96 * beta1 * synergia.foundation.pconstants.c / lattice_in.get_length()
+        assert freq == pytest.approx(
+            synergia.simulation.Lattice_simulator.get_rf_frequency(lattice)
+        )
 
         # The central particles should stay close to 0 in energy and time
         bunch.checkout_particles()
@@ -157,68 +161,95 @@ def prop_accel_bunch(prop_fixture):
             context.max_cdt = lp[0, 4]
         if abs(lp[0, 5]) > context.max_dpop:
             context.max_dpop = lp[0, 5]
- 
 
     # end of turn end action method
 
     sim.reg_prop_action_turn_end(turn_end_action)
 
-    simlog = synergia.utils.parallel_utils.Logger(0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False)
+    simlog = synergia.utils.parallel_utils.Logger(
+        0, synergia.utils.parallel_utils.LoggerV.INFO_TURN, False
+    )
     prop_fixture.propagate(sim, simlog, nturns)
 
     Ebun1 = sim.get_bunch().get_reference_particle().get_total_energy()
     Elat1 = prop_fixture.get_lattice().get_lattice_energy()
-    print('(Ebun1-Ebun0)/expected_delta_E: ', (Ebun1-Ebun0)/expected_delta_E)
-    print('(Elat1-Elat0)/expected_delta_E: ', (Elat1-Elat0)/expected_delta_E)
-    assert (Ebun1-Ebun0)/expected_delta_E == pytest.approx(nturns)
-    assert (Elat1-Elat0)/expected_delta_E == pytest.approx(nturns)
+    print("(Ebun1-Ebun0)/expected_delta_E: ", (Ebun1 - Ebun0) / expected_delta_E)
+    print("(Elat1-Elat0)/expected_delta_E: ", (Elat1 - Elat0) / expected_delta_E)
+    assert (Ebun1 - Ebun0) / expected_delta_E == pytest.approx(nturns)
+    assert (Elat1 - Elat0) / expected_delta_E == pytest.approx(nturns)
 
     assert context.max_cdt < 1.0e-2
     assert context.max_dpop < 1.0e-5
 
     # check saved energy gain each turn
     for i in range(1, len(context.energies)):
-        assert (context.energies[i] - context.energies[i-1]) == pytest.approx(expected_delta_E)
+        assert (context.energies[i] - context.energies[i - 1]) == pytest.approx(
+            expected_delta_E
+        )
 
     return context.energies
 
+
 def check_energies(energies):
-    if hasattr(synergia.bunch.Bunch, 'read_openpmd_file'):
+    if hasattr(synergia.bunch.Bunch, "read_openpmd_file"):
         # test if openpmd
 
-        s = io.Series('diag_part.h5', io.Access_Type.read_only)
+        s = io.Series("diag_part.h5", io.Access_Type.read_only)
         iters = s.iterations
         N = len(iters)
-        print(N, ' iterations in file')
+        print(N, " iterations in file")
         for k in range(N):
-            mass = iters[k].particles['bunch_particles'].get_attribute('mass')
+            mass = iters[k].particles["bunch_particles"].get_attribute("mass")
             # file mass is stored in kg
             # strangely enough, if I use the kg_to_GeV constant in this calculation instead
             # of explicitly converting using c**2/e then the energy differs in the last
             # decimal place.
-            mass = mass * 1.0e-9 * synergia.foundation.pconstants.c**2/synergia.foundation.pconstants.e
-            #mass = mass * synergia.foundation.pconstants.kg_to_GeV
-            gamma_ref = iters[k].particles['bunch_particles'].get_attribute('gamma_ref')
-            step_energy = mass*gamma_ref
-            print('iteration', k, ' gamma_ref: ', gamma_ref, ', step energy: ', step_energy, ', prop energy: ', energies[k], flush=True)
+            mass = (
+                mass
+                * 1.0e-9
+                * synergia.foundation.pconstants.c**2
+                / synergia.foundation.pconstants.e
+            )
+            # mass = mass * synergia.foundation.pconstants.kg_to_GeV
+            gamma_ref = iters[k].particles["bunch_particles"].get_attribute("gamma_ref")
+            step_energy = mass * gamma_ref
+            print(
+                "iteration",
+                k,
+                " gamma_ref: ",
+                gamma_ref,
+                ", step energy: ",
+                step_energy,
+                ", prop energy: ",
+                energies[k],
+                flush=True,
+            )
             assert energies[k] == pytest.approx(step_energy, rel=1.0e-12)
         s.close()
-        os.remove('diag_part.h5')
+        os.remove("diag_part.h5")
 
     else:
         # legacy branch
         N = len(energies)
         for k in range(N):
-            h5 = h5py.File(f'diag_part_{k:05d}.h5', 'r')
-            mass = h5.get('mass')[()]
-            step_pz = h5.get('pz')[()]
+            h5 = h5py.File(f"diag_part_{k:05d}.h5", "r")
+            mass = h5.get("mass")[()]
+            step_pz = h5.get("pz")[()]
             step_energy = np.sqrt(step_pz**2 + mass**2)
-            print('interation', k, 'step_energy: ', step_energy, ', prop_energy: ', energies[k])
+            print(
+                "interation",
+                k,
+                "step_energy: ",
+                step_energy,
+                ", prop_energy: ",
+                energies[k],
+            )
             assert step_energy == pytest.approx(energies[k], rel=1.0e-12)
             h5.close()
-            os.remove(f'diag_part_{k:05d}.h5')
+            os.remove(f"diag_part_{k:05d}.h5")
 
     return
+
 
 def test_accel_write_openpmd():
     pf = prop_fixture()
@@ -226,8 +257,10 @@ def test_accel_write_openpmd():
     del pf
     check_energies(energies)
 
+
 def main():
     test_accel_write_openpmd()
+
 
 if __name__ == "__main__":
     main()

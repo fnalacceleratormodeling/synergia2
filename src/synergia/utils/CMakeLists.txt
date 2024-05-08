@@ -18,8 +18,9 @@ target_link_options(synergia_serialization PRIVATE ${LINKER_OPTIONS})
 
 add_library(synergia_test_main STATIC catch_test_main.cc)
 target_link_libraries(
-  synergia_test_main ${kokkos_libs} MPI::MPI_C
-  $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
+  synergia_test_main
+  PRIVATE Catch2::Catch2 ${kokkos_libs} MPI::MPI_C
+          $<$<STREQUAL:${BUILD_FD_SPACE_CHARGE_SOLVER},ON>:PkgConfig::PETSC>)
 
 add_library(synergia_hdf5_utils hdf5_file.cc hdf5_misc.cc)
 target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES}

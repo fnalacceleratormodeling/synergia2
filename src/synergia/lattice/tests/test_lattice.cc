@@ -1,5 +1,7 @@
-#include "synergia/utils/catch.hpp"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+#include "catch2/matchers/catch_matchers.hpp"
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/madx_reader.h"
 
@@ -61,26 +63,26 @@ TEST_CASE("append_fodo")
     CHECK(it != lattice.get_elements().end());
     CHECK(it->get_name() == "f");
     CHECK(it->get_type_name() == "quadrupole");
-    CHECK(it->get_double_attribute("l") ==
-          Approx(quad_length).margin(tolerance));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbs(quad_length, tolerance));
     ++it;
 
     CHECK(it->get_name() == "o");
     CHECK(it->get_type_name() == "drift");
-    CHECK(it->get_double_attribute("l") ==
-          Approx(drift_length).margin(tolerance));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbs(drift_length, tolerance));
     ++it;
 
     CHECK(it->get_name() == "d");
     CHECK(it->get_type_name() == "quadrupole");
-    CHECK(it->get_double_attribute("l") ==
-          Approx(quad_length).margin(tolerance));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbs(quad_length, tolerance));
     ++it;
 
     CHECK(it->get_name() == "o");
     CHECK(it->get_type_name() == "drift");
-    CHECK(it->get_double_attribute("l") ==
-          Approx(drift_length).margin(tolerance));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbs(drift_length, tolerance));
 }
 
 #if 0
@@ -117,8 +119,9 @@ TEST_CASE("get_length")
     lattice.append(d);
     lattice.append(o);
 
-    CHECK(lattice.get_length() ==
-          Approx(2 * quad_length + 2 * drift_length).margin(tolerance));
+    REQUIRE_THAT(lattice.get_length(),
+                 Catch::Matchers::WithinAbs(2 * quad_length + 2 * drift_length,
+                                            tolerance));
 }
 
 TEST_CASE("get_total_angle1")
@@ -136,7 +139,8 @@ TEST_CASE("get_total_angle1")
     lattice.append(d);
     lattice.append(o);
 
-    CHECK(lattice.get_total_angle() == Approx(0.0).margin(tolerance));
+    REQUIRE_THAT(lattice.get_total_angle(),
+                 Catch::Matchers::WithinAbs(0.0, tolerance));
 }
 
 TEST_CASE("get_total_angle2")
@@ -167,7 +171,8 @@ TEST_CASE("get_total_angle2")
         lattice.append(o);
     }
 
-    CHECK(lattice.get_total_angle() == Approx(2 * pi).margin(tolerance));
+    REQUIRE_THAT(lattice.get_total_angle(),
+                 Catch::Matchers::WithinAbs(2 * pi, tolerance));
 }
 
 TEST_CASE("lattice_from_lattice_element")
@@ -200,10 +205,10 @@ TEST_CASE("copy_lattice")
     CHECK(lattice.get_elements().begin()->get_name() ==
           copied_lattice.get_elements().begin()->get_name());
 
-    CHECK(lattice.get_elements().begin()->get_length() ==
-          Approx(foo_length).margin(tolerance));
-    CHECK(copied_lattice.get_elements().begin()->get_length() ==
-          Approx(foo_length).margin(tolerance));
+    REQUIRE_THAT(lattice.get_elements().begin()->get_length(),
+                 Catch::Matchers::WithinAbs(foo_length, tolerance));
+    REQUIRE_THAT(copied_lattice.get_elements().begin()->get_length(),
+                 Catch::Matchers::WithinAbs(foo_length, tolerance));
 
     for (auto it = copied_lattice.get_elements().begin();
          it != copied_lattice.get_elements().end();
@@ -216,18 +221,18 @@ TEST_CASE("copy_lattice")
     copied_lattice.get_elements().begin()->set_double_attribute("l",
                                                                 new_length);
 
-    CHECK(lattice.get_elements().begin()->get_length() ==
-          Approx(foo_length).margin(tolerance));
-    CHECK(copied_lattice.get_elements().begin()->get_length() ==
-          Approx(new_length).margin(tolerance));
+    REQUIRE_THAT(lattice.get_elements().begin()->get_length(),
+                 Catch::Matchers::WithinAbs(foo_length, tolerance));
+    REQUIRE_THAT(copied_lattice.get_elements().begin()->get_length(),
+                 Catch::Matchers::WithinAbs(new_length, tolerance));
 
     const double new_energy = 2 * total_energy;
     Reference_particle new_reference_particle(charge, mass, new_energy);
     copied_lattice.set_reference_particle(new_reference_particle);
-    CHECK(lattice.get_reference_particle().get_total_energy() ==
-          Approx(total_energy).margin(tolerance));
-    CHECK(copied_lattice.get_reference_particle().get_total_energy() ==
-          Approx(new_energy).margin(tolerance));
+    REQUIRE_THAT(lattice.get_reference_particle().get_total_energy(),
+                 Catch::Matchers::WithinAbs(total_energy, tolerance));
+    REQUIRE_THAT(copied_lattice.get_reference_particle().get_total_energy(),
+                 Catch::Matchers::WithinAbs(new_energy, tolerance));
 }
 
 TEST_CASE("copy_lattice2")
@@ -258,10 +263,10 @@ TEST_CASE("copy_lattice_from_lattice_sptr")
     CHECK(lattice.get_elements().begin()->get_name() ==
           copied_lattice.get_elements().begin()->get_name());
 
-    CHECK(lattice.get_elements().begin()->get_length() ==
-          Approx(foo_length).margin(tolerance));
-    CHECK(copied_lattice.get_elements().begin()->get_length() ==
-          Approx(foo_length).margin(tolerance));
+    REQUIRE_THAT(lattice.get_elements().begin()->get_length(),
+                 Catch::Matchers::WithinAbs(foo_length, tolerance));
+    REQUIRE_THAT(copied_lattice.get_elements().begin()->get_length(),
+                 Catch::Matchers::WithinAbs(foo_length, tolerance));
 
     for (auto it = copied_lattice.get_elements().begin();
          it != copied_lattice.get_elements().end();
@@ -273,28 +278,29 @@ TEST_CASE("copy_lattice_from_lattice_sptr")
 
 TEST_CASE("lattice_reference_particle")
 {
-      Lattice lattice(name);
-      Reference_particle reference_particle(1, 1.0, 1.25);
-      lattice.set_reference_particle(reference_particle);
-      CHECK(lattice.get_reference_particle().get_mass() == 1.0);
-      CHECK(lattice.get_reference_particle().get_gamma() == 1.25);
-      CHECK(lattice.get_reference_particle().get_total_energy() == 1.25);
-      // set new energy, beta=13/84, gamma=85/84
-      lattice.get_reference_particle().set_total_energy(85.0/84.0);
-      CHECK(lattice.get_reference_particle().get_gamma() == Approx(85.0/84.0).margin(tolerance));
-      CHECK(lattice.get_reference_particle().get_beta() == Approx(13.0/85.0).margin(tolerance));
+    Lattice lattice(name);
+    Reference_particle reference_particle(1, 1.0, 1.25);
+    lattice.set_reference_particle(reference_particle);
+    CHECK(lattice.get_reference_particle().get_mass() == 1.0);
+    CHECK(lattice.get_reference_particle().get_gamma() == 1.25);
+    CHECK(lattice.get_reference_particle().get_total_energy() == 1.25);
+    // set new energy, beta=13/84, gamma=85/84
+    lattice.get_reference_particle().set_total_energy(85.0 / 84.0);
+    REQUIRE_THAT(lattice.get_reference_particle().get_gamma(),
+                 Catch::Matchers::WithinAbs(85.0 / 84.0, tolerance));
+    REQUIRE_THAT(lattice.get_reference_particle().get_beta(),
+                 Catch::Matchers::WithinAbs(13.0 / 85.0, tolerance));
 }
 
 TEST_CASE("lattice_energy")
 {
-      Lattice lattice(name);
-      Reference_particle reference_particle(1, 1.0, 1.25);
-      lattice.set_reference_particle(reference_particle);
-      CHECK(lattice.get_lattice_energy() == 1.25);
-      lattice.set_lattice_energy(7.0);
-      CHECK(lattice.get_lattice_energy() == 7.0);
+    Lattice lattice(name);
+    Reference_particle reference_particle(1, 1.0, 1.25);
+    lattice.set_reference_particle(reference_particle);
+    CHECK(lattice.get_lattice_energy() == 1.25);
+    lattice.set_lattice_energy(7.0);
+    CHECK(lattice.get_lattice_energy() == 7.0);
 }
-
 
 TEST_CASE("test_lsexpr")
 {
@@ -363,26 +369,26 @@ TEST_CASE("test_serialize1")
     CHECK(it != loaded.get_elements().end());
     CHECK(it->get_name() == "f");
     CHECK(it->get_type_name() == "quadrupole");
-    CHECK(it->get_double_attribute("l") ==
-          Approx(quad_length).margin(tolerance));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbs(quad_length, tolerance));
     ++it;
 
     CHECK(it->get_name() == "o");
     CHECK(it->get_type_name() == "drift");
-    CHECK(it->get_double_attribute("l") ==
-          Approx(drift_length).margin(tolerance));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbs(drift_length, tolerance));
     ++it;
 
     CHECK(it->get_name() == "d");
     CHECK(it->get_type_name() == "quadrupole");
-    CHECK(it->get_double_attribute("l") ==
-          Approx(quad_length).margin(tolerance));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbs(quad_length, tolerance));
     ++it;
 
     CHECK(it->get_name() == "o");
     CHECK(it->get_type_name() == "drift");
-    CHECK(it->get_double_attribute("l") ==
-          Approx(drift_length).margin(tolerance));
+    REQUIRE_THAT(it->get_double_attribute("l"),
+                 Catch::Matchers::WithinAbs(drift_length, tolerance));
 }
 
 TEST_CASE("test_serialize2")

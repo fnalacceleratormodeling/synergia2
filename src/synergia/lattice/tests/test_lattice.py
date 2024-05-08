@@ -9,34 +9,38 @@ mass = 100.0
 total_energy = 125.0
 tolerance = 1.0e-12
 
+
 def test_construct():
     lattice = Lattice(name)
 
+
 def test_get_name():
     lattice = Lattice(name)
-    assert(lattice.get_name() == name)
+    assert lattice.get_name() == name
+
 
 def test_set_reference_particle():
     lattice = Lattice(name)
     reference_particle = Reference_particle(charge, mass, total_energy)
     lattice.set_reference_particle(reference_particle)
 
+
 def test_get_reference_particle():
     lattice = Lattice(name)
     reference_particle = Reference_particle(charge, mass, total_energy)
     lattice.set_reference_particle(reference_particle)
-    assert(lattice.get_reference_particle().equal(reference_particle, tolerance))
+    assert lattice.get_reference_particle().equal(reference_particle, tolerance)
+
 
 def test_throws_without_reference_particle():
     lattice = Lattice(name)
     with pytest.raises(RuntimeError):
         lattice.get_reference_particle()
 
+
 def test_set_reference_particle_energy():
     lattice = Lattice(name)
     reference_particle = Reference_particle(charge, mass, total_energy)
     lattice.set_reference_particle(reference_particle)
-    lattice.get_reference_particle().set_total_energy(total_energy+1)
-    assert lattice.get_reference_particle().get_total_energy() == total_energy+1.0
-
-
+    lattice.get_reference_particle().set_total_energy(total_energy + 1)
+    assert lattice.get_reference_particle().get_total_energy() == total_energy + 1.0

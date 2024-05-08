@@ -16,6 +16,9 @@
 #include <openPMD/openPMD.hpp>
 #endif
 
+// To keep track of the memory location for the particles
+enum class MemoryLocation { Host, Device };
+
 enum class ParticleGroup { regular = 0, spectator = 1 };
 
 using Particles = Kokkos::View<double* [7],
@@ -195,6 +198,9 @@ class bunch_particles_t {
      *   ones. This one should be used when looping through the
      *   particles array
      *
+     *   'memory_location' indicates whether the particles are currently
+     *   on the host or on the device.
+     *
      */
 
     // particle group (regular or spectator)
@@ -205,6 +211,7 @@ class bunch_particles_t {
     int n_valid;
     int n_active;
     int n_reserved;
+    MemoryLocation memory_location;
 
     // sum of n_valid on all ranks
     int n_total;
@@ -259,6 +266,12 @@ class bunch_particles_t {
         return n_last_discarded;
     }
 
+    MemoryLocation
+    get_memory_location() const
+    {
+        return memory_location;
+    }
+
     std::pair<size_t, size_t>
     get_local_particle_count_in_range(int num_part, int offset) const
     {
@@ -303,17 +316,19 @@ class bunch_particles_t {
 
     // copy particles/masks between host and device memories
     void
-    checkin_particles() const
+    checkin_particles()
     {
         Kokkos::deep_copy(parts, hparts);
         Kokkos::deep_copy(masks, hmasks);
+        memory_location = MemoryLocation::Device;
     }
 
     void
-    checkout_particles() const
+    checkout_particles()
     {
         Kokkos::deep_copy(hparts, parts);
         Kokkos::deep_copy(hmasks, masks);
+        memory_location = MemoryLocation::Host;
     }
 
     // change capacity (can only increase)
@@ -395,7 +410,7 @@ class bunch_particles_t {
                     Commxx const& comm) const;
 
     // checkpoint save/load
-    void save_checkpoint_particles(Hdf5_file& file, int idx) const;
+    void save_checkpoint_particles(Hdf5_file& file, int idx);
     void load_checkpoint_particles(Hdf5_file& file, int idx);
 
     // assign ids cooperatively
@@ -427,6 +442,7 @@ class bunch_particles_t {
     save(AR& ar) const
     {
         ar(CEREAL_NVP(label));
+        ar(CEREAL_NVP(memory_location));
         ar(CEREAL_NVP(n_valid));
         ar(CEREAL_NVP(n_active));
         ar(CEREAL_NVP(n_reserved));
@@ -442,6 +458,7 @@ class bunch_particles_t {
     load(AR& ar)
     {
         ar(CEREAL_NVP(label));
+        ar(CEREAL_NVP(memory_location));
         ar(CEREAL_NVP(n_valid));
         ar(CEREAL_NVP(n_active));
         ar(CEREAL_NVP(n_reserved));
@@ -580,6 +597,7 @@ inline bunch_particles_t<PART>::bunch_particles_t(ParticleGroup pg,
                                                   Commxx const& comm)
     : group(pg)
     , label(pg == PG::regular ? "particles" : "spectators")
+    , memory_location(MemoryLocation::Host)
     , n_valid(0)
     , n_active(0)
     , n_reserved(0)

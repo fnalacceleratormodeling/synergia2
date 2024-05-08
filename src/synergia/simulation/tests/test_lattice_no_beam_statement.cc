@@ -1,21 +1,13 @@
-#include "synergia/utils/catch.hpp"
-
+#include <catch2/catch_test_macros.hpp>
 
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/lattice_element.h"
 
 #include "synergia/lattice/madx_reader.h"
-#include "synergia/utils/commxx.h"
-#include "synergia/utils/logger.h"
-#include "synergia/utils/simple_timer.h"
-#include "synergia/utils/utils.h"
-#include "synergia/simulation/propagator.h"
 #include "synergia/simulation/independent_stepper_elements.h"
+#include "synergia/simulation/propagator.h"
 
-#include <iomanip>
-#include <iostream>
 #include <string>
-
 
 Lattice
 get_lattice()

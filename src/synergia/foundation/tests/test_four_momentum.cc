@@ -1,6 +1,9 @@
-#include "synergia/utils/catch.hpp"
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include "synergia/foundation/four_momentum.h"
+
 #include "synergia/utils/cereal_files.h"
 
 const double tolerance = 1.0e-15;
@@ -8,7 +11,7 @@ const double tolerance = 1.0e-15;
 // some kinematics with simple decimal representations
 const double mass = 100.0;
 const double my_gamma = 1.25; // 5/4
-const double beta = 0.6; // = sqrt(1-1/my_gamma^2) = 3/5
+const double beta = 0.6;      // = sqrt(1-1/my_gamma^2) = 3/5
 const double total_energy = 125.0;
 
 TEST_CASE("construct")
@@ -27,85 +30,91 @@ TEST_CASE("lsexpr")
     Lsexpr original_as_lsexpr(original.as_lsexpr());
     Four_momentum from_lsexpr(original_as_lsexpr);
 
-    CHECK(from_lsexpr.get_mass() == Approx(mass).margin(tolerance));
-    CHECK(from_lsexpr.get_total_energy() == Approx(total_energy).margin(tolerance));
+    REQUIRE_THAT(from_lsexpr.get_mass(),
+                 Catch::Matchers::WithinAbs(mass, tolerance));
+    REQUIRE_THAT(from_lsexpr.get_total_energy(),
+                 Catch::Matchers::WithinAbs(total_energy, tolerance));
 }
 
 TEST_CASE("get_mass")
 {
     Four_momentum four_momentum(mass);
-    CHECK(four_momentum.get_mass() == Approx(mass).margin(tolerance));
+    REQUIRE_THAT(four_momentum.get_mass(),
+                 Catch::Matchers::WithinAbs(mass, tolerance));
 }
 
 TEST_CASE("get_total_energy")
 {
     Four_momentum four_momentum(mass);
-    CHECK(four_momentum.get_total_energy() 
-            == Approx(mass).margin(tolerance));
+    REQUIRE_THAT(four_momentum.get_total_energy(),
+                 Catch::Matchers::WithinAbs(mass, tolerance));
 }
 
 TEST_CASE("set_and_get_total_energy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    CHECK(four_momentum.get_total_energy() 
-            == Approx(total_energy).margin(tolerance));
+    REQUIRE_THAT(four_momentum.get_total_energy(),
+                 Catch::Matchers::WithinAbs(total_energy, tolerance));
 }
 
 TEST_CASE("get_kinetic_energy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    CHECK(four_momentum.get_kinetic_energy() 
-            == Approx(total_energy - mass).margin(tolerance));
+
+    REQUIRE_THAT(four_momentum.get_kinetic_energy(),
+                 Catch::Matchers::WithinAbs(total_energy - mass, tolerance));
 }
 
 TEST_CASE("get_momentum")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    CHECK(four_momentum.get_momentum() 
-            == Approx(my_gamma*beta*mass).margin(tolerance));
+
+    REQUIRE_THAT(four_momentum.get_momentum(),
+                 Catch::Matchers::WithinAbs(my_gamma * beta * mass, tolerance));
 }
 
 TEST_CASE("get_gamma")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    CHECK(four_momentum.get_gamma() 
-            == Approx(my_gamma).margin(tolerance));
+    REQUIRE_THAT(four_momentum.get_gamma(),
+                 Catch::Matchers::WithinAbs(my_gamma, tolerance));
 }
 
 TEST_CASE("get_beta")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
-    CHECK(four_momentum.get_beta() 
-            == Approx(beta).margin(tolerance));
+
+    REQUIRE_THAT(four_momentum.get_beta(),
+                 Catch::Matchers::WithinAbs(beta, tolerance));
 }
 
 TEST_CASE("set_kinetic_energy")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_kinetic_energy(total_energy - mass);
-    CHECK(four_momentum.get_total_energy()
-            == Approx(total_energy).margin(tolerance));
+    REQUIRE_THAT(four_momentum.get_total_energy(),
+                 Catch::Matchers::WithinAbs(total_energy, tolerance));
 }
 
 TEST_CASE("set_momentum")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_momentum(my_gamma * beta * mass);
-    CHECK(four_momentum.get_total_energy()
-            == Approx(total_energy).margin(tolerance));
+    REQUIRE_THAT(four_momentum.get_total_energy(),
+                 Catch::Matchers::WithinAbs(total_energy, tolerance));
 }
 
 TEST_CASE("set_gamma")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_gamma(my_gamma);
-    CHECK(four_momentum.get_total_energy()
-            == Approx(total_energy).margin(tolerance));
+    REQUIRE_THAT(four_momentum.get_total_energy(),
+                 Catch::Matchers::WithinAbs(total_energy, tolerance));
 }
 
 TEST_CASE("set_gamma_invalid")
@@ -119,8 +128,8 @@ TEST_CASE("set_beta")
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_beta(beta);
-    CHECK(four_momentum.get_total_energy()
-            == Approx(total_energy).margin(tolerance));
+    REQUIRE_THAT(four_momentum.get_total_energy(),
+                 Catch::Matchers::WithinAbs(total_energy, tolerance));
 }
 
 TEST_CASE("set_beta_invalid")
@@ -184,21 +193,19 @@ TEST_CASE("equal_different_large_gamma")
 TEST_CASE("test_serialize_xml")
 {
     Four_momentum four_momentum(mass, total_energy);
-    xml_save<Four_momentum > (four_momentum, "four_momentum.xml");
+    xml_save<Four_momentum>(four_momentum, "four_momentum.xml");
 
     Four_momentum loaded;
-    xml_load<Four_momentum > (loaded, "four_momentum.xml");
+    xml_load<Four_momentum>(loaded, "four_momentum.xml");
     CHECK(four_momentum.equal(loaded, tolerance));
 }
 
 TEST_CASE("test_serialize_json")
 {
     Four_momentum four_momentum(mass, total_energy);
-    json_save<Four_momentum > (four_momentum, "four_momentum.json");
+    json_save<Four_momentum>(four_momentum, "four_momentum.json");
 
     Four_momentum loaded;
-    json_load<Four_momentum > (loaded, "four_momentum.json");
+    json_load<Four_momentum>(loaded, "four_momentum.json");
     CHECK(four_momentum.equal(loaded, tolerance));
 }
-
-

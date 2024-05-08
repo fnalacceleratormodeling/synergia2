@@ -1,8 +1,8 @@
 import pytest
 
+
 def test_mpi4py_installed():
-    """Make sure that mpi4py is installed.
-    """
+    """Make sure that mpi4py is installed."""
     try:
         import mpi4py
     except ImportError:
@@ -14,4 +14,3 @@ def test_mpi4py_installed():
     except ImportError:
         print("failed to import MPI from mpi4py")
         assert False
-

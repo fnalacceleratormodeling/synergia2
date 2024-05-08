@@ -26,8 +26,8 @@ lattice_str = """
     endsequence;
 """
 
-def test_dynamic_lattice():
 
+def test_dynamic_lattice():
     reader = MadX_reader()
     reader.parse(lattice_str)
 
@@ -37,28 +37,28 @@ def test_dynamic_lattice():
     elms = lattice.get_elements()
 
     # a->k1 == 2.0
-    assert(elms[0].get_double_attribute("k1") == pytest.approx(2.0, 1e-12))
+    assert elms[0].get_double_attribute("k1") == pytest.approx(2.0, 1e-12)
 
     # set x
     lattice.set_variable("x", 3.0)
 
     # a->k1 == 4.0 now
-    assert(elms[0].get_double_attribute("k1") == pytest.approx(4.0, 1e-12))
+    assert elms[0].get_double_attribute("k1") == pytest.approx(4.0, 1e-12)
 
     # d->l = o->l*4 == 0.8
-    assert(elms[4].get_double_attribute("l") == pytest.approx(0.8, 1e-12))
+    assert elms[4].get_double_attribute("l") == pytest.approx(0.8, 1e-12)
 
     # d->k1 = o->l*5  == 1.0
-    assert(elms[4].get_double_attribute("k1") == pytest.approx(1.0, 1e-12))
+    assert elms[4].get_double_attribute("k1") == pytest.approx(1.0, 1e-12)
 
     # set o->l to 0.3
     lattice.get_lattice_tree().set_element_attribute("o", "l", 0.3)
 
     # d->l = o->l*4 == 1.2
-    assert(elms[4].get_double_attribute("l") == pytest.approx(1.2, 1e-12))
+    assert elms[4].get_double_attribute("l") == pytest.approx(1.2, 1e-12)
 
     # d->k1 = o->l*5  == 1.5
-    assert(elms[4].get_double_attribute("k1") == pytest.approx(1.5, 1e-12))
+    assert elms[4].get_double_attribute("k1") == pytest.approx(1.5, 1e-12)
 
     # parsing error
     with pytest.raises(RuntimeError, match="parse"):
@@ -66,8 +66,6 @@ def test_dynamic_lattice():
 
     # no throw
     elms[3].set_double_attribute("k1", "o->l*3")
-    
+
     # k1 = 0.3*3 = 0.9
-    assert(elms[3].get_double_attribute("k1") == pytest.approx(0.9, 1e-12))
-
-
+    assert elms[3].get_double_attribute("k1") == pytest.approx(0.9, 1e-12)

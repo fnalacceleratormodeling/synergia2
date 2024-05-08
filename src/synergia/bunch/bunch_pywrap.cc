@@ -294,8 +294,22 @@ PYBIND11_MODULE(bunch, m)
             },
             "Calculate the standard deviation for the bunch.",
             "bunch"_a,
-            "mean"_a);
+            "mean"_a)
 
+        .def_static(
+            "calculate_mom2_ka",
+            [](Bunch const& bunch, py::buffer b) {
+                py::buffer_info info = b.request();
+                Kokkos::View<double*,
+                             Kokkos::HostSpace,
+                             Kokkos::MemoryTraits<Kokkos::Unmanaged>>
+                    array((double*)info.ptr, info.shape[0]);
+                return Core_diagnostics::calculate_mom2(bunch, array);
+            },
+            "Calculate the second order moments for the bunch.",
+            "bunch"_a,
+            "mean"_a);
+ 
     // Diagnostics_handler
     py::class_<Diagnostics_handler>(m, "Diagnostics_handler")
         .def("type",

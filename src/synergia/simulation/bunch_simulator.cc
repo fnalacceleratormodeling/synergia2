@@ -502,7 +502,7 @@ namespace {
 }
 
 void
-Bunch_simulator::save_checkpoint_particles(std::string const& fname) const
+Bunch_simulator::save_checkpoint_particles(std::string const& fname)
 {
     Hdf5_file file(fname, Hdf5_file::Flag::truncate, *comm);
     auto bunches = get_bunch_ptrs(trains);

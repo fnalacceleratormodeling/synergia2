@@ -718,8 +718,7 @@ bunch_particles_t<double>::print_particle(size_t idx, Logger& logger) const
 
 template <>
 void
-bunch_particles_t<double>::save_checkpoint_particles(Hdf5_file& file,
-                                                     int idx) const
+bunch_particles_t<double>::save_checkpoint_particles(Hdf5_file& file, int idx)
 {
     checkout_particles();
 

@@ -1,5 +1,7 @@
-#include "synergia/utils/catch.hpp"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+#include "catch2/matchers/catch_matchers.hpp"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 #include "synergia/collective/tests/rod_bunch.h"
 
@@ -101,7 +103,8 @@ TEST_CASE("real_apply_full_lowgamma", "[Rod_bunch]")
     logger << "computed dpop: " << computed_dpop << '\n';
     logger << "particle dpop: " << parts(0, 1) << '\n';
 
-    CHECK(parts(0, Bunch::xp) == Approx(computed_dpop).margin(.01));
+    REQUIRE_THAT(parts(0, Bunch::xp),
+                 Catch::Matchers::WithinAbs(computed_dpop, .01));
 
     int nkicks = 0;
     for (int k = 0; k < bunch.get_local_num(); ++k) {
@@ -216,7 +219,8 @@ TEST_CASE("real_apply_full_highgamma", "[Rod_bunch]")
     logger << "computed dpop: " << computed_dpop << '\n';
     logger << "particle dpop: " << parts(0, 1) << '\n';
 
-    CHECK(parts(0, Bunch::xp) == Approx(computed_dpop).margin(.01));
+    REQUIRE_THAT(parts(0, Bunch::xp),
+                 Catch::Matchers::WithinAbs(computed_dpop, .01));
 
     int nkicks = 0;
     for (int k = 0; k < bunch.get_local_num(); ++k) {
