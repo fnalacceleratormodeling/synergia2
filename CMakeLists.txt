@@ -471,9 +471,6 @@ set(eigen_defs
     $<$<STREQUAL:${CMAKE_HOST_SYSTEM_PROCESSOR},ppc64le>:EIGEN_DONT_VECTORIZE>)
 add_subdirectory(${SYNERGIA3_SOURCE_DIR}/src/synergia/utils/eigen)
 set(ENV{FC} ${FC_BACKUP})
-find_package(Eigen3 REQUIRED PATHS
-             ${SYNERGIA3_BINARY_DIR}/src/synergia/utils/eigen)
-
 add_subdirectory(src)
 
 if(BUILD_EXAMPLES)
