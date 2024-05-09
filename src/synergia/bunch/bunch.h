@@ -17,6 +17,8 @@
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/logger.h"
 
+#include "synergia/libFF/ff_adjust_bunch_ref_coords.h"
+
 #include <cereal/types/array.hpp>
 #include <cereal/types/map.hpp>
 
@@ -485,6 +487,14 @@ class bunch_t {
         return std::make_pair(boundary, boundary_param);
     }
 
+    // adjust_bunch_particle_reference_energy
+    // This method adjusts the particle coordinates to use
+    void
+    adjust_bunch_particles_reference_energy(double newE)
+    {
+        FF_adjust_bunch_ref_coords::apply(newE, *this);
+    }
+    
     // bucket index
     void
     set_bucket_index(int index)
