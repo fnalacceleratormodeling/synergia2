@@ -13,7 +13,7 @@
 
 constexpr double mass = pconstants::mp;
 constexpr double KE0 = 0.8;
-constexpr double total_energy = mp + KE0;
+constexpr double total_energy = mass + KE0;
 constexpr int total_num = 16;
 constexpr double real_num = 2.0e12;
 constexpr auto x = Bunch::x;
@@ -46,9 +46,10 @@ TEST_CASE("Bunch", "[Bunch]")
         parts(i, Bunch::yp) = (localnum-i) * 1.0e-4;
     }
 
-    constexpr double dE = 0.050 // 50 MeV
+    constexpr double dE = 0.050; // 50 MeV
     double energy = ref.get_total_energy();
-    old_p = sqrt(energy*energy - mass*mass)
+    double old_p = sqrt(energy*energy - mass*mass);
+	
 
     // Add some energy to each particle by changing dp/p
 
@@ -72,9 +73,11 @@ TEST_CASE("Bunch", "[Bunch]")
     for (auto i=0; i<localnum; ++i) {
         std::cout << "new_parts(i, 5): " << new_parts(i, 5) << std::endl;
         // check that dp/p is now close to 0
-        CHECK(Catch::Matchers::WithinAbs(parts(i, Bunch::dpop), 1.0e-12));
+        CHECK_THAT(parts(i, Bunch::dpop), Catch::Matchers::WithinAbs(0.0, 1.0e-12));
         // transverse momenta
-        CHECK(Catch::Matchers::WithinRel(i * 1.0e-4 * old_p/new_p, 1.0e-12));
-        CHECK(Catch::Matchers::WithinRel((localnum-i)*1.0e-4 * old_p/new_p, 1.0e-12));
+		std::cout << "new_parts(" << i << "(, 1): " << new_parts(i, 1) << std::endl;
+        CHECK_THAT(parts(i, Bunch::xp), Catch::Matchers::WithinRel(i*1.0e-4*old_p/new_p,  1.0e-12));
+		std::cout << "new_parts(" << i << "(, 3): " << new_parts(i, 3) << std::endl;
+        CHECK_THAT(parts(i, Bunch::yp), Catch::Matchers::WithinRel((localnum-i)*1.0e-4*old_p/new_p,  1.0e-12));
     }
 }

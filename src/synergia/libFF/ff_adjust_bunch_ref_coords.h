@@ -38,7 +38,7 @@ namespace ref_energy_impl {
                 gsv_t p4(&p(i, 4));
                 gsv_t p5(&p(i, 5));
 
-#if 0
+#if 1
                 FF_algorithm::adjust_ref_unit(p1,
                                                  p3,
                                                  p4,
@@ -142,7 +142,7 @@ namespace FF_adjust_bunch_ref_coords {
             auto range = Kokkos::RangePolicy<exec>(0, bunch.size_in_gsv(pg));
 
             AdjustCoords<BunchT> adjuster{parts, masks, cp};
-            // Kokkos::parallel_for(range, adjuster);
+            Kokkos::parallel_for(range, adjuster);
         };
         apply(ParticleGroup::regular);
         apply(ParticleGroup::spectator);
