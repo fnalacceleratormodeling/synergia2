@@ -38,7 +38,6 @@ namespace ref_energy_impl {
                 gsv_t p4(&p(i, 4));
                 gsv_t p5(&p(i, 5));
 
-#if 1
                 FF_algorithm::adjust_ref_unit(p1,
                                                  p3,
                                                  p4,
@@ -48,7 +47,6 @@ namespace ref_energy_impl {
                                                  cp.new_p,
                                                  cp.old_E,
                                                  cp.new_E);
-#endif
 
                 p1.store(&p(i, 1));
                 p3.store(&p(i, 3));
