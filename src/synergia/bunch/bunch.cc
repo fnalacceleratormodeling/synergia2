@@ -168,6 +168,13 @@ Bunch::print_statistics(Logger& logger) const
                       << "\n";
 }
 
+template <>
+void
+Bunch::adjust_bunch_particles_reference_energy(double newE)
+{
+  FF_adjust_bunch_ref_coords::apply(newE, *this);
+}
+
 #if defined SYNERGIA_HAVE_OPENPMD
 template <>
 void
