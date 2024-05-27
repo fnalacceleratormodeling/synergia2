@@ -245,6 +245,12 @@ PYBIND11_MODULE(lattice, m)
 
     // Lattice_element_slice
     py::class_<Lattice_element_slice>(m, "Lattice_element_slice")
+        .def( py::init<Lattice_element const&>(), 
+                "Construct a lattice element slice from an entire element",
+                "element"_a)
+        .def (py::init<Lattice_element const&, double, double>(),
+                "Construct a lattice element slice with left and right from an element",
+                "element"_a, "left"_a, "right"_a)
         .def( "is_whole", 
                 &Lattice_element_slice::is_whole, 
                 "Is a whole element" )

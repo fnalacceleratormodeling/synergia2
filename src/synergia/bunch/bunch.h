@@ -490,10 +490,7 @@ class bunch_t {
     // adjust_bunch_particle_reference_energy
     // This method adjusts the particle coordinates to use
     void
-    adjust_bunch_particles_reference_energy(double newE)
-    {
-        FF_adjust_bunch_ref_coords::apply(newE, *this);
-    }
+    adjust_bunch_particles_reference_energy(double newE);
     
     // bucket index
     void
