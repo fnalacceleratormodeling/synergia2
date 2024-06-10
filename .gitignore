@@ -72,3 +72,6 @@ compile_commands.json
 # created by vscode editor
 .vscode
 
+# created by pixi
+.pixi
+
