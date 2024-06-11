@@ -267,7 +267,7 @@ if(HDF5_IS_PARALLEL)
       set(openPMD_BUILD_EXAMPLES OFF)
       set(openPMD_BUILD_SHARED_LIBS OFF)
       set(openPMD_BUILD_TESTING OFF)
-      set(openPMD_INSTALL OFF)
+      set(openPMD_INSTALL ON)
       set(openPMD_USE_PYTHON ON)
       # Consistency with pybind11 synergia finds
       set(openPMD_USE_INTERNAL_PYBIND11 OFF) 
