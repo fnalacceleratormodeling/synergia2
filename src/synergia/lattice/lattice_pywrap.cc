@@ -330,6 +330,9 @@ PYBIND11_MODULE(lattice, m)
                 "Construct an empty latttice.", 
                 "name"_a )
 
+        .def( py::init<Lattice const&>(),
+                "Construct a copy of a lattice." )
+
         .def( py::init<std::string const&, Reference_particle const&>(), 
                 "Construct an empty latttice with given reference particle.", 
                 "name"_a,
