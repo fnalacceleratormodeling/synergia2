@@ -72,6 +72,7 @@ jobs:
         export CPPFLAGS="-I/opt/homebrew/opt/libomp/include"
         cmake -B ${{github.workspace}}/build \
         -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 \
+        -DCMAKE_OSX_SYSROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DENABLE_KOKKOS_BACKEND=OpenMP \
         -DGSV=DOUBLE \
         -DPython_EXECUTABLE=${{github.workspace}}/synergia-env/bin/python${{env.PYTHON_VERSION}} \
