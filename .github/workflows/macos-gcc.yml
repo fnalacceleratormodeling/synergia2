@@ -1,6 +1,16 @@
 name: CI:macOS-gcc
 
 on:
+  workflow_dispatch:
+    inputs:
+      debug_cmake_enabled:
+        description: 'tmate before cmake'
+        required: false
+        default: false
+      debug_tests_enabled:
+        description: 'tmate before ctest'
+        required: false
+        default: false
   push:
     branches: [ devel3 ]
     paths-ignore:
@@ -47,12 +57,21 @@ jobs:
         # Build h5py from source using the Homebrew installed hdf5
         HDF5_DIR=$(brew --prefix hdf5) python3 -m pip install --no-binary=h5py h5py
 
+    # Debug: checkpoint at which to open tmate session
+    - name: macos-clang pre CMake
+      uses: mxschmitt/action-tmate@v3
+      if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_cmake_enabled }}
+      with:
+        sudo: false
+
     - name: CMake
       run: |
         uname -a
         source ${{github.workspace}}/synergia-env/bin/activate
+        export LDFLAGS="-L/opt/homebrew/opt/libomp/lib"
+        export CPPFLAGS="-I/opt/homebrew/opt/libomp/include"
         cmake -B ${{github.workspace}}/build \
-        -DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 \
+        -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DENABLE_KOKKOS_BACKEND=OpenMP \
         -DGSV=DOUBLE \
         -DPython_EXECUTABLE=${{github.workspace}}/synergia-env/bin/python${{env.PYTHON_VERSION}} \
@@ -63,6 +82,13 @@ jobs:
       run: |
         source ${{github.workspace}}/synergia-env/bin/activate
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    # Debug: checkpoint at which to open tmate session
+    - name: macos-clang pre ctest
+      uses: mxschmitt/action-tmate@v3
+      if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_tests_enabled }}
+      with:
+        sudo: false
 
     - name: ctest
     # Execute tests defined by the CMake configuration.

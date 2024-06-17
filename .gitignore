@@ -75,3 +75,5 @@ compile_commands.json
 # created by pixi
 .pixi
 
+# created by python virtualenv
+synergia-env/**
