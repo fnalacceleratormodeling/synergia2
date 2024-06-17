@@ -1,6 +1,7 @@
 #ifndef COMMXX_H_
 #define COMMXX_H_
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
