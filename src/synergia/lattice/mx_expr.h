@@ -1,10 +1,12 @@
 #ifndef MX_EXPR_H
 #define MX_EXPR_H
 
-#include <boost/variant.hpp>
+#include <algorithm>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <boost/variant.hpp>
 
 #include "synergia/utils/cereal.h"
 
