@@ -21,6 +21,9 @@ test = { cmd = "ctest --output-on-failure --test-dir build_pixi", depends_on = [
 test-failed = { cmd = "ctest -V --output-on-failure --rerun-failed --test-dir build_pixi", depends_on = ["install"],env = { SYNINSTALL = "$(pwd)/install_pixi", LD_LIBRARY_PATH = "$SYNINSTALL/lib:$SYNINSTALL:lib64:${LD_LIBRARY_PATH}",PYTHON_VERSION = "$(python3 -c 'import sys; print(str(sys.version[:4]))')",PYTHONPATH="$SYNINSTALL/lib:$SYNINSTALL/lib/python$PYTHON_VERSION/site-packages:$SYNINSTALL/lib:$SYNINSTALL/lib64/python$PYTHON_VERSION/site-packages:$PYTHONPATH" } , description = "re-run failed tests with increased verbosity" }
 clean = { cmd = "rm -rf build_pixi/ && rm -rf install_pixi/", description = "delete build/install directories" }
 
+[feature.cuda.tasks]
+cmake = { cmd = "cmake -S . -B build_pixi -DCMAKE_INSTALL_PREFIX=$(pwd)/install_pixi -DENABLE_KOKKOS_BACKEND=CUDA -DUSE_EXTERNAL_KOKKOS=OFF -DUSE_OPENPMD_IO=ON -DUSE_EXTERNAL_OPENPMD=OFF -DGSV=DOUBLE", description = "Run cmake to generate the build recipes"}
+
 [feature.cpu.dependencies]
 python = ">=3.12.3,<3.13"
 cmake = ">=3.29.5,<3.30"
@@ -34,7 +37,10 @@ numpy = ">=1.26.4,<1.27"
 seaborn = ">=0.13.2,<0.14"
 
 [feature.cuda.dependencies]
-cuda = ">12.5.0"
+cuda-nvcc = ">12.4.0"
+cuda-libraries-dev = ">12.4.0"
+cuda-cudart-dev = ">12.4.0"
+cuda-toolkit = ">12.4.0"
 
 [environments]
 cpu = ["cpu"]
