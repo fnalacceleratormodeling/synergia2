@@ -201,99 +201,245 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.6-hb46c0d2_0.conda
   cuda:
     channels:
-    - url: https://conda.anaconda.org/nvidia/
     - url: https://conda.anaconda.org/conda-forge/
+    - url: https://conda.anaconda.org/nvidia/
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-2_gnu.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/_sysroot_linux-64_curr_repodata_hack-3-h69a702a_14.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/alsa-lib-1.2.12-h4ab18f5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/binutils-2.40-h4852527_7.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/binutils_impl_linux-64-2.40-ha1999f0_7.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/binutils_linux-64-2.40-hb3c18ed_7.conda
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-cccl-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-cccl_linux-64-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-command-line-tools-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-compiler-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-crt-dev_linux-64-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-crt-tools-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-cudart-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-cudart-dev-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-cudart-dev_linux-64-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-cudart-static-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-cudart-static_linux-64-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-cudart_linux-64-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-cuobjdump-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-cupti-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-cupti-dev-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-cuxxfilt-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-driver-dev-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-driver-dev_linux-64-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-gdb-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-libraries-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-libraries-dev-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nsight-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvcc-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-nvcc-dev_linux-64-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvcc-impl-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvcc-tools-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvcc_linux-64-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvdisasm-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvml-dev-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvprof-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvprune-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvrtc-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvrtc-dev-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvtx-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-nvvm-dev_linux-64-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvvm-impl-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvvm-tools-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-nvvp-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-opencl-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-opencl-dev-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-profiler-api-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-runtime-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-sanitizer-api-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-toolkit-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-tools-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/noarch/cuda-version-12.5-3.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/cuda-visual-tools-12.5.0-0.tar.bz2
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/gcc_impl_linux-64-12.3.0-h58ffeeb_10.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/brotli-1.1.0-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/brotli-bin-1.1.0-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hd590300_5.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.28.1-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/c-compiler-1.7.0-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/ca-certificates-2024.6.2-hbcca054_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cached-property-1.5.2-hd8ed1ab_1.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cached_property-1.5.2-pyha770c72_1.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cccl-2.4.0-h7ab4013_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/certifi-2024.6.2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cmake-3.29.6-hcafd917_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/colorama-0.4.6-pyhd8ed1ab_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/contourpy-1.2.1-py312h8572e83_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-cccl-12.5.39-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cccl_linux-64-12.5.39-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-command-line-tools-12.5.0-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-compiler-12.5.0-hbad6d8a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-crt-dev_linux-64-12.5.40-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-crt-tools-12.5.40-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-cudart-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-cudart-dev-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart-dev_linux-64-12.5.39-h85509e4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-cudart-static-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart-static_linux-64-12.5.39-h85509e4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart_linux-64-12.5.39-h85509e4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-cuobjdump-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-cupti-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-cupti-dev-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-cuxxfilt-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-driver-dev-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-driver-dev_linux-64-12.5.39-h85509e4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-gdb-12.5.39-hda18ab6_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-libraries-12.5.0-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-libraries-dev-12.5.0-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nsight-12.5.39-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvcc-12.5.40-hcdd1206_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvcc-dev_linux-64-12.5.40-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvcc-impl-12.5.40-hd3aeb46_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvcc-tools-12.5.40-hd3aeb46_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvcc_linux-64-12.5.40-h8a487aa_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvdisasm-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvml-dev-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvprof-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvprune-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-12.5.40-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-12.5.40-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvtx-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-64-12.5.40-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-12.5.40-h59595ed_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-12.5.40-h59595ed_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvp-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-opencl-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-opencl-dev-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-12.5.39-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-sanitizer-api-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-toolkit-12.5.0-ha804496_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-tools-12.5.0-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-version-12.5-hd4f0392_3.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-visual-tools-12.5.0-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cxx-compiler-1.7.0-h00ab1b0_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/cycler-0.12.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/dbus-1.13.6-h5008d03_3.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/exceptiongroup-1.2.0-pyhd8ed1ab_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/expat-2.6.2-h59595ed_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/fftw-3.3.10-mpi_mpich_hbcf76dd_10.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/font-ttf-dejavu-sans-mono-2.37-hab24e00_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/font-ttf-inconsolata-3.000-h77eed37_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/font-ttf-source-code-pro-2.038-h77eed37_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/font-ttf-ubuntu-0.83-h77eed37_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/fontconfig-2.14.2-h14ed4e7_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/fonts-conda-ecosystem-1-0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/fonts-conda-forge-1-0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.53.0-py312h9a8786e_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/freetype-2.12.1-h267a509_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/gcc-12.3.0-h915e2ae_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/gcc_impl_linux-64-12.3.0-h58ffeeb_11.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gcc_linux-64-12.3.0-h6b3dd4b_7.conda
-      - conda: https://conda.anaconda.org/nvidia/linux-64/gds-tools-1.10.0.4-0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/gds-tools-1.10.0.4-he02047a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gmp-6.3.0-h59595ed_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/gxx_impl_linux-64-12.3.0-h2a574ab_10.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/gsl-2.7-he838d99_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/gxx-12.3.0-h915e2ae_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/gxx_impl_linux-64-12.3.0-h2a574ab_11.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gxx_linux-64-12.3.0-ha28b414_7.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/h5py-3.11.0-mpi_mpich_py312h970abeb_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/hdf5-1.14.3-mpi_mpich_h0f54ddc_5.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-73.2-h59595ed_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/kernel-headers_linux-64-4.18.0-he073ed8_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/keyutils-1.6.1-h166bdaf_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/kiwisolver-1.4.5-py312h8572e83_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/krb5-1.21.2-h659d440_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/lcms2-2.16-hb7c19ff_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.40-hf3520f5_7.conda
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcublas-12.5.2.13-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcublas-dev-12.5.2.13-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcufft-11.2.3.18-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcufft-dev-11.2.3.18-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcufile-1.10.0.4-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcufile-dev-1.10.0.4-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcurand-10.3.6.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcurand-dev-10.3.6.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcusolver-11.6.2.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcusolver-dev-11.6.2.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcusparse-12.4.1.24-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libcusparse-dev-12.4.1.24-0.tar.bz2
-      - conda: https://conda.anaconda.org/conda-forge/noarch/libgcc-devel_linux-64-12.3.0-h6b66f73_110.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h77fa898_10.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/libgomp-13.2.0-h77fa898_10.conda
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libnpp-12.3.0.116-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libnpp-dev-12.3.0.116-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libnvfatbin-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libnvfatbin-dev-12.5.39-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libnvjitlink-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libnvjitlink-dev-12.5.40-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libnvjpeg-12.3.2.38-0.tar.bz2
-      - conda: https://conda.anaconda.org/nvidia/linux-64/libnvjpeg-dev-12.3.2.38-0.tar.bz2
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/libsanitizer-12.3.0-hb8811af_10.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/libstdcxx-devel_linux-64-12.3.0-h6b66f73_110.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-13.2.0-hc0a3c3a_10.conda
-      - conda: https://conda.anaconda.org/nvidia/linux-64/nsight-compute-2024.1.1.4-0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/lerc-4.0.0-h27087fc_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libaec-1.1.3-h59595ed_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libblas-3.9.0-22_linux64_openblas.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libbrotlicommon-1.1.0-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libbrotlidec-1.1.0-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libbrotlienc-1.1.0-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.9.0-22_linux64_openblas.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcublas-12.5.2.13-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcublas-dev-12.5.2.13-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcufft-11.2.3.18-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcufft-dev-11.2.3.18-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcufile-1.10.0.4-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcufile-dev-1.10.0.4-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcurand-10.3.6.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcurand-dev-10.3.6.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.8.0-hca28451_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcusolver-11.6.2.40-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcusolver-dev-11.6.2.40-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcusparse-12.4.1.24-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libcusparse-dev-12.4.1.24-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libdeflate-1.20-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libedit-3.1.20191231-he28a2e2_2.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libev-4.33-hd590300_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libexpat-2.6.2-h59595ed_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libffi-3.4.2-h7f98852_5.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/libgcc-devel_linux-64-12.3.0-h6b66f73_111.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h77fa898_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libgfortran-ng-13.2.0-h69a702a_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libgfortran5-13.2.0-h3d2ce59_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libglib-2.80.2-h8a4344b_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libgomp-13.2.0-h77fa898_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libiconv-1.17-hd590300_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libjpeg-turbo-3.0.0-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.9.0-22_linux64_openblas.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnghttp2-1.58.0-h47da74e_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnpp-12.3.0.116-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnpp-dev-12.3.0.116-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnsl-2.0.1-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvfatbin-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvfatbin-dev-12.5.39-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvjitlink-12.5.40-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvjitlink-dev-12.5.40-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvjpeg-12.3.2.38-he02047a_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libnvjpeg-dev-12.3.2.38-ha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libopenblas-0.3.27-pthreads_h413a1c8_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libpng-1.6.43-h2797004_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libsanitizer-12.3.0-hb8811af_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.46.0-hde9e2c9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.11.0-h0841786_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/libstdcxx-devel_linux-64-12.3.0-h6b66f73_111.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-13.2.0-hc0a3c3a_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libtiff-4.6.0-h1dd3fc0_3.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libuuid-2.38.1-h0b41bf4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libuv-1.48.0-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libwebp-base-1.4.0-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libxcb-1.15-h0b41bf4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libxcrypt-4.4.36-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libxkbcommon-1.7.0-h662e7e4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libxkbfile-1.1.0-h166bdaf_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.12.7-hc051c1a_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.3.1-h4ab18f5_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.8.4-py312h20ab3a6_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/mpi-1.0-mpich.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/mpi4py-3.1.6-py312h60e9011_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/mpich-4.2.1-h63d650b_101.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/munkres-1.1.4-pyh9f0ad1d_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h59595ed_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/nsight-compute-2024.2.0.16-h54680a5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/nspr-4.35-h27087fc_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/nss-3.101-h593d115_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/numpy-1.26.4-py312heda63a1_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/ocl-icd-2.3.2-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/openjpeg-2.5.2-h488ebb8_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.3.1-h4ab18f5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-24.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pandas-2.2.2-py312h1d6d2e6_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/patsy-0.5.6-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pcre2-10.44-h0f59acf_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pillow-10.3.0-py312hdcec9eb_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pluggy-1.5.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pthread-stubs-0.4-h36c2ea0_1001.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pybind11-2.12.0-py312h8572e83_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pybind11-global-2.12.0-py312h8572e83_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.1.2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pytest-8.2.2-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.4-h194c7f8_0_cpython.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.9.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/python-tzdata-2024.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/python_abi-3.12-4_cp312.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pytz-2024.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.2-h8228510_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/rhash-1.4.4-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.13.1-py312hc2bc53b_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-0.13.2-hd8ed1ab_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-base-0.13.2-pyhd8ed1ab_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.16.0-pyh6c4a22f_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/statsmodels-0.14.2-py312h085067d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sysroot_linux-64-2.28-he073ed8_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h4845f30_101.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.0.1-pyhd8ed1ab_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2024a-h0c530f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/wayland-1.23.0-h5291e77_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-0.4.0-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-cursor-0.1.4-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-image-0.4.0-h8ee46fc_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-keysyms-0.4.0-h8ee46fc_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-renderutil-0.3.9-hd590300_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-wm-0.4.1-h8ee46fc_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xkeyboard-config-2.42-h4ab18f5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-compositeproto-0.4.2-h7f98852_1001.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-damageproto-1.2.1-h7f98852_1002.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-fixesproto-5.0-h7f98852_1002.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-inputproto-2.3.2-h7f98852_1002.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-kbproto-1.0.7-h7f98852_1002.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libice-1.1.1-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libsm-1.2.4-h7391055_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libx11-1.8.9-h8ee46fc_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxau-1.0.11-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxcomposite-0.4.6-h0b41bf4_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxdamage-1.1.5-h7f98852_1.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxdmcp-1.1.3-h7f98852_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxext-1.3.4-h0b41bf4_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxfixes-5.0.3-h7f98852_1004.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxi-1.7.10-h7f98852_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxrandr-1.5.2-h7f98852_1.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxrender-0.9.11-hd590300_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxtst-1.2.3-h7f98852_1002.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-randrproto-1.5.0-h7f98852_1001.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-recordproto-1.14.2-h7f98852_1002.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-renderproto-0.11.1-h7f98852_1002.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-util-macros-1.19.3-h7f98852_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-xextproto-7.3.0-h0b41bf4_1003.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-xproto-7.0.31-h7f98852_1007.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xz-5.2.6-h166bdaf_0.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.6-ha6fb4c9_0.conda
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -538,6 +684,35 @@ packages:
   size: 21169
   timestamp: 1708000801681
 - kind: conda
+  name: alsa-lib
+  version: 1.2.12
+  build: h4ab18f5_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/alsa-lib-1.2.12-h4ab18f5_0.conda
+  sha256: 64b95dd06d7ca6b54cea03b02da8f1657b9899ca376d0ca7b47823064f55fb16
+  md5: 7ed427f0871fd41cb1d9c17727c17589
+  depends:
+  - libgcc-ng >=12
+  license: LGPL-2.1-or-later
+  license_family: GPL
+  size: 555868
+  timestamp: 1718118368236
+- kind: conda
+  name: binutils
+  version: '2.40'
+  build: h4852527_7
+  build_number: 7
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/binutils-2.40-h4852527_7.conda
+  sha256: 75d7f5cda999fe1efe9f1de1be2d3e4ce32b20cbf97d1ef7b770e2e90c062858
+  md5: df53aa8418f8c289ae9b9665986034f8
+  depends:
+  - binutils_impl_linux-64 >=2.40,<2.41.0a0
+  license: GPL-3.0-only
+  license_family: GPL
+  size: 31696
+  timestamp: 1718625692046
+- kind: conda
   name: binutils_impl_linux-64
   version: '2.40'
   build: ha1999f0_7
@@ -550,6 +725,7 @@ packages:
   - ld_impl_linux-64 2.40 hf3520f5_7
   - sysroot_linux-64
   license: GPL-3.0-only
+  license_family: GPL
   size: 6250821
   timestamp: 1718625666382
 - kind: conda
@@ -691,6 +867,23 @@ packages:
   size: 168875
   timestamp: 1711819445938
 - kind: conda
+  name: c-compiler
+  version: 1.7.0
+  build: hd590300_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/c-compiler-1.7.0-hd590300_1.conda
+  sha256: 4213b6cbaed673c07f8b79c089f3487afdd56de944f21c4861ead862b7657eb4
+  md5: e9dffe1056994133616378309f932d77
+  depends:
+  - binutils
+  - gcc
+  - gcc_linux-64 12.*
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 6324
+  timestamp: 1714575511013
+- kind: conda
   name: ca-certificates
   version: 2024.6.2
   build: hbcca054_0
@@ -744,6 +937,17 @@ packages:
   license_family: BSD
   size: 11065
   timestamp: 1615209567874
+- kind: conda
+  name: cccl
+  version: 2.4.0
+  build: h7ab4013_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/cccl-2.4.0-h7ab4013_0.conda
+  sha256: 4905e187cff74eea6850debc0bc56ef48c0cd06dd5b853bfd9df6b8018f52d76
+  md5: d974280864e984929ea44bd982498da6
+  license: Apache-2.0 AND BSD-3-Clause AND BSD-2-Clause AND BSL-1.0 AND NCSA AND MIT AND LicenseRef-NVIDIA-Software-License
+  size: 1346957
+  timestamp: 1716324764578
 - kind: conda
   name: certifi
   version: 2024.6.2
@@ -906,467 +1110,462 @@ packages:
   size: 256764
   timestamp: 1712430146809
 - kind: conda
-  name: cuda
-  version: 12.5.0
-  build: '0'
-  subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-12.5.0-0.tar.bz2
-  sha256: a2d6d9eb93ee0d07c43b48226f7eca996c3137a439cf44aa585323384e4e98da
-  md5: 9b4625397431fadbb53b6a25276f9af0
-  depends:
-  - __linux
-  - cuda-runtime 12.5.0.*
-  - cuda-toolkit 12.5.0.*
-  license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16712
-  timestamp: 1715798425701
-- kind: conda
   name: cuda-cccl
   version: 12.5.39
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-cccl-12.5.39-0.tar.bz2
-  sha256: 63cced14a38de0447f3d25a0b01ec13bbd7b00aefdc467a036ec895701c7bf20
-  md5: 634df3e8b5fe8f59a15f024e52df5dd1
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-cccl-12.5.39-ha770c72_0.conda
+  sha256: 1ab865226ac14548b48aad6d75c265de791f9f69442f9157b291f0370fe1bfdb
+  md5: b3c9ebdf02fb0ce96437c9908672a656
   depends:
+  - cccl 2.4.0
   - cuda-cccl_linux-64 12.5.39
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16586
-  timestamp: 1713236545363
+  size: 21418
+  timestamp: 1716328299353
 - kind: conda
   name: cuda-cccl_linux-64
   version: 12.5.39
-  build: '0'
+  build: ha770c72_0
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-cccl_linux-64-12.5.39-0.tar.bz2
-  sha256: 15aab4e5e98f52f396396e1e50b6a1541737072f77e3201ff9e2af2cc75243c4
-  md5: bdaa344025cd349b59b3914cd1c2c16f
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-cccl_linux-64-12.5.39-ha770c72_0.conda
+  sha256: c3a6421fbe529db62ba2db38ec05944996f570117a0307b270d37aec9b4eddff
+  md5: 1196ad96550a485d6c988d84839e93db
   depends:
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 1783176
-  timestamp: 1713236535580
+  size: 1354110
+  timestamp: 1716328285059
 - kind: conda
   name: cuda-command-line-tools
   version: 12.5.0
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-command-line-tools-12.5.0-0.tar.bz2
-  sha256: 78283829b291c7592b3f81828801028c50a8001de47d3367f41cd7ab2a430240
-  md5: cef8577719d617d7bab403ad799b2d69
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-command-line-tools-12.5.0-ha770c72_0.conda
+  sha256: fd6c964bb031d2f08e0d664f2b2017fda8b1aa6296fc22a777ec7567675f8114
+  md5: 88c2bcb690eb595b39b17241d43117c6
   depends:
-  - cuda-cupti-dev
-  - cuda-gdb
-  - cuda-nvdisasm
-  - cuda-nvprof
-  - cuda-nvtx
-  - cuda-sanitizer-api
+  - cuda-cupti-dev 12.5.39.*
+  - cuda-gdb 12.5.39.*
+  - cuda-nvdisasm 12.5.39.*
+  - cuda-nvprof 12.5.39.*
+  - cuda-nvtx 12.5.39.*
+  - cuda-sanitizer-api 12.5.39.*
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16686
-  timestamp: 1715798286790
+  size: 20189
+  timestamp: 1716407106507
 - kind: conda
   name: cuda-compiler
   version: 12.5.0
-  build: '0'
-  subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-compiler-12.5.0-0.tar.bz2
-  sha256: e5d02f828fb24c07b03e1b8a3cb2853e19f96ba31630aa16be201663d2b2972d
-  md5: 4553ebacd9a085c40fbe9dc757f1f816
+  build: hbad6d8a_0
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-compiler-12.5.0-hbad6d8a_0.conda
+  sha256: 449d3b58af1941c3f808c0bc67fb0a947d6c8eb697690401ffa29a7b07d8dc9c
+  md5: 7b46e23b42840569905ba1c8adb13e13
   depends:
   - __linux
-  - cuda-cuobjdump
-  - cuda-cuxxfilt
-  - cuda-nvcc
-  - cuda-nvprune
+  - c-compiler
+  - cuda-cuobjdump 12.5.39.*
+  - cuda-cuxxfilt 12.5.39.*
+  - cuda-nvcc 12.5.40.*
+  - cuda-nvprune 12.5.39.*
+  - cxx-compiler
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16699
-  timestamp: 1715798299819
+  size: 20299
+  timestamp: 1716407094107
 - kind: conda
   name: cuda-crt-dev_linux-64
   version: 12.5.40
-  build: '0'
+  build: ha770c72_0
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-crt-dev_linux-64-12.5.40-0.tar.bz2
-  sha256: c5779263de383c041a65cd8812ec20812854bac24ba413b1dd666eb6c75ac3e0
-  md5: ec8303401cb144ccbb42aa1c9e81759b
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-crt-dev_linux-64-12.5.40-ha770c72_0.conda
+  sha256: fb77118fcf859d9d2b25c0b1db23df39302359a2aaecfce4a20a1be7152ad7bf
+  md5: adf66999e96bf3c87190c694d49fed48
   depends:
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 81228
-  timestamp: 1713410073803
+  size: 87385
+  timestamp: 1716385188045
 - kind: conda
   name: cuda-crt-tools
   version: 12.5.40
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-crt-tools-12.5.40-0.tar.bz2
-  sha256: a4485bf4db5d9ddad9836b2251e5521deca0c431c6b7050ce9a7bd7114274af1
-  md5: a8dbe00b23b1d372735a2d2b06455b45
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-crt-tools-12.5.40-ha770c72_0.conda
+  sha256: cdf00fe01d8f3a86c4df85853a0962cc3292a85cab44c032e3f206d3a696f582
+  md5: 3c6bb9bd29688ae7db63f162c31a79f6
   depends:
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 19224
-  timestamp: 1713410078751
+  size: 26432
+  timestamp: 1716385207199
 - kind: conda
   name: cuda-cudart
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-cudart-12.5.39-0.tar.bz2
-  sha256: e72fa45e76f8ef58e15d6b5135db0b8bc0469db65d15fa6426d35dac0059ea84
-  md5: 8da4d452cada6e43ebfa96188db8c0bc
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-cudart-12.5.39-he02047a_0.conda
+  sha256: 356abe63148a07bff646258071899ccb9713914a23a0a925a737adfd141cd27c
+  md5: c60967d2a1a54ea3ca3660cf6249de36
   depends:
   - __glibc >=2.17,<3.0.a0
-  - cuda-cudart_linux-64 12.5.39 0
+  - cuda-cudart_linux-64 12.5.39 h85509e4_0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 17332
-  timestamp: 1713236939427
+  size: 22582
+  timestamp: 1716331837792
 - kind: conda
   name: cuda-cudart-dev
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-cudart-dev-12.5.39-0.tar.bz2
-  sha256: f7e75f6684d716980239aba8412c7b3067a2aaca48be701b18b9a414da06ecf2
-  md5: d78a9e264b477e295e75c99d0e48dba3
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-cudart-dev-12.5.39-he02047a_0.conda
+  sha256: 798e23c9d027451b3e5907c81b30a246a14357d4d0c5a1912046035ad5b77fa7
+  md5: 7c85081a6ffba35bc52c27f8afa9c398
   depends:
   - __glibc >=2.17,<3.0.a0
-  - cuda-cudart 12.5.39 0
-  - cuda-cudart-dev_linux-64 12.5.39 0
-  - cuda-cudart-static 12.5.39 0
+  - cuda-cudart 12.5.39 he02047a_0
+  - cuda-cudart-dev_linux-64 12.5.39 h85509e4_0
+  - cuda-cudart-static 12.5.39 he02047a_0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 17454
-  timestamp: 1713236954815
+  size: 23061
+  timestamp: 1716331865205
 - kind: conda
   name: cuda-cudart-dev_linux-64
   version: 12.5.39
-  build: '0'
+  build: h85509e4_0
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-cudart-dev_linux-64-12.5.39-0.tar.bz2
-  sha256: fef05ff4cb19149d8a2b9f6da3b93e00e84aa1cd2a14d1610878e32d710b915c
-  md5: 394508d01dda2971361ba7a457beabf8
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart-dev_linux-64-12.5.39-h85509e4_0.conda
+  sha256: c6ca66c985118904c28c119c4581cc13d1229f764367eeceeeb32d59cf0338e7
+  md5: 7d312740938701c854d434714a38e296
   depends:
   - cuda-cccl_linux-64
   - cuda-cudart-static_linux-64
   - cuda-cudart_linux-64
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 471105
-  timestamp: 1713236942961
+  size: 366049
+  timestamp: 1716331843861
 - kind: conda
   name: cuda-cudart-static
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-cudart-static-12.5.39-0.tar.bz2
-  sha256: d41eafce7a3e992467fade7e71658f90401edcb93ff0050cdc937cb35dd6c87d
-  md5: 7dcb6eb93a4f587f578108180b46bc37
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-cudart-static-12.5.39-he02047a_0.conda
+  sha256: f0361dc14687d55ae28571b9bbef3358c7c8202f76c7be81a02194f102b21efe
+  md5: c99976910ac10a5a1cd58fcb09311303
   depends:
   - __glibc >=2.17,<3.0.a0
-  - cuda-cudart-static_linux-64 12.5.39 0
+  - cuda-cudart-static_linux-64 12.5.39 h85509e4_0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 17080
-  timestamp: 1713236947810
+  size: 22664
+  timestamp: 1716331851590
 - kind: conda
   name: cuda-cudart-static_linux-64
   version: 12.5.39
-  build: '0'
+  build: h85509e4_0
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-cudart-static_linux-64-12.5.39-0.tar.bz2
-  sha256: 45ac12cac52c4985dfe0c005538389ba318450c20e21574df0d5944dfd6d714d
-  md5: 70da05f562334b022655e21101bd2ef7
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart-static_linux-64-12.5.39-h85509e4_0.conda
+  sha256: 9a1d415463c46230029744fd5f0d976ed1857031df5bc806d9692250d8c12e13
+  md5: bef4ae216ed3fbc759a58605e0a69f5d
   depends:
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 1120576
-  timestamp: 1713236926079
+  size: 741994
+  timestamp: 1716331804040
 - kind: conda
   name: cuda-cudart_linux-64
   version: 12.5.39
-  build: '0'
+  build: h85509e4_0
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-cudart_linux-64-12.5.39-0.tar.bz2
-  sha256: 0ff1fedd19c3099b0b0fecd47dc4b32fad62f852b0eb571aef12166f712f98c6
-  md5: b34541d864018ddf1e638bf1309ba096
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-cudart_linux-64-12.5.39-h85509e4_0.conda
+  sha256: cdf5a049e368dc306637071e5a6779df2a3a67e48d5f6fddedab939a33775bdb
+  md5: 32bc114164d5ca4ad38f775316506d0b
   depends:
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 219927
-  timestamp: 1713236932267
+  size: 187630
+  timestamp: 1716331825540
 - kind: conda
   name: cuda-cuobjdump
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-cuobjdump-12.5.39-0.tar.bz2
-  sha256: 9d9f44e6cebf553720c5d186effbd16cdb263656aaa24e26d86bc94870693c45
-  md5: bd484e37f2aa548095f6004e88155539
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-cuobjdump-12.5.39-he02047a_0.conda
+  sha256: 411e259787d37b093971b604bbc7506f49d7a67cf2596ada3c9b03e12969040d
+  md5: a25550961e7449840c40800279cc6bc6
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-nvdisasm
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 297463
-  timestamp: 1713236880928
+  size: 243571
+  timestamp: 1716325794017
 - kind: conda
   name: cuda-cupti
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-cupti-12.5.39-0.tar.bz2
-  sha256: 3224135ce1541980d0015baaea9806e9981ecbd2fddb8a37a10f1e77042f5056
-  md5: 018bfdec424c1d87a4f7e24346081235
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-cupti-12.5.39-he02047a_0.conda
+  sha256: 921d13c303702ece7113c5487cd4e9d4ac150b49a7ecefb77997d27cbfc805b1
+  md5: 067614625e27625220ed63f0e592b99e
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 2408231
-  timestamp: 1713245653009
+  size: 1946788
+  timestamp: 1716318528923
 - kind: conda
   name: cuda-cupti-dev
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-cupti-dev-12.5.39-0.tar.bz2
-  sha256: ba6c912d35501bc78170134a3f979696f6b575d3756b9e8b9063e242ba096fa7
-  md5: e224585ee75694fb8fa93d94d4396f2c
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-cupti-dev-12.5.39-he02047a_0.conda
+  sha256: 8fcf256a3b8a88a09faade16d656bc78c97e04a7cf915dcb7f1789985f3a12e4
+  md5: 6d8ffa334992be7ec9b14655353ce32f
   depends:
-  - cuda-cupti 12.5.39 0
+  - __glibc >=2.17,<3.0.a0
+  - cuda-cupti 12.5.39 he02047a_0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   constrains:
   - cuda-cupti-static >=12.5.39
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 10666839
-  timestamp: 1713245696617
+  size: 8036270
+  timestamp: 1716318607696
 - kind: conda
   name: cuda-cuxxfilt
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-cuxxfilt-12.5.39-0.tar.bz2
-  sha256: 95e238891d69ac2ea7bddcb1746f9075d2c65d7bb9545f767727f7732eff358a
-  md5: 0c23d3df59f60d56cceb0c95d3ced3e1
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-cuxxfilt-12.5.39-he02047a_0.conda
+  sha256: e4c6ca1a3a555a64bd9414f1ce82cdb34a4309a524014ee32ae078604d544144
+  md5: cc7ff8d6e6bf6f950a22002ebb95dd11
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 293877
-  timestamp: 1713237208484
+  size: 215444
+  timestamp: 1716318836089
 - kind: conda
   name: cuda-driver-dev
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-driver-dev-12.5.39-0.tar.bz2
-  sha256: a6e410996c85ed6886b30835dc0fcf93df0aeb7fe57f31d785b91ff1b1a7c814
-  md5: 25218bab82f4cfc3fabf5c5b85867355
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-driver-dev-12.5.39-he02047a_0.conda
+  sha256: ae18eaeb586486718087c63656a7aae3b68776bf6db5d370a05428d7e1e50893
+  md5: 1d533a00a54131c9a1ee4dc277019147
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-driver-dev_linux-64
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16847
-  timestamp: 1713236951157
+  size: 22435
+  timestamp: 1716331859151
 - kind: conda
   name: cuda-driver-dev_linux-64
   version: 12.5.39
-  build: '0'
+  build: h85509e4_0
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-driver-dev_linux-64-12.5.39-0.tar.bz2
-  sha256: 8631d46aaa8d6f2da0ef16e4218128522eec058d9dc7fc72b6bb388a9558dae9
-  md5: 3d37f39eb7151694dfcca77901571eda
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-driver-dev_linux-64-12.5.39-h85509e4_0.conda
+  sha256: 98cec21420ad25b8eaeb1d9e47140c25d9a77cd98b75765af0700a7da56330d0
+  md5: 6e9282de982cecc39f735dbe48312f7b
   depends:
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 34055
-  timestamp: 1713236936032
+  size: 36404
+  timestamp: 1716331831753
 - kind: conda
   name: cuda-gdb
   version: 12.5.39
-  build: '0'
+  build: hda18ab6_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-gdb-12.5.39-0.tar.bz2
-  sha256: 0aabe34f6da67cd6153954280ae860cc163af6a8acea52403ce175de5d3916c1
-  md5: 511d2850211ea5803f359ad6631977d8
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-gdb-12.5.39-hda18ab6_0.conda
+  sha256: db49ce6fef4d4c2833347e469f3e73ce7d1d30dfdc0251e27e62ccbe0bdac44b
+  md5: 7cab0cd39d27b538c099901ae1be6862
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - gmp >=6.2.1,<7.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - gmp >=6.3.0,<7.0a0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 418220
-  timestamp: 1713240468705
+  size: 378508
+  timestamp: 1716318537998
 - kind: conda
   name: cuda-libraries
   version: 12.5.0
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-libraries-12.5.0-0.tar.bz2
-  sha256: 89112ee3d7ec9193d9209060350f003bc449df35704e414831b2a0a9defb9109
-  md5: 1f2276d244713a787d7e2bc888cecd54
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-libraries-12.5.0-ha770c72_0.conda
+  sha256: 156e8e0a04efbd994d8ff8863292000c7b5063c25887392f99994a861631c5bb
+  md5: 038b33525fa1b22eb74e52fe161b3bac
   depends:
-  - cuda-cudart
-  - cuda-nvrtc
-  - cuda-opencl
-  - libcublas
-  - libcufft
-  - libcufile
-  - libcurand
-  - libcusolver
-  - libcusparse
-  - libnpp
-  - libnvfatbin
-  - libnvjitlink
-  - libnvjpeg
+  - cuda-cudart 12.5.39.*
+  - cuda-nvrtc 12.5.40.*
+  - cuda-opencl 12.5.39.*
+  - libcublas 12.5.2.13.*
+  - libcufft 11.2.3.18.*
+  - libcufile 1.10.0.4.*
+  - libcurand 10.3.6.39.*
+  - libcusolver 11.6.2.40.*
+  - libcusparse 12.4.1.24.*
+  - libnpp 12.3.0.116.*
+  - libnvfatbin 12.5.39.*
+  - libnvjitlink 12.5.40.*
+  - libnvjpeg 12.3.2.38.*
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16685
-  timestamp: 1715798325624
+  size: 20205
+  timestamp: 1716407127794
 - kind: conda
   name: cuda-libraries-dev
   version: 12.5.0
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-libraries-dev-12.5.0-0.tar.bz2
-  sha256: 1b354cfe3bcec45511caff28e0f027e1e7a947bb9fba4364bbfa1014178735fd
-  md5: a529d8adf7bc1e088680c5f05ddb7953
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-libraries-dev-12.5.0-ha770c72_0.conda
+  sha256: 1320409e4cf23fcb760e43e5face23b0a7c30025a44f0a375f84fb1d24753fc1
+  md5: fe3aab6009b9e63235069555aa6bc1cb
   depends:
-  - cuda-cccl
-  - cuda-cudart-dev
-  - cuda-driver-dev
-  - cuda-nvrtc-dev
-  - cuda-opencl-dev
-  - cuda-profiler-api
-  - libcublas-dev
-  - libcufft-dev
-  - libcufile-dev
-  - libcurand-dev
-  - libcusolver-dev
-  - libcusparse-dev
-  - libnpp-dev
-  - libnvfatbin-dev
-  - libnvjitlink-dev
-  - libnvjpeg-dev
+  - cuda-cccl 12.5.39.*
+  - cuda-cudart-dev 12.5.39.*
+  - cuda-driver-dev 12.5.39.*
+  - cuda-nvrtc-dev 12.5.40.*
+  - cuda-opencl-dev 12.5.39.*
+  - cuda-profiler-api 12.5.39.*
+  - libcublas-dev 12.5.2.13.*
+  - libcufft-dev 11.2.3.18.*
+  - libcufile-dev 1.10.0.4.*
+  - libcurand-dev 10.3.6.39.*
+  - libcusolver-dev 11.6.2.40.*
+  - libcusparse-dev 12.4.1.24.*
+  - libnpp-dev 12.3.0.116.*
+  - libnvfatbin-dev 12.5.39.*
+  - libnvjitlink-dev 12.5.40.*
+  - libnvjpeg-dev 12.3.2.38.*
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16701
-  timestamp: 1715798338227
+  size: 20285
+  timestamp: 1716407123451
 - kind: conda
   name: cuda-nsight
   version: 12.5.39
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nsight-12.5.39-0.tar.bz2
-  sha256: 49449e1d29c09bc2dbb885367d5e099e6e34e3aada73f4ebf9d293aadcde203f
-  md5: cf1ef51aa4b3455b866df4b8dfd78888
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nsight-12.5.39-ha770c72_0.conda
+  sha256: d54769e0694e720cd7fac95acc06d37d705db213c2dd71bcc1a89acdc116a75f
+  md5: 7b1f328d113237a0c74cb90bf17730fb
   depends:
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 119243783
-  timestamp: 1713237453551
+  size: 118682253
+  timestamp: 1716318456049
 - kind: conda
   name: cuda-nvcc
   version: 12.5.40
-  build: '0'
+  build: hcdd1206_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvcc-12.5.40-0.tar.bz2
-  sha256: fc93ac4e9dc5091508d468064dd361e07ae3e62f1c26e46c0bc6f96935a992d0
-  md5: 24b9715663c23f0bb8e2565ba192d69f
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvcc-12.5.40-hcdd1206_0.conda
+  sha256: b4b1bb8487f7ba9c4b86061653f08c63c60bec9671f866066b75f085a276b8e5
+  md5: 2a68e542d4d58ef24eb265d5d306fb3d
   depends:
   - cuda-nvcc_linux-64 12.5.40.*
   - gcc_linux-64
   - gxx_linux-64
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16632
-  timestamp: 1713410246105
+  size: 23780
+  timestamp: 1716399166053
 - kind: conda
   name: cuda-nvcc-dev_linux-64
   version: 12.5.40
-  build: '0'
+  build: ha770c72_0
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-nvcc-dev_linux-64-12.5.40-0.tar.bz2
-  sha256: 09a59864d4b5186258ca93ff12e9986cf246eaf78193215d7e7e29fcb679ecdf
-  md5: 6a2cf2527ed3a738e0435733324be4a7
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-nvcc-dev_linux-64-12.5.40-ha770c72_0.conda
+  sha256: 0442e045480dd01fb495fce930e6877ab6cbc6dd2f4a19c682d9743828d6404a
+  md5: f49632352a60f0fbfb2a1d5c42ccaff9
   depends:
-  - cuda-crt-dev_linux-64 12.5.40 0
-  - cuda-nvvm-dev_linux-64 12.5.40 0
+  - cuda-crt-dev_linux-64 12.5.40 ha770c72_0
+  - cuda-nvvm-dev_linux-64 12.5.40 ha770c72_0
   - cuda-version >=12.5,<12.6.0a0
   - libgcc-ng >=6
   constrains:
   - gcc_impl_linux-64 >=6,<13
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 14292283
-  timestamp: 1713410185623
+  size: 11436997
+  timestamp: 1716385314895
 - kind: conda
   name: cuda-nvcc-impl
   version: 12.5.40
-  build: '0'
+  build: hd3aeb46_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvcc-impl-12.5.40-0.tar.bz2
-  sha256: 32b5b60bfbb68fbebeb40eade2c9c25b496d0b3f1f6485a89f1025e9ac16951c
-  md5: b0d0af0269560ff2191bb9c8514abc2a
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvcc-impl-12.5.40-hd3aeb46_0.conda
+  sha256: e32305ad70861d67f6bb99a8e5a7f3152663a3209446958d404e9a9b3f156422
+  md5: e28565b58cb211bc508e6c555ca02fab
   depends:
   - __glibc >=2.17,<3.0.a0
+  - cuda-cudart >=12.5.39,<13.0a0
   - cuda-cudart-dev
-  - cuda-nvcc-dev_linux-64 12.5.40 0
-  - cuda-nvcc-tools 12.5.40 0
-  - cuda-nvvm-impl 12.5.40 0
+  - cuda-nvcc-dev_linux-64 12.5.40 ha770c72_0
+  - cuda-nvcc-tools 12.5.40 hd3aeb46_0
+  - cuda-nvvm-impl 12.5.40 h59595ed_0
   - cuda-version >=12.5,<12.6.0a0
   constrains:
   - gcc_impl_linux-64 >=6,<13
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 18153
-  timestamp: 1713410216556
+  size: 24809
+  timestamp: 1716385346771
 - kind: conda
   name: cuda-nvcc-tools
   version: 12.5.40
-  build: '0'
+  build: hd3aeb46_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvcc-tools-12.5.40-0.tar.bz2
-  sha256: bb235dedf135c90f30e0ab6a9953d86c7c8d16df6fc3b9743be12e2ced03b500
-  md5: 3f3dc304107f3afd05ab76c7b781ba02
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvcc-tools-12.5.40-hd3aeb46_0.conda
+  sha256: 9ad65a5b7077bbd676e870d4c24604b1b1c65d631270fc69ff00e436e11b10ca
+  md5: 98cd9496694e49b22ca12b3da4969b47
   depends:
   - __glibc >=2.17,<3.0.a0
-  - cuda-crt-tools 12.5.40 0
-  - cuda-nvvm-tools 12.5.40 0
+  - cuda-crt-tools 12.5.40 ha770c72_0
+  - cuda-nvvm-tools 12.5.40 h59595ed_0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   constrains:
   - gcc_impl_linux-64 >=6,<13
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 27897376
-  timestamp: 1713410139395
+  size: 23883968
+  timestamp: 1716385271169
 - kind: conda
   name: cuda-nvcc_linux-64
   version: 12.5.40
-  build: '0'
+  build: h8a487aa_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvcc_linux-64-12.5.40-0.tar.bz2
-  sha256: 37caf1f08caa410c522157dc098f0638aa705d4218f35180db661e33db218d4a
-  md5: 9e39db6e070c8ccb14d7d10e5fd0e2ac
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvcc_linux-64-12.5.40-h8a487aa_0.conda
+  sha256: 08615c4477161fb541f906933a2ca63e3a85eff7d3c80ab05085cd691fdd2a48
+  md5: 16b05232da3562cdfa7dea56131990e1
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-cudart-dev_linux-64 12.5.*
@@ -1376,321 +1575,334 @@ packages:
   - cuda-nvcc-tools 12.5.40.*
   - sysroot_linux-64 >=2.17,<3.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 17986
-  timestamp: 1713410245247
+  size: 25487
+  timestamp: 1716399158733
 - kind: conda
   name: cuda-nvdisasm
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvdisasm-12.5.39-0.tar.bz2
-  sha256: cd176cffc3b4be8c02f78b265286eb5b5b620de521bbf9d3c712d49efaebaa3c
-  md5: f1dee8b0cce1f6e60443db57338272af
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvdisasm-12.5.39-he02047a_0.conda
+  sha256: c40a16699249d4abda622a5a754d8ae0f111db6e9a430c49ac41f87ea587a1ce
+  md5: cfa3b86bfc6800c13d5cf5426f5b7297
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 50216948
-  timestamp: 1713236890072
+  size: 49934569
+  timestamp: 1716318991301
 - kind: conda
   name: cuda-nvml-dev
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvml-dev-12.5.39-0.tar.bz2
-  sha256: 7f2ade4a395400a45b23b3d1d1ce0e2c0aa33f90289fca5091f4353a21175d06
-  md5: 5853a4dea06dce25551851ebf65eebf7
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvml-dev-12.5.39-he02047a_0.conda
+  sha256: 3c02887eb8be4a907e5678835ff282d4a637950fc0f4ebc0d2f620ea7354cd9d
+  md5: 48c1d4d336135c67a0caad74f74ecb05
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 180415
-  timestamp: 1713236370250
+  size: 159924
+  timestamp: 1716318720719
 - kind: conda
   name: cuda-nvprof
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvprof-12.5.39-0.tar.bz2
-  sha256: 7660346bc3ccf55363b65aadda50846333134b124c4f6bb65c169cf280599484
-  md5: 588d4207aa12aa9d9ce2ca544b04c382
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvprof-12.5.39-he02047a_0.conda
+  sha256: d4f6a1392736e606c65c3c5bc2001e46526381ae94ac28ae38bde48618e45226
+  md5: 798f0725aa5910f01baaad0c2af25752
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-cupti
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 4996974
-  timestamp: 1713245847235
+  size: 2685396
+  timestamp: 1716326664426
 - kind: conda
   name: cuda-nvprune
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvprune-12.5.39-0.tar.bz2
-  sha256: bbcd6fcc26f52382567ded4e0cb0a793a3d06168af1b1ba07cf7926357fbefce
-  md5: d1b41df7e4cf5688ed1b8cc9e10ad879
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvprune-12.5.39-he02047a_0.conda
+  sha256: 68915118e4735adbd3ee9ee443682bc56832a5f386ba625bd3f1dc55ac564a2b
+  md5: ddfe2e736c7e60fb463fb156e8bfe845
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 71757
-  timestamp: 1713237944732
+  size: 67586
+  timestamp: 1716319278466
 - kind: conda
   name: cuda-nvrtc
   version: 12.5.40
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvrtc-12.5.40-0.tar.bz2
-  sha256: d6f89c9ce83f1365ce72078dd57783f683867b5f1a4fbf7000270ca6b3c92d2a
-  md5: 4ba40a56efffb61e90e76abeda4efc4f
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-12.5.40-he02047a_0.conda
+  sha256: 9c38d103deb425631d0aee9555a72f17a5ccc5d1108fc9980b3124de534a5fbb
+  md5: fd873f7d082eb09b64f2845c5bf5b873
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 22286022
-  timestamp: 1713409843668
+  size: 19013340
+  timestamp: 1716320007011
 - kind: conda
   name: cuda-nvrtc-dev
   version: 12.5.40
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvrtc-dev-12.5.40-0.tar.bz2
-  sha256: 292349ea6c4ec0346fd5dd96919770acd86dc18f7415bd11fb45ae28bcf68a72
-  md5: f95835d433c654cf9ff5b5fc6dcab5ac
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-dev-12.5.40-he02047a_0.conda
+  sha256: ab4ee1dd45f0305884a54f87eb9fedfc7b403d0ac1f6046a3dafe9fb8a681d7d
+  md5: 114d3f70ada9dc9baa4a22273e197c1f
   depends:
   - __glibc >=2.17,<3.0.a0
-  - cuda-nvrtc 12.5.40 0
+  - cuda-nvrtc 12.5.40 he02047a_0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   constrains:
   - cuda-nvrtc-static >=12.5.40
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 27717
-  timestamp: 1713409928085
+  size: 32077
+  timestamp: 1716320120894
 - kind: conda
   name: cuda-nvtx
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvtx-12.5.39-0.tar.bz2
-  sha256: afe082e3b05227c656fdcd2eed45bd083a76ff999a68ea3b7cc39fb60fd1fe72
-  md5: a516136f5666ad25bb79092ffcffd460
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvtx-12.5.39-he02047a_0.conda
+  sha256: d350153fc49a89eb9eb9c9a4b549de9b3047b94529d76ae512a31a12c62ed323
+  md5: 83e70531447952503b0f9681ce3a42ca
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 29327
-  timestamp: 1713237389609
+  size: 31664
+  timestamp: 1716318996982
 - kind: conda
   name: cuda-nvvm-dev_linux-64
   version: 12.5.40
-  build: '0'
+  build: ha770c72_0
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-nvvm-dev_linux-64-12.5.40-0.tar.bz2
-  sha256: a459f30258c07ba7ffe469e7ecef2ea78461156ce5b0e0cc091ced6527ced4fc
-  md5: a9f3533de0825e06bec4ec40419d6419
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-nvvm-dev_linux-64-12.5.40-ha770c72_0.conda
+  sha256: 65bd2959336d5dbe46dff8425f62135e16db853a79d6608ef969b1a3fbe5f904
+  md5: 3ef2eae0f780bdd301dca19d9923ea72
   depends:
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16937
-  timestamp: 1713410081981
+  size: 24408
+  timestamp: 1716385213249
 - kind: conda
   name: cuda-nvvm-impl
   version: 12.5.40
-  build: '0'
+  build: h59595ed_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvvm-impl-12.5.40-0.tar.bz2
-  sha256: 36a15d291b0c4bb309b0ffac8473dac59e3113c36ddd3d89962284c20b35d280
-  md5: 8eb1a7a7ec54af7e16d8b2031c2ab809
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-12.5.40-h59595ed_0.conda
+  sha256: 6980665f9d9ac77ebde5b5c4536370fbbfb6ed8bf96c4e7120b6547485b19aac
+  md5: 94a9b0d015c658b8f5a094ef0d3fdade
   depends:
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 10540757
-  timestamp: 1713410092279
+  size: 9065157
+  timestamp: 1716385224595
 - kind: conda
   name: cuda-nvvm-tools
   version: 12.5.40
-  build: '0'
+  build: h59595ed_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvvm-tools-12.5.40-0.tar.bz2
-  sha256: 4b87613647d06bf2e33281bda6bbc47b622b45809a3ce343b6350a62c9f0724d
-  md5: f9c3a27704a9347e483c06df824084b8
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-12.5.40-h59595ed_0.conda
+  sha256: aa095e0377dac42653fd0942f537e9778c5e60ecaaafc971af95bc7fe1634483
+  md5: 00c31a1db8e5659809a205a942b4ab9a
   depends:
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 13571889
-  timestamp: 1713410113753
+  size: 11675741
+  timestamp: 1716385244494
 - kind: conda
   name: cuda-nvvp
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-nvvp-12.5.39-0.tar.bz2
-  sha256: 028cab69fd6fc0c7cd2a9bf4ec2f798771bd428f56c6d054cf8b3ed4b735cf13
-  md5: 67f455d509ec316f0a9cb23d6dfcc84d
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvp-12.5.39-he02047a_0.conda
+  sha256: 43afa5d1187913267660a4e80b8932f1b0c58c16749215cd6dd92dd8a7e5f746
+  md5: 33373f21a5757b8a815f0fc0701663c4
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-nvdisasm
   - cuda-nvprof
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 120957289
-  timestamp: 1713246390783
+  size: 117814618
+  timestamp: 1716356587920
 - kind: conda
   name: cuda-opencl
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-opencl-12.5.39-0.tar.bz2
-  sha256: cbdc1a3fb3b0cfdd68a113ea38234452f51183e264a37eb1dd1de2dfb8849bb0
-  md5: 467ddabaad6dae0d1a056beefd0556d0
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-opencl-12.5.39-he02047a_0.conda
+  sha256: 50390ac2c38c02da9c8d0c40ed2db7f3b0df4e5d39a7f7aadec1a6c2c8455369
+  md5: a64d3aaaf60cd52a04d1c3912493ba46
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  - ocl-icd >=2.3.2,<3.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 27051
-  timestamp: 1713237524116
+  size: 30294
+  timestamp: 1716319095677
 - kind: conda
   name: cuda-opencl-dev
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-opencl-dev-12.5.39-0.tar.bz2
-  sha256: f437a0ce5c4c004b930c6146a7799be39f890ee0bd0f2d03dc9c8ce961faaaf0
-  md5: 412b043d954b9efda08cfb0274046729
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-opencl-dev-12.5.39-he02047a_0.conda
+  sha256: 21b5d9d150638be210a754adc6643bb248f3a3c27b0dc468ecedce989c62d1de
+  md5: 57eec242a448c46bb465c25de6a1d68c
   depends:
-  - cuda-opencl 12.5.39 0
+  - __glibc >=2.17,<3.0.a0
+  - cuda-opencl 12.5.39 he02047a_0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 89033
-  timestamp: 1713237528991
+  size: 95156
+  timestamp: 1716319115002
 - kind: conda
   name: cuda-profiler-api
   version: 12.5.39
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-profiler-api-12.5.39-0.tar.bz2
-  sha256: 9bfb750cdfb2c7d19cfcacd815a87f16fea8d8d2e84ed373c5ba31fad5de6333
-  md5: d38dd12a0eddf43a51face5d4e01c80b
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-12.5.39-ha770c72_0.conda
+  sha256: d2b109678867e3a573e78c0cee5aad3d672563e0e78a56366fc85fdbd3c06298
+  md5: bd53edd147e9d663d189c10628ca2709
   depends:
   - cuda-cudart-dev
   - cuda-version >=12.5,<12.6.0a0
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 19422
-  timestamp: 1713237974509
-- kind: conda
-  name: cuda-runtime
-  version: 12.5.0
-  build: '0'
-  subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-runtime-12.5.0-0.tar.bz2
-  sha256: 18ee21f1daf2df1c6dd8802ca1cbbe8b9f11e35dd8b31504a26aaec0582be95d
-  md5: 6cf43a49ed2dde013e1ab44d54002c4e
-  depends:
-  - __linux
-  - cuda-libraries 12.5.0.*
-  license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16669
-  timestamp: 1715798388487
+  size: 23031
+  timestamp: 1716399609062
 - kind: conda
   name: cuda-sanitizer-api
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-sanitizer-api-12.5.39-0.tar.bz2
-  sha256: 95856f0b17c9f5fc5ef91a08a0a892f9ef5eca854070b3eeba3a21f9b1af3763
-  md5: b11937eceed83912f52d6557da1be5eb
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-sanitizer-api-12.5.39-he02047a_0.conda
+  sha256: 4ec494e099b04d658487dfe6861a30f4639f42864ef256b21ec796273f0c8e07
+  md5: 792b6de1efd57038666199ab44f98419
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16301191
-  timestamp: 1713249868358
+  size: 9881121
+  timestamp: 1716319731558
 - kind: conda
   name: cuda-toolkit
   version: 12.5.0
-  build: '0'
-  subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-toolkit-12.5.0-0.tar.bz2
-  sha256: 9f4f851a5c0b758e843e2c489b8e7977a822324177de7c5be9184ef761bcfb21
-  md5: f09746a6dc621209493474217b68694c
+  build: ha804496_0
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-toolkit-12.5.0-ha804496_0.conda
+  sha256: 37e31e8d1870d43562cd74b3aaef383dc8b3335e25e25111ea68999f8bfd6bca
+  md5: 07cd30a505f4e9885dc4739c9b3cb551
   depends:
   - __linux
   - cuda-compiler 12.5.0.*
   - cuda-libraries 12.5.0.*
   - cuda-libraries-dev 12.5.0.*
-  - cuda-nvml-dev
+  - cuda-nvml-dev 12.5.39.*
   - cuda-tools 12.5.0.*
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16673
-  timestamp: 1715798412747
+  size: 20134
+  timestamp: 1717089168170
 - kind: conda
   name: cuda-tools
   version: 12.5.0
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-tools-12.5.0-0.tar.bz2
-  sha256: 5d213ae929006a883087a069bb50b8df439c3402bcf09c053ff6487d7d181b23
-  md5: a1221c9feafdc76eafe5658c95c062a2
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-tools-12.5.0-ha770c72_0.conda
+  sha256: ee71daf2b97edae4398c3ddf69d5938f153034d6e48a3491d99457a01914048a
+  md5: da0d079f597ad48df78c944663486e50
   depends:
   - cuda-command-line-tools 12.5.0.*
   - cuda-visual-tools 12.5.0.*
-  - gds-tools
+  - gds-tools 1.10.0.4.*
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16685
-  timestamp: 1715798401160
+  size: 19954
+  timestamp: 1717086722208
 - kind: conda
   name: cuda-version
   version: '12.5'
-  build: '3'
+  build: hd4f0392_3
   build_number: 3
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/nvidia/noarch/cuda-version-12.5-3.tar.bz2
-  sha256: f13836396c27d22ff8fd446534aa3cdc0c92b1d68e5181ff2680da4c2759b117
-  md5: b03782f4616a3f0ee046fefcbbd1f7a4
+  url: https://conda.anaconda.org/conda-forge/noarch/cuda-version-12.5-hd4f0392_3.conda
+  sha256: e45a5d14909296abd0784a073da9ee5c420fa58671fbc999f8a9ec898cf3486b
+  md5: 6ae1a563a4aa61e55e8ae8260f0d021b
   constrains:
-  - cudatoolkit 12.5|12.5.*
   - __cuda >=12
+  - cudatoolkit 12.5|12.5.*
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16538
-  timestamp: 1713236506353
+  size: 21151
+  timestamp: 1716314536803
 - kind: conda
   name: cuda-visual-tools
   version: 12.5.0
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/cuda-visual-tools-12.5.0-0.tar.bz2
-  sha256: b0524440287422c19423e8df2aac65633aa6348e9e46052e6a64e0786dfeea51
-  md5: 49a2c5c1674762bee66b1a723bfbe8d3
+  url: https://conda.anaconda.org/conda-forge/linux-64/cuda-visual-tools-12.5.0-ha770c72_0.conda
+  sha256: 1fd112cbd99f8c8a27906e5546e9d663ecc026800cde12f97b9c971ffa26b00b
+  md5: 9e0f7972e90f2c113ffd5b3c55c51b4d
   depends:
   - cuda-libraries-dev 12.5.0.*
-  - cuda-nsight
-  - cuda-nvml-dev
-  - cuda-nvvp
-  - nsight-compute
+  - cuda-nsight 12.5.39.*
+  - cuda-nvml-dev 12.5.39.*
+  - cuda-nvvp 12.5.39.*
+  - nsight-compute 2024.2.0.16.*
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 16678
-  timestamp: 1715798363689
+  size: 20033
+  timestamp: 1717084502048
+- kind: conda
+  name: cxx-compiler
+  version: 1.7.0
+  build: h00ab1b0_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/cxx-compiler-1.7.0-h00ab1b0_1.conda
+  sha256: cf895938292cfd4cfa2a06c6d57aa25c33cc974d4ffe52e704ffb67f5577b93f
+  md5: 28de2e073db9ca9b72858bee9fb6f571
+  depends:
+  - c-compiler 1.7.0 hd590300_1
+  - gxx
+  - gxx_linux-64 12.*
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 6283
+  timestamp: 1714575513327
 - kind: conda
   name: cycler
   version: 0.12.1
@@ -1707,6 +1919,23 @@ packages:
   size: 13458
   timestamp: 1696677888423
 - kind: conda
+  name: dbus
+  version: 1.13.6
+  build: h5008d03_3
+  build_number: 3
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/dbus-1.13.6-h5008d03_3.tar.bz2
+  sha256: 8f5f995699a2d9dbdd62c61385bfeeb57c82a681a7c8c5313c395aa0ccab68a5
+  md5: ecfff944ba3960ecb334b9a2663d708d
+  depends:
+  - expat >=2.4.2,<3.0a0
+  - libgcc-ng >=9.4.0
+  - libglib >=2.70.2,<3.0a0
+  license: GPL-2.0-or-later
+  license_family: GPL
+  size: 618596
+  timestamp: 1640112124844
+- kind: conda
   name: exceptiongroup
   version: 1.2.0
   build: pyhd8ed1ab_2
@@ -1721,6 +1950,21 @@ packages:
   license: MIT and PSF-2.0
   size: 20551
   timestamp: 1704921321122
+- kind: conda
+  name: expat
+  version: 2.6.2
+  build: h59595ed_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/expat-2.6.2-h59595ed_0.conda
+  sha256: 89916c536ae5b85bb8bf0cfa27d751e274ea0911f04e4a928744735c14ef5155
+  md5: 53fb86322bdb89496d7579fe3f02fd61
+  depends:
+  - libexpat 2.6.2 h59595ed_0
+  - libgcc-ng >=12
+  license: MIT
+  license_family: MIT
+  size: 137627
+  timestamp: 1710362144873
 - kind: conda
   name: fftw
   version: 3.3.10
@@ -1761,6 +2005,110 @@ packages:
   license_family: GPL
   size: 799578
   timestamp: 1717757931382
+- kind: conda
+  name: font-ttf-dejavu-sans-mono
+  version: '2.37'
+  build: hab24e00_0
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-dejavu-sans-mono-2.37-hab24e00_0.tar.bz2
+  sha256: 58d7f40d2940dd0a8aa28651239adbf5613254df0f75789919c4e6762054403b
+  md5: 0c96522c6bdaed4b1566d11387caaf45
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 397370
+  timestamp: 1566932522327
+- kind: conda
+  name: font-ttf-inconsolata
+  version: '3.000'
+  build: h77eed37_0
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-inconsolata-3.000-h77eed37_0.tar.bz2
+  sha256: c52a29fdac682c20d252facc50f01e7c2e7ceac52aa9817aaf0bb83f7559ec5c
+  md5: 34893075a5c9e55cdafac56607368fc6
+  license: OFL-1.1
+  license_family: Other
+  size: 96530
+  timestamp: 1620479909603
+- kind: conda
+  name: font-ttf-source-code-pro
+  version: '2.038'
+  build: h77eed37_0
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-source-code-pro-2.038-h77eed37_0.tar.bz2
+  sha256: 00925c8c055a2275614b4d983e1df637245e19058d79fc7dd1a93b8d9fb4b139
+  md5: 4d59c254e01d9cde7957100457e2d5fb
+  license: OFL-1.1
+  license_family: Other
+  size: 700814
+  timestamp: 1620479612257
+- kind: conda
+  name: font-ttf-ubuntu
+  version: '0.83'
+  build: h77eed37_2
+  build_number: 2
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/font-ttf-ubuntu-0.83-h77eed37_2.conda
+  sha256: c940f6e969143e13a3a9660abb3c7e7e23b8319efb29dbdd5dee0b9939236e13
+  md5: cbbe59391138ea5ad3658c76912e147f
+  license: LicenseRef-Ubuntu-Font-Licence-Version-1.0
+  license_family: Other
+  size: 1622566
+  timestamp: 1714483134319
+- kind: conda
+  name: fontconfig
+  version: 2.14.2
+  build: h14ed4e7_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/fontconfig-2.14.2-h14ed4e7_0.conda
+  sha256: 155d534c9037347ea7439a2c6da7c24ffec8e5dd278889b4c57274a1d91e0a83
+  md5: 0f69b688f52ff6da70bccb7ff7001d1d
+  depends:
+  - expat >=2.5.0,<3.0a0
+  - freetype >=2.12.1,<3.0a0
+  - libgcc-ng >=12
+  - libuuid >=2.32.1,<3.0a0
+  - libzlib >=1.2.13,<2.0.0a0
+  license: MIT
+  license_family: MIT
+  size: 272010
+  timestamp: 1674828850194
+- kind: conda
+  name: fonts-conda-ecosystem
+  version: '1'
+  build: '0'
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/fonts-conda-ecosystem-1-0.tar.bz2
+  sha256: a997f2f1921bb9c9d76e6fa2f6b408b7fa549edd349a77639c9fe7a23ea93e61
+  md5: fee5683a3f04bd15cbd8318b096a27ab
+  depends:
+  - fonts-conda-forge
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 3667
+  timestamp: 1566974674465
+- kind: conda
+  name: fonts-conda-forge
+  version: '1'
+  build: '0'
+  subdir: noarch
+  noarch: generic
+  url: https://conda.anaconda.org/conda-forge/noarch/fonts-conda-forge-1-0.tar.bz2
+  sha256: 53f23a3319466053818540bcdf2091f253cbdbab1e0e9ae7b9e509dcaa2a5e38
+  md5: f766549260d6815b0c52253f1fb1bb29
+  depends:
+  - font-ttf-dejavu-sans-mono
+  - font-ttf-inconsolata
+  - font-ttf-source-code-pro
+  - font-ttf-ubuntu
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 4102
+  timestamp: 1566932280397
 - kind: conda
   name: fonttools
   version: 4.53.0
@@ -1830,26 +2178,41 @@ packages:
   size: 596430
   timestamp: 1694616332835
 - kind: conda
+  name: gcc
+  version: 12.3.0
+  build: h915e2ae_11
+  build_number: 11
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/gcc-12.3.0-h915e2ae_11.conda
+  sha256: 0fab16e2a16ec6a7300a34ed68d05df85c4b5120e73e2ae14fa722469e58df52
+  md5: 60c676fb39a3bfec4891105f60b17344
+  depends:
+  - gcc_impl_linux-64 12.3.0.*
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 50167
+  timestamp: 1718866340831
+- kind: conda
   name: gcc_impl_linux-64
   version: 12.3.0
-  build: h58ffeeb_10
-  build_number: 10
+  build: h58ffeeb_11
+  build_number: 11
   subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/gcc_impl_linux-64-12.3.0-h58ffeeb_10.conda
-  sha256: 84e3a6df4b08bafa81b8f59c23dbfdda6f257009d71fbe7b686fe56042896b41
-  md5: df98e04ce4d5d8e9d1eca5e35e3ad006
+  url: https://conda.anaconda.org/conda-forge/linux-64/gcc_impl_linux-64-12.3.0-h58ffeeb_11.conda
+  sha256: f680eb3fd5e639692a42ffd52474b378a3fe1228fd35f71848cabc6cf7730532
+  md5: 14f0c2705cade74a993fe748453881bf
   depends:
   - binutils_impl_linux-64 >=2.40
-  - libgcc-devel_linux-64 12.3.0 h6b66f73_110
+  - libgcc-devel_linux-64 12.3.0 h6b66f73_111
   - libgcc-ng >=12.3.0
   - libgomp >=12.3.0
-  - libsanitizer 12.3.0 hb8811af_10
+  - libsanitizer 12.3.0 hb8811af_11
   - libstdcxx-ng >=12.3.0
   - sysroot_linux-64
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 64513581
-  timestamp: 1718485143322
+  size: 64848248
+  timestamp: 1718866210415
 - kind: conda
   name: gcc_linux-64
   version: 12.3.0
@@ -1870,20 +2233,20 @@ packages:
 - kind: conda
   name: gds-tools
   version: 1.10.0.4
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/gds-tools-1.10.0.4-0.tar.bz2
-  sha256: 90c7f04bb40e0371e54766f884bf9a61f52170776b03f587d2e950de4b19443f
-  md5: 71c5d6c97ee96f4e4857a24e59005396
+  url: https://conda.anaconda.org/conda-forge/linux-64/gds-tools-1.10.0.4-he02047a_0.conda
+  sha256: f84804a77aee5613233da463354fc3ee0d42e42b8ec5c898f7f36d928462827c
+  md5: 73126c1d80e5521f91d12ac1b960aa80
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
   - libcufile >=1.10.0.4,<2.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 42736746
-  timestamp: 1712953539486
+  size: 39617873
+  timestamp: 1716319323597
 - kind: conda
   name: gmp
   version: 6.3.0
@@ -1931,22 +2294,38 @@ packages:
   size: 3376423
   timestamp: 1626369596591
 - kind: conda
+  name: gxx
+  version: 12.3.0
+  build: h915e2ae_11
+  build_number: 11
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/gxx-12.3.0-h915e2ae_11.conda
+  sha256: a32021e71dc11fe68dd45a176b0312b0cbb53a67768661af28d165d69555a5f9
+  md5: bb1f456f2423a85de9f06b1952ae5b15
+  depends:
+  - gcc 12.3.0.*
+  - gxx_impl_linux-64 12.3.0.*
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 49612
+  timestamp: 1718866465464
+- kind: conda
   name: gxx_impl_linux-64
   version: 12.3.0
-  build: h2a574ab_10
-  build_number: 10
+  build: h2a574ab_11
+  build_number: 11
   subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/gxx_impl_linux-64-12.3.0-h2a574ab_10.conda
-  sha256: 5a79485a194038113867ef49b45c6454d84fed7402dfabd19da3581ddf08148a
-  md5: 81965c8cf074c9a3b453b85bae87ef05
+  url: https://conda.anaconda.org/conda-forge/linux-64/gxx_impl_linux-64-12.3.0-h2a574ab_11.conda
+  sha256: 5df4a9f7a8dedc1edccb0dd8da08472f988b8d7215584e9c5e4946530c8f6ef1
+  md5: 1b018350a450092e2912bc83033663b1
   depends:
-  - gcc_impl_linux-64 12.3.0 h58ffeeb_10
-  - libstdcxx-devel_linux-64 12.3.0 h6b66f73_110
+  - gcc_impl_linux-64 12.3.0 h58ffeeb_11
+  - libstdcxx-devel_linux-64 12.3.0 h6b66f73_111
   - sysroot_linux-64
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 12618833
-  timestamp: 1718485370083
+  size: 12706041
+  timestamp: 1718866427898
 - kind: conda
   name: gxx_linux-64
   version: 12.3.0
@@ -2057,6 +2436,21 @@ packages:
   license_family: BSD
   size: 3612632
   timestamp: 1717587633832
+- kind: conda
+  name: icu
+  version: '73.2'
+  build: h59595ed_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/icu-73.2-h59595ed_0.conda
+  sha256: e12fd90ef6601da2875ebc432452590bc82a893041473bc1c13ef29001a73ea8
+  md5: cc47e1facc155f91abd89b11e48e72ff
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  license: MIT
+  license_family: MIT
+  size: 12089150
+  timestamp: 1692900650789
 - kind: conda
   name: icu
   version: '73.2'
@@ -2245,6 +2639,21 @@ packages:
   constrains:
   - binutils_impl_linux-64 2.40
   license: GPL-3.0-only
+  size: 707602
+  timestamp: 1718625640445
+- kind: conda
+  name: ld_impl_linux-64
+  version: '2.40'
+  build: hf3520f5_7
+  build_number: 7
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.40-hf3520f5_7.conda
+  sha256: 764b6950aceaaad0c67ef925417594dd14cd2e22fff864aeef455ac259263d15
+  md5: b80f2f396ca2c28b8c14c437a4ed1e74
+  constrains:
+  - binutils_impl_linux-64 2.40
+  license: GPL-3.0-only
+  license_family: GPL
   size: 707602
   timestamp: 1718625640445
 - kind: conda
@@ -2478,144 +2887,144 @@ packages:
 - kind: conda
   name: libcublas
   version: 12.5.2.13
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcublas-12.5.2.13-0.tar.bz2
-  sha256: d62455dcdefc640099e2abe731435a309b9a759252673c850ce46a080446abd7
-  md5: 14fccaeaf839a6f8db09ad3f9fbe27ac
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcublas-12.5.2.13-he02047a_0.conda
+  sha256: 0c78188a83f749e4ee0cc88a8b9cf61f9672d06e67010fb70277e47381462558
+  md5: 47c59ede9bb1cf846e3b30e3b04bcabb
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-nvrtc
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 339459457
-  timestamp: 1713237218713
+  size: 251929375
+  timestamp: 1716326870507
 - kind: conda
   name: libcublas-dev
   version: 12.5.2.13
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcublas-dev-12.5.2.13-0.tar.bz2
-  sha256: a693ff5be7b120cc8e5faadde49e946f01ef6ef8b09445a04761c189b31b257d
-  md5: 96dfd95a6c963d3a3c6cc178291b6772
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcublas-dev-12.5.2.13-he02047a_0.conda
+  sha256: 3b901550564737a70c96076b6a6958fe0bbf675d6dbe382bb1b902f1b07e4971
+  md5: d08b1ac50aadaf8118d2e2b3d63241e8
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libcublas 12.5.2.13 0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libcublas 12.5.2.13 he02047a_0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   constrains:
   - libcublas-static >=12.5.2.13
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 92230
-  timestamp: 1713237753344
+  size: 89157
+  timestamp: 1716327546285
 - kind: conda
   name: libcufft
   version: 11.2.3.18
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcufft-11.2.3.18-0.tar.bz2
-  sha256: 168199c512bcf427178092ea4c992ae07f357b3744c35f7a77662f09116c4daa
-  md5: 432dcc381b245b3a13be0c97d5aafed4
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcufft-11.2.3.18-he02047a_0.conda
+  sha256: 27dfd69356da46db389e69890fdb84a4d6f983483126a7fde6375e62ee3e25e8
+  md5: d7a177f866e0cefcd7156cef5b679f8e
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 180563999
-  timestamp: 1713237537698
+  size: 155965051
+  timestamp: 1716319852201
 - kind: conda
   name: libcufft-dev
   version: 11.2.3.18
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcufft-dev-11.2.3.18-0.tar.bz2
-  sha256: 3dfcbe8eabf63b0b7195beac6a0bcf32fa398013745903fc6ab79c8d6befae3a
-  md5: ec71ae12a4b9a1bf42702f49bf008575
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcufft-dev-11.2.3.18-he02047a_0.conda
+  sha256: 9909928743321f1661eadea311d4d964dce8d085e840fd97d7ecdadb8e848afe
+  md5: 021046fda7438fdfb452c8ccefd9d2f9
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libcufft 11.2.3.18 0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libcufft 11.2.3.18 he02047a_0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   constrains:
   - libcufft-static >=11.2.3.18
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 29786
-  timestamp: 1713237924324
+  size: 33455
+  timestamp: 1716320323771
 - kind: conda
   name: libcufile
   version: 1.10.0.4
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcufile-1.10.0.4-0.tar.bz2
-  sha256: 5b5ac553d8eca16eedca735ae6dea3868e976b56d53db0a545d0e3db9bff193f
-  md5: 5e021d836f520618b1bfc5bd890c410a
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcufile-1.10.0.4-he02047a_0.conda
+  sha256: bdf50ec61ebe1bba20c73306ac5d31dc0052db42b74607ad45c527d6917a34e5
+  md5: 58c318f349a5a3c5fe2e1e48bdd037f4
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 1072918
-  timestamp: 1712953517795
+  size: 924109
+  timestamp: 1716319278480
 - kind: conda
   name: libcufile-dev
   version: 1.10.0.4
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcufile-dev-1.10.0.4-0.tar.bz2
-  sha256: 8fa85a479051929963947ef15a3c664375639f1512e53dde5d1f58d15fa79a2e
-  md5: b55fec3d48414e19cc2841e1f8d6d16c
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcufile-dev-1.10.0.4-he02047a_0.conda
+  sha256: ab2faa9a5ed0fe00f0cd6a84f247ff59dab5f7c43a597936dd4d3ba7aed9bd3e
+  md5: 2367a0501690b6aa0192b59750fb4bd2
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libcufile 1.10.0.4 0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libcufile 1.10.0.4 he02047a_0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   constrains:
   - libcufile-static >=1.10.0.4
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 29487
-  timestamp: 1712953535389
+  size: 34272
+  timestamp: 1716319316606
 - kind: conda
   name: libcurand
   version: 10.3.6.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcurand-10.3.6.39-0.tar.bz2
-  sha256: 88418144e5631dcadc4210ea3bab17d95ad621c9ab8ca1cded72a491f66194a6
-  md5: e853d4681f0fc8564f2f7bcd5f9e6002
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcurand-10.3.6.39-he02047a_0.conda
+  sha256: e2f4fb2ce71686f801b9e9577639427160b2d4b023d561a6f82da1a6cbc24021
+  md5: 8705dc9824147e22b424ec2e7d3e0ba6
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 54285029
-  timestamp: 1713237468503
+  size: 41586702
+  timestamp: 1716319576494
 - kind: conda
   name: libcurand-dev
   version: 10.3.6.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcurand-dev-10.3.6.39-0.tar.bz2
-  sha256: dfb6c1b8007bbb17bc60552f17a8d4fb2ff5e79c856794d67259c5562af27f67
-  md5: dea3427cb6abf2405903d24e595a0eaa
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcurand-dev-10.3.6.39-he02047a_0.conda
+  sha256: 5d1b13419c031cc590b698509e4806f5fd4e1cee16405f2e4e3ea1d032678c41
+  md5: 4241738fda6b54c3dfacd7b707ac8d09
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libcurand 10.3.6.39 0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libcurand 10.3.6.39 he02047a_0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   constrains:
   - libcurand-static >=10.3.6.39
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 479679
-  timestamp: 1713237529967
+  size: 250040
+  timestamp: 1716319661315
 - kind: conda
   name: libcurl
   version: 8.8.0
@@ -2658,78 +3067,78 @@ packages:
 - kind: conda
   name: libcusolver
   version: 11.6.2.40
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcusolver-11.6.2.40-0.tar.bz2
-  sha256: 7d54ab7d5edcb5baef9c7a9a36a2ffc7d8440155c1467c8b16f5f4bd2065d61a
-  md5: 30f546f56b5a37cef42647808629a7ee
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcusolver-11.6.2.40-he02047a_0.conda
+  sha256: 5770a3c605218c0f51e1a80589170ca84f9e54fc4b8e202f0b12e5d60d3b01ca
+  md5: 8b1f3865c5e6b84fd198b30b2f13e445
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libcublas
-  - libcusparse
-  - libgcc-ng >=11.2.0
-  - libnvjitlink
-  - libstdcxx-ng >=11.2.0
+  - libcublas >=12.5.2.13,<12.6.0a0
+  - libcusparse >=12.4.1.24,<12.5.0a0
+  - libgcc-ng >=12
+  - libnvjitlink >=12.5.40,<12.6.0a0
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 121713722
-  timestamp: 1713240321995
+  size: 83060867
+  timestamp: 1716356949171
 - kind: conda
   name: libcusolver-dev
   version: 11.6.2.40
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcusolver-dev-11.6.2.40-0.tar.bz2
-  sha256: 6a026a91a0899c07db5db1721c1741ed082d0ed0ec54e897f29b178f2dcb7589
-  md5: ef9d995b5befa081ea5c1d8de6f6863f
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcusolver-dev-11.6.2.40-he02047a_0.conda
+  sha256: 7655143ee489f3f6ebf088b98146b7df0879eeab2da1c5e0e9ffe5fd79a8420f
+  md5: aadd152a5082213fd58c7dd729907fb7
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libcusolver 11.6.2.40 0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libcusolver 11.6.2.40 he02047a_0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   constrains:
   - libcusolver-static >=11.6.2.40
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 66671
-  timestamp: 1713240455210
+  size: 60890
+  timestamp: 1716357107864
 - kind: conda
   name: libcusparse
   version: 12.4.1.24
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcusparse-12.4.1.24-0.tar.bz2
-  sha256: ab020a35a45e246af493af3c03e75ce0cd12a8fb9951b4aea51327be994484c3
-  md5: af6b21ef0ce6070b2506f679bddc94eb
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcusparse-12.4.1.24-he02047a_0.conda
+  sha256: 757f0bb987358a4eb38412d1886f518009edb1ac948de1b0b5e1e1b61f020bbf
+  md5: da5b8143844ef965f8482392cbe03cae
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libnvjitlink
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libnvjitlink >=12.5.40,<12.6.0a0
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 189505876
-  timestamp: 1713238305904
+  size: 118998350
+  timestamp: 1716326918183
 - kind: conda
   name: libcusparse-dev
   version: 12.4.1.24
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libcusparse-dev-12.4.1.24-0.tar.bz2
-  sha256: f52f596d4e11ccc11c0c1a2fba0dcc1c8e8ff15fbf6f06dd62c615c5851994d4
-  md5: d05887a5cbf06aed4bc39f7230a6f225
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcusparse-dev-12.4.1.24-he02047a_0.conda
+  sha256: cec532457bd6e5e95d1a694cdd03df21b06df342bf290642866b797776f61d00
+  md5: 486b5ce7a47611a038892bcd412b1d7e
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libcusparse 12.4.1.24 0
-  - libgcc-ng >=11.2.0
-  - libnvjitlink
-  - libstdcxx-ng >=11.2.0
+  - libcusparse 12.4.1.24 he02047a_0
+  - libgcc-ng >=12
+  - libnvjitlink >=12.5.40,<12.6.0a0
+  - libstdcxx-ng >=12
   constrains:
   - libcusparse-static >=12.4.1.24
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 51678
-  timestamp: 1713238504458
+  size: 52159
+  timestamp: 1716327186210
 - kind: conda
   name: libcxx
   version: 17.0.6
@@ -2905,19 +3314,19 @@ packages:
 - kind: conda
   name: libgcc-devel_linux-64
   version: 12.3.0
-  build: h6b66f73_110
-  build_number: 110
+  build: h6b66f73_111
+  build_number: 111
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/conda-forge/noarch/libgcc-devel_linux-64-12.3.0-h6b66f73_110.conda
-  sha256: c30d15071aa36625d8b7aa4c8a86b153005d49f783892069dbd0a8a543830e4a
-  md5: b54709b0890a7a9ba05f193d9774b35d
+  url: https://conda.anaconda.org/conda-forge/noarch/libgcc-devel_linux-64-12.3.0-h6b66f73_111.conda
+  sha256: dfd06e6b833903e365e0c02d2a8fbb4d3fe652f5d5eb30231a4d90b36d86e582
+  md5: ff7eaed9c07cd4a670f5c61564aa6d77
   depends:
   - __unix
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 2577343
-  timestamp: 1718484966418
+  size: 2564293
+  timestamp: 1718866050542
 - kind: conda
   name: libgcc-ng
   version: 13.2.0
@@ -2936,6 +3345,24 @@ packages:
   license_family: GPL
   size: 802677
   timestamp: 1718485010755
+- kind: conda
+  name: libgcc-ng
+  version: 13.2.0
+  build: h77fa898_11
+  build_number: 11
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h77fa898_11.conda
+  sha256: bbdd49b5a191105cf4bf82a59d611afa1e8568efa556dd988e4e5d0efc3058b1
+  md5: 0b3b218a596bb4c3854cc9ee799f94e5
+  depends:
+  - _libgcc_mutex 0.1 conda_forge
+  - _openmp_mutex >=4.5
+  constrains:
+  - libgomp 13.2.0 h77fa898_11
+  license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
+  size: 796010
+  timestamp: 1718867009281
 - kind: conda
   name: libgcc-ng
   version: 13.2.0
@@ -2987,6 +3414,21 @@ packages:
 - kind: conda
   name: libgfortran-ng
   version: 13.2.0
+  build: h69a702a_11
+  build_number: 11
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran-ng-13.2.0-h69a702a_11.conda
+  sha256: f91aa928161201f189057c90db1508def36bef6329ebb29a71d8064b180250dd
+  md5: 4c3e460d6acf8e43e4ce8bf405187eb7
+  depends:
+  - libgfortran5 13.2.0 h3d2ce59_11
+  license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
+  size: 48638
+  timestamp: 1718867040994
+- kind: conda
+  name: libgfortran-ng
+  version: 13.2.0
   build: h69a702a_8
   build_number: 8
   subdir: linux-64
@@ -3016,6 +3458,23 @@ packages:
   license_family: GPL
   size: 1463819
   timestamp: 1718485020621
+- kind: conda
+  name: libgfortran5
+  version: 13.2.0
+  build: h3d2ce59_11
+  build_number: 11
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran5-13.2.0-h3d2ce59_11.conda
+  sha256: de8535b5fb39a78f4b7473b88c400c922ae063f29500c097743b480fd0a4f326
+  md5: c485da4fdb454539f852a90ae06e9bb7
+  depends:
+  - libgcc-ng >=13.2.0
+  constrains:
+  - libgfortran-ng 13.2.0
+  license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
+  size: 1467184
+  timestamp: 1718867019794
 - kind: conda
   name: libgfortran5
   version: 13.2.0
@@ -3051,6 +3510,26 @@ packages:
   size: 997381
   timestamp: 1707330687590
 - kind: conda
+  name: libglib
+  version: 2.80.2
+  build: h8a4344b_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libglib-2.80.2-h8a4344b_1.conda
+  sha256: 03dcc12fe937e32b1fbd7bd7cfe0f7a3e82ee4fe8d29c4d67afb657f13d04394
+  md5: 9c406bb3d4dac2b358873e6462496d09
+  depends:
+  - libffi >=3.4,<4.0a0
+  - libgcc-ng >=12
+  - libiconv >=1.17,<2.0a0
+  - libzlib >=1.3.1,<2.0a0
+  - pcre2 >=10.44,<10.45.0a0
+  constrains:
+  - glib 2.80.2 *_1
+  license: LGPL-2.1-or-later
+  size: 3908606
+  timestamp: 1718518530469
+- kind: conda
   name: libgomp
   version: 13.2.0
   build: h77fa898_10
@@ -3065,6 +3544,21 @@ packages:
   license_family: GPL
   size: 444719
   timestamp: 1718484940121
+- kind: conda
+  name: libgomp
+  version: 13.2.0
+  build: h77fa898_11
+  build_number: 11
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgomp-13.2.0-h77fa898_11.conda
+  sha256: f4112111fa350bcd8d6d354cdde3426751a579add88fa523f6483c714821e681
+  md5: 8c462ced2af33648195dc9459f331f31
+  depends:
+  - _libgcc_mutex 0.1 conda_forge
+  license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
+  size: 444606
+  timestamp: 1718866940233
 - kind: conda
   name: libgomp
   version: 13.2.0
@@ -3109,6 +3603,20 @@ packages:
   license: LGPL-2.1-only
   size: 676469
   timestamp: 1702682458114
+- kind: conda
+  name: libiconv
+  version: '1.17'
+  build: hd590300_2
+  build_number: 2
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libiconv-1.17-hd590300_2.conda
+  sha256: 8ac2f6a9f186e76539439e50505d98581472fedb347a20e7d1f36429849f05c9
+  md5: d66573916ffcf376178462f1b61c941e
+  depends:
+  - libgcc-ng >=12
+  license: LGPL-2.1-only
+  size: 705775
+  timestamp: 1702682170569
 - kind: conda
   name: libjpeg-turbo
   version: 3.0.0
@@ -3222,38 +3730,38 @@ packages:
 - kind: conda
   name: libnpp
   version: 12.3.0.116
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libnpp-12.3.0.116-0.tar.bz2
-  sha256: a8740b34f174ea6b145377255daa7c53c406013012277f65e3c857de8d755968
-  md5: 72aa386f72c227b6e8c3fb961a8027f1
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnpp-12.3.0.116-he02047a_0.conda
+  sha256: 548d0c5f4d23a31c5984255815e3be8860ec86460bce1f73d33ccfc8e36badef
+  md5: f019cad715f7656ff90a4b544884272e
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 149378417
-  timestamp: 1713240098439
+  size: 99562073
+  timestamp: 1716320150279
 - kind: conda
   name: libnpp-dev
   version: 12.3.0.116
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libnpp-dev-12.3.0.116-0.tar.bz2
-  sha256: 0c99af649a4bb22350094c3636385220ba9233ef3bf5ef4fd3e54bf19886e953
-  md5: 3542b16c3e21a051cd56f8e548ae5e86
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnpp-dev-12.3.0.116-he02047a_0.conda
+  sha256: 0a431e6a257efa05e6637cf00f0955e52cee63007d42ca7c351f3e4b12fcca35
+  md5: fc4dd4e516d275029857658f25dd272e
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libnpp 12.3.0.116 0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libnpp 12.3.0.116 he02047a_0
+  - libstdcxx-ng >=12
   constrains:
   - libnpp-static >=12.3.0.116
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 593846
-  timestamp: 1713240307134
+  size: 470648
+  timestamp: 1716320345051
 - kind: conda
   name: libnsl
   version: 2.0.1
@@ -3271,105 +3779,106 @@ packages:
 - kind: conda
   name: libnvfatbin
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libnvfatbin-12.5.39-0.tar.bz2
-  sha256: 38daa54963dafd86fe4fda14b30d068d1ad858d3a0f6787d1aba6a895e722a52
-  md5: 8a3a26e0bbc24be429a301a8b0ac531e
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnvfatbin-12.5.39-he02047a_0.conda
+  sha256: c650f22346e4bf51c7a732ba443f15bb74a16566e7f517fec5385f7edf2566b6
+  md5: 44bba65a136710d7b188d0003a6602e8
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 908491
-  timestamp: 1713236939948
+  size: 801497
+  timestamp: 1716319856018
 - kind: conda
   name: libnvfatbin-dev
   version: 12.5.39
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libnvfatbin-dev-12.5.39-0.tar.bz2
-  sha256: 0c7aca5473b5c75329e3e98d0fe2c1ecd7039c5dc5223549639907833c94c31a
-  md5: 68934ded1d67fc433626c2d7c58a888c
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnvfatbin-dev-12.5.39-he02047a_0.conda
+  sha256: 73ea5faf2f8d1f315de9cfac23cc8a38c6493c26a4f765a59f0e443388079898
+  md5: dec3b503865da7f9441a0bb0ead158b2
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libnvfatbin 12.5.39 0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libnvfatbin 12.5.39 he02047a_0
+  - libstdcxx-ng >=12
   constrains:
   - liblibnvfatbin-static >=12.5.39
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 21578
-  timestamp: 1713236949838
+  size: 26392
+  timestamp: 1716319890540
 - kind: conda
   name: libnvjitlink
   version: 12.5.40
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libnvjitlink-12.5.40-0.tar.bz2
-  sha256: a09c97823383e3ed4bdc4f58b287e7c05f22c12c350750e88fcc2e9873ffa036
-  md5: 5473fb71e9938bfcae43b45b297fd92b
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnvjitlink-12.5.40-he02047a_0.conda
+  sha256: b17d0f44d4f11133048e874f992085ac2b6c2d3d8406b33d3fa855bdd5745855
+  md5: 7bab371da1232dc97962f8cc632c77dc
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 19347188
-  timestamp: 1713409998789
+  size: 16769398
+  timestamp: 1716320188803
 - kind: conda
   name: libnvjitlink-dev
   version: 12.5.40
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libnvjitlink-dev-12.5.40-0.tar.bz2
-  sha256: b8c9b90d2f71315cbb5e8a17032c3441a53785d7d37cd020534e7fe3ae0486e2
-  md5: 1b60690930a27f54620917e64b82e0b0
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnvjitlink-dev-12.5.40-he02047a_0.conda
+  sha256: 2fff1d3c0c8820fb6a65a38e5d214ee4de32cf3a8baeb899e4901100d5729a1d
+  md5: a0b509ab95df6fb80b516f29d53d7faa
   depends:
   - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libnvjitlink 12.5.40 0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libnvjitlink 12.5.40 he02047a_0
+  - libstdcxx-ng >=12
   constrains:
   - libnvjitlink-static >=12.5.40
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 20564
-  timestamp: 1713410070726
+  size: 25701
+  timestamp: 1716320291190
 - kind: conda
   name: libnvjpeg
   version: 12.3.2.38
-  build: '0'
+  build: he02047a_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libnvjpeg-12.3.2.38-0.tar.bz2
-  sha256: 20d4134d3c7878e686883f02b6cc09c1f363d9db8e6907f6002cc07856ee659e
-  md5: 0e75cb45bbcdce521eee13426afd5c4e
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnvjpeg-12.3.2.38-he02047a_0.conda
+  sha256: 70a07dddd378120f34f014d860f9173599775bfb2f9b56d752dbe93ab0f3d332
+  md5: a1ade0ecd43845f191b48de39e86d7cc
   depends:
+  - __glibc >=2.17,<3.0.a0
   - cuda-version >=12.5,<12.6.0a0
-  - libgcc-ng >=11.2.0
-  - libstdcxx-ng >=11.2.0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 3124944
-  timestamp: 1713237087874
+  size: 2497104
+  timestamp: 1716400070489
 - kind: conda
   name: libnvjpeg-dev
   version: 12.3.2.38
-  build: '0'
+  build: ha770c72_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/libnvjpeg-dev-12.3.2.38-0.tar.bz2
-  sha256: a7ba4ef08e80b503b4e6023ae6730eb2aa42cdaad1b2b8c7bb3f40b92d1d7676
-  md5: c1136ede09570d4188a792553b41e526
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnvjpeg-dev-12.3.2.38-ha770c72_0.conda
+  sha256: 8afb8a421e16730f5a6c65905106942c6c1686757cd52bef654a764838de515d
+  md5: 1b472f1060ec9bbc23a4ad91ea6188c0
   depends:
   - cuda-cudart-dev
   - cuda-version >=12.5,<12.6.0a0
-  - libnvjpeg 12.3.2.38 0
+  - libnvjpeg 12.3.2.38 he02047a_0
   constrains:
   - libnvjpeg-static >=12.3.2.38
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  size: 28204
-  timestamp: 1713237095705
+  size: 32304
+  timestamp: 1716400097877
 - kind: conda
   name: libopenblas
   version: 0.3.27
@@ -3436,18 +3945,19 @@ packages:
 - kind: conda
   name: libsanitizer
   version: 12.3.0
-  build: hb8811af_10
-  build_number: 10
+  build: hb8811af_11
+  build_number: 11
   subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libsanitizer-12.3.0-hb8811af_10.conda
-  sha256: 32c73add76870e49b320da102b8bcc9328c40d41220eddb6d183d61a84855377
-  md5: dc92e90f49b40eb8d04277f27ba962ee
+  url: https://conda.anaconda.org/conda-forge/linux-64/libsanitizer-12.3.0-hb8811af_11.conda
+  sha256: 44101a04999575b0260b7ec73432f5a1867cba561e3f54e8a0f6cd2c1d7c220f
+  md5: bd3b567e19414b488ca84a3007103601
   depends:
   - libgcc-ng >=12.3.0
+  - libstdcxx-ng >=12.3.0
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 3928450
-  timestamp: 1718485078834
+  size: 3991804
+  timestamp: 1718866166448
 - kind: conda
   name: libsqlite
   version: 3.46.0
@@ -3510,19 +4020,19 @@ packages:
 - kind: conda
   name: libstdcxx-devel_linux-64
   version: 12.3.0
-  build: h6b66f73_110
-  build_number: 110
+  build: h6b66f73_111
+  build_number: 111
   subdir: noarch
   noarch: generic
-  url: https://conda.anaconda.org/conda-forge/noarch/libstdcxx-devel_linux-64-12.3.0-h6b66f73_110.conda
-  sha256: 52013478b3997fb703c2f038e5d3ab3a19eee29a0caf22b38f3c579c8d60939f
-  md5: 59894a5bc5d53c8089914ccc76d1afe5
+  url: https://conda.anaconda.org/conda-forge/noarch/libstdcxx-devel_linux-64-12.3.0-h6b66f73_111.conda
+  sha256: d13ebb6dd19f189a0ef85cf97854bb88b26f7ab2ffcfed6437f117294e71764c
+  md5: 22171468c71cf05a863d3ed749a2a41c
   depends:
   - __unix
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 11983022
-  timestamp: 1718485010866
+  size: 11929897
+  timestamp: 1718866087813
 - kind: conda
   name: libstdcxx-ng
   version: 13.2.0
@@ -3538,6 +4048,21 @@ packages:
   license_family: GPL
   size: 3862528
   timestamp: 1718485050139
+- kind: conda
+  name: libstdcxx-ng
+  version: 13.2.0
+  build: hc0a3c3a_11
+  build_number: 11
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-13.2.0-hc0a3c3a_11.conda
+  sha256: e03f0f2712f45a85234016bcc5afa76023e31e00a2e74d8819a1b3bdf091fdb0
+  md5: eaa8ea74083fb4a78ae19e431e556003
+  depends:
+  - libgcc-ng 13.2.0 h77fa898_11
+  license: GPL-3.0-only WITH GCC-exception-3.1
+  license_family: GPL
+  size: 3874046
+  timestamp: 1718867032452
 - kind: conda
   name: libstdcxx-ng
   version: 13.2.0
@@ -3714,6 +4239,40 @@ packages:
   size: 100393
   timestamp: 1702724383534
 - kind: conda
+  name: libxkbcommon
+  version: 1.7.0
+  build: h662e7e4_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libxkbcommon-1.7.0-h662e7e4_0.conda
+  sha256: 3d97d7f964237f42452295d461afdbc51e93f72e2c80be516f56de80e3bb6621
+  md5: b32c0da42b1f24a98577bb3d7fc0b995
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  - libxcb >=1.15,<1.16.0a0
+  - libxml2 >=2.12.6,<3.0a0
+  - xkeyboard-config
+  - xorg-libxau >=1.0.11,<2.0a0
+  license: MIT/X11 Derivative
+  license_family: MIT
+  size: 593534
+  timestamp: 1711303445595
+- kind: conda
+  name: libxkbfile
+  version: 1.1.0
+  build: h166bdaf_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libxkbfile-1.1.0-h166bdaf_1.conda
+  sha256: f7c9f4d42c9e87dcf7055c33e9957db4e319735de9bdd5d9ba5633c27b853ae1
+  md5: c6274d38be57ac8b059b8e33d406aaf6
+  depends:
+  - libgcc-ng >=12
+  license: MIT
+  license_family: MIT
+  size: 114087
+  timestamp: 1676547070237
+- kind: conda
   name: libxml2
   version: 2.12.7
   build: ha661575_1
@@ -3732,6 +4291,25 @@ packages:
   license_family: MIT
   size: 588487
   timestamp: 1717546487246
+- kind: conda
+  name: libxml2
+  version: 2.12.7
+  build: hc051c1a_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.12.7-hc051c1a_1.conda
+  sha256: 576ea9134176636283ff052897bf7a91ffd8ac35b2c505dfde2890ec52849698
+  md5: 340278ded8b0dc3a73f3660bbb0adbc6
+  depends:
+  - icu >=73.2,<74.0a0
+  - libgcc-ng >=12
+  - libiconv >=1.17,<2.0a0
+  - libzlib >=1.2.13,<2.0a0
+  - xz >=5.2.6,<6.0a0
+  license: MIT
+  license_family: MIT
+  size: 704984
+  timestamp: 1717546454837
 - kind: conda
   name: libzlib
   version: 1.3.1
@@ -3964,14 +4542,84 @@ packages:
   timestamp: 1715194898402
 - kind: conda
   name: nsight-compute
-  version: 2024.1.1.4
-  build: '0'
+  version: 2024.2.0.16
+  build: h54680a5_0
   subdir: linux-64
-  url: https://conda.anaconda.org/nvidia/linux-64/nsight-compute-2024.1.1.4-0.tar.bz2
-  sha256: 33935f28b007d3d5f584abd22485251ad7eea91b4b9f11c960a053fdd7be8a48
-  md5: 217ed2ff255f52cbef787aba3f9b9637
-  size: 699526661
-  timestamp: 1709778043113
+  url: https://conda.anaconda.org/conda-forge/linux-64/nsight-compute-2024.2.0.16-h54680a5_0.conda
+  sha256: eff133f6e234debdf8b75efb8edab5f98fb6ab2ef4797d3ffe0f15802c386831
+  md5: cc5da2c992fa8dca85c94d28e8869168
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - alsa-lib >=1.2.11,<1.3.0a0
+  - cuda-version >=12.5,<12.6.0a0
+  - dbus >=1.13.6,<2.0a0
+  - fontconfig >=2.14.2,<3.0a0
+  - fonts-conda-ecosystem
+  - freetype >=2.12.1,<3.0a0
+  - krb5 >=1.21.2,<1.22.0a0
+  - libexpat >=2.6.2,<3.0a0
+  - libgcc-ng >=12
+  - libglib >=2.80.2,<3.0a0
+  - libstdcxx-ng >=12
+  - libxcb >=1.15,<1.16.0a0
+  - libxkbcommon >=1.7.0,<2.0a0
+  - libxkbfile >=1.1.0,<1.2.0a0
+  - libzlib >=1.2.13,<2.0a0
+  - nspr >=4.35,<5.0a0
+  - nss >=3.100,<4.0a0
+  - wayland >=1.22.0,<2.0a0
+  - xcb-util-cursor >=0.1.4,<0.2.0a0
+  - xcb-util-image >=0.4.0,<0.5.0a0
+  - xcb-util-keysyms >=0.4.0,<0.5.0a0
+  - xcb-util-renderutil >=0.3.9,<0.4.0a0
+  - xcb-util-wm >=0.4.1,<0.5.0a0
+  - xorg-libice >=1.1.1,<2.0a0
+  - xorg-libsm >=1.2.4,<2.0a0
+  - xorg-libx11 >=1.8.9,<2.0a0
+  - xorg-libxcomposite >=0.4.6,<0.5.0a0
+  - xorg-libxdamage >=1.1.5,<1.2.0a0
+  - xorg-libxext >=1.3.4,<2.0a0
+  - xorg-libxfixes >=5.0.3,<5.1.0a0
+  - xorg-libxrandr >=1.5.2,<1.6.0a0
+  - xorg-libxrender >=0.9.11,<0.10.0a0
+  - xorg-libxtst >=1.2.3,<1.3.0a0
+  license: LicenseRef-NVIDIA-End-User-License-Agreement
+  size: 469760014
+  timestamp: 1717076660602
+- kind: conda
+  name: nspr
+  version: '4.35'
+  build: h27087fc_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/nspr-4.35-h27087fc_0.conda
+  sha256: 8fadeebb2b7369a4f3b2c039a980d419f65c7b18267ba0c62588f9f894396d0c
+  md5: da0ec11a6454ae19bff5b02ed881a2b1
+  depends:
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  license: MPL-2.0
+  license_family: MOZILLA
+  size: 226848
+  timestamp: 1669784948267
+- kind: conda
+  name: nss
+  version: '3.101'
+  build: h593d115_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/nss-3.101-h593d115_0.conda
+  sha256: 7b5c37070c4a1c4c0d7477c63e23a4603108380646373e64a47b2614eb5f42c5
+  md5: b24ab6abea1bdc28d646336a03d15392
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - libgcc-ng >=12
+  - libsqlite >=3.46.0,<4.0a0
+  - libstdcxx-ng >=12
+  - libzlib >=1.3.1,<2.0a0
+  - nspr >=4.35,<5.0a0
+  license: MPL-2.0
+  license_family: MOZILLA
+  size: 1978342
+  timestamp: 1718584380034
 - kind: conda
   name: numpy
   version: 1.26.4
@@ -4016,6 +4664,21 @@ packages:
   license_family: BSD
   size: 7484186
   timestamp: 1707225809722
+- kind: conda
+  name: ocl-icd
+  version: 2.3.2
+  build: hd590300_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/ocl-icd-2.3.2-hd590300_1.conda
+  sha256: 0e01384423e48e5011eb6b224da8dc5e3567c87dbcefbe60cd9d5cead276cdcd
+  md5: c66f837ac65e4d1cdeb80e2a1d5fcc3d
+  depends:
+  - libgcc-ng >=12
+  license: BSD-2-Clause
+  license_family: BSD
+  size: 135681
+  timestamp: 1710946531879
 - kind: conda
   name: openjpeg
   version: 2.5.2
@@ -4208,6 +4871,22 @@ packages:
   license_family: BSD
   size: 187218
   timestamp: 1704469432353
+- kind: conda
+  name: pcre2
+  version: '10.44'
+  build: h0f59acf_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/pcre2-10.44-h0f59acf_0.conda
+  sha256: 90646ad0d8f9d0fd896170c4f3d754e88c4ba0eaf856c24d00842016f644baab
+  md5: 3914f7ac1761dce57102c72ca7c35d01
+  depends:
+  - bzip2 >=1.0.8,<2.0a0
+  - libgcc-ng >=12
+  - libzlib >=1.3.1,<2.0a0
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 955778
+  timestamp: 1718466128333
 - kind: conda
   name: pillow
   version: 10.3.0
@@ -4885,6 +5564,264 @@ packages:
   size: 119815
   timestamp: 1706886945727
 - kind: conda
+  name: wayland
+  version: 1.23.0
+  build: h5291e77_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/wayland-1.23.0-h5291e77_0.conda
+  sha256: 5f2572290dd09d5480abe6e0d9635c17031a12fd4e68578680e9f49444d6dd8b
+  md5: c13ca0abd5d1d31d0eebcf86d51da8a4
+  depends:
+  - libexpat >=2.6.2,<3.0a0
+  - libffi >=3.4,<4.0a0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  license: MIT
+  license_family: MIT
+  size: 322846
+  timestamp: 1717119371478
+- kind: conda
+  name: xcb-util
+  version: 0.4.0
+  build: hd590300_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-0.4.0-hd590300_1.conda
+  sha256: 0c91d87f0efdaadd4e56a5f024f8aab20ec30f90aa2ce9e4ebea05fbc20f71ad
+  md5: 9bfac7ccd94d54fd21a0501296d60424
+  depends:
+  - libgcc-ng >=12
+  - libxcb >=1.13
+  - libxcb >=1.15,<1.16.0a0
+  license: MIT
+  license_family: MIT
+  size: 19728
+  timestamp: 1684639166048
+- kind: conda
+  name: xcb-util-cursor
+  version: 0.1.4
+  build: hd590300_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-cursor-0.1.4-hd590300_1.conda
+  sha256: df147500874761501030227d6bb8889443480cd6fe00361bb046d9840f04d17b
+  md5: 1ecae8461689e44fe0f0e3d18e58e799
+  depends:
+  - libgcc-ng >=12
+  - libxcb >=1.13
+  - libxcb >=1.15,<1.16.0a0
+  - xcb-util-image >=0.4.0,<0.5.0a0
+  - xcb-util-renderutil >=0.3.9,<0.4.0a0
+  license: MIT
+  license_family: MIT
+  size: 20170
+  timestamp: 1684687482843
+- kind: conda
+  name: xcb-util-image
+  version: 0.4.0
+  build: h8ee46fc_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-image-0.4.0-h8ee46fc_1.conda
+  sha256: 92ffd68d2801dbc27afe223e04ae7e78ef605fc8575f107113c93c7bafbd15b0
+  md5: 9d7bcddf49cbf727730af10e71022c73
+  depends:
+  - libgcc-ng >=12
+  - libxcb >=1.15,<1.16.0a0
+  - xcb-util >=0.4.0,<0.5.0a0
+  license: MIT
+  license_family: MIT
+  size: 24474
+  timestamp: 1684679894554
+- kind: conda
+  name: xcb-util-keysyms
+  version: 0.4.0
+  build: h8ee46fc_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-keysyms-0.4.0-h8ee46fc_1.conda
+  sha256: 8451d92f25d6054a941b962179180728c48c62aab5bf20ac10fef713d5da6a9a
+  md5: 632413adcd8bc16b515cab87a2932913
+  depends:
+  - libgcc-ng >=12
+  - libxcb >=1.15,<1.16.0a0
+  license: MIT
+  license_family: MIT
+  size: 14186
+  timestamp: 1684680497805
+- kind: conda
+  name: xcb-util-renderutil
+  version: 0.3.9
+  build: hd590300_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-renderutil-0.3.9-hd590300_1.conda
+  sha256: 6987588e6fff5892056021c2ea52f7a0deefb2c7348e70d24750e2d60dabf009
+  md5: e995b155d938b6779da6ace6c6b13816
+  depends:
+  - libgcc-ng >=12
+  - libxcb >=1.13
+  - libxcb >=1.15,<1.16.0a0
+  license: MIT
+  license_family: MIT
+  size: 16955
+  timestamp: 1684639112393
+- kind: conda
+  name: xcb-util-wm
+  version: 0.4.1
+  build: h8ee46fc_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-wm-0.4.1-h8ee46fc_1.conda
+  sha256: 08ba7147c7579249b6efd33397dc1a8c2404278053165aaecd39280fee705724
+  md5: 90108a432fb5c6150ccfee3f03388656
+  depends:
+  - libgcc-ng >=12
+  - libxcb >=1.15,<1.16.0a0
+  license: MIT
+  license_family: MIT
+  size: 52114
+  timestamp: 1684679248466
+- kind: conda
+  name: xkeyboard-config
+  version: '2.42'
+  build: h4ab18f5_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xkeyboard-config-2.42-h4ab18f5_0.conda
+  sha256: 240caab7d9d85154ef373ecbac3ff9fb424add2029dbb124e949c6cbab2996dd
+  md5: b193af204da1bfb8c13882d131a14bd2
+  depends:
+  - libgcc-ng >=12
+  - xorg-libx11 >=1.8.9,<2.0a0
+  license: MIT
+  license_family: MIT
+  size: 388998
+  timestamp: 1717817668629
+- kind: conda
+  name: xorg-compositeproto
+  version: 0.4.2
+  build: h7f98852_1001
+  build_number: 1001
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-compositeproto-0.4.2-h7f98852_1001.tar.bz2
+  sha256: 8127541fb7ee4ba81cabd3ac464953ec928489bf01d647e5819cd7cd9428730c
+  md5: 8bf27eeb636d3acce5c6cb570ba63487
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 12391
+  timestamp: 1612964792999
+- kind: conda
+  name: xorg-damageproto
+  version: 1.2.1
+  build: h7f98852_1002
+  build_number: 1002
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-damageproto-1.2.1-h7f98852_1002.tar.bz2
+  sha256: b0a62b8eedc3e1b47fbbe3bbe6011542d36867b90f9b4bf251b78109ee1f0d9b
+  md5: 58c9bb067637c5a13a045a7124eeb027
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 25425
+  timestamp: 1620067841828
+- kind: conda
+  name: xorg-fixesproto
+  version: '5.0'
+  build: h7f98852_1002
+  build_number: 1002
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-fixesproto-5.0-h7f98852_1002.tar.bz2
+  sha256: 5d2af1b40f82128221bace9466565eca87c97726bb80bbfcd03871813f3e1876
+  md5: 65ad6e1eb4aed2b0611855aff05e04f6
+  depends:
+  - libgcc-ng >=9.3.0
+  - xorg-xextproto
+  license: MIT
+  license_family: MIT
+  size: 9122
+  timestamp: 1617479697350
+- kind: conda
+  name: xorg-inputproto
+  version: 2.3.2
+  build: h7f98852_1002
+  build_number: 1002
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-inputproto-2.3.2-h7f98852_1002.tar.bz2
+  sha256: 6c8c2803de0f643f8bad16ece3f9a7259e4a49247543239c182d66d5e3a129a7
+  md5: bcd1b3396ec6960cbc1d2855a9e60b2b
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 19602
+  timestamp: 1610027678228
+- kind: conda
+  name: xorg-kbproto
+  version: 1.0.7
+  build: h7f98852_1002
+  build_number: 1002
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-kbproto-1.0.7-h7f98852_1002.tar.bz2
+  sha256: e90b0a6a5d41776f11add74aa030f789faf4efd3875c31964d6f9cfa63a10dd1
+  md5: 4b230e8381279d76131116660f5a241a
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 27338
+  timestamp: 1610027759842
+- kind: conda
+  name: xorg-libice
+  version: 1.1.1
+  build: hd590300_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libice-1.1.1-hd590300_0.conda
+  sha256: 5aa9b3682285bb2bf1a8adc064cb63aff76ef9178769740d855abb42b0d24236
+  md5: b462a33c0be1421532f28bfe8f4a7514
+  depends:
+  - libgcc-ng >=12
+  license: MIT
+  license_family: MIT
+  size: 58469
+  timestamp: 1685307573114
+- kind: conda
+  name: xorg-libsm
+  version: 1.2.4
+  build: h7391055_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libsm-1.2.4-h7391055_0.conda
+  sha256: 089ad5f0453c604e18985480218a84b27009e9e6de9a0fa5f4a20b8778ede1f1
+  md5: 93ee23f12bc2e684548181256edd2cf6
+  depends:
+  - libgcc-ng >=12
+  - libuuid >=2.38.1,<3.0a0
+  - xorg-libice >=1.1.1,<2.0a0
+  license: MIT
+  license_family: MIT
+  size: 27433
+  timestamp: 1685453649160
+- kind: conda
+  name: xorg-libx11
+  version: 1.8.9
+  build: h8ee46fc_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libx11-1.8.9-h8ee46fc_0.conda
+  sha256: 3e53ba247f1ad68353f18aceba5bf8ce87e3dea930de85d36946844a7658c9fb
+  md5: 077b6e8ad6a3ddb741fce2496dd01bec
+  depends:
+  - libgcc-ng >=12
+  - libxcb >=1.15,<1.16.0a0
+  - xorg-kbproto
+  - xorg-xextproto >=7.3.0,<8.0a0
+  - xorg-xproto
+  license: MIT
+  license_family: MIT
+  size: 828060
+  timestamp: 1712415742569
+- kind: conda
   name: xorg-libxau
   version: 1.0.11
   build: hb547adb_0
@@ -4911,6 +5848,46 @@ packages:
   size: 14468
   timestamp: 1684637984591
 - kind: conda
+  name: xorg-libxcomposite
+  version: 0.4.6
+  build: h0b41bf4_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxcomposite-0.4.6-h0b41bf4_1.conda
+  sha256: 7c5806a8de1ce0d4e0c7aae8d29565f11fba6c6da4a787c3e09f1fcc428725a4
+  md5: ada6777364a0ea2407a1894e54779cc4
+  depends:
+  - libgcc-ng >=12
+  - xorg-compositeproto
+  - xorg-libx11 >=1.7.2,<2.0a0
+  - xorg-libxfixes
+  - xorg-xproto
+  license: MIT
+  license_family: MIT
+  size: 13436
+  timestamp: 1676978990631
+- kind: conda
+  name: xorg-libxdamage
+  version: 1.1.5
+  build: h7f98852_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxdamage-1.1.5-h7f98852_1.tar.bz2
+  sha256: 4cab878855e48669b64dd7522a518433ac83bb56fa79743d12db316326e2e39e
+  md5: bebd3814ec2355fab6a474b07ed73093
+  depends:
+  - libgcc-ng >=9.4.0
+  - xorg-damageproto
+  - xorg-libx11 >=1.7.2,<2.0a0
+  - xorg-libxext 1.3.*
+  - xorg-libxfixes
+  - xorg-util-macros
+  - xorg-xproto
+  license: MIT
+  license_family: MIT
+  size: 11964
+  timestamp: 1641830754492
+- kind: conda
   name: xorg-libxdmcp
   version: 1.1.3
   build: h27ca646_0
@@ -4936,6 +5913,204 @@ packages:
   license_family: MIT
   size: 19126
   timestamp: 1610071769228
+- kind: conda
+  name: xorg-libxext
+  version: 1.3.4
+  build: h0b41bf4_2
+  build_number: 2
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxext-1.3.4-h0b41bf4_2.conda
+  sha256: 73e5cfbdff41ef8a844441f884412aa5a585a0f0632ec901da035a03e1fe1249
+  md5: 82b6df12252e6f32402b96dacc656fec
+  depends:
+  - libgcc-ng >=12
+  - xorg-libx11 >=1.7.2,<2.0a0
+  - xorg-xextproto
+  license: MIT
+  license_family: MIT
+  size: 50143
+  timestamp: 1677036907815
+- kind: conda
+  name: xorg-libxfixes
+  version: 5.0.3
+  build: h7f98852_1004
+  build_number: 1004
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxfixes-5.0.3-h7f98852_1004.tar.bz2
+  sha256: 1e426a1abb774ef1dcf741945ed5c42ad12ea2dc7aeed7682d293879c3e1e4c3
+  md5: e9a21aa4d5e3e5f1aed71e8cefd46b6a
+  depends:
+  - libgcc-ng >=9.3.0
+  - xorg-fixesproto
+  - xorg-libx11 >=1.7.0,<2.0a0
+  license: MIT
+  license_family: MIT
+  size: 18145
+  timestamp: 1617717802636
+- kind: conda
+  name: xorg-libxi
+  version: 1.7.10
+  build: h7f98852_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxi-1.7.10-h7f98852_0.tar.bz2
+  sha256: 745c1284a96b4282fe6fe122b2643e1e8c26a7ff40b733a8f4b61357238c4e68
+  md5: e77615e5141cad5a2acaa043d1cf0ca5
+  depends:
+  - libgcc-ng >=9.3.0
+  - xorg-inputproto
+  - xorg-libx11 >=1.7.0,<2.0a0
+  - xorg-libxext 1.3.*
+  - xorg-libxfixes 5.0.*
+  license: MIT
+  license_family: MIT
+  size: 47287
+  timestamp: 1620070911951
+- kind: conda
+  name: xorg-libxrandr
+  version: 1.5.2
+  build: h7f98852_1
+  build_number: 1
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxrandr-1.5.2-h7f98852_1.tar.bz2
+  sha256: ffd075a463896ed86d9519e26dc36f754b695b9c1e1b6115d34fe138b36d8200
+  md5: 5b0f7da25a4556c9619c3e4b4a98ab07
+  depends:
+  - libgcc-ng >=9.3.0
+  - xorg-libx11 >=1.7.1,<2.0a0
+  - xorg-libxext
+  - xorg-libxrender
+  - xorg-randrproto
+  - xorg-renderproto
+  - xorg-xextproto
+  license: MIT
+  license_family: MIT
+  size: 29688
+  timestamp: 1621515728586
+- kind: conda
+  name: xorg-libxrender
+  version: 0.9.11
+  build: hd590300_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxrender-0.9.11-hd590300_0.conda
+  sha256: 26da4d1911473c965c32ce2b4ff7572349719eaacb88a066db8d968a4132c3f7
+  md5: ed67c36f215b310412b2af935bf3e530
+  depends:
+  - libgcc-ng >=12
+  - xorg-libx11 >=1.8.6,<2.0a0
+  - xorg-renderproto
+  license: MIT
+  license_family: MIT
+  size: 37770
+  timestamp: 1688300707994
+- kind: conda
+  name: xorg-libxtst
+  version: 1.2.3
+  build: h7f98852_1002
+  build_number: 1002
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxtst-1.2.3-h7f98852_1002.tar.bz2
+  sha256: 9a51ae2869b9a47735539dada9d85534418a765d1461c9f91fe7564f3ee75e87
+  md5: a220b1a513e19d5cb56c1311d44f12e6
+  depends:
+  - libgcc-ng >=9.3.0
+  - xorg-inputproto
+  - xorg-libx11 >=1.7.1,<2.0a0
+  - xorg-libxext 1.3.*
+  - xorg-libxi 1.7.*
+  - xorg-recordproto
+  license: MIT
+  license_family: MIT
+  size: 32110
+  timestamp: 1621515716498
+- kind: conda
+  name: xorg-randrproto
+  version: 1.5.0
+  build: h7f98852_1001
+  build_number: 1001
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-randrproto-1.5.0-h7f98852_1001.tar.bz2
+  sha256: f5c7c2de3655a95153e900118959df6a50b6c104a3d7afaee3eadbf86b85fa2e
+  md5: 68cce654461713977dac6f9ac1bce89a
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 32984
+  timestamp: 1621340029170
+- kind: conda
+  name: xorg-recordproto
+  version: 1.14.2
+  build: h7f98852_1002
+  build_number: 1002
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-recordproto-1.14.2-h7f98852_1002.tar.bz2
+  sha256: 4b91d48fed368c83eafd03891ebfd5bae0a03adc087ebea8a680ae22da99a85f
+  md5: 2f835e6c386e73c6faaddfe9eda67e98
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 8014
+  timestamp: 1621340029114
+- kind: conda
+  name: xorg-renderproto
+  version: 0.11.1
+  build: h7f98852_1002
+  build_number: 1002
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-renderproto-0.11.1-h7f98852_1002.tar.bz2
+  sha256: 38942930f233d1898594dd9edf4b0c0786f3dbc12065a0c308634c37fd936034
+  md5: 06feff3d2634e3097ce2fe681474b534
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 9621
+  timestamp: 1614866326326
+- kind: conda
+  name: xorg-util-macros
+  version: 1.19.3
+  build: h7f98852_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-util-macros-1.19.3-h7f98852_0.tar.bz2
+  sha256: 128591045b700d375de98be76f215a0b67c9d6939523b743edc0dca389cdb4be
+  md5: b1780cc89cf3949f670d6ca2aa6a7e42
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 52497
+  timestamp: 1611584218114
+- kind: conda
+  name: xorg-xextproto
+  version: 7.3.0
+  build: h0b41bf4_1003
+  build_number: 1003
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-xextproto-7.3.0-h0b41bf4_1003.conda
+  sha256: b8dda3b560e8a7830fe23be1c58cc41f407b2e20ae2f3b6901eb5842ba62b743
+  md5: bce9f945da8ad2ae9b1d7165a64d0f87
+  depends:
+  - libgcc-ng >=12
+  license: MIT
+  license_family: MIT
+  size: 30270
+  timestamp: 1677036833037
+- kind: conda
+  name: xorg-xproto
+  version: 7.0.31
+  build: h7f98852_1007
+  build_number: 1007
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-xproto-7.0.31-h7f98852_1007.tar.bz2
+  sha256: f197bb742a17c78234c24605ad1fe2d88b1d25f332b75d73e5ba8cf8fbc2a10d
+  md5: b4a4381d54784606820704f7b5f05a15
+  depends:
+  - libgcc-ng >=9.3.0
+  license: MIT
+  license_family: MIT
+  size: 74922
+  timestamp: 1607291557628
 - kind: conda
   name: xz
   version: 5.2.6
