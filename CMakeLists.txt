@@ -216,11 +216,11 @@ else()
         ON
         CACHE BOOL "enable CUDA LAMBDA feature" FORCE)
     message(STATUS "Using vendored copy of kokkos with CUDA")
-    set(Kokkos_ENABLE_LIBDL
-        OFF
-        CACHE BOOL "Turn usage of LIBDL off in Kokkos" FORCE)
-    message(STATUS "Disabled the use of LIBDL in Kokkos")
-    endif()
+  endif()
+  set(Kokkos_ENABLE_LIBDL
+    OFF
+    CACHE BOOL "Turn usage of LIBDL off in Kokkos" FORCE)
+  message(STATUS "Disabled the use of LIBDL in Kokkos")
   add_subdirectory(src/synergia/utils/kokkos)
   include_directories(${Kokkos_INCLUDE_DIRS_RET})
   set(kokkos_libs kokkos)
