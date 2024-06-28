@@ -1271,7 +1271,7 @@ namespace FF_algorithm {
     }
 
     // Calculations of dipedge taken from MAD-X SUBROUTINE tmfrng from
-    // file twiss.f90.
+    // MAD-X source file twiss.f90.
 
     template <typename T>
     KOKKOS_INLINE_FUNCTION void

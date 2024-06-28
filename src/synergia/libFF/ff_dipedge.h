@@ -185,6 +185,9 @@ namespace dipedge_impl
                 dipedge_params.re_4_3,
                 dipedge_params.te);
         
+        ref_l.set_state(x_l, xp_l, y_l, yp_l,
+            cdt_l, dpop_l);
+
     }
 }
 
@@ -320,6 +323,7 @@ namespace FF_dipedge {
         apply(ParticleGroup::spectator);
         // dipedge has 0 length so there is no need to increment trajectory here
         // bunch.get_reference_particle().increment_trajectory(0);
+        // Also no need to increment bunch abs_time
         Kokkos::fence();
     }
 }
