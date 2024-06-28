@@ -359,6 +359,7 @@ qa2l, at = 38.59317226;
 qa1l, at = 38.93817226;
 mseqale, at = 39.95567226;
 endsequence;
+beam, particle=proton, energy=pmass+0.00250;
 """
 
 
