@@ -37,7 +37,7 @@ jobs:
         submodules: 'true'
 
     # Debug: checkpoint at which to open tmate session
-    - name: cuda11 pre CMake
+    - name: cuda12 pre CMake
       uses: mxschmitt/action-tmate@v3
       if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.debug_cmake_enabled }}
       with:
@@ -49,6 +49,7 @@ jobs:
         . /opt/spack-environment/activate.sh
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install \
+          -DCMAKE_LINKER_TYPE=MOLD \
           -DBUILD_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=$(which python3) \
           -DENABLE_KOKKOS_BACKEND=CUDA \
           -DKokkos_ARCH_VOLTA70=ON \
