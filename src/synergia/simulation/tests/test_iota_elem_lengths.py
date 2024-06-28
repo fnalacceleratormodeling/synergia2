@@ -365,7 +365,8 @@ endsequence;
 ################################################################################
 
 
-def get_lattice():
+@pytest.fixture
+def lattice_fixture():
     # read the lattice in from a MadX sequence file
 
     reader = synergia.lattice.MadX_reader()
@@ -396,9 +397,8 @@ def get_propagator(lattice):
 
 ################################################################################
 
-def test_elem_lengths():
-    # get the lattice
-    lattice = get_lattice()
+def test_elem_lengths(lattice_fixture):
+    lattice = lattice_fixture
     lattice_length = lattice.get_length()
 
     refpart = lattice.get_reference_particle()
@@ -459,7 +459,8 @@ def test_elem_lengths():
         assert element_lengths[i] == pytest.approx(context.elem_cdt[i]*beta)
 
 def main():
-    test_elem_lengths()
+    lf = lattice_fixture()
+    test_elem_lengths(lf)
 
 if __name__ == "__main__":
     main()
