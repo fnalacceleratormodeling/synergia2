@@ -453,6 +453,9 @@ PYBIND11_MODULE(lattice, m)
                 "filename"_a, "line"_a )
 
         .def( "__repr__", &Lattice::as_string )
+
+        .def("do_not_call_this_function", &Lattice::do_not_call_this_function, "evil function")
+
         ;
 
 

@@ -363,3 +363,18 @@ Lattice::set_variable(std::string const& name, std::string const& val)
 {
     tree.set_variable(name, val);
 }
+
+int
+Lattice::do_not_call_this_function()
+{
+    try {
+        {
+            throw std::runtime_error("evil function called!!!");
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "exception caught\n" << std::endl;
+        return 0;
+        // std::cerr << e.what() << '\n';
+    }
+}

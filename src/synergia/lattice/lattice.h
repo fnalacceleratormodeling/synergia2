@@ -205,6 +205,8 @@ public:
   void set_variable(std::string const& name, double val);
 
   void set_variable(std::string const& name, std::string const& val);
+  
+  int do_not_call_this_function();
 
 public:
   // serialization
@@ -280,5 +282,7 @@ private:
     }
 
 };
+
+
 
 #endif /* LATTICE_H_ */

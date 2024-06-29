@@ -2,6 +2,7 @@ if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_lattice.py)
   add_py_test(test_dynamic_lattice.py)
   add_py_test(test_parse_matrix.py)
+  add_py_test(test_evil_function.py)
 endif()
 
 add_executable(test_lattice test_lattice.cc ${test_main})
@@ -15,6 +16,10 @@ add_mpi_test(test_mx_expr 1)
 add_executable(test_madx_parser test_madx_parser.cc ${test_main})
 target_link_libraries(test_madx_parser PRIVATE synergia_lattice ${testing_libs})
 add_mpi_test(test_madx_parser 1)
+
+add_executable(test_evil_function test_evil_function.cc ${test_main})
+target_link_libraries(test_evil_function PRIVATE synergia_lattice ${testing_libs})
+add_mpi_test(test_evil_function 1)
 
 copy_file(foo.dbx test_madx_parser)
 
