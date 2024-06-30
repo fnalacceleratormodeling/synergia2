@@ -7,9 +7,9 @@ from synergia.foundation import Reference_particle
 name = "foo"
 
 def test_evil_functon():
-    lattice = Lattice(name)
+    reader = synergia.lattice.MadX_reader()
     try:
-        lattice.do_not_call_this_function()
+        reader.do_not_call_this_function()
     except:
         raise Runtime_Error('I told you not to call this function!!!')
     

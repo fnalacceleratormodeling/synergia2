@@ -32,5 +32,8 @@ public:
 
   static Lattice get_dynamic_lattice(std::string const& line_name,
                                      synergia::MadX const& mx);
+  
+  int do_not_call_this_function();
+
 };
 #endif /* MADX_READER_CC_ */

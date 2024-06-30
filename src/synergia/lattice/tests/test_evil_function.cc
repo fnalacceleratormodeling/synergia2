@@ -11,6 +11,6 @@ const std::string name("foo");
 
 TEST_CASE("call_evil_function")
 {
-    Lattice lattice(name);
-    REQUIRE_NOTHROW(lattice.do_not_call_this_function());
+    MadX_reader reader;
+    REQUIRE_NOTHROW(reader.do_not_call_this_function());
 }

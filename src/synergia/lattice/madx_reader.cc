@@ -362,3 +362,16 @@ MadX_reader::get_dynamic_lattice(std::string const& line_name,
   extract_reference_particle(lattice, mx);
   return lattice;
 }
+
+int
+MadX_reader::do_not_call_this_function()
+{
+    try {
+        throw std::runtime_error("evil function called!!!");
+    }
+    catch (const std::exception& e) {
+        std::cerr << "exception caught\n" << std::endl;
+        return 0;
+        // std::cerr << e.what() << '\n';
+    }
+}

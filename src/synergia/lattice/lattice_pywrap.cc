@@ -454,8 +454,6 @@ PYBIND11_MODULE(lattice, m)
 
         .def( "__repr__", &Lattice::as_string )
 
-        .def("do_not_call_this_function", &Lattice::do_not_call_this_function, "evil function")
-
         ;
 
 
@@ -500,6 +498,8 @@ PYBIND11_MODULE(lattice, m)
                 &MadX_reader::parse_file,
                 "Parse a lattice file",
                 "filename"_a )
+        .def("do_not_call_this_function", &MadX_reader::do_not_call_this_function, "evil function")
+
         ;
  
 }
