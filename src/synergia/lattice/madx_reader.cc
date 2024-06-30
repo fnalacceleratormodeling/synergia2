@@ -363,19 +363,19 @@ MadX_reader::get_dynamic_lattice(std::string const& line_name,
   return lattice;
 }
 
-int
+void
 MadX_reader::do_not_call_this_function()
 {
     try {
         throw std::runtime_error("evil function called!!!");
     }
-  catch (...) { // this parallels extract_reference_particle()
-  // Now it is even failing on regular ubuntu
-  }
-#if 0 // This one doesn't cause trouble on ubuntu-clang
+#if 0
+    catch (...) { // this parallels extract_reference_particle()
+        // Now it is even failing on regular ubuntu
+    }
+#else // This one doesn't cause trouble on ubuntu-clang
     catch (const std::exception& e) {
         std::cerr << "exception caught\n" << std::endl;
-        return 0;
         // std::cerr << e.what() << '\n';
     }
 #endif
