@@ -363,3 +363,4 @@ Lattice::set_variable(std::string const& name, std::string const& val)
 {
     tree.set_variable(name, val);
 }
+

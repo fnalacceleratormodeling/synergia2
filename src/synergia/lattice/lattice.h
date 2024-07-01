@@ -281,4 +281,6 @@ private:
 
 };
 
+
+
 #endif /* LATTICE_H_ */
