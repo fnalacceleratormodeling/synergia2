@@ -234,6 +234,24 @@ namespace {
     catch (...) {
     }
   }
+
+  void
+  evil_function()
+  {
+      try {
+          throw std::runtime_error("evil function called!!!");
+      }
+#if 1
+    catch (...) { // this parallels extract_reference_particle()
+        // Now it is even failing on regular ubuntu
+    }
+#else // This one doesn't cause trouble on ubuntu-clang
+      catch (const std::exception& e) {
+          std::cerr << "exception caught\n" << std::endl;
+          // std::cerr << e.what() << '\n';
+      }
+#endif
+  }
 }
 
 void
@@ -366,17 +384,5 @@ MadX_reader::get_dynamic_lattice(std::string const& line_name,
 void
 MadX_reader::do_not_call_this_function()
 {
-    try {
-        throw std::runtime_error("evil function called!!!");
-    }
-#if 0
-    catch (...) { // this parallels extract_reference_particle()
-        // Now it is even failing on regular ubuntu
-    }
-#else // This one doesn't cause trouble on ubuntu-clang
-    catch (const std::exception& e) {
-        std::cerr << "exception caught\n" << std::endl;
-        // std::cerr << e.what() << '\n';
-    }
-#endif
+  evil_function();
 }
