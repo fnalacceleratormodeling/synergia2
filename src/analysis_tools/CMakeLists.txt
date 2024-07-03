@@ -21,7 +21,7 @@ foreach(tool ${tools})
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${tool}.in"
                  "${CMAKE_CURRENT_BINARY_DIR}/${tool}" IMMEDIATE)
   install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${tool}"
-          DESTINATION ${BIN_INSTALL_DIR})
+          DESTINATION ${SYNERGIA3_BIN_INSTALL_DIR})
 endforeach(tool tools)
 
 install(

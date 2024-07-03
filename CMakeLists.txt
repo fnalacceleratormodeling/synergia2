@@ -445,7 +445,7 @@ set(SYNERGIA3_INCLUDE_INSTALL_DIR
 set(SYNERGIA3_LIB_INSTALL_DIR
     "${CMAKE_INSTALL_PREFIX}/lib/"
     CACHE PATH "library install directory")
-set(BIN_INSTALL_DIR
+set(SYNERGIA3_BIN_INSTALL_DIR
     "${CMAKE_INSTALL_PREFIX}/bin/"
     CACHE PATH "executable install directory")
 set(PYTHON_INSTALL_DIR

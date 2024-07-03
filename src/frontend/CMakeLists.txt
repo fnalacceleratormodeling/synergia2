@@ -13,13 +13,13 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/synergia.in"
 # synergia_command_line synergia_collective)
 
 install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia"
-        DESTINATION ${BIN_INSTALL_DIR})
+        DESTINATION ${SYNERGIA3_BIN_INSTALL_DIR})
 # install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/synergia-resume" DESTINATION
-# ${BIN_INSTALL_DIR}) install(PROGRAMS
+# ${SYNERGIA3_BIN_INSTALL_DIR}) install(PROGRAMS
 # "${CMAKE_CURRENT_BINARY_DIR}/synergia-pyresume" DESTINATION
-# ${BIN_INSTALL_DIR}) install(PROGRAMS
+# ${SYNERGIA3_BIN_INSTALL_DIR}) install(PROGRAMS
 # "${CMAKE_CURRENT_BINARY_DIR}/synergia-archive-convert" DESTINATION
-# ${BIN_INSTALL_DIR})
+# ${SYNERGIA3_BIN_INSTALL_DIR})
 
 # install(FILES synergia_resume.py DESTINATION
 # ${PYTHON_INSTALL_DIR}/synergia_tools)
