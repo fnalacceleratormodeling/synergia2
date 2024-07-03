@@ -28,6 +28,6 @@ if(BUILD_PYTHON_BINDINGS)
   copy_file(__init__.py synergia)
 endif()
 
-install(TARGETS synergia DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS synergia DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
 install(FILES __init__.py "${CMAKE_CURRENT_BINARY_DIR}/version.py"
         DESTINATION ${PYTHON_INSTALL_DIR}/synergia)

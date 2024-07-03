@@ -28,7 +28,7 @@ if(BUILD_PYTHON_BINDINGS)
 endif()
 
 install(TARGETS synergia_lattice synergia_lattice_hostonly
-        DESTINATION ${LIB_INSTALL_DIR})
+        DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
 
 install(
   FILES lattice_element.h
@@ -39,7 +39,7 @@ install(
         mx_expr.h
         mx_parse.h
         mx_tree.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/lattice)
+  DESTINATION ${SYNERGIA3_INCLUDE_INSTALL_DIR}/synergia/lattice)
 
 if(BUILD_PYTHON_BINDINGS)
   install(FILES __init__.py mad8_parser.py mad8_reader.py simplify.py

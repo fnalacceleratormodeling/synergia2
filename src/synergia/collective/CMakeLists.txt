@@ -39,7 +39,7 @@ install(
     space_charge_rectangular.h
     impedance.h
     wake_field.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/collective)
+  DESTINATION ${SYNERGIA3_INCLUDE_INSTALL_DIR}/synergia/collective)
 
 if(BUILD_PYTHON_BINDINGS)
   install(FILES __init__.py

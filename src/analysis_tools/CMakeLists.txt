@@ -21,7 +21,7 @@ foreach(tool ${tools})
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${tool}.in"
                  "${CMAKE_CURRENT_BINARY_DIR}/${tool}" IMMEDIATE)
   install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${tool}"
-          DESTINATION ${BIN_INSTALL_DIR})
+          DESTINATION ${SYNERGIA3_BIN_INSTALL_DIR})
 endforeach(tool tools)
 
 install(
@@ -39,4 +39,4 @@ install(
         tracks_to_text.py
         particles_to_madX_text.py
         decode_mad8_twiss.py
-  DESTINATION ${LIB_INSTALL_DIR}/synergia_tools)
+  DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR}/synergia_tools)

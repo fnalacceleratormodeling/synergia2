@@ -37,7 +37,7 @@ if(BUILD_PYTHON_BINDINGS)
 endif()
 
 install(TARGETS synergia_simulation_hostonly synergia_simulation
-                synergia_bunchsim DESTINATION ${LIB_INSTALL_DIR})
+                synergia_bunchsim DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
 
 install(
   FILES bunch_simulator.h
@@ -54,7 +54,7 @@ install(
         split_operator_stepper.h
         split_operator_stepper_elements.h
         populate_stationary.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/simulation)
+  DESTINATION ${SYNERGIA3_INCLUDE_INSTALL_DIR}/synergia/simulation)
 
 if(BUILD_PYTHON_BINDINGS)
   install(FILES __init__.py
