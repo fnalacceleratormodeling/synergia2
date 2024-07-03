@@ -118,7 +118,7 @@ install(
         lsexpr.h
         synergia_config.h
         utils.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/utils)
+  DESTINATION ${SYNERGIA3_INCLUDE_INSTALL_DIR}/synergia/utils)
 if(BUILD_PYTHON_BINDINGS)
   install(FILES __init__.py DESTINATION ${PYTHON_INSTALL_DIR}/synergia/utils)
   install(TARGETS parallel_utils pylsexpr utils

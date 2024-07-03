@@ -21,7 +21,7 @@ endif()
 install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
 install(FILES distribution.h four_momentum.h physical_constants.h
               reference_particle.h
-        DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/foundation)
+        DESTINATION ${SYNERGIA3_INCLUDE_INSTALL_DIR}/synergia/foundation)
 
 if(BUILD_PYTHON_BINDINGS)
   install(FILES __init__.py

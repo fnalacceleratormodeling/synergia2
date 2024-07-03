@@ -69,6 +69,6 @@ install(
         fixed_t_z_converter.h
         populate.h
         period.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/bunch)
+  DESTINATION ${SYNERGIA3_INCLUDE_INSTALL_DIR}/synergia/bunch)
 
 add_subdirectory(tests)

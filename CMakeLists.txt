@@ -439,7 +439,7 @@ add_custom_target(
   COMMENT "Running ctest")
 add_dependencies(check test-exes)
 
-set(INCLUDE_INSTALL_DIR
+set(SYNERGIA3_INCLUDE_INSTALL_DIR
     "${CMAKE_INSTALL_PREFIX}/include/"
     CACHE PATH "include install directory")
 set(LIB_INSTALL_DIR

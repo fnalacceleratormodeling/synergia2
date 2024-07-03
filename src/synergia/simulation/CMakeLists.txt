@@ -54,7 +54,7 @@ install(
         split_operator_stepper.h
         split_operator_stepper_elements.h
         populate_stationary.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/synergia/simulation)
+  DESTINATION ${SYNERGIA3_INCLUDE_INSTALL_DIR}/synergia/simulation)
 
 if(BUILD_PYTHON_BINDINGS)
   install(FILES __init__.py
