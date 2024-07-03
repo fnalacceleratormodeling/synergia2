@@ -37,7 +37,7 @@ if(BUILD_PYTHON_BINDINGS)
 endif()
 
 install(TARGETS synergia_simulation_hostonly synergia_simulation
-                synergia_bunchsim DESTINATION ${LIB_INSTALL_DIR})
+                synergia_bunchsim DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
 
 install(
   FILES bunch_simulator.h

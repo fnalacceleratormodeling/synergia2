@@ -39,4 +39,4 @@ install(
         tracks_to_text.py
         particles_to_madX_text.py
         decode_mad8_twiss.py
-  DESTINATION ${LIB_INSTALL_DIR}/synergia_tools)
+  DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR}/synergia_tools)

@@ -28,7 +28,7 @@ if(BUILD_PYTHON_BINDINGS)
 endif()
 
 install(TARGETS synergia_lattice synergia_lattice_hostonly
-        DESTINATION ${LIB_INSTALL_DIR})
+        DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
 
 install(
   FILES lattice_element.h

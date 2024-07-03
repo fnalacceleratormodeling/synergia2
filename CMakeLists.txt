@@ -442,7 +442,7 @@ add_dependencies(check test-exes)
 set(SYNERGIA3_INCLUDE_INSTALL_DIR
     "${CMAKE_INSTALL_PREFIX}/include/"
     CACHE PATH "include install directory")
-set(LIB_INSTALL_DIR
+set(SYNERGIA3_LIB_INSTALL_DIR
     "${CMAKE_INSTALL_PREFIX}/lib/"
     CACHE PATH "library install directory")
 set(BIN_INSTALL_DIR
@@ -461,7 +461,7 @@ set(SYNERGIA_EXTRA_PYTHON_PATHS
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-set(CMAKE_INSTALL_RPATH "${LIB_INSTALL_DIR}")
+set(CMAKE_INSTALL_RPATH "${SYNERGIA3_LIB_INSTALL_DIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # possibly move the following to using block/endblock when cmake min version

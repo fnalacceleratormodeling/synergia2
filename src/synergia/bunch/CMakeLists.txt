@@ -49,13 +49,13 @@ if(BUILD_PYTHON_BINDINGS)
   copy_file(__init__.py bunch)
 
   install(FILES __init__.py DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
-  install(TARGETS synergia_pydiag DESTINATION ${LIB_INSTALL_DIR})
+  install(TARGETS synergia_pydiag DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
   install(TARGETS bunch DESTINATION ${PYTHON_INSTALL_DIR}/synergia/bunch)
 
 endif()
 
 install(TARGETS synergia_bunch synergia_bunch_hostonly
-        DESTINATION ${LIB_INSTALL_DIR})
+        DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
 
 install(
   FILES bunch.h

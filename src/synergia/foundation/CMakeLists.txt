@@ -18,7 +18,7 @@ if(BUILD_PYTHON_BINDINGS)
   copy_file(__init__.py foundation)
 endif()
 
-install(TARGETS synergia_foundation DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS synergia_foundation DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
 install(FILES distribution.h four_momentum.h physical_constants.h
               reference_particle.h
         DESTINATION ${SYNERGIA3_INCLUDE_INSTALL_DIR}/synergia/foundation)

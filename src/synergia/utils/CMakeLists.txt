@@ -90,8 +90,8 @@ endif()
 
 install(TARGETS synergia_parallel_utils synergia_distributed_fft
                 synergia_serialization synergia_command_line lsexpr
-        DESTINATION ${LIB_INSTALL_DIR})
-install(TARGETS synergia_hdf5_utils DESTINATION ${LIB_INSTALL_DIR})
+        DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
+install(TARGETS synergia_hdf5_utils DESTINATION ${SYNERGIA3_LIB_INSTALL_DIR})
 
 install(
   FILES command_line_arg.h
