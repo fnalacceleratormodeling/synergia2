@@ -23,8 +23,9 @@ clean = { cmd = "rm -rf build_pixi/ && rm -rf install_pixi/", description = "del
 synergia = { cmd = "bash" , env = { SYNINSTALL = "$(pwd)/install_pixi", LD_LIBRARY_PATH="$SYNINSTALL/lib:$SYNINSTALL/lib64:$LD_LIBRARY_PATH", PYTHON_VERSION = "$(python3 -c 'import sys; print(str(sys.version[:4]))')", PYTHONPATH="$SYNINSTALL/lib/python$PYTHON_VERSION/site-packages"}, description = "start shell in built synergia environment" }
 
 [target.linux-64.tasks]
-# On x86_64 CPUs, GSV should be set to AVX2 for improved performance
-cmake = { cmd = "cmake -S . -B build_pixi -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$(pwd)/.pixi/envs/default -DCMAKE_INSTALL_PREFIX=$(pwd)/install_pixi -DENABLE_KOKKOS_BACKEND=OpenMP -DUSE_EXTERNAL_KOKKOS=OFF -DUSE_OPENPMD_IO=ON -DUSE_EXTERNAL_OPENPMD=OFF -DBUILD_FD_SPACE_CHARGE_SOLVER=OFF -DGSV=AVX2 -DSIMPLE_TIMER=OFF", description = "Run cmake to generate the build recipes"}
+# On x86_64 CPUs, GSV should be set to AVX for improved performance. You
+# would think it should be AVX2 but AVX is fast on all the systems I've tested.
+cmake = { cmd = "cmake -S . -B build_pixi -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$(pwd)/.pixi/envs/default -DCMAKE_INSTALL_PREFIX=$(pwd)/install_pixi -DENABLE_KOKKOS_BACKEND=OpenMP -DUSE_EXTERNAL_KOKKOS=OFF -DUSE_OPENPMD_IO=ON -DUSE_EXTERNAL_OPENPMD=OFF -DBUILD_FD_SPACE_CHARGE_SOLVER=OFF -DGSV=AVX -DSIMPLE_TIMER=OFF", description = "Run cmake to generate the build recipes"}
 
 [target.osx-arm64.tasks]
 # On arm64 CPUs, GSV should be set to DOUBLE.
