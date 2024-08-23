@@ -29,7 +29,7 @@ struct Core_diagnostics {
         karray2d_row const& view);
 
     // calculate the median bunch cdt for each MPI rank and take the median of that
-    static calculate_median_cdt(Bunch const& bunch);
+    static double calculate_median_cdt(Bunch const& bunch);
 
 };
 
