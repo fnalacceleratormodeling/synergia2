@@ -175,6 +175,14 @@ Bunch::adjust_bunch_particles_reference_energy(double newE)
   FF_adjust_bunch_ref_coords::apply(newE, *this);
 }
 
+template <>
+void
+Bunch::offset_bunch_particles_cdt(double offset)
+{
+  FF_offset_cdt::apply(offset, *this);
+}
+
+
 #if defined SYNERGIA_HAVE_OPENPMD
 template <>
 void
