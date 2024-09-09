@@ -1095,6 +1095,14 @@ namespace FF_algorithm {
 
     }
         
+    // adjust particle coordinates to use new reference energy
+    template <typename T>
+    KOKKOS_INLINE_FUNCTION void
+    adjust_cdt_unit(T& p4, double offset)
+    {
+            p4 = p4 + T(offset);
+    }
+        
     KOKKOS_INLINE_FUNCTION
     double
     factorial(int n)
