@@ -210,6 +210,11 @@ PYBIND11_MODULE(bunch, m)
             "Set the reference energy of the bunch and adjust the normalization of the particles to match",
             "newE"_a)
 
+        .def("offset_bunch_particles_cdt",
+            &Bunch::offset_bunch_particles_cdt,
+            "Add offset to the cdt of all bunch particles",
+            "offset"_a)
+
         .def(
             "add_diagnostics",
             [](Bunch& self, std::shared_ptr<Diagnostics> const& diag) {

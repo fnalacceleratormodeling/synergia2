@@ -18,6 +18,7 @@
 #include "synergia/utils/logger.h"
 
 #include "synergia/libFF/ff_adjust_bunch_ref_coords.h"
+#include "synergia/libFF/ff_offset_bunch_cdt.h"
 
 #include <cereal/types/array.hpp>
 #include <cereal/types/map.hpp>
@@ -489,8 +490,14 @@ class bunch_t {
 
     // adjust_bunch_particle_reference_energy
     // This method adjusts the particle coordinates to use
+    // a different reference energy
     void
     adjust_bunch_particles_reference_energy(double newE);
+
+    // offset_bunch_particles_cdt
+    // apply offset to every particle cdt
+    void
+    offset_bunch_particles_cdt(double offset);
     
     // bucket index
     void

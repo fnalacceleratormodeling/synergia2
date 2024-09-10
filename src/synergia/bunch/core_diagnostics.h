@@ -27,6 +27,10 @@ struct Core_diagnostics {
     static std::vector<double> kokkos_view_to_stl_vector(karray1d const& view);
     static std::vector<double> kokkos_view_to_stl_vector(
         karray2d_row const& view);
+
+    // calculate the median bunch cdt for each MPI rank and take the median of that
+    static double calculate_median_cdt(Bunch const& bunch);
+
 };
 
 #endif /* CORE_DIAGNOSTICS_H_ */
