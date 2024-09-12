@@ -461,6 +461,12 @@ Core_diagnostics::calculate_spatial_mean_stddev(Bunch const& bunch)
     return mean_and_stddev;
 }
 
+double
+calculate_median_cdt(Bunch const& bunch)
+{
+    throw std::runtime_error("bunch cdt median not yet implemented");
+}
+
 std::vector<double>
 Core_diagnostics::kokkos_view_to_stl_vector(karray1d const& view)
 {
