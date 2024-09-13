@@ -36,6 +36,7 @@ def test_offset_bunch_cdt(bunch_fixture):
     bunch_fixture.offset_bunch_particles_cdt(-0.02)
 
     # check that cdt is set correctly
+    # particles changed on device so check them out again
     bunch_fixture.checkout_particles()
     lp = bunch_fixture.get_particles_numpy()
     print('particles cdt after offset: ', lp[:, 4])
