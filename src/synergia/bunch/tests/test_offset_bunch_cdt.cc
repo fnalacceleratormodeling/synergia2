@@ -47,7 +47,10 @@ TEST_CASE("Bunch", "[Bunch]")
 
     // Offset the bunch cdt
     bunch.offset_bunch_particles_cdt(-0.02);
-    
+
+    // particles changed on the device, so check them out for testing    
+    bunch.checkout_particles();
+
     auto new_parts = bunch.get_host_particles();
 
     for (auto i=0; i<localnum; ++i) {
