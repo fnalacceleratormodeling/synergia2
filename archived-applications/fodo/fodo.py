@@ -70,6 +70,6 @@ try:
     propagator.set_checkpoint_period(opts.checkpointperiod)
     propagator.set_concurrent_io(opts.concurrentio)
     propagator.propagate(bunch_simulator, opts.turns, opts.maxturns, opts.verbosity)
-except Exception, e:
+except Exception(e):
     sys.stderr.write(str(e) + '\n')
     MPI.COMM_WORLD.Abort(777)
