@@ -9,7 +9,7 @@ project(SYNERGIA3 LANGUAGES CXX C)
 # Previously, cmake_policty CMP0127 was set to OLD
 # if(${CMAKE_VERSION} VERSION_GREATER "3.22.0")
 # I am removing it because I think our minimum cmake is now 3.22.0 on
-# perlmutter and it causes the build to fail with cmake >= 3.30 (HomeBrew)
+# perlmutter and it warnings with cmake >= 3.30 on macOS with HomeBrew.
 
 # Synergia3 Version
 set(SYNERGIA3_VERSION_YEAR 2024)
