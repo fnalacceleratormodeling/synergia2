@@ -19,7 +19,7 @@ def plot_element(element, x, y, angle, attributes, highlight):
     else:
         ancestors = element.get_ancestors()
         type = element.get_type()
-        if attributes.has_key(type):
+        if type in attributes:
             attribute = attributes[type]
         else:
             attribute = attributes['default']
@@ -48,8 +48,8 @@ def plot_element(element, x, y, angle, attributes, highlight):
                             linewidth=attribute.width)
         else:
             num = 8
-            xn = numpy.zeros([num + 1], numpy.double)
-            yn = numpy.zeros([num + 1], numpy.double)
+            xn = numpy.zeros([num + 1], numpy.float64)
+            yn = numpy.zeros([num + 1], numpy.float64)
             xn[0] = x
             yn[0] = y
             for i in range(1, num + 1):
@@ -106,12 +106,12 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: synlatticeview <filename> <lattice> [option1] ... [optionn]"
-    print "available options are:"
-    print "    --nolegend : do not show legend"
-    print "    --highlight=<name> : highlight line <name>"
-    print "    --reader=<type> : use lattice reader <type> (\"mad8\" or \"madx\")"
-    print "                    : default reader is madx for *.madx files, mad8 otherwise"
+    print("usage: synlatticeview <filename> <lattice> [option1] ... [optionn]")
+    print("available options are:")
+    print("    --nolegend : do not show legend")
+    print("    --highlight=<name> : highlight line <name>")
+    print("    --reader=<type> : use lattice reader <type> (\"mad8\" or \"madx\")")
+    print("                    : default reader is madx for *.madx files, mad8 otherwise")
     sys.exit(0)
 
 def handle_args(args):
@@ -165,7 +165,7 @@ def do_plot(options):
         lattice = synergia.lattice.Mad8_reader().get_lattice(options.lattice,
                                                              options.lattice_file)
     attributes = get_attributes()
-    pyplot.figure().canvas.set_window_title('Synergia Lattice Viewer')
+    pyplot.figure().canvas.manager.set_window_title('Synergia Lattice Viewer')
     x = 0.0
     y = 0.0
     angle = 0.0
@@ -174,9 +174,9 @@ def do_plot(options):
         x, y, angle = plot_element(element, x, y, angle, attributes,
                                    options.highlight)
         count += 1
-    print "total number of elements =", count
-    print "total angle =", lattice.get_total_angle(),"rad (%g degrees)" % \
-        (lattice.get_total_angle()*180.0/pi)
+    print("total number of elements =", count)
+    print("total angle =", lattice.get_total_angle(),"rad (%g degrees)" % \
+        (lattice.get_total_angle()*180.0/pi))
 
     pyplot.axes().set_aspect('equal', 'datalim')
     try:
