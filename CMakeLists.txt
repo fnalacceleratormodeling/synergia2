@@ -6,11 +6,12 @@ endif()
 
 project(SYNERGIA3 LANGUAGES CXX C)
 
-if(${CMAKE_VERSION} VERSION_GREATER "3.22.0")
-  cmake_policy(SET CMP0127 OLD) # remove this when we move to CMake 3.22
-endif()
+# Previously, cmake_policty CMP0127 was set to OLD
+# if(${CMAKE_VERSION} VERSION_GREATER "3.22.0")
+# I am removing it because I think our minimum cmake is now 3.22.0 on
+# perlmutter and it warnings with cmake >= 3.30 on macOS with HomeBrew.
 
-# Syenrgia3 Version
+# Synergia3 Version
 set(SYNERGIA3_VERSION_YEAR 2024)
 set(SYNERGIA3_VERSION_MONTH 04)
 set(SYNERGIA3_VERSION_DAY 17)
