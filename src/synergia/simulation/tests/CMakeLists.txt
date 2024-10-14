@@ -30,23 +30,21 @@ target_link_libraries(test_get_tunes_dpp_offset PRIVATE synergia_simulation
                                                         ${testing_libs})
 add_mpi_test(test_get_tunes_dpp_offset 1)
 
-add_executable(test_closed_orbits_and_others test_closed_orbits_and_others.cc
-                                             ${test_main})
-target_link_libraries(test_closed_orbits_and_others PRIVATE synergia_simulation
-                                                            ${testing_libs})
+add_executable(test_closed_orbits_and_others test_closed_orbits_and_others.cc ${test_main})
+target_link_libraries(test_closed_orbits_and_others PRIVATE synergia_simulation ${testing_libs})
 add_mpi_test(test_closed_orbits_and_others 1)
-add_executable(test_propagator test_propagator.cc ${test_main})
 
-target_link_libraries(test_propagator PRIVATE synergia_simulation
-                                              ${testing_libs})
+add_executable(test_propagator test_propagator.cc ${test_main})
+target_link_libraries(test_propagator PRIVATE synergia_simulation ${testing_libs})
 add_mpi_test(test_propagator 1)
 
-add_executable(test_lattice_no_beam_statement test_lattice_no_beam_statement.cc
-                                              ${test_main})
-target_link_libraries(test_lattice_no_beam_statement PRIVATE synergia_simulation
-                                                             ${testing_libs})
-
+add_executable(test_lattice_no_beam_statement test_lattice_no_beam_statement.cc ${test_main})
+target_link_libraries(test_lattice_no_beam_statement PRIVATE synergia_simulation ${testing_libs})
 add_mpi_test(test_lattice_no_beam_statement 1)
+
+add_executable(test_iota_propagation_spectator_particles test_iota_propagation_spectator_particles.cc ${test_main})
+target_link_libraries(test_iota_propagation_spectator_particles PRIVATE synergia_simulation ${testing_libs})
+add_mpi_test(test_iota_propagation_spectator_particles 1)
 
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)
@@ -84,4 +82,5 @@ if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_map_to_twiss.py)
   add_py_test(test_accel_write_openpmd.py)
   add_py_test(test_iota_elem_lengths.py)
+  add_py_test(test_iota_propagation_spectator_particles.py)
 endif()
