@@ -46,6 +46,18 @@ add_executable(test_iota_propagation_spectator_particles test_iota_propagation_s
 target_link_libraries(test_iota_propagation_spectator_particles PRIVATE synergia_simulation ${testing_libs})
 add_mpi_test(test_iota_propagation_spectator_particles 1)
 
+add_executable(test_booster_propagation_spectator_particles test_booster_propagation_spectator_particles.cc ${test_main})
+target_link_libraries(test_booster_propagation_spectator_particles PRIVATE synergia_simulation ${testing_libs})
+add_mpi_test(test_booster_propagation_spectator_particles 1)
+
+add_executable(test_iota_sbend_propagation test_iota_sbend_propagation.cc ${test_main})
+target_link_libraries(test_iota_sbend_propagation PRIVATE synergia_simulation ${testing_libs})
+add_mpi_test(test_iota_sbend_propagation 1)
+
+add_executable(test_iota_propagation1 test_iota_propagation1.cc ${test_main})
+target_link_libraries(test_iota_propagation1 PRIVATE synergia_simulation ${testing_libs})
+add_mpi_test(test_iota_propagation1 1)
+
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)
   add_py_test(test_nonlinear_maps.py)
