@@ -20,9 +20,9 @@
 #include "synergia/utils/logger.h"
 
 int macroparticles = 16;
-int spectparticles = 16;
+int spectparticles = 4;
 double realparticles = 285452129459.3449; // 0.1 mA in IOTA
-int nturns = 10;
+int nturns = 100;
 
 Lattice
 get_lattice()

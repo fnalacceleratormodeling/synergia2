@@ -43,26 +43,14 @@ mseqare: marker;
 mphm1ri: marker;
 sqa2r: quadrupole,l:= 0.1,k1s:= 0;
 qa4r: quadrupole,l:= 0.21,k1:=kqa4r ;
-dedge30: sextupole, l=0.0, k2=0.0;
 m1r: sbend,l:= 0.3911403725,angle:= 0.5235987756;
 
-
-
-!iota: sequence, l = 39.95567226;
 iota: sequence, l = 3.508540575;
-!mseqari, at = 0;
-!ibpma1, at = 0.02;
-!qa1r, at = 1.0175;
-!qa2r, at = 1.3625;
-!sqa1r, at = 1.99;
-!ibpma2r, at = 2.095;
-!qa3r, at = 2.2975;
 qa4r, at = 2.6525; ! this one has to be there for the error to occur
 ibpma3r, at = 2.865;
 sqa2r, at = 2.97;
 mseqare, at = 3.0405;
 mphm1ri, at = 3.0405;
-!dedge30, at = 3.117400202;
 m1r, at = 3.312970389;
 endsequence;
 beam, particle=proton, energy = 0.00250 + pmass;
@@ -131,6 +119,14 @@ test_particles(Bunch_simulator& sim, Lattice const& lattice, int turn, int step)
   auto bp = bunch.get_local_particles(ParticleGroup::regular);
   auto sp = bunch.get_local_particles(ParticleGroup::spectator);
 
+  auto const& lems = lattice.get_elements();
+  // steps start at 1 for some reason
+
+  auto it = lems.begin();
+  std::advance(it, step-1);
+
+  std::cout << "step: " << step << std::endl;
+  std::cout << it->get_name() << ": " << it->get_type_name() << std::endl;
   std::cout << "0: " << std::scientific << std::setprecision(16) << bp(0, 0) << " <-> " << sp(0, 0) << std::endl;
   std::cout << "1: " << std::scientific << std::setprecision(16) << bp(0, 1) << " <-> " << sp(0, 1) << std::endl;
   std::cout << "2: " << std::scientific << std::setprecision(16) << bp(0, 2) << " <-> " << sp(0, 2) << std::endl;

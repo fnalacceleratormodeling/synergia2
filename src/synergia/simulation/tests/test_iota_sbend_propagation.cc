@@ -58,7 +58,7 @@ TEST_CASE("create_propagator")
 
 // create and initialize the bunch simulator for propagation
 Bunch_simulator
-create_simulator(Lattice const& lattice)
+create_simulator(Lattice const& lattice, double cdt0 = 0.0)
 {
   
   // create the simulator
@@ -77,14 +77,16 @@ create_simulator(Lattice const& lattice)
       for (int j=0; j<6; ++j) {
 	bp(i, j) = 0.0;
       }
-      bp(0, 4) = -8.8817841970012523e-16;
+      // bp(0, 4) = -8.8817841970012523e-16;
+       bp(0, 4) = cdt0;
     }
     auto sbp = bunch.get_local_particles(ParticleGroup::spectator);
     for (int i=0; i<spectparticles; ++i) {
       for (int j=0; j<6; ++j) {
 	sbp(i, j) = 0.0;
       }
-      sbp(0, 4) = -8.8817841970012523e-16;
+      // sbp(0, 4) = -8.8817841970012523e-16;
+      sbp(0, 4) = cdt0;
     }
 
     bunch.checkin_particles();
@@ -139,5 +141,20 @@ TEST_CASE("propagate_particles")
     Logger simlog(0, LoggerV::INFO_STEP);
 
     p.propagate(sim, simlog, nturns);
+}
+
+TEST_CASE("propagate_particles1")
+{
+  Lattice lattice(get_lattice());
+
+  auto sim = create_simulator(lattice, -8.8817841970012523e-16);
+
+  sim.reg_prop_action_step_end(test_particles);
+
+  Propagator p(create_propagator(lattice));
+
+  Logger simlog(0, LoggerV::INFO_STEP);
+
+  p.propagate(sim, simlog, nturns);
 }
 
