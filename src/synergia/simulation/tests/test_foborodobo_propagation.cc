@@ -252,3 +252,54 @@ save_cdt(Bunch_simulator& sim, Lattice const& lattice, int turn, int step)
   
 }
    
+TEST_CASE("long_term_stability")
+{
+  Lattice lattice(get_lattice());
+
+  auto sim = create_simulator(lattice, 0);
+
+  Propagator p(create_propagator(lattice));
+
+  Logger simlog(0, LoggerV::INFO_TURN);
+
+  p.propagate(sim, simlog, 1000);
+
+  // test that particle 0 from regular and spectator particles matches
+  auto& bunch = sim.get_bunch(0, 0);
+  auto bp = bunch.get_local_particles(ParticleGroup::regular);
+
+    std::cout << "0: " << std::scientific << std::setprecision(16) << bp(0, 0)  << std::endl;
+    std::cout << "1: " << std::scientific << std::setprecision(16) << bp(0, 1) << " <-> " << std::endl;
+  std::cout << "2: " << std::scientific << std::setprecision(16) << bp(0, 2) << " <-> " << std::endl;
+  std::cout << "3: " << std::scientific << std::setprecision(16) << bp(0, 3) << " <-> " <<  std::endl;
+  std::cout << "4: " << std::scientific << std::setprecision(16) << bp(0, 4) << " <-> " <<  std::endl;
+  std::cout << "5: " << std::scientific << std::setprecision(16) << bp(0, 5) << " <-> " <<  std::endl;
+  std::cout << std::endl;
+
+}
+
+TEST_CASE("long_term_stability1")
+{
+  Lattice lattice(get_lattice());
+
+  auto sim = create_simulator(lattice, 4);
+
+  Propagator p(create_propagator(lattice));
+
+  Logger simlog(0, LoggerV::INFO_TURN);
+
+  p.propagate(sim, simlog, 1000);
+
+  // test that particle 0 from regular and spectator particles matches
+  auto& bunch = sim.get_bunch(0, 0);
+  auto bp = bunch.get_local_particles(ParticleGroup::regular);
+
+    std::cout << "0: " << std::scientific << std::setprecision(16) << bp(0, 0)  << std::endl;
+    std::cout << "1: " << std::scientific << std::setprecision(16) << bp(0, 1) << " <-> " << std::endl;
+  std::cout << "2: " << std::scientific << std::setprecision(16) << bp(0, 2) << " <-> " << std::endl;
+  std::cout << "3: " << std::scientific << std::setprecision(16) << bp(0, 3) << " <-> " <<  std::endl;
+  std::cout << "4: " << std::scientific << std::setprecision(16) << bp(0, 4) << " <-> " <<  std::endl;
+  std::cout << "5: " << std::scientific << std::setprecision(16) << bp(0, 5) << " <-> " <<  std::endl;
+  std::cout << std::endl;
+
+}

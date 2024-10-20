@@ -23,10 +23,7 @@ int spectparticles = 16;
 double realparticles = 285452129459.3449; // 0.1 mA in IOTA
 int nturns = 5;
 
-Lattice
-get_lattice()
-{
-    static std::string iota_madx(R"foo(
+static std::string iota_madx1(R"foo(
 mphm1ri: marker;
 m1r: sbend,l:= 0.3911403725,angle:= 0.5235987756;
 
@@ -37,8 +34,34 @@ endsequence;
 beam, particle=proton, energy = 0.00250 + pmass;
 )foo");
 
+static std::string iota_madx2(R"foo(
+mphm1ri: marker;
+m1r: sbend,l:= 0.3911403725,angle:= 0.5235987756, k1=0.0;
+
+iota: sequence, l = 0.3911403725;
+mphm1ri, at = 0.0;
+m1r, at = 0.3911403725/2;
+endsequence;
+beam, particle=proton, energy = 0.00250 + pmass;
+)foo");
+
+static std::string iota_madx3(R"foo(
+mphm1ri: marker;
+m1r: sbend,l:= 0.3911403725,angle:= 0.5235987756, e1=0.5235987756/2, e2=0.5235987756/2;
+
+iota: sequence, l = 0.3911403725;
+mphm1ri, at = 0.0;
+m1r, at = 0.3911403725/2;
+endsequence;
+beam, particle=proton, energy = 0.00250 + pmass;
+)foo");
+
+Lattice
+get_lattice(std::string const& lattice_madx)
+{
+
     MadX_reader reader;
-    reader.parse(iota_madx);
+    reader.parse(lattice_madx);
     return reader.get_lattice("iota");
 }
 
@@ -52,7 +75,7 @@ create_propagator(Lattice lattice)
 
 TEST_CASE("create_propagator")
 {
-    Lattice lattice(get_lattice());
+    Lattice lattice(get_lattice(iota_madx1));
     Propagator p(create_propagator(lattice));
 }
 
@@ -130,7 +153,7 @@ test_particles(Bunch_simulator& sim, Lattice const& lattice, int turn, int step)
 
 TEST_CASE("propagate_particles")
 {
-  Lattice lattice(get_lattice());
+  Lattice lattice(get_lattice(iota_madx1));
 
     auto sim = create_simulator(lattice);
 
@@ -145,7 +168,7 @@ TEST_CASE("propagate_particles")
 
 TEST_CASE("propagate_particles1")
 {
-  Lattice lattice(get_lattice());
+  Lattice lattice(get_lattice(iota_madx2));
 
   auto sim = create_simulator(lattice, -8.8817841970012523e-16);
 
@@ -158,3 +181,17 @@ TEST_CASE("propagate_particles1")
   p.propagate(sim, simlog, nturns);
 }
 
+TEST_CASE("propagate_particles2")
+{
+  Lattice lattice(get_lattice(iota_madx3));
+
+  auto sim = create_simulator(lattice, -8.8817841970012523e-16);
+
+  sim.reg_prop_action_step_end(test_particles);
+
+  Propagator p(create_propagator(lattice));
+
+  Logger simlog(0, LoggerV::INFO_STEP);
+
+  p.propagate(sim, simlog, nturns);
+}
