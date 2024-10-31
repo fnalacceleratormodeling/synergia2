@@ -6,6 +6,10 @@ def get_particles_numpy(self, group = ParticleGroup.regular):
 
 setattr(Bunch, 'get_particles_numpy', get_particles_numpy)
 
+def get_particle_masks_numpy(self, group = ParticleGroup.regular):
+    return np.array(self.get_host_particle_masks(group), copy=False)
+
+setattr(Bunch, 'get_particle_masks_numpy', get_particle_masks_numpy)
 
 def calculate_mean(b):
     return np.array(Core_diagnostics.calculate_mean_ka(b))
