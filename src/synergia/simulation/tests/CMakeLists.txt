@@ -48,6 +48,12 @@ target_link_libraries(test_lattice_no_beam_statement PRIVATE synergia_simulation
 
 add_mpi_test(test_lattice_no_beam_statement 1)
 
+add_executable(test_independent_steppers test_independent_steppers.cc ${test_main})
+target_link_libraries(test_independent_steppers PRIVATE synergia_simulation
+  ${testing_libs})
+add_mpi_test(test_independent_steppers 1)
+
+
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)
   add_py_test(test_nonlinear_maps.py)
