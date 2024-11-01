@@ -46,6 +46,19 @@ PYBIND11_MODULE(bunch, m)
             );
         });
 
+    py::class_<HostParticleMasks>(m, "ParticleMasks", py::buffer_protocol())
+        .def_buffer([](HostParticleMasks const& p) -> py::buffer_info {
+            return py::buffer_info(
+                p.data(),       // pointer to buffer
+                sizeof(uint8_t), // size of one scalar
+                py::format_descriptor<uint8_t>::format(),
+                1,                          // num of dimensions
+                {p.extent(0)}, // dimensions
+                {sizeof(uint8_t)}
+                // strides (in bytes)
+            );
+        });
+
     py::class_<karray1d>(m, "karray1d", py::buffer_protocol())
         .def_buffer([](karray1d const& p) -> py::buffer_info {
             return py::buffer_info(p.data(),
@@ -156,6 +169,13 @@ PYBIND11_MODULE(bunch, m)
                  Bunch::get_host_particles,
              // py::overload_cast<ParticleGroup>(&Bunch::get_host_particles),
              "Get host particles.",
+             "particle_group"_a = ParticleGroup::regular)
+
+        .def("get_host_particle_masks",
+             (HostParticleMasks(Bunch::*)(ParticleGroup)) &
+                 Bunch::get_host_particle_masks,
+             // py::overload_cast<ParticleGroup>(&Bunch::get_host_particles),
+             "Get host particle masks.",
              "particle_group"_a = ParticleGroup::regular)
 
         .def("size",
