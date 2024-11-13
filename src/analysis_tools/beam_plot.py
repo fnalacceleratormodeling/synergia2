@@ -3,18 +3,18 @@
 from __future__ import print_function
 import sys
 import numpy
+import h5py
 import math
 import pylab
 from matplotlib import pyplot
-from mpl_toolkits.axes_grid import make_axes_locatable
-import h5py
-#from synergia.utils import Hdf5_file
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
 def plot_density(options, x, y, label, bins):
     fancylabel = label.replace('_', ' ')
 
     fig = pyplot.figure(1)
     axScatter = pyplot.subplot(111)
+    fig.suptitle('Synergia Phase Space Distribution')
     divider = make_axes_locatable(axScatter)
     axHistx = divider.new_vertical(1.2, pad=0.1, sharex=axScatter)
     axHisty = divider.new_horizontal(1.2, pad=0.1, sharey=axScatter)
@@ -178,7 +178,6 @@ def do_plots(options):
     z = (particles[:,4]*beta).reshape(npart,1)
     particles = numpy.hstack((particles, pz, energy,time, z))
     
-    pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
     selected_particles = ((particles[:, coords[options.hcoord]] >= options.minh) *
                        (particles[:, coords[options.hcoord]] < options.maxh) *
                        (particles[:, coords[options.vcoord]] >= options.minv) *

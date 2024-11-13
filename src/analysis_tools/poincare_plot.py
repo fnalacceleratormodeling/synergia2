@@ -98,7 +98,13 @@ def single_plot(options, particle_coords, trk):
     plot2d(x, y, options, trk)
 
 def do_plots(options):
-    pyplot.figure().canvas.set_window_title('Synergia Poincare Plot')
+    # the method Figure.canvas.set_window_title() was deprecated in
+    # matplotlib version 3.4 and removed in 3.6. Some github pages warn
+    # that a canvas.manager might not always exist but it seems work in
+    # all modern systems.
+    # pyplot.figure().canvas.set_window_title('Synergia Poincare Plot')
+
+    pyplot.figure().canvas.manager.set_window_title('Synergia Poincare Plot')
     for filename in options.inputfiles:
         #f = Hdf5_file(filename, Hdf5_file.read_only)
         f = h5py.File(filename, 'r')
