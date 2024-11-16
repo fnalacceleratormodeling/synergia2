@@ -16,7 +16,7 @@ total_energy = 3.0
 total_energy2 = 5.1
 four_momentum = Four_momentum(mass)
 four_momentum.set_total_energy(total_energy)
-state = numpy.array([1.1, 2.2, 3.3, 4.4, 5.5, 6.6], numpy.float)
+state = numpy.array([1.1, 2.2, 3.3, 4.4, 5.5, 6.6], numpy.float64)
 step_length = 1.234;
 steps = 17;
 turns = 7;
