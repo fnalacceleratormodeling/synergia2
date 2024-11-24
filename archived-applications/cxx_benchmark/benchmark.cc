@@ -35,7 +35,7 @@ run(Benchmark_options const& opts)
     const int seed = 4;
     const double num_real_particles = 1e13;
     const int num_steps = 8;
-    const int num_turns = 1;
+    const int num_turns = 10;
     const int map_order = 2;
 
 #if 0
