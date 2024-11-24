@@ -243,7 +243,7 @@ def get_covariances(sigma, r):
 
 def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                            num_real_particles, num_macro_particles, rms_index=[0,2,4],seed=0,
-                           bunch_index=0, comm=None, periodic=False, nsigma=None):
+                           bunch_index=0, comm=None, periodic=False, nsigma=None, spectator=0):
 
    # map = linear_one_turn_map(lattice_simulator)
     map=lattice_simulator.get_linear_one_turn_map()
@@ -258,11 +258,19 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
 
     z_period_length= lattice_simulator.get_bucket_length()
     if ((z_period_length == 0) or (not(periodic))):
-        bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm)
+        if spectator == 0:
+            bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                          num_macro_particles, num_real_particles, comm)
+        else:
+            bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                          num_macro_particles, spectator, num_real_particles, comm)
     else:
-        bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm)
+        if spectator == 0:
+            bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                          num_macro_particles, num_real_particles, comm)
+        else:
+            bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                          num_macro_particles, spectator, num_real_particles, comm)
         bunch.set_z_period_length(z_period_length)
         bunch.set_bucket_index(bunch_index)
 
