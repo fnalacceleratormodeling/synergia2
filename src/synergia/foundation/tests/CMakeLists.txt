@@ -3,6 +3,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 add_test_executable(test_four_momentum test_four_momentum.cc)
 target_link_libraries(test_four_momentum synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_four_momentum COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_four_momentum>)
+
 add_test(NAME test_four_momentum_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_four_momentum.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_four_momentum.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -14,8 +15,9 @@ add_test(NAME test_physical_constants COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NU
 add_test_executable(test_reference_particle test_reference_particle.cc)
 target_link_libraries(test_reference_particle synergia_foundation lsexpr ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_reference_particle COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_reference_particle>)
+
 add_test(NAME test_reference_particle_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_reference_particle.py)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_reference_particle.py
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_reference_particle.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_distribution test_distribution.cc)

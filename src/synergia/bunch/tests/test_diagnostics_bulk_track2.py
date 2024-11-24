@@ -52,7 +52,7 @@ def test_tracks1():
     (offsets, counts) = decompose_1d(comm, total_num)
     mystart = offsets[comm.get_rank()]
     mycount = counts[comm.get_rank()]
-    assert_equals(mycount, local_num, msg="mycount != local_num")
+    assert_equal(mycount, local_num, msg="mycount != local_num")
     for pnum in range(local_num):
         i = mystart+pnum
         local_particles[pnum, 0:6] = 0.0
@@ -66,9 +66,9 @@ def test_tracks1():
 
     h5 = Hdf5_file("dummy.h5", Hdf5_file.read_only)
     dims = h5.get_dims("track_coords")
-    assert_equals(dims[1], 100, "number of particles")
-    assert_equals(dims[2], 7, "dimensions")
-    assert_equals(dims[0], 101, "number turns + 1")
+    assert_equal(dims[1], 100, "number of particles")
+    assert_equal(dims[2], 7, "dimensions")
+    assert_equal(dims[0], 101, "number turns + 1")
 
     npart = dims[1]
     nturns = dims[0]
@@ -99,7 +99,7 @@ def test_tracks_lost_particles():
     (offsets, counts) = decompose_1d(comm, total_num)
     mystart = offsets[comm.get_rank()]
     mycount = counts[comm.get_rank()]
-    assert_equals(mycount, local_num, msg="mycount != local_num")
+    assert_equal(mycount, local_num, msg="mycount != local_num")
 
     lattice = Lattice("foo")
     d = Lattice_element("drift", "d")
@@ -140,9 +140,9 @@ def test_tracks_lost_particles():
 
     h5 = Hdf5_file("dummy.h5", Hdf5_file.read_only)
     dims = h5.get_dims("track_coords")
-    assert_equals(dims[1], 100, "number of particles")
-    assert_equals(dims[2], 7, "dimensions")
-    assert_equals(dims[0], 101, "number turns + 1")
+    assert_equal(dims[1], 100, "number of particles")
+    assert_equal(dims[2], 7, "dimensions")
+    assert_equal(dims[0], 101, "number turns + 1")
 
     npart = dims[1]
     nturns = dims[0]
@@ -155,7 +155,7 @@ def test_tracks_lost_particles():
             if x < 0.1001:
                 assert_almost_equal(track_coords[t, p, 0], x, places=10, msg="x coordinate particle %d turn %d"%(p, t))
             else:
-                assert_equals(track_coords[t, p, 0], 0.0, "x coordinate particle %d after being cut"%p)
+                assert_equal(track_coords[t, p, 0], 0.0, "x coordinate particle %d after being cut"%p)
 
 
     # delete stuff to close diagnostics files
@@ -236,9 +236,9 @@ def test_tracks_lost_particles_with_offset():
 
     h5 = Hdf5_file("dummy.h5", Hdf5_file.read_only)
     dims = h5.get_dims("track_coords")
-    assert_equals(dims[1], 20, "number of particles")
-    assert_equals(dims[2], 7, "dimensions")
-    assert_equals(dims[0], 101, "number turns + 1")
+    assert_equal(dims[1], 20, "number of particles")
+    assert_equal(dims[2], 7, "dimensions")
+    assert_equal(dims[0], 101, "number turns + 1")
 
     npart = dims[1]
     nturns = dims[0]
@@ -256,7 +256,7 @@ def test_tracks_lost_particles_with_offset():
             if x < 0.1001:
                 assert_almost_equal(track_coords[t, pnum, 0], x, places=10, msg="x coordinate particle %d turn %d"%(p, t))
             else:
-                assert_equals(track_coords[t, pnum, 0], 0.0, "x coordinate particle %d after being cut"%p)
+                assert_equal(track_coords[t, pnum, 0], 0.0, "x coordinate particle %d after being cut"%p)
 
     # delete stuff to close diagnostics files
     del propagator
