@@ -844,7 +844,7 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
             if( cellz1>=0 && cellz1<g2 ) r1d[cellz1] += (1.0 - offz) / h[2];
             if( cellz2>=0 && cellz2<g2 ) r1d[cellz2] += offz / h[2];
 
-            if( ix<0 || ix>g0-1 || iy<0 || iy>g1-1 ) continue;
+            if( ix<0 || ix>=g0-1 || iy<0 || iy>=g1-1 ) continue;
 
             int cellx1, cellx2, celly1, celly2;
             cellx1 = ix;
