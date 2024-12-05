@@ -47,7 +47,7 @@ within the file to specify the particle mass and energy.
 """
 
 def main(argv):
-    if len(sys.argv) < 3:
+    if len(argv) < 3:
         print(usage_txt)
         sys.exit(10)
 
