@@ -213,6 +213,10 @@ add_test_executable(test_extractor_type test_extractor_type.cc)
 target_link_libraries(test_extractor_type synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_extractor_type COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_extractor_type>)
 
+add_test(NAME test_element_splitting_py COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_element_splitting.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_element_splitting.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
