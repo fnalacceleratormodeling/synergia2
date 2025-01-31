@@ -14,13 +14,13 @@ system-requirements = {cuda = "12"}
 channels = ["nvidia", "conda-forge"]
 
 [tasks]
-build = { cmd = "cmake --build build_pixi", depends_on = ["cmake"], description = "build synergia3" }
-install = { cmd = "cmake --install build_pixi", depends_on = ["build"], description = "install synergia3" }
-test = { cmd = "ctest --output-on-failure --test-dir build_pixi", depends_on = ["install"],env = { SYNINSTALL = "$(pwd)/install_pixi", LD_LIBRARY_PATH = "$SYNINSTALL/lib:$SYNINSTALL:lib64:$LD_LIBRARY_PATH",PYTHON_VERSION = "$(python3 -c 'import sys; print(str(sys.version[:4]))')",PYTHONPATH="$SYNINSTALL/lib:$SYNINSTALL/lib/python$PYTHON_VERSION/site-packages:$SYNINSTALL/lib:$SYNINSTALL/lib64/python$PYTHON_VERSION/site-packages:$PYTHONPATH" } , description = "run test suite" }
-test-failed = { cmd = "ctest -V --output-on-failure --rerun-failed --test-dir build_pixi", depends_on = ["install"],env = { SYNINSTALL = "$(pwd)/install_pixi", LD_LIBRARY_PATH = "$SYNINSTALL/lib:$SYNINSTALL:lib64:${LD_LIBRARY_PATH}",PYTHON_VERSION = "$(python3 -c 'import sys; print(str(sys.version[:4]))')",PYTHONPATH="$SYNINSTALL/lib:$SYNINSTALL/lib/python$PYTHON_VERSION/site-packages:$SYNINSTALL/lib:$SYNINSTALL/lib64/python$PYTHON_VERSION/site-packages:$PYTHONPATH" } , description = "re-run failed tests with increased verbosity" }
+build = { cmd = "cmake --build build_pixi", depends-on = ["cmake"], description = "build synergia3" }
+install = { cmd = "cmake --install build_pixi", depends-on = ["build"], description = "install synergia3" }
+test = { cmd = "ctest --output-on-failure --test-dir build_pixi", depends-on = ["install"],env = { SYNINSTALL = "$(pwd)/install_pixi", LD_LIBRARY_PATH = "$SYNINSTALL/lib:$SYNINSTALL:lib64:$LD_LIBRARY_PATH",PYTHON_VERSION = "$(python3 -c 'import sys; print(str(sys.version[:4]))')",PYTHONPATH="$SYNINSTALL/lib:$SYNINSTALL/lib/python$PYTHON_VERSION/site-packages:$SYNINSTALL/lib:$SYNINSTALL/lib64/python$PYTHON_VERSION/site-packages:$PYTHONPATH" } , description = "run test suite" }
+test-failed = { cmd = "ctest -V --output-on-failure --rerun-failed --test-dir build_pixi", depends-on = ["install"],env = { SYNINSTALL = "$(pwd)/install_pixi", LD_LIBRARY_PATH = "$SYNINSTALL/lib:$SYNINSTALL:lib64:${LD_LIBRARY_PATH}",PYTHON_VERSION = "$(python3 -c 'import sys; print(str(sys.version[:4]))')",PYTHONPATH="$SYNINSTALL/lib:$SYNINSTALL/lib/python$PYTHON_VERSION/site-packages:$SYNINSTALL/lib:$SYNINSTALL/lib64/python$PYTHON_VERSION/site-packages:$PYTHONPATH" } , description = "re-run failed tests with increased verbosity" }
 clean = { cmd = "rm -rf build_pixi/ && rm -rf install_pixi/", description = "delete build/install directories" }
 
-synergia = { cmd = "bash" , env = { SYNINSTALL = "$(pwd)/install_pixi", LD_LIBRARY_PATH="$SYNINSTALL/lib:$SYNINSTALL/lib64:$LD_LIBRARY_PATH", PYTHON_VERSION = "$(python3 -c 'import sys; print(str(sys.version[:4]))')", PYTHONPATH="$SYNINSTALL/lib/python$PYTHON_VERSION/site-packages"}, description = "start shell in built synergia environment" }
+synergia = { cmd = "bash" , env = { SYNINSTALL = "$(pwd)/install_pixi", LD_LIBRARY_PATH="$SYNINSTALL/lib:$SYNINSTALL/lib64:$LD_LIBRARY_PATH", PYTHON_VERSION = "$(python3 -c 'import sys; print(str(sys.version[:4]))')", PYTHONPATH="$SYNINSTALL/lib:$SYNINSTALL/lib/python$PYTHON_VERSION/site-packages:$SYNINSTALL/lib64:$SYNINSTALL/lib:$SYNINSTALL/lib64/python$PYTHON_VERSION/site-packages"}, description = "start shell in built synergia environment" }
 
 [target.linux-64.tasks]
 # On x86_64 CPUs, GSV should be set to AVX for improved performance. You
