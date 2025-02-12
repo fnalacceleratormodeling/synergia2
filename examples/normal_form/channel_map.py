@@ -40,8 +40,10 @@ def run():
     nf2 = syn.foundation.NormalForm_o3.load_json("nf.json")
 
     # convert the mapping to a json object
-    mapping_json = mapping.to_json()
-    print(mapping_json)
+    # this currently fails
+    # TypeError: Unregistered type : nlohmann::json_abi_v3_11_3::basic_json<std::map, std::vector, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool, long, unsigned long, double, std::allocator, nlohmann::json_abi_v3_11_3::adl_serializer, std::vector<unsigned char, std::allocator<unsigned char> >, void>
+    # mapping_json = mapping.to_json()
+    # print(mapping_json)
 
     # or iterate through the components and fields
     for comp in range(6):

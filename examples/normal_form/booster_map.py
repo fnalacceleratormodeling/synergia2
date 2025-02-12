@@ -43,8 +43,8 @@ def run():
     nf2 = syn.foundation.NormalForm_o3.load_json("nf.json")
 
     # convert the mapping to a json object
-    mapping_json = mapping.to_json()
-    print(mapping_json)
+    #mapping_json = mapping.to_json()
+    #print(mapping_json)
 
     # or iterate through the components and fields
     for comp in range(6):
@@ -53,8 +53,11 @@ def run():
 
         for pwr in range(trigon.power()+1):
            for idx in range(trigon.count(pwr)): 
+
                idx_to_exp = "syn.foundation.Trigon_index_to_exp_o{}(idx)".format(pwr)
 
+               print('idx_to_exp: ', idx_to_exp)
+               print('what it evaluates to: ', syn.foundation.Trigon_index_to_exp_o{}(idx))
                print('power = {}, exp = {}, term = {}'.format( 
                     pwr, eval(idx_to_exp), trigon.get_term(pwr, idx)))
 
