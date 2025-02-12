@@ -120,6 +120,7 @@ create_simulator(Lattice const& lattice)
 }
 
 
+#if 0
 void
 test_particles(Bunch_simulator& sim, Lattice const& lattice, int turn, int step)
 {
@@ -151,6 +152,7 @@ test_particles(Bunch_simulator& sim, Lattice const& lattice, int turn, int step)
   REQUIRE(bp(0, 4) == sp(0, 4));
   REQUIRE(bp(0, 5) == sp(0, 5));
 }
+#endif
 
 void
 propagate_particles(Lattice lattice, Bunch_simulator& sim, int nsteps)

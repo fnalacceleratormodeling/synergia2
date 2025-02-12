@@ -53,6 +53,11 @@ target_link_libraries(test_independent_steppers PRIVATE synergia_simulation
   ${testing_libs})
 add_mpi_test(test_independent_steppers 1)
 
+add_executable(test_one_drift test_one_drift.cc ${test_main})
+target_link_libraries(test_one_drift PRIVATE synergia_simulation
+  ${testing_libs})
+add_mpi_test(test_one_drift 1)
+
 
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)

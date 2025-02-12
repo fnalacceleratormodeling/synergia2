@@ -114,6 +114,7 @@ namespace FF_drift
         const double ref_p   = ref_b.get_momentum() * (1.0 + ref_b.get_state()[Bunch::dpop]);
         const double ref_cdt = get_reference_cdt(length, ref_l);
 
+	std::cout << std::scientific << std::setprecision(16) << "slice, len: " << length << " ref_time: " << ref_cdt;
         // apply method
         auto apply_impl = [&](ParticleGroup pg) {
             auto bp = bunch.get_bunch_particles(pg);
@@ -140,6 +141,8 @@ namespace FF_drift
         apply_impl(ParticleGroup::regular);
         apply_impl(ParticleGroup::spectator);
 
+	auto bp = bunch.get_bunch_particles(ParticleGroup::regular);
+	std::cout << std::scientific << std::setprecision(16) << ", cdt: " << bp.parts(0, 4) << std::endl;
         // trajectory
 
         bunch.get_reference_particle().increment_trajectory(length);
