@@ -67,6 +67,7 @@ def print_lattice(lattice):
     print('# name s beta_x alpha_x psi_x Dx D\'x beta_y alpha_y psi_y', file=f)
     
     for elem in lattice.get_elements():
+        print(f'\"{elem.get_name()}\", ', end='', file=f)
         print(elem.lf.arcLength, " ", end='', file=f)
         print(elem.lf.beta.hor, " ", end='', file=f)
         print(elem.lf.alpha.hor, " ", end='', file=f)
