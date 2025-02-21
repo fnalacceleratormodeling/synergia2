@@ -55,6 +55,7 @@ def read_iota_lattice_elem(e_txt):
     reader = MadX_reader()
     reader.parse(e_txt)
     lattice = reader.get_lattice('machine')
+    lattice.set_all_string_attribute('extractor_type', 'libff')
 
     refpart = Reference_particle(1, mp, mp+KE)
     lattice.set_reference_particle(refpart)
@@ -135,6 +136,8 @@ def dotest(x, y):
 def prop_elem(elem_txt):
     print("reading lattice: ", elem_txt, flush=True)
     lattice = read_iota_lattice_elem(elem_txt)
+    #lattice.set_all_string_attribute('extractor_type', 'chef_propagate')
+    lattice.set_all_string_attribute('extractor_type', 'libff')
     print(f'read lattice, {len(lattice.get_elements())} elements, length: {lattice.get_length()}', flush=True)
 
     refpart = lattice.get_reference_particle()
@@ -160,10 +163,10 @@ def prop_elem(elem_txt):
         j=4; print("particle ", p, " coordinate ", j, lp1[p,j], ' <--> ', lp4[p,j]); assert dotest( lp1[p, j], lp4[p, j])
         j=5; print("particle ", p, " coordinate ", j, lp1[p,j], ' <--> ', lp4[p,j]); assert dotest( lp1[p, j], lp4[p, j])
 
-
-            #  uncomment the next two lines to provoke a failure
-            # if p == bunch1.get_local_num()-1 and j == 5:
-            #     lp1[p, j] += lp1[p, j] + 1
+        #  uncomment the next two lines to provoke a failure
+        # if p == bunch1.get_local_num()-1 and j == 5:
+        # lp1[p, j] += lp1[p, j] + 1
+        # assert_almost_equal( lp1[p, j], lp4[p, j], 13)
 
 def test_drift():
     prop_elem(drift_txt)
