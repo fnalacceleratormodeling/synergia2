@@ -19,9 +19,16 @@
 #include "synergia/utils/logger.h"
 
 int macroparticles = 16;
-int spectparticles = 16;
+int spectparticles = 0;
 double realparticles = 285452129459.3449; // 0.1 mA in IOTA
 int nturns = 100;
+
+// values for test
+constexpr double toffs = 1.0e-3;
+constexpr double dpoffs = 1.0e-4;
+constexpr double cdtoffs =  0.05;
+constexpr double dpopoffs = 2.2e-4;
+
 
 Lattice
 get_lattice()
@@ -419,6 +426,36 @@ create_simulator(Lattice const& lattice)
 	bp(i, j) = 0.0;
       }
     }
+
+    bp(1, 0) = toffs; // # particle 1 offset in x
+    bp(2, 1) = dpoffs; // # particle 2 momentum offset
+    bp(3, 2) = toffs;
+    bp(4, 3) = dpoffs;
+    bp(5, 4) = cdtoffs;
+    bp(6, 5) = dpopoffs;
+
+    bp(7, 0) = -toffs;
+    bp(7, 5) = dpopoffs;
+
+    bp(8, 1) = -dpoffs;
+    bp(8, 5) = dpopoffs;
+
+    bp(9, 2) = toffs;
+    bp(9, 3) = -dpoffs;
+    bp(9, 5) = -dpopoffs;
+
+    bp(10, 0) = -toffs;
+    bp(10, 1) = -dpoffs;
+    bp(10, 2) = toffs;
+    bp(10, 3) = dpoffs;
+    bp(10, 5) = dpopoffs;
+
+    bp(11, 0) = toffs;
+    bp(11, 1) = dpoffs;
+    bp(11, 2) = -toffs;
+    bp(11, 3) = -dpoffs;
+    bp(11, 5) = -dpopoffs;
+
 
     bunch.checkin_particles();
     

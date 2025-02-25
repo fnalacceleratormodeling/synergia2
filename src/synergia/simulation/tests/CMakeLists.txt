@@ -62,6 +62,10 @@ add_executable(test_iota_propagation1 test_iota_propagation1.cc ${test_main})
 target_link_libraries(test_iota_propagation1 PRIVATE synergia_simulation ${testing_libs})
 add_mpi_test(test_iota_propagation1 1)
 
+add_executable(test_iota_propagation2 test_iota_propagation2.cc ${test_main})
+target_link_libraries(test_iota_propagation2 PRIVATE synergia_simulation ${testing_libs})
+add_mpi_test(test_iota_propagation2 1)
+
 if(BUILD_PYTHON_BINDINGS)
   add_py_test(test_propagator.py)
   add_py_test(test_nonlinear_maps.py)
