@@ -38,7 +38,7 @@ for element in lattice.get_elements():
         element.set_double_attribute("pax4", 0.0)
         element.set_double_attribute("pay4", -0.005)
     else:
-        print "unknown aperture type '%s'" % opts.aperture
+        print("unknown aperture type '%s'" % opts.aperture)
         sys.exit(1)
 
 # turn off magnets
