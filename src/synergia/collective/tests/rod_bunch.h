@@ -94,6 +94,23 @@ struct Rod_bunch_fixture_lowgamma {
   Bunch_simulator bsim;
 };
 
+struct Rod_bunch_fixture_lowgamma_offaxis: public Rod_bunch_fixture_lowgamma {
+ Rod_bunch_fixture_lowgamma_offaxis() : Rod_bunch_fixture_lowgamma()
+  {
+    auto& bunch = bsim.get_bunch();
+    bunch.checkout_particles();
+    auto local_particles = bunch.get_host_particles();
+    // Rotate particle 0 30 degrees
+    double s30 = 0.5; // sin 30degrees
+    double c30 = std::sqrt(3.0)/2.0; // cos 30 degrees
+    double lpx = local_particles(0, 0);
+    double lpy = local_particles(0, 2);
+    local_particles(0, 0) = c30*lpx - s30*lpy;
+    local_particles(0, 2) = s30*lpx + c30*lpy;
+    bunch.checkout_particles();
+  }
+};
+
 struct Rod_bunch_fixture_highgamma {
   Rod_bunch_fixture_highgamma()
     : bsim(Bunch_simulator::create_single_bunch_simulator(
@@ -166,3 +183,21 @@ struct Rod_bunch_fixture_highgamma {
 
   Bunch_simulator bsim;
 };
+
+struct Rod_bunch_fixture_highgamma_offaxis: public Rod_bunch_fixture_highgamma {
+ Rod_bunch_fixture_highgamma_offaxis() : Rod_bunch_fixture_highgamma()
+  {
+    auto& bunch = bsim.get_bunch();
+    bunch.checkout_particles();
+    auto local_particles = bunch.get_host_particles();
+    // Rotate particle 0 30 degrees
+    double s30 = 0.5; // sin 30degrees
+    double c30 = std::sqrt(3.0)/2.0; // cos 30 degrees
+    double lpx = local_particles(0, 0);
+    double lpy = local_particles(0, 2);
+    local_particles(0, 0) = c30*lpx - s30*lpy;
+    local_particles(0, 2) = s30*lpx + c30*lpy;
+    bunch.checkout_particles();
+  }
+};
+
