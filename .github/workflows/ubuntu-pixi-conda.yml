@@ -27,7 +27,7 @@ jobs:
         submodules: 'true'
         
     - name: build_and_test
-      uses: prefix-dev/setup-pixi@v0.8.1
+      uses: prefix-dev/setup-pixi@v0.8.5
       with:
         pixi-version: v0.24.2
         cache: true
