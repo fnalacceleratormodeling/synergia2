@@ -176,7 +176,8 @@ namespace dipedge_impl
         double    y_l = ref_l.get_state()[Bunch::y];
         double   yp_l = ref_l.get_state()[Bunch::yp];
         double  cdt_l = 0.0;
-        double dpop_l = ref_l.get_state()[Bunch::dpop];
+        // EGS: don't use refpart state dpop for calculation of cdt
+        double dpop_l = 0.0;
 
 
         FF_algorithm::dipedge_unit(

@@ -1,6 +1,6 @@
 #ifndef FF_SBEND_H
 #define FF_SBEND_H
-
+#include <iostream>
 #include "synergia/libFF/ff_algorithm.h"
 #include "synergia/utils/simple_timer.h"
 #include "synergia/foundation/physical_constants.h"
@@ -51,6 +51,18 @@ namespace sbend_impl
         double ds_edge_k_x;
         double ds_edge_k_y;
     };
+
+    void print_sbend_parameters(const SbendParams& sp)
+    {
+    #if 0
+        std::cout << "ledge: " << sp.ledge << " redge: " << sp.redge <<
+         "length: " << sp.length << " angle: " << sp.angle <<
+        " e1: " << sp.e1 << " e2: " << sp.e2 << std::cout;
+        std::cout << "ce1: " << sp.ce1 << " se1: " << sp.se1 << " ce2: " << sp.ce2
+        << " se2: " << sp.strength << std::endl;
+        std::cout << "us_edge_k: " << sp.us_edge_k << " ds_edge_k: " << sp.ds_edge_k;
+    #endif
+    }
 
     template<class BP>
     struct PropSbend
