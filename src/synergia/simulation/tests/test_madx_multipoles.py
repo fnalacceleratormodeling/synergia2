@@ -124,46 +124,46 @@ def test_mpole_k1_tilt():
     run_a_multipole("mpole_k1_tilt")
 
 def test_mpole_k2():
-    run_a_multipole("mpole_k1")
+    run_a_multipole("mpole_k2")
 
 def test_mpole_k2s():
-    run_a_multipole("mpole_k1s")
+    run_a_multipole("mpole_k2s")
 
 def test_mpole_k2_tilt():
-    run_a_multipole("mpole_k1_tilt")
+    run_a_multipole("mpole_k2_tilt")
 
 def test_mpole_k3():
-    run_a_multipole("mpole_k1")
+    run_a_multipole("mpole_k3")
 
 def test_mpole_k3s():
-    run_a_multipole("mpole_k1s")
+    run_a_multipole("mpole_k3s")
 
 def test_mpole_k3_tilt():
-    run_a_multipole("mpole_k1_tilt")
+    run_a_multipole("mpole_k3_tilt")
 
 def test_mpole_k4():
-    run_a_multipole("mpole_k1")
+    run_a_multipole("mpole_k4")
 
 def test_mpole_k4s():
-    run_a_multipole("mpole_k1s")
+    run_a_multipole("mpole_k4s")
 
 def test_mpole_k4_tilt():
-    run_a_multipole("mpole_k1_tilt")
+    run_a_multipole("mpole_k4_tilt")
 
 def test_mpole_k5():
-    run_a_multipole("mpole_k1")
+    run_a_multipole("mpole_k5")
 
 def test_mpole_k5s():
-    run_a_multipole("mpole_k1s")
+    run_a_multipole("mpole_k5s")
 
 def test_mpole_k5_tilt():
-    run_a_multipole("mpole_k1_tilt")
+    run_a_multipole("mpole_k5_tilt")
 
 def test_mpole_k6():
-    run_a_multipole("mpole_k1")
+    run_a_multipole("mpole_k6")
 
 def test_mpole_k6s():
-    run_a_multipole("mpole_k1s")
+    run_a_multipole("mpole_k6s")
 
 def test_mpole_k6_tilt():
-    run_a_multipole("mpole_k1_tilt")
+    run_a_multipole("mpole_k6_tilt")
