@@ -4,16 +4,15 @@ import sys
 import os
 import synergia
 import numpy as np
-from scipy.optimize import least_squares
 import h5py
-import scipy
+from scipy.optimize import least_squares
 
 # class that calculates corrector settings to create a 3 kick local orbit bump
 class Three_bump:
 
     ##################################################
 
-    # propagator is a propagator object based on the lattice you wnat
+    #  lattice you wnat
     #  to create a bump in.
     # start_name is the name of the starting element for the bump
     #    (use a unique marker if necessary)
@@ -25,8 +24,6 @@ class Three_bump:
     #    elements that have a "kick=" attribute
     # target name is the name of the element at which the bump offset will
     #    be specified
-    # target_pos is the x and y position of the beam at the target element as
-    #    a length 2 array.
     # verbose = False/True on whether the module is chatty
 
     def __init__(self, lattice, start_name, end_name, hcorr_names, vcorr_names, target_name, verbose=0):
@@ -99,7 +96,7 @@ class Three_bump:
             self.hcorr_idx = None
             self.hcorr_elements = None
         else:
-            if len(hcorr_names) != 3:
+            if len(self.hcorr_names) != 3:
                 raise RuntimeError('length of hcorr_names needs to be 3')
 
             self.hcorr_elements = []
@@ -122,6 +119,9 @@ class Three_bump:
             self.vcorr_idx = None
             self.vcorr_elements = None
         else:
+            if len(self.vcorr_names) != 3:
+                raise RuntimeError('length of hcorr_names needs to be 3')
+
             self.vcorr_elements = []
             self.vcorr_idx = []
             for i in range(3):
@@ -195,7 +195,7 @@ class Three_bump:
         bump_propagator = synergia.simulation.Propagator(self.bump_lattice, stepper)
 
         simlog = synergia.utils.parallel_utils.Logger(0,
-                    synergia.utils.parallel_utils.LoggerV.INFO_TURN)
+                    synergia.utils.parallel_utils.LoggerV.ERROR)
         bump_propagator.propagate(sim, simlog, 1)
 
         del simlog
@@ -282,7 +282,8 @@ class Three_bump:
         ##################################################
 
         init_guess =  np.zeros(6)
-        result = scipy.optimize.least_squares(bump_f, init_guess, verbose=2)
+        x_scale = np.array([1.0, 1.0, 1.0, 1.0/30.5, 1.0, 1.0/7.5])
+        result = least_squares(bump_f, init_guess,  ftol=1.0e-12, xtol=1.0e-12, gtol=1.0e-12, x_scale=x_scale, verbose=2)
         if self.verbose:
             print('corrector values: ', result.x)
             print('cost: ', result.cost)
@@ -392,7 +393,8 @@ if __name__ == "__main__":
     propagator = synergia.simulation.Propagator(lattice, stepper)
 
     simlog = synergia.utils.parallel_utils.Logger(0,
-                synergia.utils.parallel_utils.LoggerV.INFO_TURN)
+                                              synergia.utils.parallel_utils.LoggerV.ERROR)
+                #synergia.utils.parallel_utils.LoggerV.INFO_TURN)
     propagator.propagate(sim, simlog, 1)
 
     del propagator
