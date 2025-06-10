@@ -107,19 +107,14 @@ def test_modify_reference_particle_energy(prop_fixture):
         .get_total_energy()
         == new_energy
     )
-    return True
-
 
 def test_set_get_checkpoint(prop_fixture):
     init_period = prop_fixture["propagator"].get_checkpoint_period()
     cp_period = init_period + 1
     prop_fixture["propagator"].set_checkpoint_period(cp_period)
     assert cp_period == prop_fixture["propagator"].get_checkpoint_period()
-    return True
-
 
 def test_set_get_final_checkpoint(prop_fixture):
     init_fcp = prop_fixture["propagator"].get_final_checkpoint()
     prop_fixture["propagator"].set_final_checkpoint(not init_fcp)
     assert prop_fixture["propagator"].get_final_checkpoint() is not init_fcp
-    return True
