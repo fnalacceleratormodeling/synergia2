@@ -20,7 +20,7 @@ yoffs = 0.0005
 def prop_fixture_edgekick():
     channel_madx = """
 beam, particle=proton,energy=0.8+pmass;
-b: sbend, angle=pi/30.0, l=3.0;
+b: sbend, angle=pi/3.0, l=3.0;
 channel: sequence, l=3.0, refer=entry;
 b, at=0.0;
 endsequence;
@@ -38,7 +38,7 @@ endsequence;
 def prop_fixture_noentrykick():
     channel_madx = """
 beam, particle=proton,energy=0.8+pmass;
-b: sbend, angle=pi/30.0, l=3.0, kill_entry_kick=1.0;
+b: sbend, angle=pi/3.0, l=3.0, kill_entry_kick=1.0;
 channel: sequence, l=3.0, refer=entry;
 b, at=0.0;
 endsequence;
@@ -56,7 +56,7 @@ endsequence;
 def prop_fixture_noexitkick():
     channel_madx = """
 beam, particle=proton,energy=0.8+pmass;
-b: sbend, angle=pi/30.0, l=3.0, kill_exit_kick=1.0;
+b: sbend, angle=pi/3.0, l=3.0, kill_exit_kick=1.0;
 channel: sequence, l=3.0, refer=entry;
 b, at=0.0;
 endsequence;
