@@ -16,6 +16,8 @@ namespace sbend_impl
     {
         bool ledge;
         bool redge;
+        bool ledgekick;
+        bool redgekick;
 
         double length;
         double angle;
@@ -94,9 +96,12 @@ namespace sbend_impl
                     //        p(i,2), p(i,1), p(i,3), dpop, us_edge_k_p);
                     //
                     // 3. ref particle angle (kicks both xp and yp)
-                    FF_algorithm::edge_unit(
+                    if (sp.ledgekick)
+                    {
+                        FF_algorithm::edge_unit(
                             p(i,2), p(i,1), p(i,3), 
                             sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                    } 
                 }
 
                 // bend
@@ -110,9 +115,12 @@ namespace sbend_impl
                     // edge
                     // FF_algorithm::edge_unit(y, yp, ds_edge_k);
                     // FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
-                    FF_algorithm::edge_unit(
+                    if (sp.redgekick)
+                    {
+                        FF_algorithm::edge_unit(
                             p(i,2), p(i,1), p(i,3), 
-                            sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+                            sp.ds_edge_k_x, sp.ds_edge_k_y, 0);
+                    }
 
                     // slot
                     FF_algorithm::slot_unit(
@@ -180,8 +188,10 @@ namespace sbend_impl
                     //        p2, p1, p3, p5, sp.us_edge_k_p);
                     //
                     // 3. ref particle angle (kicks both xp and yp)
-                    FF_algorithm::edge_unit<gsv_t>( 
-                            p2, p1, p3, sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                    if (sp.ledgekick)
+                    {
+                        FF_algorithm::edge_unit<gsv_t>(p2, p1, p3, sp.us_edge_k_x, sp.us_edge_k_y, 0);
+                    }
                 }
 
                 // bend
@@ -195,8 +205,11 @@ namespace sbend_impl
                     // edge
                     // FF_algorithm::edge_unit<gsv_t>(p2, p3, sp.ds_edge_k);
                     // FF_algorithm::edge_unit<gsv_t>(p2, p1, p3, p5, sp.ds_edge_k_p);
-                    FF_algorithm::edge_unit<gsv_t>( 
+                    if (sp.redgekick)
+                    {
+                        FF_algorithm::edge_unit<gsv_t>( 
                             p2, p1, p3, sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+		            }
 
                     // slot
                     FF_algorithm::slot_unit<gsv_t>(
@@ -295,9 +308,12 @@ namespace sbend_impl
                     // edge
                     //FF_algorithm::edge_unit(y, yp, us_edge_k);
                     //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
-                    FF_algorithm::edge_unit(
+                    if (sp.ledgekick)
+                    {
+                        FF_algorithm::edge_unit(
                             p(i,2), p(i,1), p(i,3), 
                             sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                    }
 
                     // bend edge (thin, but with face angle)
                     FF_algorithm::bend_edge(
@@ -324,9 +340,12 @@ namespace sbend_impl
                     // edge
                     //FF_algorithm::edge_unit(y, yp, ds_edge_k);
                     //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
-                    FF_algorithm::edge_unit(
+                    if (sp.redgekick)
+                    {
+                        FF_algorithm::edge_unit(
                             p(i,2), p(i,1), p(i,3), 
                             sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+                    }
 
                     // slot
                     FF_algorithm::slot_unit(
@@ -427,9 +446,12 @@ namespace sbend_impl
                     // edge
                     //FF_algorithm::edge_unit(y, yp, us_edge_k);
                     //FF_algorithm::edge_unit(y, xp, yp, dpop, us_edge_k_p);
-                    FF_algorithm::edge_unit<gsv_t>(
-                            p2, p1, p3, 
-                            sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                    if (sp.ledgekick)
+                    {
+                        FF_algorithm::edge_unit<gsv_t>(
+                                p2, p1, p3, 
+                                sp.us_edge_k_x, sp.us_edge_k_y, 0); 
+                    }
 
                     // bend edge (thin, but with face angle)
                     FF_algorithm::bend_edge<gsv_t>(
@@ -455,9 +477,12 @@ namespace sbend_impl
                     // edge
                     //FF_algorithm::edge_unit(y, yp, ds_edge_k);
                     //FF_algorithm::edge_unit(y, xp, yp, dpop, ds_edge_k_p);
-                    FF_algorithm::edge_unit<gsv_t>(
+                    if (sp.redgekick)
+                    {
+                        FF_algorithm::edge_unit<gsv_t>(
                             p2, p1, p3, 
                             sp.ds_edge_k_x, sp.ds_edge_k_y, 0); 
+                    }
 
                     // slot
                     FF_algorithm::slot_unit<gsv_t>(
@@ -526,8 +551,11 @@ namespace sbend_impl
             // edge kick strenth are scaled to bunch. so need to div by "scale" to scale
             // it to the lattice reference
             // in accordance with method 3
-            FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
+            if (sp.ledgekick)
+            {
+                FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
                     sp.us_edge_k_x/sp.scale, sp.us_edge_k_y/sp.scale, 0);
+            }
 
         }
 
@@ -552,8 +580,11 @@ namespace sbend_impl
 
             // edge kick strenth are scaled to bunch. so need to div by "scale" to scale
             // it to the lattice reference
-            FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
+            if (sp.redgekick)
+            {
+                FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
                     sp.ds_edge_k_x/sp.scale, sp.ds_edge_k_y/sp.scale, 0);
+            }
 
             // slot
             FF_algorithm::slot_unit(
@@ -630,8 +661,11 @@ namespace sbend_impl
             // edge
             //FF_algorithm::edge_unit(y_l, yp_l, us_edge_k/scale);
             //FF_algorithm::edge_unit(y_l, xp_l, yp_l, dpop_l, us_edge_k_p/scale);
-            FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
+            if (sp.ledgekick)
+            {
+                FF_algorithm::edge_unit(y_l, xp_l, yp_l, 
                     sp.us_edge_k_x/sp.scale, sp.us_edge_k_y/sp.scale, 0);
+            }
 
             // bend edge (thin)
             FF_algorithm::bend_edge(
@@ -649,9 +683,12 @@ namespace sbend_impl
         if (sp.redge)
         {
             // bend edge (thin)
-            FF_algorithm::bend_edge(
+            if (sp.redgekick)
+            {
+                FF_algorithm::bend_edge(
                     x_l, xp_l, y_l, yp_l, cdt_l, dpop_l, 
                     sp.e2, phase_e2, sp.strength, pref_l, m_l);
+            }
 
             double p_l = 1.0 + dpop_l;
             double zp_l = sqrt(p_l*p_l - xp_l*xp_l - yp_l*yp_l);
@@ -758,6 +795,8 @@ inline void apply(Lattice_element_slice const& slice, BunchT & bunch)
 
     sp.ledge = slice.has_left_edge();
     sp.redge = slice.has_right_edge();
+    sp.ledgekick = ele.get_double_attribute("kill_entry_kick", 0.0) == 0.0;
+    sp.redgekick = ele.get_double_attribute("kill_exit_kick", 0.0 ) == 0.0;
 
     sp.e1 = ele.get_double_attribute("e1", 0.0);
     sp.e2 = ele.get_double_attribute("e2", 0.0);

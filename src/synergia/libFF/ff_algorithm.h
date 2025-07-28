@@ -142,6 +142,7 @@ namespace FF_algorithm {
         const T vkx(kx);
         const T vky(ky);
 
+        // this is the one that gets called from ff_sbend
         yp = yp - vkx * y;
         xp = xp + vky * y;
     }
