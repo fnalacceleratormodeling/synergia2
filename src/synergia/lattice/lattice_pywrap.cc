@@ -466,7 +466,7 @@ PYBIND11_MODULE(lattice, m)
         .def( "export_madx_file",
                 &Lattice::export_madx_file,
                 "Export the lattice to a MadX file",
-                "filename"_a )
+                "filename"_a, "sanitize"_a = false )
 
         .def_static( "import_madx_file",
                 &Lattice::import_madx_file,

@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
+#include <set>
 
 Lattice::Lattice()
     : name("")
@@ -226,7 +227,7 @@ Lattice::print(Logger& logger) const
 }
 
 void
-Lattice::export_madx_file(std::string const& filename) const
+Lattice::export_madx_file(std::string const& filename, bool const sanitize) const
 {
     std::ofstream mxfile(filename);
 
@@ -246,7 +247,7 @@ Lattice::export_madx_file(std::string const& filename) const
     // "{{element_label}} : {{element_type}}, {{attr}}={{val}}..."
     std::unordered_set<std::string> elm_names;
     for (auto const& e : elements) {
-        mxfile << e.as_madx() << "\n";
+        mxfile << e.as_madx(sanitize) << "\n";
         elm_names.insert(e.get_name());
     }
 

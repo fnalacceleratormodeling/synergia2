@@ -769,17 +769,35 @@ Lattice_element::print() const
   std::cout << as_string() << std::endl;
 }
 
+std::unordered_set<std::string> const non_madx_double_attributes = {
+  "entry_edge_kick", "exit_edge_kick", "kicks", "yoshida_order",
+  "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+  "b1", "b2", "b3", "b4", "b5", "b6", "b7"
+};
+
+std::unordered_set<std::string> const non_madx_string_attributes = {
+  "extractor_type", "propagator_type"
+};
+
 std::string
-Lattice_element::as_madx() const
+Lattice_element::as_madx(bool sanitize) const
 {
   std::stringstream ss;
   ss << name << ": " << stype;
 
-  for (auto const& attr : lazy_double_attributes)
+  for (auto const& attr : lazy_double_attributes) {
+    if (sanitize && non_madx_double_attributes.count(attr.first)) {
+      continue;  // skip this attribute if it is not madx kosher
+    }
     ss << ", " << attr.first << "=" << mx_expr_str(attr.second);
+  }
 
-  for (auto const& attr : string_attributes)
+  for (auto const& attr : string_attributes) {
+    if (sanitize && non_madx_string_attributes.count(attr.first)) {
+      continue; // skip this attriute if it is not madx kosher
+    }
     ss << ", " << attr.first << "=" << attr.second;
+  }
 
   for (auto const& attr : lazy_vector_attributes) {
     ss << ", " << attr.first << "={";

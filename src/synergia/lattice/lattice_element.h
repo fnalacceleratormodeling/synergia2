@@ -398,7 +398,7 @@ public:
   std::string as_string() const;
 
   /// Return a madx string
-  std::string as_madx() const;
+  std::string as_madx(bool sanitize=false) const;
 
   /// Print a human-readable description of the Lattice_element
   /// The Python version of the function is named "print_".
