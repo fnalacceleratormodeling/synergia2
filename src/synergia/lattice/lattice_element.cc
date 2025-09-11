@@ -770,7 +770,7 @@ Lattice_element::print() const
 }
 
 std::unordered_set<std::string> const non_madx_double_attributes = {
-  "entry_edge_kick", "exit_edge_kick", "kicks", "yoshida_order",
+  "entry_edge_kick", "exit_edge_kick", "kicks", "yoshida_order", "kl",
   "a1", "a2", "a3", "a4", "a5", "a6", "a7",
   "b1", "b2", "b3", "b4", "b5", "b6", "b7"
 };
