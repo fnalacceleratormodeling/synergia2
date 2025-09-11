@@ -246,6 +246,11 @@ public:
                                     double value,
                                     bool increment_revision = true);
 
+  /// Remove the named double attribute from the element
+  /// @param name attribute name
+
+  void remove_double_attribute(std::string const& name);
+
   /// Check for the existence of the named double attribute
   /// @param name attribute name
   bool has_double_attribute(std::string const& name) const;
@@ -271,6 +276,10 @@ public:
   void set_default_string_attribute(std::string const& name,
                                     std::string const& value,
                                     bool incremnt_revision = true);
+
+  /// Remove the named string attribute
+  /// @param name attribute name
+  void remove_string_attribute(std::string const&name);
 
   /// Check for the existence of the named string attribute
   /// @param name attribute name
@@ -298,6 +307,10 @@ public:
   /// Check for the existence of the named vector attribute
   /// @param name attribute name
   bool has_vector_attribute(std::string const& name) const;
+
+  /// remove the named vector attribute
+  /// @param name attribute name
+  void remove_vector_attribute(std::string const& name);
 
   /// Get the value of the named vector attribute
   /// @param name attribute name
