@@ -2,6 +2,7 @@
 #include "lattice.h"
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <stdexcept>
 
@@ -789,7 +790,7 @@ Lattice_element::as_madx(bool sanitize) const
     if (sanitize && non_madx_double_attributes.count(attr.first)) {
       continue;  // skip this attribute if it is not madx kosher
     }
-    ss << ", " << attr.first << "=" << mx_expr_str(attr.second);
+    ss << ", " << attr.first << "=" << std::setprecision(16) << mx_expr_str(attr.second);
   }
 
   for (auto const& attr : string_attributes) {
@@ -804,7 +805,7 @@ Lattice_element::as_madx(bool sanitize) const
 
     for (int i = 0; i < attr.second.size(); ++i) {
       if (i) ss << ", ";
-      ss << mx_expr_str(attr.second[i]);
+      ss << std::setprecision(16) << mx_expr_str(attr.second[i]);
     }
 
     ss << "}";
