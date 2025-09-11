@@ -8,6 +8,8 @@
 #include <cereal/types/memory.hpp>
 #include <mpi.h>
 
+// This is a non-functional change
+
 /// Commxx is a wrapper around MPI communicator (MPI_Comm) objects.
 ///
 /// Python:  (jfa: needs update) The equivalent functionality is provided by
