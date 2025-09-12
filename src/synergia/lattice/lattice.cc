@@ -6,6 +6,7 @@
 #include "synergia/utils/hdf5_file.h"
 
 #include <sstream>
+#include <iomanip>
 #include <stdexcept>
 #include <unordered_set>
 
@@ -226,7 +227,7 @@ Lattice::print(Logger& logger) const
 }
 
 void
-Lattice::export_madx_file(std::string const& filename) const
+Lattice::export_madx_file(std::string const& filename, bool const sanitize) const
 {
     std::ofstream mxfile(filename);
 
@@ -246,7 +247,7 @@ Lattice::export_madx_file(std::string const& filename) const
     // "{{element_label}} : {{element_type}}, {{attr}}={{val}}..."
     std::unordered_set<std::string> elm_names;
     for (auto const& e : elements) {
-        mxfile << e.as_madx() << "\n";
+        mxfile << e.as_madx(sanitize) << "\n";
         elm_names.insert(e.get_name());
     }
 
@@ -255,7 +256,7 @@ Lattice::export_madx_file(std::string const& filename) const
 
     // "{{name}}: sequence, refer=entry"
     mxfile << "\n"
-           << name << ": sequence, l = " << get_length()
+           << name << ": sequence, l = " << std::setprecision(16) << get_length()
            << ", refer = entry;\n";
 
     // "{{element_label}} : {{element}}, at={{pos}}..."
@@ -268,7 +269,7 @@ Lattice::export_madx_file(std::string const& filename) const
 
         elm_names.insert(label.str());
 
-        mxfile << label.str() << ": " << e.get_name() << ", at=" << pos
+        mxfile << label.str() << ": " << e.get_name() << ", at=" << std::setprecision(16) << pos
                << ";\n";
 
         pos += e.get_length();

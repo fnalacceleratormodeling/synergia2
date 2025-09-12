@@ -232,7 +232,7 @@ public:
   }
 
   // export madx file
-  void export_madx_file(std::string const& filename) const;
+  void export_madx_file(std::string const& filename, bool const sanitize=false) const;
 
   // read from madx file
   static Lattice import_madx_file(std::string const& filename,

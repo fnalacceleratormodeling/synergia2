@@ -141,6 +141,12 @@ PYBIND11_MODULE(lattice, m)
                 "Set the value of the named double attribute", 
                 "name"_a, "value"_a, "increment_revision"_a = true )
 
+        .def( "remove_double_attribute", 
+                (void (Lattice_element::*)(std::string const&))
+                &Lattice_element::remove_double_attribute, 
+                "Remove the named double attribute", 
+                "name"_a )
+
         .def( "set_double_attribute", 
                 (void (Lattice_element::*)(std::string const&, std::string const&, bool))
                 &Lattice_element::set_double_attribute, 
@@ -154,6 +160,11 @@ PYBIND11_MODULE(lattice, m)
         .def( "has_string_attribute", 
                 &Lattice_element::has_string_attribute,
                 "Check for existence of the named string attribute",
+                "name"_a )
+
+        .def( "remove_string_attribute", 
+                &Lattice_element::remove_string_attribute,
+                "Remove the named string attribute",
                 "name"_a )
 
         .def( "get_string_attribute", 
@@ -179,7 +190,12 @@ PYBIND11_MODULE(lattice, m)
                 "Check for existence of the named vector attribute",
                 "name"_a )
 
-        .def( "get_vector_attribute", 
+        .def( "remove_vector_attribute", 
+                &Lattice_element::remove_vector_attribute,
+                "Remove the named vector attribute",
+                "name"_a )
+
+                .def( "get_vector_attribute", 
                 (std::vector<double> (Lattice_element::*)(std::string const&) const)
                 &Lattice_element::get_vector_attribute,
                 "Get the value of the named vector attribute",
@@ -450,7 +466,7 @@ PYBIND11_MODULE(lattice, m)
         .def( "export_madx_file",
                 &Lattice::export_madx_file,
                 "Export the lattice to a MadX file",
-                "filename"_a )
+                "filename"_a, "sanitize"_a = false )
 
         .def_static( "import_madx_file",
                 &Lattice::import_madx_file,
