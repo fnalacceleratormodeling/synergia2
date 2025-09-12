@@ -6,9 +6,9 @@
 #include "synergia/utils/hdf5_file.h"
 
 #include <sstream>
+#include <iomanip>
 #include <stdexcept>
 #include <unordered_set>
-#include <set>
 
 Lattice::Lattice()
     : name("")
@@ -256,7 +256,7 @@ Lattice::export_madx_file(std::string const& filename, bool const sanitize) cons
 
     // "{{name}}: sequence, refer=entry"
     mxfile << "\n"
-           << name << ": sequence, l = " << get_length()
+           << name << ": sequence, l = " << std::setprecision(16) << get_length()
            << ", refer = entry;\n";
 
     // "{{element_label}} : {{element}}, at={{pos}}..."
@@ -269,7 +269,7 @@ Lattice::export_madx_file(std::string const& filename, bool const sanitize) cons
 
         elm_names.insert(label.str());
 
-        mxfile << label.str() << ": " << e.get_name() << ", at=" << pos
+        mxfile << label.str() << ": " << e.get_name() << ", at=" << std::setprecision(16) << pos
                << ";\n";
 
         pos += e.get_length();
