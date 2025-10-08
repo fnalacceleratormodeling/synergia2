@@ -161,7 +161,10 @@ def do_plots(options):
     h5 = h5py.File(options.inputfile, 'r')
     #f = Hdf5_file(options.inputfile, 'r')
     particles = h5.get('particles')
-    masks = h5.get('particles_masks')
+    if 'particles_masks' in h5.keys():
+        masks = h5.get('particles_masks')[()]
+    else:
+        masks = numpy.ones(particles.shape[0], dtype=numpy.int8)
     npart = particles.shape[0]
     mass = h5.get('mass')[()]
     p_ref = h5.get('pz')[()]
