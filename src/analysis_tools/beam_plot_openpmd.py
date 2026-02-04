@@ -14,11 +14,11 @@ C = 299792458.0
 @unique
 class Coords(Enum):
     x = str("position_x")
-    xp = str("moments_x")
+    xp = str("momentum_x")
     y = str("position_y")
-    yp = str("moments_y")
-    cdt = str("position_z")
-    dpop = str("moments_z")
+    yp = str("momentum_y")
+    cdt = str("position_t")
+    pt = str("momentum_t")
     pz = str("pz")
     energy = str("energy")
     t = str("t")
@@ -59,7 +59,7 @@ def parse_args():
     parser.add_argument("filename", help="OpenPMD-series-filename", type=str)
 
     parser.add_argument(
-        "--iteration", help="iteration of OpenPMD series to plot", type=int, default=0
+        "--iteration", help="iteration of OpenPMD series to plot", type=int, default=1
     )
     parser.add_argument(
         "--minh",
@@ -113,11 +113,14 @@ def do_plots(opts: Options):
 
     series = io.Series(opts.inputfile, io.Access_Type.read_only)
     i = series.iterations[opts.iteration]
-    parts = i.particles["bunch_particles"]
+    parts = i.particles["beam"]
     parts_df = parts.to_df()
 
-    mass = parts.get_attribute("mass")
+    mass = parts.get_attribute("mass_ref")
     beta = parts.get_attribute("beta_ref")
+    gamma = parts.get_attribute("gamma_ref")
+    pz_ref = parts.get_attribute("pz_ref")
+    energy_ref = mass*gamma
 
     print(
         f"""-------- Using the following parameters ----------
@@ -129,20 +132,19 @@ num-bins: {opts.num_bins}
     )
 
     if opts.hcoord == Coords("pz") or opts.vcoord == Coords("pz"):
-        parts_df["pz"] = p_ref + parts_df["moments_z"]
+        parts_df["pz"] = np.sqrt((energy_ref-pz_ref*parts_df["momentum_t"])**2 - mass_ref**2)
 
     if opts.hcoord == Coords("energy") or opts.vcoord == Coords("energy"):
-        pz = p_ref + parts_df["moments_z"]
-        parts_df["energy"] = np.sqrt(pz * pz + mass**2)
+        parts_df["energy"] = energy_ref - pz_ref * parts_df["momentum_t"]
 
     if opts.hcoord == Coords("t") or opts.vcoord == Coords("t"):
-        parts_df["t"] = parts_df["position_z"] * 1.0e9 / C
+        parts_df["t"] = parts_df["position_t"] * 1.0e9 / C
 
     if opts.hcoord == Coords("z") or opts.vcoord == Coords("z"):
-        parts_df["z"] = parts_df["position_z"] * beta
+        parts_df["z"] = parts_df["position_t"] * beta
 
     to_plot_df = parts_df[
-        (parts_df["masks"] != 0)
+        (("masks" not in parts_df.columns) or (parts_df["masks"] != 0))
         & (parts_df[opts.hcoord.value] > opts.minh)
         & (parts_df[opts.hcoord.value] < opts.maxh)
         & (parts_df[opts.vcoord.value] > opts.minv)
@@ -161,8 +163,10 @@ num-bins: {opts.num_bins}
     )
     g.plot_joint(sns.histplot, thresh=None, cmap="mako", bins=opts.num_bins)
     g.plot_marginals(sns.histplot, kde=False)
-
-    plt.suptitle("Synergia3 Phase Space Distribution", fontsize="medium", y=0.985)
+    ax = plt.gca()
+    ax.set(xlim=(opts.minh, opts.maxh), ylim=(opts.minv, opts.maxv))
+    
+    plt.suptitle("openPMD Phase Space Distribution", fontsize="medium", y=0.985)
     if opts.outputfile:
         g.savefig(opts.outputfile)
     else:

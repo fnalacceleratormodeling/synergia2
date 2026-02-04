@@ -130,12 +130,12 @@ def do_plot_diag(
         x = np.zeros(dim)
         y = np.zeros(dim)
         _xlabel: str = ""
-        for count, iteration in series.iterations.items():
+        for count, iteration in enumerate(series.iterations):
             if opts.userep:
                 x[count] = iteration.get_attribute("repetition")
                 _xlabel = "repetition"
             else:
-                x[count] = iteration.get_attribute("s")
+                x[count] = series.iterations[iteration].particles["beam"].get_attribute("s_ref")
                 _xlabel = "s"
 
         labelstr: str = ""
@@ -147,11 +147,11 @@ def do_plot_diag(
         elif isinstance(diag.value, tuple) and len(diag.value) == 2:
             labelstr = labelstr + " " + diag.value[0]
 
-        for count, iteration in series.iterations.items():
+        for count, iteration in enumerate(series.iterations):
             if isinstance(diag.value, str):
                 y[count] = iteration.get_attribute(diag.value)
             elif isinstance(diag.value, tuple) and len(diag.value) == 2:
-                y[count] = iteration.get_attribute(diag.value[0])[diag.value[1]]
+                y[count] = series.iterations[iteration].particles["beam"].get_attribute(diag.value[0])[diag.value[1]]
 
         _style = {**color_style, **line_style}
         _ax.plot(x, y, **_style, label=labelstr)
