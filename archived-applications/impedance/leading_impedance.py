@@ -28,6 +28,7 @@ def propagate():
     orbit_length = 474.202752 # Booster
     harmonic_number = 84
     bucket_length = orbit_length/harmonic_number
+    halfbucket = bucket_length/2
     steps = 1
     order = 1
     num_bunches = 1
@@ -58,11 +59,24 @@ def propagate():
         lp[:, :6] = 0.0
         lp[2:, 0] = dx
         lp[2:, 2] = dy
-        lp[2:, 4] = -(1/beta) * bucket_length/3 # (cT<0 means leading)
+        # Make triangular distribution between -3/4 and -1/4 of the bucket
+        NN = (npart-2)//2
+        print('NN: ', NN)
+        zmin = -0.75 * halfbucket/beta
+        zmax = -0.25 * halfbucket/beta
+        zmid = zmin + 0.5 * (zmax - zmin)
+        Lhalf = zmid - zmin
+        print('zmin: ', zmin)
+        print('zmid: ', zmid)
+        print('zmax: ', zmax)
+        print('Lhalf: ', Lhalf)
+        lp[2:NN+2, 4] = zmin + np.sqrt(Lhalf**2 * np.arange(NN)/NN)
+        lp[NN+2:2*NN+2, 4] = zmax - np.sqrt(Lhalf**2 * np.arange(NN)/NN)
 
         # one particle upstream of everything so we don't get messed up
         # by longitudinal binning
-        lp[2, 4] = -(1/beta) * 5 * bucket_length/12
+        lp[1, 4] = -0.99 * halfbucket/beta # (cT<0 means leading)
+  
         # particle at 0 position starts at everything 0
 
         bunches.append(bunch)
@@ -111,7 +125,7 @@ def propagate():
 if __name__ == "__main__":
     propagate()
 
-    h5 = h5py.File('tracks_00.h5', 'r')
+    h5 = h5py.File('le_tracks_00.h5', 'r')
     tracks = h5.get('track_coords')
     print('particle 0 dpx: ', tracks[1, 0, 1])
     print('particle 0 dpy: ', tracks[1, 0, 3])

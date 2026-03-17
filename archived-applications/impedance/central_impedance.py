@@ -62,12 +62,9 @@ def propagate():
         # Make triangular distribution between -3/4 and -1/4 of the bucket
         NN = (npart-2)//2
         print('NN: ', NN)
-        #zmax = +0.75 * halfbucket/beta
-        #zmin = +0.25 * halfbucket/beta
-        headstart = 0.2
-        zmin = headstart
-        zmax = headstart + 0.5 * halfbucket/beta
-        zmid = zmin + 0.5 * (zmax - zmin)
+        zmin = -0.5 * halfbucket/beta
+        zmax = +0.5 * halfbucket/beta
+        zmid = 0.0
         Lhalf = zmid - zmin
         print('zmin: ', zmin)
         print('zmid: ', zmid)
@@ -78,7 +75,7 @@ def propagate():
 
         # one particle upstream of everything so we don't get messed up
         # by longitudinal binning
-        lp[1, 4] = +0.99 * halfbucket/beta # (cT<0 means leading)
+        lp[1, 4] = -0.99 * halfbucket/beta # (cT<0 means leading)
   
         # particle at 0 position starts at everything 0
 
@@ -113,11 +110,11 @@ def propagate():
     print('created stepper', flush=True)
 
     for i in range(num_bunches):
-        bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_bulk_track(f"tr_tracks_{i:02d}.h5",
+        bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_bulk_track(f"central_tracks_{i:02d}.h5",
                                                                            4))
-        bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_full2(f"tr_diag_{i:02d}.h5"))
+        bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_full2(f"central_diag_{i:02d}.h5"))
 
-        bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles(f"tr_particles_{i:02d}.h5"))
+        bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles(f"central_particles_{i:02d}.h5"))
 
     print('added diagnostics to bunch_train_simulator', flush=True)
 
@@ -128,7 +125,7 @@ def propagate():
 if __name__ == "__main__":
     propagate()
 
-    h5 = h5py.File('tr_tracks_00.h5', 'r')
+    h5 = h5py.File('central_tracks_00.h5', 'r')
     tracks = h5.get('track_coords')
     print('particle 0 dpx: ', tracks[1, 0, 1])
     print('particle 0 dpy: ', tracks[1, 0, 3])
