@@ -518,6 +518,18 @@ PYBIND11_MODULE(lattice, m)
                 &MadX_reader::parse_file,
                 "Parse a lattice file",
                 "filename"_a )
+
+        .def( "get_line_names",
+                &MadX_reader::get_line_names,
+                "List the lines contained within the parsed lattice")
+
+        .def( "get_sequence_names",
+                &MadX_reader::get_sequence_names,
+                "List available sequences contained within the parsed lattice")
+        
+        .def( "get_all_names",
+                &MadX_reader::get_all_names,
+                "List all lines and sequences within the parsed lattice")
         ;
  
 }
