@@ -83,3 +83,33 @@ machine: sequence, refer=entry, l=6.0;
     elem = lattice3.get_elements()[0]
     elem.set_double_attribute('foo', 4)
     assert not lattice1.get_elements()[0].has_double_attribute('foo')
+
+
+def test_get_reader_get_names():
+    lattice_txt = """
+q1: quadrupole, l=0.5, k1=0.2;
+b1: sbend, angle=0.05, l=2.0;
+d1: drift, l=1.0;
+
+machine1: sequence, refer=entry, l=6.0;
+    q1, at=1.0;
+    b1, at=2.5;
+    endsequence;
+    beam, particle=proton, energy=1.5;
+
+machine2: sequence, refer=entry, l=6.0;
+    q1, at=1.0;
+    b1, at=2.5;
+    endsequence;
+    beam, particle=proton, energy=1.5;
+
+line1: line=(q1, d1, b1);
+line2: line=(b1, s1, q1);
+"""
+    
+    reader = synergia.lattice.MadX_reader()
+    reader.parse(lattice_txt)
+
+    assert len(reader.get_line_names()) == 2
+    assert len(reader.get_sequence_names()) == 2
+    assert len(reader.get_all_names()) == 4
