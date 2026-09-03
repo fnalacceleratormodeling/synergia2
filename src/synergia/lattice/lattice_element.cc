@@ -772,12 +772,19 @@ Lattice_element::print() const
 
 std::unordered_set<std::string> const non_madx_double_attributes = {
   "entry_edge_kick", "exit_edge_kick", "kicks", "yoshida_order", "kl",
+  // embedded error multipoles
   "a1", "a2", "a3", "a4", "a5", "a6", "a7",
-  "b1", "b2", "b3", "b4", "b5", "b6", "b7"
+  "b1", "b2", "b3", "b4", "b5", "b6", "b7",
+  // apertures
+  "circular_aperture_radius", "pax1", "pax2", "pax3", "pax4",
+  "pax5", "pax6", "pax7",
+  "pay1", "pay2", "pay3", "pay4", "pay5", "pay6", "pay7",
+  "rectangular_aperture_width", "rectangular_aperture_height"
 };
 
 std::unordered_set<std::string> const non_madx_string_attributes = {
-  "extractor_type", "propagator_type"
+  "extractor_type", "propagator_type",
+  "aperture_type"
 };
 
 std::string
