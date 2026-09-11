@@ -229,8 +229,8 @@ endif()
 
 # Check version of kokkos!
 message("-- Using Kokkos version: ${Kokkos_VERSION}")
-if(Kokkos_VERSION LESS 4.0.00)
-  message(FATAL_ERROR "Need at least Kokkos 4.0.00!")
+if(Kokkos_VERSION LESS 5.0.00)
+  message(FATAL_ERROR "Need at least Kokkos 5.0.00!")
 endif()
 
 # Catch2-v3 for testing! This has to happen after $kokkos_libs is defined!
