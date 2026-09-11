@@ -17,9 +17,9 @@ typedef Kokkos::View<double***,
                      Kokkos::DefaultExecutionSpace::memory_space>
     karray3d_dev;
 
-typedef karray1d_dev::HostMirror karray1d_hst;
-typedef karray2d_dev::HostMirror karray2d_hst;
-typedef karray3d_dev::HostMirror karray3d_hst;
+typedef karray1d_dev::host_mirror_type karray1d_hst;
+typedef karray2d_dev::host_mirror_type karray2d_hst;
+typedef karray3d_dev::host_mirror_type karray3d_hst;
 
 typedef Kokkos::View<double*,
                      Kokkos::LayoutLeft,
@@ -48,9 +48,9 @@ typedef Kokkos::View<const double***,
                      Kokkos::DefaultExecutionSpace::memory_space>
     const_karray3d_dev;
 
-typedef const_karray1d_dev::HostMirror const_karray1d_hst;
-typedef const_karray2d_dev::HostMirror const_karray2d_hst;
-typedef const_karray3d_dev::HostMirror const_karray3d_hst;
+typedef const_karray1d_dev::host_mirror_type const_karray1d_hst;
+typedef const_karray2d_dev::host_mirror_type const_karray2d_hst;
+typedef const_karray3d_dev::host_mirror_type const_karray3d_hst;
 
 typedef Kokkos::View<const double*,
                      Kokkos::LayoutLeft,
@@ -79,9 +79,9 @@ typedef Kokkos::View<double***,
                      Kokkos::DefaultExecutionSpace::memory_space>
     karray3d_row_dev;
 
-typedef karray1d_row_dev::HostMirror karray1d_row_hst;
-typedef karray2d_row_dev::HostMirror karray2d_row_hst;
-typedef karray3d_row_dev::HostMirror karray3d_row_hst;
+typedef karray1d_row_dev::host_mirror_type karray1d_row_hst;
+typedef karray2d_row_dev::host_mirror_type karray2d_row_hst;
+typedef karray3d_row_dev::host_mirror_type karray3d_row_hst;
 
 typedef Kokkos::View<double*,
                      Kokkos::LayoutRight,
@@ -103,9 +103,9 @@ typedef Kokkos::View<const double**, Kokkos::LayoutRight>
 typedef Kokkos::View<const double***, Kokkos::LayoutRight>
     const_karray3d_row_dev;
 
-typedef const_karray1d_row_dev::HostMirror const_karray1d_row_hst;
-typedef const_karray2d_row_dev::HostMirror const_karray2d_row_hst;
-typedef const_karray3d_row_dev::HostMirror const_karray3d_row_hst;
+typedef const_karray1d_row_dev::host_mirror_type const_karray1d_row_hst;
+typedef const_karray2d_row_dev::host_mirror_type const_karray2d_row_hst;
+typedef const_karray3d_row_dev::host_mirror_type const_karray3d_row_hst;
 
 typedef Kokkos::View<const double*,
                      Kokkos::LayoutRight,
@@ -133,9 +133,9 @@ typedef Kokkos::View<int***,
                      Kokkos::DefaultExecutionSpace::memory_space>
     karray3i_row_dev;
 
-typedef karray1i_row_dev::HostMirror karray1i_row_hst;
-typedef karray2i_row_dev::HostMirror karray2i_row_hst;
-typedef karray3i_row_dev::HostMirror karray3i_row_hst;
+typedef karray1i_row_dev::host_mirror_type karray1i_row_hst;
+typedef karray2i_row_dev::host_mirror_type karray2i_row_hst;
+typedef karray3i_row_dev::host_mirror_type karray3i_row_hst;
 
 typedef Kokkos::View<int*,
                      Kokkos::LayoutLeft,
@@ -164,9 +164,9 @@ typedef Kokkos::View<Kokkos::complex<double>***,
                      Kokkos::DefaultExecutionSpace::memory_space>
     karray3dc_row_dev;
 
-typedef karray1dc_row_dev::HostMirror karray1dc_row_hst;
-typedef karray2dc_row_dev::HostMirror karray2dc_row_hst;
-typedef karray3dc_row_dev::HostMirror karray3dc_row_hst;
+typedef karray1dc_row_dev::host_mirror_type karray1dc_row_hst;
+typedef karray2dc_row_dev::host_mirror_type karray2dc_row_hst;
+typedef karray3dc_row_dev::host_mirror_type karray3dc_row_hst;
 
 typedef Kokkos::View<Kokkos::complex<double>*,
                      Kokkos::LayoutLeft,
