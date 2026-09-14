@@ -61,6 +61,12 @@ def generate_plotparams():
         plotparams[std] = Params(std, 'std', coords[label])
         mean = label + '_mean'
         plotparams[mean] = Params(mean, 'mean', coords[label])
+        min = label + '_min'
+        # the min array only saved 3 components for x,y,z
+        plotparams[min] = Params(min, 'min', coords[label]/2)
+        max = label + '_max'
+        # the max array only saved 3 components
+        plotparams[max] = Params(max, 'max', coords[label]/2)
     plotparams['x_emit'] = Params('x_emit', 'emitx')
     plotparams['y_emit'] = Params('y_emit', 'emity')
     plotparams['z_emit'] = Params('z_emit', 'emitz')
