@@ -231,7 +231,9 @@ namespace {
       Reference_particle reference_particle((int)charge, four_momentum);
       lattice.set_reference_particle(reference_particle);
     }
-    catch (...) {
+        catch (const std::exception& e) {
+        std::cerr << "exception caught\n" << std::endl;
+        // std::cerr << e.what() << '\n';
     }
   }
 }
