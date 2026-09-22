@@ -48,15 +48,16 @@ using ConstParticleMasksSubView =
     decltype(Kokkos::subview(std::declval<ConstParticleMasks>(),
                              std::pair(1u, 1u)));
 
-using HostParticles = Particles::HostMirror;
-using ConstHostParticles = ConstParticles::HostMirror;
-using HostParticlesSubView = ParticlesSubView::HostMirror;
-using ConstHostParticlesSubView = ConstParticlesSubView::HostMirror;
+using HostParticles = Particles::host_mirror_type;
+using ConstHostParticles = ConstParticles::host_mirror_type;
+using HostParticlesSubView = ParticlesSubView::host_mirror_type;
+using ConstHostParticlesSubView = ConstParticlesSubView::host_mirror_type;
 
-using HostParticleMasks = ParticleMasks::HostMirror;
-using ConstHostParticleMasks = ConstParticleMasks::HostMirror;
-using HostParticleMasksSubView = ParticleMasksSubView::HostMirror;
-using ConstHostParticleMasksSubView = ConstParticleMasksSubView::HostMirror;
+using HostParticleMasks = ParticleMasks::host_mirror_type;
+using ConstHostParticleMasks = ConstParticleMasks::host_mirror_type;
+using HostParticleMasksSubView = ParticleMasksSubView::host_mirror_type;
+using ConstHostParticleMasksSubView =
+    ConstParticleMasksSubView::host_mirror_type;
 
 // serialization
 namespace cereal {
@@ -130,18 +131,18 @@ class bunch_particles_t {
 
     using masks_t = typename Kokkos::View<uint8_t*, memspace>;
 
-    using host_parts_t = typename parts_t::HostMirror;
+    using host_parts_t = typename parts_t::host_mirror_type;
 
-    using host_masks_t = typename masks_t::HostMirror;
+    using host_masks_t = typename masks_t::host_mirror_type;
 
     using const_parts_t =
         typename Kokkos::View<const PART* [7], Kokkos::LayoutLeft, memspace>;
 
     using const_masks_t = typename Kokkos::View<const uint8_t*, memspace>;
 
-    using const_host_parts_t = typename const_parts_t::HostMirror;
+    using const_host_parts_t = typename const_parts_t::host_mirror_type;
 
-    using const_host_masks_t = typename const_masks_t::HostMirror;
+    using const_host_masks_t = typename const_masks_t::host_mirror_type;
 
     using gsv_t = typename std::
         conditional<is_trigon<PART>::value, GSVec<PART>, GSVector>::type;

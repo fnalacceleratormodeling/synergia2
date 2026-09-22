@@ -323,7 +323,7 @@ Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
     using core_diagnostics_impl::mom2_tag;
     using core_diagnostics_impl::particle_reducer;
 
-    karray2d_row sum2("sum2", 6, 6);
+    karray1d_row sum2_flat("sum2_flat", 36);
 
     auto bparts = bunch.get_bunch_particles();
     if (bparts.get_memory_location() == MemoryLocation::Host) {
@@ -334,12 +334,15 @@ Core_diagnostics::calculate_sum2(Bunch const& bunch, karray1d const& mean)
     auto npart = bunch.size();
 
     particle_reducer<mom2_tag> pr(particles, masks, mean);
-    Kokkos::parallel_reduce(npart, pr, sum2);
+    Kokkos::parallel_reduce(npart, pr, sum2_flat);
     Kokkos::fence();
 
-    for (int i = 0; i < 5; ++i)
-        for (int j = i + 1; j < 6; ++j)
-            sum2(i, j) = sum2(j, i);
+    karray2d_row sum2("sum2", 6, 6);
+    for (int i = 0; i < 6; ++i)
+        for (int j = 0; j <= i; ++j) {
+            sum2(i, j) = sum2_flat(i * 6 + j);
+            sum2(j, i) = sum2_flat(i * 6 + j);
+        }
 
     MPI_Allreduce(
         MPI_IN_PLACE, sum2.data(), 36, MPI_DOUBLE, MPI_SUM, bunch.get_comm());
