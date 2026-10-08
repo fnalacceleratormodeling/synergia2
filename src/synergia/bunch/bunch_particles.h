@@ -7,6 +7,7 @@
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/kokkos_views.h"
 #include "synergia/utils/logger.h"
+#include "synergia/utils/parallel_utils.h"
 
 #include <cereal/cereal.hpp>
 #include <string>
@@ -273,31 +274,6 @@ class bunch_particles_t {
         return memory_location;
     }
 
-    std::pair<size_t, size_t>
-    get_local_particle_count_in_range(int num_part, int offset) const
-    {
-        size_t local_num_part = 0;
-        size_t local_offset = 0;
-        int n_active = this->num_active();
-
-        if (num_part == -1) {
-            local_num_part = n_active;
-            local_offset = 0;
-        } else {
-            local_num_part = decompose_1d_local(*(this->comm), num_part);
-
-            local_offset = decompose_1d_local(*(this->comm), offset);
-        }
-
-        if (local_num_part < 0 || local_offset < 0 ||
-            local_num_part + local_offset > n_active) {
-            throw std::runtime_error("invalid num_part or offset for "
-                                     "bunch_particles_t::write_file()");
-        }
-
-        return std::make_pair(local_num_part, local_offset);
-    }
-
     // getters with names more consistent with std containers
     int
     size() const
@@ -524,8 +500,6 @@ bunch_particles_t<double>::apply_aperture(AP const& ap)
 
     return ndiscarded;
 }
-
-#include "synergia/utils/parallel_utils.h"
 
 namespace bunch_particles_impl {
     struct pid_offset {

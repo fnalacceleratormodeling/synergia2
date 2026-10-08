@@ -235,8 +235,8 @@ class bunch_t {
                                       int num_part,
                                       int offset) const
     {
-        size_t local_num_part = 0;
-        size_t local_offset = 0;
+        int local_num_part = 0;
+        int local_offset = 0;
         int n_active = (parts[(int)pg]).num_active();
         int n_reserved = (parts[(int)pg]).num_reserved();
 
@@ -249,13 +249,15 @@ class bunch_t {
         }
 
         if (local_num_part < 0 || local_offset < 0 ||
-            local_num_part + local_offset > n_reserved) {
+            local_offset > n_reserved ||
+            local_num_part > n_reserved - local_offset) {
             throw std::runtime_error(
                 "invalid num_part or offset for "
                 "bunch_t::get_local_particle_count_in_range!");
         }
 
-        return std::make_pair(local_num_part, local_offset);
+        return {static_cast<size_t>(local_num_part),
+                static_cast<size_t>(local_offset)};
     }
 
     /// Get the array containing the macroparticles on this processor.
